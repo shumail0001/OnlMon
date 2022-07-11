@@ -267,19 +267,19 @@ int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
 	  hlist.push_back("FrameWorkVars"); // get this histogram by default to get framework info
 	  if (requestHistoList(listiter->first.first, listiter->first.second, hlist) != 0)
 	    {
-              map<const string, ClientHistoList *>::const_iterator histoiter;
+              map<const string, ClientHistoList *>::const_iterator histoiter2;
 	      for (liter = hlist.begin(); liter != hlist.end(); ++liter)
 		{
 		  if (requestHistoByName(*liter))
 		    {
 		      cout << "Request for " << *liter << " failed " << endl;
                       histoiter = Histo.find(*liter);
-		      if (histoiter->second && histoiter->second->Histo())
+		      if (histoiter2->second && histoiter2->second->Histo())
 			{
-			  histoiter->second->Histo()->Delete();
-			  histoiter->second->Histo(0x0);
-			  histoiter->second->ServerHost("UNKNOWN");
-                          histoiter->second->ServerPort(0);
+			  histoiter2->second->Histo()->Delete();
+			  histoiter2->second->Histo(0x0);
+			  histoiter2->second->ServerHost("UNKNOWN");
+                          histoiter2->second->ServerPort(0);
 			}
 		    }
 
@@ -348,16 +348,15 @@ int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
 
 void OnlMonClient::registerDrawer(OnlMonDraw *Drawer)
 {
-  const char *DrawerName = Drawer->Name();
-  map<const string, OnlMonDraw *>::iterator iter = DrawerList.find(DrawerName);
+  map<const string, OnlMonDraw *>::iterator iter = DrawerList.find(Drawer->Name());
   if (iter != DrawerList.end())
     {
-      cout << "Drawer " << DrawerName << " already registered, I won't overwrite it" << endl;
+      cout << "Drawer " << Drawer->Name() << " already registered, I won't overwrite it" << endl;
       cout << "Use a different name and try again" << endl;
     }
   else
     {
-      DrawerList[DrawerName] = Drawer;
+      DrawerList[Drawer->Name()] = Drawer;
       Drawer->Init();
       SetStyleToDefault();
     }

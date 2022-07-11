@@ -9,13 +9,13 @@ class OnlMonBase
   OnlMonBase(const std::string &name = "NONE");
   virtual ~OnlMonBase() {}
 
-  const char *Name() const {return ThisName.c_str();}
+  const std::string Name() const {return ThisName;}
   virtual void Verbosity(const int i) {verbosity = i;}
   virtual int Verbosity() const {return verbosity;}
 
  protected:
   std::string ThisName;
-  int verbosity;
+  int verbosity = 0;
 };
 
 #endif /* __ONLMONBASE_H__ */

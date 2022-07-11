@@ -9,21 +9,21 @@ OnlMonDraw::OnlMonDraw(const string &name):
 {}
 
 int 
-OnlMonDraw::Draw(const char *what)
+OnlMonDraw::Draw(const std::string & /* what */)
 {
   cout << "Draw not implemented by daughter class" << endl;
   return -1;
 }
 
 int 
-OnlMonDraw::MakePS(const char *what)
+OnlMonDraw::MakePS(const std::string & /* what */)
 {
   cout << "MakePS not implemented by daughter class" << endl;
   return -1;
 }
 
 int 
-OnlMonDraw::MakeHtml(const char *what)
+OnlMonDraw::MakeHtml(const std::string & /* what */)
 {
   cout << "MakeHtml not implemented by daughter class" << endl;
   return -1;

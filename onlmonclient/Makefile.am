@@ -13,7 +13,7 @@ RINCLUDES = \
   -I$(ROOTSYS)/include 
 
 BUILT_SOURCES = \
-  testexternals.C
+  testexternals.cc
 
 lib_LTLIBRARIES = libonlmonclient.la   
 
@@ -26,10 +26,10 @@ include_HEADERS = \
   OnlMonDraw.h
 
 libonlmonclient_la_SOURCES = \
-OnlMonClient.C \
-OnlMonDraw.C \
-OnlMonHtml.C \
-ClientHistoList.C
+  OnlMonClient.cc \
+  OnlMonDraw.cc \
+  OnlMonHtml.cc \
+  ClientHistoList.cc
 
 libonlmonclient_la_LDFLAGS = \
   -L$(libdir) \
@@ -39,21 +39,24 @@ libonlmonclient_la_LDFLAGS = \
 noinst_PROGRAMS = \
   testexternals
 
+testexternals_SOURCES = \
+  testexternals.cc
+
 testexternals_LDADD = \
   libonlmonclient.la
 
 
-testexternals.C:
+testexternals.cc:
 	echo "//*** this is a generated file. Do not commit, do not edit" > $@
 	echo "int main()" >> $@
 	echo "{" >> $@
 	echo "  return 0;" >> $@
 	echo "}" >> $@
 
-OnlMonClient_Dict.C: OnlMonClient.h OnlMonClientLinkDef.h
+OnlMonClient_Dict.cc: OnlMonClient.h OnlMonClientLinkDef.h
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(RINCLUDES) $^
 
-OnlMonDraw_Dict.C: OnlMonDraw.h OnlMonDrawLinkDef.h
+OnlMonDraw_Dict.cc: OnlMonDraw.h OnlMonDrawLinkDef.h
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(RINCLUDES) $^
 
 clean-local:

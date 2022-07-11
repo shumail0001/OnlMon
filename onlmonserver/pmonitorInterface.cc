@@ -463,7 +463,7 @@ handleconnection(void *arg)
                     {
                       cout << "HistoName: " << Onlmonserver->getHistoName(i) << endl;
                     }
-                  s0->Send(Onlmonserver->getHistoName(i));
+                  s0->Send(Onlmonserver->getHistoName(i).c_str());
                   int nbytes = s0->Recv(mess);
                   delete mess;
                   mess = 0;

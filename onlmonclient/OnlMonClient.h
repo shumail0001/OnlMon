@@ -22,7 +22,7 @@ class OnlMonClient: public OnlMonBase
 {
  public:
   static OnlMonClient *instance();
-  virtual ~OnlMonClient();
+  ~OnlMonClient() override;
   int UpdateServerHistoMap(const std::string &hname, const std::string &hostname);
   void PutHistoInMap(const std::string &hname, const std::string &hostname, const int port);
   void updateHistoMap(const char *hname, TH1 *h1d);
@@ -69,7 +69,8 @@ class OnlMonClient: public OnlMonBase
   int SaveLogFile(const OnlMonDraw& drawer);
   // interface to OnlMonTrigger class methods
   OnlMonTrigger *OnlTrig();
-  void Verbosity(const int i);
+  using OnlMonBase::Verbosity;
+  void Verbosity(const int i) override;
   int SetStyleToDefault();
   int isCosmicRun();
   int isStandalone();
