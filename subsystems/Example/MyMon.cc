@@ -5,7 +5,12 @@
 #include "MyMon.h"
 #include <OnlMonServer.h>
 #include <OnlMonDB.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <Event/Event.h>
+#pragma GCC diagnostic pop
+
 #include <Event/msg_profile.h>
 #include <Event/msg_control.h>
 
@@ -58,14 +63,14 @@ int MyMon::Init()
 }
 
 int
-MyMon::BeginRun(const int runno)
+MyMon::BeginRun(const int /* runno */)
 {
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
   return 0;
 }
 
-int MyMon::process_event(Event *evt)
+int MyMon::process_event(Event * /* evt */)
 {
   evtcnt++;
   OnlMonServer *se = OnlMonServer::instance();

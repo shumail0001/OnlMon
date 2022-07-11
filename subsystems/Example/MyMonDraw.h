@@ -12,19 +12,19 @@ class MyMonDraw: public OnlMonDraw
 {
 
  public: 
-  MyMonDraw(const char *name = "MYMON");
-  virtual ~MyMonDraw() {}
+  MyMonDraw(const std::string &name = "MYMON");
+  ~MyMonDraw() override {}
 
-  int Init();
-  int Draw(const char *what = "ALL");
-  int MakePS(const char *what = "ALL");
-  int MakeHtml(const char *what = "ALL");
+  int Init() override;
+  int Draw(const std::string &what = "ALL") override;
+  int MakePS(const std::string &what = "ALL") override;
+  int MakeHtml(const std::string &what = "ALL") override;
 
  protected:
-  int MakeCanvas(const char *name);
-  int DrawFirst(const char *what = "ALL");
-  int DrawSecond(const char *what = "ALL");
-  int DrawHistory(const char *what = "ALL");
+  int MakeCanvas(const std::string &name);
+  int DrawFirst(const std::string &what = "ALL");
+  int DrawSecond(const std::string &what = "ALL");
+  int DrawHistory(const std::string &what = "ALL");
   int DrawDeadServer(TPad *transparent);
   int TimeOffsetTicks;
   TCanvas *TC[3];

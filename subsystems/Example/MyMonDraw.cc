@@ -23,7 +23,7 @@
 
 using namespace std;
 
-MyMonDraw::MyMonDraw(const char *name)
+MyMonDraw::MyMonDraw(const std::string &name)
 {
   ThisName = name;
   // memset can be used to set an array to zero
@@ -45,15 +45,15 @@ int MyMonDraw::Init()
   return 0;
 }
 
-int MyMonDraw::MakeCanvas(const char *name)
+int MyMonDraw::MakeCanvas(const std::string &name)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
-  if (!strcmp(name, "MyMon1"))
+  if (name == "MyMon1")
     {
       // xpos (-1) negative: do not draw menu bar
-      TC[0] = new TCanvas(name, "MyMon Example Monitor", -1, 0, xsize / 2 , ysize);
+      TC[0] = new TCanvas(name.c_str(), "MyMon Example Monitor", -1, 0, xsize / 2 , ysize);
       // root is pathetic, whenever a new TCanvas is created root piles up
       // 6kb worth of X11 events which need to be cleared with
       // gSystem->ProcessEvents(), otherwise your process will grow and 
@@ -69,10 +69,10 @@ int MyMonDraw::MakeCanvas(const char *name)
       transparent[0]->Draw();
       TC[0]->SetEditable(0);
     }
-  else if (!strcmp(name, "MyMon2"))
+  else if (name == "MyMon2")
     {
       // xpos negative: do not draw menu bar
-      TC[1] = new TCanvas(name, "MyMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
+      TC[1] = new TCanvas(name.c_str(), "MyMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
       gSystem->ProcessEvents();
       Pad[2] = new TPad("mypad3", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
       Pad[3] = new TPad("mypad4", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
@@ -84,9 +84,9 @@ int MyMonDraw::MakeCanvas(const char *name)
       transparent[1]->Draw();
       TC[1]->SetEditable(0);
     }
-  else if (!strcmp(name, "MyMon3"))
+  else if (name == "MyMon3")
     {
-      TC[2] = new TCanvas(name, "MyMon3 Example Monitor", xsize / 2, 0, xsize / 2, ysize);
+      TC[2] = new TCanvas(name.c_str(), "MyMon3 Example Monitor", xsize / 2, 0, xsize / 2, ysize);
       gSystem->ProcessEvents();
       Pad[4] = new TPad("mypad5", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
       Pad[5] = new TPad("mypad6", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
@@ -101,21 +101,21 @@ int MyMonDraw::MakeCanvas(const char *name)
   return 0;
 }
 
-int MyMonDraw::Draw(const char *what)
+int MyMonDraw::Draw(const std::string &what)
 {
   int iret = 0;
   int idraw = 0;
-  if (!strcmp(what, "ALL") || !strcmp(what, "FIRST"))
+  if (what == "ALL" || what == "FIRST")
     {
       iret += DrawFirst(what);
       idraw ++;
     }
-  if (!strcmp(what, "ALL") || !strcmp(what, "SECOND"))
+  if (what == "ALL" || what == "SECOND")
     {
       iret += DrawSecond(what);
       idraw ++;
     }
-  if (!strcmp(what, "ALL") || !strcmp(what, "HISTORY"))
+  if (what == "ALL" || what == "HISTORY")
     {
       iret += DrawHistory(what);
       idraw ++;
@@ -128,7 +128,7 @@ int MyMonDraw::Draw(const char *what)
   return iret;
 }
 
-int MyMonDraw::DrawFirst(const char *what)
+int MyMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   TH1 *mymon_hist1 = cl->getHisto("mymon_hist1");
@@ -175,7 +175,7 @@ int MyMonDraw::DrawFirst(const char *what)
   return 0;
 }
 
-int MyMonDraw::DrawSecond(const char *what)
+int MyMonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   TH1 *mymon_hist1 = cl->getHisto("mymon_hist2");
@@ -222,9 +222,9 @@ int MyMonDraw::DrawSecond(const char *what)
   return 0;
 }
 
-int MyMonDraw::DrawDeadServer(TPad *transparent)
+int MyMonDraw::DrawDeadServer(TPad *transparentpad)
 {
-  transparent->cd();
+  transparentpad->cd();
   TText FatalMsg;
   FatalMsg.SetTextFont(62);
   FatalMsg.SetTextSize(0.1);
@@ -236,11 +236,11 @@ int MyMonDraw::DrawDeadServer(TPad *transparent)
   FatalMsg.DrawText(0.5, 0.5, "SERVER");
   FatalMsg.SetTextAlign(21); // center/bottom alignment
   FatalMsg.DrawText(0.5, 0.1, "DEAD");
-  transparent->Update();
+  transparentpad->Update();
   return 0;
 }
 
-int MyMonDraw::MakePS(const char *what)
+int MyMonDraw::MakePS(const std::string &what)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   ostringstream filename;
@@ -257,7 +257,7 @@ int MyMonDraw::MakePS(const char *what)
   return 0;
 }
 
-int MyMonDraw::MakeHtml(const char *what)
+int MyMonDraw::MakeHtml(const std::string &what)
 {
   int iret = Draw(what);
   if (iret) // on error no html output please
@@ -294,7 +294,7 @@ int MyMonDraw::MakeHtml(const char *what)
 }
 
 int
-MyMonDraw::DrawHistory(const char *what)
+MyMonDraw::DrawHistory(const std::string & /* what */)
 {
   int iret = 0;
   // you need to provide the following vectors
