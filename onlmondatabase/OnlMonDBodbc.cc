@@ -8,8 +8,11 @@
 #include <odbc++/drivermanager.h>
 #include <odbc++/errorhandler.h>
 #include <odbc++/databasemetadata.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include <odbc++/preparedstatement.h>
-#include <odbc++/resultset.h>
+#pragma GCC diagnostic pop
+//#include <odbc++/resultset.h>
 #include <odbc++/resultsetmetadata.h>
 
 #include <algorithm>
@@ -441,8 +444,8 @@ OnlMonDBodbc::AddRow(const time_t ticks, const int runnumber, const map<const st
                           cout << "Command: " << cmd.str() << endl;
 #endif
 
-                          int iret = upd->executeUpdate(cmd.str());
-                          if (!iret)
+                          int iret2 = upd->executeUpdate(cmd.str());
+                          if (!iret2)
                             {
                               cout << PHWHERE << "Update failed please send mail to pinkenburg@bnl.gov"
 				   << endl;

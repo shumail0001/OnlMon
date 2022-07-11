@@ -3,15 +3,16 @@
 
 #include <OnlMonBase.h>
 
-#ifndef __CINT__
-#include <odbc++/resultset.h>
-#endif
 #include <ctime>
 #include <map>
 #include <string>
 #include <vector>
 
 class OnlMonDBVar;
+namespace odbc
+{
+  class ResultSet;
+}
 
 class OnlMonDBodbc: public OnlMonBase
 {
@@ -29,9 +30,7 @@ class OnlMonDBodbc: public OnlMonBase
   int GetVar(const time_t begin, const time_t end, const std::string &varname, std::vector<time_t> &timestp, std::vector<int> &runnumber, std::vector<float> &var, std::vector<float> &varerr);
 
  private:
-#ifndef __CINT__
   void Dump(odbc::ResultSet *rs) const;
-#endif
   int GetConnection();
   std::string dbname;
   std::string dbowner;

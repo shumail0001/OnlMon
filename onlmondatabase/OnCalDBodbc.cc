@@ -4,8 +4,12 @@
 #include <odbc++/connection.h>
 #include <odbc++/errorhandler.h>
 #include <odbc++/drivermanager.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include <odbc++/resultset.h>
 #include <odbc++/preparedstatement.h>
+#pragma GCC diagnostic pop
 
 #include <sstream>
 #include <ctime>
