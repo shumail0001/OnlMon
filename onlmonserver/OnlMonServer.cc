@@ -7,9 +7,13 @@
 
 #include <Event/msg_profile.h>
 #include <Event/msg_control.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <Event/Event.h>
-#include <phool/phool.h>
+#pragma GCC diagnostic pop
 
+
+#include <phool/phool.h>
 #include <phool/PHCompositeNode.h>
 #include <phool/recoConsts.h>
 

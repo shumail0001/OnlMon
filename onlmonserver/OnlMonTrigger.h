@@ -17,7 +17,7 @@ class OnlMonTrigger
  public:
   OnlMonTrigger() {}
   virtual ~OnlMonTrigger() {}
-  void Print(const char *what = "ALL") const {return;}
+  void Print(const std::string & /* what = "ALL" */) const {return;}
   void RunNumber(int ) {return;}
   void TrigMask(const std::string &, const unsigned int) {return;}
   int getLevel1Bit(const std::string &) {return 0x1;}
