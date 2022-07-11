@@ -6,10 +6,10 @@ AM_CPPFLAGS = \
   -I$(includedir) \
   -I$(OFFLINE_MAIN)/include \
   -I$(OPT_SPHENIX)/include \
-  -I$(ROOTSYS)/include 
+  -isystem$(ROOTSYS)/include 
 
 BUILT_SOURCES = \
-  testexternals.C
+  testexternals.cc
 
 include_HEADERS = \
   OnCalDBodbc.h \
@@ -23,14 +23,13 @@ lib_LTLIBRARIES = \
   libonlmondb.la
 
 libonlmondb_la_SOURCES = \
-  OnlMonDB.C \
-  OnlMonDBVar.C
+  OnlMonDB.cc \
+  OnlMonDBVar.cc
 
 libonlmonodbc_la_SOURCES = \
-  OnCalDBodbc.C \
-  OnlMonDBodbc.C \
-  OnlMonDBodbc_Dict.C \
-  RunDBodbc.C
+  OnCalDBodbc.cc \
+  OnlMonDBodbc.cc \
+  RunDBodbc.cc
 
 libonlmondb_la_LIBADD = \
   libonlmonodbc.la \
@@ -45,18 +44,18 @@ libonlmonodbc_la_LIBADD = \
 noinst_PROGRAMS = \
   testexternals
 
+testexternals_SOURCES = \
+  testexternals.cc
+
 testexternals_LDADD = \
   libonlmondb.la
 
-testexternals.C:
+testexternals.cc:
 	echo "//*** this is a generated file. Do not commit, do not edit" > $@
 	echo "int main()" >> $@
 	echo "{" >> $@
 	echo "  return 0;" >> $@
 	echo "}" >> $@
-
-OnlMonDBodbc_Dict.C: OnCalDBodbc.h OnlMonDBodbc.h RunDBodbc.h OnlMonDBodbcLinkDef.h
-	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(AM_CPPFLAGS) $^
 
 clean-local:
 	rm -f *Dict.*

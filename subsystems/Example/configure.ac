@@ -1,16 +1,15 @@
-AC_INIT
-AC_CONFIG_SRCDIR([configure.in])
+AC_INIT(example,[2.00])
+AC_CONFIG_SRCDIR([configure.ac])
 
-AM_INIT_AUTOMAKE(EXAMPLEMONITOR, 1.00)
+AM_INIT_AUTOMAKE
 
 AC_PROG_CXX(CC g++)
-AC_ENABLE_STATIC(no)
-AC_PROG_LIBTOOL
+LT_INIT([disable-static])
 
 dnl   no point in suppressing warnings people should 
 dnl   at least see them, so here we go for gcc: -Wall
 dnl if test $ac_cv_prog_gcc = yes; then
-dnl  CXXFLAGS="$CXXFLAGS -ggdb3 -Wall -Werror"
+  CXXFLAGS="$CXXFLAGS -Wall -Werror -Wextra -Wshadow -Woverloaded-virtual"
 dnl fi
 
 AC_OUTPUT(Makefile calib/Makefile)

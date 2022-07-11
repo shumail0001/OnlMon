@@ -119,9 +119,9 @@ OnlMonStatusDB::CheckAndCreateMonitor(const string &name)
               odbc::Statement* stmtup = con->createStatement();
               stmtup->executeUpdate(cmd.str());
             }
-          catch (odbc::SQLException& e)
+          catch (odbc::SQLException& e2)
             {
-              cout << "Exception caught: " << e.getMessage() << endl;
+              cout << "Exception caught: " << e2.getMessage() << endl;
 	      return -1;
             }
         }

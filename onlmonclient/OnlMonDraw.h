@@ -12,10 +12,10 @@ class OnlMonDraw
   virtual ~OnlMonDraw() {}
 
   virtual int Init() {return 0;}
-  virtual int Draw(const char *what = "ALL");
-  virtual int MakePS(const char *what = "ALL");
-  virtual int MakeHtml(const char *what = "ALL");
-  const char *Name() const {return ThisName.c_str();}
+  virtual int Draw(const std::string &what = "ALL");
+  virtual int MakePS(const std::string &what = "ALL");
+  virtual int MakeHtml(const std::string &what = "ALL");
+  const std::string Name() const {return ThisName;}
   void Verbosity(const int i) {verbosity = i;}
   int Verbosity() const {return verbosity;}
 

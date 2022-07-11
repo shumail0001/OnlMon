@@ -7,9 +7,13 @@
 
 #include <Event/msg_profile.h>
 #include <Event/msg_control.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <Event/Event.h>
-#include <phool/phool.h>
+#pragma GCC diagnostic pop
 
+
+#include <phool/phool.h>
 #include <phool/PHCompositeNode.h>
 #include <phool/recoConsts.h>
 
@@ -38,7 +42,7 @@
 
 using namespace std;
 
-OnlMonServer *OnlMonServer::__instance = NULL;
+OnlMonServer *OnlMonServer::__instance = nullptr;
 
 // root TFile compression level
 static const int compression_level = 3;
@@ -130,10 +134,10 @@ void OnlMonServer::InitAll()
 }
 
 void
-OnlMonServer::dumpHistos(const char *filename)
+OnlMonServer::dumpHistos(const std::string &filename)
 {
   map<const string, TH1 *>::const_iterator hiter;
-  TFile *hfile = new TFile(filename, "RECREATE", "Created by Online Monitor", compression_level);
+  TFile *hfile = new TFile(filename.c_str(), "RECREATE", "Created by Online Monitor", compression_level);
   for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
     {
       hiter->second->Write();
@@ -159,7 +163,7 @@ OnlMonServer::registerHisto(const OnlMon *monitor, TH1 *h1d)
 }
 
 void 
-OnlMonServer::registerHisto(const char *monitorname, const char *hname, TH1 *h1d, const int replace)
+OnlMonServer::registerHisto(const std::string &monitorname, const std::string &hname, TH1 *h1d, const int replace)
 {
   MonitorHistoSet[monitorname].insert(hname);
   registerHisto(hname, h1d, replace);
@@ -167,7 +171,7 @@ OnlMonServer::registerHisto(const char *monitorname, const char *hname, TH1 *h1d
 }
 
 void 
-OnlMonServer::registerHisto(const char *hname, TH1 *h1d, const int replace)
+OnlMonServer::registerHisto(const std::string &hname, TH1 *h1d, const int replace)
 {
   const string tmpstr = hname;
   map<const string, TH1 *>::const_iterator histoiter = Histo.find(tmpstr);
@@ -215,17 +219,17 @@ OnlMonServer::registerHisto(const char *hname, TH1 *h1d, const int replace)
 }
 
 OnlMon *
-OnlMonServer::getMonitor(const char *name)
+OnlMonServer::getMonitor(const std::string &name)
 {
   BOOST_FOREACH(OnlMon * mon, MonitorList)
     {
-      if (!strcmp(name, mon->Name()))
+      if (name == mon->Name())
 	{
 	  return mon;
 	}
     }
   cout << "Could not locate monitor" << name << endl;
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -233,7 +237,7 @@ OnlMonServer::registerMonitor(OnlMon *Monitor)
 {
   BOOST_FOREACH(OnlMon * mon, MonitorList)
     {
-      if (!strcmp(Monitor->Name(), mon->Name()))
+      if (Monitor->Name() == mon->Name())
 	{
           ostringstream msg;
           msg << "Monitor " << Monitor->Name() << " already registered, I won't overwrite it" ;
@@ -280,7 +284,7 @@ TH1 *OnlMonServer::getHisto(const unsigned int ihisto) const
   return NULL;
 }
 
-const char *
+const std::string
 OnlMonServer::getHistoName(const unsigned int ihisto) const
 {
   map<const string, TH1 *>::const_iterator histoiter = Histo.begin();
@@ -307,7 +311,7 @@ OnlMonServer::getHistoName(const unsigned int ihisto) const
       send_message(MSG_SEV_ERROR, msg.str(), 6);
 
     }
-  return NULL;
+  return nullptr;
 }
 
 TH1 *
@@ -409,9 +413,9 @@ int OnlMonServer::EndRun(const int runno)
 }
 
 void
-OnlMonServer::Print(const char *what) const
+OnlMonServer::Print(const std::string &what) const
 {
-  if (!strcmp(what, "ALL") || !strcmp(what, "HISTOS"))
+  if (what == "ALL" || what == "HISTOS")
     {
       set<string> cached_hists;
       std::map<std::string, std::set<std::string> >::const_iterator mhistiter;
@@ -440,7 +444,7 @@ OnlMonServer::Print(const char *what) const
 	}
       printf("\n");
     }
-  if (!strcmp(what, "ALL") || !strcmp(what, "MONITOR"))
+  if (what == "ALL" || what == "MONITOR")
     {
       // loop over the map and print out the content (name and location in memory)
       printf("--------------------------------------\n\n");
@@ -450,7 +454,7 @@ OnlMonServer::Print(const char *what) const
       std::map<std::string, std::set<std::string> >::const_iterator mhisiter;
       for (miter = MonitorList.begin(); miter != MonitorList.end(); ++miter)
         {
-          printf("%s\n",(*miter)->Name());
+          printf("%s\n",(*miter)->Name().c_str());
 	  mhisiter = MonitorHistoSet.find((*miter)->Name());
 	  set<string>::const_iterator siter;
 	  if (mhisiter != MonitorHistoSet.end())
@@ -458,20 +462,20 @@ OnlMonServer::Print(const char *what) const
 	      set<string> hists = mhisiter->second;
 	      for (siter = hists.begin(); siter != hists.end(); ++siter)
 		{
-		  printf("%s: %s\n",(*miter)->Name(),(*siter).c_str());
+		  printf("%s: %s\n",(*miter)->Name().c_str(),(*siter).c_str());
 		}
 	    }
         }
       printf("\n");
     }
-  if (!strcmp(what, "ALL") || !strcmp(what, "TRIGGER"))
+  if (what == "ALL" || what == "TRIGGER")
     {
       if (onltrig)
         {
           onltrig->Print(what);
         }
     }
-  if (!strcmp(what, "ALL") || !strcmp(what, "ACTIVE"))
+  if (what == "ALL" || what == "ACTIVE")
     {
       printf("--------------------------------------\n\n");
       printf("List of active packets:\n");

@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 
 BUILT_SOURCES = \
-  testexternals.C
+  testexternals.cc
 
 SUBDIRS = calib
 
@@ -9,14 +9,13 @@ AM_CPPFLAGS = \
   -I$(includedir) \
   -I$(ONLMON_MAIN)/include \
   -I$(OFFLINE_MAIN)/include \
-  -I$(ROOTSYS)/include 
+  -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \
   libonlmymon.la
 
 libonlmymon_la_LIBADD = \
   -L$(libdir) \
-  -L$(ONLMON_MAIN)/lib \
   -L$(OFFLINE_MAIN)/lib \
   -lonlmonserver \
   -lonlmonclient \
@@ -28,9 +27,8 @@ noinst_HEADERS = \
 include_HEADERS =
 
 libonlmymon_la_SOURCES = \
-  MyMon_Dict.C \
-  MyMonDraw.C \
-  MyMon.C
+  MyMonDraw.cc \
+  MyMon.cc
 
 bin_SCRIPTS = \
   MyMonsetup.csh
@@ -38,10 +36,13 @@ bin_SCRIPTS = \
 noinst_PROGRAMS = \
   testexternals
 
+testexternals_SOURCES = \
+  testexternals.cc
+
 testexternals_LDADD = \
   libonlmymon.la
 
-testexternals.C:
+testexternals.cc:
 	echo "//*** this is a generated file. Do not commit, do not edit" > $@
 	echo "int main()" >> $@
 	echo "{" >> $@
@@ -49,7 +50,7 @@ testexternals.C:
 	echo "}" >> $@
 
 
-MyMon_Dict.C: MyMon.h MyMonDraw.h MyMonLinkDef.h
+MyMon_Dict.cc: MyMon.h MyMonDraw.h MyMonLinkDef.h
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(AM_CPPFLAGS) $^
 
 clean-local:

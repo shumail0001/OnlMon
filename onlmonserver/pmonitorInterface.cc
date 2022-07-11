@@ -8,11 +8,16 @@
 
 #include "PortNumber.h"
 #include "HistoBinDefs.h"
-#include <pmonitor.h>
 
 //#include <packet_gl1.h>
 #include <phool/phool.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#include <pmonitor.h>
 #include <Event.h>
+#pragma GCC diagnostic pop
+
 #include <EventTypes.h>
 #include <msg_profile.h>
 #include <msg_control.h>
@@ -307,7 +312,7 @@ int setup_server()
   return 0;
 }
 
-static void *server(void *arg)
+static void *server(void * /* arg */)
 {
   OnlMonServer *Onlmonserver = OnlMonServer::instance();
   int MoniPort = MONIPORT;
@@ -388,7 +393,7 @@ static void *server(void *arg)
   goto again;
 }
 
-void handletest(void *arg)
+void handletest(void * /* arg */)
 {
   //  cout << "threading" << endl;
   return ;
@@ -458,7 +463,7 @@ handleconnection(void *arg)
                     {
                       cout << "HistoName: " << Onlmonserver->getHistoName(i) << endl;
                     }
-                  s0->Send(Onlmonserver->getHistoName(i));
+                  s0->Send(Onlmonserver->getHistoName(i).c_str());
                   int nbytes = s0->Recv(mess);
                   delete mess;
                   mess = 0;
@@ -500,7 +505,7 @@ handleconnection(void *arg)
               s0->Send("go");
               while (1)
                 {
-                  char str[200];
+                  char strmess[200];
                   s0->Recv(mess);
 		  if (!mess)
 		    {
@@ -508,15 +513,15 @@ handleconnection(void *arg)
 		    }
                   if (mess->What() == kMESS_STRING)
                     {
-                      mess->ReadString(str, 200);
+                      mess->ReadString(strmess, 200);
                       delete mess;
                       mess = 0;
-                      if (!strcmp(str, "alldone"))
+                      if (!strcmp(strmess, "alldone"))
                         {
                           break;
                         }
                     }
-                  TH1 *histo = Onlmonserver->getHisto(str);
+                  TH1 *histo = Onlmonserver->getHisto(strmess);
                   if (histo)
                     {
                       outgoing.Reset();

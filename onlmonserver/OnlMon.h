@@ -2,6 +2,7 @@
 #define __ONLMON_H__
 
 #include "OnlMonBase.h"
+
 #include <iostream>
 #include <set>
 #include <string>
@@ -14,7 +15,7 @@ class OnlMon: public OnlMonBase
 {
  public:
   OnlMon(const std::string &name = "NONE");
-  virtual ~OnlMon() {}
+  ~OnlMon() override {}
 
   enum {ACTIVE = -1, OK = 0, WARNING = 1, ERROR = 2};
   virtual int process_event_common(Event *evt);
@@ -24,8 +25,8 @@ class OnlMon: public OnlMonBase
   virtual int Reset();
   virtual void identify(std::ostream& out = std::cout) const;
   virtual int BeginRunCommon(const int runno, OnlMonServer *se);
-  virtual int BeginRun(const int runno) {return 0;}
-  virtual int EndRun(const int runno) {return 0;}
+  virtual int BeginRun(const int /* runno */) {return 0;}
+  virtual int EndRun(const int /* runno */) {return 0;}
   virtual void AddTrigger(const std::string &name);
   virtual void AddLiveTrigger(const std::string &name);
   virtual void SetStatus(const int newstatus);

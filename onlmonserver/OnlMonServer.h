@@ -25,13 +25,13 @@ public:
   static OnlMonServer *instance();
   virtual ~OnlMonServer();
 
-  void registerHisto(const char *monitorname, const char *hname, TH1 *h1d, const int replace = 0);
+  void registerHisto(const std::string &monitorname, const std::string &hname, TH1 *h1d, const int replace = 0);
   void registerHisto(const OnlMon *monitor, TH1 *h1d);
 
   void registerCommonHisto(TH1 *h1d);
   TH1 *getHisto(const std::string &hname) const;
   TH1 *getHisto(const unsigned int ihisto) const;
-  const char *getHistoName(const unsigned int ihisto) const;
+  const std::string getHistoName(const unsigned int ihisto) const;
   unsigned int nHistos() const {return Histo.size();}
   unsigned int Trigger(const unsigned short int i = 2) {return trigger[i];}
   void Trigger(const unsigned int i, const unsigned short int iwhat) {trigger[iwhat] = i;}
@@ -42,13 +42,13 @@ public:
   void EventNumber(const int iev) {eventnumber = iev;}
   int PortNumber() const {return portnumber;}
   void PortNumber(const int i) {portnumber = i;}
-  void Print(const char *what = "ALL") const;
+  void Print(const std::string &what = "ALL") const;
 
   void InitAll();
 
   void registerMonitor(OnlMon *Monitor);
-  OnlMon *getMonitor(const char *name);
-  void dumpHistos(const char *filename);
+  OnlMon *getMonitor(const std::string &name);
+  void dumpHistos(const std::string &filename);
   int process_event(Event *);
   int Reset();
   int BeginRun(const int runno);
@@ -84,10 +84,8 @@ public:
 
   int send_message(const OnlMon *Monitor, const int msgsource, const int severity, const std::string &err_message, const int msgtype) const; 
   int DisconnectDB();
-#ifndef __CINT__
   void GetMutex(pthread_mutex_t &lock) {lock = mutex;}
   void SetThreadId(pthread_t &id) {serverthreadid = id;}
-#endif
 
   int LoadActivePackets();
   int parse_granuleDef(std::set<std::string> &pcffilelist);
@@ -102,7 +100,7 @@ private:
   OnlMonServer(const std::string &name= "OnlMonServer");
   int send_message(const int severity, const std::string &err_message, const int msgtype) const;
   int CacheRunDB(const int runno);
-  void registerHisto(const char *hname, TH1 *h1d, const int replace = 0);
+  void registerHisto(const std::string &hname, TH1 *h1d, const int replace = 0);
 
   static OnlMonServer *__instance;
   unsigned int trigger[3];
@@ -130,10 +128,8 @@ private:
   std::map<std::string, MessageSystem *> MsgSystem;
   std::map<std::string, std::set<std::string> > MonitorHistoSet;
   std::set<std::string> CommonHistoSet;
-#ifndef __CINT__
   pthread_mutex_t mutex;
   pthread_t serverthreadid;
-#endif
   PHCompositeNode *topNode;
 };
 

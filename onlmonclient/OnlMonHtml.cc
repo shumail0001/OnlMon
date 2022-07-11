@@ -189,8 +189,8 @@ OnlMonHtml::plainHtmlMenu(const set<string>& olines)
       vector<string> parts = split('/',dir);
       for ( size_t i = 0; i <= parts.size(); ++i ) 
 	{
-	  string dir = join('/',parts);
-	  dirlist.insert(dir);
+	  string dir2 = join('/',parts);
+	  dirlist.insert(dir2);
 	  parts.pop_back();
 	}
     }
@@ -228,16 +228,16 @@ OnlMonHtml::plainHtmlMenu(const set<string>& olines)
       for ( it2 = olines.begin(); it2 != olines.end(); ++it2 ) 
 	{
 	  const string& line = *it2; 
-	  string::size_type pos = line.find_last_of('/');
-	  pos = line.substr(0,pos).find_last_of('/');
-	  string ldir = line.substr(0,pos);
+	  string::size_type pos2 = line.find_last_of('/');
+	  pos2 = line.substr(0,pos2).find_last_of('/');
+	  string ldir = line.substr(0,pos2);
 	  if ( ldir == dir ) // we get a matching line
 	    {
 	      string sline = line.substr(dir.size()+1);
 	      // in the example above, sline is TITLE/link...
-	      pos = sline.find('/');
+	      pos2 = sline.find('/');
 	      // ...which we split at the slash pos
-	      if ( pos < sline.size() )
+	      if ( pos2 < sline.size() )
 		{
 		  out << "<A HREF=\"" 
 		      << sline.substr(pos+1) << "\">"

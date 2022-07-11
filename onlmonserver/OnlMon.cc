@@ -1,7 +1,11 @@
 #include "OnlMon.h"
 #include "OnlMonServer.h"
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <Event.h>
+#pragma GCC diagnostic pop
 
 #include <msg_profile.h>
 #include <iostream>
@@ -37,7 +41,7 @@ int OnlMon::process_event_common(Event *evt)
   return iret;
 }
 
-int OnlMon::process_event(Event *evt)
+int OnlMon::process_event(Event * /*evt*/)
 {
   cout << "process_event(Event *evt) not implemented by daughter class" << endl;
   return -1;
@@ -51,7 +55,7 @@ int OnlMon::Reset()
 
 void OnlMon::identify(ostream& out) const
 {
-  cout << "identify() not implemented by daughter class" << endl;
+  out << "identify() not implemented by daughter class" << endl;
   return;
 }
 
@@ -86,13 +90,13 @@ OnlMon::AddLiveTrigger(const std::string &name)
 }
 
 int
-OnlMon::InitCommon(OnlMonServer *se)
+OnlMon::InitCommon(OnlMonServer * /* se */)
 {
   return 0;
 }
 
 int
-OnlMon::BeginRunCommon(const int runno, OnlMonServer *se)
+OnlMon::BeginRunCommon(const int /* runno */, OnlMonServer *se)
 {
   livetrigmask = 0;
   if (se->isCosmicRun()) // no trigger selection for cosmic runs

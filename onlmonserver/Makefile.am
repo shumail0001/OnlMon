@@ -5,7 +5,7 @@ AM_CPPFLAGS = \
   -I$(OFFLINE_MAIN)/include \
   -I$(ONLINE_MAIN)/include/Event \
   -I$(OPT_SPHENIX)/include \
-  -isystem $(ROOTSYS)/include
+  -isystem$(ROOTSYS)/include
 
 RINCLUDES = \
   -I$(includedir) \
@@ -15,20 +15,11 @@ RINCLUDES = \
   -I$(ROOTSYS)/include
 
 BUILT_SOURCES = \
-  testexternals.C
+  testexternals.cc
 
 lib_LTLIBRARIES = \
   libonlmonserver.la \
   libonlmonserver_funcs.la
-
-libcorbamsgbuffer_la_SOURCES = \
-  corba_msg_buffer.C \
-  corba_msg_buffer_Dict.C
-
-libcorbamsgbuffer_la_LIBADD = \
-  -L$(libdir) \
-  -L$(ONLINE_MAIN)/lib \
-  -lphmessages
 
 libonlmonserver_funcs_la_LIBADD = \
   libonlmonserver.la \
@@ -59,26 +50,29 @@ include_HEADERS = \
   PortNumber.h
 
 libonlmonserver_funcs_la_SOURCES = \
-  pmonitorInterface.C
+  pmonitorInterface.cc
 
 libonlmonserver_la_SOURCES = \
-  MessageSystem.C \
-  OnlMon.C \
-  OnlMonBase.C \
-  OnlMonServer.C \
-  OnlMonStatusDB.C
+  MessageSystem.cc \
+  OnlMon.cc \
+  OnlMonBase.cc \
+  OnlMonServer.cc \
+  OnlMonStatusDB.cc
 
-#  OnlMonTrigger.C
-#  TrigInfo.C
+#  OnlMonTrigger.cc
+#  TrigInfo.cc
 
 noinst_PROGRAMS = \
   testexternals
+
+testexternals_SOURCES = \
+  testexternals.cc
 
 testexternals_LDADD = \
   libonlmonserver.la \
   libonlmonserver_funcs.la
 
-testexternals.C:
+testexternals.cc:
 	echo "//*** this is a generated file. Do not commit, do not edit" > $@
 	echo "int main()" >> $@
 	echo "{" >> $@
@@ -95,10 +89,6 @@ OnlMonServer_Dict.C: \
 
 OnlMon_Dict.C: OnlMon.h OnlMonBase.h OnlMonLinkDef.h
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(RINCLUDES) $^
-
-corba_msg_buffer_Dict.C: corba_msg_buffer.h corba_msg_bufferLinkDef.h
-	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(RINCLUDES) $^
-
 
 clean-local:
 	rm -f *Dict.*
