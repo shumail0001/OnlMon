@@ -2,8 +2,9 @@
 // effects on include paths (it uses . first which can lead to
 // very interesting effects), use #include <bla.h> instead
 #include <MyMonDraw.h>
-#include <OnlMonClient.h>
-#include <OnlMonDB.h>
+
+#include <onlmon/OnlMonClient.h>
+#include <onlmon/OnlMonDB.h>
 
 #include <phool/phool.h>
 

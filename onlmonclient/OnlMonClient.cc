@@ -3,9 +3,9 @@
 #include "OnlMonHtml.h"
 #include "ClientHistoList.h"
 
-#include <PortNumber.h>
-#include <HistoBinDefs.h>
-#include <OnlMonTrigger.h>
+#include <onlmon/PortNumber.h>
+#include <onlmon/HistoBinDefs.h>
+#include <onlmon/OnlMonTrigger.h>
 
 #include <phool/phool.h>
 

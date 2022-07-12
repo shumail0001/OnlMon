@@ -1,7 +1,7 @@
 #ifndef ONLMONDBODBC_H__
 #define ONLMONDBODBC_H__
 
-#include <OnlMonBase.h>
+#include <onlmon/OnlMonBase.h>
 
 #include <ctime>
 #include <map>

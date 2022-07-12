@@ -1,7 +1,7 @@
 #ifndef MYMON_H__
 #define MYMON_H__
 
-#include <OnlMon.h>
+#include <onlmon/OnlMon.h>
 #include <string>
 
 class Event;

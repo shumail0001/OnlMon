@@ -1,7 +1,7 @@
 #ifndef __MYMONDRAW_H__
 #define __MYMONDRAW_H__
 
-#include <OnlMonDraw.h>
+#include <onlmon/OnlMonDraw.h>
 
 class OnlMonDB;
 class TCanvas;

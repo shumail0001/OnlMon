@@ -21,7 +21,7 @@ noinst_HEADERS = \
   ClientHistoList.h \
   OnlMonHtml.h
 
-include_HEADERS = \
+pkginclude_HEADERS = \
   OnlMonClient.h \
   OnlMonDraw.h
 

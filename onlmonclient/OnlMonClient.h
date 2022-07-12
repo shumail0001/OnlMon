@@ -1,8 +1,8 @@
 #ifndef __ONLMONCLIENT_H__
 #define __ONLMONCLIENT_H__
 
-#include <OnlMonBase.h>
-#include <PortNumber.h>
+#include <onlmon/OnlMonBase.h>
+#include <onlmon/PortNumber.h>
 
 #include <ctime>
 #include <list>

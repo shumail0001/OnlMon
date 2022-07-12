@@ -165,6 +165,7 @@ int process_event (Event *evt)
         }
       return 0;
     }
+/*
   if ((evt->getRunNumber() > 500000 || evt->getRunNumber() < 60000)  && evt->getRunNumber() != 1 && evt->getRunNumber() != 0xFEE2DCB)
     {
       ostringstream msg;
@@ -175,6 +176,7 @@ int process_event (Event *evt)
       se->AddBadEvent();
       return 0;
     }
+*/
   if (evt->getEvtLength() <= 0 || evt->getEvtLength() > 2500000 )
     {
       ostringstream msg;
