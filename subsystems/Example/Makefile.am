@@ -21,10 +21,10 @@ libonlmymon_la_LIBADD = \
   -lonlmonclient \
   -lonlmondb
 
-noinst_HEADERS = \
-  MyMon.h
 
-include_HEADERS =
+pkginclude_HEADERS = \
+  MyMon.h \
+  MyMonDraw.h
 
 libonlmymon_la_SOURCES = \
   MyMonDraw.cc \

@@ -40,7 +40,7 @@ libonlmonserver_la_LIBADD = \
 noinst_HEADERS = \
   pmonitorInterface.h
 
-include_HEADERS = \
+pkginclude_HEADERS = \
   HistoBinDefs.h \
   OnlMon.h \
   OnlMonBase.h \

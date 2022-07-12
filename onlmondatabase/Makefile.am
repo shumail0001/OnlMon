@@ -11,7 +11,7 @@ AM_CPPFLAGS = \
 BUILT_SOURCES = \
   testexternals.cc
 
-include_HEADERS = \
+pkginclude_HEADERS = \
   OnCalDBodbc.h \
   OnlMonDB.h \
   OnlMonDBodbc.h \

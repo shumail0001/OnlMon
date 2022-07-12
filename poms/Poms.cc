@@ -21,7 +21,7 @@
  */
 #include "Poms.h"
 
-#include <OnlMonClient.h>
+#include <onlmon/OnlMonClient.h>
 
 #include <TCanvas.h>
 #include <TGButton.h>

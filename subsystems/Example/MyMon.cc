@@ -3,8 +3,8 @@
 // otherwise you are asking for weird behavior
 // (more info - check the difference in include path search when using "" versus <>)
 #include "MyMon.h"
-#include <OnlMonServer.h>
-#include <OnlMonDB.h>
+#include <onlmon/OnlMonServer.h>
+#include <onlmon/OnlMonDB.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -56,8 +56,8 @@ int MyMon::Init()
   // register histograms with server otherwise client won't get them
   se->registerHisto(this,myhist1); // uses the TH1->GetName() as key
   se->registerHisto(this,myhist2);
-  dbvars = new OnlMonDB(ThisName); // use monitor name for db table name
-  DBVarInit();
+//  dbvars = new OnlMonDB(ThisName); // use monitor name for db table name
+//  DBVarInit();
   Reset();
   return 0;
 }
@@ -98,10 +98,13 @@ int MyMon::process_event(Event * /* evt */)
 
   if (idummy++ > 1000)
     {
+      if (dbvars)
+      {
       dbvars->SetVar("mymoncount", (float) evtcnt, 0.1*evtcnt, (float) evtcnt);
       dbvars->SetVar("mymondummy", sin((double) evtcnt), cos((double) se->Trigger()) , (float) evtcnt);
       dbvars->SetVar("mymonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
       dbvars->DBcommit();
+      }
       ostringstream msg;
       msg << "Filling Histos";
       se->send_message(this,MSG_SOURCE_UNSPECIFIED,MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);

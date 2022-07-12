@@ -2,7 +2,7 @@
 #include "OnlMonDBVar.h"
 #include "OnlMonDBodbc.h"
 
-#include <OnlMonServer.h>
+#include <onlmon/OnlMonServer.h>
 
 #include <phool/phool.h>
 
