@@ -14,9 +14,8 @@ namespace odbc
   class ResultSet;
 }
 
-class OnlMonDBodbc: public OnlMonBase
+class OnlMonDBodbc : public OnlMonBase
 {
-
  public:
   OnlMonDBodbc(const std::string &tablename);
   virtual ~OnlMonDBodbc();

@@ -11,7 +11,7 @@
 class OnlMonDBVar;
 class OnlMonDBodbc;
 
-class OnlMonDB: public OnlMonBase
+class OnlMonDB : public OnlMonBase
 {
  public:
   OnlMonDB(const std::string &thisname = "DUMMY");

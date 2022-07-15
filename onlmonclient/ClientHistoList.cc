@@ -1,85 +1,81 @@
 #include "ClientHistoList.h"
+
 #include <TH1.h>
 
 using namespace std;
 
-ClientHistoList::ClientHistoList():
-  histo(NULL),
-  serverport(0),
-  serverhost("UNKNOWN"),
-  subsystem("UNKNOWN")
-{}
+ClientHistoList::ClientHistoList()
+  : histo(nullptr)
+  , serverport(0)
+  , serverhost("UNKNOWN")
+  , subsystem("UNKNOWN")
+{
+}
 
-ClientHistoList::ClientHistoList(const string &subsys):
-  histo(NULL),
-  serverport(0),
-  serverhost("UNKNOWN"),
-  subsystem(subsys)
+ClientHistoList::ClientHistoList(const string &subsys)
+  : histo(nullptr)
+  , serverport(0)
+  , serverhost("UNKNOWN")
+  , subsystem(subsys)
 
-{}
+{
+}
 
 ClientHistoList::~ClientHistoList()
 {
   delete histo;
 }
 
-TH1 *
-ClientHistoList::Histo() const
+TH1 *ClientHistoList::Histo() const
 {
   return histo;
 }
 
-void 
-ClientHistoList::Histo(TH1 *Histo)
+void ClientHistoList::Histo(TH1 *Histo)
 {
   histo = Histo;
-  return ;
+  return;
 }
 
-const string 
+const string
 ClientHistoList::ServerHost() const
 {
   return serverhost;
 }
 
-void 
-ClientHistoList::ServerHost(const string &ServerHost)
+void ClientHistoList::ServerHost(const string &ServerHost)
 {
   serverhost = ServerHost;
-  return ;
+  return;
 }
 
-const string 
+const string
 ClientHistoList::SubSystem() const
 {
   return subsystem;
 }
 
-void 
-ClientHistoList::SubSystem(const string &SubSystem)
+void ClientHistoList::SubSystem(const string &SubSystem)
 {
   subsystem = SubSystem;
-  return ;
+  return;
 }
 
-void 
-ClientHistoList::identify(ostream &os) const
+void ClientHistoList::identify(ostream &os) const
 {
   os << "Histo" << histo->GetName()
-     << ", subsystem: " << subsystem 
-     << ", host: " << serverhost 
+     << ", subsystem: " << subsystem
+     << ", host: " << serverhost
      << ", port: " << serverport << endl;
 }
 
-void 
-ClientHistoList::ServerPort(const int port)
+void ClientHistoList::ServerPort(const int port)
 {
   serverport = port;
   return;
 }
 
-int 
-ClientHistoList::ServerPort() const
+int ClientHistoList::ServerPort() const
 {
   return serverport;
 }

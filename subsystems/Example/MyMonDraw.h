@@ -8,10 +8,9 @@ class TCanvas;
 class TGraphErrors;
 class TPad;
 
-class MyMonDraw: public OnlMonDraw
+class MyMonDraw : public OnlMonDraw
 {
-
- public: 
+ public:
   MyMonDraw(const std::string &name = "MYMON");
   ~MyMonDraw() override {}
 

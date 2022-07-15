@@ -17,10 +17,10 @@ class OnlMonTrigger
  public:
   OnlMonTrigger() {}
   virtual ~OnlMonTrigger() {}
-  void Print(const std::string & /* what = "ALL" */) const {return;}
-  void RunNumber(int ) {return;}
-  void TrigMask(const std::string &, const unsigned int) {return;}
-  int getLevel1Bit(const std::string &) {return 0x1;}
+  void Print(const std::string & /* what = "ALL" */) const { return; }
+  void RunNumber(int) { return; }
+  void TrigMask(const std::string &, const unsigned int) { return; }
+  int getLevel1Bit(const std::string &) { return 0x1; }
 };
 
-#endif // __ONLMONTRIGGER_H_
+#endif  // __ONLMONTRIGGER_H_
