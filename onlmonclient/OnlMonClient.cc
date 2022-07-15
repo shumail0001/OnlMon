@@ -1233,16 +1233,18 @@ int OnlMonClient::HistoToPng(TH1 *histo, std::string const &pngfilename, const c
   histo->SetMarkerStyle(8);
   histo->SetMarkerSize(0.15);
   histo->Draw(drawopt);
-  // returned char array from tempnam() needs to be free'd after use
-  char *tmpname = tempnam("/tmp", "HI");
-  cgiCanv->Print(tmpname, "gif");
-  TImage *img = TImage::Open(tmpname);
+  uuid_t uu;
+  uuid_generate(uu);
+  char uuid[50];
+  uuid_unparse(uu, uuid);
+  std::string tmpname = "/tmp/TC" + std::string(uuid);
+  cgiCanv->Print(tmpname.c_str(), "gif");
+  TImage *img = TImage::Open(tmpname.c_str());
   img->WriteImage(pngfilename.c_str());
-  if (remove(tmpname))
+  if (remove(tmpname.c_str()))
   {
     std::cout << "Error removing " << tmpname << std::endl;
   }
-  free(tmpname);
   delete cgiCanv;
   return 0;
 }
