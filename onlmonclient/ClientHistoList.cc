@@ -1,17 +1,18 @@
 #include "ClientHistoList.h"
+
 #include <TH1.h>
 
 using namespace std;
 
 ClientHistoList::ClientHistoList():
-  histo(NULL),
+  histo(nullptr),
   serverport(0),
   serverhost("UNKNOWN"),
   subsystem("UNKNOWN")
 {}
 
 ClientHistoList::ClientHistoList(const string &subsys):
-  histo(NULL),
+  histo(nullptr),
   serverport(0),
   serverhost("UNKNOWN"),
   subsystem(subsys)

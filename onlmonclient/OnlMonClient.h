@@ -1,5 +1,5 @@
-#ifndef __ONLMONCLIENT_H__
-#define __ONLMONCLIENT_H__
+#ifndef ONLMONCLIENT_H__
+#define ONLMONCLIENT_H__
 
 #include <onlmon/OnlMonBase.h>
 #include <onlmon/PortNumber.h>
@@ -78,24 +78,26 @@ class OnlMonClient: public OnlMonBase
   void CacheRunDB(const int runno);
 
  private:
-  OnlMonClient(const char *name="ONLMONCLIENT");
+  OnlMonClient(const std::string &name="ONLMONCLIENT");
   int DoSomething(const char *who, const char *what, const char *opt);
   void InitAll();
 
   static OnlMonClient *__instance;
-  int display_sizex;
-  int display_sizey;
-  int cosmicrun;
-  int standalone;
-  std::string runtype;
-  int cachedrun;
-  TH1 *clientrunning;
-  TStyle *defaultStyle;
+  OnlMonHtml* fHtml = nullptr;
+  OnlMonTrigger *onltrig = nullptr;
+  TH1 *clientrunning = nullptr;
+  TStyle *defaultStyle = nullptr;
+
+  int display_sizex = 0;
+  int display_sizey = 0;
+  int cosmicrun = 0;
+  int standalone = 0;
+  int cachedrun = 0;
+
+  std::string runtype = "UNKNOWN";
   std::map<const std::string, ClientHistoList *> Histo;
   std::map<const std::string, OnlMonDraw*> DrawerList;
   std::vector<std::string> MonitorHosts;
-  OnlMonHtml* fHtml;
-  OnlMonTrigger *onltrig;
 };
 
 #endif /* __ONLMONCLIENT_H__ */

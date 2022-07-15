@@ -58,4 +58,4 @@ testexternals.cc:
 	echo "}" >> $@
 
 clean-local:
-	rm -f *Dict.*
+	rm -f $(BUILT_SOURCES)

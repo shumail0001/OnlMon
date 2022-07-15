@@ -12,7 +12,11 @@ class RunDBodbc;
 class OnlMonHtml
 {
 public:
-  OnlMonHtml(const char* topdir);
+  explicit OnlMonHtml(const std::string &topdir);
+  //! delete copy ctor and assignment opertor (cppcheck)
+  explicit OnlMonHtml(const OnlMonHtml &) = delete;
+  OnlMonHtml &operator=(const OnlMonHtml &) = delete;
+
   virtual ~OnlMonHtml();
 
   /** Generate a bit of the navigation menu for a given file (link).
@@ -61,9 +65,12 @@ protected:
   void plainHtmlMenu(const std::set<std::string>&);
   void runInit();
   std::string runRange();
-  RunDBodbc *rundb;
-  int fVerbosity;
-  int fRunNumber;
+
+  RunDBodbc *rundb = nullptr;
+
+  int fVerbosity = 0;
+  int fRunNumber = 0;
+
   std::string fHtmlDir;
   std::string fHtmlRunDir;
 };

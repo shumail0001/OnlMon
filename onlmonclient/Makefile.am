@@ -34,6 +34,7 @@ libonlmonclient_la_SOURCES = \
 libonlmonclient_la_LDFLAGS = \
   -L$(libdir) \
   -lonlmondb \
+  -luuid \
   `root-config --glibs`
 
 noinst_PROGRAMS = \
@@ -53,11 +54,5 @@ testexternals.cc:
 	echo "  return 0;" >> $@
 	echo "}" >> $@
 
-OnlMonClient_Dict.cc: OnlMonClient.h OnlMonClientLinkDef.h
-	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(RINCLUDES) $^
-
-OnlMonDraw_Dict.cc: OnlMonDraw.h OnlMonDrawLinkDef.h
-	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(RINCLUDES) $^
-
 clean-local:
-	rm -f *Dict.*
+	rm -f $(BUILT_SOURCES)

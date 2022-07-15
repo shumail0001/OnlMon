@@ -77,15 +77,10 @@ namespace {
 }
 
 //_____________________________________________________________________________
-OnlMonHtml::OnlMonHtml(const char* topdir) :
-  fVerbosity(0),
-  fRunNumber(0)
+OnlMonHtml::OnlMonHtml(const std::string &topdir) :
+  fHtmlDir(topdir)
 {
-  if ( topdir ) 
-    {
-      fHtmlDir = topdir;
-    }
-  else
+  if  (fHtmlDir.empty())
     {
       fHtmlDir = "./";
     }

@@ -30,6 +30,7 @@
 
 
 #include <sys/utsname.h>
+#include <uuid/uuid.h>
 
 #include <algorithm>
 #include <fstream>
@@ -41,9 +42,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-using namespace std;
-
-OnlMonClient *OnlMonClient::__instance = NULL;
+OnlMonClient *OnlMonClient::__instance = nullptr;
 
 int
 pinit()
@@ -62,18 +61,11 @@ OnlMonClient *OnlMonClient::instance()
   return __instance;
 }
 
-OnlMonClient::OnlMonClient(const char *name): 
-  OnlMonBase(name),
-  display_sizex(0),
-  display_sizey(0),
-  cosmicrun(0),
-  standalone(0),
-  runtype("UNKNOWN"),
-  cachedrun(0)
+OnlMonClient::OnlMonClient(const std::string &name):
+  OnlMonBase(name)
 {
   defaultStyle = new TStyle();
   SetStyleToDefault();
-  fHtml = NULL;
   onltrig = new OnlMonTrigger();
   InitAll();
 }
@@ -83,7 +75,7 @@ OnlMonClient::InitAll()
 {
   if (gROOT->FindObject("ServerRunning"))
     {
-      cout << "Don't run Server and Client in same session, exiting" << endl;
+      std::cout << "Don't run Server and Client in same session, exiting" << std::endl;
       exit(1);
     }
   if (!gClient) // cannot draw on display, warn and bail out
@@ -91,26 +83,26 @@ OnlMonClient::InitAll()
       const char *env_display = getenv("DISPLAY");
       if (env_display)
         {
-          string displaystring = env_display;
-          cout << "Cannot open Display, Display Env Var is set to "
-	       << displaystring << endl;
-          if (displaystring.find("unix") != string::npos)
+          std::string displaystring = env_display;
+          std::cout << "Cannot open Display, Display Env Var is set to "
+	       << displaystring << std::endl;
+          if (displaystring.find("unix") != std::string::npos)
             {
               utsname ThisNode;
               uname(&ThisNode);
-              cout << "presumably the virtual framebuffer is not running on " << ThisNode.nodename
-		   << ", check if process /usr/X11R6/bin/Xvfb is alive" << endl;
+              std::cout << "presumably the virtual framebuffer is not running on " << ThisNode.nodename
+		   << ", check if process /usr/X11R6/bin/Xvfb is alive" << std::endl;
             }
-          else if (displaystring.find("localhost") != string::npos)
+          else if (displaystring.find("localhost") != std::string::npos)
             {
-              cout << "Check your ssh forwarding" << endl;
-              cout << "your $HOME/.ssh/config has to contain the line" << endl;
-              cout << "ForwardX11 yes" << endl;
+              std::cout << "Check your ssh forwarding" << std::endl;
+              std::cout << "your $HOME/.ssh/config has to contain the line" << std::endl;
+              std::cout << "ForwardX11 yes" << std::endl;
             }
         }
       else
         {
-          cout << "Display not set, cannot continue" << endl;
+          std::cout << "Display not set, cannot continue" << std::endl;
         }
       exit(1);
     }
@@ -135,7 +127,7 @@ OnlMonClient::~OnlMonClient()
     {
       if (verbosity > 0)
 	{
-          cout << "deleting " << DrawerList.begin()->first << endl;
+          std::cout << "deleting " << DrawerList.begin()->first << std::endl;
 	}
       delete DrawerList.begin()->second;
       DrawerList.erase(DrawerList.begin());
@@ -156,7 +148,7 @@ OnlMonClient::~OnlMonClient()
     {
       if (verbosity > 0)
 	{
-          cout << "Deleting Canvas " << canvas->GetName() << endl;
+          std::cout << "Deleting Canvas " << canvas->GetName() << std::endl;
 	}
       delete canvas;
     }
@@ -164,13 +156,13 @@ OnlMonClient::~OnlMonClient()
   return ;
 }
 
-void OnlMonClient::registerHisto(const string &hname, const string &subsys)
+void OnlMonClient::registerHisto(const std::string &hname, const std::string &subsys)
 {
-  map<const string, ClientHistoList *>::const_iterator histoiter = Histo.find(hname);
+  std::map<const std::string, ClientHistoList *>::const_iterator histoiter = Histo.find(hname);
   if (histoiter != Histo.end())
     {
 #ifdef DEBUG
-      cout << "deleting histogram " << hname << " at " << Histo[hname] << endl;
+      std::cout << "deleting histogram " << hname << " at " << Histo[hname] << std::endl;
 #endif
 
       histoiter->second->SubSystem(subsys);
@@ -182,7 +174,7 @@ void OnlMonClient::registerHisto(const string &hname, const string &subsys)
       Histo[hname] = newhisto;
 #ifdef DEBUG
 
-      cout << "new histogram " << hname << " at " << Histo[hname] << endl;
+      std::cout << "new histogram " << hname << " at " << Histo[hname] << std::endl;
 #endif
 
     }
@@ -192,8 +184,8 @@ void OnlMonClient::registerHisto(const string &hname, const string &subsys)
 int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
 {
   int iret = 0;
-  map<const string, ClientHistoList *>::const_iterator histoiter;
-  map<const string, ClientHistoList *>::const_iterator histonewiter;
+  std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
+  std::map<const std::string, ClientHistoList *>::const_iterator histonewiter;
   if (! getall)
     {
       for (histoiter = Histo.begin(); histoiter != Histo.end(); ++histoiter)
@@ -202,7 +194,7 @@ int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
             {
               if (requestHistoByName(histoiter->first.c_str()))
                 {
-                  cout << "Request for " << histoiter->first << " failed " << endl;
+                  std::cout << "Request for " << histoiter->first << " failed " << std::endl;
                   if (histoiter->second->Histo())
                     {
                       histoiter->second->Histo()->Delete();
@@ -218,22 +210,22 @@ int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
     }
   else if (getall == 1)
     {
-      map< pair <string, int> , list<string> > transferlist;
-      ostringstream host_port;
+      std::map< std::pair <std::string, int> , std::list<std::string> > transferlist;
+      std::ostringstream host_port;
       int failed_to_locate = 0;
       for (histoiter = Histo.begin(); histoiter != Histo.end(); ++histoiter)
 	{
 	  if (!strcmp(histoiter->second->SubSystem().c_str(), subsys))
 	    {
               int unknown_histo = 0;
-	      string hname = histoiter->first.c_str();
+	      std::string hname = histoiter->first.c_str();
 	      if (histoiter->second->ServerHost() == "UNKNOWN")
 		{
 		  if (!failed_to_locate)
 		    {
 		      if ( LocateHistogram(hname) < 1)
 			{
-			  cout << "Histogram " << hname << " cannot be located" << endl;
+			  std::cout << "Histogram " << hname << " cannot be located" << std::endl;
 			  failed_to_locate = 1;
 			  unknown_histo = 1;
 			  iret =  -1;
@@ -254,32 +246,31 @@ int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
 		  host_port.str("");
 		  host_port << histoiter->second->ServerHost() << " "
 			    << histoiter->second->ServerPort();
-		  pair<string, int> hostport(histoiter->second->ServerHost(), histoiter->second->ServerPort());
+		  std::pair<std::string, int> hostport(histoiter->second->ServerHost(), histoiter->second->ServerPort());
 		  (transferlist[hostport]).push_back(hname);
 		}
 	    }
 	}
-      map< pair<string, int> , list<string> >::const_iterator listiter;
-      list<string>::const_iterator liter;
+      std::map< std::pair<std::string, int> , std::list<std::string> >::const_iterator listiter;
+      std::list<std::string>::const_iterator liter;
       for (listiter = transferlist.begin(); listiter != transferlist.end(); ++listiter)
 	{
-	  list<string> hlist = listiter->second;
+	  std::list<std::string> hlist = listiter->second;
 	  hlist.push_back("FrameWorkVars"); // get this histogram by default to get framework info
 	  if (requestHistoList(listiter->first.first, listiter->first.second, hlist) != 0)
 	    {
-              map<const string, ClientHistoList *>::const_iterator histoiter2;
 	      for (liter = hlist.begin(); liter != hlist.end(); ++liter)
 		{
 		  if (requestHistoByName(*liter))
 		    {
-		      cout << "Request for " << *liter << " failed " << endl;
+		      std::cout << "Request for " << *liter << " failed " << std::endl;
                       histoiter = Histo.find(*liter);
-		      if (histoiter2->second && histoiter2->second->Histo())
+		      if (histoiter->second && histoiter->second->Histo())
 			{
-			  histoiter2->second->Histo()->Delete();
-			  histoiter2->second->Histo(0x0);
-			  histoiter2->second->ServerHost("UNKNOWN");
-                          histoiter2->second->ServerPort(0);
+			  histoiter->second->Histo()->Delete();
+			  histoiter->second->Histo(0x0);
+			  histoiter->second->ServerHost("UNKNOWN");
+                          histoiter->second->ServerPort(0);
 			}
 		    }
 
@@ -301,14 +292,14 @@ int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
       // histoiter points here to first histogram of subsystem
       if (histoiter != Histo.end())
         {
-          string hostname = histoiter->second->ServerHost();
+          std::string hostname = histoiter->second->ServerHost();
           int moniport = histoiter->second->ServerPort();
           {
             if (hostname == "UNKNOWN")
               {
                 if (LocateHistogram(hname) < 1)
                   {
-                    cout << "Histogram " << hname << " cannot be located" << endl;
+                    std::cout << "Histogram " << hname << " cannot be located" << std::endl;
                     return -1;
                   }
                 histonewiter = Histo.find(hname);
@@ -330,16 +321,16 @@ int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
 
             if (requestHisto("ALL", hostname, moniport))
               {
-                cout << "Request for all histograms from "
-		     << hostname << " failed, trying single " << endl;
+                std::cout << "Request for all histograms from "
+		     << hostname << " failed, trying single " << std::endl;
                 iret = requestHistoBySubSystem(subsys, 0);
               }
           }
         }
       else
         {
-          cout << "No Histogram of subsystem "
-	       << subsys << " registered" << endl;
+          std::cout << "No Histogram of subsystem "
+	       << subsys << " registered" << std::endl;
         }
     }
   onltrig->RunNumber(RunNumber());
@@ -348,11 +339,11 @@ int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
 
 void OnlMonClient::registerDrawer(OnlMonDraw *Drawer)
 {
-  map<const string, OnlMonDraw *>::iterator iter = DrawerList.find(Drawer->Name());
+  std::map<const std::string, OnlMonDraw *>::iterator iter = DrawerList.find(Drawer->Name());
   if (iter != DrawerList.end())
     {
-      cout << "Drawer " << Drawer->Name() << " already registered, I won't overwrite it" << endl;
-      cout << "Use a different name and try again" << endl;
+      std::cout << "Drawer " << Drawer->Name() << " already registered, I won't overwrite it" << std::endl;
+      std::cout << "Use a different name and try again" << std::endl;
     }
   else
     {
@@ -383,15 +374,15 @@ int OnlMonClient::MakeHtml(const char *who, const char *what)
   int runno = RunNumber();
   if (runno <= 0)
     {
-      cout << "Run Number too small: " << runno
-	   << " not creating html output" << endl;
+      std::cout << "Run Number too small: " << runno
+	   << " not creating html output" << std::endl;
       return 0;
     }
   char *onlmon_real_html = getenv("ONLMON_REAL_HTML");
   if (! onlmon_real_html)
     {
       old_umask = umask(S_IWOTH);
-      cout << "Making html output group writable so others can run tests as well" << endl;
+      std::cout << "Making html output group writable so others can run tests as well" << std::endl;
     }
   fHtml->runNumber(runno); // do not forget this !
   int iret =  DoSomething(who, what, "HTML");
@@ -406,7 +397,7 @@ int OnlMonClient::MakeHtml(const char *who, const char *what)
 
 int OnlMonClient::DoSomething(const char *who, const char *what, const char *opt)
 {
-  map<const string, OnlMonDraw *>::iterator iter;
+  std::map<const std::string, OnlMonDraw *>::iterator iter;
   if (strcmp(who, "ALL")) // is drawer was specified (!All)
     {
       iter = DrawerList.find(who);
@@ -424,13 +415,13 @@ int OnlMonClient::DoSomething(const char *who, const char *what, const char *opt
             {
               if (verbosity > 0)
                 {
-                  cout << PHWHERE << " creating html output for "
-		       << iter->second->Name() << endl;
+                  std::cout << PHWHERE << " creating html output for "
+		       << iter->second->Name() << std::endl;
                 }
               if ( iter->second->MakeHtml(what))
                 {
-                  cout << "subsystem " << iter->second->Name()
-		       << " not in root file, skipping" << endl;
+                  std::cout << "subsystem " << iter->second->Name()
+		       << " not in root file, skipping" << std::endl;
                 }
             }
             SetStyleToDefault();
@@ -438,7 +429,7 @@ int OnlMonClient::DoSomething(const char *who, const char *what, const char *opt
         }
       else
         {
-          cout << "Drawer " << who << " not in list" << endl;
+          std::cout << "Drawer " << who << " not in list" << std::endl;
           Print("DRAWER");
           return -1;
         }
@@ -459,15 +450,15 @@ int OnlMonClient::DoSomething(const char *who, const char *what, const char *opt
             {
               if (verbosity > 0)
                 {
-                  cout << PHWHERE << " creating html output for "
-		       << iter->second->Name() << endl;
+                  std::cout << PHWHERE << " creating html output for "
+		       << iter->second->Name() << std::endl;
                 }
               gROOT->Reset();
               int iret = iter->second->MakeHtml(what);
               if (iret)
                 {
-                  cout << "subsystem " << iter->second->Name()
-		       << " not in root file, skipping" << endl;
+                  std::cout << "subsystem " << iter->second->Name()
+		       << " not in root file, skipping" << std::endl;
                   // delete all canvases (no more piling up of 50 canvases)
                   // if run for a single subsystem this leaves the canvas intact
                   // for debugging
@@ -475,7 +466,7 @@ int OnlMonClient::DoSomething(const char *who, const char *what, const char *opt
                   TCanvas *canvas = NULL;
                   while ((canvas = static_cast<TCanvas *> (allCanvases->First())))
                     {
-                      cout << "Deleting Canvas " << canvas->GetName() << endl;
+                      std::cout << "Deleting Canvas " << canvas->GetName() << std::endl;
                       delete canvas;
                     }
                 }
@@ -486,11 +477,11 @@ int OnlMonClient::DoSomething(const char *who, const char *what, const char *opt
   return 0;
 }
 
-int OnlMonClient::requestHistoByName(const string &what)
+int OnlMonClient::requestHistoByName(const std::string &what)
 {
-  string hostname = "UNKNOWN";
+  std::string hostname = "UNKNOWN";
   int moniport = MONIPORT;
-  map<const string, ClientHistoList *>::const_iterator histoiter;
+  std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
   histoiter = Histo.find(what);
   if (histoiter != Histo.end())
     {
@@ -500,7 +491,7 @@ int OnlMonClient::requestHistoByName(const string &what)
         {
           if (LocateHistogram(what) < 1)
             {
-              cout << "Histogram " << what << " cannot be located" << endl;
+              std::cout << "Histogram " << what << " cannot be located" << std::endl;
               return -1;
             }
           // search again since LocateHistogram can change the map
@@ -509,7 +500,7 @@ int OnlMonClient::requestHistoByName(const string &what)
           moniport = histoiter->second->ServerPort();
           if (hostname == "UNKNOWN")
             {
-              cout << PHWHERE << "host UNKNOWN for whatever reason" << endl;
+              std::cout << PHWHERE << "host UNKNOWN for whatever reason" << std::endl;
               return -3;
             }
         }
@@ -518,7 +509,7 @@ int OnlMonClient::requestHistoByName(const string &what)
     {
       if (LocateHistogram(what) < 1)
         {
-          cout << "Histogram " << what << " cannot be located" << endl;
+          std::cout << "Histogram " << what << " cannot be located" << std::endl;
           return -2;
         }
       histoiter = Histo.find(what);
@@ -528,13 +519,13 @@ int OnlMonClient::requestHistoByName(const string &what)
           moniport = histoiter->second->ServerPort();
           if (hostname == "UNKNOWN")
             {
-              cout << PHWHERE << "host UNKNOWN for whatever reason" << endl;
+              std::cout << PHWHERE << "host UNKNOWN for whatever reason" << std::endl;
               return -3;
             }
         }
       else
         {
-          cout << PHWHERE << "Problem determining host" << endl;
+          std::cout << PHWHERE << "Problem determining host" << std::endl;
         }
     }
   // Open connection to server
@@ -545,13 +536,13 @@ int OnlMonClient::requestHistoByName(const string &what)
     {
       if (verbosity > 1)
         {
-          cout << PHWHERE << "Waiting for Message from : " << hostname
-	       << " on port " << moniport << endl;
+          std::cout << PHWHERE << "Waiting for Message from : " << hostname
+	       << " on port " << moniport << std::endl;
         }
       sock.Recv(mess);
       if (! mess)  // if server is not up mess is NULL
         {
-          cout << PHWHERE << "Server not running on " << hostname << endl;
+          std::cout << PHWHERE << "Server not running on " << hostname << std::endl;
           sock.Close();
           return 1;
         }
@@ -562,7 +553,7 @@ int OnlMonClient::requestHistoByName(const string &what)
           delete mess;
           if (verbosity > 1)
             {
-              cout << PHWHERE << "Message: " << str << endl;
+              std::cout << PHWHERE << "Message: " << str << std::endl;
             }
           if (!strcmp(str, "Finished"))
             {
@@ -574,7 +565,7 @@ int OnlMonClient::requestHistoByName(const string &what)
             }
           else
             {
-              cout << PHWHERE << "Unknown Text Message: " << str << endl;
+              std::cout << PHWHERE << "Unknown Text Message: " << str << std::endl;
               sock.Send("Ack");
             }
         }
@@ -585,8 +576,8 @@ int OnlMonClient::requestHistoByName(const string &what)
           TH1 *maphist =  static_cast<TH1 *> (histo->Clone(histo->GetName()));
           if (verbosity > 1)
             {
-              cout << PHWHERE << "histoname: " << histo->GetName() << " at "
-		   << histo << endl;
+              std::cout << PHWHERE << "histoname: " << histo->GetName() << " at "
+		   << histo << std::endl;
             }
 
           updateHistoMap(histo->GetName(), maphist);
@@ -600,7 +591,7 @@ int OnlMonClient::requestHistoByName(const string &what)
   return 0;
 }
 
-int OnlMonClient::requestHisto(const char *what, const string &hostname, const int moniport)
+int OnlMonClient::requestHisto(const char *what, const std::string &hostname, const int moniport)
 {
   // Open connection to server
   TSocket sock(hostname.c_str(), moniport);
@@ -611,7 +602,7 @@ int OnlMonClient::requestHisto(const char *what, const string &hostname, const i
       sock.Recv(mess);
       if (! mess)  // if server is not up mess is NULL
         {
-          cout << PHWHERE << "Server not running on " << hostname << endl;
+          std::cout << PHWHERE << "Server not running on " << hostname << std::endl;
           sock.Close();
           return 1;
         }
@@ -622,7 +613,7 @@ int OnlMonClient::requestHisto(const char *what, const string &hostname, const i
           delete mess;
           if (verbosity > 1)
             {
-              cout << PHWHERE << "Message: " << str << endl;
+              std::cout << PHWHERE << "Message: " << str << std::endl;
             }
 
           if (!strcmp(str, "Finished"))
@@ -635,7 +626,7 @@ int OnlMonClient::requestHisto(const char *what, const string &hostname, const i
             }
           else
             {
-              cout << PHWHERE << "Unknown Text Message: " << str << endl;
+              std::cout << PHWHERE << "Unknown Text Message: " << str << std::endl;
               sock.Send("Ack");
             }
         }
@@ -647,8 +638,8 @@ int OnlMonClient::requestHisto(const char *what, const string &hostname, const i
           if (verbosity > 1)
             {
 
-              cout << PHWHERE << "histoname: " << histo->GetName() << " at "
-		   << histo << endl;
+              std::cout << PHWHERE << "histoname: " << histo->GetName() << " at "
+		   << histo << std::endl;
             }
 
           updateHistoMap(histo->GetName(), histo);
@@ -663,17 +654,17 @@ int OnlMonClient::requestHisto(const char *what, const string &hostname, const i
 }
 
 int
-OnlMonClient::requestHistoList(const string &hostname, const int moniport, list<string> &histolist)
+OnlMonClient::requestHistoList(const std::string &hostname, const int moniport, std::list<std::string> &histolist)
 {
   // Open connection to server
   TSocket sock(hostname.c_str(), moniport);
   TMessage *mess;
   sock.Send("LIST");
-  list<string>::const_iterator listiter;
+  std::list<std::string>::const_iterator listiter;
   sock.Recv(mess);
   if (! mess)  // if server is not up mess is NULL
     {
-      cout << PHWHERE << "Server not running on " << hostname << endl;
+      std::cout << PHWHERE << "Server not running on " << hostname << std::endl;
       sock.Close();
       return 1;
     }
@@ -685,7 +676,7 @@ OnlMonClient::requestHistoList(const string &hostname, const int moniport, list<
       sock.Recv(mess);
       if (!mess)
 	{
-	  cout << PHWHERE << "Server shut down during getting histo list" << endl; 
+	  std::cout << PHWHERE << "Server shut down during getting histo list" << std::endl; 
 	  sock.Close();
 	  return 1;
 	}
@@ -696,7 +687,7 @@ OnlMonClient::requestHistoList(const string &hostname, const int moniport, list<
           delete mess;
           if (verbosity > 1)
             {
-              cout << PHWHERE << "Message: " << str << endl;
+              std::cout << PHWHERE << "Message: " << str << std::endl;
             }
 
           if (!strcmp(str, "Ack"))
@@ -709,7 +700,7 @@ OnlMonClient::requestHistoList(const string &hostname, const int moniport, list<
             }
           else
             {
-              cout << PHWHERE << "Unknown Text Message: " << str << endl;
+              std::cout << PHWHERE << "Unknown Text Message: " << str << std::endl;
             }
         }
       else if (mess->What() == kMESS_OBJECT)
@@ -720,8 +711,8 @@ OnlMonClient::requestHistoList(const string &hostname, const int moniport, list<
           if (verbosity > 1)
             {
 
-              cout << PHWHERE << "histoname: " << histo->GetName() << " at "
-                   << histo << endl;
+              std::cout << PHWHERE << "histoname: " << histo->GetName() << " at "
+                   << histo << std::endl;
             }
 
           updateHistoMap(histo->GetName(), histo);
@@ -741,11 +732,11 @@ return 0;
 
 void OnlMonClient::updateHistoMap(const char *hname, TH1 *h1d)
 {
-  map<const string, ClientHistoList *>::const_iterator histoiter = Histo.find(hname);
+  std::map<const std::string, ClientHistoList *>::const_iterator histoiter = Histo.find(hname);
   if (histoiter != Histo.end())
     {
 #ifdef DEBUG
-      cout << "deleting histogram " << hname << " at " << Histo[hname] << endl;
+      std::cout << "deleting histogram " << hname << " at " << Histo[hname] << std::endl;
 #endif
 
       delete histoiter->second->Histo(); // delete old histogram
@@ -758,7 +749,7 @@ void OnlMonClient::updateHistoMap(const char *hname, TH1 *h1d)
       Histo[hname] = newhisto;
 #ifdef DEBUG
 
-      cout << "new histogram " << hname << " at " << Histo[hname] << endl;
+      std::cout << "new histogram " << hname << " at " << Histo[hname] << std::endl;
 #endif
 
     }
@@ -768,20 +759,20 @@ void OnlMonClient::updateHistoMap(const char *hname, TH1 *h1d)
 OnlMonDraw *
 OnlMonClient::getDrawer(const std::string &name)
 {
-  map<const string, OnlMonDraw *>::iterator iter = DrawerList.find(name);
+  std::map<const std::string, OnlMonDraw *>::iterator iter = DrawerList.find(name);
   if (iter != DrawerList.end())
     {
       return iter->second;
     }
-  cout << "Could not locate drawer" << name << endl;
+  std::cout << "Could not locate drawer" << name << std::endl;
   return 0;
 }
 
 
 TH1 *
-OnlMonClient::getHisto(const string &hname)
+OnlMonClient::getHisto(const std::string &hname)
 {
-  map<const string, ClientHistoList *>::const_iterator histoiter = Histo.find(hname);
+  std::map<const std::string, ClientHistoList *>::const_iterator histoiter = Histo.find(hname);
   if (histoiter != Histo.end())
     {
       return histoiter->second->Histo();
@@ -794,69 +785,69 @@ void OnlMonClient::Print(const char *what)
   if (!strcmp(what, "ALL") || !strcmp(what, "DRAWER"))
     {
       // loop over the map and print out the content (name and location in memory)
-      cout << "--------------------------------------" << endl << endl;
-      cout << "List of Drawers in OnlMonClient:" << endl;
+      std::cout << "--------------------------------------" << std::endl << std::endl;
+      std::cout << "List of Drawers in OnlMonClient:" << std::endl;
 
-      map<const string, OnlMonDraw*>::const_iterator hiter;
+      std::map<const std::string, OnlMonDraw*>::const_iterator hiter;
       for (hiter = DrawerList.begin(); hiter != DrawerList.end(); ++hiter)
         {
-          cout << hiter->first << " is at " << hiter->second << endl;
+          std::cout << hiter->first << " is at " << hiter->second << std::endl;
         }
-      cout << endl;
+      std::cout << std::endl;
     }
   if (!strcmp(what, "ALL") || !strcmp(what, "SERVERS"))
     {
       // loop over the map and print out the content (name and location in memory)
-      cout << "--------------------------------------" << endl << endl;
-      cout << "List of Servers in OnlMonClient:" << endl;
+      std::cout << "--------------------------------------" << std::endl << std::endl;
+      std::cout << "List of Servers in OnlMonClient:" << std::endl;
 
-      vector<string>::iterator hostiter;
+      std::vector<std::string>::iterator hostiter;
       for (hostiter = MonitorHosts.begin();hostiter != MonitorHosts.end(); ++hostiter)
         {
-          cout << "ServerHost: " << *hostiter << endl;
+          std::cout << "ServerHost: " << *hostiter << std::endl;
         }
     }
   if (!strcmp(what, "ALL") || !strcmp(what, "HISTOS"))
     {
       // loop over the map and print out the content (name and location in memory)
-      cout << "--------------------------------------" << endl << endl;
-      cout << "List of Histograms in OnlMonClient:" << endl;
+      std::cout << "--------------------------------------" << std::endl << std::endl;
+      std::cout << "List of Histograms in OnlMonClient:" << std::endl;
 
-      map<const string, ClientHistoList*>::const_iterator hiter;
+      std::map<const std::string, ClientHistoList*>::const_iterator hiter;
       for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
         {
-          cout << hiter->first << " Address " << hiter->second->Histo()
+          std::cout << hiter->first << " Address " << hiter->second->Histo()
 	       << " on host " << hiter->second->ServerHost()
 	       << " port " << hiter->second->ServerPort()
-	       << ", subsystem " << hiter->second->SubSystem() << endl;
+	       << ", subsystem " << hiter->second->SubSystem() << std::endl;
         }
-      cout << endl;
+      std::cout << std::endl;
     }
   if (!strcmp(what, "ALL") || !strcmp(what, "UNKNOWN"))
     {
       // loop over the map and print out the content (name and location in memory)
-      cout << "--------------------------------------" << endl << endl;
-      cout << "List of Unknown Histograms in OnlMonClient:" << endl;
+      std::cout << "--------------------------------------" << std::endl << std::endl;
+      std::cout << "List of Unknown Histograms in OnlMonClient:" << std::endl;
 
-      map<const string, ClientHistoList*>::const_iterator hiter;
+      std::map<const std::string, ClientHistoList*>::const_iterator hiter;
       for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
         {
           if (hiter->first != "FrameWorkVars" &&
               (hiter->second->ServerHost() == "UNKNOWN" ||
                hiter->second->SubSystem() == "UNKNOWN"))
             {
-              cout << hiter->first << " Address " << hiter->second->Histo()
+              std::cout << hiter->first << " Address " << hiter->second->Histo()
 		   << " on host " << hiter->second->ServerHost()
 		   << " port " << hiter->second->ServerPort()
-		   << ", subsystem " << hiter->second->SubSystem() << endl;
+		   << ", subsystem " << hiter->second->SubSystem() << std::endl;
             }
         }
-      cout << endl;
+      std::cout << std::endl;
     }
   return ;
 }
 
-int OnlMonClient::UpdateServerHistoMap(const string &hname, const string &hostname)
+int OnlMonClient::UpdateServerHistoMap(const std::string &hname, const std::string &hostname)
 {
   // Open connection to server
   int MoniPort = MONIPORT;
@@ -867,32 +858,32 @@ int OnlMonClient::UpdateServerHistoMap(const string &hname, const string &hostna
       TMessage *mess;
       if (verbosity > 0)
         {
-          cout << "UpdateServerHistoMap: sending cmd HistoList to "
+          std::cout << "UpdateServerHistoMap: sending cmd HistoList to "
 	       << hostname << " on port "
 	       << MoniPort
-	       << endl;
+	       << std::endl;
         }
       if (! sock.Send("HistoList"))
         {
-          cout << "Server not running on " << hostname
-	       << " port " << MoniPort << endl;
+          std::cout << "Server not running on " << hostname
+	       << " port " << MoniPort << std::endl;
           goto noserver;
         }
       while (1)
         {
           if (verbosity > 0)
             {
-              cout << "UpdateServerHistoMap: waiting for response on "
+              std::cout << "UpdateServerHistoMap: waiting for response on "
 		   << hostname << " on port "
 		   << MoniPort
-		   << endl;
+		   << std::endl;
             }
           sock.Recv(mess);
           if (! mess)  // if server is not up mess is NULL
             {
-              cout << "UpdateServerHistoMap: No Recv, Server not running on "
+              std::cout << "UpdateServerHistoMap: No Recv, Server not running on "
 		   << hostname
-		   << " on port " << MoniPort << endl;
+		   << " on port " << MoniPort << std::endl;
               goto noserver;
             }
           if (mess->What() == kMESS_STRING)
@@ -906,12 +897,12 @@ int OnlMonClient::UpdateServerHistoMap(const string &hname, const string &hostna
                 }
               if (verbosity > 0)
                 {
-                  cout << "UpdateServerHistoMap Response: " << str << endl;
+                  std::cout << "UpdateServerHistoMap Response: " << str << std::endl;
                 }
 
               if (!strcmp(str, hname.c_str()))
                 {
-                  cout << "found histo " << hname << endl;
+                  std::cout << "found histo " << hname << std::endl;
                   foundit = 1;
                 }
               PutHistoInMap(str, hostname, MoniPort);
@@ -933,9 +924,9 @@ int OnlMonClient::UpdateServerHistoMap(const string &hname, const string &hostna
   return foundit;
 }
 
-void OnlMonClient::PutHistoInMap(const string &hname, const string &hostname, const int port)
+void OnlMonClient::PutHistoInMap(const std::string &hname, const std::string &hostname, const int port)
 {
-  map<const string, ClientHistoList *>::const_iterator histoiter = Histo.find(hname);
+  std::map<const std::string, ClientHistoList *>::const_iterator histoiter = Histo.find(hname);
   if (histoiter != Histo.end())
     {
       histoiter->second->ServerHost(hostname);
@@ -953,11 +944,11 @@ void OnlMonClient::PutHistoInMap(const string &hname, const string &hostname, co
 
 void OnlMonClient::AddServerHost(const char *hostname)
 {
-  vector<string>::iterator hostiter;
+  std::vector<std::string>::iterator hostiter;
   hostiter = find(MonitorHosts.begin(), MonitorHosts.end(), hostname);
   if (hostiter != MonitorHosts.end())
     {
-      cout << "Host " << hostname << " already in list" << endl;
+      std::cout << "Host " << hostname << " already in list" << std::endl;
     }
   else
     {
@@ -967,9 +958,9 @@ void OnlMonClient::AddServerHost(const char *hostname)
   return ;
 }
 
-int OnlMonClient::LocateHistogram(const string &hname)
+int OnlMonClient::LocateHistogram(const std::string &hname)
 {
-  vector<string>::iterator hostiter;
+  std::vector<std::string>::iterator hostiter;
   for (hostiter = MonitorHosts.begin();hostiter != MonitorHosts.end(); ++hostiter)
     {
       if (UpdateServerHistoMap(hname, (*hostiter).c_str()) > 0)
@@ -983,7 +974,7 @@ int OnlMonClient::LocateHistogram(const string &hname)
 int OnlMonClient::RunNumber()
 {
   int runno = -9999;
-  map<const string, ClientHistoList *>::const_iterator histoiter;
+  std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
   histoiter = Histo.find("FrameWorkVars");
   if (histoiter != Histo.end())
     {
@@ -996,7 +987,7 @@ int OnlMonClient::RunNumber()
     {
       if (requestHistoByName("FrameWorkVars"))
         {
-          cout << "Histogram FrameWorkVars cannot be located" << endl;
+          std::cout << "Histogram FrameWorkVars cannot be located" << std::endl;
           return -9999 ;
         }
       histoiter = Histo.find("FrameWorkVars");
@@ -1006,7 +997,7 @@ int OnlMonClient::RunNumber()
         }
       else
         {
-          cout << "Histogram FrameWorkVars cannot be located" << endl;
+          std::cout << "Histogram FrameWorkVars cannot be located" << std::endl;
           return -9999;
         }
     }
@@ -1032,10 +1023,10 @@ time_t OnlMonClient::EventTime(const char *which)
     }
   else
     {
-      cout << "Bad Option for Time: " << which
-	   << ", implemented are BOR EOR CURRENT" << endl;
+      std::cout << "Bad Option for Time: " << which
+	   << ", implemented are BOR EOR CURRENT" << std::endl;
     }
-  map<const string, ClientHistoList *>::const_iterator histoiter;
+  std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
   histoiter = Histo.find("FrameWorkVars");
   if (histoiter != Histo.end())
     {
@@ -1057,7 +1048,7 @@ time_t OnlMonClient::EventTime(const char *which)
     {
       if (requestHistoByName("FrameWorkVars"))
         {
-          cout << "Histogram FrameWorkVars cannot be located, current host ticks used for time" << endl;
+          std::cout << "Histogram FrameWorkVars cannot be located, current host ticks used for time" << std::endl;
           return time(NULL) ;
         }
       histoiter = Histo.find("FrameWorkVars");
@@ -1067,19 +1058,19 @@ time_t OnlMonClient::EventTime(const char *which)
         }
       else
         {
-          cout << "Histogram FrameWorkVars cannot be located, current host ticks used for time" << endl;
+          std::cout << "Histogram FrameWorkVars cannot be located, current host ticks used for time" << std::endl;
           return time(NULL);
         }
     }
   if (tret < 1000000)
     {
-      cout << " OnlMonClient: No of Ticks " << tret
-	   << " too small (evb timestamp off or data taken by dcm crate controller, current host ticks used for time" << endl;
+      std::cout << " OnlMonClient: No of Ticks " << tret
+	   << " too small (evb timestamp off or data taken by dcm crate controller, current host ticks used for time" << std::endl;
       tret = time(NULL);
     }
   if (verbosity > 0)
     {
-      cout << "Time is " << ctime(&tret) << endl;
+      std::cout << "Time is " << ctime(&tret) << std::endl;
     }
   return (tret);
 }
@@ -1091,7 +1082,7 @@ OnlMonClient::ReadHistogramsFromFile(const char *filename)
   TFile *histofile = new TFile(filename, "READ");
   if (! histofile)
     {
-      cout << "Can't open " << filename << endl;
+      std::cout << "Can't open " << filename << std::endl;
       return -1;
     }
   save->cd();
@@ -1102,9 +1093,9 @@ OnlMonClient::ReadHistogramsFromFile(const char *filename)
     {
       if (verbosity > 0)
         {
-          cout << "TObject at " << obj << endl;
-          cout << obj->GetName() << endl;
-          cout << obj->ClassName() << endl;
+          std::cout << "TObject at " << obj << std::endl;
+          std::cout << obj->GetName() << std::endl;
+          std::cout << obj->ClassName() << std::endl;
         }
       histofile->GetObject(obj->GetName(), histoptr);
       if (histoptr)
@@ -1113,8 +1104,8 @@ OnlMonClient::ReadHistogramsFromFile(const char *filename)
           updateHistoMap(histo->GetName(), histo);
           if (verbosity > 0)
             {
-              cout << "HistoName: " << histo->GetName() << endl;
-              cout << "HistoClass: " << histo->ClassName() << endl;
+              std::cout << "HistoName: " << histo->GetName() << std::endl;
+              std::cout << "HistoClass: " << histo->ClassName() << std::endl;
             }
         }
     }
@@ -1131,8 +1122,8 @@ int OnlMonClient::SendCommand(const char *hostname, const int port, const char *
   TMessage *mess;
   if (! sock.Send(cmd))
     {
-      cout << "Server not running on " << hostname
-	   << " port " << port << endl;
+      std::cout << "Server not running on " << hostname
+	   << " port " << port << std::endl;
       sock.Close();
       return -1;
     }
@@ -1141,8 +1132,8 @@ int OnlMonClient::SendCommand(const char *hostname, const int port, const char *
       sock.Recv(mess);
       if (! mess)  // if server is not up mess is NULL
         {
-          cout << PHWHERE << "No Recv, Server not running on " << hostname
-	       << " on port " << port << endl;
+          std::cout << PHWHERE << "No Recv, Server not running on " << hostname
+	       << " on port " << port << std::endl;
           sock.Close();
           return -1;
         }
@@ -1153,7 +1144,7 @@ int OnlMonClient::SendCommand(const char *hostname, const int port, const char *
           delete mess;
           if (verbosity > 1)
             {
-              cout << PHWHERE << " Message: " << str << endl;
+              std::cout << PHWHERE << " Message: " << str << std::endl;
             }
 
           if (!strcmp(str, "Finished"))
@@ -1183,8 +1174,8 @@ OnlMonClient::Verbosity(const int v)
 //_____________________________________________________________________________
 void
 OnlMonClient::htmlAddMenu(const OnlMonDraw& drawer,
-                          const string& path,
-                          const string& relfilename)
+                          const std::string& path,
+                          const std::string& relfilename)
 {
   fHtml->addMenu(drawer.Name(), path, relfilename);
 }
@@ -1192,20 +1183,20 @@ OnlMonClient::htmlAddMenu(const OnlMonDraw& drawer,
 //_____________________________________________________________________________
 void
 OnlMonClient::htmlNamer(const OnlMonDraw& drawer,
-                        const string& basefilename,
-                        const string& ext,
-                        string& fullfilename,
-                        string& filename)
+                        const std::string& basefilename,
+                        const std::string& ext,
+                        std::string& fullfilename,
+                        std::string& filename)
 {
   fHtml->namer(drawer.Name(), basefilename, ext, fullfilename, filename);
 }
 
 //_____________________________________________________________________________
-string
+std::string
 OnlMonClient::htmlRegisterPage(const OnlMonDraw& drawer,
-                               const string& path,
-                               const string& basefilename,
-                               const string& ext)
+                               const std::string& path,
+                               const std::string& basefilename,
+                               const std::string& ext)
 {
   return fHtml->registerPage(drawer.Name(), path, basefilename, ext);
 }
@@ -1220,25 +1211,28 @@ OnlMonClient::CanvasToPng(TCanvas *canvas, std::string const &pngfilename)
   // returned char array needs to be free'd after use
   if (! canvas)
     {
-      cout << PHWHERE << " TCanvas is Null Pointer" << endl;
+      std::cout << PHWHERE << " TCanvas is Null Pointer" << std::endl;
       return -2;
     }
   if (pngfilename.empty())
     {
-      cout << PHWHERE << " emtpy png filename, not saving TCanvas " 
-	   << canvas->GetName() << endl;
+      std::cout << PHWHERE << " emtpy png filename, not saving TCanvas "
+	   << canvas->GetName() << std::endl;
       return -1;
     }
-  char *tmpname = tempnam("/tmp", "TC");
-  canvas->Print(tmpname, "gif"); // write gif format
-  TImage *img = TImage::Open(tmpname);
+  uuid_t uu;
+  uuid_generate(uu);
+  char uuid[50];
+  uuid_unparse(uu, uuid);
+  std::string tmpname =   "/tmp/TC" + std::string(uuid);
+  canvas->Print(tmpname.c_str(), "gif"); // write gif format
+  TImage *img = TImage::Open(tmpname.c_str());
   img->WriteImage(pngfilename.c_str());
   delete img;
-  if (remove(tmpname))
+  if (remove(tmpname.c_str()))
     {
-      cout << "Error removing " << tmpname << endl;
+      std::cout << "Error removing " << tmpname << std::endl;
     }
-  free(tmpname);
   return 0;
 }
 
@@ -1265,7 +1259,7 @@ OnlMonClient::HistoToPng(TH1 *histo, std::string const &pngfilename, const char 
   img->WriteImage(pngfilename.c_str());
   if (remove(tmpname))
     {
-      cout << "Error removing " << tmpname << endl;
+      std::cout << "Error removing " << tmpname << std::endl;
     }
   free(tmpname);
   delete cgiCanv;
@@ -1287,7 +1281,7 @@ OnlMonClient::SaveLogFile(const OnlMonDraw& drawer)
 {
   // sendfile example shamelessly copied from
   // http://www.linuxgazette.com/issue91/tranter.html
-  ostringstream logfilename;
+  std::ostringstream logfilename;
   const char *logdir = getenv("ONLMON_LOGDIR");
   if (logdir)
     {
@@ -1295,11 +1289,11 @@ OnlMonClient::SaveLogFile(const OnlMonDraw& drawer)
     }
   int irun = RunNumber();
   logfilename << drawer.Name() << "_" << irun << ".log.gz" ;
-  ifstream infile(logfilename.str().c_str(), std::ios_base::binary);
+  std::ifstream infile(logfilename.str().c_str(), std::ios_base::binary);
   if (infile.good())
     {
-      string outfilename = htmlRegisterPage(drawer, "Logfile", "log", "txt.gz");
-      ofstream outfile(outfilename.c_str(), std::ios_base::binary);
+      std::string outfilename = htmlRegisterPage(drawer, "Logfile", "log", "txt.gz");
+      std::ofstream outfile(outfilename.c_str(), std::ios_base::binary);
       outfile << infile.rdbuf();
       infile.close();
       outfile.close();
@@ -1327,20 +1321,19 @@ OnlMonClient::CacheRunDB(const int runno)
     {
       return;
     }
-  string TriggerConfig = "UNKNOWN";
+  std::string TriggerConfig = "UNKNOWN";
   standalone = 0;
   cosmicrun = 0;
   runtype="UNKNOWN";
 
   if (runno == 0xFEE2DCB) // dcm2 standalone runs have this runnumber
     {
-      TriggerConfig = "StandAloneMode";
       standalone = 1;
       return;
     }
   odbc::Connection *con = 0;
   odbc::Statement* query = 0;
-  ostringstream cmd;
+  std::ostringstream cmd;
   try
     {
       con = odbc::DriverManager::getConnection("daq", "phnxrc", "");
@@ -1405,7 +1398,7 @@ OnlMonClient::CacheRunDB(const int runno)
 	{
 	  standalone = 0;
 	}
-      if (TriggerConfig.find("Cosmic") != string::npos)
+      if (TriggerConfig.find("Cosmic") != std::string::npos)
 	{
 	  cosmicrun = 1;
 	}
@@ -1433,7 +1426,7 @@ OnlMonClient::isStandalone()
   return standalone;
 }
 
-string
+std::string
 OnlMonClient::RunType()
 {
   CacheRunDB(RunNumber());

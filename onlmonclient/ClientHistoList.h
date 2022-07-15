@@ -1,5 +1,5 @@
-#ifndef __CLIENTHISTOLIST_H__
-#define __CLIENTHISTOLIST_H__
+#ifndef CLIENTHISTOLIST_H__
+#define CLIENTHISTOLIST_H__
 
 #include <iostream>
 #include <string>
@@ -10,7 +10,7 @@ class ClientHistoList
 {
  public:
   ClientHistoList();
-  ClientHistoList(const std::string &subsys);
+  explicit ClientHistoList(const std::string &subsys);
 
   virtual ~ClientHistoList();
 

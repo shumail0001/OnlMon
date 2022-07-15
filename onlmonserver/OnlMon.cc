@@ -1,15 +1,13 @@
 #include "OnlMon.h"
 #include "OnlMonServer.h"
 
+#include <Event/msg_profile.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#include <Event.h>
-#pragma GCC diagnostic pop
-
-#include <msg_profile.h>
+#include <cstdio>         // for printf
 #include <iostream>
 #include <sstream>
+
+class Event;
 
 using namespace std;
 

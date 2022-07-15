@@ -1,12 +1,11 @@
-#ifndef __MESSAGESYSTEM_H__
-#define __MESSAGESYSTEM_H__
+#ifndef ONLMONSERVER_MESSAGESYSTEM_H
+#define ONLMONSERVER_MESSAGESYSTEM_H
 
 #include <OnlMonBase.h>
 
-#include <msg_profile.h>
-
 #include <map>
 #include <string>
+#include <utility>       // for pair
 
 class msg_control;
 

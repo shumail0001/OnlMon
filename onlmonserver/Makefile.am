@@ -80,15 +80,5 @@ testexternals.cc:
 	echo "}" >> $@
 
 
-OnlMonServer_Dict.C: \
-  OnlMonServer.h \
-  OnlMonStatusDB.h \
-  OnlMonTrigger.h \
-  OnlMonServerLinkDef.h
-	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(RINCLUDES) $^
-
-OnlMon_Dict.C: OnlMon.h OnlMonBase.h OnlMonLinkDef.h
-	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(RINCLUDES) $^
-
 clean-local:
-	rm -f *Dict.*
+	rm -f $(BUILT_SOURCES)

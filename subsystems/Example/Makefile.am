@@ -49,9 +49,5 @@ testexternals.cc:
 	echo "  return 0;" >> $@
 	echo "}" >> $@
 
-
-MyMon_Dict.cc: MyMon.h MyMonDraw.h MyMonLinkDef.h
-	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(AM_CPPFLAGS) $^
-
 clean-local:
-	rm -f *Dict.*
+	rm -f $(BUILT_SOURCES)

@@ -1,7 +1,8 @@
 #include "MessageSystem.h"
 #include "OnlMonServer.h"
 
-#include "msg_control.h"
+#include <Event/msg_control.h>
+#include <Event/msg_profile.h>   // for MSG_SEV_DEFAULT, MSG_SEV_INFORMATIONAL
 
 using namespace std;
 
