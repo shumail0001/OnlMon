@@ -36,15 +36,13 @@
 using namespace std;
 
 const int SUBSYSTEM_ACTION_ID_BEGIN = 10001;
-const ULong_t SHUTTER_ITEM_BG_COLOR = 0xffaacc; // color is rrggbb (red, green, blue in hex)
+const ULong_t SHUTTER_ITEM_BG_COLOR = 0xffaacc;  // color is rrggbb (red, green, blue in hex)
 
-const char *pomsFileTypes[] =
-  {
-    "PHENIX raw data files", "*.prdf",
-    "All files", "*",
-    0, 0
-  };
-
+const char* pomsFileTypes[] =
+    {
+        "PHENIX raw data files", "*.prdf",
+        "All files", "*",
+        0, 0};
 
 /////////////////////////////////////////////////////////////////////////////
 // PomsMainFrame Implementation                                            //
@@ -55,14 +53,17 @@ PomsMainFrame* PomsMainFrame::_instance = 0;
 
 PomsMainFrame* PomsMainFrame::Instance()
 {
-  if (! _instance )
+  if (!_instance)
     _instance = new PomsMainFrame(gClient->GetRoot(), 1, 1);
 
   return _instance;
 }
 
 PomsMainFrame::PomsMainFrame(const TGWindow* p, UInt_t w, UInt_t h)
-  : TGMainFrame(p, w, h), _rootHorizPad(10), _rootVertPad(0), _windowPad(20)
+  : TGMainFrame(p, w, h)
+  , _rootHorizPad(10)
+  , _rootVertPad(0)
+  , _windowPad(20)
 {
   // Constructor sets up window widgets
 
@@ -70,27 +71,27 @@ PomsMainFrame::PomsMainFrame(const TGWindow* p, UInt_t w, UInt_t h)
 
   // Find macro directory
   if (getenv("ONLMON_MACROS"))
-    {
-      _macroPath = getenv("ONLMON_MACROS");
-    }
+  {
+    _macroPath = getenv("ONLMON_MACROS");
+  }
   else
-    {
-      cout << "Environment variable ONLMON_MACROS not set, using current dir" << endl;
-      _macroPath = "./";
-    }
+  {
+    cout << "Environment variable ONLMON_MACROS not set, using current dir" << endl;
+    _macroPath = "./";
+  }
   // Discover root window properties
   TGFrame* rootWin = (TGFrame*) gClient->GetRoot();
   _rootWidth = rootWin->GetDefaultWidth();
   if (_rootWidth > 2000)
-    {
-      _rootWidth = _rootWidth/2;
-    }
+  {
+    _rootWidth = _rootWidth / 2;
+  }
   _rootHeight = rootWin->GetDefaultHeight();
 
   cout << POMS_VER << "Screen Width: " << _rootWidth << endl;
   cout << POMS_VER << "Screen Height: " << _rootHeight << endl;
 
-  TGLayoutHints* menuLayout = new TGLayoutHints( kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
+  TGLayoutHints* menuLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
 
   // TODO:
   //   Add close button
@@ -123,15 +124,15 @@ void PomsMainFrame::SetMacroPath(const char* path)
 
 void PomsMainFrame::Draw()
 {
-  OnlMonClient *cl = OnlMonClient::instance();
+  OnlMonClient* cl = OnlMonClient::instance();
   // Let macro know what's happening
   cout << POMS_VER << "Attempting Build of PomsMainFrame..." << endl;
 
   // Build Subsystem Shutter
   if (_shutter)
-    {
-      delete _shutter;
-    }
+  {
+    delete _shutter;
+  }
   _shutter = BuildShutter();
   AddFrame(_shutter, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY));
 
@@ -140,16 +141,15 @@ void PomsMainFrame::Draw()
   AlignRight();
   int xsize = cl->GetDisplaySizeX();
   if (xsize > 2000)
-    {
-      xsize = xsize/2;
-    }
+  {
+    xsize = xsize / 2;
+  }
   int ysize = cl->GetDisplaySizeY();
-  xsize -= (_shutter->GetDefaultWidth())+30;
+  xsize -= (_shutter->GetDefaultWidth()) + 30;
   ysize -= 100;
   cl->SetDisplaySizeX(xsize);
   cl->SetDisplaySizeY(ysize);
 }
-
 
 PomsMainFrame::~PomsMainFrame()
 {
@@ -170,8 +170,9 @@ void PomsMainFrame::CloseWindow()
 {
   // Standard close window routine
   TGMainFrame::CloseWindow();
-  cout << "\n\n" << endl;  // Prevent prompt from displaying at end of output
-  gROOT->ProcessLine( ".q" );
+  cout << "\n\n"
+       << endl;  // Prevent prompt from displaying at end of output
+  gROOT->ProcessLine(".q");
 }
 
 Bool_t PomsMainFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t /* parm2 */)
@@ -192,48 +193,48 @@ Bool_t PomsMainFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t /* parm2 *
 #endif
 
   switch (GET_MSG(msg))
+  {
+  case kC_COMMAND:  //command type event
+
+    switch (GET_SUBMSG(msg))
     {
-    case kC_COMMAND:   //command type event
+    case kCM_MENU:
+      switch (parm1)
+      {
+      case M_FILE_EXIT:
+        CloseWindow();
+        break;
 
-      switch (GET_SUBMSG(msg))
-        {
-        case kCM_MENU:
-          switch (parm1)
-            {
-            case M_FILE_EXIT:
-              CloseWindow();
-              break;
+      case M_WINDOW_ALIGNRIGHT:
+        AlignRight();
+        break;
+      case M_WINDOW_TILEALL:
+        TileAllCanvases();
+        break;
 
-            case M_WINDOW_ALIGNRIGHT:
-              AlignRight();
-              break;
-            case M_WINDOW_TILEALL:
-              TileAllCanvases();
-              break;
-
-            default:
-              break;
-            }
-          break;
-
-        case kCM_BUTTON:
-          switch (parm1)
-            {
-            default:
-              HandleButtonPoms(parm1);
-              break;
-            }
-        }
+      default:
+        break;
+      }
       break;
+
+    case kCM_BUTTON:
+      switch (parm1)
+      {
+      default:
+        HandleButtonPoms(parm1);
+        break;
+      }
     }
+    break;
+  }
 
   int retval;
-  if (status != 1) // ERROR -- Create Message Window
-    {
-      new TGMsgBox(gClient->GetRoot(), this,
-                   POMS_VER, "General error in executing widget handler!",
-                   kMBIconStop, kMBOk, &retval);
-    }
+  if (status != 1)  // ERROR -- Create Message Window
+  {
+    new TGMsgBox(gClient->GetRoot(), this,
+                 POMS_VER, "General error in executing widget handler!",
+                 kMBIconStop, kMBOk, &retval);
+  }
 
   return kTRUE;
 }
@@ -242,40 +243,40 @@ int PomsMainFrame::HandleButtonPoms(Long_t parm1)
 {
   // Check to see if button belongs to SubSystemAction
   if (parm1 > (SUBSYSTEM_ACTION_ID_BEGIN - 1))
-    {
-      SubSystemAction* action = SubSystemAction::FindById(parm1);
+  {
+    SubSystemAction* action = SubSystemAction::FindById(parm1);
 
-      if (!action)
-        return -1;
+    if (!action)
+      return -1;
 
-      return action->Execute();
-    }
+    return action->Execute();
+  }
 
   return -1;
 }
 
 SubSystem* PomsMainFrame::RegisterSubSystem(const char* name, const char* prefix,
-					    int addDefaultActions, int loadLibrary)
+                                            int addDefaultActions, int loadLibrary)
 {
   SubSystem* sub = 0;
 
   try
-    {
-      sub = new SubSystem(name, prefix, loadLibrary);
+  {
+    sub = new SubSystem(name, prefix, loadLibrary);
 
-      if (addDefaultActions != 0)
-        sub->AddDefaultActions();
+    if (addDefaultActions != 0)
+      sub->AddDefaultActions();
 
-      _subSystemList.push_back(sub);
-      cout << POMS_VER << "SubSystem " << name << " added..." << endl;
-    }
+    _subSystemList.push_back(sub);
+    cout << POMS_VER << "SubSystem " << name << " added..." << endl;
+  }
   catch (char* str)
-    {
-      cout << POMS_VER << "Unable to add subsystem " << name << "!" << endl;
-      cout << "\t" << str << endl;
-      delete str;
-      delete sub;
-    }
+  {
+    cout << POMS_VER << "Unable to add subsystem " << name << "!" << endl;
+    cout << "\t" << str << endl;
+    delete str;
+    delete sub;
+  }
   return sub;
 }
 
@@ -305,33 +306,33 @@ TGShutter* PomsMainFrame::BuildShutter()
   layout = new TGLayoutHints(kLHintsExpandX | kLHintsTop, 5, 5, 0, 0);
 
   for (subSystem = _subSystemList.begin(); subSystem != _subSystemList.end(); ++subSystem)
+  {
+    actionList = (*subSystem)->GetActions();
+    action = actionList->begin();
+
+    // Only add SubSystem if it has actions associated with it.
+    if (action != actionList->end())
     {
-      actionList = (*subSystem)->GetActions();
-      action = actionList->begin();
+      cout << POMS_VER << "\tAdding " << (*subSystem)->GetName() << " to shutter" << endl;
 
-      // Only add SubSystem if it has actions associated with it.
-      if (action != actionList->end())
-        {
-          cout << POMS_VER << "\tAdding " << (*subSystem)->GetName() << " to shutter" << endl;
+      shutterItem = new TGShutterItem(shutter,
+                                      new TGHotString((*subSystem)->GetName().c_str()),
+                                      shutterItemId++);
+      container = (TGCompositeFrame*) shutterItem->GetContainer();
 
-          shutterItem = new TGShutterItem(shutter,
-                                          new TGHotString((*subSystem)->GetName().c_str()),
-                                          shutterItemId++);
-          container = (TGCompositeFrame*) shutterItem->GetContainer();
-
-          for (; action != actionList->end(); ++action)
-            {
-              cout << POMS_VER << "\t\tAdding \"" << (*action)->GetDescription() << "\" button..." << endl;
-              button = new TGTextButton(container,
-                                        (*action)->GetDescription().c_str(),
-                                        (*action)->GetId());
-	      button->SetTextColor(0xCC00FF);
-              container->AddFrame(button, layout);
-              button->Associate(this);
-            }
-          shutter->AddItem(shutterItem);
-        }
+      for (; action != actionList->end(); ++action)
+      {
+        cout << POMS_VER << "\t\tAdding \"" << (*action)->GetDescription() << "\" button..." << endl;
+        button = new TGTextButton(container,
+                                  (*action)->GetDescription().c_str(),
+                                  (*action)->GetId());
+        button->SetTextColor(0xCC00FF);
+        container->AddFrame(button, layout);
+        button->Associate(this);
+      }
+      shutter->AddItem(shutterItem);
     }
+  }
   return shutter;
 }
 
@@ -347,14 +348,13 @@ void PomsMainFrame::AlignRight()
   Move(x, y);
 }
 
-
 void PomsMainFrame::TileCanvases(TList* canvasList)
 {
   if (!canvasList)
-    {
-      cout << POMS_VER << "cannot tile canvases, canvas list empty!" << endl;
-      return ;
-    }
+  {
+    cout << POMS_VER << "cannot tile canvases, canvas list empty!" << endl;
+    return;
+  }
   AlignRight();
 
   TCanvas* canvas = (TCanvas*) canvasList->First();
@@ -369,29 +369,29 @@ void PomsMainFrame::TileCanvases(TList* canvasList)
   int currX = _rootHorizPad;
 
   int width = (int) ((_rootWidth - (2 * _rootHorizPad) -
-                      (windowCountHoriz * _windowPad) - GetDefaultWidth()) / windowCountHoriz);
+                      (windowCountHoriz * _windowPad) - GetDefaultWidth()) /
+                     windowCountHoriz);
   int height = (int) ((_rootHeight - (2 * _rootVertPad) - (windowCountVert * _windowPad)) / windowCountVert);
 
   for (i = 0; i < windowCountHoriz; i++)
+  {
+    // Reset Vertical Height
+    int currY = _rootVertPad;
+    currX += (width * i) + _windowPad;
+
+    for (j = 0; j < windowCountVert; j++)
     {
-      // Reset Vertical Height
-      int currY = _rootVertPad;
-      currX += (width * i) + _windowPad;
+      currY += (height * j) + _windowPad;
 
-      for (j = 0; j < windowCountVert; j++)
-        {
-          currY += (height * j) + _windowPad;
+      if (canvas)
+      {
+        canvas->SetWindowSize(width, height);
+        canvas->SetWindowPosition(currX, currY);
 
-          if (canvas)
-            {
-              canvas->SetWindowSize(width, height);
-              canvas->SetWindowPosition(currX, currY);
-
-              canvas = (TCanvas*) canvasList->After(canvas);
-            }
-        }
+        canvas = (TCanvas*) canvasList->After(canvas);
+      }
     }
-
+  }
 }
 
 void PomsMainFrame::CascadeCanvases(TList* /* canvasList */)
@@ -405,10 +405,10 @@ void PomsMainFrame::TileAllCanvases()
   TList* canvasList = new TList();
 
   for (subSystem = _subSystemList.begin(); subSystem != _subSystemList.end(); ++subSystem)
-    {
-      canvasList->AddAll((*subSystem)->GetCanvases());
-      (*subSystem)->ShowCanvases();
-    }
+  {
+    canvasList->AddAll((*subSystem)->GetCanvases());
+    (*subSystem)->ShowCanvases();
+  }
   TileCanvases(canvasList);
 
   delete canvasList;
@@ -419,23 +419,26 @@ void PomsMainFrame::TileAllCanvases()
 /////////////////////////////////////////////////////////////////////////////
 
 SubSystem::SubSystem(const char* name, const char* prefix, int loadLibrary)
-  : _name(name), _prefix(prefix), _canvasList(0), _initialized(0)
+  : _name(name)
+  , _prefix(prefix)
+  , _canvasList(0)
+  , _initialized(0)
 {
   string macroPath;
 
   if ((strlen(name) < 1) || (strlen(prefix) < 1))
-    {
-      const char* error = "ERROR: name and prefix must not be null!";
-      throw error;
-    }
+  {
+    const char* error = "ERROR: name and prefix must not be null!";
+    throw error;
+  }
 
   if (loadLibrary)
-    {
-      macroPath = PomsMainFrame::Instance()->GetMacroPath();
-      if (macroPath.size() == 0)
-        macroPath = ".";
-      gROOT->LoadMacro((macroPath + "/run_" + _prefix + ".C").c_str());
-    }
+  {
+    macroPath = PomsMainFrame::Instance()->GetMacroPath();
+    if (macroPath.size() == 0)
+      macroPath = ".";
+    gROOT->LoadMacro((macroPath + "/run_" + _prefix + ".C").c_str());
+  }
 }
 
 SubSystem::~SubSystem()
@@ -455,27 +458,27 @@ TList* SubSystem::GetCanvases(int forceReQuery)
   TCanvas* canvas = (TCanvas*) allCanvases->First();
   TString* prefix = new TString(_prefix.c_str());
 
-  prefix->ToLower(); // Avoid case sensitive searching
+  prefix->ToLower();  // Avoid case sensitive searching
 
   while (canvas)
+  {
+    TString* canvasName = new TString(canvas->GetName());
+    canvasName->ToLower();
+
+    if (canvasName->Contains(*prefix))
     {
-      TString* canvasName = new TString(canvas->GetName());
-      canvasName->ToLower();
-
-      if (canvasName->Contains(*prefix))
-        {
-          // Canvas belongs to this sub system
-          if (!_canvasList)
-            {
-              // only create canvasList if we have canvases
-              _canvasList = new TList();
-            }
-          _canvasList->Add(canvas);
-        }
-
-      delete canvasName;
-      canvas = (TCanvas*) allCanvases->After(canvas);
+      // Canvas belongs to this sub system
+      if (!_canvasList)
+      {
+        // only create canvasList if we have canvases
+        _canvasList = new TList();
+      }
+      _canvasList->Add(canvas);
     }
+
+    delete canvasName;
+    canvas = (TCanvas*) allCanvases->After(canvas);
+  }
 
   delete prefix;
 
@@ -491,17 +494,17 @@ void SubSystem::PrintCanvasList()
   TCanvas* canvas;
 
   if (!(canvasList = GetCanvases()))
-    return ;
+    return;
 
   cout << POMS_VER << "Querying subsystem " << _name << " for canvases:" << endl;
   canvas = (TCanvas*) canvasList->First();
   while (canvas)
-    {
-      cout << "\t" << canvas->GetName() << endl;
-      canvas = (TCanvas*) canvasList->After(canvas);
-    }
+  {
+    cout << "\t" << canvas->GetName() << endl;
+    canvas = (TCanvas*) canvasList->After(canvas);
+  }
   cout << "End of Canvas List" << endl;
-  return ;
+  return;
 }
 
 void SubSystem::ShowCanvases()
@@ -510,15 +513,15 @@ void SubSystem::ShowCanvases()
   TCanvas* canvas;
 
   if (!(canvasList = GetCanvases()))
-    return ;
+    return;
 
   canvas = (TCanvas*) canvasList->First();
   while (canvas)
-    {
-      canvas->Show();
-      canvas = (TCanvas*) canvasList->After(canvas);
-    }
-  return ;
+  {
+    canvas->Show();
+    canvas = (TCanvas*) canvasList->After(canvas);
+  }
+  return;
 }
 
 SubSystemAction* SubSystem::AddAction(const char* cmd, const char* description)
@@ -526,19 +529,19 @@ SubSystemAction* SubSystem::AddAction(const char* cmd, const char* description)
   SubSystemAction* action = 0;
 
   try
-    {
-      action = new SubSystemAction(this, cmd, description);
-      _actions.push_back(action);
+  {
+    action = new SubSystemAction(this, cmd, description);
+    _actions.push_back(action);
 
-      cout << POMS_VER << "Action " << cmd << " added to " << _name << "..." << endl;
-    }
+    cout << POMS_VER << "Action " << cmd << " added to " << _name << "..." << endl;
+  }
   catch (char* str)
-    {
-      cout << POMS_VER << "Unable to add action " << cmd << "!" << endl;
-      cout << "\t" << str << endl;
-      delete str;
-      delete action;
-    }
+  {
+    cout << POMS_VER << "Unable to add action " << cmd << "!" << endl;
+    cout << "\t" << str << endl;
+    delete str;
+    delete action;
+  }
   return action;
 }
 
@@ -571,7 +574,6 @@ void SubSystem::AddDefaultActions()
   // AddAction(new SubSystemActionTileCanvases(this));
 }
 
-
 void SubSystem::TileCanvases()
 {
   PomsMainFrame* pmf = PomsMainFrame::Instance();
@@ -586,7 +588,6 @@ void SubSystem::CascadeCanvases()
   ShowCanvases();
 }
 
-
 /////////////////////////////////////////////////////////////////////////////
 //   SubSystemAction Implementation                                        //
 /////////////////////////////////////////////////////////////////////////////
@@ -595,41 +596,45 @@ int SubSystemAction::_nextId = SUBSYSTEM_ACTION_ID_BEGIN;
 SubSystemActionMap SubSystemAction::_map;
 
 SubSystemAction::SubSystemAction(SubSystem* parent)
-  : _running(false), _parent(parent)
+  : _running(false)
+  , _parent(parent)
 {
-
   if (!parent)
-    {
-       const char* error = "ERROR: Action must have parent!";
-      throw error;
-    }
+  {
+    const char* error = "ERROR: Action must have parent!";
+    throw error;
+  }
 
   _id = NextId();
   _map[_id];
 }
 
 SubSystemAction::SubSystemAction(SubSystem* parent, const char* description)
-  : _running(false), _parent(parent), _description(description)
+  : _running(false)
+  , _parent(parent)
+  , _description(description)
 {
   if (!parent)
-    {
-      const char* error = "ERROR: Action must have parent!";
-      throw error;
-    }
+  {
+    const char* error = "ERROR: Action must have parent!";
+    throw error;
+  }
 
-  _id = NextId();          // Id used to assign to buttons, menu items, etc
-  _map[_id] = this;        // Add action to lookup table, see PomsMainFrame::HandleButtonPoms()
+  _id = NextId();    // Id used to assign to buttons, menu items, etc
+  _map[_id] = this;  // Add action to lookup table, see PomsMainFrame::HandleButtonPoms()
 }
 
 SubSystemAction::SubSystemAction(SubSystem* parent, const char* cmd, const char* description)
-  : _running(false), _parent(parent), _cmd(cmd), _description(description)
+  : _running(false)
+  , _parent(parent)
+  , _cmd(cmd)
+  , _description(description)
 {
-
   if (!parent || (strlen(cmd) < 1))
-    {
-      const char* error = "ERROR: Action must have parent and command string!";
-      throw error;
-    }
+  {
+    const char* error = "ERROR: Action must have parent and command string!";
+    throw error;
+  }
 
   _id = NextId();
   _map[_id] = this;
@@ -646,25 +651,23 @@ int SubSystemAction::Execute()
     return 0;
 
   _running = true;
-  if (!_parent->isInitialized()) // Check to see if DrawInit() has been executed
-    {
-      gROOT->ProcessLine((_parent->GetPrefix() + "DrawInit(1)").c_str());
-      _parent->setInitialized(1);
-    }
+  if (!_parent->isInitialized())  // Check to see if DrawInit() has been executed
+  {
+    gROOT->ProcessLine((_parent->GetPrefix() + "DrawInit(1)").c_str());
+    _parent->setInitialized(1);
+  }
 
   TSeqCollection* allCanvases = gROOT->GetListOfCanvases();
-  TCanvas *canvas = NULL;
-  while ((canvas = (TCanvas *) allCanvases->First()))
-    {
-      cout << "Deleting Canvas " << canvas->GetName() << endl;
-      delete canvas;
-    }
+  TCanvas* canvas = NULL;
+  while ((canvas = (TCanvas*) allCanvases->First()))
+  {
+    cout << "Deleting Canvas " << canvas->GetName() << endl;
+    delete canvas;
+  }
   gROOT->ProcessLine(_cmd.c_str());
   _running = false;
   return 0;
 }
-
-
 
 /////////////////////////////////////////////////////////////////////////////
 //    SubSystemActionDraw  Implementation                                  //
@@ -672,7 +675,8 @@ int SubSystemAction::Execute()
 
 SubSystemActionDraw::SubSystemActionDraw(SubSystem* parent)
   : SubSystemAction(parent, "Draw")
-{}
+{
+}
 
 int SubSystemActionDraw::Execute()
 {
@@ -681,24 +685,23 @@ int SubSystemActionDraw::Execute()
 
   _running = true;
 
-  if (!_parent->isInitialized()) // Check to see if DrawInit() has been executed
-    {
-      gROOT->ProcessLine((_parent->GetPrefix() + "DrawInit(1)").c_str());
-      _parent->setInitialized(1);
-    }
+  if (!_parent->isInitialized())  // Check to see if DrawInit() has been executed
+  {
+    gROOT->ProcessLine((_parent->GetPrefix() + "DrawInit(1)").c_str());
+    _parent->setInitialized(1);
+  }
 
   TSeqCollection* allCanvases = gROOT->GetListOfCanvases();
-  TCanvas *canvas = NULL;
-  while ((canvas = (TCanvas *) allCanvases->First()))
-    {
-      cout << "Deleting Canvas " << canvas->GetName() << endl;
-      delete canvas;
-    }
+  TCanvas* canvas = NULL;
+  while ((canvas = (TCanvas*) allCanvases->First()))
+  {
+    cout << "Deleting Canvas " << canvas->GetName() << endl;
+    delete canvas;
+  }
   gROOT->ProcessLine((_parent->GetPrefix() + "Draw()").c_str());
   _running = false;
   return 0;
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 //    SubSystemActionDrawPS  Implementation                                //
@@ -706,7 +709,8 @@ int SubSystemActionDraw::Execute()
 
 SubSystemActionDrawPS::SubSystemActionDrawPS(SubSystem* parent)
   : SubSystemAction(parent, "Save Postscript")
-{}
+{
+}
 
 int SubSystemActionDrawPS::Execute()
 {
@@ -719,15 +723,14 @@ int SubSystemActionDrawPS::Execute()
   return 0;
 }
 
-
-
 /////////////////////////////////////////////////////////////////////////////
 //    SubSystemActionDrawHtml  Implementation                              //
 /////////////////////////////////////////////////////////////////////////////
 
 SubSystemActionDrawHtml::SubSystemActionDrawHtml(SubSystem* parent)
   : SubSystemAction(parent, "Save to HTML")
-{}
+{
+}
 
 int SubSystemActionDrawHtml::Execute()
 {
@@ -740,15 +743,14 @@ int SubSystemActionDrawHtml::Execute()
   return 0;
 }
 
-
-
 /////////////////////////////////////////////////////////////////////////////
 //    SubSystemActionShowCanvases  Implementation                          //
 /////////////////////////////////////////////////////////////////////////////
 
 SubSystemActionShowCanvases::SubSystemActionShowCanvases(SubSystem* parent)
   : SubSystemAction(parent, "Show Canvases")
-{}
+{
+}
 
 int SubSystemActionShowCanvases::Execute()
 {
@@ -761,15 +763,14 @@ int SubSystemActionShowCanvases::Execute()
   return 0;
 }
 
-
-
 /////////////////////////////////////////////////////////////////////////////
 //    SubSystemActionTileCanvases  Implementation                          //
 /////////////////////////////////////////////////////////////////////////////
 
 SubSystemActionTileCanvases::SubSystemActionTileCanvases(SubSystem* parent)
   : SubSystemAction(parent, "Tile Canvases")
-{}
+{
+}
 
 int SubSystemActionTileCanvases::Execute()
 {
@@ -782,17 +783,13 @@ int SubSystemActionTileCanvases::Execute()
   return 0;
 }
 
-
-
-
-
 // -------------------------------------------------------------
 // ColorShutterItem Implementation
 // -------------------------------------------------------------
 
-ColorShutterItem::ColorShutterItem( const ULong_t bgColor, const TGWindow* p, TGHotString* s,
-                                    Int_t id, UInt_t options )
-    : TGShutterItem( p, s, id, options )
+ColorShutterItem::ColorShutterItem(const ULong_t bgColor, const TGWindow* p, TGHotString* s,
+                                   Int_t id, UInt_t options)
+  : TGShutterItem(p, s, id, options)
 {
-  fButton->ChangeBackground( bgColor );
+  fButton->ChangeBackground(bgColor);
 }

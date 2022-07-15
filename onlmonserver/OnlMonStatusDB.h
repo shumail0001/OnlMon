@@ -5,7 +5,6 @@
 
 class OnlMonStatusDB
 {
-
  public:
   OnlMonStatusDB(const std::string &tablename = "onlmonstatus");
   virtual ~OnlMonStatusDB();

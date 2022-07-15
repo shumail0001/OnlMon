@@ -5,14 +5,13 @@
 
 class OnCalDBodbc
 {
-
  public:
   OnCalDBodbc();
   virtual ~OnCalDBodbc() {}
   //  void Dump(const int nrows = 0) const;
   void identify() const;
   int GetLastCalibratedRun(const int runno) const;
-  void Verbosity(const int i) {verbosity = i;}
+  void Verbosity(const int i) { verbosity = i; }
 
  private:
   int verbosity;

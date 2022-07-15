@@ -9,7 +9,7 @@ class OnlMonDB;
 class TH1;
 class TH2;
 
-class MyMon: public OnlMon
+class MyMon : public OnlMon
 {
  public:
   MyMon(const char *name = "MYMON");
@@ -27,8 +27,6 @@ class MyMon: public OnlMon
   OnlMonDB *dbvars;
   TH1 *myhist1;
   TH2 *myhist2;
-
 };
 
 #endif /* MYMON_H__ */
-

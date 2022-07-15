@@ -9,12 +9,11 @@ TrigInfo::TrigInfo()
   Reset();
 }
 
-void
-TrigInfo::SetInfo(const std::string &name, 
-                   const unsigned short ibit, 
-                   const unsigned short ibitmask, 
-                   const unsigned short iindex, 
-                   const unsigned int iscaledown)
+void TrigInfo::SetInfo(const std::string &name,
+                       const unsigned short ibit,
+                       const unsigned short ibitmask,
+                       const unsigned short iindex,
+                       const unsigned int iscaledown)
 {
   trigname = name;
   bit = ibit;
@@ -24,8 +23,7 @@ TrigInfo::SetInfo(const std::string &name,
   return;
 }
 
-void
-TrigInfo::Reset()
+void TrigInfo::Reset()
 {
   trigname = "NONE";
   bit = 0;

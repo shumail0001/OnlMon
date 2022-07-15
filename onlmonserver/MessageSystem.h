@@ -5,11 +5,11 @@
 
 #include <map>
 #include <string>
-#include <utility>       // for pair
+#include <utility>  // for pair
 
 class msg_control;
 
-class MessageSystem: public OnlMonBase
+class MessageSystem : public OnlMonBase
 {
  public:
   MessageSystem(const std::string &name);
@@ -20,10 +20,8 @@ class MessageSystem: public OnlMonBase
   int Reset();
 
  protected:
-
   msg_control *Message;
-  std::map<int, std::pair<int,int> > msgcounter;
-
+  std::map<int, std::pair<int, int> > msgcounter;
 };
 
 #endif
