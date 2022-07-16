@@ -1,12 +1,14 @@
 #include "MessageSystem.h"
+
+#include "OnlMonBase.h"  // for OnlMonBase
 #include "OnlMonServer.h"
 
 #include <Event/msg_control.h>
 #include <Event/msg_profile.h>  // for MSG_SEV_DEFAULT, MSG_SEV_INFORMATIONAL
 
-using namespace std;
+#include <iostream>  // for endl, ostream, basic_ostream, cout, std
 
-MessageSystem::MessageSystem(const string &name)
+MessageSystem::MessageSystem(const std::string &name)
   : OnlMonBase(name)
 {
   Message = new msg_control(MSG_TYPE_MONITORING, MSG_SOURCE_DEFAULT, MSG_SEV_DEFAULT, name.c_str());
@@ -20,16 +22,16 @@ MessageSystem::~MessageSystem()
   return;
 }
 
-int MessageSystem::send_message(const int msgsource, const int severity, const string &err_message, const int msgtype)
+int MessageSystem::send_message(const int msgsource, const int severity, const std::string &err_message, const int msgtype)
 {
   Message->set_source(msgsource);
   Message->set_severity(severity);
-  map<int, pair<int, int> >::iterator iter;
+  std::map<int, std::pair<int, int> >::iterator iter;
 tryagain:
   iter = msgcounter.find(msgtype);
   if (iter == msgcounter.end())
   {
-    pair<int, int> newpair(-10, 2);
+    std::pair<int, int> newpair(-10, 2);
     msgcounter[msgtype] = newpair;
     goto tryagain;
   }
@@ -38,7 +40,7 @@ tryagain:
   {
     if ((iter->second).first == (iter->second).second)
     {
-      cout << *Message << err_message << endl;
+      std::cout << *Message << err_message << std::endl;
       (iter->second).first = 0;
       (iter->second).second *= 2;
     }
@@ -51,7 +53,7 @@ tryagain:
   }
   else
   {
-    cout << *Message << err_message << endl;
+    std::cout << *Message << err_message << std::endl;
   }
   if (severity > MSG_SEV_INFORMATIONAL)
   {
