@@ -9,9 +9,7 @@
 
 class Event;
 
-using namespace std;
-
-OnlMon::OnlMon(const string &name)
+OnlMon::OnlMon(const std::string &name)
   : OnlMonBase(name)
 {
   livetrigmask = 0;
@@ -42,7 +40,7 @@ int OnlMon::process_event_common(Event *evt)
 
 int OnlMon::process_event(Event * /*evt*/)
 {
-  cout << "process_event(Event *evt) not implemented by daughter class" << endl;
+  std::cout << "process_event(Event *evt) not implemented by daughter class" << std::endl;
   return -1;
 }
 
@@ -52,9 +50,9 @@ int OnlMon::Reset()
   return -1;
 }
 
-void OnlMon::identify(ostream &out) const
+void OnlMon::identify(std::ostream &out) const
 {
-  out << "identify() not implemented by daughter class" << endl;
+  out << "identify() not implemented by daughter class" << std::endl;
   return;
 }
 
@@ -62,7 +60,7 @@ void OnlMon::AddTrigger(const std::string &name)
 {
   if (TriggerList.find(name) != TriggerList.end())
   {
-    ostringstream msg;
+    std::ostringstream msg;
     msg << ThisName << ": Trigger " << name << " already in trigger list";
     OnlMonServer *se = OnlMonServer::instance();
     se->send_message(this, MSG_SOURCE_MONITOR, MSG_SEV_WARNING, msg.str(), 1);
@@ -76,7 +74,7 @@ void OnlMon::AddLiveTrigger(const std::string &name)
 {
   if (LiveTriggerList.find(name) != LiveTriggerList.end())
   {
-    ostringstream msg;
+    std::ostringstream msg;
     msg << ThisName << ": Trigger " << name << " already in live trigger filter list";
     OnlMonServer *se = OnlMonServer::instance();
     se->send_message(this, MSG_SOURCE_MONITOR, MSG_SEV_WARNING, msg.str(), 1);
@@ -101,7 +99,7 @@ int OnlMon::BeginRunCommon(const int /* runno */, OnlMonServer *se)
   if (!TriggerList.empty() || !LiveTriggerList.empty())
   {
     unsigned int newmask = 0;
-    string RunType = se->GetRunType();
+    std::string RunType = se->GetRunType();
     if (RunType == "PHYSICS" || RunType == "ZEROFIELD" || RunType == "CALIBRATION")
     {
       std::set<std::string>::const_iterator iter;
@@ -109,7 +107,7 @@ int OnlMon::BeginRunCommon(const int /* runno */, OnlMonServer *se)
       {
         if (verbosity > 0)
         {
-          cout << "Adding trigger " << *iter << " to selection" << endl;
+          std::cout << "Adding trigger " << *iter << " to selection" << std::endl;
         }
         printf("Adding trigger %s to selection\n", (*iter).c_str());
         newmask = se->AddToTriggerMask(*iter);
@@ -119,7 +117,7 @@ int OnlMon::BeginRunCommon(const int /* runno */, OnlMonServer *se)
       {
         if (verbosity > 0)
         {
-          cout << "Adding trigger " << *iter << " to live trigger selection" << endl;
+          std::cout << "Adding trigger " << *iter << " to live trigger selection" << std::endl;
         }
         printf("Adding trigger %s to live trigger selection\n", (*iter).c_str());
         livetrigmask |= se->getLevel1Bit(*iter);
