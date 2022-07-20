@@ -12,35 +12,53 @@ AM_CPPFLAGS = \
   -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \
-  libonlmymon.la
+  libonlmymon_client.la \
+  libonlmymon_server.la
 
-libonlmymon_la_LIBADD = \
+libonlmymon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(OFFLINE_MAIN)/lib \
   -lonlmonserver \
+  -lonlmondb
+
+libonlmymon_client_la_LIBADD = \
+  -L$(libdir) \
+  -L$(OFFLINE_MAIN)/lib \
   -lonlmonclient \
   -lonlmondb
 
 
-pkginclude_HEADERS = \
+exampleincludedir=$(pkgincludedir)/example
+
+exampleinclude_HEADERS = \
   MyMon.h \
   MyMonDraw.h
 
-libonlmymon_la_SOURCES = \
-  MyMonDraw.cc \
+libonlmymon_server_la_SOURCES = \
   MyMon.cc
+
+libonlmymon_client_la_SOURCES = \
+  MyMonDraw.cc
 
 bin_SCRIPTS = \
   MyMonsetup.csh
 
 noinst_PROGRAMS = \
-  testexternals
+  testexternals_server \
+  testexternals_client
 
-testexternals_SOURCES = \
+
+testexternals_server_SOURCES = \
   testexternals.cc
 
-testexternals_LDADD = \
-  libonlmymon.la
+testexternals_client_SOURCES = \
+  testexternals.cc
+
+testexternals_server_LDADD = \
+  libonlmymon_server.la
+
+testexternals_client_LDADD = \
+  libonlmymon_client.la
 
 testexternals.cc:
 	echo "//*** this is a generated file. Do not commit, do not edit" > $@
