@@ -7,4 +7,4 @@ include_HEADERS =
 ### is at the end of this list
 ###
 SUBDIRS = \
-  Example
+  example

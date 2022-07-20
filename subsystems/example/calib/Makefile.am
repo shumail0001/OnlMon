@@ -1,6 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 
 include_HEADERS =
+exampledatadir = $(pkgdatadir)/example
 
-dist_data_DATA = \
+exampledata_DATA = \
   MyMonData.dat
