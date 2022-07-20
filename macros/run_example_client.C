@@ -1,6 +1,6 @@
 #include <CommonFuncs.C>
 
-#include <onlmon/MyMonDraw.h>
+#include <onlmon/example/MyMonDraw.h>
 
 #include <onlmon/OnlMonClient.h>
 

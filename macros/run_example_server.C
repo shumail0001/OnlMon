@@ -1,6 +1,6 @@
 #include <ServerFuncs.C>
 
-#include <onlmon/MyMon.h>
+#include <onlmon/example/MyMon.h>
 
 #include <onlmon/OnlMonServer.h>
 
