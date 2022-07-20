@@ -104,7 +104,11 @@ void OnlMonClient::InitAll()
   }
   // we have a working display
   clientrunning = new TH1F("ClientRunning", "ClientRunning", 1, 0, 1);
-
+  if (getenv("ONLMON_HTMLDIR") == nullptr)
+  {
+    std::cout << "ONLMON_HTMLDIR not set, exiting" << std::endl;
+    exit(1);
+  }
   fHtml = new OnlMonHtml(getenv("ONLMON_HTMLDIR"));
 
   TGFrame *rootWin = (TGFrame *) gClient->GetRoot();
