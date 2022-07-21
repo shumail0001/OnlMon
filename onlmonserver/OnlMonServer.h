@@ -95,6 +95,8 @@ class OnlMonServer : public OnlMonBase
   int isCosmicRun() const { return cosmicrun; }
   PHCompositeNode *TopNode() { return topNode; }
 
+  int run_empty(const int nevents);
+
  private:
   OnlMonServer(const std::string &name = "OnlMonServer");
   int send_message(const int severity, const std::string &err_message, const int msgtype) const;
@@ -103,24 +105,24 @@ class OnlMonServer : public OnlMonBase
 
   static OnlMonServer *__instance;
   unsigned int trigger[3];
-  int runnumber;
-  int eventnumber;
+  int runnumber = -1;
+  int eventnumber = 0;
   int portnumber;
-  int badevents;
-  time_t currentticks;
-  time_t borticks;
-  int activepacketsinit;
-  unsigned int scaledtrigmask;
-  int scaledtrigmask_used;
-  int standalone;
-  int cosmicrun;
-  std::string TriggerConfig;
-  std::string RunType;
+  int badevents = 0;
+  time_t currentticks = 0;
+  time_t borticks = 0;
+  int activepacketsinit = 0;
+  unsigned int scaledtrigmask = 0xFFFFFFFF;
+  int scaledtrigmask_used = 0;
+  int standalone = 0;
+  int cosmicrun = 0;
+  std::string TriggerConfig = "UNKNOWN";
+  std::string RunType = "UNKNOWN";
 
-  TH1 *serverrunning;
-  OnlMonTrigger *onltrig;
-  OnlMonStatusDB *statusDB;
-  OnlMonStatusDB *RunStatusDB;
+  TH1 *serverrunning = nullptr;
+  OnlMonTrigger *onltrig = nullptr;
+  OnlMonStatusDB *statusDB = nullptr;
+  OnlMonStatusDB *RunStatusDB = nullptr;
   std::map<const std::string, TH1 *> Histo;
   std::vector<OnlMon *> MonitorList;
   std::set<unsigned int> activepackets;
@@ -128,8 +130,8 @@ class OnlMonServer : public OnlMonBase
   std::map<std::string, std::set<std::string> > MonitorHistoSet;
   std::set<std::string> CommonHistoSet;
   pthread_mutex_t mutex;
-  pthread_t serverthreadid;
-  PHCompositeNode *topNode;
+  pthread_t serverthreadid = 0;
+  PHCompositeNode *topNode = nullptr;
 };
 
 #endif /* __ONLMONSERVER_H */
