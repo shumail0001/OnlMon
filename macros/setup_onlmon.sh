@@ -39,10 +39,10 @@ else
   export ONLMON_LOGDIR=`pwd`
 fi
 
-#if [[ -z "$ONLMON_HTMLDIR" ]]
-#then
-#  export ONLMON_HTMLDIR=/common/s6/htmltest/OnlMon
-#fi
+if [[ -z "$ONLMON_HTMLDIR" ]]
+then
+  export ONLMON_HTMLDIR=`pwd`
+fi
 
 
 # create history directory if not exist
