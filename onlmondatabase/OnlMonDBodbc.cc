@@ -2,6 +2,8 @@
 #include "OnlMonDBReturnCodes.h"
 #include "OnlMonDBVar.h"
 
+#include <onlmon/OnlMonBase.h>  // for OnlMonBase
+
 #include <phool/phool.h>
 
 #include <odbc++/connection.h>
@@ -12,11 +14,14 @@
 #include <odbc++/statement.h>  // for Statement
 #include <odbc++/types.h>      // for SQLException, odbc
 
+#include <ctype.h>  // for tolower
 #include <algorithm>
+#include <cstdio>  // for printf
 #include <ctime>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <utility>  // for pair
 
 static const unsigned int DEFAULTCOLUMNS = 2;
 //static const unsigned int COLUMNSPARVAR = 3;
