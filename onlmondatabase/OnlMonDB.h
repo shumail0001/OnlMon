@@ -1,5 +1,5 @@
-#ifndef __ONLMONDB_H__
-#define __ONLMONDB_H__
+#ifndef ONLMONDATABASE_ONLMONDB_H
+#define ONLMONDATABASE_ONLMONDB_H
 
 #include <onlmon/OnlMonBase.h>
 
@@ -29,7 +29,8 @@ class OnlMonDB : public OnlMonBase
 
  protected:
   std::map<const std::string, OnlMonDBVar *> varmap;
-  OnlMonDBodbc *db;
+  OnlMonDBodbc *db = nullptr;
+  ;
 };
 
 #endif

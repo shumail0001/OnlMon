@@ -4,12 +4,10 @@
 
 #include "pmonitorInterface.h"
 #include "OnlMonServer.h"
-#include "OnlMonTrigger.h"
 
 #include "HistoBinDefs.h"
 #include "PortNumber.h"
 
-//#include <packet_gl1.h>
 #include <phool/phool.h>
 
 #pragma GCC diagnostic push
@@ -22,24 +20,23 @@
 #include <msg_control.h>
 #include <msg_profile.h>
 
-#include <TBenchmark.h>
+#include <MessageTypes.h>  // for kMESS_OBJECT, kMESS_STRING
 #include <TClass.h>
 #include <TH1.h>
+#include <TInetAddress.h>  // for TInetAddress
 #include <TMessage.h>
 #include <TROOT.h>
 #include <TServerSocket.h>
 #include <TSocket.h>
-#include <TStorage.h>
 #include <TSystem.h>
 #include <TThread.h>
 
 #include <pthread.h>
-#include <sys/utsname.h>
-#include <memory>
+#include <cstdio>   // for printf, NULL
+#include <cstdlib>  // for exit
+#include <cstring>  // for strcmp
 #include <sstream>
 #include <string>
-
-using namespace std;
 
 //#define ROOTTHREAD
 
@@ -54,7 +51,7 @@ int ServerThread = 0;
 
 #ifdef ROOTTHREAD
 static void *server(void *);
-static TThread *ServerThread = NULL;
+static TThread *ServerThread = nullptr;
 #endif
 
 pthread_mutex_t mutex;
@@ -64,7 +61,6 @@ TH1 *FrameWorkVars = 0;
 
 int pinit()
 {
-  //  gBenchmark->Start("phnxmon");
   OnlMonServer *Onlmonserver = OnlMonServer::instance();
   Onlmonserver->GetMutex(mutex);
   for (int i = 0; i < kMAXSIGNALS; i++)
@@ -77,10 +73,10 @@ int pinit()
   pthread_t ThreadId = 0;
   if (!ServerThread)
   {
-    //cout << "creating server thread" << endl;
+    //std::cout << "creating server thread" << std::endl;
 #ifdef SERVER
 
-    ServerThread = pthread_create(&ThreadId, NULL, server, (void *) NULL);
+    ServerThread = pthread_create(&ThreadId, nullptr, server, (void *) nullptr);
     Onlmonserver->SetThreadId(ThreadId);
 #endif
 #ifdef ROOTTHREAD
@@ -166,7 +162,7 @@ int process_event(Event *evt)
   /*
   if ((evt->getRunNumber() > 500000 || evt->getRunNumber() < 60000)  && evt->getRunNumber() != 1 && evt->getRunNumber() != 0xFEE2DCB)
     {
-      ostringstream msg;
+      std::ostringstream msg;
       msg << PHWHERE << " huge or tiny event run number "
 	  << evt->getRunNumber()
 	  << " discarding event" ;
@@ -177,7 +173,7 @@ int process_event(Event *evt)
 */
   if (evt->getEvtLength() <= 0 || evt->getEvtLength() > 2500000)
   {
-    ostringstream msg;
+    std::ostringstream msg;
     msg << PHWHERE << "Discarding event with length "
         << evt->getEvtLength();
     send_message(MSG_SEV_WARNING, msg.str());
@@ -252,17 +248,17 @@ int process_event(Event *evt)
   {
     if (!(evt->getTagWord(0) & se->ScaledTrigMask()))
     {
-      //	  	  cout << "discarding 0x" << hex << evt->getTagWord(0) << dec << endl;
+      //	  	  std::cout << "discarding 0x" << hex << evt->getTagWord(0) << dec << std::endl;
       return 0;
     }
     //       else
     // 	{
-    // 	  cout << "accepting 0x" << hex << evt->getTagWord(0) << dec << endl;
+    // 	  std::cout << "accepting 0x" << hex << evt->getTagWord(0) << dec << std::endl;
     // 	}
   }
   if (evt->getErrorCode())
   {
-    ostringstream msg;
+    std::ostringstream msg;
     msg << PHWHERE << " Event with error code: "
         << evt->getErrorCode()
         << " discarding event " << evt->getEvtSequence();
@@ -277,7 +273,7 @@ int process_event(Event *evt)
     se->Trigger(p->iValue(0, 1), 0);
     se->Trigger(p->iValue(0, 2), 1);
     se->Trigger(p->iValue(0, 3), 2);
-    //      cout << "Accepting 0x" << hex <<  p->iValue(0, SCALEDTRIG) << endl;
+    //      std::cout << "Accepting 0x" << hex <<  p->iValue(0, SCALEDTRIG) << std::endl;
     //       unsigned int livetrigword = p->iValue(0, LIVETRIG) & 0x00FFFFFF;
     //       for (int i = 24; i < 32; i++)
     // 	{
@@ -318,7 +314,7 @@ static void *server(void * /* arg */)
   int MoniPort = MONIPORT;
   //  int thread_arg[5];
   pthread_mutex_lock(&mutex);
-  TServerSocket *ss = NULL;
+  TServerSocket *ss = nullptr;
   sleep(5);
   do
   {
@@ -332,7 +328,7 @@ static void *server(void * /* arg */)
     MoniPort++;
     if ((MoniPort - MONIPORT) >= NUMMONIPORT)
     {
-      ostringstream msg;
+      std::ostringstream msg;
       msg << "Too many Online Monitors running on this machine, bailing out";
       send_message(MSG_SEV_FATAL, msg.str());
 
@@ -356,10 +352,10 @@ again:
   TSocket *s0 = ss->Accept();
   if (!s0)
   {
-    cout << "Server socket " << MONIPORT
-         << " in use, either go to a different node or" << endl
-         << "change MONIPORT in server/PortNumber.h and recompile" << endl
-         << "server and client" << endl;
+    std::cout << "Server socket " << MONIPORT
+              << " in use, either go to a different node or" << std::endl
+              << "change MONIPORT in server/PortNumber.h and recompile" << std::endl
+              << "server and client" << std::endl;
     exit(1);
   }
   // mutex protected since writing of histo
@@ -368,33 +364,33 @@ again:
   if (Onlmonserver->Verbosity() > 2)
   {
     TInetAddress adr = s0->GetInetAddress();
-    cout << "got connection from " << endl;
+    std::cout << "got connection from " << std::endl;
     adr.Print();
   }
-  //  cout << "try locking mutex" << endl;
+  //  std::cout << "try locking mutex" << std::endl;
   pthread_mutex_lock(&mutex);
-  //cout << "got mutex" << endl;
+  //std::cout << "got mutex" << std::endl;
   handleconnection(s0);
-  //cout << "try releasing mutex" << endl;
+  //std::cout << "try releasing mutex" << std::endl;
   pthread_mutex_unlock(&mutex);
-  //cout << "mutex released" << endl;
+  //std::cout << "mutex released" << std::endl;
   delete s0;
   /*
     if (!aargh)
     {
-    cout << "making thread" << endl;
+    std::cout << "making thread" << std::endl;
     aargh = new TThread(handletest,(void *)0);
     aargh->Run();
     }
   */
-  //cout << "closing socket" << endl;
+  //std::cout << "closing socket" << std::endl;
   //s0->Close();
   goto again;
 }
 
 void handletest(void * /* arg */)
 {
-  //  cout << "threading" << endl;
+  //  std::cout << "threading" << std::endl;
   return;
 }
 
@@ -410,18 +406,18 @@ void handleconnection(void *arg)
     s0->GetOption(kRecvBuffer, val);
     printf("recvbuffer size: %d\n", val);
   */
-  TMessage *mess = NULL;
+  TMessage *mess = nullptr;
   TMessage outgoing(kMESS_OBJECT);
   while (1)
   {
     if (Onlmonserver->Verbosity() > 2)
     {
-      cout << "Waiting for message" << endl;
+      std::cout << "Waiting for message" << std::endl;
     }
     s0->Recv(mess);
     if (!mess)
     {
-      cout << "Broken Connection, closing socket" << endl;
+      std::cout << "Broken Connection, closing socket" << std::endl;
       break;
     }
     if (mess->What() == kMESS_STRING)
@@ -432,7 +428,7 @@ void handleconnection(void *arg)
       mess = 0;
       if (Onlmonserver->Verbosity() > 2)
       {
-        cout << "received message" << str << endl;
+        std::cout << "received message" << str << std::endl;
       }
       if (!strcmp(str, "Finished"))
       {
@@ -452,13 +448,13 @@ void handleconnection(void *arg)
       {
         if (Onlmonserver->Verbosity() > 2)
         {
-          cout << "number of histos: " << Onlmonserver->nHistos() << endl;
+          std::cout << "number of histos: " << Onlmonserver->nHistos() << std::endl;
         }
         for (unsigned int i = 0; i < Onlmonserver->nHistos(); i++)
         {
           if (Onlmonserver->Verbosity() > 2)
           {
-            cout << "HistoName: " << Onlmonserver->getHistoName(i) << endl;
+            std::cout << "HistoName: " << Onlmonserver->getHistoName(i) << std::endl;
           }
           s0->Send(Onlmonserver->getHistoName(i).c_str());
           int nbytes = s0->Recv(mess);
@@ -466,7 +462,7 @@ void handleconnection(void *arg)
           mess = 0;
           if (nbytes <= 0)
           {
-            ostringstream msg;
+            std::ostringstream msg;
 
             msg << "Problem receiving message: return code: " << nbytes;
             send_message(MSG_SEV_ERROR, msg.str());
@@ -478,7 +474,7 @@ void handleconnection(void *arg)
       {
         if (Onlmonserver->Verbosity() > 2)
         {
-          cout << "number of histos: " << Onlmonserver->nHistos() << endl;
+          std::cout << "number of histos: " << Onlmonserver->nHistos() << std::endl;
         }
         for (unsigned int i = 0; i < Onlmonserver->nHistos(); i++)
         {
@@ -570,14 +566,14 @@ void handleconnection(void *arg)
   return;
 }
 
-int send_message(const int severity, const string &msg)
+int send_message(const int severity, const std::string &msg)
 {
   // check $ONLINE_MAIN/include/msg_profile.h for MSG defs
   // if you do not find your subsystem, do not initialize it and drop me a line
   msg_control *Message = new msg_control(MSG_TYPE_MONITORING,
                                          MSG_SOURCE_DAQMON,
                                          severity, "pmonitorInterface");
-  cout << *Message << msg << endl;
+  std::cout << *Message << msg << std::endl;
   delete Message;
   return 0;
 }

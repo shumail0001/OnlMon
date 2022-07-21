@@ -6,10 +6,11 @@
 
 #include <odbc++/connection.h>
 #include <odbc++/drivermanager.h>
-#include <odbc++/errorhandler.h>
+#include <odbc++/statement.h>  // for Statement
+#include <odbc++/types.h>      // for SQLException
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
-#include <odbc++/preparedstatement.h>
 #include <odbc++/resultset.h>
 #pragma GCC diagnostic pop
 
@@ -19,35 +20,24 @@
 #include <iostream>
 #include <sstream>
 
-//using namespace odbc;
-using namespace std;
-
 //#define VERBOSE
-
-RunDBodbc::RunDBodbc()
-  : verbosity(0)
-  , dbname("daq")
-  , dbowner("phnxrc")
-  , dbpasswd("")
-{
-}
 
 void RunDBodbc::identify() const
 {
-  cout << "DB Name: " << dbname << endl;
-  cout << "DB Owner: " << dbowner << endl;
-  cout << "DB Pwd: " << dbpasswd << endl;
+  std::cout << "DB Name: " << dbname << std::endl;
+  std::cout << "DB Owner: " << dbowner << std::endl;
+  std::cout << "DB Pwd: " << dbpasswd << std::endl;
   return;
 }
 
-string
+std::string
 RunDBodbc::RunType(const int runno) const
 {
-  string runtype = "UNKNOWN";
-  odbc::Connection *con = NULL;
-  odbc::Statement *query = NULL;
-  odbc::ResultSet *rs = NULL;
-  ostringstream cmd;
+  std::string runtype = "UNKNOWN";
+  odbc::Connection *con = nullptr;
+  odbc::Statement *query = nullptr;
+  odbc::ResultSet *rs = nullptr;
+  std::ostringstream cmd;
 
   try
   {
@@ -55,9 +45,9 @@ RunDBodbc::RunType(const int runno) const
   }
   catch (odbc::SQLException &e)
   {
-    cout << PHWHERE
-         << " Exception caught during DriverManager::getConnection" << endl;
-    cout << "Message: " << e.getMessage() << endl;
+    std::cout << PHWHERE
+              << " Exception caught during DriverManager::getConnection" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
     goto noopen;
   }
 
@@ -66,7 +56,7 @@ RunDBodbc::RunType(const int runno) const
       << runno;
   if (verbosity > 0)
   {
-    cout << "command: " << cmd.str() << endl;
+    std::cout << "command: " << cmd.str() << std::endl;
   }
   try
   {
@@ -74,15 +64,15 @@ RunDBodbc::RunType(const int runno) const
   }
   catch (odbc::SQLException &e)
   {
-    cout << "Exception caught" << endl;
-    cout << "Message: " << e.getMessage() << endl;
+    std::cout << "Exception caught" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
   }
   if (rs && rs->next())
   {
     runtype = rs->getString("runtype");
     if (runtype == "PHYSICS")
     {
-      string runstate = rs->getString("runstate");
+      std::string runstate = rs->getString("runstate");
       unsigned int brunixtime = rs->getInt("brunixtime");
       unsigned int erunixtime = rs->getInt("erunixtime");
       if (erunixtime - brunixtime < 300 && runstate == "ENDED")  // 5 min limit
@@ -96,7 +86,7 @@ RunDBodbc::RunType(const int runno) const
         {
           if (verbosity > 0)
           {
-            cout << "Run not ended and eventsinrun : " << eventsinrun << endl;
+            std::cout << "Run not ended and eventsinrun : " << eventsinrun << std::endl;
           }
           cmd.str("");
           cmd << "SELECT sum(scalerupdatescaled) FROM trigger WHERE RUNNUMBER = "
@@ -111,8 +101,8 @@ RunDBodbc::RunType(const int runno) const
           }
           catch (odbc::SQLException &e)
           {
-            cout << "Exception caught" << endl;
-            cout << "Message: " << e.getMessage() << endl;
+            std::cout << "Exception caught" << std::endl;
+            std::cout << "Message: " << e.getMessage() << std::endl;
           }
           if (rs1 && rs1->next())
           {
@@ -120,8 +110,8 @@ RunDBodbc::RunType(const int runno) const
           }
           if (verbosity > 0)
           {
-            cout << "Run not ended and eventsinrun < 500000, sum of scaled triggers: "
-                 << eventsinrun << endl;
+            std::cout << "Run not ended and eventsinrun < 500000, sum of scaled triggers: "
+                      << eventsinrun << std::endl;
           }
         }
         if (eventsinrun <= 100)
@@ -142,48 +132,48 @@ noopen:
   {
     if (verbosity > 0)
     {
-      cout << "Run unknown in DB trying from file" << endl;
+      std::cout << "Run unknown in DB trying from file" << std::endl;
     }
     runtype = RunTypeFromFile(runno, runtype);
   }
 
   if (verbosity > 0)
   {
-    cout << "Run Type is " << runtype << endl;
+    std::cout << "Run Type is " << runtype << std::endl;
   }
 
   return runtype;
 }
 
-string
-RunDBodbc::RunTypeFromFile(const int runno, const string &runtype) const
+std::string
+RunDBodbc::RunTypeFromFile(const int runno, const std::string &runtype) const
 {
-  ostringstream runfilename;
-  string returnruntype = runtype;
+  std::ostringstream runfilename;
+  std::string returnruntype = runtype;
   if (getenv("ONLINE_LOG"))
   {
     runfilename << getenv("ONLINE_LOG") << "/runinfo/";
   }
-  runfilename << "beginrun_" << setw(7) << setfill('0') << runno << ".sql";
-  cout << "file: " << runfilename.str() << endl;
-  ifstream infile(runfilename.str().c_str());
+  runfilename << "beginrun_" << std::setw(7) << std::setfill('0') << runno << ".sql";
+  std::cout << "file: " << runfilename.str() << std::endl;
+  std::ifstream infile(runfilename.str());
   if (infile.fail())
   {
-    cout << "Failed to open file " << runfilename.str() << endl;
+    std::cout << "Failed to open file " << runfilename.str() << std::endl;
     return returnruntype;
   }
-  string FullLine;
+  std::string FullLine;
   getline(infile, FullLine);
   boost::char_separator<char> sep("'");
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
   while (!infile.eof())
   {
-    if (FullLine.find("INSERT INTO run VALUES") != string::npos)
+    if (FullLine.find("INSERT INTO run VALUES") != std::string::npos)
     {
       tokenizer tokens(FullLine, sep);
       tokenizer::iterator tok_iter = tokens.begin();
       ++tok_iter;
-      //	 	  cout << "run type: " << *tok_iter << endl;
+      //	 	  std::cout << "run type: " << *tok_iter << std::endl;
       returnruntype = *tok_iter;
       break;
     }
@@ -197,7 +187,7 @@ int RunDBodbc::GetRunNumbers(std::set<int> &result, const std::string &type, con
   odbc::Connection *con = 0;
   odbc::Statement *query = 0;
   odbc::ResultSet *rs = 0;
-  ostringstream cmd;
+  std::ostringstream cmd;
 
   try
   {
@@ -205,9 +195,9 @@ int RunDBodbc::GetRunNumbers(std::set<int> &result, const std::string &type, con
   }
   catch (odbc::SQLException &e)
   {
-    cout << PHWHERE
-         << " Exception caught during DriverManager::getConnection" << endl;
-    cout << "Message: " << e.getMessage() << endl;
+    std::cout << PHWHERE
+              << " Exception caught during DriverManager::getConnection" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
     return -1;
   }
 
@@ -218,7 +208,7 @@ int RunDBodbc::GetRunNumbers(std::set<int> &result, const std::string &type, con
       << " order by runnumber desc limit " << nruns;
   if (verbosity > 0)
   {
-    cout << "command: " << cmd.str() << endl;
+    std::cout << "command: " << cmd.str() << std::endl;
   }
   try
   {
@@ -226,8 +216,8 @@ int RunDBodbc::GetRunNumbers(std::set<int> &result, const std::string &type, con
   }
   catch (odbc::SQLException &e)
   {
-    cout << "Exception caught" << endl;
-    cout << "Message: " << e.getMessage() << endl;
+    std::cout << "Exception caught" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
     delete con;
   }
   while (rs->next())
@@ -236,7 +226,7 @@ int RunDBodbc::GetRunNumbers(std::set<int> &result, const std::string &type, con
     result.insert(runnumber);
     if (verbosity > 0)
     {
-      cout << "Choosing " << runnumber << endl;
+      std::cout << "Choosing " << runnumber << std::endl;
     }
   }
   delete rs;

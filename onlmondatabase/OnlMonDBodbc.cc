@@ -7,29 +7,23 @@
 #include <odbc++/connection.h>
 #include <odbc++/databasemetadata.h>
 #include <odbc++/drivermanager.h>
-#include <odbc++/errorhandler.h>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Woverloaded-virtual"
-#include <odbc++/preparedstatement.h>
-#pragma GCC diagnostic pop
-//#include <odbc++/resultset.h>
+#include <odbc++/resultset.h>  // for ResultSet
 #include <odbc++/resultsetmetadata.h>
+#include <odbc++/statement.h>  // for Statement
+#include <odbc++/types.h>      // for SQLException, odbc
 
 #include <algorithm>
-#include <cctype>
 #include <ctime>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
-using namespace odbc;
-using namespace std;
-
 static const unsigned int DEFAULTCOLUMNS = 2;
-static const unsigned int COLUMNSPARVAR = 3;
-static const string addvarname[3] = {"", "err", "qual"};
+//static const unsigned int COLUMNSPARVAR = 3;
+static const std::string addvarname[3] = {"", "err", "qual"};
 static const unsigned int MINUTESINTERVAL = 4;
 
-static Connection* con = NULL;
+static odbc::Connection* con = nullptr;
 
 // #define VERBOSE
 
@@ -48,7 +42,7 @@ OnlMonDBodbc::OnlMonDBodbc(const std::string& tablename)
 OnlMonDBodbc::~OnlMonDBodbc()
 {
   delete con;
-  con = NULL;
+  con = nullptr;
 }
 
 int OnlMonDBodbc::CreateTable()
@@ -58,26 +52,26 @@ int OnlMonDBodbc::CreateTable()
     return -1;
   }
 
-  ostringstream cmd;
+  std::ostringstream cmd;
   cmd << "SELECT * FROM pg_tables where tablename = '" << table << "'";
-  ResultSet* rs = NULL;
-  Statement* stmt = con->createStatement();
+  odbc::ResultSet* rs = nullptr;
+  odbc::Statement* stmt = con->createStatement();
   try
   {
     rs = stmt->executeQuery(cmd.str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << "caught exception Message: " << e.getMessage() << endl;
+    std::cout << "caught exception Message: " << e.getMessage() << std::endl;
   }
   int iret = 0;
   if (!rs->next())
   {
     delete rs;
-    rs = NULL;
+    rs = nullptr;
     if (verbosity > 0)
     {
-      cout << "need to create table" << endl;
+      std::cout << "need to create table" << std::endl;
     }
     cmd.str("");
     cmd << "CREATE TABLE " << table << "(date timestamp(0) with time zone NOT NULL, run int NOT NULL, primary key(date,run))";
@@ -85,16 +79,16 @@ int OnlMonDBodbc::CreateTable()
     {
       stmt->executeUpdate(cmd.str());
     }
-    catch (SQLException& e)
+    catch (odbc::SQLException& e)
     {
-      cout << "caught exception Message: " << e.getMessage() << endl;
+      std::cout << "caught exception Message: " << e.getMessage() << std::endl;
     }
   }
   else
   {
     if (verbosity > 0)
     {
-      cout << "table " << table << " exists" << endl;
+      std::cout << "table " << table << " exists" << std::endl;
     }
   }
   delete rs;
@@ -102,7 +96,7 @@ int OnlMonDBodbc::CreateTable()
   return iret;
 }
 
-int OnlMonDBodbc::CheckAndCreateTable(const map<const string, OnlMonDBVar*>& varmap)
+int OnlMonDBodbc::CheckAndCreateTable(const std::map<const std::string, OnlMonDBVar*>& varmap)
 {
   if (GetConnection())
   {
@@ -112,38 +106,38 @@ int OnlMonDBodbc::CheckAndCreateTable(const map<const string, OnlMonDBVar*>& var
   {
     return -1;
   }
-  Statement* stmt = con->createStatement();
-  ResultSet* rs = NULL;
-  ostringstream cmd;
+  odbc::Statement* stmt = con->createStatement();
+  odbc::ResultSet* rs = nullptr;
+  std::ostringstream cmd;
   int iret = 0;
   cmd << "select * from " << table << " limit 1";
-  map<const string, OnlMonDBVar*>::const_iterator iter;
+  std::map<const std::string, OnlMonDBVar*>::const_iterator iter;
   try
   {
     rs = stmt->executeQuery(cmd.str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << "caught exception Message: " << e.getMessage() << endl;
+    std::cout << "caught exception Message: " << e.getMessage() << std::endl;
   }
-  ResultSetMetaData* meta = rs->getMetaData();
+  odbc::ResultSetMetaData* meta = rs->getMetaData();
   unsigned int nocolumn = rs->getMetaData()->getColumnCount();
   for (iter = varmap.begin(); iter != varmap.end(); ++iter)
   {
-    string varname = iter->first;
+    std::string varname = iter->first;
     // column names are lower case only, so convert string to lowercase
     // The bizarre cast here is needed for newer gccs
     transform(varname.begin(), varname.end(), varname.begin(), (int (*)(int)) tolower);
     for (short int j = 0; j < 3; j++)
     {
-      string thisvar = varname + addvarname[j];
+      std::string thisvar = varname + addvarname[j];
       for (unsigned int i = DEFAULTCOLUMNS + 1; i <= nocolumn; i++)
       {
         if (meta->getColumnName(i) == thisvar)
         {
           if (verbosity > 0)
           {
-            cout << thisvar << " is in table" << endl;
+            std::cout << thisvar << " is in table" << std::endl;
           }
           goto foundvar;
         }
@@ -153,19 +147,19 @@ int OnlMonDBodbc::CheckAndCreateTable(const map<const string, OnlMonDBVar*>& var
           << thisvar << " real";
       if (verbosity > 0)
       {
-        cout << "executing sql command: " << cmd.str() << endl;
+        std::cout << "executing sql command: " << cmd.str() << std::endl;
       }
 
       try
       {
-        Statement* chgtable = con->createStatement();
+        odbc::Statement* chgtable = con->createStatement();
         iret = chgtable->executeUpdate(cmd.str());
         delete chgtable;
       }
-      catch (SQLException& e)
+      catch (odbc::SQLException& e)
       {
-        cout << "Table " << table << " update failed" << endl;
-        cout << "Message: " << e.getMessage() << endl;
+        std::cout << "Table " << table << " update failed" << std::endl;
+        std::cout << "Message: " << e.getMessage() << std::endl;
       }
 
     foundvar:
@@ -178,24 +172,24 @@ int OnlMonDBodbc::CheckAndCreateTable(const map<const string, OnlMonDBVar*>& var
   return iret;
 }
 
-int OnlMonDBodbc::DropTable(const string& name)
+int OnlMonDBodbc::DropTable(const std::string& name)
 {
   if (GetConnection())
   {
     return -1;
   }
-  string tablename = name;
+  std::string tablename = name;
   // table names are lower case only, so convert string to lowercase
   // The bizarre cast here is needed for newer gccs
   transform(tablename.begin(), tablename.end(), tablename.begin(), (int (*)(int)) tolower);
-  cout << con->getMetaData()->getDatabaseProductVersion() << endl;
-  cout << con->getCatalog() << endl;
-  Statement* stmt = con->createStatement();
-  ostringstream cmd;
+  std::cout << con->getMetaData()->getDatabaseProductVersion() << std::endl;
+  std::cout << con->getCatalog() << std::endl;
+  odbc::Statement* stmt = con->createStatement();
+  std::ostringstream cmd;
   cmd << "DROP TABLE " << tablename;
 
   int iret = stmt->executeUpdate(cmd.str());
-  cout << "iret: " << iret << endl;
+  std::cout << "iret: " << iret << std::endl;
   return iret;
 }
 
@@ -206,35 +200,35 @@ void OnlMonDBodbc::Dump()
     return;
   }
 
-  //cout << con->getMetaData()-> getDatabaseProductVersion() << endl;
-  Statement* stmt = con->createStatement();
-  ostringstream cmd;
+  //std::cout << con->getMetaData()-> getDatabaseProductVersion() << std::endl;
+  odbc::Statement* stmt = con->createStatement();
+  std::ostringstream cmd;
   cmd << "SELECT * FROM " << table;
-  cout << "Executing " << cmd.str() << endl;
-  ResultSet* rs = stmt->executeQuery(cmd.str());
+  std::cout << "Executing " << cmd.str() << std::endl;
+  odbc::ResultSet* rs = stmt->executeQuery(cmd.str());
   Dump(rs);
   return;
 }
 
-void OnlMonDBodbc::Dump(ResultSet* rs) const
+void OnlMonDBodbc::Dump(odbc::ResultSet* rs) const
 {
-  ResultSetMetaData* meta = rs->getMetaData();
+  odbc::ResultSetMetaData* meta = rs->getMetaData();
   unsigned int ncolumn = meta->getColumnCount();
   while (rs->next())
   {
-    Timestamp id = rs->getTimestamp(1);
+    odbc::Timestamp id = rs->getTimestamp(1);
     int Name = rs->getInt(2);
-    cout << "TimeStamp: " << (id.toString()) << " Run #= " << Name << endl;
+    std::cout << "TimeStamp: " << (id.toString()) << " Run #= " << Name << std::endl;
     for (unsigned int i = DEFAULTCOLUMNS + 1; i <= ncolumn; i++)
     {
       float rval = rs->getFloat(i);
       if (rs->wasNull())
       {
-        cout << meta->getColumnName(i) << ": NULL" << endl;
+        std::cout << meta->getColumnName(i) << ": NULL" << std::endl;
       }
       else
       {
-        cout << meta->getColumnName(i) << ": " << rval << endl;
+        std::cout << meta->getColumnName(i) << ": " << rval << std::endl;
       }
     }
   }
@@ -242,10 +236,10 @@ void OnlMonDBodbc::Dump(ResultSet* rs) const
   {
     rs->first();
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << "Exception caught" << endl;
-    cout << "Message: " << e.getMessage() << endl;
+    std::cout << "Exception caught" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
   }
 
   return;
@@ -258,54 +252,54 @@ int OnlMonDBodbc::Info(const char* name)
     return -1;
   }
 
-  cout << con->getMetaData()->getDatabaseProductVersion() << endl;
+  std::cout << con->getMetaData()->getDatabaseProductVersion() << std::endl;
   // if no argument is given print out list of tables
   if (!name)
   {
-    cout << "Driver: " << con->getMetaData()->getDriverName() << endl;
-    cout << "User: " << con->getMetaData()->getUserName() << endl;
-    string catalog = con->getMetaData()->getCatalogTerm();
-    cout << "Catalog: " << catalog << endl;
-    string schemapattern = con->getMetaData()->getSchemaTerm();
-    cout << "Schema: " << schemapattern << endl;
-    string tablenamepattern = con->getMetaData()->getTableTerm();
-    cout << "Table: " << tablenamepattern << endl;
-    vector<string> types;
-    ResultSet* rs = con->getMetaData()->getTableTypes();
+    std::cout << "Driver: " << con->getMetaData()->getDriverName() << std::endl;
+    std::cout << "User: " << con->getMetaData()->getUserName() << std::endl;
+    std::string catalog = con->getMetaData()->getCatalogTerm();
+    std::cout << "Catalog: " << catalog << std::endl;
+    std::string schemapattern = con->getMetaData()->getSchemaTerm();
+    std::cout << "Schema: " << schemapattern << std::endl;
+    std::string tablenamepattern = con->getMetaData()->getTableTerm();
+    std::cout << "Table: " << tablenamepattern << std::endl;
+    std::vector<std::string> types;
+    odbc::ResultSet* rs = con->getMetaData()->getTableTypes();
     while (rs->next())
     {
-      cout << "1: " << rs->getString(1) << endl;
-      cout << "2: " << rs->getString(2) << endl;
-      cout << "3: " << rs->getString(3) << endl;
-      cout << "4: " << rs->getString(4) << endl;
-      cout << "5: " << rs->getString(5) << endl;
+      std::cout << "1: " << rs->getString(1) << std::endl;
+      std::cout << "2: " << rs->getString(2) << std::endl;
+      std::cout << "3: " << rs->getString(3) << std::endl;
+      std::cout << "4: " << rs->getString(4) << std::endl;
+      std::cout << "5: " << rs->getString(5) << std::endl;
     }
-    ResultSet* rs1 = con->getMetaData()->getTables(catalog, schemapattern, tablenamepattern, types);
+    odbc::ResultSet* rs1 = con->getMetaData()->getTables(catalog, schemapattern, tablenamepattern, types);
 
-    cout << "rs1: " << rs1 << endl;
-    //        cout << rs->getMetaData()->getTableName(1) << endl;
+    std::cout << "rs1: " << rs1 << std::endl;
+    //        std::cout << rs->getMetaData()->getTableName(1) << std::endl;
     while (rs1->next())
     {
-      cout << "Table: " << rs->getString("TABLE_CAT") << endl;
-      cout << "Table: " << rs->getString(3) << endl;
+      std::cout << "Table: " << rs->getString("TABLE_CAT") << std::endl;
+      std::cout << "Table: " << rs->getString(3) << std::endl;
     }
   }
   else
   {
-    Statement* stmt = con->createStatement();
-    string tablename = name;
+    odbc::Statement* stmt = con->createStatement();
+    std::string tablename = name;
     // table names are lower case only, so convert string to lowercase
     // The bizarre cast here is needed for newer gccs
     transform(tablename.begin(), tablename.end(), tablename.begin(), (int (*)(int)) tolower);
-    ostringstream cmd;
+    std::ostringstream cmd;
     cmd << "select * from " << tablename;
-    ResultSet* rs = stmt->executeQuery("select * from inttest");
-    cout << rs->getMetaData()->getColumnCount() << endl;
+    odbc::ResultSet* rs = stmt->executeQuery("select * from inttest");
+    std::cout << rs->getMetaData()->getColumnCount() << std::endl;
     while (rs->next())
     {
       int id = rs->getInt(1);
       float Name = rs->getFloat(2);
-      cout << "Row: " << rs->getRow() << ", id=" << id << "   Name= " << Name << endl;
+      std::cout << "Row: " << rs->getRow() << ", id=" << id << "   Name= " << Name << std::endl;
     }
   }
   return 0;
@@ -313,41 +307,41 @@ int OnlMonDBodbc::Info(const char* name)
 
 void OnlMonDBodbc::identify() const
 {
-  cout << "DB Name: " << dbname << endl;
-  cout << "DB Owner: " << dbowner << endl;
-  cout << "DB Pwd: " << dbpasswd << endl;
-  cout << "DB table: " << table << endl;
+  std::cout << "DB Name: " << dbname << std::endl;
+  std::cout << "DB Owner: " << dbowner << std::endl;
+  std::cout << "DB Pwd: " << dbpasswd << std::endl;
+  std::cout << "DB table: " << table << std::endl;
   return;
 }
 
-int OnlMonDBodbc::AddRow(const time_t ticks, const int runnumber, const map<const string, OnlMonDBVar*>& varmap)
+int OnlMonDBodbc::AddRow(const time_t ticks, const int runnumber, const std::map<const std::string, OnlMonDBVar*>& varmap)
 {
   // bail out when restarted before a run was taken - run=0, ticks=0
   if (ticks == 0 || runnumber <= 0)
   {
     return -1;
   }
-  map<const string, OnlMonDBVar*>::const_iterator iter;
+  std::map<const std::string, OnlMonDBVar*>::const_iterator iter;
   int iret = 0;
   int minutesinterval = MINUTESINTERVAL;
-  ostringstream cmd, cmd1, datestream, datestreamhalf;
-  Timestamp thistime(ticks);
-  Timestamp mintime;
-  Timestamp maxtime;
+  std::ostringstream cmd, cmd1, datestream, datestreamhalf;
+  odbc::Timestamp thistime(ticks);
+  odbc::Timestamp mintime;
+  odbc::Timestamp maxtime;
 
   if (GetConnection())
   {
     return -1;
   }
 
-  Statement* query = con->createStatement();
+  odbc::Statement* query = con->createStatement();
 searchagain:
   mintime.setTime(ticks - minutesinterval * 60);
   maxtime.setTime(ticks + minutesinterval * 60);
 #ifdef VERBOSE
 
-  cout << "mintime stp: " << mintime.toString() << endl;
-  cout << "maxtime stp: " << maxtime.toString() << endl;
+  std::cout << "mintime stp: " << mintime.toString() << std::endl;
+  std::cout << "maxtime stp: " << maxtime.toString() << std::endl;
 #endif
 
   cmd.str("");
@@ -358,20 +352,20 @@ searchagain:
       << runnumber << " and " << datestream.str();
 #ifdef VERBOSE
 
-  cout << "cmd: " << cmd.str() << endl;
+  std::cout << "cmd: " << cmd.str() << std::endl;
 #endif
 
-  ResultSet* rs = 0;
+  odbc::ResultSet* rs = 0;
 
   try
   {
     rs = query->executeQuery(cmd.str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << "Exception caught" << endl;
-    cout << "Message: " << e.getMessage() << endl;
-    cout << "sql cmd: " << cmd.str() << endl;
+    std::cout << "Exception caught" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
+    std::cout << "sql cmd: " << cmd.str() << std::endl;
   }
   int haverow = 0;
   if (rs)
@@ -381,7 +375,7 @@ searchagain:
       haverow = rs->getInt(1);
 #ifdef VERBOSE
 
-      cout << "found rows: " << haverow << endl;
+      std::cout << "found rows: " << haverow << std::endl;
 #endif
     }
     delete rs;
@@ -397,7 +391,7 @@ searchagain:
     cmd << "SELECT * FROM " << table << " WHERE " << datestream.str();
 #ifdef VERBOSE
 
-    cout << "command: " << cmd.str() << endl;
+    std::cout << "command: " << cmd.str() << std::endl;
 #endif
 
     rs = query->executeQuery(cmd.str());
@@ -410,12 +404,12 @@ searchagain:
       {
         if (iter->second->wasupdated())
         {
-          string varqualname = iter->first + addvarname[2];
+          std::string varqualname = iter->first + addvarname[2];
           float varqual = iter->second->GetVar(2);
           float sqlvarqual = rs->getFloat(varqualname);
           if (varqual > sqlvarqual || rs->wasNull())
           {
-            Statement* upd = con->createStatement();
+            odbc::Statement* upd = con->createStatement();
             // if there is only 1 row we do not need to worry which one to update
             for (unsigned int j = 0; j < 3; j++)
             {
@@ -426,19 +420,19 @@ searchagain:
                   << datestream.str();
 #ifdef VERBOSE
 
-              cout << "Command: " << cmd.str() << endl;
+              std::cout << "Command: " << cmd.str() << std::endl;
 #endif
 
               int iret2 = upd->executeUpdate(cmd.str());
               if (!iret2)
               {
-                cout << PHWHERE << "Update failed please send mail to pinkenburg@bnl.gov"
-                     << endl;
-                cout << "And include the macro and the following info" << endl;
-                cout << "TableName: " << table << endl;
-                cout << "Variable: " << iter->first << addvarname[j] << endl;
-                cout << "Value: " << iter->second->GetVar(j) << endl;
-                cout << "TimeStamp: " << rs->getTimestamp(1).toString() << endl;
+                std::cout << PHWHERE << "Update failed please send mail to pinkenburg@bnl.gov"
+                          << std::endl;
+                std::cout << "And include the macro and the following info" << std::endl;
+                std::cout << "TableName: " << table << std::endl;
+                std::cout << "Variable: " << iter->first << addvarname[j] << std::endl;
+                std::cout << "Value: " << iter->second->GetVar(j) << std::endl;
+                std::cout << "TimeStamp: " << rs->getTimestamp(1).toString() << std::endl;
               }
             }
           }
@@ -475,29 +469,29 @@ searchagain:
 
 #ifdef VERBOSE
 
-    cout << cmd.str() << endl;
+    std::cout << cmd.str() << std::endl;
 #endif
 
-    Statement* stmt = con->createStatement();
+    odbc::Statement* stmt = con->createStatement();
     try
     {
       stmt->executeUpdate(cmd.str());
     }
-    catch (SQLException& e)
+    catch (odbc::SQLException& e)
     {
-      string errmsg = e.getMessage();
-      if (errmsg.find("Cannot insert a duplicate key into unique index") != string::npos)
+      std::string errmsg = e.getMessage();
+      if (errmsg.find("Cannot insert a duplicate key into unique index") != std::string::npos)
       {
 #ifdef VERBOSE
-        cout << "Identical entry already in DB" << endl;
+        std::cout << "Identical entry already in DB" << std::endl;
 #endif
         iret = 0;
       }
       else
       {
-        cout << PHWHERE << " DB Error in execute stmt: " << e.getMessage() << endl;
-        ofstream savesql("lostupdates.sql", ios_base::app);
-        savesql << cmd.str() << endl;
+        std::cout << PHWHERE << " DB Error in execute stmt: " << e.getMessage() << std::endl;
+        std::ofstream savesql("lostupdates.sql", std::ios_base::app);
+        savesql << cmd.str() << std::endl;
         savesql.close();
         iret = -1;
       }
@@ -514,30 +508,30 @@ int OnlMonDBodbc::GetVar(const time_t begin, const time_t end, const std::string
   }
   int iret = 0;
 
-  Statement* query = con->createStatement();
-  Timestamp mintime(begin);
-  Timestamp maxtime(end);
-  string varnameerr = varname + addvarname[1];
-  ostringstream cmd, datestream;
+  odbc::Statement* query = con->createStatement();
+  odbc::Timestamp mintime(begin);
+  odbc::Timestamp maxtime(end);
+  std::string varnameerr = varname + addvarname[1];
+  std::ostringstream cmd, datestream;
   datestream << "date > '" << mintime.toString()
              << "' and date < '" << maxtime.toString() << "'";
   cmd << "SELECT COUNT(*) FROM " << table << " WHERE " << datestream.str();
 
 #ifdef VERBOSE
-  cout << "command: " << cmd.str() << endl;
+  std::cout << "command: " << cmd.str() << std::endl;
 #endif
 
-  ResultSet* rs;
+  odbc::ResultSet* rs;
   try
   {
     rs = query->executeQuery(cmd.str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << "Exception caught, probably your table "
-         << table
-         << " does not exist" << endl;
-    cout << "Message: " << e.getMessage() << endl;
+    std::cout << "Exception caught, probably your table "
+              << table
+              << " does not exist" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
     varerr.resize(0);
     var.resize(0);
     timestp.resize(0);
@@ -565,19 +559,19 @@ int OnlMonDBodbc::GetVar(const time_t begin, const time_t end, const std::string
       << datestream.str() << " ORDER BY date ASC";
 #ifdef VERBOSE
 
-  cout << "Command: " << cmd.str() << endl;
+  std::cout << "Command: " << cmd.str() << std::endl;
 #endif
 
   try
   {
     rs = query->executeQuery(cmd.str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << "Exception caught, probably your variable "
-         << varname << " or the table " << table
-         << " does not exist" << endl;
-    cout << "Message: " << e.getMessage() << endl;
+    std::cout << "Exception caught, probably your variable "
+              << varname << " or the table " << table
+              << " does not exist" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
     varerr.resize(0);
     var.resize(0);
     timestp.resize(0);
@@ -618,13 +612,13 @@ int OnlMonDBodbc::GetConnection()
   }
   try
   {
-    con = DriverManager::getConnection(dbname.c_str(), dbowner.c_str(), dbpasswd.c_str());
+    con = odbc::DriverManager::getConnection(dbname.c_str(), dbowner.c_str(), dbpasswd.c_str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << PHWHERE
-         << " Exception caught during DriverManager::getConnection" << endl;
-    cout << "Message: " << e.getMessage() << endl;
+    std::cout << PHWHERE
+              << " Exception caught during DriverManager::getConnection" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
     if (con)
     {
       delete con;

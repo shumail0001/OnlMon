@@ -4,19 +4,23 @@
 #include "OnlMonHtml.h"
 
 #include <onlmon/HistoBinDefs.h>
+#include <onlmon/OnlMonBase.h>  // for OnlMonBase
 #include <onlmon/OnlMonTrigger.h>
 #include <onlmon/PortNumber.h>
 
 #include <phool/phool.h>
 
+#include <MessageTypes.h>  // for kMESS_STRING, kMESS_OBJECT
 #include <TCanvas.h>
 #include <TClass.h>
 #include <TDirectory.h>
 #include <TFile.h>
+#include <TGClient.h>  // for gClient, TGClient
 #include <TGFrame.h>
 #include <TH1.h>
 #include <TImage.h>
 #include <TIterator.h>
+#include <TList.h>  // for TList
 #include <TMessage.h>
 #include <TROOT.h>
 #include <TSeqCollection.h>
@@ -27,19 +31,22 @@
 #include <odbc++/connection.h>
 #include <odbc++/drivermanager.h>
 #include <odbc++/resultset.h>
-
-#include <sys/utsname.h>
-#include <uuid/uuid.h>
+#include <odbc++/statement.h>  // for Statement
+#include <odbc++/types.h>      // for SQLException
 
 #include <sys/stat.h>
-#include <sys/types.h>
+#include <sys/utsname.h>
 #include <unistd.h>
+#include <uuid/uuid.h>
 #include <algorithm>
+#include <cstdio>   // for printf, remove
+#include <cstdlib>  // for getenv, exit
+#include <cstring>  // for strcmp
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <list>
 #include <sstream>
+#include <utility>  // for pair
 
 OnlMonClient *OnlMonClient::__instance = nullptr;
 
@@ -143,7 +150,7 @@ OnlMonClient::~OnlMonClient()
   delete defaultStyle;
   // this deletes all open canvases
   TSeqCollection *allCanvases = gROOT->GetListOfCanvases();
-  TCanvas *canvas = NULL;
+  TCanvas *canvas = nullptr;
   while ((canvas = static_cast<TCanvas *>(allCanvases->First())))
   {
     if (verbosity > 0)
@@ -461,7 +468,7 @@ int OnlMonClient::DoSomething(const char *who, const char *what, const char *opt
           // if run for a single subsystem this leaves the canvas intact
           // for debugging
           TSeqCollection *allCanvases = gROOT->GetListOfCanvases();
-          TCanvas *canvas = NULL;
+          TCanvas *canvas = nullptr;
           while ((canvas = static_cast<TCanvas *>(allCanvases->First())))
           {
             std::cout << "Deleting Canvas " << canvas->GetName() << std::endl;
@@ -767,7 +774,7 @@ TH1 *OnlMonClient::getHisto(const std::string &hname)
   {
     return histoiter->second->Histo();
   }
-  return NULL;
+  return nullptr;
 }
 
 void OnlMonClient::Print(const char *what)
@@ -1040,7 +1047,7 @@ time_t OnlMonClient::EventTime(const char *which)
     if (requestHistoByName("FrameWorkVars"))
     {
       std::cout << "Histogram FrameWorkVars cannot be located, current host ticks used for time" << std::endl;
-      return time(NULL);
+      return time(nullptr);
     }
     histoiter = Histo.find("FrameWorkVars");
     if (histoiter != Histo.end())
@@ -1050,14 +1057,14 @@ time_t OnlMonClient::EventTime(const char *which)
     else
     {
       std::cout << "Histogram FrameWorkVars cannot be located, current host ticks used for time" << std::endl;
-      return time(NULL);
+      return time(nullptr);
     }
   }
   if (tret < 1000000)
   {
     std::cout << " OnlMonClient: No of Ticks " << tret
               << " too small (evb timestamp off or data taken by dcm crate controller, current host ticks used for time" << std::endl;
-    tret = time(NULL);
+    tret = time(nullptr);
   }
   if (verbosity > 0)
   {

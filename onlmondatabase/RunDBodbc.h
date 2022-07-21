@@ -1,5 +1,5 @@
-#ifndef __RUNDBODBC_H__
-#define __RUNDBODBC_H__
+#ifndef ONLMONDATABASE_RUNDBODBC_H
+#define ONLMONDATABASE_RUNDBODBC_H
 
 #include <set>
 #include <string>
@@ -7,7 +7,7 @@
 class RunDBodbc
 {
  public:
-  RunDBodbc();
+  RunDBodbc() {}
   virtual ~RunDBodbc() {}
   //  void Dump(const int nrows = 0) const;
   void identify() const;
@@ -17,10 +17,10 @@ class RunDBodbc
   int GetRunNumbers(std::set<int> &result, const std::string &type, const int nruns, const int lastrunexclusive) const;
 
  private:
-  int verbosity;
-  std::string dbname;
-  std::string dbowner;
-  std::string dbpasswd;
+  int verbosity = 0;
+  std::string dbname = "daq";
+  std::string dbowner = "phnxrc";
+  std::string dbpasswd = "";
 };
 
 #endif

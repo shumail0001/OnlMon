@@ -1,12 +1,12 @@
-#ifndef __ONCALDBODBC_H__
-#define __ONCALDBODBC_H__
+#ifndef ONLMONDATABASE_ONCALDBODBC_H
+#define ONLMONDATABASE_ONCALDBODBC_H
 
 #include <string>
 
 class OnCalDBodbc
 {
  public:
-  OnCalDBodbc();
+  OnCalDBodbc() {}
   virtual ~OnCalDBodbc() {}
   //  void Dump(const int nrows = 0) const;
   void identify() const;
@@ -14,10 +14,10 @@ class OnCalDBodbc
   void Verbosity(const int i) { verbosity = i; }
 
  private:
-  int verbosity;
-  std::string dbname;
-  std::string dbowner;
-  std::string dbpasswd;
+  int verbosity = 0;
+  std::string dbname = "Phenix";
+  std::string dbowner = "phnxrc";
+  std::string dbpasswd = "";
 };
 
 #endif

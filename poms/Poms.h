@@ -39,7 +39,8 @@ class TList;
 class TGMenuBar;
 class TGButton;
 class TGPopupMenu;
-class TGShutter;
+class TGHotString;
+class TGWindow;
 
 #define POMS_VER "POMS Ver 1.0: "
 
@@ -53,10 +54,8 @@ enum EMessageID
 };
 
 // Declare all classes to preven compiler errors
-class PomsMainFrame;
 class SubSystem;
 class SubSystemAction;
-class POMSUtil;
 
 // Declare list types
 typedef std::list<SubSystem*> SubSystemList;

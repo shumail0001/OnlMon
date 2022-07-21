@@ -20,7 +20,7 @@ class OnlMonDBodbc : public OnlMonBase
   OnlMonDBodbc(const std::string &tablename);
   virtual ~OnlMonDBodbc();
   void Dump();
-  int Info(const char *tablename = NULL);
+  int Info(const char *tablename = nullptr);
   int CreateTable();
   int CheckAndCreateTable(const std::map<const std::string, OnlMonDBVar *> &varmap);
   int DropTable(const std::string &name);

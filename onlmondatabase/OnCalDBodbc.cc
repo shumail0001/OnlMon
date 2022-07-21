@@ -16,42 +16,31 @@
 #include <ctime>
 #include <sstream>
 
-using namespace odbc;
-using namespace std;
-
 //#define VERBOSE
-
-OnCalDBodbc::OnCalDBodbc()
-  : verbosity(0)
-  , dbname("Phenix")
-  , dbowner("phnxrc")
-  , dbpasswd("")
-{
-}
 
 void OnCalDBodbc::identify() const
 {
-  cout << "DB Name: " << dbname << endl;
-  cout << "DB Owner: " << dbowner << endl;
-  cout << "DB Pwd: " << dbpasswd << endl;
+  std::cout << "DB Name: " << dbname << std::endl;
+  std::cout << "DB Owner: " << dbowner << std::endl;
+  std::cout << "DB Pwd: " << dbpasswd << std::endl;
   return;
 }
 
 int OnCalDBodbc::GetLastCalibratedRun(const int runno) const
 {
-  Connection* con = NULL;
-  Statement* query = NULL;
-  ostringstream cmd;
+  odbc::Connection* con = nullptr;
+  odbc::Statement* query = nullptr;
+  std::ostringstream cmd;
   int closestgoodrun = 329640;
   try
   {
-    con = DriverManager::getConnection(dbname.c_str(), dbowner.c_str(), dbpasswd.c_str());
+    con = odbc::DriverManager::getConnection(dbname.c_str(), dbowner.c_str(), dbpasswd.c_str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << PHWHERE
-         << " Exception caught during DriverManager::getConnection" << endl;
-    cout << "Message: " << e.getMessage() << endl;
+    std::cout << PHWHERE
+              << " Exception caught during DriverManager::getConnection" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
     return closestgoodrun;
   }
 
@@ -61,17 +50,17 @@ int OnCalDBodbc::GetLastCalibratedRun(const int runno) const
       << " order by runnumber desc limit 1";
   if (verbosity > 0)
   {
-    cout << "command: " << cmd.str() << endl;
+    std::cout << "command: " << cmd.str() << std::endl;
   }
-  ResultSet* rs = 0;
+  odbc::ResultSet* rs = nullptr;
   try
   {
     rs = query->executeQuery(cmd.str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << "Exception caught" << endl;
-    cout << "Message: " << e.getMessage() << endl;
+    std::cout << "Exception caught" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
   }
   if (rs && rs->next())
   {

@@ -3,25 +3,21 @@
 // otherwise you are asking for weird behavior
 // (more info - check the difference in include path search when using "" versus <>)
 #include "MyMon.h"
+
+#include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#include <Event/Event.h>
-#pragma GCC diagnostic pop
-
-#include <Event/msg_control.h>
 #include <Event/msg_profile.h>
 
 #include <TH1.h>
 #include <TH2.h>
 
 #include <cmath>
+#include <cstdio>  // for printf
 #include <iostream>
 #include <sstream>
-
-using namespace std;
+#include <string>  // for allocator, string, char_traits
 
 enum
 {
@@ -55,7 +51,7 @@ int MyMon::Init()
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, myhist1);  // uses the TH1->GetName() as key
   se->registerHisto(this, myhist2);
-  dbvars = new OnlMonDB(ThisName); // use monitor name for db table name
+  dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
   DBVarInit();
   Reset();
   return 0;
@@ -76,10 +72,10 @@ int MyMon::process_event(Event * /* evt */)
   // e.g. if the BBCLL1 has problems or if it changes its name
   if (!se->Trigger("ONLMONBBCLL1"))
   {
-    ostringstream msg;
+    std::ostringstream msg;
     msg << "Processing Event " << evtcnt
-        << ", Trigger : 0x" << hex << se->Trigger()
-        << dec;
+        << ", Trigger : 0x" << std::hex << se->Trigger()
+        << std::dec;
     // severity levels and id's for message sources can be found in
     // $ONLINE_MAIN/include/msg_profile.h
     // The last argument is a message type. Messages of the same type
@@ -103,7 +99,7 @@ int MyMon::process_event(Event * /* evt */)
       dbvars->SetVar("mymonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
       dbvars->DBcommit();
     }
-    ostringstream msg;
+    std::ostringstream msg;
     msg << "Filling Histos";
     se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
     idummy = 0;
@@ -122,7 +118,7 @@ int MyMon::Reset()
 int MyMon::DBVarInit()
 {
   // variable names are not case sensitive
-  string varname;
+  std::string varname;
   varname = "mymoncount";
   dbvars->registerVar(varname);
   varname = "mymondummy";

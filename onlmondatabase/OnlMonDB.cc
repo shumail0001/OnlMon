@@ -2,20 +2,20 @@
 #include "OnlMonDBVar.h"
 #include "OnlMonDBodbc.h"
 
+#include <onlmon/OnlMonBase.h>  // for OnlMonBase
 #include <onlmon/OnlMonServer.h>
 
 #include <phool/phool.h>
 
+#include <ctype.h>  // for tolower
 #include <algorithm>
 #include <cstdio>
 #include <iostream>
 #include <sstream>
+#include <utility>  // for pair
 
-using namespace std;
-
-OnlMonDB::OnlMonDB(const string &thisname)
+OnlMonDB::OnlMonDB(const std::string &thisname)
   : OnlMonBase(thisname)
-  , db(0)
 {
   return;
 }
@@ -32,8 +32,8 @@ OnlMonDB::~OnlMonDB()
 
 void OnlMonDB::Print() const
 {
-  cout << "OnlMonDB Name: " << ThisName << endl;
-  map<const std::string, OnlMonDBVar *>::const_iterator iter;
+  std::cout << "OnlMonDB Name: " << ThisName << std::endl;
+  std::map<const std::string, OnlMonDBVar *>::const_iterator iter;
   for (iter = varmap.begin(); iter != varmap.end(); ++iter)
   {
     iter->second->Print();
@@ -41,14 +41,14 @@ void OnlMonDB::Print() const
   return;
 }
 
-int OnlMonDB::registerVar(const string &varname)
+int OnlMonDB::registerVar(const std::string &varname)
 {
-  string cpstring = varname;
+  std::string cpstring = varname;
   transform(cpstring.begin(), cpstring.end(), cpstring.begin(), (int (*)(int)) tolower);
-  map<const string, OnlMonDBVar *>::const_iterator iter = varmap.find(cpstring);
+  std::map<const std::string, OnlMonDBVar *>::const_iterator iter = varmap.find(cpstring);
   if (iter != varmap.end())
   {
-    cout << "Variable " << varname << " allready registered in DB" << endl;
+    std::cout << "Variable " << varname << " allready registered in DB" << std::endl;
     return -1;
   }
   varmap[cpstring] = new OnlMonDBVar();
@@ -64,17 +64,17 @@ int OnlMonDB::SetVar(const std::string &varname, const float var, const float va
   return SetVar(varname, vararray);
 }
 
-int OnlMonDB::SetVar(const string &varname, const float var[3])
+int OnlMonDB::SetVar(const std::string &varname, const float var[3])
 {
-  string cpstring = varname;
+  std::string cpstring = varname;
   transform(cpstring.begin(), cpstring.end(), cpstring.begin(), (int (*)(int)) tolower);
-  map<const string, OnlMonDBVar *>::iterator iter = varmap.find(cpstring);
+  std::map<const std::string, OnlMonDBVar *>::iterator iter = varmap.find(cpstring);
   if (iter != varmap.end())
   {
     iter->second->SetVar(var);
     return 0;
   }
-  cout << PHWHERE << " Could not find Variable " << varname << " in DB list" << endl;
+  std::cout << PHWHERE << " Could not find Variable " << varname << " in DB list" << std::endl;
   return -1;
 }
 
@@ -96,8 +96,8 @@ int OnlMonDB::DBcommit()
   int iret = 0;
   if (!db)
   {
-    cout << "Data Base not initialized, fix your code." << endl;
-    cout << "You need to call DBInit() after you registered your variables" << endl;
+    std::cout << "Data Base not initialized, fix your code." << std::endl;
+    std::cout << "You need to call DBInit() after you registered your variables" << std::endl;
     return -1;
   }
   iret = db->AddRow(se->CurrentTicks(), se->RunNumber(), varmap);
@@ -107,7 +107,7 @@ int OnlMonDB::DBcommit()
     return iret;
   }
   //db->Dump();
-  map<const string, OnlMonDBVar *>::iterator iter;
+  std::map<const std::string, OnlMonDBVar *>::iterator iter;
   for (iter = varmap.begin(); iter != varmap.end(); ++iter)
   {
     iter->second->resetupdated();
@@ -123,13 +123,13 @@ int OnlMonDB::DBcommitTest()
   static int runnumber = 90000;
   if (!db)
   {
-    cout << "Data Base not initialized, fix your code." << endl;
-    cout << "You need to call DBInit() after you registered your variables" << endl;
+    std::cout << "Data Base not initialized, fix your code." << std::endl;
+    std::cout << "You need to call DBInit() after you registered your variables" << std::endl;
     return -1;
   }
   if (ifirst)
   {
-    ticks = time(NULL);
+    ticks = time(nullptr);
     ticks -= 2 * 30 * 24 * 60 * 60;
     ifirst = 0;
   }
@@ -141,11 +141,11 @@ int OnlMonDB::DBcommitTest()
   db->AddRow(ticks, runnumber, varmap);
   if (iret)
   {
-    cout << "error in dbcommit" << endl;
+    std::cout << "error in dbcommit" << std::endl;
     return iret;
   }
   //db->Dump();
-  map<const string, OnlMonDBVar *>::iterator iter;
+  std::map<const std::string, OnlMonDBVar *>::iterator iter;
   for (iter = varmap.begin(); iter != varmap.end(); ++iter)
   {
     iter->second->resetupdated();
@@ -165,7 +165,7 @@ int OnlMonDB::GetVar(const time_t begin, const time_t end, const std::string &va
 
 void OnlMonDB::Reset()
 {
-  map<const string, OnlMonDBVar *>::iterator iter;
+  std::map<const std::string, OnlMonDBVar *>::iterator iter;
   for (iter = varmap.begin(); iter != varmap.end(); ++iter)
   {
     iter->second->resetupdated();

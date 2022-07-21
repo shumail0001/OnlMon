@@ -14,15 +14,15 @@
 #include <TH1.h>
 #include <TPad.h>
 #include <TROOT.h>
-#include <TStyle.h>
 #include <TSystem.h>
 #include <TText.h>
 
+#include <cstring>  // for memset
 #include <ctime>
 #include <fstream>
+#include <iostream>  // for operator<<, basic_ostream, basic_os...
 #include <sstream>
-
-using namespace std;
+#include <vector>  // for vector
 
 MyMonDraw::MyMonDraw(const std::string &name)
 {
@@ -123,7 +123,7 @@ int MyMonDraw::Draw(const std::string &what)
   }
   if (!idraw)
   {
-    cout << PHWHERE << " Unimplemented Drawing option: " << what << endl;
+    std::cout << PHWHERE << " Unimplemented Drawing option: " << what << std::endl;
     iret = -1;
   }
   return iret;
@@ -161,8 +161,8 @@ int MyMonDraw::DrawFirst(const std::string & /* what */)
   PrintRun.SetTextSize(0.04);
   PrintRun.SetNDC();          // set to normalized coordinates
   PrintRun.SetTextAlign(23);  // center/top alignment
-  ostringstream runnostream;
-  string runstring;
+  std::ostringstream runnostream;
+  std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
@@ -208,8 +208,8 @@ int MyMonDraw::DrawSecond(const std::string & /* what */)
   PrintRun.SetTextSize(0.04);
   PrintRun.SetNDC();          // set to normalized coordinates
   PrintRun.SetTextAlign(23);  // center/top alignment
-  ostringstream runnostream;
-  string runstring;
+  std::ostringstream runnostream;
+  std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_2 Run " << cl->RunNumber()
@@ -244,7 +244,7 @@ int MyMonDraw::DrawDeadServer(TPad *transparentpad)
 int MyMonDraw::MakePS(const std::string &what)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  ostringstream filename;
+  std::ostringstream filename;
   int iret = Draw(what);
   if (iret)  // on error no ps files please
   {
@@ -269,7 +269,7 @@ int MyMonDraw::MakeHtml(const std::string &what)
   OnlMonClient *cl = OnlMonClient::instance();
 
   // Register the 1st canvas png file to the menu and produces the png file.
-  string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
+  std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
   cl->CanvasToPng(TC[0], pngfile);
 
   // idem for 2nd canvas.
@@ -277,18 +277,18 @@ int MyMonDraw::MakeHtml(const std::string &what)
   cl->CanvasToPng(TC[1], pngfile);
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
-  string logfile = cl->htmlRegisterPage(*this, "For EXPERTS/Log", "log", "html");
-  ofstream out(logfile.c_str());
+  std::string logfile = cl->htmlRegisterPage(*this, "For EXPERTS/Log", "log", "html");
+  std::ofstream out(logfile.c_str());
   out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << endl;
-  out << "<P>Some log file output would go here." << endl;
+      << "</TITLE></HEAD>" << std::endl;
+  out << "<P>Some log file output would go here." << std::endl;
   out.close();
 
-  string status = cl->htmlRegisterPage(*this, "For EXPERTS/Status", "status", "html");
-  ofstream out2(status.c_str());
+  std::string status = cl->htmlRegisterPage(*this, "For EXPERTS/Status", "status", "html");
+  std::ofstream out2(status.c_str());
   out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
-       << "</TITLE></HEAD>" << endl;
-  out2 << "<P>Some status output would go here." << endl;
+       << "</TITLE></HEAD>" << std::endl;
+  out2 << "<P>Some status output would go here." << std::endl;
   out2.close();
   cl->SaveLogFile(*this);
   return 0;
@@ -299,18 +299,18 @@ int MyMonDraw::DrawHistory(const std::string & /* what */)
   int iret = 0;
   // you need to provide the following vectors
   // which are filled from the db
-  vector<float> var;
-  vector<float> varerr;
-  vector<time_t> timestamp;
-  vector<int> runnumber;
-  string varname = "mymondummy";
+  std::vector<float> var;
+  std::vector<float> varerr;
+  std::vector<time_t> timestamp;
+  std::vector<int> runnumber;
+  std::string varname = "mymondummy";
   // this sets the time range from whihc values should be returned
-  time_t begin = 0;         // begin of time (1.1.1970)
-  time_t end = time(NULL);  // current time (right NOW)
+  time_t begin = 0;            // begin of time (1.1.1970)
+  time_t end = time(nullptr);  // current time (right NOW)
   iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
   if (iret)
   {
-    cout << PHWHERE << " Error in db access" << endl;
+    std::cout << PHWHERE << " Error in db access" << std::endl;
     return iret;
   }
   if (!gROOT->FindObject("MyMon3"))
@@ -325,11 +325,11 @@ int MyMonDraw::DrawHistory(const std::string & /* what */)
   int n = var.size();
   for (unsigned int i = 0; i < var.size(); i++)
   {
-    //       cout << "timestamp: " << ctime(&timestamp[i])
+    //       std::cout << "timestamp: " << ctime(&timestamp[i])
     // 	   << ", run: " << runnumber[i]
     // 	   << ", var: " << var[i]
     // 	   << ", varerr: " << varerr[i]
-    // 	   << endl;
+    // 	   << std::endl;
     x[i] = timestamp[i] - TimeOffsetTicks;
     y[i] = var[i];
     ex[i] = 0;
@@ -361,7 +361,7 @@ int MyMonDraw::DrawHistory(const std::string & /* what */)
   iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
   if (iret)
   {
-    cout << PHWHERE << " Error in db access" << endl;
+    std::cout << PHWHERE << " Error in db access" << std::endl;
     return iret;
   }
   x = new float[var.size()];
@@ -371,11 +371,11 @@ int MyMonDraw::DrawHistory(const std::string & /* what */)
   n = var.size();
   for (unsigned int i = 0; i < var.size(); i++)
   {
-    //       cout << "timestamp: " << ctime(&timestamp[i])
+    //       std::cout << "timestamp: " << ctime(&timestamp[i])
     // 	   << ", run: " << runnumber[i]
     // 	   << ", var: " << var[i]
     // 	   << ", varerr: " << varerr[i]
-    // 	   << endl;
+    // 	   << std::endl;
     x[i] = timestamp[i] - TimeOffsetTicks;
     y[i] = var[i];
     ex[i] = 0;

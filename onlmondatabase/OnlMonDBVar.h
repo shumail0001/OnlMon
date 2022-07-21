@@ -1,7 +1,5 @@
-#ifndef __ONLMONDBVAR_H__
-#define __ONLMONDBVAR_H__
-
-#include <string>
+#ifndef ONLMONDATABASE_ONLMONDBVAR_H
+#define ONLMONDATABASE_ONLMONDBVAR_H
 
 class OnlMonDBVar
 {
@@ -16,7 +14,7 @@ class OnlMonDBVar
   float GetVar(const int i) { return val[i]; }
 
  protected:
-  int updated;
+  int updated = 0;
   float val[3];
 };
 

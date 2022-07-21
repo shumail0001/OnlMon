@@ -1,8 +1,7 @@
-#ifndef MYMON_H__
-#define MYMON_H__
+#ifndef EXAMPLE_MYMON_H
+#define EXAMPLE_MYMON_H
 
 #include <onlmon/OnlMon.h>
-#include <string>
 
 class Event;
 class OnlMonDB;
@@ -29,4 +28,4 @@ class MyMon : public OnlMon
   TH2 *myhist2 = nullptr;
 };
 
-#endif /* MYMON_H__ */
+#endif /* EXAMPLE_MYMON_H */

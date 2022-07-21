@@ -1,28 +1,26 @@
 #include "OnlMonDraw.h"
+
 #include <iostream>
 
-using namespace std;
-
-OnlMonDraw::OnlMonDraw(const string &name)
+OnlMonDraw::OnlMonDraw(const std::string &name)
   : ThisName(name)
-  , verbosity(0)
 {
 }
 
 int OnlMonDraw::Draw(const std::string & /* what */)
 {
-  cout << "Draw not implemented by daughter class" << endl;
+  std::cout << "Draw not implemented by daughter class" << std::endl;
   return -1;
 }
 
 int OnlMonDraw::MakePS(const std::string & /* what */)
 {
-  cout << "MakePS not implemented by daughter class" << endl;
+  std::cout << "MakePS not implemented by daughter class" << std::endl;
   return -1;
 }
 
 int OnlMonDraw::MakeHtml(const std::string & /* what */)
 {
-  cout << "MakeHtml not implemented by daughter class" << endl;
+  std::cout << "MakeHtml not implemented by daughter class" << std::endl;
   return -1;
 }

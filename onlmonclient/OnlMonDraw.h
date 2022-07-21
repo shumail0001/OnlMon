@@ -1,9 +1,7 @@
-#ifndef __ONLMONDRAW_H__
-#define __ONLMONDRAW_H__
+#ifndef ONLMONCLIENT_ONLMONDRAW_H
+#define ONLMONCLIENT_ONLMONDRAW_H
 
 #include <string>
-
-class Event;
 
 class OnlMonDraw
 {
@@ -21,7 +19,7 @@ class OnlMonDraw
 
  protected:
   std::string ThisName;
-  int verbosity;
+  int verbosity = 0;
 };
 
-#endif /* __ONLMONDRAW_H__ */
+#endif /* ONLMONCLIENT_ONLMONDRAW_H */
