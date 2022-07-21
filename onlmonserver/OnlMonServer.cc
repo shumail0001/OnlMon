@@ -59,9 +59,6 @@ OnlMonServer::OnlMonServer(const std::string &name)
   : OnlMonBase(name)
 {
   pthread_mutex_init(&mutex, nullptr);
-  serverthreadid = 0;
-  runnumber = -1;
-  eventnumber = 0;
   MsgSystem[ThisName] = new MessageSystem(ThisName);
   //  onltrig = new OnlMonTrigger();
   statusDB = new OnlMonStatusDB();
@@ -118,16 +115,6 @@ void OnlMonServer::InitAll()
   {
     Trigger(inittrig, i);
   }
-  currentticks = 0;
-  borticks = 0;
-  badevents = 0;
-  activepacketsinit = 0;
-  scaledtrigmask = 0xFFFFFFFF;
-  scaledtrigmask_used = 0;
-  standalone = 0;
-  cosmicrun = 0;
-  TriggerConfig = "UNKNOWN";
-  RunType = "UNKNOWN";
   topNode = new PHCompositeNode("TOP");
   return;
 }
@@ -321,6 +308,21 @@ TH1 *OnlMonServer::getHisto(const std::string &hname) const
   Print("HISTOS");
   return nullptr;
 }
+
+int OnlMonServer::run_empty(const int nevents)
+{
+  int iret = 0;
+  for (int i = 0; i<nevents; i++)
+  {
+    iret = process_event(nullptr);
+    if (iret )
+    {
+      break;
+    }
+  }
+  return iret;
+}
+
 
 int OnlMonServer::process_event(Event *evt)
 {
