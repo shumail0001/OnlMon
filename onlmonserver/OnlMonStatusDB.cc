@@ -15,10 +15,7 @@
 static odbc::Connection* con = nullptr;
 
 OnlMonStatusDB::OnlMonStatusDB(const std::string& tablename)
-  : dbname("OnlMonDB")
-  , dbowner("phnxrc")
-  , dbpasswd("")
-  , table(tablename)
+  : table(tablename)
 {
 }
 
@@ -159,8 +156,8 @@ int OnlMonStatusDB::FindAndInsertRunNum(const int runnumber)
 
 int OnlMonStatusDB::findRunNumInDB(const int runnumber)
 {
-  odbc::Statement* statement = 0;
-  odbc::ResultSet* rs = 0;
+  odbc::Statement* statement = nullptr;
+  odbc::ResultSet* rs = nullptr;
   std::ostringstream cmd;
   cmd << "SELECT runnumber FROM "
       << table
@@ -261,7 +258,7 @@ int OnlMonStatusDB::GetConnection()
     if (con)
     {
       delete con;
-      con = 0;
+      con = nullptr;
     }
     return -1;
   }

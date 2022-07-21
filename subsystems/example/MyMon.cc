@@ -31,11 +31,6 @@ enum
 
 MyMon::MyMon(const char *name)
   : OnlMon(name)
-  , evtcnt(0)
-  , idummy(0)
-  , dbvars(NULL)
-  , myhist1(NULL)
-  , myhist2(NULL)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new MyMon()
@@ -60,8 +55,8 @@ int MyMon::Init()
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, myhist1);  // uses the TH1->GetName() as key
   se->registerHisto(this, myhist2);
-  //  dbvars = new OnlMonDB(ThisName); // use monitor name for db table name
-  //  DBVarInit();
+  dbvars = new OnlMonDB(ThisName); // use monitor name for db table name
+  DBVarInit();
   Reset();
   return 0;
 }
@@ -99,7 +94,7 @@ int MyMon::process_event(Event * /* evt */)
   myhist1->Fill((float) idummy);
   myhist2->Fill((float) idummy, (float) idummy, 1.);
 
-  if (idummy++ > 1000)
+  if (idummy++ > 10)
   {
     if (dbvars)
     {

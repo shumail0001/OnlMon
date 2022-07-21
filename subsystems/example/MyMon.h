@@ -22,11 +22,11 @@ class MyMon : public OnlMon
 
  protected:
   int DBVarInit();
-  int evtcnt;
-  int idummy;
-  OnlMonDB *dbvars;
-  TH1 *myhist1;
-  TH2 *myhist2;
+  int evtcnt = 0;
+  int idummy = 0;
+  OnlMonDB *dbvars = nullptr;
+  TH1 *myhist1 = nullptr;
+  TH2 *myhist2 = nullptr;
 };
 
 #endif /* MYMON_H__ */
