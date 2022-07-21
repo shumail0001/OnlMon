@@ -2,8 +2,6 @@
 
 #include <TH1.h>
 
-using namespace std;
-
 ClientHistoList::ClientHistoList()
   : histo(nullptr)
   , serverport(0)
@@ -12,7 +10,7 @@ ClientHistoList::ClientHistoList()
 {
 }
 
-ClientHistoList::ClientHistoList(const string &subsys)
+ClientHistoList::ClientHistoList(const std::string &subsys)
   : histo(nullptr)
   , serverport(0)
   , serverhost("UNKNOWN")
@@ -37,36 +35,36 @@ void ClientHistoList::Histo(TH1 *Histo)
   return;
 }
 
-const string
+const std::string
 ClientHistoList::ServerHost() const
 {
   return serverhost;
 }
 
-void ClientHistoList::ServerHost(const string &ServerHost)
+void ClientHistoList::ServerHost(const std::string &ServerHost)
 {
   serverhost = ServerHost;
   return;
 }
 
-const string
+const std::string
 ClientHistoList::SubSystem() const
 {
   return subsystem;
 }
 
-void ClientHistoList::SubSystem(const string &SubSystem)
+void ClientHistoList::SubSystem(const std::string &SubSystem)
 {
   subsystem = SubSystem;
   return;
 }
 
-void ClientHistoList::identify(ostream &os) const
+void ClientHistoList::identify(std::ostream &os) const
 {
   os << "Histo" << histo->GetName()
      << ", subsystem: " << subsystem
      << ", host: " << serverhost
-     << ", port: " << serverport << endl;
+     << ", port: " << serverport << std::endl;
 }
 
 void ClientHistoList::ServerPort(const int port)

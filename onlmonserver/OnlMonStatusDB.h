@@ -16,9 +16,9 @@ class OnlMonStatusDB
 
  private:
   int GetConnection();
-  std::string dbname;
-  std::string dbowner;
-  std::string dbpasswd;
+  std::string dbname = "OnlMonDB";
+  std::string dbowner = "phnxrc";
+  std::string dbpasswd = "";
   std::string table;
 };
 

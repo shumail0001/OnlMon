@@ -20,7 +20,7 @@ OnlMonTrigger::OnlMonTrigger()
   , MyRunNumberBit(-2)
   , MyRunNumberTriggerHelper(-2)
   , runnumber(-2)
-  , th(NULL)
+  , th(nullptr)
 {
   for (int i = 0; i < NGL1TRIG; i++)
   {

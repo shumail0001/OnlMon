@@ -4,12 +4,10 @@
 
 #include <phool/phool.h>
 
-#include <TSystem.h>
-
 #include <dirent.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <algorithm>
+#include <cstddef>  // for size_t
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -18,14 +16,12 @@
 #include <sstream>
 #include <vector>
 
-using namespace std;
-
 namespace
 {
   //___________________________________________________________________________
-  vector<string> split(const char sep, const string& s)
+  std::vector<std::string> split(const char sep, const std::string& s)
   {
-    string str = s;
+    std::string str = s;
     std::vector<size_t> slashes_pos;
 
     if (str[0] != sep)
@@ -46,7 +42,7 @@ namespace
       }
     }
 
-    vector<string> parts;
+    std::vector<std::string> parts;
 
     if (slashes_pos.size() > 0)
     {
@@ -61,9 +57,9 @@ namespace
   }
 
   //___________________________________________________________________________
-  string join(const char sep, const vector<string>& parts)
+  std::string join(const char sep, const std::vector<std::string>& parts)
   {
-    string rv;
+    std::string rv;
     for (size_t i = 0; i < parts.size(); ++i)
     {
       rv += parts[i];
@@ -96,35 +92,35 @@ OnlMonHtml::~OnlMonHtml()
 }
 
 //_____________________________________________________________________________
-void OnlMonHtml::addMenu(const string& header, const string& path,
-                         const string& relfilename)
+void OnlMonHtml::addMenu(const std::string& header, const std::string& path,
+                         const std::string& relfilename)
 {
-  ostringstream menufile;
+  std::ostringstream menufile;
 
   menufile << fHtmlRunDir << "/menu";
 
-  ifstream in(menufile.str().c_str());
+  std::ifstream in(menufile.str().c_str());
 
   if (!in.good())
   {
     if (verbosity())
     {
-      cout << PHWHERE << "File " << menufile.str() << " does not exist."
-           << "I'm creating it now" << endl;
+      std::cout << PHWHERE << "File " << menufile.str() << " does not exist."
+                << "I'm creating it now" << std::endl;
     }
-    ofstream out(menufile.str().c_str());
+    std::ofstream out(menufile.str().c_str());
     out.close();
   }
   else
   {
     if (verbosity())
     {
-      cout << PHWHERE << "Reading file " << menufile.str() << endl;
+      std::cout << PHWHERE << "Reading file " << menufile.str() << std::endl;
     }
   }
 
   // we read back the old menu file...
-  vector<string> lines;
+  std::vector<std::string> lines;
   char str[1024];
   while (in.getline(str, 1024, '\n'))
   {
@@ -133,7 +129,7 @@ void OnlMonHtml::addMenu(const string& header, const string& path,
   in.close();
 
   // ... we then append the requested new entry...
-  ostringstream sline;
+  std::ostringstream sline;
   sline << header << "/" << path << "/" << relfilename;
 
   lines.push_back(sline.str());
@@ -142,13 +138,13 @@ void OnlMonHtml::addMenu(const string& header, const string& path,
   sort(lines.begin(), lines.end());
 
   // ... and we remove duplicates lines...
-  set<string> olines;
+  std::set<std::string> olines;
   copy(lines.begin(), lines.end(),
-       insert_iterator<set<string> >(olines, olines.begin()));
+       std::insert_iterator<std::set<std::string> >(olines, olines.begin()));
 
   // ... and finally we write the full new menu file out.
-  ofstream out(menufile.str().c_str());
-  copy(olines.begin(), olines.end(), ostream_iterator<string>(out, "\n"));
+  std::ofstream out(menufile.str());
+  copy(olines.begin(), olines.end(), std::ostream_iterator<std::string>(out, "\n"));
   out.close();
 
   // --end of normal menu generation--
@@ -161,9 +157,9 @@ void OnlMonHtml::addMenu(const string& header, const string& path,
 }
 
 //_____________________________________________________________________________
-void OnlMonHtml::plainHtmlMenu(const set<string>& olines)
+void OnlMonHtml::plainHtmlMenu(const std::set<std::string>& olines)
 {
-  ostringstream htmlmenufile;
+  std::ostringstream htmlmenufile;
 
   htmlmenufile << fHtmlRunDir << "/menu.html";
 
@@ -172,39 +168,39 @@ void OnlMonHtml::plainHtmlMenu(const set<string>& olines)
   // D1/D2/TITLE/link (where link is generally somefile.gif)
   // The dir in this case is D1/D2, which is why we look for 2 slashes
   // below (the one before TITLE and the one before link).
-  set<string> dirlist;
-  set<string>::const_iterator it;
+  std::set<std::string> dirlist;
+  std::set<std::string>::const_iterator it;
   for (it = olines.begin(); it != olines.end(); ++it)
   {
-    const string& line = *it;
-    string::size_type pos = line.find_last_of('/');
+    const std::string& line = *it;
+    std::string::size_type pos = line.find_last_of('/');
     pos = line.substr(0, pos).find_last_of('/');
-    string dir = line.substr(0, pos);
-    vector<string> parts = split('/', dir);
+    std::string dir = line.substr(0, pos);
+    std::vector<std::string> parts = split('/', dir);
     for (size_t i = 0; i <= parts.size(); ++i)
     {
-      string dir2 = join('/', parts);
+      std::string dir2 = join('/', parts);
       dirlist.insert(dir2);
       parts.pop_back();
     }
   }
 
   // We now generate the menu.html file.
-  ofstream out(htmlmenufile.str().c_str());
+  std::ofstream out(htmlmenufile.str().c_str());
   if (!out.good())
   {
-    cerr << PHWHERE << " cannot open output file "
-         << htmlmenufile.str() << endl;
+    std::cout << PHWHERE << " cannot open output file "
+              << htmlmenufile.str() << std::endl;
     return;
   }
 
   for (it = dirlist.begin(); it != dirlist.end(); ++it)
   {
     // in the example above, dir is D1/D2
-    const string& dir = *it;
+    const std::string& dir = *it;
     int nslashes = count(dir.begin(), dir.end(), '/') + 1;
-    string name = dir;
-    string::size_type pos = dir.find_last_of('/');
+    std::string name = dir;
+    std::string::size_type pos = dir.find_last_of('/');
     if (pos < dir.size())
     {
       name = dir.substr(pos + 1);
@@ -218,16 +214,16 @@ void OnlMonHtml::plainHtmlMenu(const set<string>& olines)
 
     // We then loop on all the olines, and for those matching the
     // dir pattern, we generate link <A HREF="link">TITLE</A>
-    set<string>::const_iterator it2;
+    std::set<std::string>::const_iterator it2;
     for (it2 = olines.begin(); it2 != olines.end(); ++it2)
     {
-      const string& line = *it2;
-      string::size_type pos2 = line.find_last_of('/');
+      const std::string& line = *it2;
+      std::string::size_type pos2 = line.find_last_of('/');
       pos2 = line.substr(0, pos2).find_last_of('/');
-      string ldir = line.substr(0, pos2);
+      std::string ldir = line.substr(0, pos2);
       if (ldir == dir)  // we get a matching line
       {
-        string sline = line.substr(dir.size() + 1);
+        std::string sline = line.substr(dir.size() + 1);
         // in the example above, sline is TITLE/link...
         pos2 = sline.find('/');
         // ...which we split at the slash pos
@@ -244,13 +240,13 @@ void OnlMonHtml::plainHtmlMenu(const set<string>& olines)
 }
 
 //_____________________________________________________________________________
-void OnlMonHtml::namer(const string& header,
-                       const string& basefilename,
-                       const string& ext,
-                       string& fullfilename,
-                       string& filename)
+void OnlMonHtml::namer(const std::string& header,
+                       const std::string& basefilename,
+                       const std::string& ext,
+                       std::string& fullfilename,
+                       std::string& filename)
 {
-  ostringstream sfilename;
+  std::ostringstream sfilename;
 
   sfilename << header << "_";
   if (!basefilename.empty())
@@ -259,7 +255,7 @@ void OnlMonHtml::namer(const string& header,
   }
   sfilename << runNumber() << "." << ext;
 
-  ostringstream sfullfilename;
+  std::ostringstream sfullfilename;
 
   sfullfilename << fHtmlRunDir << "/" << sfilename.str();
 
@@ -268,24 +264,24 @@ void OnlMonHtml::namer(const string& header,
 
   if (verbosity())
   {
-    cout << PHWHERE << "namer: header=" << header
-         << " basefilename=" << basefilename << " ext=" << ext
-         << endl
-         << "fullfilename=" << fullfilename
-         << " filename=" << filename
-         << endl;
+    std::cout << PHWHERE << "namer: header=" << header
+              << " basefilename=" << basefilename << " ext=" << ext
+              << std::endl
+              << "fullfilename=" << fullfilename
+              << " filename=" << filename
+              << std::endl;
   }
 }
 
 //_____________________________________________________________________________
-string
-OnlMonHtml::registerPage(const string& header,
-                         const string& path,
-                         const string& basefilename,
-                         const string& ext)
+std::string
+OnlMonHtml::registerPage(const std::string& header,
+                         const std::string& path,
+                         const std::string& basefilename,
+                         const std::string& ext)
 {
-  string fullfilename;
-  string filename;
+  std::string fullfilename;
+  std::string filename;
 
   namer(header, basefilename, ext, fullfilename, filename);
   addMenu(header, path, filename);
@@ -298,8 +294,8 @@ void OnlMonHtml::runInit()
   // Check if html output directory for this run exist.
   // If not create it.
   // Then check (and create if necessary) the "menu" template file.
-  string runtype = "unknowndata";
-  string runtmp = rundb->RunType(fRunNumber);
+  std::string runtype = "unknowndata";
+  std::string runtmp = rundb->RunType(fRunNumber);
   if (runtmp == "JUNK")
   {
     runtype = "junkdata";
@@ -332,9 +328,9 @@ void OnlMonHtml::runInit()
   {
     runtype = "zerofielddata";
   }
-  cout << "runtype is " << runtype << endl;
+  std::cout << "runtype is " << runtype << std::endl;
 
-  ostringstream fulldir;
+  std::ostringstream fulldir;
 
   fulldir << fHtmlDir << "/" << runtype << "/"
           << runRange() << "/" << runNumber();
@@ -343,11 +339,11 @@ void OnlMonHtml::runInit()
   DIR* htdir = opendir(fulldir.str().c_str());
   if (!htdir)
   {
-    vector<string> mkdirlist;
+    std::vector<std::string> mkdirlist;
     mkdirlist.push_back(fulldir.str());
-    string updir = fulldir.str();
-    string::size_type pos1;
-    while ((pos1 = updir.rfind("/")) != string::npos)
+    std::string updir = fulldir.str();
+    std::string::size_type pos1;
+    while ((pos1 = updir.rfind("/")) != std::string::npos)
     {
       updir.erase(pos1, updir.size());
       htdir = opendir(updir.c_str());
@@ -363,14 +359,14 @@ void OnlMonHtml::runInit()
     }
     while (mkdirlist.rbegin() != mkdirlist.rend())
     {
-      string md = *(mkdirlist.rbegin());
+      std::string md = *(mkdirlist.rbegin());
       if (verbosity())
       {
-        cout << PHWHERE << "Trying to create dir " << md << endl;
+        std::cout << PHWHERE << "Trying to create dir " << md << std::endl;
       }
       if (mkdir(md.c_str(), S_IRWXU | S_IRWXG | S_IRWXO))
       {
-        cout << PHWHERE << "Error creating directory " << md << endl;
+        std::cout << PHWHERE << "Error creating directory " << md << std::endl;
         fHtmlRunDir = fHtmlDir;
         break;
       }
@@ -380,16 +376,16 @@ void OnlMonHtml::runInit()
     // use ostringstream fulldir which contains the full directory
     // to create .htaccess file for automatic gunzipping
     fulldir << "/.htaccess";
-    ofstream htaccess;
-    htaccess.open(fulldir.str().c_str(), ios::trunc);  // overwrite if exists
-    htaccess << "<Files *.html.gz>" << endl;
-    htaccess << "     AddEncoding x-gzip .gz" << endl;
-    htaccess << "     AddType text/html .gz" << endl;
-    htaccess << "</Files>" << endl;
-    htaccess << "<Files *.txt.gz>" << endl;
-    htaccess << "     AddEncoding x-gzip .gz" << endl;
-    htaccess << "     AddType text/html .gz" << endl;
-    htaccess << "</Files>" << endl;
+    std::ofstream htaccess;
+    htaccess.open(fulldir.str().c_str(), std::ios::trunc);  // overwrite if exists
+    htaccess << "<Files *.html.gz>" << std::endl;
+    htaccess << "     AddEncoding x-gzip .gz" << std::endl;
+    htaccess << "     AddType text/html .gz" << std::endl;
+    htaccess << "</Files>" << std::endl;
+    htaccess << "<Files *.txt.gz>" << std::endl;
+    htaccess << "     AddEncoding x-gzip .gz" << std::endl;
+    htaccess << "     AddType text/html .gz" << std::endl;
+    htaccess << "</Files>" << std::endl;
     htaccess.close();
   }
   else
@@ -399,7 +395,7 @@ void OnlMonHtml::runInit()
 
   if (verbosity())
   {
-    cout << PHWHERE << "OK. fHtmlRunDir=" << fHtmlRunDir << endl;
+    std::cout << PHWHERE << "OK. fHtmlRunDir=" << fHtmlRunDir << std::endl;
   }
 }
 
@@ -411,16 +407,16 @@ void OnlMonHtml::runNumber(int runnumber)
 }
 
 //_____________________________________________________________________________
-string
+std::string
 OnlMonHtml::runRange()
 {
   const int range = 1000;
   int start = runNumber() / range;
 
-  ostringstream s;
+  std::ostringstream s;
 
-  s << "run_" << setw(10) << setfill('0') << start * range
-    << "_" << setw(10) << setfill('0') << (start + 1) * range;
+  s << "run_" << std::setw(10) << std::setfill('0') << start * range
+    << "_" << std::setw(10) << std::setfill('0') << (start + 1) * range;
 
   return s.str();
 }

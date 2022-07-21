@@ -6,7 +6,7 @@
 
 #include <MessageSystem.h>
 
-#include <Event/msg_control.h>
+#include <Event/msg_profile.h>  // for MSG_SEV_ERROR, MSG_SEV...
 
 #include <phool/PHCompositeNode.h>
 #include <phool/phool.h>
@@ -58,7 +58,7 @@ OnlMonServer *OnlMonServer::instance()
 OnlMonServer::OnlMonServer(const std::string &name)
   : OnlMonBase(name)
 {
-  pthread_mutex_init(&mutex, NULL);
+  pthread_mutex_init(&mutex, nullptr);
   serverthreadid = 0;
   runnumber = -1;
   eventnumber = 0;
@@ -274,7 +274,7 @@ TH1 *OnlMonServer::getHisto(const unsigned int ihisto) const
         << ihisto << ", maximum number is " << size;
     send_message(MSG_SEV_ERROR, msg.str(), 6);
   }
-  return NULL;
+  return nullptr;
 }
 
 const std::string
@@ -319,7 +319,7 @@ TH1 *OnlMonServer::getHisto(const std::string &hname) const
       << ", The following are implemented: ";
   send_message(MSG_SEV_ERROR, msg.str(), 7);
   Print("HISTOS");
-  return NULL;
+  return nullptr;
 }
 
 int OnlMonServer::process_event(Event *evt)

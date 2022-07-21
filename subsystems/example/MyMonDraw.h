@@ -1,7 +1,9 @@
-#ifndef __MYMONDRAW_H__
-#define __MYMONDRAW_H__
+#ifndef EXAMPLE_MYMONDRAW_H
+#define EXAMPLE_MYMONDRAW_H
 
 #include <onlmon/OnlMonDraw.h>
+
+#include <string>  // for allocator, string
 
 class OnlMonDB;
 class TCanvas;

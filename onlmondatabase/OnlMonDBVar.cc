@@ -1,12 +1,10 @@
 #include <OnlMonDBVar.h>
+
 #include <cmath>
 #include <iostream>
 
-using namespace std;
-
 OnlMonDBVar::OnlMonDBVar()
 {
-  updated = 0;
   for (short i = 0; i < 3; i++)
   {
     val[i] = NAN;
@@ -26,8 +24,8 @@ int OnlMonDBVar::SetVar(const float rval[3])
 
 void OnlMonDBVar::Print() const
 {
-  cout << "Value: " << val[0] << ", Error: " << val[1]
-       << ", Quality: " << val[2]
-       << ", updated: " << updated << endl;
+  std::cout << "Value: " << val[0] << ", Error: " << val[1]
+            << ", Quality: " << val[2]
+            << ", updated: " << updated << std::endl;
   return;
 }

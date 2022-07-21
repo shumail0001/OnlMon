@@ -23,20 +23,29 @@
 
 #include <onlmon/OnlMonClient.h>
 
+#include <GuiTypes.h>  // for kHorizontalFrame, kRaisedFrame
 #include <TCanvas.h>
 #include <TGButton.h>
+#include <TGClient.h>  // for TGClient, gClient
+#include <TGLayout.h>  // for TGLayoutHints, kLHintsTop, kLHintsE...
 #include <TGMenu.h>
 #include <TGMsgBox.h>
+#include <TGString.h>  // for TGHotString
+#include <TList.h>     // for TList
 #include <TROOT.h>
+#include <TSeqCollection.h>      // for TSeqCollection
+#include <TString.h>             // for TString
+#include <WidgetMessageTypes.h>  // for GET_MSG, GET_SUBMSG, kCM_BUTTON
 
 #include <cmath>
 #include <cstdlib>
+#include <cstring>  // for strlen
 #include <iostream>
 
 using namespace std;
 
 const int SUBSYSTEM_ACTION_ID_BEGIN = 10001;
-const ULong_t SHUTTER_ITEM_BG_COLOR = 0xffaacc;  // color is rrggbb (red, green, blue in hex)
+//const ULong_t SHUTTER_ITEM_BG_COLOR = 0xffaacc;  // color is rrggbb (red, green, blue in hex)
 
 const char* pomsFileTypes[] =
     {

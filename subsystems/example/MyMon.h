@@ -1,8 +1,7 @@
-#ifndef MYMON_H__
-#define MYMON_H__
+#ifndef EXAMPLE_MYMON_H
+#define EXAMPLE_MYMON_H
 
 #include <onlmon/OnlMon.h>
-#include <string>
 
 class Event;
 class OnlMonDB;
@@ -22,11 +21,11 @@ class MyMon : public OnlMon
 
  protected:
   int DBVarInit();
-  int evtcnt;
-  int idummy;
-  OnlMonDB *dbvars;
-  TH1 *myhist1;
-  TH2 *myhist2;
+  int evtcnt = 0;
+  int idummy = 0;
+  OnlMonDB *dbvars = nullptr;
+  TH1 *myhist1 = nullptr;
+  TH2 *myhist2 = nullptr;
 };
 
-#endif /* MYMON_H__ */
+#endif /* EXAMPLE_MYMON_H */
