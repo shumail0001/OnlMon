@@ -6,7 +6,7 @@
 
 R__LOAD_LIBRARY(libonlmymon_server.so)
 
-void run_example_server(const char *prdffile = "data.prdf")
+void run_example_server(const char *prdffile = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000221-0000.prdf")
 {
 
   OnlMon *m = new MyMon();      // create subsystem Monitor object
