@@ -8,6 +8,7 @@
 
 #include <phool/phool.h>
 
+#include <TAxis.h>  // for TAxis
 #include <TCanvas.h>
 #include <TDatime.h>
 #include <TGraphErrors.h>

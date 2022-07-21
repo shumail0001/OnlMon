@@ -12,7 +12,6 @@
 
 #include <MessageTypes.h>  // for kMESS_STRING, kMESS_OBJECT
 #include <TCanvas.h>
-#include <TClass.h>
 #include <TDirectory.h>
 #include <TFile.h>
 #include <TGClient.h>  // for gClient, TGClient

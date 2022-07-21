@@ -1,19 +1,18 @@
 #include "OnCalDBodbc.h"
 
+#include <phool/phool.h>
+
 #include <odbc++/connection.h>
 #include <odbc++/drivermanager.h>
-#include <odbc++/errorhandler.h>
-#include <phool/phool.h>
+#include <odbc++/statement.h>  // for Statement
+#include <odbc++/types.h>      // for SQLException
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
-#include <odbc++/preparedstatement.h>
 #include <odbc++/resultset.h>
 #pragma GCC diagnostic pop
 
-#include <algorithm>
-#include <cctype>
-#include <ctime>
+#include <iostream>  // for operator<<, basic_ostream, endl, cout
 #include <sstream>
 
 //#define VERBOSE
