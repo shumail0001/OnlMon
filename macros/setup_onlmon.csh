@@ -28,7 +28,7 @@ else
 endif
 
 if (! $?ONLMON_HTMLDIR) then
-  setenv ONLMON_HTMLDIR /common/s6/htmltest/OnlMon
+  setenv ONLMON_HTMLDIR `pwd`
 endif
 
 
@@ -39,13 +39,13 @@ if ($?ONLMON_HISTORYDIR) then
   endif
 endif
 
-if (! $?ONLINE_LOG) then
-  setenv ONLINE_LOG /export/data1/log
-endif
+#if (! $?ONLINE_LOG) then
+#  setenv ONLINE_LOG /export/data1/log
+#endif
 
-if (! $?ONLINE_CONFIGURATION) then
-  setenv ONLINE_CONFIGURATION /export/software/oncs/online_configuration
-endif
+#if (! $?ONLINE_CONFIGURATION) then
+#  setenv ONLINE_CONFIGURATION /export/software/oncs/online_configuration
+#endif
 
 if (! $?ONLMON_CALIB) then
   setenv ONLMON_CALIB $ONLMON_MAIN/share
@@ -55,10 +55,8 @@ if (! $?ONLMON_RUNDIR) then
   setenv ONLMON_RUNDIR $ONLMON_MAIN/share
 endif
 
-setenv ONLMON_BIN $ONLMON_MAIN/bin
-setenv LD_LIBRARY_PATH $ONLMON_MAIN/lib:$OFFLINE_MAIN/lib:$LD_LIBRARY_PATH
-set path = ($ONLMON_BIN $path)
+source /opt/sphenix/core/bin/setup_local.csh $ONLMON_MAIN
 # all subsystems scripts end in Setup.csh
-foreach script ($ONLMON_BIN/*Setup.csh)
-  source $script
-end
+#foreach script ($ONLMON_BIN/*Setup.csh)
+#  source $script
+#end

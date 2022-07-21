@@ -1,17 +1,38 @@
 AUTOMAKE_OPTIONS = foreign
 
-AM_CPPFLAGS = -I$(includedir) -isystem$(ROOTSYS)/include
+AM_CPPFLAGS = \
+  -I$(includedir) \
+  -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \
   libpoms.la   
 
-libpoms_la_LIBADD = -L$(libdir) -lonlmonclient
+pkginclude_HEADERS = \
+  Poms.h
+
+libpoms_la_LIBADD = \
+  -L$(libdir) \
+  -lonlmonclient
 
 libpoms_la_SOURCES = \
   Poms.cc
 
-Poms_Dict.C: Poms.h PomsLinkDef.h
-	rootcint -f $@ -c $(DEFS) $(DEFAULT_INCLUDES) $(AM_CPPFLAGS) $^
+noinst_PROGRAMS = \
+  testexternals
+
+testexternals_SOURCES = \
+  testexternals.cc
+
+testexternals_LDADD = \
+  libpoms.la
+
+testexternals.cc:
+	echo "//*** this is a generated file. Do not commit, do not edit" > $@
+	echo "int main()" >> $@
+	echo "{" >> $@
+	echo "  return 0;" >> $@
+	echo "}" >> $@
+
 
 clean-local:
-	rm -f *Dict.*
+	rm -f $(BUILT_SOURCES)
