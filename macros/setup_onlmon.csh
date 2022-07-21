@@ -57,6 +57,6 @@ endif
 
 source /opt/sphenix/core/bin/setup_local.csh $ONLMON_MAIN
 # all subsystems scripts end in Setup.csh
-foreach script ($ONLMON_BIN/*Setup.csh)
-  source $script
-end
+#foreach script ($ONLMON_BIN/*Setup.csh)
+#  source $script
+#end

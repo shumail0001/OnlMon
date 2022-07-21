@@ -5,10 +5,6 @@
 #include <onlmon/OnlMonClient.h>
 
 R__LOAD_LIBRARY(libonlmymon_client.so)
-//R__LOAD_LIBRARY(libfun4all.so)
-
-
-
 
 void exampleDrawInit(const int online = 0)
 {
@@ -16,8 +12,8 @@ void exampleDrawInit(const int online = 0)
   // register histos we want with monitor name
   cl->registerHisto("mymon_hist1", "MYMON");
   cl->registerHisto("mymon_hist2", "MYMON");
-     cl->AddServerHost("localhost");   // check local host first
-   //CreateHostList(online);
+  cl->AddServerHost("localhost");   // check local host first
+  CreateHostList(online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
   cl->requestHistoBySubSystem("MYMON", 1);

@@ -7,14 +7,17 @@ void CreateHostList(const int online = 0)
   if (!online)
     {
       cl->AddServerHost("localhost");   // check local host first
-      for (int i = 1; i <= 75; i++)
+      for (int i = 2061; i <= 2075; i++)
         {
-          if (i < 33 && i > 59 ) // take out reserved machines
-            {
-              sprintf(node, "va%03d", i);
+              sprintf(node, "rcas%d", i);
               cl->AddServerHost(node);      // put all va machines in search list
-            }
         }
+      for (int i = 1; i <= 2; i++)
+        {
+              sprintf(node, "sphnx%02d", i);
+              cl->AddServerHost(node);      // put all va machines in search list
+        }
+      cl->AddServerHost("sphnxdev01");
     }
   else if (online == 1)
     {
