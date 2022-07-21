@@ -27,9 +27,9 @@ else
   setenv ONLMON_LOGDIR `pwd`
 endif
 
-#if (! $?ONLMON_HTMLDIR) then
-#  setenv ONLMON_HTMLDIR /common/s6/htmltest/OnlMon
-#endif
+if (! $?ONLMON_HTMLDIR) then
+  setenv ONLMON_HTMLDIR `pwd`
+endif
 
 
 # create history directory if not exist
