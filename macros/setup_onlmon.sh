@@ -62,9 +62,14 @@ fi
 #  export ONLINE_CONFIGURATION=/export/software/oncs/online_configuration
 #fi
 
+if [[ -z "$ONLMON_BIN" ]]
+then
+  export ONLMON_BIN=$ONLMON_MAIN/bin
+fi
+
 if [[ -z "$ONLMON_CALIB" ]]
 then
-  export ONLMON_CALIB=$ONLMON_MAIN/share
+  export ONLMON_CALIB=$ONLMON_MAIN/share/onlmon
 fi
 
 if [[ -z "$ONLMON_RUNDIR" ]]
@@ -74,6 +79,7 @@ fi
 
 source /opt/sphenix/core/bin/setup_local.sh $ONLMON_MAIN
 # all subsystems scripts end in Setup.csh
-#foreach script ($ONLMON_BIN/*Setup.csh)
-#  source $script
-#end
+for script in $ONLMON_BIN/*Setup.sh
+do
+  source $script
+done

@@ -47,8 +47,12 @@ endif
 #  setenv ONLINE_CONFIGURATION /export/software/oncs/online_configuration
 #endif
 
+if (! $?ONLMON_BIN) then
+  setenv ONLMON_BIN $ONLMON_MAIN/bin
+endif
+
 if (! $?ONLMON_CALIB) then
-  setenv ONLMON_CALIB $ONLMON_MAIN/share
+  setenv ONLMON_CALIB $ONLMON_MAIN/share/onlmon
 endif
 
 if (! $?ONLMON_RUNDIR) then
@@ -57,6 +61,6 @@ endif
 
 source /opt/sphenix/core/bin/setup_local.csh $ONLMON_MAIN
 # all subsystems scripts end in Setup.csh
-#foreach script ($ONLMON_BIN/*Setup.csh)
-#  source $script
-#end
+foreach script ($ONLMON_BIN/*Setup.csh)
+  source $script
+end
