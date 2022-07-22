@@ -41,7 +41,8 @@ libonlmbdll1mon_client_la_SOURCES = \
   Mbdll1MonDraw.cc
 
 bin_SCRIPTS = \
-  Mbdll1Monsetup.csh
+  Mbdll1MonSetup.csh \
+  Mbdll1MonSetup.sh
 
 noinst_PROGRAMS = \
   testexternals_server \
