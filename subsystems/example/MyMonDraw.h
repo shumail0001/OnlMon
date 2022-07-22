@@ -27,12 +27,12 @@ class MyMonDraw : public OnlMonDraw
   int DrawSecond(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
   int DrawDeadServer(TPad *transparent);
-  int TimeOffsetTicks;
-  TCanvas *TC[3];
-  TPad *transparent[3];
-  TPad *Pad[6];
-  TGraphErrors *gr[2];
-  OnlMonDB *dbvars;
+  int TimeOffsetTicks = -1;
+  TCanvas *TC[3] = {nullptr};
+  TPad *transparent[3] = {nullptr};
+  TPad *Pad[6] = {nullptr};
+  TGraphErrors *gr[2] = {nullptr};
+  OnlMonDB *dbvars = nullptr;
 };
 
 #endif /*__MYMONDRAW_H__ */
