@@ -13,7 +13,7 @@ class TPad;
 class MyMonDraw : public OnlMonDraw
 {
  public:
-  MyMonDraw(const std::string &name = "MYMON");
+  MyMonDraw(const std::string &name = "MYMON"); // same name as server!
   ~MyMonDraw() override {}
 
   int Init() override;
