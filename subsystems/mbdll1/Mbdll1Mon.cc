@@ -16,6 +16,7 @@
 
 #include <cmath>
 #include <cstdio>  // for printf
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
@@ -43,6 +44,10 @@ Mbdll1Mon::~Mbdll1Mon()
 
 int Mbdll1Mon::Init()
 {
+  // read our calibrations from Mbdll1MonData.dat
+  std::string fullfile = std::string(getenv("MBDLL1CALIB")) + "/" + "Mbdll1MonData.dat";
+  std::ifstream calib(fullfile);
+  calib.close();
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("doing the Init\n");
