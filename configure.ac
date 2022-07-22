@@ -26,9 +26,11 @@ onlmonclient/Makefile
 onlmondatabase/Makefile 
 poms/Makefile 
 onlmonserver/Makefile 
+subsystems/Makefile 
 subsystems/cemc/Makefile
 subsystems/cemc/calib/Makefile
-subsystems/Makefile 
+subsystems/daq/Makefile
+subsystems/daq/calib/Makefile
 subsystems/example/Makefile
 subsystems/example/calib/Makefile
 subsystems/mbd/Makefile

@@ -8,6 +8,7 @@ include_HEADERS =
 ###
 SUBDIRS = \
   cemc \
+  daq \
   example \
   mbd \
   mbdll1
