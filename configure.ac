@@ -20,14 +20,20 @@ AC_SUBST(ROOTLIBS)
 
 dnl PLEASE USE ALPHABETICAL ORDER FOR THE MAKEFILE LIST
 dnl otherwise noone will be able to find your system
-AC_CONFIG_FILES([Makefile 
+AC_CONFIG_FILES([
+Makefile 
 onlmonclient/Makefile 
 onlmondatabase/Makefile 
 poms/Makefile 
 onlmonserver/Makefile 
+subsystems/cemc/Makefile
+subsystems/cemc/calib/Makefile
 subsystems/Makefile 
 subsystems/example/Makefile
 subsystems/example/calib/Makefile
+subsystems/mbd/Makefile
+subsystems/mbd/calib/Makefile
 subsystems/mbdll1/Makefile
-subsystems/mbdll1/calib/Makefile])
+subsystems/mbdll1/calib/Makefile
+])
 AC_OUTPUT

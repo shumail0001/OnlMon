@@ -7,5 +7,7 @@ include_HEADERS =
 ### is at the end of this list
 ###
 SUBDIRS = \
+  cemc \
   example \
+  mbd \
   mbdll1
