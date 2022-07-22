@@ -41,7 +41,9 @@ libonlmymon_client_la_SOURCES = \
   MyMonDraw.cc
 
 bin_SCRIPTS = \
-  MyMonsetup.csh
+  MyMonSetup.csh \
+  MyMonSetup.sh
+
 
 noinst_PROGRAMS = \
   testexternals_server \
