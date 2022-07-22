@@ -27,5 +27,7 @@ poms/Makefile
 onlmonserver/Makefile 
 subsystems/Makefile 
 subsystems/example/Makefile
-subsystems/example/calib/Makefile])
+subsystems/example/calib/Makefile
+subsystems/mbdll1/Makefile
+subsystems/mbdll1/calib/Makefile])
 AC_OUTPUT
