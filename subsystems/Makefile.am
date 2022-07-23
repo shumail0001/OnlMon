@@ -16,4 +16,5 @@ SUBDIRS = \
   mbd \
   mbdll1 \
   mvtx \
-  tpc
+  tpc \
+  tpot

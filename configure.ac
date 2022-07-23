@@ -47,5 +47,7 @@ subsystems/mvtx/Makefile
 subsystems/mvtx/calib/Makefile
 subsystems/tpc/Makefile
 subsystems/tpc/calib/Makefile
+subsystems/tpot/Makefile
+subsystems/tpot/calib/Makefile
 ])
 AC_OUTPUT
