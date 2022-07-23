@@ -43,5 +43,7 @@ subsystems/mbd/Makefile
 subsystems/mbd/calib/Makefile
 subsystems/mbdll1/Makefile
 subsystems/mbdll1/calib/Makefile
+subsystems/mvtx/Makefile
+subsystems/mvtx/calib/Makefile
 ])
 AC_OUTPUT

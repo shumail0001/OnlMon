@@ -14,4 +14,5 @@ SUBDIRS = \
   hcal \
   intt \
   mbd \
-  mbdll1
+  mbdll1 \
+  mvtx
