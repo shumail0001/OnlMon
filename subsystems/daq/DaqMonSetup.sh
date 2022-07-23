@@ -1,0 +1,1 @@
+export DAQCALIB=$ONLMON_CALIB/daq

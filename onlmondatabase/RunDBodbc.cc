@@ -31,17 +31,21 @@ void RunDBodbc::identify() const
 }
 
 std::string
-RunDBodbc::RunType(const int runno) const
+RunDBodbc::RunType(const int runnoinput) const
 {
   std::string runtype = "UNKNOWN";
   odbc::Connection *con = nullptr;
   odbc::Statement *query = nullptr;
   odbc::ResultSet *rs = nullptr;
   std::ostringstream cmd;
-
+  int runno = 221;
+  if (runnoinput == 221)
+  {
+    runno = runnoinput;
+  }
   try
   {
-    con = odbc::DriverManager::getConnection(dbname.c_str(), dbowner.c_str(), dbpasswd.c_str());
+    con = odbc::DriverManager::getConnection(dbname, dbowner, dbpasswd);
   }
   catch (odbc::SQLException &e)
   {
@@ -122,10 +126,7 @@ RunDBodbc::RunType(const int runno) const
     }
   }
 noopen:
-  if (con)
-  {
-    delete con;
-  }
+  delete con;
 
   // try to get this info from the beginrun sql command saved in $ONLINE_LOG/runinfo
   if (runtype == "UNKNOWN")

@@ -1,7 +1,4 @@
-// Do not use #include "bla.h", it has peculiar
-// effects on include paths (it uses . first which can lead to
-// very interesting effects), use #include <bla.h> instead
-#include <MyMonDraw.h>
+#include "MyMonDraw.h"
 
 #include <onlmon/OnlMonClient.h>
 #include <onlmon/OnlMonDB.h>
@@ -26,18 +23,11 @@
 #include <vector>  // for vector
 
 MyMonDraw::MyMonDraw(const std::string &name)
+  : OnlMonDraw(name)
 {
-  ThisName = name;
-  // memset can be used to set an array to zero
-  // without knowing its size (works on bytes, init to 1 won't work,
-  // init for floatss only works for 0)
-  memset(TC, 0, sizeof(TC));
-  memset(transparent, 0, sizeof(transparent));
-  memset(Pad, 0, sizeof(Pad));
   // this TimeOffsetTicks is neccessary to get the time axis right
   TDatime T0(2003, 01, 01, 00, 00, 00);
   TimeOffsetTicks = T0.Convert();
-  memset(gr, 0, sizeof(gr));
   dbvars = new OnlMonDB(ThisName);
   return;
 }
