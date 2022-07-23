@@ -9,6 +9,8 @@ include_HEADERS =
 SUBDIRS = \
   cemc \
   daq \
+  epd \
   example \
+  hcal \
   mbd \
   mbdll1

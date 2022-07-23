@@ -35,6 +35,8 @@ subsystems/epd/Makefile
 subsystems/epd/calib/Makefile
 subsystems/example/Makefile
 subsystems/example/calib/Makefile
+subsystems/hcal/Makefile
+subsystems/hcal/calib/Makefile
 subsystems/mbd/Makefile
 subsystems/mbd/calib/Makefile
 subsystems/mbdll1/Makefile
