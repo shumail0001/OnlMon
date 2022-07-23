@@ -12,5 +12,6 @@ SUBDIRS = \
   epd \
   example \
   hcal \
+  intt \
   mbd \
   mbdll1
