@@ -6,7 +6,7 @@ To build it, create a build area and run
 
 make install
 
-then set ONLMON_MAIN to installdir, cd to <srcdir>/macros
+then set ONLMON_MAIN to installdir, cd to \<srcdir\>/macros where the macros and scripts are located
 
 source setup_onlmon.sh
 
