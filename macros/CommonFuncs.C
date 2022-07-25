@@ -7,7 +7,7 @@ void CreateHostList(const int online = 0)
   if (!online)
     {
       cl->AddServerHost("localhost");   // check local host first
-      for (int i = 2061; i <= 2075; i++)
+      for (int i = 2061; i <= 2076; i++)
         {
               sprintf(node, "rcas%d", i);
               cl->AddServerHost(node);      // put all va machines in search list
