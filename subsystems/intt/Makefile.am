@@ -32,7 +32,8 @@ inttincludedir=$(pkgincludedir)/intt
 
 inttinclude_HEADERS = \
   InttMon.h \
-  InttMonDraw.h
+  InttMonDraw.h \
+  ConstantsToBeChanged.h
 
 libonlinttmon_server_la_SOURCES = \
   InttMon.cc
