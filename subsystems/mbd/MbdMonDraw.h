@@ -45,7 +45,6 @@ class MbdMonDraw : public OnlMonDraw
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
-  int DrawDeadServer(TPad *transparent);
   int TimeOffsetTicks = -1;
 
   int Warning( TPad * pad, const float x, const float y, const int r, const std::string& msg);
