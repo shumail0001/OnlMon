@@ -172,7 +172,7 @@ PomsMainFrame::~PomsMainFrame()
 
   //TODO:  Add code to clean up threads
 
-  _instance = 0;
+  _instance = nullptr;
 }
 
 void PomsMainFrame::CloseWindow()
@@ -267,7 +267,7 @@ int PomsMainFrame::HandleButtonPoms(Long_t parm1)
 SubSystem* PomsMainFrame::RegisterSubSystem(const char* name, const char* prefix,
                                             int addDefaultActions, int loadLibrary)
 {
-  SubSystem* sub = 0;
+  SubSystem* sub = nullptr;
 
   try
   {
@@ -446,7 +446,7 @@ SubSystem::SubSystem(const char* name, const char* prefix, int loadLibrary)
     macroPath = PomsMainFrame::Instance()->GetMacroPath();
     if (macroPath.size() == 0)
       macroPath = ".";
-    gROOT->LoadMacro((macroPath + "/run_" + _prefix + ".C").c_str());
+    gROOT->LoadMacro((macroPath + "/run_" + _prefix + "_client.C").c_str());
   }
 }
 
