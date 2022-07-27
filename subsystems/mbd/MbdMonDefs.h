@@ -3,6 +3,8 @@
 
 #define AUAU  //PROTONPROTON //PAL //PAU //DAU //HE3AU //CUCU //AUAU
 
+namespace mbd_onlmon {
+
 const int num_pmt = 128;  // number of PMT
 const int tdc_max = 4096;  // TDC number of max
 const int tdc_min_overflow = 2600;  // TDC number of max
@@ -21,13 +23,13 @@ static const float min_zvertex = -180;
 #define nCANVAS 4
 
 #define nSIDE 2
-//static const char *SIDE_STR[nSIDE] = {"SOUTH","NORTH"};
-static const char *SIDE_Str[nSIDE] = {"South","North"};
-//static const char *SIDE_str[nSIDE] = {"south","north"};
 #define nTRIGGER 2
-//static const char *TRIGGER_STR[nTRIGGER] = {"MINIMUM_BIAS","LASER"};
-//static const char *TRIGGER_Str[nTRIGGER] = {"MinimumBias","Laser"};
+
+#ifndef MBD_MBDMON_H
+static const char *SIDE_Str[nSIDE] = {"South","North"};
 static const char *TRIGGER_str[nTRIGGER] = {"minimum_bias","laser"};
+#endif
+
 #define nTDC 1
 //static const char *TDC_STR[nTDC] = {"TDC0","TDC1"};
 //static const char *TDC_Str[nTDC] = {"Tdc0","Tdc1"};
@@ -244,6 +246,7 @@ static const float MBD_ZVERTEX_CUT_FOR_TRIG_RATE = 30.0; // [cm]
 //static const int MBD_COLOR_ZVTX[4] = {4,2,7,1};
 static const int MBD_COLOR_ZVTX[5] = {4,2,7,6,1};
 
+}
 
 #endif /*__MBDMONDEFS_H__ */
 

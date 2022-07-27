@@ -454,6 +454,7 @@ int MbdMonDraw::MakeCanvas(const std::string &name)
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
     // grow and grow but will not show a definitely lost memory leak
+ 
     gSystem->ProcessEvents();
     TC[0]->cd();
 
@@ -472,13 +473,11 @@ int MbdMonDraw::MakeCanvas(const std::string &name)
       PadnHit[side]->Draw();
       PadnHitStatus->Draw();
 
-      ifnew( TBox( 0.5, MBD_nHIT_MB_MIN[side],
-            nPMT_1SIDE_MBD + .5, MBD_nHIT_MB_MAX[side] ), BoxnHit[0][side] );
+      ifnew( TBox( 0.5, MBD_nHIT_MB_MIN[side], nPMT_1SIDE_MBD + .5, MBD_nHIT_MB_MAX[side] ), BoxnHit[0][side] );
       BoxnHit[0][side]->SetFillColor( 5 );
       BoxnHit[0][side]->SetLineColor( 3 );
 
-      ifnew( TBox( 0.5, MBD_nHIT_LASER_MIN[side],
-            nPMT_1SIDE_MBD + .5, MBD_nHIT_LASER_MAX[side] ), BoxnHit[1][side] );
+      ifnew( TBox( 0.5, MBD_nHIT_LASER_MIN[side], nPMT_1SIDE_MBD + .5, MBD_nHIT_LASER_MAX[side] ), BoxnHit[1][side] );
       BoxnHit[1][side]->SetFillColor( 7 );
       BoxnHit[1][side]->SetLineColor( 4 );
 
@@ -498,7 +497,7 @@ int MbdMonDraw::MakeCanvas(const std::string &name)
     transparent[0]->SetFillStyle(4000);
     transparent[0]->Draw();
 
-    TC[0]->SetEditable(0);
+    //TC[0]->SetEditable(0);
   }
 
   else if ( name == "MbdMon2" )
@@ -1084,8 +1083,8 @@ int MbdMonDraw::Draw(const std::string &what)
   // ------------------------------------------------------------------------------
   // making nHit TGraph
 
-  double pmt[nPMT_1SIDE_MBD];
-  //double zero[nPMT_1SIDE_MBD] = {0};
+  double pmt[nPMT_1SIDE_MBD] = {0.};
+  double zero[nPMT_1SIDE_MBD] = {0.};
   double nhitPmt[nTRIGGER][nSIDE][nPMT_1SIDE_MBD];
   double nhit_total = bbc_nevent_counter->GetBinContent(1);
   double nhit[nTRIGGER];
@@ -1147,30 +1146,26 @@ int MbdMonDraw::Draw(const std::string &what)
     }
   }
 
-  /*
-     for ( int side = 0 ; side < nSIDE ; side++ )
-     {
-     for ( int i = 0 ; i < nPMT_1SIDE_MBD ; i++ )
-     {
-     tdcOverMean[0][side][i] = bbc_tdc_overflow_each[0][i + side * nPMT_1SIDE_MBD]->GetMean() /
-     bbccalib->getOverflow0()->getCalibPar(i)->getDeviation();
-     tdcOverErrY[0][side][i] = bbc_tdc_overflow_each[0][i + side * nPMT_1SIDE_MBD]->GetRMS() /
-     bbccalib->getOverflow0()->getCalibPar(i)->getDeviation();
+  for ( int side = 0 ; side < nSIDE ; side++ )
+  {
+    for ( int i = 0 ; i < nPMT_1SIDE_MBD ; i++ )
+    {
+      /*
+      tdcOverMean[0][side][i] = bbc_tdc_overflow_each[0][i + side * nPMT_1SIDE_MBD]->GetMean() /
+        bbccalib->getOverflow0()->getCalibPar(i)->getDeviation();
+      tdcOverErrY[0][side][i] = bbc_tdc_overflow_each[0][i + side * nPMT_1SIDE_MBD]->GetRMS() /
+        bbccalib->getOverflow0()->getCalibPar(i)->getDeviation();
 
-     tdcOverMean[1][side][i] = bbc_tdc_overflow_each[1][i + side * nPMT_1SIDE_MBD]->GetMean() /
-     bbccalib->getOverflow1()->getCalibPar(i)->getDeviation();
-     tdcOverErrY[1][side][i] = bbc_tdc_overflow_each[1][i + side * nPMT_1SIDE_MBD]->GetRMS() /
-     bbccalib->getOverflow1()->getCalibPar(i)->getDeviation();
+      tdcOverMean[1][side][i] = bbc_tdc_overflow_each[1][i + side * nPMT_1SIDE_MBD]->GetMean() /
+        bbccalib->getOverflow1()->getCalibPar(i)->getDeviation();
+      tdcOverErrY[1][side][i] = bbc_tdc_overflow_each[1][i + side * nPMT_1SIDE_MBD]->GetRMS() /
+        bbccalib->getOverflow1()->getCalibPar(i)->getDeviation();
+        */
 
-     for ( int tdc = 0 ; tdc < nTDC ; tdc++ )
-     {
-     ifnew( TGraphErrors(nPMT_1SIDE_MBD, pmt,
-     tdcOverMean[tdc][side], zero,
-     tdcOverErrY[tdc][side] ), TdcOver[tdc][side] );
-     }
-     }
-     }
-     */
+        ifnew( TGraphErrors(nPMT_1SIDE_MBD, pmt, tdcOverMean[side], zero,
+              tdcOverErrY[side] ), TdcOver[side] );
+    }
+  }
 
   // Redraw each Pad
 
@@ -1190,7 +1185,7 @@ int MbdMonDraw::Draw(const std::string &what)
   TextTop->SetText(0.01, 0.25, text.c_str());
 
 
-  if ( !TC[0] )
+  if ( TC[0] )
   {
     TC[0]->cd();
 
@@ -1205,10 +1200,11 @@ int MbdMonDraw::Draw(const std::string &what)
     for ( int side = 0 ; side < nSIDE ; side++ )
     {
       PadTdcOver[side]->cd();
-      // ifdelete( FrameTdcOver[tdc][side] );
-      //FrameTdcOver[tdc][side] = TC[0]->DrawFrame( 0.5, -5, 64.5, 5);
-      FrameTdcOver[side] = gPad->DrawFrame( 0.5, -5, 64.5, 5);
+      // ifdelete( FrameTdcOver[side] );
+      FrameTdcOver[side] = TC[0]->DrawFrame( 0.5, -5, 64.5, 5);
+      //FrameTdcOver[side] = gPad->DrawFrame( 0.5, -5, 64.5, 5);
 
+      cout << "FrameTdcOver[" << side << "] = " << (unsigned long)FrameTdcOver[side] << endl;
       BoxTdcOver[side]->Draw();
 
       name << SIDE_Str[side] << " BBC TDC Distribution" ;
@@ -1390,7 +1386,7 @@ int MbdMonDraw::Draw(const std::string &what)
   // ------------------------------------------------------------------------
   // Draw 2nd Page
   // ------------------------------------------------------------------------
-  if ( !TC[1] )
+  if ( TC[1] )
   {
     TC[1]->cd();
 
@@ -1788,7 +1784,7 @@ int MbdMonDraw::Draw(const std::string &what)
   // Draw 4th Page
   // ------------------------------------------------------------------------
   mbdStyle->cd();
-  if ( !TC[3] )
+  if ( TC[3] )
   {
     PadTop[3]->cd();
     PaveTop->Draw();
@@ -1799,9 +1795,9 @@ int MbdMonDraw::Draw(const std::string &what)
     Zvtx_bbll1->SetLineColor(4);
     Zvtx_bbll1->SetFillColor(4);
     /*
-    Zvtx_zdc->SetLineColor(2);
-    Zvtx_zdc_scale3->SetLineColor(2);
-    */
+       Zvtx_zdc->SetLineColor(2);
+       Zvtx_zdc_scale3->SetLineColor(2);
+       */
     Zvtx_bbll1_novtx->SetLineColor(7);
     Zvtx_bbll1_novtx->SetLineWidth(2);
     Zvtx_bbll1_narrowvtx->SetLineColor(6);//Run11 pp
@@ -1839,16 +1835,16 @@ int MbdMonDraw::Draw(const std::string &what)
     // +- 20cm and then get the Integral corrected for the binwidth
     // this is then used to get the histograms on the same scale
     /*
-    int lowbin = Zvtx_zdc->GetXaxis()->FindBin(-20.);
-    int hibin = Zvtx_zdc->GetXaxis()->FindBin(20.);
-    double zdc_count = Zvtx_zdc->Integral(lowbin, hibin, "width");
-    */
+       int lowbin = Zvtx_zdc->GetXaxis()->FindBin(-20.);
+       int hibin = Zvtx_zdc->GetXaxis()->FindBin(20.);
+       double zdc_count = Zvtx_zdc->Integral(lowbin, hibin, "width");
+       */
 
     /*
-    int lowbin = Zvtx_bbll1_novtx->GetXaxis()->FindBin(-20.);
-    int hibin = Zvtx_bbll1_novtx->GetXaxis()->FindBin(20.);
-    double bbc_count = Zvtx_bbll1->Integral(lowbin, hibin, "width");
-    */
+       int lowbin = Zvtx_bbll1_novtx->GetXaxis()->FindBin(-20.);
+       int hibin = Zvtx_bbll1_novtx->GetXaxis()->FindBin(20.);
+       double bbc_count = Zvtx_bbll1->Integral(lowbin, hibin, "width");
+       */
 
     //cout << "the ratio of integral (-30cm < ZVertex < 30cm) between BBLL1 without vtx cut and ZDC : " << bbc_count_novtx / zdc_count << endl ;
     //cout << "the ratio of integral (-30cm < ZVertex < 30cm) between BBLL1 without vtx cut  and BBLL1 with BBCZ < |30cm|  : " << bbc_count_novtx/bbc_count << endl ;
@@ -1875,9 +1871,9 @@ int MbdMonDraw::Draw(const std::string &what)
     //Zvtx_bbll1_narrowvtx->Scale(bbc_count/bbc_count_narrowvtx);//Run12
     Zvtx_bbll1_narrowvtx->Draw("samehist");
     /*
-    Zvtx_zdc->Scale(bbc_count / zdc_count);
-    Zvtx_zdc->Draw("samehist");
-    */
+       Zvtx_zdc->Scale(bbc_count / zdc_count);
+       Zvtx_zdc->Draw("samehist");
+       */
     //FitZvtxBBLL1NoVtx->Draw("same");
 
     /* Old code by hachiya-san
@@ -1951,7 +1947,7 @@ int MbdMonDraw::Draw(const std::string &what)
     { // Show status of ZVertex
       int i = 0;
       for ( i = 0; i < 3; i++)
-      //for ( i = 0; i < 4; i++)//Run11 pp narrow verex
+        //for ( i = 0; i < 4; i++)//Run11 pp narrow verex
       {
         TextZVertex[i]->Draw();
 
@@ -2042,7 +2038,7 @@ int MbdMonDraw::Draw(const std::string &what)
     // insert text
     TextTzeroZvtx->SetText(10, 4, "Good region");
     TextTzeroZvtx->Draw();
-  }
+  } // TC[3]
 
   if ( TC[0] )
   {
