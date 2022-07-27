@@ -24,10 +24,10 @@ void mbdDrawInit(const int online = 0)
   cl->registerHisto("bbc_tzero_zvtx", "MBDMON");
   cl->registerHisto("bbc_prescale_hist", "MBDMON");
   cl->registerHisto("bbc_avr_hittime", "MBDMON");
-  cl->registerHisto("bbc_south_hittime", "MBDMON");
   cl->registerHisto("bbc_north_hittime", "MBDMON");
-  cl->registerHisto("bbc_south_chargesum", "MBDMON");
+  cl->registerHisto("bbc_south_hittime", "MBDMON");
   cl->registerHisto("bbc_north_chargesum", "MBDMON");
+  cl->registerHisto("bbc_south_chargesum", "MBDMON");
   //cl->registerHisto("bbc_zvertex_bbll1_zdc", "MBDMON");
 
   cl->AddServerHost("localhost");   // check local host first

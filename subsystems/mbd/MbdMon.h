@@ -16,8 +16,8 @@ class MbdMon : public OnlMon
   virtual ~MbdMon();
 
   int process_event(Event *evt);
-  int Init();
-  int BeginRun(const int runno);
+  int Init();                     // Done once at start of server
+  int BeginRun(const int runno);  // Done at every start of run
   int Reset();
 
  protected:
@@ -26,8 +26,6 @@ class MbdMon : public OnlMon
   int idummy = 0;
   OnlMonDB *dbvars = nullptr;
   
-  const int nPMT_BBC = 128;
-
   TH2 *bbc_adc;
   TH2 *bbc_tdc;
   TH2 *bbc_tdc_overflow;

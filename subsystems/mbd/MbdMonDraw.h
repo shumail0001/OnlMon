@@ -24,6 +24,8 @@ class TF1;
 class TLatex;
 class TSpectrum;
 
+using namespace mbd_onlmon;
+
 #define MAX_WARNING 16
 
 class MbdMonDraw : public OnlMonDraw

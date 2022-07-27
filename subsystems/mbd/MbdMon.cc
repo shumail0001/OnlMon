@@ -4,6 +4,7 @@
 // (more info - check the difference in include path search when using "" versus <>)
 
 #include "MbdMon.h"
+#include "MbdMonDefs.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
@@ -23,6 +24,8 @@
 #include <iomanip>
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
+
+using namespace mbd_onlmon;
 
 enum
 {
@@ -49,7 +52,7 @@ int MbdMon::Init()
 {
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
-  printf("MbdMon::Init() AAA\n");
+  printf("MbdMon::Init()\n");
 
   trand3 = new TRandom3(0);
 
@@ -64,25 +67,20 @@ int MbdMon::Init()
   std::ostringstream name, title;
  
   // TDC Distribution ----------------------------------------------------
-  const int nBIN_TDC = 17000;
-  const float TDC_CONVERSION_FACTOR = 1.0;
-  const float tdc_max_overflow = 1.0;
-  const int VIEW_OVERFLOW_MIN = 0;
-  const int VIEW_OVERFLOW_MAX = 1000;
 
   name << "bbc_tdc" ;
   title << "BBC Raw TDC Distribution" ;
   bbc_tdc = new TH2F(name.str().c_str(), title.str().c_str(),
-      nPMT_BBC, -.5, nPMT_BBC - .5,
+      nPMT_MBD, -.5, nPMT_MBD - .5,
       nBIN_TDC, 0, tdc_max_overflow * TDC_CONVERSION_FACTOR );
   name.str("");
   title.str("");
 
   // TDC Overflow Deviation ----------------------------------------------
   name << "bbc_tdc_overflow" ;
-  title << "BBC TDC Overflow Deviation" ;
+  title << "MBD/BBC TDC Overflow Deviation" ;
   bbc_tdc_overflow = new TH2F(name.str().c_str(), title.str().c_str(),
-      nPMT_BBC, -.5, nPMT_BBC - .5,
+      nPMT_MBD, -.5, nPMT_MBD - .5,
       int(VIEW_OVERFLOW_MAX - VIEW_OVERFLOW_MIN + 1),
       VIEW_OVERFLOW_MIN - .5, VIEW_OVERFLOW_MAX + .5 );
   name.str("");
@@ -90,10 +88,10 @@ int MbdMon::Init()
 
 
   // TDC Overflow Distribution for each PMT ------------------------------
-  for ( int ipmt = 0 ; ipmt < nPMT_BBC ; ipmt++ )
+  for ( int ipmt = 0 ; ipmt < nPMT_MBD ; ipmt++ )
   {
     name << "bbc_tdc_overflow_" << std::setw(3) << std::setfill('0') << ipmt ;
-    title << "BBC TDC Overflow Deviation of #" << std::setw(3) << std::setfill('0') << ipmt ;
+    title << "MBD/BBC TDC Overflow Deviation of #" << std::setw(3) << std::setfill('0') << ipmt ;
     bbc_tdc_overflow_each[ipmt] = new TH1F(name.str().c_str(), title.str().c_str(),
         int(VIEW_OVERFLOW_MAX - VIEW_OVERFLOW_MIN + 1),
         VIEW_OVERFLOW_MIN, VIEW_OVERFLOW_MAX );
@@ -103,10 +101,7 @@ int MbdMon::Init()
 
   // ADC Distribution --------------------------------------------------------
 
-  const int nBIN_ADC = 17000;
-  const float MAX_ADC_MIP = 17000;
-
-  bbc_adc = new TH2F("bbc_adc", "BBC ADC(Charge) Distribution", nPMT_BBC, -.5, nPMT_BBC - .5, nBIN_ADC, 0, MAX_ADC_MIP );
+  bbc_adc = new TH2F("bbc_adc", "MBD/BBC ADC(Charge) Distribution", nPMT_MBD, -.5, nPMT_MBD - .5, nBIN_ADC, 0, MAX_ADC_MIP );
 
   /*
      for ( int trig = 0 ; trig < nTRIGGER ; trig++ )
@@ -116,23 +111,17 @@ int MbdMon::Init()
   name << "bbc_nhit_" << TRIGGER_str[trig] ;
   title << "BBC nHIT by " << TRIGGER_str[trig] ;
   bbc_nhit[trig] = new TH1D(name.str().c_str(), title.str().c_str(),
-  nPMT_BBC, -.5, nPMT_BBC - .5 );
+  nPMT_MBD, -.5, nPMT_MBD - .5 );
   name.str("");
   title.str("");
   }
   */
-
-  const float min_armhittime = 0;
-  const float max_armhittime = 26;
 
   bbc_tdc_armhittime = new TH2F("bbc_tdc_armhittime", "Arm-Hit-Time Correlation of North and South BBC",
       64, min_armhittime, max_armhittime,
       64, min_armhittime, max_armhittime );
   bbc_tdc_armhittime->GetXaxis()->SetTitle("South[ns]");
   bbc_tdc_armhittime->GetYaxis()->SetTitle("North[ns]");
-
-  const float min_zvertex = -260;
-  const float max_zvertex = 260;
 
   bbc_zvertex = new TH1F("bbc_zvertex", "BBC ZVertex", 128, min_zvertex, max_zvertex );
   bbc_zvertex->GetXaxis()->SetTitle("BBC Raw ZVertex [cm]");
@@ -141,8 +130,6 @@ int MbdMon::Init()
   bbc_zvertex->GetYaxis()->SetTitleSize( 0.05);
   bbc_zvertex->GetXaxis()->SetTitleOffset(0.70);
   bbc_zvertex->GetYaxis()->SetTitleOffset(1.75);
-
-  const int zvtnbin = 100;
 
   bbc_zvertex_bbll1 = new TH1F("bbc_zvertex_bbll1", "BBC ZVertex triggered by BBLL1",
       zvtnbin, min_zvertex, max_zvertex );
@@ -225,8 +212,6 @@ int MbdMon::Init()
   bbc_tzero_zvtx->SetXTitle("ZVertex[cm]");
   bbc_tzero_zvtx->SetYTitle("TimeZero[ns]");
 
-  const float MAX_CHARGE_SUM = 10000;
-
   bbc_avr_hittime = new TH1F("bbc_avr_hittime", "BBC Average Hittime", 128, 0, 24 );
   bbc_south_hittime = new TH1F("bbc_south_hittime", "BBC South Hittime", 128, 0, 24 );
   bbc_north_hittime = new TH1F("bbc_north_hittime", "BBC North Hittime", 128, 0, 24 );
@@ -282,7 +267,7 @@ int MbdMon::Init()
   se->registerHisto( this, bbc_adc );
   se->registerHisto( this, bbc_tdc );
   se->registerHisto( this, bbc_tdc_overflow );
-  for ( int ipmt = 0 ; ipmt < nPMT_BBC ; ipmt++ )
+  for ( int ipmt = 0 ; ipmt < nPMT_MBD ; ipmt++ )
   {
     se->registerHisto( this, bbc_tdc_overflow_each[ipmt] );
   }
@@ -346,8 +331,6 @@ int MbdMon::process_event(Event * /* evt */)
   double zvtx = trand3->Gaus(0, 10.0);
   double t0 = trand3->Gaus(0, 10/C);
 
-  //mbdhist1->Fill((float) zvtx);
-  //mbdhist2->Fill((float) zvtx, (float) t0, 1.);
   bbc_adc->Fill( 10, 1000 );
   bbc_zvertex->Fill( zvtx );
   bbc_tzero_zvtx->Fill( zvtx, t0 );
