@@ -109,11 +109,6 @@ double HcalMon::getSignal(Packet *p, const int channel)
 
 int HcalMon::BeginRun(const int /* runno */)
 {
-  for (int i = 0; i < 24; i++) {
-    for (int j = 0; j < 64; j++) {
-      h2_hcal_mean->Fill(float(i+0.5),float(j+0.5),0.0);
-    }
-  }
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
   return 0;
