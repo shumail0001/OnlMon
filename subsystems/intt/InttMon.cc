@@ -1,229 +1,256 @@
-// use #include "" only for your local include and put
-// those in the first line(s) before any #include <>
-// otherwise you are asking for weird behavior
-// (more info - check the difference in include path search when using "" versus <>)
-
 #include "InttMon.h"
 
-#include <onlmon/OnlMon.h>  // for OnlMon
-#include <onlmon/OnlMonDB.h>
-#include <onlmon/OnlMonServer.h>
-
-#include <Event/Event.h>
-#include <Event/msg_profile.h>
-
-#include <TH1.h>
-#include <TH2.h>
-#include <TRandom.h>
-
-#include <cmath>
-#include <cstdio>  // for printf
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>  // for allocator, string, char_traits
-
-enum
+void InitPtrs()
 {
-	TRGMESSAGE = 1,
-	FILLMESSAGE = 2
-};
-
-InttMon::InttMon(const std::string &name) : OnlMon(name)
-{
-	// leave ctor fairly empty, its hard to debug if code crashes already
-	// during a new InttMon()
+	NumEvents = new TH1D
+	(
+		Form("NumEvents"),
+		Form("NumEvents"),
+		1,
+		0.5,
+		1.5
+	);
 	
-	return;
-}
-
-InttMon::~InttMon()
-{
-	// you can delete NULL pointers it results in a NOOP (No Operation)
-	//Depending on how these are associated with an output file, they might not be deletable
-
-	return;
-}
-
-int InttMon::InitHists()
-{
-	OnlMonServer* se = OnlMonServer::instance();
-
-	const char *CHARM[] = {"S", "N"};
-	const int base_packet_number[] = {25000, 25100};
-
-	for(int i = 0; i < NARMS; i++)
-        {
-		for (int istation=0; istation < NSTATIONS; istation++)
-		{
-			int nchips = 26;
-			if (istation == 0) nchips = 10;
-			hFvtxDisk[i][istation] = new TH2F(
-				Form("hFvtxDisk%d_%d", i, istation),
-				Form("Hit activity for %s arm - station %d; wedge; chip", CHARM[i], istation),
-				48, -0.5, 47.5,
-				nchips, -0.5, nchips-0.5);
-			se->registerHisto(this, hFvtxDisk[i][istation]);
-
-			hFvtxAdc[i][istation] = new TH1F(
-				Form("hFvtxAdc%d_%d", i, istation),
-				Form("%s - station %d; ADC value; counts", CHARM[i], istation),
-				8, -0.5, 7.5);
-			se->registerHisto(this, hFvtxAdc[i][istation]);
-		}
+	HitMap = new TH2D*[LAYER];
+	HitRateMap = new TH2D*[LAYER];
+	for(int layer = 0; layer < LAYER; layer++)
+	{
+		HitMap[layer] = new TH2D
+		(
+			Form("Layer%d_HitMap", layer + LAYER_OFFSET),
+			Form("Layer%d_HitMap", layer + LAYER_OFFSET),
+			2 * LADDER[layer],
+			0.0,
+			LADDER[layer],
+			CHIP,
+			0.0,
+			CHIP
+		);
 		
-		hFvtxYields[i] = new TH1F(
-			Form("hFvtxYields%d", i),
-			Form("Yield per event vs. wedge for %s arm; wedge; N_{Hit}/N_{Event}", CHARM[i]),
-			192, -0.5, 191.5);
-		se->registerHisto(this, hFvtxYields[i]);
-
-		hFvtxYieldsByPacket[i] = new TH1F(
-			Form("hFvtxYieldsByPacket%d", i),
-			Form("Yield per event vs. packet for %s arm; packet number - %d; N_{Hit}", CHARM[i], base_packet_number[i]),
-			24, 0.5, 24.5);
-		se->registerHisto(this, hFvtxYieldsByPacket[i]);
-
-		hFvtxControlWord[i] = new TH2F(Form("hFvtxControlWord%d", i),
-			Form("FEM Control Word for %s arm; packet number - %d; bit", CHARM[i], base_packet_number[i]),
-			24, 0.5, 24.5,
-			16, -0.5, 15.5);
-		se->registerHisto(this, hFvtxControlWord[i]);
-
-		hFvtxYieldsByPacketVsTime[i] = new TH2F(Form("hFvtxYieldsByPacketVsTime%d",i),
-			Form("Yield per event of packets vs. time for %s arm; time(min) ; packet number - %d", CHARM[i], base_packet_number[i]),
-			960, 0, 480,
-			24, 0.5, 24.5);
-		se->registerHisto(this, hFvtxYieldsByPacketVsTime[i]);
-
-                hFvtxYieldsByPacketVsTimeShort[i] = new TH2F(Form("hFvtxYieldsByPacketVsTimeShort%d",i),
-			Form("Yield per event of packets vs. time for %s arm; time(s) ; packet number - %d", CHARM[i], base_packet_number[i]),
-			600, 0, 600,
-			24, 0.5, 24.5);
-		se->registerHisto(this, hFvtxYieldsByPacketVsTimeShort[i]);
+		HitRateMap[layer] = new TH2D
+		(
+			Form("Layer%d_HitRateMap", layer + LAYER_OFFSET),
+			Form("Layer%d_HitRateMap", layer + LAYER_OFFSET),
+			2 * LADDER[layer],
+			0.0,
+			LADDER[layer],
+			CHIP,
+			0.0,
+			CHIP
+		);
 	}
 
-        fvtxH1NumEvent = new TH1F(
-			Form("fvtxH1NumEvent"),
-                        Form("Number of processed events"),
-                        1, 0.5, 1.5);
-        se->registerHisto(this,fvtxH1NumEvent);
-
-        hFvtxEventNumberVsTime = new TH1F(
-			Form("hFvtxEventNumberVsTime"),
-                        Form("EventNumberVsTime"),
-                        960, 0, 480);
-        se->registerHisto(this,hFvtxEventNumberVsTime);
-
-        hFvtxEventNumberVsTimeShort = new TH1F(
-			Form("hFvtxEventNumberVsTimeShort"),
-                        Form("EventNumberVsTimeShort"),
-                        600, 0, 600);
-        se->registerHisto(this,hFvtxEventNumberVsTimeShort);
-
-	return 0;
-}
-
-int InttMon::Init()
-{
-	// read our calibrations from InttMonData.dat
-	std::string fullfile = std::string(getenv("INTTCALIB")) + "/" + "InttMonData.dat";
-	std::ifstream calib(fullfile);
-	calib.close();
-
-	std::cout << "Running Joseph B's version" << std::endl;
-
-	// initialize the histograms
-	InitHists();
-
-	// remove this line later
-	rnd = new TRandom();
-
-	Reset();
-
-	return 0;
-}
-
-int InttMon::BeginRun(const int /*runno*/)
-{
-	// if you need to read calibrations on a run by run basis
-	// this is the place to do it
-	return 0;
-}
-
-int InttMon::process_event(Event* evt)
-{
-        NumEvtIn++;
-        if (verbosity>2)
+	ChipHists = new TH1D****[LAYER];
+	for(int layer = 0; layer < LAYER; layer++)
 	{
-		std::cout << "FvtxMon::process_event("<<NumEvtIn<<")"<<std::endl;
-	}
-
-        time_t time = evt->getTime();
-        if(start_time < 1)
-        {
-                start_time = time;
-        }
-
-        fvtxH1NumEvent->Fill(1); // one entry per event
-
-        hFvtxEventNumberVsTime->Fill((time - start_time)/60.);
-        if(time - start_time <= 600)hFvtxEventNumberVsTimeShort->Fill((time - start_time));
-
-	// no unpacker lol
-	// random values below
-	if(!rnd)return 0;
-
-	float dum1 = 0;
-	float dum2 = 0;
-
-	for(int arm = 0; arm < NARMS; arm++)
-	{
-		for(int station = 0; station < NSTATIONS; station++)
+		ChipHists[layer] = new TH1D***[LADDER[layer]];
+		for(int ladder = 0; ladder < LADDER[layer]; ladder++)
 		{
-			dum1 = rnd->Exp(5.0);
-			dum2 = rnd->Gaus(5.0, 1.0);
-			hFvtxDisk[arm][station]->Fill(dum1, dum2);
-
-			dum1 = rnd->Exp(3.0);
-			hFvtxAdc[arm][station]->Fill(dum1);
+			ChipHists[layer][ladder] = new TH1D**[NORTHSOUTH];
+			for(int northsouth = 0; northsouth < NORTHSOUTH; northsouth++)
+			{
+				ChipHists[layer][ladder][northsouth] = new TH1D*[CHIP];
+				for(int chip = 0; chip < CHIP; chip++)
+				{
+					ChipHists[layer][ladder][northsouth][chip] = new TH1D
+					(
+						Form("Layer%d_Ladder%d_NorthSouth%d_U%d", layer + LAYER_OFFSET, ladder, northsouth, chip + CHIP_OFFSET),
+						Form("Layer%d_Ladder%d_NorthSouth%d_U%d", layer + LAYER_OFFSET, ladder, northsouth, chip + CHIP_OFFSET),
+						CHANNEL,
+						0.0,
+						CHANNEL
+					);
+				}
+			}
 		}
-
-		dum1 = rnd->Exp(110.0);
-		hFvtxYields[arm]->Fill(dum1);
-
-		dum1 = rnd->Gaus(12.5, 3.5);
-		hFvtxYieldsByPacket[arm]->Fill(dum1);
-
-		dum1 = rnd->Gaus(12.5, 3.5);
-		dum2 = rnd->Exp(7.5);
-		hFvtxControlWord[arm]->Fill(dum1, dum2);
-
-		dum1 = rnd->Gaus(240.0, 50);
-		dum2 = rnd->Exp(12.5);
-		hFvtxYieldsByPacketVsTime[arm]->Fill(dum1, dum2);
-
-		dum1 = rnd->Exp(600);
-		dum2 = rnd->Gaus(12.5, 2.0);
-		hFvtxYieldsByPacketVsTimeShort[arm]->Fill(dum1, dum2);
 	}
-
-	for(int i = 0; i < NROCS; i++)
-	{
-		dum1 = rnd->Gaus(250, 30);
-		dum2 = rnd->Exp(100);
-		hFvtxChipChannel[i]->Fill(dum1, dum2);
-	}
-
-	return 0;
 }
 
-int InttMon::Reset()
+void DeletePtrs()
 {
-	NumEvtIn = 0;
-	//NumEvtAna = 0;
-	start_time = 0;
+	delete NumEvents;
 
-	return 0;
+	for(int layer = 0; layer < LAYER; layer++)
+	{
+		delete HitMap[layer];
+		delete HitRateMap[layer];
+	}
+	delete HitMap;
+	delete HitRateMap;
+
+	for(int layer = 0; layer < LAYER; layer++)
+	{
+		for(int ladder = 0; ladder < LADDER[layer]; ladder++)
+		{
+			for(int northsouth = 0; northsouth < NORTHSOUTH; northsouth++)
+			{
+				for(int chip = 0; chip < CHIP; chip++)
+				{
+					delete ChipHists[layer][ladder][northsouth][chip];
+				}
+				delete[] ChipHists[layer][ladder][northsouth];
+			}
+			delete[] ChipHists[layer][ladder];
+		}
+		delete ChipHists[layer];
+	}
+	delete[] ChipHists;
+}
+
+void FillHists(int N, int seed)
+{
+	double temp;
+
+	int bin;
+
+	int layer;
+	int ladder;
+	int northsouth;
+	int chip;
+
+	TF1* uniform = new TF1("uniform", "1.0", -1.0, CHANNEL + 1.0);
+
+	TRandom* rng = new TRandom();
+	rng->SetSeed(seed);
+
+	NumEvents->SetBinContent(1, N);
+
+	for(layer = 0; layer < LAYER; layer++)
+	{
+		for(ladder = 0; ladder < LADDER[layer]; ladder++)
+		{
+			for(northsouth = 0; northsouth < NORTHSOUTH; northsouth++)
+			{
+				for(chip = 0; chip < CHIP; chip++)
+				{
+					temp = (2.0 * northsouth - 1.0) * ( (CHIP / 2) - chip % (CHIP / 2) - 0.5 );
+
+					GetBin(bin, layer + LAYER_OFFSET, ladder, northsouth, chip + CHIP_OFFSET);
+
+					HitRateMap[layer]->SetBinContent(bin, TMath::Gaus(temp, 0.0, CHIP / 8.0));
+					HitMap[layer]->SetBinContent(bin, rng->Poisson(HitRateMap[layer]->GetBinContent(bin) * N));
+					ChipHists[layer][ladder][northsouth][chip]->FillRandom("uniform", HitMap[layer]->GetBinContent(bin));
+				}
+			}
+		}
+	}
+
+	delete rng;
+}
+
+double GetNumEvents()
+{
+	if(NumEvents)return NumEvents->Integral();
+
+	return 0.0;
+}
+
+TH2D* GetHitMap(int layer)
+{
+	layer -= LAYER_OFFSET;
+
+	if(!(0 <= layer and layer < LAYER))return 0x0;
+
+	return HitMap[layer];
+}
+
+TH2D* GetHitRateMap(int layer)
+{
+	layer -= LAYER_OFFSET;
+
+	if(!(0 <= layer and layer < LAYER))return 0x0;
+
+	return HitRateMap[layer];
+}
+
+TH1D* GetChipHitMap(int bin, int layer)
+{
+	int ladder = -1;
+	int northsouth = -1;
+	int chip = -1;
+
+	GetLadderNorthSouthChip(bin, layer, ladder, northsouth, chip);
+
+	if(!CheckIndexes(layer, ladder, northsouth, chip))return 0x0;
+
+	return ChipHists[layer][ladder][northsouth][chip];
+}
+
+bool CheckIndexes(int layer, int ladder, int northsouth, int chip)
+{
+	layer -= LAYER_OFFSET;
+	chip -= CHIP_OFFSET;
+	
+	if(!(0 <= layer and layer < LAYER))
+	{
+		cout << "Bad LAYER index" << endl;
+	
+		return false;
+	}
+	if(!(0 <= ladder and ladder < LADDER[layer]))
+	{
+		cout << "Bad LADDER index" << endl;
+	
+		return false;
+	}
+	if(!(0 <= northsouth and northsouth < NORTHSOUTH))
+	{
+		cout << "Bad NORTHSOUTH index" << endl;
+	
+		return false;
+	}
+	if(!(0 <= chip and chip < CHIP))
+	{
+		cout << "Bad CHIP index" << endl;
+	
+		return false;
+	}
+
+	return true;
+}
+
+void GetBin(int& bin, int layer, int ladder, int northsouth, int chip)
+{
+	if(!CheckIndexes(layer, ladder, northsouth, chip))return;
+
+	layer -= LAYER_OFFSET;
+	chip -= CHIP_OFFSET;
+
+	if(northsouth == 0)//South
+	{
+		bin = HitMap[layer]->GetBin(2 * ladder + 1 + chip / (CHIP / 2), chip % (CHIP / 2) + 1);
+	}
+	if(northsouth == 1)//North
+	{
+		bin = HitMap[layer]->GetBin(2 * ladder + 2 - chip / (CHIP / 2), CHIP - chip % (CHIP / 2));
+	}
+}
+
+void GetLadderNorthSouthChip(int bin, int layer, int& ladder, int& northsouth, int& chip)
+{
+	layer -= LAYER_OFFSET;
+
+	if(!(0 <= layer and layer < LAYER))return;
+	if(!HitMap[layer])return;
+
+	int binx;
+	int biny;
+	int binz;
+
+	HitMap[layer]->GetBinXYZ(bin, binx, biny, binz);
+	binx -= 1;
+	biny -= 1;
+
+	ladder = binx / 2;
+	northsouth = biny / (CHIP / 2);
+
+	if(northsouth == 0)//South
+	{
+		chip = biny % (CHIP / 2) + (binx % 2) * (CHIP / 2);
+	}
+	if(northsouth == 1)//North
+	{
+		chip = CHIP / 2 - biny % (CHIP / 2) + (1 - binx % 2) * (CHIP / 2) - 1;
+	}
 }
 
