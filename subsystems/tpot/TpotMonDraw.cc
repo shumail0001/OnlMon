@@ -214,24 +214,6 @@ int TpotMonDraw::DrawSecond(const std::string & /* what */)
   return 0;
 }
 
-int TpotMonDraw::DrawDeadServer(TPad *transparentpad)
-{
-  transparentpad->cd();
-  TText FatalMsg;
-  FatalMsg.SetTextFont(62);
-  FatalMsg.SetTextSize(0.1);
-  FatalMsg.SetTextColor(4);
-  FatalMsg.SetNDC();          // set to normalized coordinates
-  FatalMsg.SetTextAlign(23);  // center/top alignment
-  FatalMsg.DrawText(0.5, 0.9, "TPOT MONITOR");
-  FatalMsg.SetTextAlign(22);  // center/center alignment
-  FatalMsg.DrawText(0.5, 0.5, "SERVER");
-  FatalMsg.SetTextAlign(21);  // center/bottom alignment
-  FatalMsg.DrawText(0.5, 0.1, "DEAD");
-  transparentpad->Update();
-  return 0;
-}
-
 int TpotMonDraw::MakePS(const std::string &what)
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -268,14 +250,14 @@ int TpotMonDraw::MakeHtml(const std::string &what)
   cl->CanvasToPng(TC[1], pngfile);
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
-  std::string logfile = cl->htmlRegisterPage(*this, "For EXPERTS/Log", "log", "html");
+  std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
   std::ofstream out(logfile.c_str());
   out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
       << "</TITLE></HEAD>" << std::endl;
   out << "<P>Some log file output would go here." << std::endl;
   out.close();
 
-  std::string status = cl->htmlRegisterPage(*this, "For EXPERTS/Status", "status", "html");
+  std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
   std::ofstream out2(status.c_str());
   out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
        << "</TITLE></HEAD>" << std::endl;

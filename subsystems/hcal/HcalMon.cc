@@ -9,6 +9,7 @@
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
+#include <Event/Event.h>
 #include <Event/msg_profile.h>
 
 #include <TH1.h>
@@ -51,17 +52,60 @@ int HcalMon::Init()
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("doing the Init\n");
-  hcalhist1 = new TH1F("hcalmon_hist1", "test 1d histo", 101, 0., 100.);
-  hcalhist2 = new TH2F("hcalmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
+
+  h2_hcal_hits = new TH2F("h2_hcal_hits","",24,0,24,64,0,64);
+  h2_hcal_mean = new TH2F("h2_hcal_mean","",24,0,24,64,0,64);
+
+
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
-  se->registerHisto(this, hcalhist1);  // uses the TH1->GetName() as key
-  se->registerHisto(this, hcalhist2);
+  se->registerHisto(this, h2_hcal_hits);
+  se->registerHisto(this, h2_hcal_mean);
+
   dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
   DBVarInit();
   Reset();
   return 0;
 }
+
+
+const int hcal_etabin[] = 
+  { 1,1,0,0,3,3,2,2,
+    5,5,4,4,7,7,6,6,
+    9,9,8,8,11,11,10,10,
+    13,13,12,12,15,15,14,14,
+    17,17,16,16,19,19,18,18,
+    21,21,20,20,23,23,22,22 };
+
+const int hcal_phybin[] =
+  { 1,0,1,0,1,0,1,0,
+    1,0,1,0,1,0,1,0,
+    1,0,1,0,1,0,1,0,
+    1,0,1,0,1,0,1,0,
+    1,0,1,0,1,0,1,0,
+    1,0,1,0,1,0,1,0 };
+
+const int depth = 2;
+
+double HcalMon::getSignal(Packet *p, const int channel)
+{
+  double baseline = 0;
+  for ( int s = 0;  s< 3; s++) {
+      baseline += p->iValue(s,channel);
+    }
+  baseline /= 3.;
+
+  double signal = 0;
+  float x = 0;
+  for ( int s = 3;  s< p->iValue(0,"SAMPLES"); s++) {
+      x++;
+      signal += p->iValue(s,channel) - baseline;
+    }
+  signal /= x;
+
+  return signal;
+}
+
 
 int HcalMon::BeginRun(const int /* runno */)
 {
@@ -70,7 +114,7 @@ int HcalMon::BeginRun(const int /* runno */)
   return 0;
 }
 
-int HcalMon::process_event(Event * /* evt */)
+int HcalMon::process_event(Event *e /* evt */)
 {
   evtcnt++;
   OnlMonServer *se = OnlMonServer::instance();
@@ -89,20 +133,47 @@ int HcalMon::process_event(Event * /* evt */)
     // message types
     se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
   }
-  // get temporary pointers to histograms
-  // one can do in principle directly se->getHisto("hcalhist1")->Fill()
-  // but the search in the histogram Map is somewhat expensive and slows
-  // things down if you make more than one operation on a histogram
-  hcalhist1->Fill((float) idummy);
-  hcalhist2->Fill((float) idummy, (float) idummy, 1.);
 
+  for (int packet=8001; packet<8033; packet++) {
+    Packet *p = e->getPacket(packet);
+    if (p) {
+        int ip = p->getIdentifier() - 8001;
+
+        for ( int c = 0; c < 48; c++) {
+          float signal =  getSignal(p,c);
+          double phi_bin =  (2*ip + hcal_phybin[c] + 0.5) ;
+          double eta_bin = hcal_etabin[c]+0.5;
+
+          float running_mean = 0.0;
+          float old_mean = h2_hcal_mean->GetBinContent(h2_hcal_mean->FindBin(eta_bin,phi_bin));
+          if (evtcnt <= depth) {
+             running_mean = old_mean * (evtcnt - 1) + signal;
+          } else {
+            running_mean = old_mean * (depth - 1) + signal;
+          }
+
+
+          // SetBinContent
+          if (signal > 100) {
+              h2_hcal_hits->Fill(eta_bin,phi_bin);
+              h2_hcal_mean->SetBinContent(h2_hcal_mean->FindBin(eta_bin,phi_bin),running_mean);
+             
+            }
+         }// channel loop
+
+        delete p;
+
+      }// if packet good
+
+    }// packet loop
+    
   if (idummy++ > 10)
   {
     if (dbvars)
     {
       dbvars->SetVar("hcalmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
       dbvars->SetVar("hcalmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      dbvars->SetVar("hcalmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
+      // dbvars->SetVar("hcalmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
       dbvars->DBcommit();
     }
     std::ostringstream msg;
@@ -110,6 +181,7 @@ int HcalMon::process_event(Event * /* evt */)
     se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
     idummy = 0;
   }
+  
   return 0;
 }
 
@@ -124,13 +196,14 @@ int HcalMon::Reset()
 int HcalMon::DBVarInit()
 {
   // variable names are not case sensitive
-  std::string varname;
-  varname = "hcalmoncount";
-  dbvars->registerVar(varname);
-  varname = "hcalmondummy";
-  dbvars->registerVar(varname);
-  varname = "hcalmonnew";
-  dbvars->registerVar(varname);
+  
+   std::string varname;
+   varname = "hcalmoncount";
+   dbvars->registerVar(varname);
+   varname = "hcalmondummy";
+   dbvars->registerVar(varname);
+  // varname = "hcalmonval_0_63";
+  // dbvars->registerVar(varname);
   if (verbosity > 0)
   {
     dbvars->Print();
