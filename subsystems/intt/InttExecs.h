@@ -3,19 +3,19 @@
 
 #include "InttConstants.h"
 
-#include <TStyle.h>
 #include <TCanvas.h>
-#include <TPad.h>
 #include <TLine.h>
+#include <TPad.h>
+#include <TStyle.h>
 #include <TText.h>
 
-#include <TH2D.h>
 #include <TH1D.h>
+#include <TH2D.h>
 
-#include <string>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <sstream>
+#include <string>
 #include <vector>
 
 //===	Constants	===//
@@ -37,7 +37,6 @@ TH2D* InttADC = 0x0;
 
 //..
 //===	~Pointers	===//
-
 
 //===	Methods		===//
 void HitMapExec(int layer);

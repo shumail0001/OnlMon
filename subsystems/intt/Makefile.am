@@ -50,6 +50,7 @@ noinst_PROGRAMS = \
   testexternals_server \
   testexternals_client
 
+BUILT_SOURCES = testexternals.cc
 
 testexternals_server_SOURCES = \
   testexternals.cc
