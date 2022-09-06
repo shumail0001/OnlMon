@@ -1,38 +1,99 @@
-#ifndef INTT_INTTMONDRAW_H
-#define INTT_INTTMONDRAW_H
+#ifndef INTT_MON_DRAW_H
+#define INTT_MON_DRAW_H
 
-#include <onlmon/OnlMonDraw.h>
+#include "InttConstants.h"
+#include "InttExecs.cc" //maybe change to .h later
 
-#include <string>  // for allocator, string
+#include <onlmon/OnlMonClient.h>
+#include <onlmon/OnlMonDB.h>
 
-class OnlMonDB;
-class TCanvas;
-class TGraphErrors;
-class TPad;
+#include <phool/phool.h>
 
-class InttMonDraw : public OnlMonDraw
+#include <TStyle.h>
+#include <TCanvas.h>
+#include <TPad.h>
+#include <TSystem.h>
+#include <TROOT.h>
+
+#include <TLine.h>
+#include <TText.h>
+
+#include <TH2D.h>
+#include <TH1D.h>
+
+#include <string>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <vector>
+
+class InttMonDraw
 {
- public:
-  InttMonDraw(const std::string &name = "INTTMON"); // same name as server!
+protected:
+	//===	Constants for Drawing	===//
+	constexpr static double NUM_SIG = 2.0;
 
-  ~InttMonDraw() override {}
+	const static int CNVS_WIDTH = 1280;
+	const static int CNVS_HEIGHT = 1440;
 
-  int Init() override;
-  int Draw(const std::string &what = "ALL") override;
-  int MakePS(const std::string &what = "ALL") override;
-  int MakeHtml(const std::string &what = "ALL") override;
+	constexpr static double T_MARGIN = 0.01;
+	constexpr static double B_MARGIN = 0.01;
+	constexpr static double L_MARGIN = 0.03;
+	constexpr static double R_MARGIN = 0.10;
 
- protected:
-  int MakeCanvas(const std::string &name);
-  int DrawFirst(const std::string &what = "ALL");
-  int DrawSecond(const std::string &what = "ALL");
-  int DrawHistory(const std::string &what = "ALL");
-  int TimeOffsetTicks = -1;
-  TCanvas *TC[3] = {nullptr};
-  TPad *transparent[3] = {nullptr};
-  TPad *Pad[6] = {nullptr};
-  TGraphErrors *gr[2] = {nullptr};
-  OnlMonDB *dbvars = nullptr;
+	constexpr static double KEY_TEXT_SIZE1 = 0.10;
+	constexpr static double KEY_TEXT_SIZE2 = 0.05;
+	constexpr static double LABEL_TEXT_SIZE1 = 0.35;
+	constexpr static double LABEL_TEXT_SIZE2 = 0.25;
+	constexpr static double TITLE_TEXT_SIZE = 0.50;
+
+	constexpr static double KEY_FRAC = 0.1;
+	constexpr static double LABEL_FRAC = 0.1;
+	constexpr static double TITLE_FRAC = 0.1;
+	
+	const static int OPT = 3;
+	const static int MAX_PADS = 20;
+	const static int MAX_LINES = 2 * CHIP + 1;
+
+	std::string WHAT[OPT]		= {"HitMap",		"ADC"};
+	std::string EXEC_NAME[OPT]	= {"hit_map_exec",	"adc_exec"};
+	std::string CMND_NAME[OPT]	= {"HitMapExec",	"ADCExec"};
+	//===	~Constants for Drawing	===//
+	
+	//===	Drawing Methods		===//
+	void DrawIntt(int);
+	void DrawPad(TPad*);
+	void DrawKey(TPad*, int);
+	void DrawGrid(TPad*, int);
+	void DrawLabels(TPad*, int);
+	void DrawTitle(TPad*, int);
+
+	void SetExec(TPad*, int, int);
+
+	void DeletePtrs();
+	//===	~Drawing Methods	===//
+
+	//===	Pointers for Drawing	===//
+	TStyle* InttStyle[OPT] = {0x0};
+	TCanvas* InttCanvas[OPT] = {0x0};
+	TPad* InttPad[OPT * LAYER * MAX_PADS] = {0x0};
+	TH2D* InttHist[OPT * LAYER] = {0x0};
+	
+	TLine** key_vline[LAYER] = {0x0};
+	TLine** key_hline[LAYER] = {0x0};
+	TText** key_nlabel[LAYER] = {0x0};
+	TText** key_slabel[LAYER] = {0x0};
+	
+	TLine** grid_vline[LAYER] = {0x0};
+	TLine** grid_hline[LAYER] = {0x0};
+	
+	TText** label[LAYER] = {0x0};
+	
+	TText* title[LAYER] = {0x0};
+	//===	~Pointers for Drawing	===//
+	
+public:
+	int Draw(const std::string&);
 };
 
-#endif /* INTT_INTTMONDRAW_H */
+#endif

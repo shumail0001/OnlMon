@@ -1,381 +1,511 @@
 #include "InttMonDraw.h"
 
-#include <onlmon/OnlMonClient.h>
-#include <onlmon/OnlMonDB.h>
-
-#include <phool/phool.h>
-
-#include <TAxis.h>  // for TAxis
-#include <TCanvas.h>
-#include <TDatime.h>
-#include <TGraphErrors.h>
-#include <TH1.h>
-#include <TPad.h>
-#include <TROOT.h>
-#include <TSystem.h>
-#include <TText.h>
-
-#include <cstring>  // for memset
-#include <ctime>
-#include <fstream>
-#include <iostream>  // for operator<<, basic_ostream, basic_os...
-#include <sstream>
-#include <vector>  // for vector
-
-InttMonDraw::InttMonDraw(const std::string &name)
-  : OnlMonDraw(name)
+int InttMonDraw :: Draw(const std::string &what = "ALL")
 {
-  // this TimeOffsetTicks is neccessary to get the time axis right
-  TDatime T0(2003, 01, 01, 00, 00, 00);
-  TimeOffsetTicks = T0.Convert();
-  dbvars = new OnlMonDB(ThisName);
-  return;
+	int opt = 0; //Unnormalized HitMap
+	if(what == "ALL" or what == WHAT[opt])
+	{
+		OnlMonClient* omc = OnlMonClient::instance();
+
+		int layer;
+		int hist;
+		int bin;
+
+		TH2D* hitmap;
+
+		for(layer = 0; layer < LAYER; layer++)
+		{
+			hist = opt * LAYER + layer;
+			if(!InttHist[hist])
+			{
+				InttHist[hist] = new TH2D
+				(
+					Form("INTT_%s_Layer%d", WHAT[opt].c_str(), layer + LAYER_OFFSET),
+					Form("INTT_%s_Layer%d", WHAT[opt].c_str(), layer + LAYER_OFFSET),
+					2 * LADDER[hist],
+					0.0,
+					LADDER[hist],
+					CHIP,
+					0.0,
+					CHIP
+				);
+				//some stuff to configure this hist
+			}
+
+			hitmap = (TH2D*)omc->getHisto(Form("Layer%d_HitMap", layer));
+			for(bin = 1; bin <= hitmap->GetNcells(); bin++)
+			{
+				InttHist[hist]->SetBinContent(bin, hitmap->GetBinContent(bin));
+			}
+		}
+	}
+
+	return 0;
 }
 
-int InttMonDraw::Init()
+void InttMonDraw :: DrawIntt(int opt)
 {
-  return 0;
+	if(!(0 <= opt and opt < OPT))return;
+
+	if(!InttCanvas[opt])
+	{
+		InttCanvas[opt] = new TCanvas
+		(
+			Form("INTT_%s_Canvas", WHAT[opt].c_str()),
+			Form("INTT_%s_Canvas", WHAT[opt].c_str()),
+			20 * opt,//-1, //no menu bar
+			20 * opt,
+			CNVS_WIDTH,
+			CNVS_HEIGHT
+		);
+
+		gSystem->ProcessEvents();
+	}
+
+	int base_pad;
+	int hist;
+	int pad;
+
+	for(int layer = 0; layer < LAYER; layer++)
+	{
+
+		base_pad = opt * LAYER * MAX_PADS + layer * MAX_PADS;
+		hist = opt * LAYER + layer;
+		pad = 0;
+
+		if(!InttPad[base_pad])//base of the layer drawing scheme
+		{
+			InttCanvas[opt]->cd();
+	
+			InttPad[base_pad] = new TPad
+			(
+				Form("INTT_Pad_%d", base_pad),
+				Form("INTT_Pad_%d", base_pad),
+				0.0,
+				(LAYER - layer - 1.0) / LAYER,
+				1.0,
+				(LAYER - layer + 0.0) / LAYER
+			);
+			DrawPad(InttPad[base_pad]);
+		}
+	
+		pad++;
+		if(!InttPad[base_pad + pad])//hist pad
+		{
+			InttPad[base_pad]->cd();
+			InttPad[base_pad + pad] = new TPad
+			(
+				Form("INTT_Pad_%d", base_pad + pad),
+				Form("INTT_Pad_%d", base_pad + pad),
+				KEY_FRAC,
+				LABEL_FRAC,
+				1.0,
+				1.0 - TITLE_FRAC
+			);
+			DrawPad(InttPad[base_pad + pad]);
+		}
+	
+		InttPad[base_pad + pad]->cd();
+		if(InttHist[hist])InttHist[hist]->Draw("COLZ");
+		InttPad[base_pad + pad]->Update();
+	
+		pad++;
+		if(!InttPad[base_pad + pad])//grid pad
+		{
+			InttPad[base_pad]->cd();
+	
+			InttPad[base_pad + pad] = new TPad
+			(
+				Form("INTT_Pad_%d", base_pad + pad),
+				Form("INTT_Pad_%d", base_pad + pad),
+				KEY_FRAC,
+				LABEL_FRAC,
+				1.0,
+				1.0 - TITLE_FRAC
+			);
+			DrawPad(InttPad[base_pad + pad]);
+	
+			DrawGrid(InttPad[base_pad + pad], layer + LAYER_OFFSET);
+		}
+		InttPad[base_pad + pad]->Update();
+	
+		pad++;
+		if(!InttPad[base_pad + pad])//key pad
+		{
+			InttPad[base_pad]->cd();
+	
+			InttPad[base_pad + pad] = new TPad
+			(
+				Form("INTT_Pad_%d", base_pad + pad),
+				Form("INTT_Pad_%d", base_pad + pad),
+				0.0,
+				LABEL_FRAC,
+				KEY_FRAC,
+				1.0 - TITLE_FRAC
+			);
+			DrawPad(InttPad[base_pad + pad]);
+	
+			DrawKey(InttPad[base_pad + pad], layer + LAYER_OFFSET);
+		}
+		InttPad[base_pad + pad]->Update();
+	
+		pad++;
+		if(!InttPad[base_pad + pad])//lader labels
+		{
+			InttPad[base_pad]->cd();
+	
+			InttPad[base_pad + pad] = new TPad
+			(
+				Form("INTT_Pad_%d", base_pad + pad),
+				Form("INTT_Pad_%d", base_pad + pad),
+				KEY_FRAC,
+				0.0,
+				1.0,
+				LABEL_FRAC
+			);
+			DrawPad(InttPad[base_pad + pad]);
+	
+			DrawLabels(InttPad[base_pad + pad], layer + LAYER_OFFSET);
+		}
+		InttPad[base_pad + pad]->Update();
+	
+		pad++;
+		if(!InttPad[base_pad + pad])//Title
+		{
+			InttPad[base_pad]->cd();
+	
+			InttPad[base_pad + pad] = new TPad
+			(
+				Form("INTT_Pad_%d", base_pad + pad),
+				Form("INTT_Pad_%d", base_pad + pad),
+				KEY_FRAC,
+				1.0 - TITLE_FRAC,
+				1.0,
+				1.0
+			);
+			DrawPad(InttPad[base_pad + pad]);
+	
+			DrawTitle(InttPad[base_pad + pad], layer + LAYER_OFFSET);
+		}
+		InttPad[base_pad + pad]->Update();
+
+		pad++;
+		if(!InttPad[base_pad + pad])//exec pad
+		{
+			InttPad[base_pad]->cd();
+			InttPad[base_pad + pad] = new TPad
+			(
+				Form("INTT_Pad_%d", base_pad + pad),
+				Form("INTT_Pad_%d", base_pad + pad),
+				KEY_FRAC + L_MARGIN * (1.0 - KEY_FRAC),
+				LABEL_FRAC + B_MARGIN * (1.0 - TITLE_FRAC - LABEL_FRAC),
+				1.0 - R_MARGIN * (1.0 - KEY_FRAC),
+				1.0 - TITLE_FRAC - T_MARGIN * (1.0 - TITLE_FRAC - LABEL_FRAC)
+			);
+			DrawPad(InttPad[base_pad + pad]);
+			SetExec(InttPad[base_pad + pad], opt, layer + LAYER_OFFSET);
+		}
+
+		InttCanvas[opt]->Update();
+		InttCanvas[opt]->Show();
+		InttCanvas[opt]->SetEditable(0);
+	}
 }
 
-int InttMonDraw::MakeCanvas(const std::string &name)
+
+void InttMonDraw :: DrawPad(TPad* pad)
 {
-  OnlMonClient *cl = OnlMonClient::instance();
-  int xsize = cl->GetDisplaySizeX();
-  int ysize = cl->GetDisplaySizeY();
-  if (name == "InttMon1")
-  {
-    // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "InttMon Example Monitor", -1, 0, xsize / 2, ysize);
-    // root is pathetic, whenever a new TCanvas is created root piles up
-    // 6kb worth of X11 events which need to be cleared with
-    // gSystem->ProcessEvents(), otherwise your process will grow and
-    // grow and grow but will not show a definitely lost memory leak
-    gSystem->ProcessEvents();
-    Pad[0] = new TPad("inttpad1", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[1] = new TPad("inttpad2", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[0]->Draw();
-    Pad[1]->Draw();
-    // this one is used to plot the run number on the canvas
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
-    TC[0]->SetEditable(0);
-  }
-  else if (name == "InttMon2")
-  {
-    // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "InttMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-    Pad[2] = new TPad("inttpad3", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[3] = new TPad("inttpad4", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[2]->Draw();
-    Pad[3]->Draw();
-    // this one is used to plot the run number on the canvas
-    transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
-    transparent[1]->SetFillStyle(4000);
-    transparent[1]->Draw();
-    TC[1]->SetEditable(0);
-  }
-  else if (name == "InttMon3")
-  {
-    TC[2] = new TCanvas(name.c_str(), "InttMon3 Example Monitor", xsize / 2, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-    Pad[4] = new TPad("inttpad5", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[5] = new TPad("inttpad6", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[4]->Draw();
-    Pad[5]->Draw();
-    // this one is used to plot the run number on the canvas
-    //        transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
-    //        transparent[2]->SetFillStyle(4000);
-    //        transparent[2]->Draw();
-    //      TC[2]->SetEditable(0);
-  }
-  return 0;
+	pad->SetFillStyle(4000); //transparent
+	pad->Range(0.0, 0.0, 1.0, 1.0);
+	pad->SetTopMargin(T_MARGIN);
+	pad->SetBottomMargin(B_MARGIN);
+	pad->SetLeftMargin(L_MARGIN);
+	pad->SetRightMargin(R_MARGIN);
+	pad->Draw();
 }
 
-int InttMonDraw::Draw(const std::string &what)
+void InttMonDraw :: DrawKey(TPad* pad, int layer)
 {
-  int iret = 0;
-  int idraw = 0;
-  if (what == "ALL" || what == "FIRST")
-  {
-    iret += DrawFirst(what);
-    idraw++;
-  }
-  if (what == "ALL" || what == "SECOND")
-  {
-    iret += DrawSecond(what);
-    idraw++;
-  }
-  if (what == "ALL" || what == "HISTORY")
-  {
-    iret += DrawHistory(what);
-    idraw++;
-  }
-  if (!idraw)
-  {
-    std::cout << PHWHERE << " Unimplemented Drawing option: " << what << std::endl;
-    iret = -1;
-  }
-  return iret;
+	layer -= LAYER_OFFSET;
+
+	if(!pad)return;
+
+	pad->cd();
+
+	//want to draw it to scale with the histogram
+	//the hist pad is drawn on (1.0 - KEY_FRAC) of the layer pad
+	//the hist pad itself has margins L_MARGIN, R_MARGIN of the hist pad on either side
+	//this is further divided into LADDER[layer] sections
+	//thus a hist ladder is (1.0 - KEY_FRAC) * (1.0 - L_MARGIN - R_MARGIN) / LADDER[layer] of the layer pad wide
+	
+	//this should be as wide
+	//the key is drawn on KEY_FRAC of the layer pad
+	//so KEY_FRAC * width = (1.0 - KEY_FRAC) * (1.0 - L_MARGIN - R_MARGIN) / LADDER[layer]
+
+	//there are at least 12 ladders, these lines will never run
+	//in principle, it could be a problem so I am being pedantic
+
+	//shift rightward slightly by half the distance to the edge of pad
+	//implemented several times over below
+	//inside if statements; redundant, but extra variables will not be allocated each time this runs
+
+	//gridlines
+	if(!key_vline[layer])
+	{
+		double x;
+
+		double xmin = 0.5 - (1.0 - KEY_FRAC) * (1.0 - L_MARGIN - R_MARGIN) / LADDER[layer] / KEY_FRAC / 2;
+		double xmax = 0.5 + (1.0 - KEY_FRAC) * (1.0 - L_MARGIN - R_MARGIN) / LADDER[layer] / KEY_FRAC / 2;
+
+		if(xmin < 0.0)xmin = 0.1;
+		if(xmax > 1.0)xmax = 0.9;
+
+		xmax += xmin / 2.0;
+		xmin += xmin / 2.0;
+
+		key_vline[layer] = new TLine*[3];
+		for(int v = 0; v < 3; v++)
+		{
+			x = xmin + v * (xmax - xmin) / 2;
+	
+			key_vline[layer][v] = new TLine(x, B_MARGIN, x, 1.0 - T_MARGIN);
+			key_vline[layer][v]->SetLineStyle(2 * (v % 2) + 1);
+			key_vline[layer][v]->SetLineWidth(2 - (v % 2));
+		}
+	}
+	for(int v = 0; v < 3; v++)
+	{
+		key_vline[layer][v]->Draw();
+	}
+
+	if(!key_hline[layer])
+	{
+		double y;
+
+		double xmin = 0.5 - (1.0 - KEY_FRAC) * (1.0 - L_MARGIN - R_MARGIN) / LADDER[layer] / KEY_FRAC / 2;
+		double xmax = 0.5 + (1.0 - KEY_FRAC) * (1.0 - L_MARGIN - R_MARGIN) / LADDER[layer] / KEY_FRAC / 2;
+
+		if(xmin < 0.0)xmin = 0.1;
+		if(xmax > 1.0)xmax = 0.9;
+
+		xmax += xmin / 2.0;
+		xmin += xmin / 2.0;
+
+		key_hline[layer] = new TLine*[CHIP + 1];
+		for(int h = 0; h < CHIP + 1; h++)
+		{
+			y = B_MARGIN + h * (1.0 - T_MARGIN - B_MARGIN) / CHIP;
+	
+			key_hline[layer][h] = new TLine(xmin, y, xmax, y);
+			key_hline[layer][h]->SetLineStyle(3);
+			key_hline[layer][h]->SetLineWidth(1);
+			if(h % (CHIP / 2) == 0)
+			{
+				key_hline[layer][h]->SetLineStyle(1);
+				key_hline[layer][h]->SetLineWidth(2);
+			}
+		}
+	}
+	for(int h = 0; h < CHIP + 1; h++)
+	{
+		key_hline[layer][h]->Draw();
+	}
+
+	//text
+	if(!key_nlabel[layer])
+	{
+		double x;
+		double y;
+
+		double xmin = 0.5 - (1.0 - KEY_FRAC) * (1.0 - L_MARGIN - R_MARGIN) / LADDER[layer] / KEY_FRAC / 2;
+		double xmax = 0.5 + (1.0 - KEY_FRAC) * (1.0 - L_MARGIN - R_MARGIN) / LADDER[layer] / KEY_FRAC / 2;
+
+		if(xmin < 0.0)xmin = 0.1;
+		if(xmax > 1.0)xmax = 0.9;
+
+		xmax += xmin / 2.0;
+		xmin += xmin / 2.0;
+
+		key_nlabel[layer] = new TText*[CHIP + 1];
+		for(int chip = 0; chip < CHIP; chip++)
+		{
+			x = ( (3 - 2 * (chip / (CHIP / 2))) * xmax + (1 + 2 * (chip / (CHIP / 2))) * xmin ) / 4.0;
+			y = (1.0 - T_MARGIN + B_MARGIN) / 2.0 + (CHIP / 2 - chip % (CHIP / 2) - 0.5) * (0.5 - T_MARGIN / 2.0 - B_MARGIN / 2.0) / (CHIP / 2);
+	
+			key_nlabel[layer][chip] = new TText(x, y, Form("U%d", chip + CHIP_OFFSET));
+			key_nlabel[layer][chip]->SetTextAlign(22);
+			key_nlabel[layer][chip]->SetTextSize(KEY_TEXT_SIZE2);
+		}
+
+		key_nlabel[layer][CHIP] = new TText
+		(
+			xmin / 2.0,
+			0.75,
+			Form("North")
+		);
+		key_nlabel[layer][CHIP]->SetTextAlign(22);
+		key_nlabel[layer][CHIP]->SetTextSize(KEY_TEXT_SIZE1);
+		key_nlabel[layer][CHIP]->SetTextAngle(90);
+	}
+	for(int chip = 0; chip < CHIP + 1; chip++)
+	{
+		key_nlabel[layer][chip]->Draw();
+	}
+
+	if(!key_slabel[layer])
+	{
+		double x;
+		double y;
+
+		double xmin = 0.5 - (1.0 - KEY_FRAC) * (1.0 - L_MARGIN - R_MARGIN) / LADDER[layer] / KEY_FRAC / 2;
+		double xmax = 0.5 + (1.0 - KEY_FRAC) * (1.0 - L_MARGIN - R_MARGIN) / LADDER[layer] / KEY_FRAC / 2;
+
+		if(xmin < 0.0)xmin = 0.1;
+		if(xmax > 1.0)xmax = 0.9;
+
+		xmax += xmin / 2.0;
+		xmin += xmin / 2.0;
+
+		key_slabel[layer] = new TText*[CHIP + 1];
+		for(int chip = 0; chip < CHIP; chip++)
+		{
+			x = ( (1 + 2 * (chip / (CHIP / 2))) * xmax + (3 - 2 * (chip / (CHIP / 2))) * xmin ) / 4.0;
+			y = B_MARGIN + (chip % (CHIP / 2) + 0.5) * (0.5 - T_MARGIN / 2.0 - B_MARGIN / 2.0) / (CHIP / 2);
+	
+			key_slabel[layer][chip] = new TText(x, y, Form("U%d", chip + CHIP_OFFSET));
+			key_slabel[layer][chip]->SetTextAlign(22);
+			key_slabel[layer][chip]->SetTextSize(KEY_TEXT_SIZE2);
+		}
+
+		key_slabel[layer][CHIP] = new TText
+		(
+			xmin / 2.0,
+			0.25,
+			Form("South")
+		);
+		key_slabel[layer][CHIP]->SetTextAlign(22);
+		key_slabel[layer][CHIP]->SetTextSize(KEY_TEXT_SIZE1);
+		key_slabel[layer][CHIP]->SetTextAngle(90);
+	}
+
+	for(int chip = 0; chip < CHIP + 1; chip++)
+	{
+		key_slabel[layer][chip]->Draw();
+	}
 }
 
-int InttMonDraw::DrawFirst(const std::string & /* what */)
+void InttMonDraw :: DrawGrid(TPad* pad, int layer)
 {
-  OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *inttmon_hist1 = cl->getHisto("inttmon_hist1");
-  TH1 *inttmon_hist2 = cl->getHisto("inttmon_hist1");
-  if (!gROOT->FindObject("InttMon1"))
-  {
-    MakeCanvas("InttMon1");
-  }
-  TC[0]->SetEditable(1);
-  TC[0]->Clear("D");
-  Pad[0]->cd();
-  if (inttmon_hist1)
-  {
-    inttmon_hist1->DrawCopy();
-  }
-  else
-  {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(0);
-    return -1;
-  }
-  Pad[1]->cd();
-  if (inttmon_hist2)
-  {
-    inttmon_hist2->DrawCopy();
-  }
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
-  // fill run number and event time into string
-  runnostream << ThisName << "_1 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
-  runstring = runnostream.str();
-  transparent[0]->cd();
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[0]->Update();
-  TC[0]->Show();
-  TC[0]->SetEditable(0);
-  return 0;
+	layer -= LAYER_OFFSET;
+
+	if(!pad)return;
+
+	pad->cd();
+
+	if(!grid_vline[layer])
+	{
+		double temp;
+
+		grid_vline[layer] = new TLine*[2 * LADDER[layer] + 1];
+		for(int v = 0; v < 2 * LADDER[layer] + 1; v++)
+		{
+			temp = L_MARGIN + (v / 2.0) * (1.0 - L_MARGIN - R_MARGIN) / LADDER[layer];
+	
+			grid_vline[layer][v] = new TLine(temp, B_MARGIN, temp, 1.0 - T_MARGIN);
+			grid_vline[layer][v]->SetLineStyle(2 * (v % 2) + 1); //3 if odd, 1 if even
+			grid_vline[layer][v]->SetLineWidth(2 - (v % 2));
+		}
+	}
+	for(int v = 0; v < 2 * LADDER[layer] + 1; v++)
+	{
+		grid_vline[layer][v]->Draw();
+	}
+
+	if(!grid_hline[layer])
+	{
+		double temp;
+
+		grid_hline[layer] = new TLine*[CHIP + 1];
+		for(int h = 0; h < CHIP + 1; h++)
+		{
+			temp = B_MARGIN + h * (1.0 - T_MARGIN - B_MARGIN) / CHIP;
+
+			grid_hline[layer][h] = new TLine(L_MARGIN, temp, 1.0 - R_MARGIN, temp);
+			grid_hline[layer][h]->SetLineStyle(3);
+			grid_hline[layer][h]->SetLineWidth(1);
+			if(h % (CHIP / 2) == 0)
+			{
+				grid_hline[layer][h]->SetLineStyle(1);
+				grid_hline[layer][h]->SetLineWidth(2);
+			}
+		}
+	}
+	for(int h = 0; h < CHIP + 1; h++)
+	{
+		grid_hline[layer][h]->Draw();
+	}
+
 }
 
-int InttMonDraw::DrawSecond(const std::string & /* what */)
+void InttMonDraw :: DrawLabels(TPad* pad, int layer)
 {
-  OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *inttmon_hist1 = cl->getHisto("inttmon_hist2");
-  TH1 *inttmon_hist2 = cl->getHisto("inttmon_hist2");
-  if (!gROOT->FindObject("InttMon2"))
-  {
-    MakeCanvas("InttMon2");
-  }
-  TC[1]->SetEditable(1);
-  TC[1]->Clear("D");
-  Pad[2]->cd();
-  if (inttmon_hist1)
-  {
-    inttmon_hist1->DrawCopy();
-  }
-  else
-  {
-    DrawDeadServer(transparent[1]);
-    TC[1]->SetEditable(0);
-    return -1;
-  }
-  Pad[3]->cd();
-  if (inttmon_hist2)
-  {
-    inttmon_hist2->DrawCopy();
-  }
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
-  // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
-  runstring = runnostream.str();
-  transparent[1]->cd();
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[1]->Update();
-  TC[1]->Show();
-  TC[1]->SetEditable(0);
-  return 0;
+	layer -= LAYER_OFFSET;
+
+	if(!pad)return;
+
+	pad->cd();
+
+	if(!label[layer])
+	{
+		double temp;
+
+		label[layer] = new TText*[LADDER[layer] + 1];
+		for(int l = 0; l < LADDER[layer]; l++)
+		{
+			temp = L_MARGIN + (l + 0.5) * (1.0 - L_MARGIN - R_MARGIN) / LADDER[layer];
+
+			label[layer][l] = new TText(temp, 0.875, Form("%d", l));
+			label[layer][l]->SetTextAlign(22);
+			label[layer][l]->SetTextSize(LABEL_TEXT_SIZE2);
+		}
+
+		temp = (L_MARGIN + 1.0 - R_MARGIN) / 2.0;
+		label[layer][LADDER[layer]] = new TText(temp, 0.5, Form("Ladder"));
+		label[layer][LADDER[layer]]->SetTextAlign(22);
+		label[layer][LADDER[layer]]->SetTextSize(LABEL_TEXT_SIZE1);
+	}
+	for(int l = 0; l < LADDER[layer] + 1; l++)
+	{
+		label[layer][l]->Draw();
+	}
 }
 
-int InttMonDraw::MakePS(const std::string &what)
+void InttMonDraw :: DrawTitle(TPad* pad, int layer)
 {
-  OnlMonClient *cl = OnlMonClient::instance();
-  std::ostringstream filename;
-  int iret = Draw(what);
-  if (iret)  // on error no ps files please
-  {
-    return iret;
-  }
-  filename << ThisName << "_1_" << cl->RunNumber() << ".ps";
-  TC[0]->Print(filename.str().c_str());
-  filename.str("");
-  filename << ThisName << "_2_" << cl->RunNumber() << ".ps";
-  TC[1]->Print(filename.str().c_str());
-  return 0;
+	layer -= LAYER_OFFSET;
+
+	if(!pad)return;
+
+	pad->cd();
+
+	if(!title[layer])
+	{
+		double temp = (L_MARGIN + 1.0 - R_MARGIN) / 2.0;
+		title[layer] = new TText(temp, 0.5, Form("Layer %d", layer + LAYER_OFFSET));
+		title[layer]->SetTextAlign(22);
+		title[layer]->SetTextSize(TITLE_TEXT_SIZE);
+	}
+	title[layer]->Draw();
 }
 
-int InttMonDraw::MakeHtml(const std::string &what)
+void InttMonDraw :: SetExec(TPad* pad, int opt, int layer)
 {
-  int iret = Draw(what);
-  if (iret)  // on error no html output please
-  {
-    return iret;
-  }
+	layer -= LAYER_OFFSET;
 
-  OnlMonClient *cl = OnlMonClient::instance();
+	if(!(0 <= opt and opt < OPT))return;
+	if(!(0 <= layer and layer < LAYER))return;
 
-  // Register the 1st canvas png file to the menu and produces the png file.
-  std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
-  cl->CanvasToPng(TC[0], pngfile);
-
-  // idem for 2nd canvas.
-  pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
-  cl->CanvasToPng(TC[1], pngfile);
-  // Now register also EXPERTS html pages, under the EXPERTS subfolder.
-
-  std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream out(logfile.c_str());
-  out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << std::endl;
-  out << "<P>Some log file output would go here." << std::endl;
-  out.close();
-
-  std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
-  std::ofstream out2(status.c_str());
-  out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
-       << "</TITLE></HEAD>" << std::endl;
-  out2 << "<P>Some status output would go here." << std::endl;
-  out2.close();
-  cl->SaveLogFile(*this);
-  return 0;
-}
-
-int InttMonDraw::DrawHistory(const std::string & /* what */)
-{
-  int iret = 0;
-  // you need to provide the following vectors
-  // which are filled from the db
-  std::vector<float> var;
-  std::vector<float> varerr;
-  std::vector<time_t> timestamp;
-  std::vector<int> runnumber;
-  std::string varname = "inttmondummy";
-  // this sets the time range from whihc values should be returned
-  time_t begin = 0;            // begin of time (1.1.1970)
-  time_t end = time(nullptr);  // current time (right NOW)
-  iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
-  if (iret)
-  {
-    std::cout << PHWHERE << " Error in db access" << std::endl;
-    return iret;
-  }
-  if (!gROOT->FindObject("InttMon3"))
-  {
-    MakeCanvas("InttMon3");
-  }
-  // timestamps come sorted in ascending order
-  float *x = new float[var.size()];
-  float *y = new float[var.size()];
-  float *ex = new float[var.size()];
-  float *ey = new float[var.size()];
-  int n = var.size();
-  for (unsigned int i = 0; i < var.size(); i++)
-  {
-    //       std::cout << "timestamp: " << ctime(&timestamp[i])
-    // 	   << ", run: " << runnumber[i]
-    // 	   << ", var: " << var[i]
-    // 	   << ", varerr: " << varerr[i]
-    // 	   << std::endl;
-    x[i] = timestamp[i] - TimeOffsetTicks;
-    y[i] = var[i];
-    ex[i] = 0;
-    ey[i] = varerr[i];
-  }
-  Pad[4]->cd();
-  if (gr[0])
-  {
-    delete gr[0];
-  }
-  gr[0] = new TGraphErrors(n, x, y, ex, ey);
-  gr[0]->SetMarkerColor(4);
-  gr[0]->SetMarkerStyle(21);
-  gr[0]->Draw("ALP");
-  gr[0]->GetXaxis()->SetTimeDisplay(1);
-  gr[0]->GetXaxis()->SetLabelSize(0.03);
-  // the x axis labeling looks like crap
-  // please help me with this, the SetNdivisions
-  // don't do the trick
-  gr[0]->GetXaxis()->SetNdivisions(-1006);
-  gr[0]->GetXaxis()->SetTimeOffset(TimeOffsetTicks);
-  gr[0]->GetXaxis()->SetTimeFormat("%Y/%m/%d %H:%M");
-  delete[] x;
-  delete[] y;
-  delete[] ex;
-  delete[] ey;
-
-  varname = "inttmoncount";
-  iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
-  if (iret)
-  {
-    std::cout << PHWHERE << " Error in db access" << std::endl;
-    return iret;
-  }
-  x = new float[var.size()];
-  y = new float[var.size()];
-  ex = new float[var.size()];
-  ey = new float[var.size()];
-  n = var.size();
-  for (unsigned int i = 0; i < var.size(); i++)
-  {
-    //       std::cout << "timestamp: " << ctime(&timestamp[i])
-    // 	   << ", run: " << runnumber[i]
-    // 	   << ", var: " << var[i]
-    // 	   << ", varerr: " << varerr[i]
-    // 	   << std::endl;
-    x[i] = timestamp[i] - TimeOffsetTicks;
-    y[i] = var[i];
-    ex[i] = 0;
-    ey[i] = varerr[i];
-  }
-  Pad[5]->cd();
-  if (gr[1])
-  {
-    delete gr[1];
-  }
-  gr[1] = new TGraphErrors(n, x, y, ex, ey);
-  gr[1]->SetMarkerColor(4);
-  gr[1]->SetMarkerStyle(21);
-  gr[1]->Draw("ALP");
-  gr[1]->GetXaxis()->SetTimeDisplay(1);
-  // TC[2]->Update();
-  //    h1->GetXaxis()->SetTimeDisplay(1);
-  //    h1->GetXaxis()->SetLabelSize(0.03);
-  gr[1]->GetXaxis()->SetLabelSize(0.03);
-  gr[1]->GetXaxis()->SetTimeOffset(TimeOffsetTicks);
-  gr[1]->GetXaxis()->SetTimeFormat("%Y/%m/%d %H:%M");
-  //    h1->Draw();
-  delete[] x;
-  delete[] y;
-  delete[] ex;
-  delete[] ey;
-
-  TC[2]->Update();
-  return 0;
+	std::stringstream func_str;
+	func_str << CMND_NAME[opt] << "(" << layer + LAYER_OFFSET << ")";
+	pad->AddExec(EXEC_NAME[opt].c_str(), func_str.str().c_str());
 }

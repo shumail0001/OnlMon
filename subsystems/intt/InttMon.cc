@@ -1,140 +1,424 @@
-// use #include "" only for your local include and put
-// those in the first line(s) before any #include <>
-// otherwise you are asking for weird behavior
-// (more info - check the difference in include path search when using "" versus <>)
-
 #include "InttMon.h"
 
-#include <onlmon/OnlMon.h>  // for OnlMon
-#include <onlmon/OnlMonDB.h>
-#include <onlmon/OnlMonServer.h>
+//public methods
 
-#include <Event/msg_profile.h>
-
-#include <TH1.h>
-#include <TH2.h>
-
-#include <cmath>
-#include <cstdio>  // for printf
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>  // for allocator, string, char_traits
-
-enum
+int InttMon :: Init()
 {
-  TRGMESSAGE = 1,
-  FILLMESSAGE = 2
-};
+	OnlMonServer *se = OnlMonServer::instance();
 
-InttMon::InttMon(const std::string &name)
-  : OnlMon(name)
-{
-  // leave ctor fairly empty, its hard to debug if code crashes already
-  // during a new InttMon()
-  return;
+	NumEvents = new TH1D
+	(
+		Form("NumEvents"),
+		Form("NumEvents"),
+		1,
+		0.5,
+		1.5
+	);
+	se->registerHisto(this, NumEvents);
+
+	//HitMap chip level histograms	
+	HitMap = new TH2D*[LAYER];
+	HitRateMap = new TH2D*[LAYER];
+	for(int layer = 0; layer < LAYER; layer++)
+	{
+		HitMap[layer] = new TH2D
+		(
+			Form("Layer%d_HitMap", layer + LAYER_OFFSET),
+			Form("Layer%d_HitMap", layer + LAYER_OFFSET),
+			2 * LADDER[layer],
+			0.0,
+			LADDER[layer],
+			CHIP,
+			0.0,
+			CHIP
+		);
+		se->registerHisto(this, HitMap[layer]);
+		
+		HitRateMap[layer] = new TH2D
+		(
+			Form("Layer%d_HitRateMap", layer + LAYER_OFFSET),
+			Form("Layer%d_HitRateMap", layer + LAYER_OFFSET),
+			2 * LADDER[layer],
+			0.0,
+			LADDER[layer],
+			CHIP,
+			0.0,
+			CHIP
+		);
+		se->registerHisto(this, HitRateMap[layer]);
+	}
+
+	//HitMap channel level histograms	
+	ChipHitMap = new TH1D****[LAYER];
+	for(int layer = 0; layer < LAYER; layer++)
+	{
+		ChipHitMap[layer] = new TH1D***[LADDER[layer]];
+		for(int ladder = 0; ladder < LADDER[layer]; ladder++)
+		{
+			ChipHitMap[layer][ladder] = new TH1D**[NORTHSOUTH];
+			for(int northsouth = 0; northsouth < NORTHSOUTH; northsouth++)
+			{
+				ChipHitMap[layer][ladder][northsouth] = new TH1D*[CHIP];
+				for(int chip = 0; chip < CHIP; chip++)
+				{
+					ChipHitMap[layer][ladder][northsouth][chip] = new TH1D
+					(
+						Form("Layer%d_Ladder%d_NorthSouth%d_Chip%d", layer + LAYER_OFFSET, ladder, northsouth, chip + CHIP_OFFSET),
+						Form("Layer%d_Ladder%d_NorthSouth%d_Chip%d", layer + LAYER_OFFSET, ladder, northsouth, chip + CHIP_OFFSET),
+						CHANNEL,
+						0.0,
+						CHANNEL
+					);
+					se->registerHisto(this, ChipHitMap[layer][ladder][northsouth][chip]);
+				}
+			}
+		}
+	}
+
+	//ADC chip level histograms
+	//ADC channel level histograms
+	
+	//...
+	
+	dbvars = new OnlMonDB(ThisName);
+	DBVarInit();
+	Reset();
+
+	//Read in calibrartion data from InttMonData.dat
+	std::string fullfile = std::string(getenv("INTCALIB")) + "/" + "InttMonData.dat";
+	std::ifstream calib(fullfile);
+	//probably need to do stuff here (maybe write to expectation maps)
+	//or reimplment in BeginRun()
+	calib.close();
+
+	// for testing/debugging without unpacker, remove later
+	InitExpectationHists();
+	rng = new TRandom(1234);
+	//~for testing/debugging without unpacker, remove later
+
+	return 0;
 }
 
-InttMon::~InttMon()
+
+InttMon :: ~InttMon()
 {
-  // you can delete NULL pointers it results in a NOOP (No Operation)
-  delete dbvars;
-  return;
+	//delete NumEvents (replace NumEvents with a DBVar most likely)
+	delete NumEvents;
+
+	//delete HitMap chip level histograms
+	for(int layer = 0; layer < LAYER; layer++)
+	{
+		delete HitMap[layer];
+		delete HitRateMap[layer];
+		//delete ADC[]
+		//...
+	}
+	delete[] HitMap;
+	delete[] HitRateMap;
+	//delete[] ADC
+	//...
+
+	//delete channel level histograms
+	for(int layer = 0; layer < LAYER; layer++)
+	{
+		for(int ladder = 0; ladder < LADDER[layer]; ladder++)
+		{
+			for(int northsouth = 0; northsouth < NORTHSOUTH; northsouth++)
+			{
+				for(int chip = 0; chip < CHIP; chip++)
+				{
+					delete ChipHitMap[layer][ladder][northsouth][chip];
+					//delete ADC[]...
+					//...
+				}
+				delete[] ChipHitMap[layer][ladder][northsouth];
+				//delete[] ADC[]...
+				//...
+			}
+			delete[] ChipHitMap[layer][ladder];
+			//delete[] ADC[]...
+			//...
+		}
+		delete[] ChipHitMap[layer];
+		//delete[] ADC[]
+		//..
+	}
+	delete[] ChipHitMap;
+	//delete ADC
+	//...
+
+	//delete ADC chip level histograms
+	//delete ADC channel level histograms
+
+	//delete ...
+	
+	delete dbvars;
 }
 
-int InttMon::Init()
+int InttMon :: BeginRun(const int /* run_num */)
 {
-  // read our calibrations from InttMonData.dat
-  std::string fullfile = std::string(getenv("INTTCALIB")) + "/" + "InttMonData.dat";
-  std::ifstream calib(fullfile);
-  calib.close();
-  // use printf for stuff which should go the screen but not into the message
-  // system (all couts are redirected)
-  printf("doing the Init\n");
-  intthist1 = new TH1F("inttmon_hist1", "test 1d histo", 101, 0., 100.);
-  intthist2 = new TH2F("inttmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
-  OnlMonServer *se = OnlMonServer::instance();
-  // register histograms with server otherwise client won't get them
-  se->registerHisto(this, intthist1);  // uses the TH1->GetName() as key
-  se->registerHisto(this, intthist2);
-  dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
-  DBVarInit();
-  Reset();
-  return 0;
+	//per-run calibrations; don't think we need to do anything here yet
+
+	return 0;
 }
 
-int InttMon::BeginRun(const int /* runno */)
+int InttMon :: process_event(Event* /* evt */)
 {
-  // if you need to read calibrations on a run by run basis
-  // this is the place to do it
-  return 0;
+	//dummy method since unpacker is not done yet
+	double temp;
+
+	int bin;
+
+	int layer;
+	int ladder;
+	int northsouth;
+	int chip;
+	int channel;
+
+	//int adc;
+	//...
+
+	int hits = rng->Poisson(HITS_PER_EVENT);
+	for(int hit = 0; hit < hits; hit++)
+	{
+		//randomly choose a chip/channel for the hit to occur
+		//including guards in case upper bound of TRandom::Uniform(Double_t) is inclusive
+		layer = rng->Uniform(LAYER);
+		if(layer == LAYER)layer -= 1;
+
+		ladder = rng->Uniform(LADDER[layer]);
+		if(ladder == LADDER[layer])ladder -= 1;
+
+		northsouth = rng->Uniform(NORTHSOUTH);
+		if(northsouth == NORTHSOUTH)northsouth -= 1;
+
+		chip = rng->Uniform(CHIP);
+		if(chip == CHIP)chip -= 1;
+
+		channel = rng->Uniform(CHANNEL);
+		if(channel == CHANNEL)channel -= 1;
+
+		temp = (2.0 * northsouth - 1.0) * ( (CHIP / 2) - chip % (CHIP / 2) - 0.5 );
+
+		//get the bin these indexes correspond to
+		if(GetBin(bin, layer + LAYER_OFFSET, ladder, northsouth, chip + CHIP_OFFSET))continue; //if GetBin returns nonzero there was an error
+
+
+		//HitMap chip level stuff
+		HitMap[layer]->SetBinContent(bin, HitMap[layer]->GetBinContent(bin) + 1);
+
+		//HitMap channel level stuff
+		ChipHitMap[layer][ladder][northsouth][chip]->SetBinContent(channel + 1, ChipHitMap[layer][ladder][northsouth][chip]->GetBinContent(bin) + 1);
+
+
+		//ADC chip level stuff
+		//ADC channel level stuff
+		//...
+
+		bin = temp;//dummy line so it will compile; temp is "used"
+	}
+
+	NumEvents->SetBinContent(1, NumEvents->GetBinContent(1) + 1);
+
+	return 0;
 }
 
-int InttMon::process_event(Event * /* evt */)
+int InttMon :: Reset()
 {
-  evtcnt++;
-  OnlMonServer *se = OnlMonServer::instance();
-  // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
-  // e.g. if the BBCLL1 has problems or if it changes its name
-  if (!se->Trigger("ONLMONBBCLL1"))
-  {
-    std::ostringstream msg;
-    msg << "Processing Event " << evtcnt
-        << ", Trigger : 0x" << std::hex << se->Trigger()
-        << std::dec;
-    // severity levels and id's for message sources can be found in
-    // $ONLINE_MAIN/include/msg_profile.h
-    // The last argument is a message type. Messages of the same type
-    // are throttled together, so distinct messages should get distinct
-    // message types
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-  }
-  // get temporary pointers to histograms
-  // one can do in principle directly se->getHisto("intthist1")->Fill()
-  // but the search in the histogram Map is somewhat expensive and slows
-  // things down if you make more than one operation on a histogram
-  intthist1->Fill((float) idummy);
-  intthist2->Fill((float) idummy, (float) idummy, 1.);
+	//reset our DBVars
+	
+	//clear our histogram entries
+	int bin;
 
-  if (idummy++ > 10)
-  {
-    if (dbvars)
-    {
-      dbvars->SetVar("inttmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-      dbvars->SetVar("inttmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      dbvars->SetVar("inttmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
-      dbvars->DBcommit();
-    }
-    std::ostringstream msg;
-    msg << "Filling Histos";
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
-    idummy = 0;
-  }
-  return 0;
+	int layer;
+	int ladder;
+	int northsouth;
+	int chip;
+
+	//NumEvents
+	for(bin = 1; bin <= NumEvents->GetNcells(); bin++)
+	{
+		NumEvents->SetBinContent(bin, 0);
+	}
+
+	//chip level clearing
+	for(layer = 0; layer < LAYER; layer++)
+	{
+		for(bin = 1; bin <= HitMap[layer]->GetNcells(); bin++)
+		{
+			//HitMap
+			HitMap[layer]->SetBinContent(bin, 0);
+
+			//ADC
+			//...
+		}
+	}
+
+	//channel level clearing
+	for(layer = 0; layer < LAYER; layer++)
+	{
+		for(ladder = 0; ladder < LADDER[layer]; ladder++)
+		{
+			for(northsouth = 0; northsouth < NORTHSOUTH; northsouth++)
+			{
+				for(chip = 0; chip < CHIP; chip++)
+				{
+					//ChipHitMap
+					for(bin = 1; bin <= ChipHitMap[layer][ladder][northsouth][chip]->GetNcells(); bin++)
+					{
+						ChipHitMap[layer][ladder][northsouth][chip]->SetBinContent(bin, 0);
+					}
+
+					//ChipADC
+					//...
+				}
+			}
+		}
+	}
+
+	return 0;
 }
 
-int InttMon::Reset()
+
+//protected methods
+int InttMon :: DBVarInit()
 {
-  // reset our internal counters
-  evtcnt = 0;
-  idummy = 0;
-  return 0;
+	std::string var_name;
+
+	var_name = "intt_mon_dum1";	dbvars->registerVar(var_name);
+	var_name = "intt_mon_dum2";	dbvars->registerVar(var_name);
+
+	dbvars->DBInit();
+
+	return 0;
 }
 
-int InttMon::DBVarInit()
+bool InttMon :: CheckIndexes(int layer, int ladder, int northsouth, int chip)
 {
-  // variable names are not case sensitive
-  std::string varname;
-  varname = "inttmoncount";
-  dbvars->registerVar(varname);
-  varname = "inttmondummy";
-  dbvars->registerVar(varname);
-  varname = "inttmonnew";
-  dbvars->registerVar(varname);
-  if (verbosity > 0)
-  {
-    dbvars->Print();
-  }
-  dbvars->DBInit();
-  return 0;
+	layer -= LAYER_OFFSET;
+	chip -= CHIP_OFFSET;
+	
+	if(!(0 <= layer and layer < LAYER))
+	{
+		std::cout << "Bad LAYER index" << std::endl;
+	
+		return false;
+	}
+	if(!(0 <= ladder and ladder < LADDER[layer]))
+	{
+		std::cout << "Bad LADDER index" << std::endl;
+	
+		return false;
+	}
+	if(!(0 <= northsouth and northsouth < NORTHSOUTH))
+	{
+		std::cout << "Bad NORTHSOUTH index" << std::endl;
+	
+		return false;
+	}
+	if(!(0 <= chip and chip < CHIP))
+	{
+		std::cout << "Bad CHIP index" << std::endl;
+	
+		return false;
+	}
+
+	return true;
 }
+
+int InttMon :: GetBin(int& bin, int layer, int ladder, int northsouth, int chip)
+{
+	if(!CheckIndexes(layer, ladder, northsouth, chip))return 1;
+
+	layer -= LAYER_OFFSET;
+	chip -= CHIP_OFFSET;
+
+	if(northsouth == 0)//North
+	{
+		bin = HitMap[layer]->GetBin(2 * ladder + 2 - chip / (CHIP / 2), CHIP - chip % (CHIP / 2));
+	}
+	if(northsouth == 1)//South
+	{
+		bin = HitMap[layer]->GetBin(2 * ladder + 1 + chip / (CHIP / 2), chip % (CHIP / 2) + 1);
+	}
+
+	return 0;
+}
+
+int InttMon :: GetLadderNorthSouthChip(int bin, int layer, int& ladder, int& northsouth, int& chip)
+{
+	layer -= LAYER_OFFSET;
+
+	if(!(0 <= layer and layer < LAYER))return 1;
+	if(!HitMap[layer])return 1;
+
+	int binx;
+	int biny;
+	int binz;
+
+	HitMap[layer]->GetBinXYZ(bin, binx, biny, binz);
+	binx -= 1;
+	biny -= 1;
+
+	ladder = binx / 2;
+	northsouth = biny / (CHIP / 2);
+
+	if(northsouth == 0)//North
+	{
+		chip = CHIP / 2 - biny % (CHIP / 2) + (1 - binx % 2) * (CHIP / 2) - 1;
+	}
+	if(northsouth == 1)//South
+	{
+		chip = biny % (CHIP / 2) + (binx % 2) * (CHIP / 2);
+	}
+
+	return 0;
+}
+
+// for testing/debugging without unpacker, remove later
+int InttMon :: MiscDebug()
+{
+	//write methods to debug/test here
+
+	return 0;
+}
+
+int InttMon :: InitExpectationHists()
+{
+	double temp;
+
+	int bin;
+
+	int layer;
+	int ladder;
+	int northsouth;
+	int chip;
+
+	for(layer = 0; layer < LAYER; layer++)
+	{
+		for(ladder = 0; ladder < LADDER[layer]; ladder++)
+		{
+			for(northsouth = 0; northsouth < NORTHSOUTH; northsouth++)
+			{
+				for(chip = 0; chip < CHIP; chip++)
+				{
+					//set temp to be z coordinate of chip (in units of number of chips from z = 0)
+					temp = (2.0 * northsouth - 1.0) * ( (CHIP / 2) - chip % (CHIP / 2) - 0.5 );
+
+					GetBin(bin, layer + LAYER_OFFSET, ladder, northsouth, chip + CHIP_OFFSET);
+
+					//Expectation histograms for HitMap at chip level
+					HitRateMap[layer]->SetBinContent(bin, HITS_PER_EVENT / (52 * 56));
+
+					//Expectation histograms for ADC at chip level
+
+					//...
+					bin = temp;//dummy line so it will compile; temp is "used"
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+//~for testing/debugging without unpacker, remove later
