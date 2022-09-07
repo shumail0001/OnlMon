@@ -61,7 +61,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
     transparent[0]->SetFillStyle(4000);
     transparent[0]->Draw();
-    TC[0]->SetEditable(0);
+    TC[0]->SetEditable(false);
   }
 
   // else if (name == "CemcMon2")
@@ -148,7 +148,7 @@ int CemcMonDraw::DrawStandard(const std::string & /* what */)
     MakeCanvas("Standard");
 
   }
-  TC[0]->SetEditable(1);
+  TC[0]->SetEditable(true);
   TC[0]->Clear("D");
 
   Pad[0]->cd();
@@ -159,7 +159,7 @@ int CemcMonDraw::DrawStandard(const std::string & /* what */)
   else
   {
     DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(0);
+    TC[0]->SetEditable(false);
     return -1;
   }
 
@@ -171,7 +171,7 @@ int CemcMonDraw::DrawStandard(const std::string & /* what */)
   else
   {
     DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(0);
+    TC[0]->SetEditable(false);
     return -1;
   }
 
@@ -191,7 +191,7 @@ int CemcMonDraw::DrawStandard(const std::string & /* what */)
   PrintRun.DrawText(0.5, 0.95, runstring.c_str());
   TC[0]->Update();
   TC[0]->Show();
-  TC[0]->SetEditable(0);
+  TC[0]->SetEditable(false);
   return 0;
 }
 

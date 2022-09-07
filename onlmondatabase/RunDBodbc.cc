@@ -96,7 +96,7 @@ RunDBodbc::RunType(const int runnoinput) const
           cmd << "SELECT sum(scalerupdatescaled) FROM trigger WHERE RUNNUMBER = "
               << runno;
 
-          odbc::ResultSet *rs1 = 0;
+          odbc::ResultSet *rs1 = nullptr;
 
           odbc::Statement *query1 = con->createStatement();
           try
@@ -166,7 +166,7 @@ RunDBodbc::RunTypeFromFile(const int runno, const std::string &runtype) const
   std::string FullLine;
   getline(infile, FullLine);
   boost::char_separator<char> sep("'");
-  typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+  using tokenizer = boost::tokenizer<boost::char_separator<char>>;
   while (!infile.eof())
   {
     if (FullLine.find("INSERT INTO run VALUES") != std::string::npos)
@@ -185,9 +185,9 @@ RunDBodbc::RunTypeFromFile(const int runno, const std::string &runtype) const
 
 int RunDBodbc::GetRunNumbers(std::set<int> &result, const std::string &type, const int nruns, const int lastrunexclusive) const
 {
-  odbc::Connection *con = 0;
-  odbc::Statement *query = 0;
-  odbc::ResultSet *rs = 0;
+  odbc::Connection *con = nullptr;
+  odbc::Statement *query = nullptr;
+  odbc::ResultSet *rs = nullptr;
   std::ostringstream cmd;
 
   try

@@ -267,9 +267,9 @@ int MbdMon::Init()
   se->registerHisto( this, bbc_adc );
   se->registerHisto( this, bbc_tdc );
   se->registerHisto( this, bbc_tdc_overflow );
-  for ( int ipmt = 0 ; ipmt < nPMT_MBD ; ipmt++ )
+  for (auto & ipmt : bbc_tdc_overflow_each)
   {
-    se->registerHisto( this, bbc_tdc_overflow_each[ipmt] );
+    se->registerHisto( this, ipmt );
   }
 
   se->registerHisto( this, bbc_tdc_armhittime );

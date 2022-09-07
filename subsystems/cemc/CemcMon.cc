@@ -115,7 +115,7 @@ int CemcMon::Init()
   cemc_occupancy = new TH2F(h_id.c_str(), "cemc_occupancy plot", 48*2 , -48 , 48, 32*8, -0.5, 255.5 );
   cemc_occupancy->GetXaxis()->SetTitle("eta");
   cemc_occupancy->GetYaxis()->SetTitle("phi");
-  cemc_occupancy->SetStats(0);
+  cemc_occupancy->SetStats(false);
   //cemc_occupancy->SetMinimum(0);
   //  cemc_occupancy->SetMaximum(1200);
 
@@ -123,7 +123,7 @@ int CemcMon::Init()
   cemc_runningmean = new TH2F(h_id.c_str(), "Cemc Running Mean Run 0 Event 0", 48*2 , -48 , 48, 32*8, -0.5, 255.5 );
   cemc_runningmean->GetXaxis()->SetTitle("eta");
   cemc_runningmean->GetYaxis()->SetTitle("phi");
-  cemc_runningmean->SetStats(0);
+  cemc_runningmean->SetStats(false);
   cemc_runningmean->SetMinimum(0);
   cemc_runningmean->SetMaximum(700);
 

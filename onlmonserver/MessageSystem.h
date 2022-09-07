@@ -1,7 +1,7 @@
 #ifndef ONLMONSERVER_MESSAGESYSTEM_H
 #define ONLMONSERVER_MESSAGESYSTEM_H
 
-#include <OnlMonBase.h>
+#include "OnlMonBase.h"
 
 #include <map>
 #include <string>

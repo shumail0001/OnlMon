@@ -133,9 +133,9 @@ int OnlMonDBodbc::CheckAndCreateTable(const std::map<const std::string, OnlMonDB
     // column names are lower case only, so convert string to lowercase
     // The bizarre cast here is needed for newer gccs
     transform(varname.begin(), varname.end(), varname.begin(), (int (*)(int)) tolower);
-    for (short int j = 0; j < 3; j++)
+    for (const auto & j : addvarname)
     {
-      std::string thisvar = varname + addvarname[j];
+      std::string thisvar = varname + j;
       for (unsigned int i = DEFAULTCOLUMNS + 1; i <= nocolumn; i++)
       {
         if (meta->getColumnName(i) == thisvar)
@@ -360,7 +360,7 @@ searchagain:
   std::cout << "cmd: " << cmd.str() << std::endl;
 #endif
 
-  odbc::ResultSet* rs = 0;
+  odbc::ResultSet* rs = nullptr;
 
   try
   {
@@ -484,7 +484,7 @@ searchagain:
     }
     catch (odbc::SQLException& e)
     {
-      std::string errmsg = e.getMessage();
+      const std::string& errmsg = e.getMessage();
       if (errmsg.find("Cannot insert a duplicate key into unique index") != std::string::npos)
       {
 #ifdef VERBOSE
@@ -627,7 +627,7 @@ int OnlMonDBodbc::GetConnection()
     if (con)
     {
       delete con;
-      con = 0;
+      con = nullptr;
     }
     return -1;
   }

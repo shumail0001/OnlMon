@@ -53,68 +53,68 @@ static float xpos[4] = {0.20, 0.35, 0.55, 0.75};
 
 MbdMonDraw::MbdMonDraw(const std::string &name)
   : OnlMonDraw(name),
-  PaveTop(NULL),
-  TextTop(NULL),
+  PaveTop(nullptr),
+  TextTop(nullptr),
   nWarning(0),
-  PadnHitStatus(NULL),
-  TextnHitStatus(NULL),
-  AvrHitTime(NULL),
-  PadAvrHitTime(NULL),
-  ArrowAvrHitTime(NULL),
-  TextAvrHitTime(NULL),
-  FitAvrHitTime(NULL),
-  SouthHitTime(NULL),
-  PadSouthHitTime(NULL),
-  ArrowSouthHitTime(NULL),
-  TextSouthHitTime(NULL),
-  FitSouthHitTime(NULL),
-  NorthHitTime(NULL),
-  PadNorthHitTime(NULL),
-  ArrowNorthHitTime(NULL),
-  TextNorthHitTime(NULL),
-  FitNorthHitTime(NULL),
-  SouthChargeSum(NULL),
-  NorthChargeSum(NULL),
-  PadChargeSum(NULL),
-  TextSouthChargeSum(NULL),
-  TextNorthChargeSum(NULL),
-  TextTzeroZvtx(NULL),
-  PadBbcSummary(NULL),
-  TextBbcSummaryZvertex(NULL),
-  TextBbcSummaryTrigRate(NULL),
-  Zvtx(NULL),
-  Zvtx_bbll1(NULL),
+  PadnHitStatus(nullptr),
+  TextnHitStatus(nullptr),
+  AvrHitTime(nullptr),
+  PadAvrHitTime(nullptr),
+  ArrowAvrHitTime(nullptr),
+  TextAvrHitTime(nullptr),
+  FitAvrHitTime(nullptr),
+  SouthHitTime(nullptr),
+  PadSouthHitTime(nullptr),
+  ArrowSouthHitTime(nullptr),
+  TextSouthHitTime(nullptr),
+  FitSouthHitTime(nullptr),
+  NorthHitTime(nullptr),
+  PadNorthHitTime(nullptr),
+  ArrowNorthHitTime(nullptr),
+  TextNorthHitTime(nullptr),
+  FitNorthHitTime(nullptr),
+  SouthChargeSum(nullptr),
+  NorthChargeSum(nullptr),
+  PadChargeSum(nullptr),
+  TextSouthChargeSum(nullptr),
+  TextNorthChargeSum(nullptr),
+  TextTzeroZvtx(nullptr),
+  PadBbcSummary(nullptr),
+  TextBbcSummaryZvertex(nullptr),
+  TextBbcSummaryTrigRate(nullptr),
+  Zvtx(nullptr),
+  Zvtx_bbll1(nullptr),
 //  Zvtx_zdc(NULL),
 //  Zvtx_zdc_scale3(NULL),
-  Zvtx_bbll1_novtx(NULL),
-  Zvtx_bbll1_narrowvtx(NULL),
+  Zvtx_bbll1_novtx(nullptr),
+  Zvtx_bbll1_narrowvtx(nullptr),
 //  Zvtx_bbll1_zdc(NULL),
-  PadZvtx(NULL),
-  FitZvtx(NULL),
-  ArrowZvtx(NULL),
-  TextZvtx(NULL),
-  TextZvtxNorth(NULL),
-  TextZvtxSouth(NULL),
-  ArmHit(NULL),
-  PadArmHit(NULL),
-  TextArmHit(NULL),
-  ArcArmHit(NULL),
-  Adc(NULL),
-  PadAdc(NULL),
-  PadButton(NULL),
-  PadMultiView(NULL),
-  MultiView1F(NULL),
-  MultiView2F(NULL),
-  PadWarnings(NULL),
-  PaveWarnings(NULL),
-  PadZVertex(NULL),
-  PadTzeroZVertex(NULL),
-  PadZVertexSummary(NULL),
-  TextZVertexExpress(NULL),
-  TextZVertexNotice(NULL),
-  TzeroZvtx(NULL),
-  Prescale_hist(NULL),
-  tspec(NULL)
+  PadZvtx(nullptr),
+  FitZvtx(nullptr),
+  ArrowZvtx(nullptr),
+  TextZvtx(nullptr),
+  TextZvtxNorth(nullptr),
+  TextZvtxSouth(nullptr),
+  ArmHit(nullptr),
+  PadArmHit(nullptr),
+  TextArmHit(nullptr),
+  ArcArmHit(nullptr),
+  Adc(nullptr),
+  PadAdc(nullptr),
+  PadButton(nullptr),
+  PadMultiView(nullptr),
+  MultiView1F(nullptr),
+  MultiView2F(nullptr),
+  PadWarnings(nullptr),
+  PaveWarnings(nullptr),
+  PadZVertex(nullptr),
+  PadTzeroZVertex(nullptr),
+  PadZVertexSummary(nullptr),
+  TextZVertexExpress(nullptr),
+  TextZVertexNotice(nullptr),
+  TzeroZvtx(nullptr),
+  Prescale_hist(nullptr),
+  tspec(nullptr)
 {
   // this TimeOffsetTicks is neccessary to get the time axis right
   TDatime T0(2003, 01, 01, 00, 00, 00);
@@ -335,7 +335,7 @@ int MbdMonDraw::Init()
   return 0;
 }
 
-int MbdMonDraw::ClearWarning( void )
+int MbdMonDraw::ClearWarning( )
 {
   for ( int i = 0 ; i < nWarning ; i++ )
   {
@@ -483,11 +483,11 @@ int MbdMonDraw::MakeCanvas(const std::string &name)
 
     }
 
-    for ( int side = 0 ; side < nSIDE ; side++ )
+    for (auto & side : BoxTdcOver)
     {
-      ifnew( TBox( 0.5, MBD_TDC_OVERFLOW_REGULAR_MIN, nPMT_1SIDE_MBD + .5, MBD_TDC_OVERFLOW_REGULAR_MAX ), BoxTdcOver[side] );
-      BoxTdcOver[side]->SetFillColor( 5 );
-      BoxTdcOver[side]->SetLineColor( 3 );
+      ifnew( TBox( 0.5, MBD_TDC_OVERFLOW_REGULAR_MIN, nPMT_1SIDE_MBD + .5, MBD_TDC_OVERFLOW_REGULAR_MAX ), side );
+      side->SetFillColor( 5 );
+      side->SetLineColor( 3 );
 
     }
     ifnew( TText, TextnHitStatus );
@@ -860,7 +860,7 @@ int MbdMonDraw::Draw(const std::string &what)
 
   if (!gROOT->FindObject("MbdMon1"))
   {
-    TC[0] = NULL;
+    TC[0] = nullptr;
     if ( what == "ALL" || what == "MbdMon1" || what == "BbcMonitor" )
     {
       MakeCanvas("MbdMon1");
@@ -868,7 +868,7 @@ int MbdMonDraw::Draw(const std::string &what)
   }
   if (! gROOT->FindObject("MbdMon2"))
   {
-    TC[1] = NULL;
+    TC[1] = nullptr;
     if ( what == "ALL" || what == "MbdMon2" || what == "VertexMonitor" )
     {
       MakeCanvas("MbdMon2");
@@ -876,7 +876,7 @@ int MbdMonDraw::Draw(const std::string &what)
   }
   if (!gROOT->FindObject("MbdMon3"))
   {
-    TC[2] = NULL;
+    TC[2] = nullptr;
     if ( what == "ALL" || what == "MbdMon3" || what == "BbcMonitor" )
     {
       MakeCanvas("MbdMon3");
@@ -885,7 +885,7 @@ int MbdMonDraw::Draw(const std::string &what)
   // 4th canvas
   if (!gROOT->FindObject("MbdMon4"))
   {
-    TC[3] = NULL;
+    TC[3] = nullptr;
     if ( what == "ALL" || what == "MbdMon4" || what == "VertexMonitor" )
     {
       MakeCanvas("MbdMon4");
@@ -964,14 +964,14 @@ int MbdMonDraw::Draw(const std::string &what)
   {
     // here I assume server is dead and there must be a message saying so
     cout << "SERVER IS DEAD, no bbc_adc" << endl;
-    for (int i = 0; i < nCANVAS; i++)
+    for (auto & i : TC)
     {
-      if (TC[i])
+      if (i)
       {
-        TC[i]->cd();
-        TC[i]->Clear("D");
+        i->cd();
+        i->Clear("D");
 //        DrawDeadServer(transparent[i]);
-        TC[i]->Update();
+        i->Update();
       }
     }
     return -1;
@@ -1414,7 +1414,7 @@ int MbdMonDraw::Draw(const std::string &what)
       else
       {
         double *peakpos = tspec->GetPositionX();
-        peakpos = 0;
+        peakpos = nullptr;
         float centerpeak = peakpos[0];
         float sidepeak[2];
         if (peakpos[2] > peakpos[1])
@@ -2240,10 +2240,10 @@ int MbdMonDraw::MakeHtml(const std::string &what)
 
   vector<string> path;
 
-  path.push_back("TDC Overflow and number of hit for each PMT");
-  path.push_back("Timing Monitor");
-  path.push_back("EXPERT/raw TDC&ADC ,charge sum and raw vertex");
-  path.push_back("Vertex monitor");
+  path.emplace_back("TDC Overflow and number of hit for each PMT");
+  path.emplace_back("Timing Monitor");
+  path.emplace_back("EXPERT/raw TDC&ADC ,charge sum and raw vertex");
+  path.emplace_back("Vertex monitor");
 
   for ( size_t i = 0; i < 4; ++i )
   {

@@ -158,7 +158,7 @@ OnlMonClient::~OnlMonClient()
     }
     delete canvas;
   }
-  __instance = 0;
+  __instance = nullptr;
   return;
 }
 
@@ -203,7 +203,7 @@ int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
           if (histoiter->second->Histo())
           {
             histoiter->second->Histo()->Delete();
-            histoiter->second->Histo(0x0);
+            histoiter->second->Histo(nullptr);
             histoiter->second->ServerHost("UNKNOWN");
             histoiter->second->ServerPort(0);
           }
@@ -261,7 +261,7 @@ int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
     for (listiter = transferlist.begin(); listiter != transferlist.end(); ++listiter)
     {
       std::list<std::string> hlist = listiter->second;
-      hlist.push_back("FrameWorkVars");  // get this histogram by default to get framework info
+      hlist.emplace_back("FrameWorkVars");  // get this histogram by default to get framework info
       if (requestHistoList(listiter->first.first, listiter->first.second, hlist) != 0)
       {
         for (liter = hlist.begin(); liter != hlist.end(); ++liter)
@@ -273,7 +273,7 @@ int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
             if (histoiter->second && histoiter->second->Histo())
             {
               histoiter->second->Histo()->Delete();
-              histoiter->second->Histo(0x0);
+              histoiter->second->Histo(nullptr);
               histoiter->second->ServerHost("UNKNOWN");
               histoiter->second->ServerPort(0);
             }
@@ -536,7 +536,7 @@ int OnlMonClient::requestHistoByName(const std::string &what)
   TSocket sock(hostname.c_str(), moniport);
   TMessage *mess;
   sock.Send(what.c_str());
-  while (1)
+  while (true)
   {
     if (verbosity > 1)
     {
@@ -601,7 +601,7 @@ int OnlMonClient::requestHisto(const char *what, const std::string &hostname, co
   TSocket sock(hostname.c_str(), moniport);
   TMessage *mess;
   sock.Send(what);
-  while (1)
+  while (true)
   {
     sock.Recv(mess);
     if (!mess)  // if server is not up mess is NULL
@@ -763,7 +763,7 @@ OnlMonClient::getDrawer(const std::string &name)
     return iter->second;
   }
   std::cout << "Could not locate drawer" << name << std::endl;
-  return 0;
+  return nullptr;
 }
 
 TH1 *OnlMonClient::getHisto(const std::string &hname)
@@ -869,7 +869,7 @@ int OnlMonClient::UpdateServerHistoMap(const std::string &hname, const std::stri
                 << " port " << MoniPort << std::endl;
       goto noserver;
     }
-    while (1)
+    while (true)
     {
       if (verbosity > 0)
       {
@@ -951,7 +951,7 @@ void OnlMonClient::AddServerHost(const char *hostname)
   }
   else
   {
-    MonitorHosts.push_back(hostname);
+    MonitorHosts.emplace_back(hostname);
   }
   return;
 }
@@ -1123,7 +1123,7 @@ int OnlMonClient::SendCommand(const char *hostname, const int port, const char *
     sock.Close();
     return -1;
   }
-  while (1)
+  while (true)
   {
     sock.Recv(mess);
     if (!mess)  // if server is not up mess is NULL
@@ -1301,7 +1301,7 @@ int OnlMonClient::SetStyleToDefault()
   defaultStyle->SetCanvasColor(0);
   defaultStyle->SetPadBorderMode(0);
   defaultStyle->SetCanvasBorderMode(0);
-  defaultStyle->SetPalette(1, 0);
+  defaultStyle->SetPalette(1, nullptr);
   return 0;
 }
 
@@ -1326,8 +1326,8 @@ void OnlMonClient::CacheRunDB(const int runnoinput)
     standalone = 1;
     return;
   }
-  odbc::Connection *con = 0;
-  odbc::Statement *query = 0;
+  odbc::Connection *con = nullptr;
+  odbc::Statement *query = nullptr;
   std::ostringstream cmd;
   try
   {
@@ -1341,7 +1341,7 @@ void OnlMonClient::CacheRunDB(const int runnoinput)
 
   query = con->createStatement();
   cmd << "select runnumber from run where runnumber = " << runno;
-  odbc::ResultSet *rs = 0;
+  odbc::ResultSet *rs = nullptr;
   int ncount = 10;
   while (ncount > 0)
   {

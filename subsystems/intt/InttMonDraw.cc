@@ -189,7 +189,7 @@ void InttMonDraw ::DrawIntt(int opt)
 
     InttCanvas[opt]->Update();
     InttCanvas[opt]->Show();
-    InttCanvas[opt]->SetEditable(0);
+    InttCanvas[opt]->SetEditable(false);
   }
 }
 

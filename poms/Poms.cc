@@ -49,14 +49,14 @@ const char* pomsFileTypes[] =
     {
         "PHENIX raw data files", "*.prdf",
         "All files", "*",
-        0, 0};
+        nullptr, nullptr};
 
 /////////////////////////////////////////////////////////////////////////////
 // PomsMainFrame Implementation                                            //
 /////////////////////////////////////////////////////////////////////////////
 
 // Init Singleton instance
-PomsMainFrame* PomsMainFrame::_instance = 0;
+PomsMainFrame* PomsMainFrame::_instance = nullptr;
 
 PomsMainFrame* PomsMainFrame::Instance()
 {
@@ -121,7 +121,7 @@ PomsMainFrame::PomsMainFrame(const TGWindow* p, UInt_t w, UInt_t h)
 
   // Standard Window Setup functions
   SetWindowName("POMS: PHENIX Online Monitoring System");
-  _shutter = NULL;
+  _shutter = nullptr;
 }
 
 void PomsMainFrame::SetMacroPath(const char* path)
@@ -428,7 +428,7 @@ void PomsMainFrame::TileAllCanvases()
 SubSystem::SubSystem(const char* name, const char* prefix, int loadLibrary)
   : _name(name)
   , _prefix(prefix)
-  , _canvasList(0)
+  , _canvasList(nullptr)
   , _initialized(0)
 {
   std::string macroPath;
@@ -533,7 +533,7 @@ void SubSystem::ShowCanvases()
 
 SubSystemAction* SubSystem::AddAction(const char* cmd, const char* description)
 {
-  SubSystemAction* action = 0;
+  SubSystemAction* action = nullptr;
 
   try
   {
@@ -649,7 +649,7 @@ SubSystemAction::SubSystemAction(SubSystem* parent, const char* cmd, const char*
 
 SubSystemAction::~SubSystemAction()
 {
-  _map[_id] = 0;
+  _map[_id] = nullptr;
 }
 
 int SubSystemAction::Execute()
@@ -665,7 +665,7 @@ int SubSystemAction::Execute()
   }
 
   TSeqCollection* allCanvases = gROOT->GetListOfCanvases();
-  TCanvas* canvas = NULL;
+  TCanvas* canvas = nullptr;
   while ((canvas = (TCanvas*) allCanvases->First()))
   {
     std::cout << "Deleting Canvas " << canvas->GetName() << std::endl;
@@ -699,7 +699,7 @@ int SubSystemActionDraw::Execute()
   }
 
   TSeqCollection* allCanvases = gROOT->GetListOfCanvases();
-  TCanvas* canvas = NULL;
+  TCanvas* canvas = nullptr;
   while ((canvas = (TCanvas*) allCanvases->First()))
   {
     std::cout << "Deleting Canvas " << canvas->GetName() << std::endl;

@@ -1,8 +1,8 @@
-#include <runningMean.h>
+#include "runningMean.h"
 
 runningMean::runningMean()
 {
-  refArray = 0;
+  refArray = nullptr;
 }
 
 runningMean::~runningMean()
@@ -13,7 +13,7 @@ runningMean::~runningMean()
 int runningMean::setRefArray(const double darr[])
 {
   int i;
-  if (refArray ==0) 
+  if (refArray ==nullptr) 
     {
       refArray = new double[getNumberofChannels()];
     }
@@ -26,7 +26,7 @@ int runningMean::setRefArray(const double darr[])
 int runningMean::setRefChannel(const int channel, const double refvalue)
 {
   int i;
-  if (refArray ==0) 
+  if (refArray ==nullptr) 
     {
       refArray = new double[getNumberofChannels()];
       for (i=0; i< getNumberofChannels(); i++) refArray[i] = 0;
@@ -41,7 +41,7 @@ int runningMean::setRefChannel(const int channel, const double refvalue)
 int runningMean::setAsReference()
 {
   int i;
-  if (refArray ==0) 
+  if (refArray ==nullptr) 
     {
       refArray = new double[getNumberofChannels()];
     }
@@ -51,7 +51,7 @@ int runningMean::setAsReference()
 
 double runningMean::getReference(const int channel) const
 {
-  if (refArray ==0) return 0;
+  if (refArray ==nullptr) return 0;
 
   if (channel < 0 || channel >= getNumberofChannels() ) return 0;
   return refArray[channel];
@@ -59,7 +59,7 @@ double runningMean::getReference(const int channel) const
 
 double runningMean::getPercentDeviation(const int channel) const
 {
-  if (refArray ==0) return 0;
+  if (refArray ==nullptr) return 0;
 
    if (channel < 0 || channel >= getNumberofChannels() ) return 0;
 

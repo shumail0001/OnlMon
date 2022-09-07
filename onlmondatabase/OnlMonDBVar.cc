@@ -1,13 +1,13 @@
-#include <OnlMonDBVar.h>
+#include "OnlMonDBVar.h"
 
 #include <cmath>
 #include <iostream>
 
 OnlMonDBVar::OnlMonDBVar()
 {
-  for (short i = 0; i < 3; i++)
+  for (float & i : val)
   {
-    val[i] = NAN;
+    i = NAN;
   }
   return;
 }

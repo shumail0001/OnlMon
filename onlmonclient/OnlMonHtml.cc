@@ -124,7 +124,7 @@ void OnlMonHtml::addMenu(const std::string& header, const std::string& path,
   char str[1024];
   while (in.getline(str, 1024, '\n'))
   {
-    lines.push_back(str);
+    lines.emplace_back(str);
   }
   in.close();
 
@@ -343,7 +343,7 @@ void OnlMonHtml::runInit()
     mkdirlist.push_back(fulldir.str());
     std::string updir = fulldir.str();
     std::string::size_type pos1;
-    while ((pos1 = updir.rfind("/")) != std::string::npos)
+    while ((pos1 = updir.rfind('/')) != std::string::npos)
     {
       updir.erase(pos1, updir.size());
       htdir = opendir(updir.c_str());

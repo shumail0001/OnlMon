@@ -49,7 +49,7 @@ int OnlMonStatusDB::CheckAndCreateTable()
   }
   catch (odbc::SQLException& e)
   {
-    std::string message = e.getMessage();
+    const std::string& message = e.getMessage();
     if (message.find("does not exist") == std::string::npos)
     {
       std::cout << "Exception caught" << std::endl;
@@ -100,7 +100,7 @@ int OnlMonStatusDB::CheckAndCreateMonitor(const std::string& name)
   }
   catch (odbc::SQLException& e)
   {
-    std::string exceptionmessage = e.getMessage();
+    const std::string& exceptionmessage = e.getMessage();
     if (exceptionmessage.find("not found in result set") != std::string::npos)
     {
       cmd.str("");
@@ -214,7 +214,7 @@ int OnlMonStatusDB::UpdateStatus(const std::string& name, const int runnumber, c
       << " = " << status
       << " where runnumber = "
       << runnumber;
-  odbc::Statement* stmtupd = 0;
+  odbc::Statement* stmtupd = nullptr;
   try
   {
     stmtupd = con->createStatement();
