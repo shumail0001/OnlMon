@@ -59,7 +59,7 @@ int EpdMonDraw::MakeCanvas(const std::string &name)
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
     transparent[0]->SetFillStyle(4000);
     transparent[0]->Draw();
-    TC[0]->SetEditable(0);
+    TC[0]->SetEditable(false);
   }
   else if (name == "EpdMon2")
   {
@@ -74,7 +74,7 @@ int EpdMonDraw::MakeCanvas(const std::string &name)
     transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
     transparent[1]->SetFillStyle(4000);
     transparent[1]->Draw();
-    TC[1]->SetEditable(0);
+    TC[1]->SetEditable(false);
   }
   else if (name == "EpdMon3")
   {
@@ -129,7 +129,7 @@ int EpdMonDraw::DrawFirst(const std::string & /* what */)
   {
     MakeCanvas("EpdMon1");
   }
-  TC[0]->SetEditable(1);
+  TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   Pad[0]->cd();
   if (epdmon_hist1)
@@ -139,7 +139,7 @@ int EpdMonDraw::DrawFirst(const std::string & /* what */)
   else
   {
     DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(0);
+    TC[0]->SetEditable(false);
     return -1;
   }
   Pad[1]->cd();
@@ -163,7 +163,7 @@ int EpdMonDraw::DrawFirst(const std::string & /* what */)
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[0]->Update();
   TC[0]->Show();
-  TC[0]->SetEditable(0);
+  TC[0]->SetEditable(false);
   return 0;
 }
 
@@ -176,7 +176,7 @@ int EpdMonDraw::DrawSecond(const std::string & /* what */)
   {
     MakeCanvas("EpdMon2");
   }
-  TC[1]->SetEditable(1);
+  TC[1]->SetEditable(true);
   TC[1]->Clear("D");
   Pad[2]->cd();
   if (epdmon_hist1)
@@ -186,7 +186,7 @@ int EpdMonDraw::DrawSecond(const std::string & /* what */)
   else
   {
     DrawDeadServer(transparent[1]);
-    TC[1]->SetEditable(0);
+    TC[1]->SetEditable(false);
     return -1;
   }
   Pad[3]->cd();
@@ -210,7 +210,7 @@ int EpdMonDraw::DrawSecond(const std::string & /* what */)
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[1]->Update();
   TC[1]->Show();
-  TC[1]->SetEditable(0);
+  TC[1]->SetEditable(false);
   return 0;
 }
 
