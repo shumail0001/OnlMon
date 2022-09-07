@@ -3,7 +3,7 @@
 int InttMonDraw ::Draw(const std::string& what = "ALL")
 {
   int opt = 0;  //Unnormalized HitMap
-  if (what == "ALL" or what == WHAT[opt])
+  if (what == "ALL" || what == WHAT[opt])
   {
     OnlMonClient* omc = OnlMonClient::instance();
 
@@ -43,7 +43,7 @@ int InttMonDraw ::Draw(const std::string& what = "ALL")
 
 void InttMonDraw ::DrawIntt(int opt)
 {
-  if (!(0 <= opt and opt < OPT)) return;
+  if (!(0 <= opt && opt < OPT)) return;
 
   if (!InttCanvas[opt])
   {
@@ -477,8 +477,8 @@ void InttMonDraw ::SetExec(TPad* pad, int opt, int layer)
 {
   layer -= LAYER_OFFSET;
 
-  if (!(0 <= opt and opt < OPT)) return;
-  if (!(0 <= layer and layer < LAYER)) return;
+  if (!(0 <= opt && opt < OPT)) return;
+  if (!(0 <= layer && layer < LAYER)) return;
 
   std::stringstream func_str;
   func_str << CMND_NAME[opt] << "(" << layer + LAYER_OFFSET << ")";
