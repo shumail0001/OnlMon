@@ -4,7 +4,7 @@
 #include "OnlMonStatusDB.h"
 #include "OnlMonTrigger.h"
 
-#include <MessageSystem.h>
+#include "MessageSystem.h"
 
 #include <Event/msg_profile.h>  // for MSG_SEV_ERROR, MSG_SEV...
 
@@ -154,7 +154,7 @@ void OnlMonServer::registerHisto(const std::string &monitorname, const std::stri
 
 void OnlMonServer::registerHisto(const std::string &hname, TH1 *h1d, const int replace)
 {
-  const std::string tmpstr = hname;
+  const std::string& tmpstr = hname;
   std::map<const std::string, TH1 *>::const_iterator histoiter = Histo.find(tmpstr);
   std::ostringstream msg;
   int histoexist;
@@ -166,7 +166,7 @@ void OnlMonServer::registerHisto(const std::string &hname, TH1 *h1d, const int r
   }
   else
   {
-    delhis = 0;
+    delhis = nullptr;
     histoexist = 0;
   }
   if (histoexist && replace == 0)
@@ -501,7 +501,7 @@ int OnlMonServer::WriteHistoFile()
   utsname ThisNode;
   uname(&ThisNode);
   std::string nn = ThisNode.nodename;
-  std::string mm = nn.substr(0, nn.find("."));  // strip the domain (all chars after first .)
+  std::string mm = nn.substr(0, nn.find('.'));  // strip the domain (all chars after first .)
   std::ostringstream dirname, filename;
   // filename is Run_<runno>_<monitor>_<nodename>.root
   if (getenv("ONLMON_SAVEDIR"))
@@ -552,7 +552,7 @@ int OnlMonServer::WriteHistoFile()
     hfile->Close();
     delete hfile;
   }
-  TFile *hfile = 0;
+  TFile *hfile = nullptr;
   filename.str("");
   filename << dirname.str() << "Run_" << irun << "_" << mm << "_"
            << PortNumber() << ".root";
@@ -713,7 +713,7 @@ int OnlMonServer::parse_granuleDef(std::set<std::string> &pcffilelist)
   }
   getline(infile, FullLine);
   boost::char_separator<char> sep("/");
-  typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+  using tokenizer = boost::tokenizer<boost::char_separator<char>>;
   while (!infile.eof())
   {
     if (FullLine.find("label:") != std::string::npos)
@@ -760,14 +760,14 @@ int OnlMonServer::LoadLL1Packets()
       if ((pos1 = FullLine.find("autogenerate_default0")) != std::string::npos)
       {
         FullLine.erase(0, pos1);  // erase all before autogenerate_default0 std::string
-        if ((pos1 = FullLine.find(",")) != std::string::npos)
+        if ((pos1 = FullLine.find(',')) != std::string::npos)
         {
           FullLine.erase(0, pos1 + 1);  // erase all before and including , std::string
           // erase the next 20 fields separated by , (hitformat and size)
           int n = 0;
           while (n++ <= 20)
           {
-            if ((pos1 = FullLine.find(",")) != std::string::npos)
+            if ((pos1 = FullLine.find(',')) != std::string::npos)
             {
               FullLine.erase(0, pos1 + 1);  // erase all before and including , std::string
             }
@@ -775,7 +775,7 @@ int OnlMonServer::LoadLL1Packets()
           // whats left is the comma separated list of ll1 packets
           while (FullLine.size() > 0)
           {
-            pos1 = FullLine.find(",");
+            pos1 = FullLine.find(',');
             std::string packetidstr;
             if (pos1 != std::string::npos)
             {
@@ -855,9 +855,9 @@ void OnlMonServer::parse_pcffile(const std::string &lfn)
     if ((pos1 = FullLine.find("packetid")) != std::string::npos)
     {
       FullLine.erase(0, pos1);  // erase all before packetid std::string
-      while ((pos1 = FullLine.find(":")) != std::string::npos)
+      while ((pos1 = FullLine.find(':')) != std::string::npos)
       {
-        pos2 = FullLine.find(",");
+        pos2 = FullLine.find(',');
         // search the int between the ":" and the ","
         std::string packetidstr = FullLine.substr(pos1 + 1, pos2 - (pos1 + 1));
         std::istringstream line;
@@ -989,8 +989,8 @@ int OnlMonServer::CacheRunDB(const int runnoinput)
     standalone = 1;
     return 0;
   }
-  odbc::Connection *con = 0;
-  odbc::Statement *query = 0;
+  odbc::Connection *con = nullptr;
+  odbc::Statement *query = nullptr;
   std::ostringstream cmd;
   int iret = 0;
   try
@@ -1005,7 +1005,7 @@ int OnlMonServer::CacheRunDB(const int runnoinput)
 
   query = con->createStatement();
   cmd << "select runnumber from run where runnumber = " << runno;
-  odbc::ResultSet *rs = 0;
+  odbc::ResultSet *rs = nullptr;
   int ncount = 10;
   while (ncount > 0)
   {

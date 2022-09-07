@@ -59,7 +59,7 @@ static TThread *ServerThread = nullptr;
 #endif
 
 pthread_mutex_t mutex;
-TH1 *FrameWorkVars = 0;
+TH1 *FrameWorkVars = nullptr;
 
 //*********************************************************************
 
@@ -412,7 +412,7 @@ void handleconnection(void *arg)
   */
   TMessage *mess = nullptr;
   TMessage outgoing(kMESS_OBJECT);
-  while (1)
+  while (true)
   {
     if (Onlmonserver->Verbosity() > 2)
     {
@@ -429,7 +429,7 @@ void handleconnection(void *arg)
       char str[64];
       mess->ReadString(str, 64);
       delete mess;
-      mess = 0;
+      mess = nullptr;
       if (Onlmonserver->Verbosity() > 2)
       {
         std::cout << "received message" << str << std::endl;
@@ -463,7 +463,7 @@ void handleconnection(void *arg)
           s0->Send(Onlmonserver->getHistoName(i).c_str());
           int nbytes = s0->Recv(mess);
           delete mess;
-          mess = 0;
+          mess = nullptr;
           if (nbytes <= 0)
           {
             std::ostringstream msg;
@@ -491,7 +491,7 @@ void handleconnection(void *arg)
             outgoing.Reset();
             s0->Recv(mess);
             delete mess;
-            mess = 0;
+            mess = nullptr;
           }
         }
         s0->Send("Finished");
@@ -499,7 +499,7 @@ void handleconnection(void *arg)
       else if (!strcmp(str, "LIST"))
       {
         s0->Send("go");
-        while (1)
+        while (true)
         {
           char strmess[200];
           s0->Recv(mess);
@@ -511,7 +511,7 @@ void handleconnection(void *arg)
           {
             mess->ReadString(strmess, 200);
             delete mess;
-            mess = 0;
+            mess = nullptr;
             if (!strcmp(strmess, "alldone"))
             {
               break;
