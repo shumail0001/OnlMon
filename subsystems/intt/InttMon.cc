@@ -2,7 +2,7 @@
 
 //public methods
 
-int InttMon ::Init()
+int InttMon::Init()
 {
   OnlMonServer* se = OnlMonServer::instance();
 
@@ -72,12 +72,12 @@ int InttMon ::Init()
 
   //...
 
-  dbvars = new OnlMonDB(ThisName);
+  dbvars = new OnlMonDB(Name());
   DBVarInit();
   Reset();
 
   //Read in calibrartion data from InttMonData.dat
-  std::string fullfile = std::string(getenv("INTCALIB")) + "/" + "InttMonData.dat";
+  std::string fullfile = std::string(getenv("INTTCALIB")) + "/" + "InttMonData.dat";
   std::ifstream calib(fullfile);
   //probably need to do stuff here (maybe write to expectation maps)
   //or reimplment in BeginRun()
@@ -91,7 +91,7 @@ int InttMon ::Init()
   return 0;
 }
 
-InttMon ::~InttMon()
+InttMon::~InttMon()
 {
   //delete NumEvents (replace NumEvents with a DBVar most likely)
   delete NumEvents;
@@ -146,14 +146,14 @@ InttMon ::~InttMon()
   delete dbvars;
 }
 
-int InttMon ::BeginRun(const int /* run_num */)
+int InttMon::BeginRun(const int /* run_num */)
 {
   //per-run calibrations; don't think we need to do anything here yet
 
   return 0;
 }
 
-int InttMon ::process_event(Event* /* evt */)
+int InttMon::process_event(Event* /* evt */)
 {
   //dummy method since unpacker is not done yet
   double temp;
@@ -212,7 +212,7 @@ int InttMon ::process_event(Event* /* evt */)
   return 0;
 }
 
-int InttMon ::Reset()
+int InttMon::Reset()
 {
   //reset our DBVars
 
@@ -269,7 +269,7 @@ int InttMon ::Reset()
 }
 
 //protected methods
-int InttMon ::DBVarInit()
+int InttMon::DBVarInit()
 {
   std::string var_name;
 
@@ -283,30 +283,30 @@ int InttMon ::DBVarInit()
   return 0;
 }
 
-bool InttMon ::CheckIndexes(int layer, int ladder, int northsouth, int chip)
+bool InttMon::CheckIndexes(int layer, int ladder, int northsouth, int chip)
 {
   layer -= LAYER_OFFSET;
   chip -= CHIP_OFFSET;
 
-  if (!(0 <= layer and layer < LAYER))
+  if (!(0 <= layer && layer < LAYER))
   {
     std::cout << "Bad LAYER index" << std::endl;
 
     return false;
   }
-  if (!(0 <= ladder and ladder < LADDER[layer]))
+  if (!(0 <= ladder && ladder < LADDER[layer]))
   {
     std::cout << "Bad LADDER index" << std::endl;
 
     return false;
   }
-  if (!(0 <= northsouth and northsouth < NORTHSOUTH))
+  if (!(0 <= northsouth && northsouth < NORTHSOUTH))
   {
     std::cout << "Bad NORTHSOUTH index" << std::endl;
 
     return false;
   }
-  if (!(0 <= chip and chip < CHIP))
+  if (!(0 <= chip && chip < CHIP))
   {
     std::cout << "Bad CHIP index" << std::endl;
 
@@ -316,7 +316,7 @@ bool InttMon ::CheckIndexes(int layer, int ladder, int northsouth, int chip)
   return true;
 }
 
-int InttMon ::GetBin(int& bin, int layer, int ladder, int northsouth, int chip)
+int InttMon::GetBin(int& bin, int layer, int ladder, int northsouth, int chip)
 {
   if (!CheckIndexes(layer, ladder, northsouth, chip)) return 1;
 
@@ -335,11 +335,11 @@ int InttMon ::GetBin(int& bin, int layer, int ladder, int northsouth, int chip)
   return 0;
 }
 
-int InttMon ::GetLadderNorthSouthChip(int bin, int layer, int& ladder, int& northsouth, int& chip)
+int InttMon::GetLadderNorthSouthChip(int bin, int layer, int& ladder, int& northsouth, int& chip)
 {
   layer -= LAYER_OFFSET;
 
-  if (!(0 <= layer and layer < LAYER)) return 1;
+  if (!(0 <= layer && layer < LAYER)) return 1;
   if (!HitMap[layer]) return 1;
 
   int binx;
@@ -366,14 +366,14 @@ int InttMon ::GetLadderNorthSouthChip(int bin, int layer, int& ladder, int& nort
 }
 
 // for testing/debugging without unpacker, remove later
-int InttMon ::MiscDebug()
+int InttMon::MiscDebug()
 {
   //write methods to debug/test here
 
   return 0;
 }
 
-int InttMon ::InitExpectationHists()
+int InttMon::InitExpectationHists()
 {
   double temp;
 
