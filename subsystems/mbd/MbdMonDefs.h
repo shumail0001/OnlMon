@@ -11,8 +11,8 @@ const int tdc_min_overflow = 2600;  // TDC number of max
 const int tdc_max_overflow = 3299;  // TDC number of max
 const float max_armhittime = 22; // Minimum of Tdc-ArmHitTime
 const float min_armhittime = 0; // Maximum od Tdc-ArmHitTime
-static const float TDC_FIT_MAX = 19.0;
-static const float TDC_FIT_MIN =  1.0;
+static const double TDC_FIT_MAX = 19.0; // compatible type with TF::GetParameter(1)
+static const double TDC_FIT_MIN =  1.0;
 static const int   zvtnbin     =  180;
 static const float max_zvertex =  180;
 static const float min_zvertex = -180;
@@ -25,10 +25,8 @@ static const float min_zvertex = -180;
 #define nSIDE 2
 #define nTRIGGER 2
 
-#ifndef MBD_MBDMON_H
-static const char *SIDE_Str[nSIDE] = {"South","North"};
-static const char *TRIGGER_str[nTRIGGER] = {"minimum_bias","laser"};
-#endif
+static const char *SIDE_Str[nSIDE] __attribute__((unused)) = {"South","North"};
+static const char *TRIGGER_str[nTRIGGER] __attribute__((unused)) = {"minimum_bias","laser"};
 
 #define nTDC 1
 //static const char *TDC_STR[nTDC] = {"TDC0","TDC1"};

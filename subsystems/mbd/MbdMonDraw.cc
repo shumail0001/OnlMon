@@ -34,14 +34,15 @@
 #include <vector>  // for vector
 
 using namespace std;
+//using namespace mbd_onlmon;
 
 #ifdef DEBUG
-#define ifdelete(x) if(x!=NULL){ cout << "Delete " << #x << endl; delete x;x=NULL;}
-#define ifnew(t,x) {if(x!=NULL){ cout << "Delete " << #x << endl; delete x;}cout << "New "<< #x << endl;x = new t;}
+#define ifdelete(x) if(x!=nullptr){ cout << "Delete " << #x << endl; delete x;x=nullptr;}
+#define ifnew(t,x) {if(x!=nullptr){ cout << "Delete " << #x << endl; delete x;}cout << "New "<< #x << endl;x = new t;}
 #define PRINT_DEBUG(x) cout<<x<<endl
 #else
-#define ifdelete(x) if(x!=NULL){ delete x;x=NULL;}
-#define ifnew(t,x) {if(x!=NULL){ delete x;}x = new t;}
+#define ifdelete(x) if(x!=nullptr){ delete x;x=nullptr;}
+#define ifnew(t,x) {if(x!=nullptr){ delete x;}x = new t;}
 #define PRINT_DEBUG(x) {};
 #endif
 
@@ -84,11 +85,11 @@ MbdMonDraw::MbdMonDraw(const std::string &name)
   TextBbcSummaryTrigRate(nullptr),
   Zvtx(nullptr),
   Zvtx_bbll1(nullptr),
-//  Zvtx_zdc(NULL),
-//  Zvtx_zdc_scale3(NULL),
+//  Zvtx_zdc(nullptr),
+//  Zvtx_zdc_scale3(nullptr),
   Zvtx_bbll1_novtx(nullptr),
   Zvtx_bbll1_narrowvtx(nullptr),
-//  Zvtx_bbll1_zdc(NULL),
+//  Zvtx_bbll1_zdc(nullptr),
   PadZvtx(nullptr),
   FitZvtx(nullptr),
   ArrowZvtx(nullptr),
@@ -473,11 +474,11 @@ int MbdMonDraw::MakeCanvas(const std::string &name)
       PadnHit[side]->Draw();
       PadnHitStatus->Draw();
 
-      ifnew( TBox( 0.5, MBD_nHIT_MB_MIN[side], nPMT_1SIDE_MBD + .5, MBD_nHIT_MB_MAX[side] ), BoxnHit[0][side] );
+      ifnew( TBox( 0.5, mbd_onlmon::MBD_nHIT_MB_MIN[side], nPMT_1SIDE_MBD + .5, mbd_onlmon::MBD_nHIT_MB_MAX[side] ), BoxnHit[0][side] );
       BoxnHit[0][side]->SetFillColor( 5 );
       BoxnHit[0][side]->SetLineColor( 3 );
 
-      ifnew( TBox( 0.5, MBD_nHIT_LASER_MIN[side], nPMT_1SIDE_MBD + .5, MBD_nHIT_LASER_MAX[side] ), BoxnHit[1][side] );
+      ifnew( TBox( 0.5, mbd_onlmon::MBD_nHIT_LASER_MIN[side], nPMT_1SIDE_MBD + .5, mbd_onlmon::MBD_nHIT_LASER_MAX[side] ), BoxnHit[1][side] );
       BoxnHit[1][side]->SetFillColor( 7 );
       BoxnHit[1][side]->SetLineColor( 4 );
 
@@ -485,7 +486,7 @@ int MbdMonDraw::MakeCanvas(const std::string &name)
 
     for (auto & side : BoxTdcOver)
     {
-      ifnew( TBox( 0.5, MBD_TDC_OVERFLOW_REGULAR_MIN, nPMT_1SIDE_MBD + .5, MBD_TDC_OVERFLOW_REGULAR_MAX ), side );
+      ifnew( TBox( 0.5, mbd_onlmon::MBD_TDC_OVERFLOW_REGULAR_MIN, nPMT_1SIDE_MBD + .5, mbd_onlmon::MBD_TDC_OVERFLOW_REGULAR_MAX ), side );
       side->SetFillColor( 5 );
       side->SetLineColor( 3 );
 
@@ -550,21 +551,21 @@ int MbdMonDraw::MakeCanvas(const std::string &name)
 
     if ( PadAvrHitTime )
     {
-      ifnew( TLine( MBD_MIN_REGULAR_TDC1_MEAN, 0,
-            MBD_MIN_REGULAR_TDC1_MEAN, 10000 ),
+      ifnew( TLine( mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN, 0,
+            mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN, 10000 ),
           LineAvrHitTime[0] );
-      ifnew( TLine( MBD_MAX_REGULAR_TDC1_MEAN, 0,
-            MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
+      ifnew( TLine( mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 0,
+            mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
           LineAvrHitTime[1] );
 
-      ifnew( TArrow( MBD_MIN_REGULAR_TDC1_MEAN, 10000,
-            MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
+      ifnew( TArrow( mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN, 10000,
+            mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
           ArrowAvrHitTime );
       ArrowAvrHitTime->SetOption("<>");
 
       ifnew( TText , TextAvrHitTime );
       TextAvrHitTime->SetTextSize(0.08);
-      TextAvrHitTime->SetText(MBD_MAX_REGULAR_TDC1_MEAN, 10000, " good mean");
+      TextAvrHitTime->SetText(mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 10000, " good mean");
 
       LineAvrHitTime[0]->SetLineColor(9);
       LineAvrHitTime[1]->SetLineColor(9);
@@ -574,21 +575,21 @@ int MbdMonDraw::MakeCanvas(const std::string &name)
 
     if ( PadSouthHitTime )
     {
-      ifnew( TLine( MBD_MIN_REGULAR_TDC1_MEAN, 0,
-            MBD_MIN_REGULAR_TDC1_MEAN, 10000 ),
+      ifnew( TLine( mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN, 0,
+            mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN, 10000 ),
           LineSouthHitTime[0] );
-      ifnew( TLine( MBD_MAX_REGULAR_TDC1_MEAN, 0,
-            MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
+      ifnew( TLine( mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 0,
+            mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
           LineSouthHitTime[1] );
 
-      ifnew( TArrow( MBD_MIN_REGULAR_TDC1_MEAN, 10000,
-            MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
+      ifnew( TArrow( mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN, 10000,
+            mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
           ArrowSouthHitTime );
       ArrowSouthHitTime->SetOption("<>");
 
       ifnew( TText , TextSouthHitTime );
       TextSouthHitTime->SetTextSize(0.08);
-      TextSouthHitTime->SetText(MBD_MAX_REGULAR_TDC1_MEAN, 10000, " good mean");
+      TextSouthHitTime->SetText(mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 10000, " good mean");
 
       LineSouthHitTime[0]->SetLineColor(9);
       LineSouthHitTime[1]->SetLineColor(9);
@@ -599,21 +600,21 @@ int MbdMonDraw::MakeCanvas(const std::string &name)
 
     if ( PadNorthHitTime )
     {
-      ifnew( TLine( MBD_MIN_REGULAR_TDC1_MEAN, 0,
-            MBD_MIN_REGULAR_TDC1_MEAN, 10000 ),
+      ifnew( TLine( mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN, 0,
+            mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN, 10000 ),
           LineNorthHitTime[0] );
-      ifnew( TLine( MBD_MAX_REGULAR_TDC1_MEAN, 0,
-            MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
+      ifnew( TLine( mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 0,
+            mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
           LineNorthHitTime[1] );
 
-      ifnew( TArrow( MBD_MIN_REGULAR_TDC1_MEAN, 10000,
-            MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
+      ifnew( TArrow( mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN, 10000,
+            mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
           ArrowNorthHitTime );
       ArrowNorthHitTime->SetOption("<>");
 
       ifnew( TText , TextNorthHitTime );
       TextNorthHitTime->SetTextSize(0.08);
-      TextNorthHitTime->SetText(MBD_MAX_REGULAR_TDC1_MEAN, 10000, " good mean");
+      TextNorthHitTime->SetText(mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 10000, " good mean");
 
       LineNorthHitTime[0]->SetLineColor(9);
       LineNorthHitTime[1]->SetLineColor(9);
@@ -646,17 +647,17 @@ int MbdMonDraw::MakeCanvas(const std::string &name)
 
     for ( int side = 0 ; side < nSIDE ; side++ )
     {
-      ifnew( TLine( MBD_MIN_REGULAR_TDC1_MEAN, 0, MBD_MIN_REGULAR_TDC1_MEAN, 10000 ), LineHitTime[side][0] );
-      ifnew( TLine( MBD_MAX_REGULAR_TDC1_MEAN, 0, MBD_MAX_REGULAR_TDC1_MEAN, 10000 ), LineHitTime[side][1] );
+      ifnew( TLine( mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN, 0, mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN, 10000 ), LineHitTime[side][0] );
+      ifnew( TLine( mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 0, mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 10000 ), LineHitTime[side][1] );
 
-      ifnew( TArrow( MBD_MIN_REGULAR_TDC1_MEAN, 10000,
-            MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
+      ifnew( TArrow( mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN, 10000,
+            mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 10000 ),
           ArrowHitTime[side] );
       ArrowHitTime[side]->SetOption("<>");
 
       ifnew( TText , TextHitTime[side] );
       TextHitTime[side]->SetTextSize(0.08);
-      TextHitTime[side]->SetText(MBD_MAX_REGULAR_TDC1_MEAN, 10000, " good mean");
+      TextHitTime[side]->SetText(mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN, 10000, " good mean");
 
       LineHitTime[side][0]->SetLineColor(9);
       LineHitTime[side][1]->SetLineColor(9);
@@ -673,22 +674,22 @@ int MbdMonDraw::MakeCanvas(const std::string &name)
       PadZvtx->Draw();
     if ( PadZvtx )
     {
-      ifnew( TLine( MBD_MIN_REGULAR_ZVERTEX_MEAN, 0,
-            MBD_MIN_REGULAR_ZVERTEX_MEAN, 10000 ),
+      ifnew( TLine( mbd_onlmon::MBD_MIN_REGULAR_ZVERTEX_MEAN, 0,
+            mbd_onlmon::MBD_MIN_REGULAR_ZVERTEX_MEAN, 10000 ),
           LineZvtx[0] );
-      ifnew( TLine( MBD_MAX_REGULAR_ZVERTEX_MEAN, 0,
-            MBD_MAX_REGULAR_ZVERTEX_MEAN, 10000 ),
+      ifnew( TLine( mbd_onlmon::MBD_MAX_REGULAR_ZVERTEX_MEAN, 0,
+            mbd_onlmon::MBD_MAX_REGULAR_ZVERTEX_MEAN, 10000 ),
           LineZvtx[1] );
 
-      ifnew( TArrow( MBD_MIN_REGULAR_ZVERTEX_MEAN, 10000,
-            MBD_MAX_REGULAR_ZVERTEX_MEAN, 10000 ),
+      ifnew( TArrow( mbd_onlmon::MBD_MIN_REGULAR_ZVERTEX_MEAN, 10000,
+            mbd_onlmon::MBD_MAX_REGULAR_ZVERTEX_MEAN, 10000 ),
           ArrowZvtx );
       ArrowZvtx->SetOption("<>");
 
 
       ifnew( TText , TextZvtx );
       TextZvtx->SetTextSize(0.08);
-      TextZvtx->SetText(MBD_MAX_REGULAR_ZVERTEX_MEAN, 10000, " good mean");
+      TextZvtx->SetText(mbd_onlmon::MBD_MAX_REGULAR_ZVERTEX_MEAN, 10000, " good mean");
       ifnew( TText , TextZvtxNorth );
       TextZvtxNorth->SetTextSize(0.05);
       TextZvtxNorth->SetText(130, 0, "North");
@@ -786,14 +787,14 @@ int MbdMonDraw::MakeCanvas(const std::string &name)
     for (int i = 0; i < 5; i++)//Run11 pp
     {
       ifnew( TText, TextZVertex[i] );
-      TextZVertex[i]->SetTextColor(MBD_COLOR_ZVTX[i]);
+      TextZVertex[i]->SetTextColor(mbd_onlmon::MBD_COLOR_ZVTX[i]);
       //TextZVertex[i]->SetTextSize(0.15);
       TextZVertex[i]->SetTextSize(0.08);
 
       ifnew( TText, TextZVertex_scale[i] );
       ifnew( TText, TextZVertex_mean[i] );
-      TextZVertex_scale[i]->SetTextColor(MBD_COLOR_ZVTX[i]);
-      TextZVertex_mean[i]->SetTextColor(MBD_COLOR_ZVTX[i]);
+      TextZVertex_scale[i]->SetTextColor(mbd_onlmon::MBD_COLOR_ZVTX[i]);
+      TextZVertex_mean[i]->SetTextColor(mbd_onlmon::MBD_COLOR_ZVTX[i]);
       TextZVertex_scale[i]->SetTextSize(0.08);
       TextZVertex_mean[i]->SetTextSize(0.08);
 
@@ -815,17 +816,17 @@ int MbdMonDraw::MakeCanvas(const std::string &name)
     transparent[3]->SetFillStyle(4000);
     transparent[3]->Draw();
 
-    ifnew( TLine( MBD_MIN_REGULAR_ZVERTEX_MEAN, -6,
-          MBD_MIN_REGULAR_ZVERTEX_MEAN, 16 ),
+    ifnew( TLine( mbd_onlmon::MBD_MIN_REGULAR_ZVERTEX_MEAN, -6,
+          mbd_onlmon::MBD_MIN_REGULAR_ZVERTEX_MEAN, 16 ),
         LineTzeroZvtx[0] );
-    ifnew( TLine( MBD_MAX_REGULAR_ZVERTEX_MEAN, -6,
-          MBD_MAX_REGULAR_ZVERTEX_MEAN, 16 ),
+    ifnew( TLine( mbd_onlmon::MBD_MAX_REGULAR_ZVERTEX_MEAN, -6,
+          mbd_onlmon::MBD_MAX_REGULAR_ZVERTEX_MEAN, 16 ),
         LineTzeroZvtx[1] );
-    ifnew( TLine( -200, MBD_MIN_REGULAR_TDC1_MEAN - 5,
-          200, MBD_MIN_REGULAR_TDC1_MEAN - 5 ),
+    ifnew( TLine( -200, mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN - 5,
+          200, mbd_onlmon::MBD_MIN_REGULAR_TDC1_MEAN - 5 ),
         LineTzeroZvtx[2] );
-    ifnew( TLine( -200, MBD_MAX_REGULAR_TDC1_MEAN - 5,
-          200, MBD_MAX_REGULAR_TDC1_MEAN - 5 ),
+    ifnew( TLine( -200, mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN - 5,
+          200, mbd_onlmon::MBD_MAX_REGULAR_TDC1_MEAN - 5 ),
         LineTzeroZvtx[3] );
     ifnew( TText, TextTzeroZvtx );
 
@@ -978,7 +979,7 @@ int MbdMonDraw::Draw(const std::string &what)
   }
   for ( int trig = 0 ; trig < nTRIGGER ; trig++ )
   {
-    name << "bbc_nhit_" << TRIGGER_str[trig] ;
+    name << "bbc_nhit_" << mbd_onlmon::TRIGGER_str[trig] ;
     bbc_nhit[trig] =  static_cast<TH2 *> (cl->getHisto(name.str().c_str()));
     name.str("");
   }
@@ -1057,12 +1058,12 @@ int MbdMonDraw::Draw(const std::string &what)
   {
     ifdelete( HitTime[side] );
 
-    name << "FitHitTime" << SIDE_Str[side];
+    name << "FitHitTime" << mbd_onlmon::SIDE_Str[side];
     HitTime[side] = bbc_tdc->ProjectionY(name.str().c_str(), side * 64, side * 64 + 63);
     name.str("");
 
-    name << SIDE_Str[side] << " MBD/BBC TDC Distribution" ;
-    //name << SIDE_Str[side] << " MBD/BBC TDC" << tdc << " Distribution(Trigger:BBLL1)" ; // Run14 AuAu 15GeV 2014.02.23
+    name << mbd_onlmon::SIDE_Str[side] << " MBD/BBC TDC Distribution" ;
+    //name << mbd_onlmon::SIDE_Str[side] << " MBD/BBC TDC" << tdc << " Distribution(Trigger:BBLL1)" ; // Run14 AuAu 15GeV 2014.02.23
     HitTime[side]->SetTitle(name.str().c_str());
     ifnew( TF1(name.str().c_str(), "gaus"), FitHitTime[side] );
     name.str("");
@@ -1207,7 +1208,7 @@ int MbdMonDraw::Draw(const std::string &what)
       cout << "FrameTdcOver[" << side << "] = " << (unsigned long)FrameTdcOver[side] << endl;
       BoxTdcOver[side]->Draw();
 
-      name << SIDE_Str[side] << " BBC TDC Distribution" ;
+      name << mbd_onlmon::SIDE_Str[side] << " BBC TDC Distribution" ;
       FrameTdcOver[side]->SetTitle(name.str().c_str());
       name.str("");
 
@@ -1237,7 +1238,7 @@ int MbdMonDraw::Draw(const std::string &what)
             wmsg.erase();
             msg.str("");
           }
-          if ( tdcOverMean[side][i] < MBD_TDC_OVERFLOW_REGULAR_MIN )
+          if ( tdcOverMean[side][i] < mbd_onlmon::MBD_TDC_OVERFLOW_REGULAR_MIN )
           {
             msg.str("");
             msg << "ch " << i + 1 << " is too low ( " << fixed << setprecision(1) << tdcOverMean[side][i] << " #sigma)" ;
@@ -1246,7 +1247,7 @@ int MbdMonDraw::Draw(const std::string &what)
             wmsg.erase();
             msg.str("");
           }
-          if ( tdcOverMean[side][i] > MBD_TDC_OVERFLOW_REGULAR_MAX )
+          if ( tdcOverMean[side][i] > mbd_onlmon::MBD_TDC_OVERFLOW_REGULAR_MAX )
           {
             msg.str("");
             msg << "ch " << i + 1 << " is too high ( " << fixed << setprecision(1) << tdcOverMean[side][i] << " #sigma)" ;
@@ -1255,7 +1256,7 @@ int MbdMonDraw::Draw(const std::string &what)
             wmsg.erase();
             msg.str("");
           }
-          if ( tdcOverMean[side][i] > MBD_TDC_OVERFLOW_REGULAR_RMS_MAX )
+          if ( tdcOverMean[side][i] > mbd_onlmon::MBD_TDC_OVERFLOW_REGULAR_RMS_MAX )
           {
             msg.str("");
             msg << "ch " << i + 1 << " is too wide ( " << fixed << setprecision(1) << tdcOverErrY[side][i] << " #sigma)" ;
@@ -1274,7 +1275,7 @@ int MbdMonDraw::Draw(const std::string &what)
       BoxnHit[0][side]->Draw();
       BoxnHit[1][side]->Draw();
 
-      name << SIDE_Str[side] << " BBC number of Hit per Event" ;
+      name << mbd_onlmon::SIDE_Str[side] << " BBC number of Hit per Event" ;
       FramenHit[side]->SetTitle(name.str().c_str());
       name.str("");
 
@@ -1297,7 +1298,7 @@ int MbdMonDraw::Draw(const std::string &what)
       {
         if ( nhit[0] > 100 )
         {
-          if ( nhitPmt[0][side][i] < MBD_nHIT_MB_MIN[side] )
+          if ( nhitPmt[0][side][i] < mbd_onlmon::MBD_nHIT_MB_MIN[side] )
           {
             //RUN11: to ignore hit rate since ch29 before FEM input is dead.
             //RUN11: to ignore hit rate since the gain for ch40 is unstable.
@@ -1322,7 +1323,7 @@ int MbdMonDraw::Draw(const std::string &what)
             msg.str("");
 
           }
-          if ( nhitPmt[0][side][i] > MBD_nHIT_MB_MAX[side] )
+          if ( nhitPmt[0][side][i] > mbd_onlmon::MBD_nHIT_MB_MAX[side] )
           {
             msg.str("");
             msg << "Too high hit-rate into ch " << i + 1 << " ("
@@ -1337,7 +1338,7 @@ int MbdMonDraw::Draw(const std::string &what)
 
         if ( nhit[1] > 0 )
         {
-          if ( nhitPmt[1][side][i] < MBD_nHIT_LASER_MIN[side] )
+          if ( nhitPmt[1][side][i] < mbd_onlmon::MBD_nHIT_LASER_MIN[side] )
           {
             if (side == 0)
             {
@@ -1414,7 +1415,6 @@ int MbdMonDraw::Draw(const std::string &what)
       else
       {
         double *peakpos = tspec->GetPositionX();
-        peakpos = nullptr;
         float centerpeak = peakpos[0];
         float sidepeak[2];
         if (peakpos[2] > peakpos[1])
@@ -1567,16 +1567,16 @@ int MbdMonDraw::Draw(const std::string &what)
     otext << "South:" << ((float)int(FitSouthHitTime->GetParameter(1)*10)) / 10 << "[ns]  ";
     otext << "North:" << ((float)int(FitNorthHitTime->GetParameter(1)*10)) / 10 << "[ns]  ";
     otext << "...  ";
-    if (MBD_MIN_REGULAR_TDC0_MEAN < FitNorthHitTime->GetParameter(1) &&
-        MBD_MAX_REGULAR_TDC0_MEAN > FitNorthHitTime->GetParameter(1) &&
-        MBD_MIN_REGULAR_TDC0_MEAN < FitSouthHitTime->GetParameter(1) &&
-        MBD_MAX_REGULAR_TDC0_MEAN > FitSouthHitTime->GetParameter(1))
+    if (mbd_onlmon::MBD_MIN_REGULAR_TDC0_MEAN < FitNorthHitTime->GetParameter(1) &&
+        mbd_onlmon::MBD_MAX_REGULAR_TDC0_MEAN > FitNorthHitTime->GetParameter(1) &&
+        mbd_onlmon::MBD_MIN_REGULAR_TDC0_MEAN < FitSouthHitTime->GetParameter(1) &&
+        mbd_onlmon::MBD_MAX_REGULAR_TDC0_MEAN > FitSouthHitTime->GetParameter(1))
       //otext << "OK";
       textok = "                                                         OK";
     else
     {
       textok = " ";
-      if ( MBD_MIN_WORNING_STATISTICS_FOR_ZVERTEX_MEAN > Zvtx->GetEntries() )
+      if ( mbd_onlmon::MBD_MIN_WORNING_STATISTICS_FOR_ZVERTEX_MEAN > Zvtx->GetEntries() )
         otext << "Too low statistics";
       else
         otext << "Change Global-Offset on V124";
@@ -1591,7 +1591,7 @@ int MbdMonDraw::Draw(const std::string &what)
     TextBbcSummaryHitTime[1]->Draw();
 
     // Global offset
-    float delay = (MBD_DEFAULT_OFFSET -
+    float delay = (mbd_onlmon::MBD_DEFAULT_OFFSET -
         ((FitNorthHitTime->GetParameter(1) + FitSouthHitTime->GetParameter(1)) * 0.5)); //[ns]
     otext.str("");
     otext << "   Global offset : ";
@@ -1604,10 +1604,10 @@ int MbdMonDraw::Draw(const std::string &what)
     else
     {
       textok = " ";
-      if (!(MBD_MIN_REGULAR_TDC0_MEAN < FitNorthHitTime->GetParameter(1) &&
-            MBD_MAX_REGULAR_TDC0_MEAN > FitNorthHitTime->GetParameter(1) &&
-            MBD_MIN_REGULAR_TDC0_MEAN < FitSouthHitTime->GetParameter(1) &&
-            MBD_MAX_REGULAR_TDC0_MEAN > FitSouthHitTime->GetParameter(1)))
+      if (!(mbd_onlmon::MBD_MIN_REGULAR_TDC0_MEAN < FitNorthHitTime->GetParameter(1) &&
+            mbd_onlmon::MBD_MAX_REGULAR_TDC0_MEAN > FitNorthHitTime->GetParameter(1) &&
+            mbd_onlmon::MBD_MIN_REGULAR_TDC0_MEAN < FitSouthHitTime->GetParameter(1) &&
+            mbd_onlmon::MBD_MAX_REGULAR_TDC0_MEAN > FitSouthHitTime->GetParameter(1)))
       {
         //otext << "Need to move " << int( -2*delay) << "count";
         otext << "Need to call BBC expert: " << int( -2*delay) << "count shifted";
@@ -1634,17 +1634,17 @@ int MbdMonDraw::Draw(const std::string &what)
     /*
        otext.str("");
        otext << "Mean ZVertex:" << ((float)int(FitZvtx->GetParameter(1)*10)) / 10 << "[cm] ";
-       if(Zvtx->GetEntries() > MBD_MIN_WORNING_STATISTICS_FOR_ZVERTEX_MEAN ) {
+       if(Zvtx->GetEntries() > mbd_onlmon::MBD_MIN_WORNING_STATISTICS_FOR_ZVERTEX_MEAN ) {
        otext << "( sigma " << ((float)int(FitZvtx->GetParameter(2)*10)) / 10 << "cm)";
        }else{
     // otext << "( RMS " << ((float)int(Zvtx->GetRMS()*10)) / 10 << "cm)";
     }
     otext << " ... ";
-    if ( MBD_MIN_REGULAR_ZVERTEX_MEAN < FitZvtx->GetParameter(1) &&
-    MBD_MAX_REGULAR_ZVERTEX_MEAN > FitZvtx->GetParameter(1) )
+    if ( mbd_onlmon::MBD_MIN_REGULAR_ZVERTEX_MEAN < FitZvtx->GetParameter(1) &&
+    mbd_onlmon::MBD_MAX_REGULAR_ZVERTEX_MEAN > FitZvtx->GetParameter(1) )
     otext << "OK";
     else {
-    if( MBD_MIN_WORNING_STATISTICS_FOR_ZVERTEX_MEAN > Zvtx->GetEntries() )
+    if( mbd_onlmon::MBD_MIN_WORNING_STATISTICS_FOR_ZVERTEX_MEAN > Zvtx->GetEntries() )
     otext << "Too low statistics";
     else
     otext << "Ask SL to contact MCR";
@@ -1679,11 +1679,11 @@ int MbdMonDraw::Draw(const std::string &what)
       int npeak = tspec->Search(HitTime[side],2,"goff"); // finds the highest peak, draws marker
       if (npeak < 3) // no center peak
       {
-        FitHitTime[side]->SetRange( TDC_FIT_MIN, TDC_FIT_MAX );
+        FitHitTime[side]->SetRange( mbd_onlmon::TDC_FIT_MIN, mbd_onlmon::TDC_FIT_MAX );
         HitTime[side]->Fit( FitHitTime[side]->GetName(), "QRNL");
-        rangemax = min( TDC_FIT_MAX ,
+        rangemax = std::min( mbd_onlmon::TDC_FIT_MAX ,
             FitHitTime[side]->GetParameter(1) + FitHitTime[side]->GetParameter(2) );
-        rangemin = max( TDC_FIT_MIN ,
+        rangemin = max( mbd_onlmon::TDC_FIT_MIN ,
             FitHitTime[side]->GetParameter(1) - FitHitTime[side]->GetParameter(2) );
       }
       else
