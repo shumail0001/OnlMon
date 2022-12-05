@@ -25,8 +25,6 @@
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
 
-using namespace mbd_onlmon;
-
 enum
 {
   TRGMESSAGE = 1,
@@ -72,7 +70,7 @@ int MbdMon::Init()
   title << "BBC Raw TDC Distribution" ;
   bbc_tdc = new TH2F(name.str().c_str(), title.str().c_str(),
       nPMT_MBD, -.5, nPMT_MBD - .5,
-      nBIN_TDC, 0, tdc_max_overflow * TDC_CONVERSION_FACTOR );
+      mbd_onlmon::nBIN_TDC, 0, mbd_onlmon::tdc_max_overflow * mbd_onlmon::TDC_CONVERSION_FACTOR );
   name.str("");
   title.str("");
 
@@ -81,8 +79,8 @@ int MbdMon::Init()
   title << "MBD/BBC TDC Overflow Deviation" ;
   bbc_tdc_overflow = new TH2F(name.str().c_str(), title.str().c_str(),
       nPMT_MBD, -.5, nPMT_MBD - .5,
-      int(VIEW_OVERFLOW_MAX - VIEW_OVERFLOW_MIN + 1),
-      VIEW_OVERFLOW_MIN - .5, VIEW_OVERFLOW_MAX + .5 );
+      int(mbd_onlmon::VIEW_OVERFLOW_MAX - mbd_onlmon::VIEW_OVERFLOW_MIN + 1),
+      mbd_onlmon::VIEW_OVERFLOW_MIN - .5, mbd_onlmon::VIEW_OVERFLOW_MAX + .5 );
   name.str("");
   title.str("");
 
@@ -93,15 +91,15 @@ int MbdMon::Init()
     name << "bbc_tdc_overflow_" << std::setw(3) << std::setfill('0') << ipmt ;
     title << "MBD/BBC TDC Overflow Deviation of #" << std::setw(3) << std::setfill('0') << ipmt ;
     bbc_tdc_overflow_each[ipmt] = new TH1F(name.str().c_str(), title.str().c_str(),
-        int(VIEW_OVERFLOW_MAX - VIEW_OVERFLOW_MIN + 1),
-        VIEW_OVERFLOW_MIN, VIEW_OVERFLOW_MAX );
+        int(mbd_onlmon::VIEW_OVERFLOW_MAX - mbd_onlmon::VIEW_OVERFLOW_MIN + 1),
+        mbd_onlmon::VIEW_OVERFLOW_MIN, mbd_onlmon::VIEW_OVERFLOW_MAX );
     name.str("");
     title.str("");
   }
 
   // ADC Distribution --------------------------------------------------------
 
-  bbc_adc = new TH2F("bbc_adc", "MBD/BBC ADC(Charge) Distribution", nPMT_MBD, -.5, nPMT_MBD - .5, nBIN_ADC, 0, MAX_ADC_MIP );
+  bbc_adc = new TH2F("bbc_adc", "MBD/BBC ADC(Charge) Distribution", nPMT_MBD, -.5, nPMT_MBD - .5, mbd_onlmon::nBIN_ADC, 0, mbd_onlmon::MAX_ADC_MIP );
 
   /*
      for ( int trig = 0 ; trig < nTRIGGER ; trig++ )
@@ -118,12 +116,12 @@ int MbdMon::Init()
   */
 
   bbc_tdc_armhittime = new TH2F("bbc_tdc_armhittime", "Arm-Hit-Time Correlation of North and South BBC",
-      64, min_armhittime, max_armhittime,
-      64, min_armhittime, max_armhittime );
+      64, mbd_onlmon::min_armhittime, mbd_onlmon::max_armhittime,
+      64, mbd_onlmon::min_armhittime, mbd_onlmon::max_armhittime );
   bbc_tdc_armhittime->GetXaxis()->SetTitle("South[ns]");
   bbc_tdc_armhittime->GetYaxis()->SetTitle("North[ns]");
 
-  bbc_zvertex = new TH1F("bbc_zvertex", "BBC ZVertex", 128, min_zvertex, max_zvertex );
+  bbc_zvertex = new TH1F("bbc_zvertex", "BBC ZVertex", 128, mbd_onlmon::min_zvertex, mbd_onlmon::max_zvertex );
   bbc_zvertex->GetXaxis()->SetTitle("BBC Raw ZVertex [cm]");
   bbc_zvertex->GetYaxis()->SetTitle("Number of Event");
   bbc_zvertex->GetXaxis()->SetTitleSize( 0.05);
@@ -132,7 +130,7 @@ int MbdMon::Init()
   bbc_zvertex->GetYaxis()->SetTitleOffset(1.75);
 
   bbc_zvertex_bbll1 = new TH1F("bbc_zvertex_bbll1", "BBC ZVertex triggered by BBLL1",
-      zvtnbin, min_zvertex, max_zvertex );
+      mbd_onlmon::zvtnbin, mbd_onlmon::min_zvertex, mbd_onlmon::max_zvertex );
   bbc_zvertex_bbll1->Sumw2();
   bbc_zvertex_bbll1->GetXaxis()->SetTitle("ZVertex [cm]");
   bbc_zvertex_bbll1->GetYaxis()->SetTitle("Number of Event");
@@ -166,7 +164,7 @@ int MbdMon::Init()
   */
 
   bbc_zvertex_bbll1_novtx = new TH1F("bbc_zvertex_bbll1_novtx", "BBC ZVertex triggered by BBLL1(noVtxCut)",
-      zvtnbin/2, min_zvertex, max_zvertex );
+      mbd_onlmon::zvtnbin/2, mbd_onlmon::min_zvertex, mbd_onlmon::max_zvertex );
   bbc_zvertex_bbll1_novtx->Sumw2();
   bbc_zvertex_bbll1_novtx->GetXaxis()->SetTitle("ZVertex [cm]");
   bbc_zvertex_bbll1_novtx->GetYaxis()->SetTitle("Number of Event");
@@ -177,7 +175,7 @@ int MbdMon::Init()
 
   bbc_zvertex_bbll1_narrowvtx = new TH1F("bbc_zvertex_bbll1_narrowvtx",//RUN11 AuAu
       "BBC ZVertex triggered by BBLL1(narrowVtxCut)",
-      zvtnbin, min_zvertex, max_zvertex );
+      mbd_onlmon::zvtnbin, mbd_onlmon::min_zvertex, mbd_onlmon::max_zvertex );
   bbc_zvertex_bbll1_narrowvtx->Sumw2();
   bbc_zvertex_bbll1_narrowvtx->GetXaxis()->SetTitle("ZVertex [cm]");
   bbc_zvertex_bbll1_narrowvtx->GetYaxis()->SetTitle("Number of Event");
@@ -215,8 +213,8 @@ int MbdMon::Init()
   bbc_avr_hittime = new TH1F("bbc_avr_hittime", "BBC Average Hittime", 128, 0, 24 );
   bbc_south_hittime = new TH1F("bbc_south_hittime", "BBC South Hittime", 128, 0, 24 );
   bbc_north_hittime = new TH1F("bbc_north_hittime", "BBC North Hittime", 128, 0, 24 );
-  bbc_south_chargesum = new TH1F("bbc_south_chargesum", "BBC South ChargeSum [MIP]", 128, 0, MAX_CHARGE_SUM );
-  bbc_north_chargesum = new TH1F("bbc_north_chargesum", "BBC North ChargeSum [MIP]", 128, 0, MAX_CHARGE_SUM );
+  bbc_south_chargesum = new TH1F("bbc_south_chargesum", "BBC South ChargeSum [MIP]", 128, 0, mbd_onlmon::MAX_CHARGE_SUM );
+  bbc_north_chargesum = new TH1F("bbc_north_chargesum", "BBC North ChargeSum [MIP]", 128, 0, mbd_onlmon::MAX_CHARGE_SUM );
   bbc_avr_hittime->Sumw2();
   bbc_avr_hittime->GetXaxis()->SetTitle("Avr HitTime [ns]");
   bbc_avr_hittime->GetYaxis()->SetTitle("Number of Event");
