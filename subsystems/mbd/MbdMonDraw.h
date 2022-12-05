@@ -1,8 +1,9 @@
 #ifndef MBD_MBDMONDRAW_H
 #define MBD_MBDMONDRAW_H
 
-#include <onlmon/OnlMonDraw.h>
 #include "MbdMonDefs.h"
+
+#include <onlmon/OnlMonDraw.h>
 
 #include <string>  // for allocator, string
 
@@ -23,8 +24,6 @@ class TArrow;
 class TF1;
 class TLatex;
 class TSpectrum;
-
-using namespace mbd_onlmon;
 
 #define MAX_WARNING 16
 
