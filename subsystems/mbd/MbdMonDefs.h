@@ -58,13 +58,6 @@ static const float MBD_nHIT_LASER_MIN[nSIDE] = { 0.95, 0.95 };
 // Takashi Hachiya
 
 
-/*
-template <class T> inline T min(T a, T b) { return a < b ? a : b; }
-    getPar0
-template <class T> inline T max(T a, T b) { return a > b ? a : b; }
-*/
-double inline min(double a, double b) { return a < b ? a : b; }
-double inline max(double a, double b) { return a > b ? a : b; }
 
 
 
