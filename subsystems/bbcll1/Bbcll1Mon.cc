@@ -3,7 +3,7 @@
 // otherwise you are asking for weird behavior
 // (more info - check the difference in include path search when using "" versus <>)
 
-#include "Mbdll1Mon.h"
+#include "Bbcll1Mon.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
@@ -27,50 +27,50 @@ enum
   FILLMESSAGE = 2
 };
 
-Mbdll1Mon::Mbdll1Mon(const std::string &name)
+Bbcll1Mon::Bbcll1Mon(const std::string &name)
   : OnlMon(name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
-  // during a new Mbdll1Mon()
+  // during a new Bbcll1Mon()
   return;
 }
 
-Mbdll1Mon::~Mbdll1Mon()
+Bbcll1Mon::~Bbcll1Mon()
 {
   // you can delete NULL pointers it results in a NOOP (No Operation)
   delete dbvars;
   return;
 }
 
-int Mbdll1Mon::Init()
+int Bbcll1Mon::Init()
 {
-  // read our calibrations from Mbdll1MonData.dat
-  std::string fullfile = std::string(getenv("MBDLL1CALIB")) + "/" + "Mbdll1MonData.dat";
+  // read our calibrations from Bbcll1MonData.dat
+  std::string fullfile = std::string(getenv("BBCLL1CALIB")) + "/" + "Bbcll1MonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("doing the Init\n");
-  mbdll1hist1 = new TH1F("mbdll1mon_hist1", "test 1d histo", 101, 0., 100.);
-  mbdll1hist2 = new TH2F("mbdll1mon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
+  bbcll1hist1 = new TH1F("bbcll1mon_hist1", "test 1d histo", 101, 0., 100.);
+  bbcll1hist2 = new TH2F("bbcll1mon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
-  se->registerHisto(this, mbdll1hist1);  // uses the TH1->GetName() as key
-  se->registerHisto(this, mbdll1hist2);
+  se->registerHisto(this, bbcll1hist1);  // uses the TH1->GetName() as key
+  se->registerHisto(this, bbcll1hist2);
   dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
   DBVarInit();
   Reset();
   return 0;
 }
 
-int Mbdll1Mon::BeginRun(const int /* runno */)
+int Bbcll1Mon::BeginRun(const int /* runno */)
 {
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
   return 0;
 }
 
-int Mbdll1Mon::process_event(Event * /* evt */)
+int Bbcll1Mon::process_event(Event * /* evt */)
 {
   evtcnt++;
   OnlMonServer *se = OnlMonServer::instance();
@@ -90,19 +90,19 @@ int Mbdll1Mon::process_event(Event * /* evt */)
     se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
   }
   // get temporary pointers to histograms
-  // one can do in principle directly se->getHisto("mbdll1hist1")->Fill()
+  // one can do in principle directly se->getHisto("bbcll1hist1")->Fill()
   // but the search in the histogram Map is somewhat expensive and slows
   // things down if you make more than one operation on a histogram
-  mbdll1hist1->Fill((float) idummy);
-  mbdll1hist2->Fill((float) idummy, (float) idummy, 1.);
+  bbcll1hist1->Fill((float) idummy);
+  bbcll1hist2->Fill((float) idummy, (float) idummy, 1.);
 
   if (idummy++ > 10)
   {
     if (dbvars)
     {
-      dbvars->SetVar("mbdll1moncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-      dbvars->SetVar("mbdll1mondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      dbvars->SetVar("mbdll1monnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
+      dbvars->SetVar("bbcll1moncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
+      dbvars->SetVar("bbcll1mondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
+      dbvars->SetVar("bbcll1monnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
       dbvars->DBcommit();
     }
     std::ostringstream msg;
@@ -113,7 +113,7 @@ int Mbdll1Mon::process_event(Event * /* evt */)
   return 0;
 }
 
-int Mbdll1Mon::Reset()
+int Bbcll1Mon::Reset()
 {
   // reset our internal counters
   evtcnt = 0;
@@ -121,15 +121,15 @@ int Mbdll1Mon::Reset()
   return 0;
 }
 
-int Mbdll1Mon::DBVarInit()
+int Bbcll1Mon::DBVarInit()
 {
   // variable names are not case sensitive
   std::string varname;
-  varname = "mbdll1moncount";
+  varname = "bbcll1moncount";
   dbvars->registerVar(varname);
-  varname = "mbdll1mondummy";
+  varname = "bbcll1mondummy";
   dbvars->registerVar(varname);
-  varname = "mbdll1monnew";
+  varname = "bbcll1monnew";
   dbvars->registerVar(varname);
   if (verbosity > 0)
   {
