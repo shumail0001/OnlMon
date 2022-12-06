@@ -1,1 +1,1 @@
-export MBDCALIB=$ONLMON_CALIB/mbd
+export BBCCALIB=$ONLMON_CALIB/mbd

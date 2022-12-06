@@ -1,7 +1,7 @@
-#ifndef MBD_MBDMONDRAW_H
-#define MBD_MBDMONDRAW_H
+#ifndef BBC_BBCMONDRAW_H
+#define BBC_BBCMONDRAW_H
 
-#include "MbdMonDefs.h"
+#include "BbcMonDefs.h"
 
 #include <onlmon/OnlMonDraw.h>
 
@@ -27,12 +27,12 @@ class TSpectrum;
 
 #define MAX_WARNING 16
 
-class MbdMonDraw : public OnlMonDraw
+class BbcMonDraw : public OnlMonDraw
 {
  public:
-  MbdMonDraw(const std::string &name = "MBDMON"); // same name as server!
+  BbcMonDraw(const std::string &name = "BBCMON"); // same name as server!
 
-  ~MbdMonDraw() override;
+  ~BbcMonDraw() override;
 
   int Init() override;
   int Draw(const std::string &what = "ALL") override;
@@ -40,7 +40,7 @@ class MbdMonDraw : public OnlMonDraw
   int MakeHtml(const std::string &what = "ALL") override;
 
  protected:
-  TStyle *mbdStyle;
+  TStyle *bbcStyle;
   
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
@@ -192,4 +192,4 @@ class MbdMonDraw : public OnlMonDraw
 
 };
 
-#endif /* MBD_MBDMONDRAW_H */
+#endif /* BBC_BBCMONDRAW_H */

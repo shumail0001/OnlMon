@@ -1,5 +1,5 @@
-#ifndef MBD_MBDMON_H
-#define MBD_MBDMON_H
+#ifndef BBC_BBCMON_H
+#define BBC_BBCMON_H
 
 #include <onlmon/OnlMon.h>
 
@@ -9,11 +9,11 @@ class TH1;
 class TH2;
 class TRandom3;
 
-class MbdMon : public OnlMon
+class BbcMon : public OnlMon
 {
  public:
-  MbdMon(const std::string &name = "MBDMON");
-  virtual ~MbdMon();
+  BbcMon(const std::string &name = "BBCMON");
+  virtual ~BbcMon();
 
   int process_event(Event *evt);
   int Init();                     // Done once at start of server
@@ -56,4 +56,4 @@ class MbdMon : public OnlMon
   TRandom3 *trand3;
 };
 
-#endif /* MBD_MBDMON_H */
+#endif /* BBC_BBCMON_H */

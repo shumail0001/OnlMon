@@ -1,1 +1,1 @@
-setenv MBDCALIB $ONLMON_CALIB/mbd
+setenv BBCCALIB $ONLMON_CALIB/mbd
