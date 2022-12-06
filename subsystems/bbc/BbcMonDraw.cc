@@ -51,69 +51,7 @@ static float xpos[4] = {0.20, 0.35, 0.55, 0.75};
 
 
 BbcMonDraw::BbcMonDraw(const std::string &name)
-  : OnlMonDraw(name),
-  PaveTop(nullptr),
-  TextTop(nullptr),
-  nWarning(0),
-  PadnHitStatus(nullptr),
-  TextnHitStatus(nullptr),
-  AvrHitTime(nullptr),
-  PadAvrHitTime(nullptr),
-  ArrowAvrHitTime(nullptr),
-  TextAvrHitTime(nullptr),
-  FitAvrHitTime(nullptr),
-  SouthHitTime(nullptr),
-  PadSouthHitTime(nullptr),
-  ArrowSouthHitTime(nullptr),
-  TextSouthHitTime(nullptr),
-  FitSouthHitTime(nullptr),
-  NorthHitTime(nullptr),
-  PadNorthHitTime(nullptr),
-  ArrowNorthHitTime(nullptr),
-  TextNorthHitTime(nullptr),
-  FitNorthHitTime(nullptr),
-  SouthChargeSum(nullptr),
-  NorthChargeSum(nullptr),
-  PadChargeSum(nullptr),
-  TextSouthChargeSum(nullptr),
-  TextNorthChargeSum(nullptr),
-  TextTzeroZvtx(nullptr),
-  PadBbcSummary(nullptr),
-  TextBbcSummaryZvertex(nullptr),
-  TextBbcSummaryTrigRate(nullptr),
-  Zvtx(nullptr),
-  Zvtx_bbll1(nullptr),
-//  Zvtx_zdc(nullptr),
-//  Zvtx_zdc_scale3(nullptr),
-  Zvtx_bbll1_novtx(nullptr),
-  Zvtx_bbll1_narrowvtx(nullptr),
-//  Zvtx_bbll1_zdc(nullptr),
-  PadZvtx(nullptr),
-  FitZvtx(nullptr),
-  ArrowZvtx(nullptr),
-  TextZvtx(nullptr),
-  TextZvtxNorth(nullptr),
-  TextZvtxSouth(nullptr),
-  ArmHit(nullptr),
-  PadArmHit(nullptr),
-  TextArmHit(nullptr),
-  ArcArmHit(nullptr),
-  Adc(nullptr),
-  PadAdc(nullptr),
-  PadButton(nullptr),
-  PadMultiView(nullptr),
-  MultiView1F(nullptr),
-  MultiView2F(nullptr),
-  PadWarnings(nullptr),
-  PaveWarnings(nullptr),
-  PadZVertex(nullptr),
-  PadTzeroZVertex(nullptr),
-  PadZVertexSummary(nullptr),
-  TextZVertexExpress(nullptr),
-  TextZVertexNotice(nullptr),
-  TzeroZvtx(nullptr),
-  Prescale_hist(nullptr),
-  tspec(nullptr)
+  : OnlMonDraw(name)
 {
   // this TimeOffsetTicks is neccessary to get the time axis right
   TDatime T0(2003, 01, 01, 00, 00, 00);
@@ -705,23 +643,20 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     PadChargeSum->SetLogy();
     PadChargeSum->Draw();
 
-    if ( PadChargeSum )
-    {
-      ifnew( TText , TextNorthChargeSum );
-      // SetNDC(): this will use normalized coordinates (0-1/0-1) for drawing no matter what the histogram uses
-      TextNorthChargeSum->SetNDC();
-      TextNorthChargeSum->SetTextSize(0.08);
-      TextNorthChargeSum->SetText(0.3, 0.8, "--North");    //for p+p
-      TextNorthChargeSum->SetTextColor(4);
+    ifnew( TText , TextNorthChargeSum );
+    // SetNDC(): this will use normalized coordinates (0-1/0-1) for drawing no matter what the histogram uses
+    TextNorthChargeSum->SetNDC();
+    TextNorthChargeSum->SetTextSize(0.08);
+    TextNorthChargeSum->SetText(0.3, 0.8, "--North");    //for p+p
+    TextNorthChargeSum->SetTextColor(4);
 
-      ifnew( TText , TextSouthChargeSum );
-      // SetNDC(): this will use normalized coordinates (0-1/0-1) for drawing no matter what the histogram uses
-      TextSouthChargeSum->SetNDC();
-      TextSouthChargeSum->SetTextSize(0.08);
-      TextSouthChargeSum->SetText(0.6, 0.8, "--South");    //for p+p
-      TextSouthChargeSum->SetTextColor(2);
+    ifnew( TText , TextSouthChargeSum );
+    // SetNDC(): this will use normalized coordinates (0-1/0-1) for drawing no matter what the histogram uses
+    TextSouthChargeSum->SetNDC();
+    TextSouthChargeSum->SetTextSize(0.08);
+    TextSouthChargeSum->SetText(0.6, 0.8, "--South");    //for p+p
+    TextSouthChargeSum->SetTextColor(2);
 
-    }
 
 
     PadAdc = new TPad("PadAdc" , "PadAdc" , 0.00, 0.00, 1.00, 0.30, 0, 0, 0);
@@ -1355,7 +1290,7 @@ int BbcMonDraw::Draw(const std::string &what)
               wmsg.erase();
               msg.str("");
             }
-            else if (side == 1) //North
+            else //North
             {
               msg.str("");
               msg << "Lack of laser's hit into ch " << i + 1 << " ("
@@ -1582,7 +1517,7 @@ int BbcMonDraw::Draw(const std::string &what)
     text = otext.str();
     TextBbcSummaryHitTime[0]->SetText(0.01, 0.75, text.c_str() );
     TextBbcSummaryHitTime[0]->Draw();
-    text = textok.c_str();
+    text = textok;
     //TextBbcSummaryHitTime[1]->SetText(0.65, 0.75, text.c_str() );
     TextBbcSummaryHitTime[1]->SetText(0.01, 0.75, text.c_str() );
     TextBbcSummaryHitTime[1]->SetTextColor(3);
@@ -1625,7 +1560,7 @@ int BbcMonDraw::Draw(const std::string &what)
     TextBbcSummaryGlobalOffset[1]->SetText(0.01, 0.50, text.c_str() );
     TextBbcSummaryGlobalOffset[1]->SetTextColor(3);
     TextBbcSummaryGlobalOffset[1]->Draw();
-    textok = " ";
+    // textok = " ";
 
 
     // ZVertex
@@ -2063,7 +1998,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
   //******************************************
   int iret = 0;
-  int idraw = 0;
+//  int idraw = 0;
   /*
      if (what == "ALL" || what == "FIRST")
      {
@@ -2079,7 +2014,7 @@ int BbcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "HISTORY")
   {
     iret += DrawHistory(what);
-    idraw++;
+//    idraw++;
   }
 
   /*
