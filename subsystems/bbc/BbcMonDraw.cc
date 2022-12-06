@@ -35,39 +35,12 @@
 #include <vector>  // for vector
 
 #ifdef DEBUG
-#define ifdelete(x)                            \
-  if (x != nullptr)                            \
-  {                                            \
-    std::cout << "Delete " << #x << std::endl; \
-    delete x;                                  \
-    x = nullptr;                               \
-  }
-#define ifnew(t, x)                              \
-  {                                              \
-    if (x != nullptr)                            \
-    {                                            \
-      std::cout << "Delete " << #x << std::endl; \
-      delete x;                                  \
-    }                                            \
-    std::cout << "New " << #x << std::endl;      \
-    x = new t;                                   \
-  }
-#define PRINT_DEBUG(x) std::cout << x << std::endl
+#define ifdelete(x) if(x!=nullptr){ std::cout << "Delete " << #x << std::endl; delete x;x=nullptr;}
+#define ifnew(t,x) {if(x!=nullptr){ std::cout << "Delete " << #x << std::endl; delete x;}std::cout << "New "<< #x << std::endl;x = new t;}
+#define PRINT_DEBUG(x) std::cout<<x<<std::endl
 #else
-#define ifdelete(x)   \
-  if ((x) != nullptr) \
-  {                   \
-    delete (x);       \
-    (x) = nullptr;    \
-  }
-#define ifnew(t, x)     \
-  {                     \
-    if ((x) != nullptr) \
-    {                   \
-      delete (x);       \
-    }                   \
-    (x) = new (t);      \
-  }
+#define ifdelete(x) if(x!=nullptr){ delete x;x=nullptr;}
+#define ifnew(t,x) {if(x!=nullptr){ delete x;}x = new t;}
 #define PRINT_DEBUG(x) {};
 #endif
 
