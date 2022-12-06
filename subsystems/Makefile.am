@@ -7,14 +7,14 @@ include_HEADERS =
 ### is at the end of this list
 ###
 SUBDIRS = \
+  bbc \
+  bbcll1 \
   cemc \
   daq \
   epd \
   example \
   hcal \
   intt \
-  mbd \
-  mbdll1 \
   mvtx \
   tpc \
   tpot
