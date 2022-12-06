@@ -30,7 +30,7 @@ class TSpectrum;
 class BbcMonDraw : public OnlMonDraw
 {
  public:
-  BbcMonDraw(const std::string &name = "BBCMON"); // same name as server!
+  explicit BbcMonDraw(const std::string &name = "BBCMON");  // same name as server!
 
   ~BbcMonDraw() override;
 
@@ -40,156 +40,153 @@ class BbcMonDraw : public OnlMonDraw
   int MakeHtml(const std::string &what = "ALL") override;
 
  protected:
-  TStyle *bbcStyle;
-  
+  TStyle *bbcStyle = nullptr;
+
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
   int TimeOffsetTicks = -1;
 
-  int Warning( TPad * pad, const float x, const float y, const int r, const std::string& msg);
-  int ClearWarning( void );
+  int Warning(TPad *pad, const float x, const float y, const int r, const std::string &msg);
+  int ClearWarning(void);
 
   OnlMonDB *dbvars = nullptr;
 
   TCanvas *TC[nCANVAS] = {nullptr};
   TPad *transparent[nCANVAS] = {nullptr};
 
-  //TPad *Pad[6] = {nullptr};
-
+  // TPad *Pad[6] = {nullptr};
 
   // for all Pages
-  TPad * PadTop[nCANVAS];
-  TPaveText * PaveTop;
-  TText * TextTop;
+  TPad *PadTop[nCANVAS] = {};
+  TPaveText *PaveTop = nullptr;
+  TText *TextTop = nullptr;
 
-  TPaveText * PaveWarning[MAX_WARNING];
-  TArc * ArcWarning[MAX_WARNING];
-  TPad * PadWarning[MAX_WARNING];
-  int nPadWarning[MAX_WARNING];
-  int nWarning;
+  TPaveText *PaveWarning[MAX_WARNING] = {};
+  TArc *ArcWarning[MAX_WARNING] = {};
+  TPad *PadWarning[MAX_WARNING] = {};
+  int nPadWarning[MAX_WARNING] = {};
+  int nWarning = 0;
 
   // for the 1st Page
-  TGraphErrors * TdcOver[nSIDE];
-  TPad * PadTdcOver[nSIDE];
-  TLine * LineTdcOver[nSIDE][2];
-  TBox * BoxTdcOver[nSIDE];
-  TH1 *FrameTdcOver[nSIDE];
+  TGraphErrors *TdcOver[nSIDE] = {};
+  TPad *PadTdcOver[nSIDE] = {};
+  TLine *LineTdcOver[nSIDE][2] = {};
+  TBox *BoxTdcOver[nSIDE] = {};
+  TH1 *FrameTdcOver[nSIDE] = {};
 
-  TGraph * nHit[nTRIGGER][nSIDE];
-  TPad * PadnHit [nSIDE];
-  TLine *LinenHit[nTRIGGER][nSIDE][2];
-  TBox * BoxnHit[nTRIGGER][nSIDE];
-  TPad * PadnHitStatus;
-  TText *TextnHitStatus;
-  TH1 *FramenHit[nSIDE];
+  TGraph *nHit[nTRIGGER][nSIDE] = {};
+  TPad *PadnHit[nSIDE] = {};
+  TLine *LinenHit[nTRIGGER][nSIDE][2] = {};
+  TBox *BoxnHit[nTRIGGER][nSIDE] = {};
+  TPad *PadnHitStatus = nullptr;
+  TText *TextnHitStatus = nullptr;
+  TH1 *FramenHit[nSIDE] = {};
 
   // for 2nd Page
-  TH1 * HitTime[nSIDE];
-  TPad * PadHitTime[nSIDE];
-  TLine * LineHitTime[nSIDE][2];
-  TArrow *ArrowHitTime[nSIDE];
-  TText * TextHitTime[nSIDE];
-  TF1 * FitHitTime[nSIDE];
+  TH1 *HitTime[nSIDE] = {};
+  TPad *PadHitTime[nSIDE] = {};
+  TLine *LineHitTime[nSIDE][2] = {};
+  TArrow *ArrowHitTime[nSIDE] = {};
+  TText *TextHitTime[nSIDE] = {};
+  TF1 *FitHitTime[nSIDE] = {};
 
-  TH1        * AvrHitTime;
-  TPad    * PadAvrHitTime;
-  TLine  * LineAvrHitTime[2];
-  TArrow *ArrowAvrHitTime;
-  TText  * TextAvrHitTime;
-  TF1     * FitAvrHitTime;
+  TH1 *AvrHitTime = nullptr;
+  TPad *PadAvrHitTime = nullptr;
+  TLine *LineAvrHitTime[2] = {};
+  TArrow *ArrowAvrHitTime = nullptr;
+  TText *TextAvrHitTime = nullptr;
+  TF1 *FitAvrHitTime = nullptr;
 
-  TH1        * SouthHitTime;
-  TPad    * PadSouthHitTime;
-  TLine  * LineSouthHitTime[2];
-  TArrow *ArrowSouthHitTime;
-  TText  * TextSouthHitTime;
-  TF1     * FitSouthHitTime;
+  TH1 *SouthHitTime = nullptr;
+  TPad *PadSouthHitTime = nullptr;
+  TLine *LineSouthHitTime[2] = {};
+  TArrow *ArrowSouthHitTime = nullptr;
+  TText *TextSouthHitTime = nullptr;
+  TF1 *FitSouthHitTime = nullptr;
 
-  TH1        * NorthHitTime;
-  TPad    * PadNorthHitTime;
-  TLine  * LineNorthHitTime[2];
-  TArrow *ArrowNorthHitTime;
-  TText  * TextNorthHitTime;
-  TF1     * FitNorthHitTime;
+  TH1 *NorthHitTime = nullptr;
+  TPad *PadNorthHitTime = nullptr;
+  TLine *LineNorthHitTime[2] = {};
+  TArrow *ArrowNorthHitTime = nullptr;
+  TText *TextNorthHitTime = nullptr;
+  TF1 *FitNorthHitTime = nullptr;
 
-  TH1        * SouthChargeSum;
-  TH1        * NorthChargeSum;
-  TPad    * PadChargeSum;
-  TText  * TextSouthChargeSum;
-  TText  * TextNorthChargeSum;
+  TH1 *SouthChargeSum = nullptr;
+  TH1 *NorthChargeSum = nullptr;
+  TPad *PadChargeSum = nullptr;
+  TText *TextSouthChargeSum = nullptr;
+  TText *TextNorthChargeSum = nullptr;
 
-  TLine  * LineTzeroZvtx[4];
-  TText  * TextTzeroZvtx;
+  TLine *LineTzeroZvtx[4] = {};
+  TText *TextTzeroZvtx = nullptr;
 
-  TPad * PadBbcSummary;
-  //TText * TextBbcSummaryHitTime;
-  TText * TextBbcSummaryHitTime[2];
-  TText * TextBbcSummaryGlobalOffset[2];
-  TText * TextBbcSummaryZvertex;
-  //TText * TextBbcSummaryTrigRate;
-  TLatex * TextBbcSummaryTrigRate;
+  TPad *PadBbcSummary = nullptr;
+  // TText * TextBbcSummaryHitTime = nullptr;
+  TText *TextBbcSummaryHitTime[2] = {};
+  TText *TextBbcSummaryGlobalOffset[2] = {};
+  TText *TextBbcSummaryZvertex = nullptr;
+  // TText * TextBbcSummaryTrigRate = nullptr;
+  TLatex *TextBbcSummaryTrigRate = nullptr;
 
-  TH1 * Zvtx;
-  TH1 * Zvtx_bbll1;
-//  TH1 * Zvtx_zdc;
-//  TH1 * Zvtx_zdc_scale3;
-  TH1 * Zvtx_bbll1_novtx;
-  TH1 * Zvtx_bbll1_narrowvtx;
-//  TH1 * Zvtx_bbll1_zdc;
-  TPad * PadZvtx;
-  TF1 * FitZvtx;
-  TLine * LineZvtx[2];
-  TArrow *ArrowZvtx;
-  TText * TextZvtx;
-  TText * TextZvtxNorth;
-  TText * TextZvtxSouth;
+  TH1 *Zvtx = nullptr;
+  TH1 *Zvtx_bbll1 = nullptr;
+  //  TH1 * Zvtx_zdc = nullptr;
+  //  TH1 * Zvtx_zdc_scale3 = nullptr;
+  TH1 *Zvtx_bbll1_novtx = nullptr;
+  TH1 *Zvtx_bbll1_narrowvtx = nullptr;
+  //  TH1 * Zvtx_bbll1_zdc = nullptr;
+  TPad *PadZvtx = nullptr;
+  TF1 *FitZvtx = nullptr;
+  TLine *LineZvtx[2] = {};
+  TArrow *ArrowZvtx = nullptr;
+  TText *TextZvtx = nullptr;
+  TText *TextZvtxNorth = nullptr;
+  TText *TextZvtxSouth = nullptr;
 
-  TH2 * ArmHit;
-  TPad * PadArmHit;
-  TText * TextArmHit;
-  TArc * ArcArmHit;
+  TH2 *ArmHit = nullptr;
+  TPad *PadArmHit = nullptr;
+  TText *TextArmHit = nullptr;
+  TArc *ArcArmHit = nullptr;
 
   // for 3rd Page
   // It is for Only Expert
-  TH2 * Adc;
-  TPad *PadAdc;
+  TH2 *Adc = nullptr;
+  TPad *PadAdc = nullptr;
 
-  TPad * PadButton;
-  TPad * PadMultiView;
-  TH1 * MultiView1F;
-  TH2 * MultiView2F;
-  TPad * PadWarnings;
-  TPaveText * PaveWarnings;
+  TPad *PadButton = nullptr;
+  TPad *PadMultiView = nullptr;
+  TH1 *MultiView1F = nullptr;
+  TH2 *MultiView2F = nullptr;
+  TPad *PadWarnings = nullptr;
+  TPaveText *PaveWarnings = nullptr;
 
   // for 4th Page
   // Vertex Monitor
-  TPad  * PadZVertex;
-  TPad  * PadTzeroZVertex;
-  TPad  * PadZVertexSummary;
-  TText * TextZVertexExpress;
-  TText * TextZVertexNotice;
+  TPad *PadZVertex = nullptr;
+  TPad *PadTzeroZVertex = nullptr;
+  TPad *PadZVertexSummary = nullptr;
+  TText *TextZVertexExpress = nullptr;
+  TText *TextZVertexNotice = nullptr;
 
-  //  TText * TextZVertex[3];
-  //TText * TextZVertex_scale[3];
-  //TText * TextZVertex[4];
-  //TText * TextZVertex_scale[4];
-  //TText * TextZVertex_mean[4];
-  TText * TextZVertex[5];//RUN11 pp
-  TText * TextZVertex_scale[5];//RUN11 pp
-  TText * TextZVertex_mean[5];//RUN11 pp
+  //  TText * TextZVertex[3] = {};
+  // TText * TextZVertex_scale[3] = {};
+  // TText * TextZVertex[4] = {};
+  // TText * TextZVertex_scale[4] = {};
+  // TText * TextZVertex_mean[4] = {};
+  TText *TextZVertex[5] = {};        // RUN11 pp
+  TText *TextZVertex_scale[5] = {};  // RUN11 pp
+  TText *TextZVertex_mean[5] = {};   // RUN11 pp
 
-  TF1 *FitZvtxBBLL1NoVtx;
-  TLatex *TextZVtxStatus[2];
+  TF1 *FitZvtxBBLL1NoVtx = nullptr;
+  TLatex *TextZVtxStatus[2] = {};
 
-  TH2 * TzeroZvtx;
+  TH2 *TzeroZvtx = nullptr;
 
   // Scale down factor
-  TH1 * Prescale_hist;
-  TSpectrum *tspec;
-
-
+  TH1 *Prescale_hist = nullptr;
+  TSpectrum *tspec = nullptr;
 };
 
 #endif /* BBC_BBCMONDRAW_H */
