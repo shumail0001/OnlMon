@@ -12,37 +12,37 @@ AM_CPPFLAGS = \
   -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \
-  libonlmbdll1mon_client.la \
-  libonlmbdll1mon_server.la
+  libonlbbcll1mon_client.la \
+  libonlbbcll1mon_server.la
 
-libonlmbdll1mon_server_la_LIBADD = \
+libonlbbcll1mon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(OFFLINE_MAIN)/lib \
   -lonlmonserver \
   -lonlmondb
 
-libonlmbdll1mon_client_la_LIBADD = \
+libonlbbcll1mon_client_la_LIBADD = \
   -L$(libdir) \
   -L$(OFFLINE_MAIN)/lib \
   -lonlmonclient \
   -lonlmondb
 
 
-mbdll1includedir=$(pkgincludedir)/mbdll1
+bbcll1includedir=$(pkgincludedir)/bbcll1
 
-mbdll1include_HEADERS = \
-  Mbdll1Mon.h \
-  Mbdll1MonDraw.h
+bbcll1include_HEADERS = \
+  Bbcll1Mon.h \
+  Bbcll1MonDraw.h
 
-libonlmbdll1mon_server_la_SOURCES = \
-  Mbdll1Mon.cc
+libonlbbcll1mon_server_la_SOURCES = \
+  Bbcll1Mon.cc
 
-libonlmbdll1mon_client_la_SOURCES = \
-  Mbdll1MonDraw.cc
+libonlbbcll1mon_client_la_SOURCES = \
+  Bbcll1MonDraw.cc
 
 bin_SCRIPTS = \
-  Mbdll1MonSetup.csh \
-  Mbdll1MonSetup.sh
+  Bbcll1MonSetup.csh \
+  Bbcll1MonSetup.sh
 
 noinst_PROGRAMS = \
   testexternals_server \
@@ -56,10 +56,10 @@ testexternals_client_SOURCES = \
   testexternals.cc
 
 testexternals_server_LDADD = \
-  libonlmbdll1mon_server.la
+  libonlbbcll1mon_server.la
 
 testexternals_client_LDADD = \
-  libonlmbdll1mon_client.la
+  libonlbbcll1mon_client.la
 
 testexternals.cc:
 	echo "//*** this is a generated file. Do not commit, do not edit" > $@

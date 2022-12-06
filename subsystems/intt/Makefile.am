@@ -1,8 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
 
-BUILT_SOURCES = \
-  testexternals.cc
-
 SUBDIRS = calib
 
 AM_CPPFLAGS = \

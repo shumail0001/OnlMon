@@ -27,6 +27,10 @@ onlmondatabase/Makefile
 poms/Makefile 
 onlmonserver/Makefile 
 subsystems/Makefile 
+subsystems/bbc/Makefile
+subsystems/bbc/calib/Makefile
+subsystems/bbcll1/Makefile
+subsystems/bbcll1/calib/Makefile
 subsystems/cemc/Makefile
 subsystems/cemc/calib/Makefile
 subsystems/daq/Makefile
@@ -39,10 +43,6 @@ subsystems/hcal/Makefile
 subsystems/hcal/calib/Makefile
 subsystems/intt/Makefile
 subsystems/intt/calib/Makefile
-subsystems/mbd/Makefile
-subsystems/mbd/calib/Makefile
-subsystems/mbdll1/Makefile
-subsystems/mbdll1/calib/Makefile
 subsystems/mvtx/Makefile
 subsystems/mvtx/calib/Makefile
 subsystems/tpc/Makefile

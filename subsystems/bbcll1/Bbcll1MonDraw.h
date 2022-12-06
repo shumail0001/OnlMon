@@ -1,5 +1,5 @@
-#ifndef MBDLL1_MBDLL1MONDRAW_H
-#define MBDLL1_MBDLL1MONDRAW_H
+#ifndef BBCLL1_BBCLL1MONDRAW_H
+#define BBCLL1_BBCLL1MONDRAW_H
 
 #include <onlmon/OnlMonDraw.h>
 
@@ -10,12 +10,12 @@ class TCanvas;
 class TGraphErrors;
 class TPad;
 
-class Mbdll1MonDraw : public OnlMonDraw
+class Bbcll1MonDraw : public OnlMonDraw
 {
  public:
-  Mbdll1MonDraw(const std::string &name = "MBDLL1MON"); // same name as server!
+  Bbcll1MonDraw(const std::string &name = "BBCLL1MON"); // same name as server!
 
-  ~Mbdll1MonDraw() override {}
+  ~Bbcll1MonDraw() override {}
 
   int Init() override;
   int Draw(const std::string &what = "ALL") override;
@@ -35,4 +35,4 @@ class Mbdll1MonDraw : public OnlMonDraw
   OnlMonDB *dbvars = nullptr;
 };
 
-#endif /* MBDLL1_MBDLL1MONDRAW_H */
+#endif /* BBCLL1_BBCLL1MONDRAW_H */

@@ -19,6 +19,20 @@ void StartPoms()
   // Register SubSystems
   pmf->RegisterSubSystem("EXAMPLE", "example");
   
+  SubSystem *bbc = new SubSystem("BBC", "bbc");
+  bbc->AddAction("bbcDraw(\"FIRST\")", "BBC 1st Monitor");
+  bbc->AddAction("bbcDraw(\"SECOND\")", "BBC 2nd Monitor");
+  bbc->AddAction("bbcDraw(\"HISTORY\")", "BBC History Monitor");
+  bbc->AddAction(new SubSystemActionDrawPS(bbc));
+  pmf->RegisterSubSystem(bbc);
+
+  SubSystem *bbcll1 = new SubSystem("BBCLL1", "bbcll1");
+  bbcll1->AddAction("bbcll1Draw(\"FIRST\")", "BBCLL1 1st Monitor");
+  bbcll1->AddAction("bbcll1Draw(\"SECOND\")", "BBCLL1 2nd Monitor");
+  bbcll1->AddAction("bbcll1Draw(\"HISTORY\")", "BBCLL1 History Monitor");
+  bbcll1->AddAction(new SubSystemActionDrawPS(bbcll1));
+  pmf->RegisterSubSystem(bbcll1);
+
   SubSystem *cemc = new SubSystem("CEMC", "cemc");
   cemc->AddAction("cemcDraw(\"FIRST\")", "CEMC 1st Monitor");
   cemc->AddAction("cemcDraw(\"SECOND\")", "CEMC 2nd Monitor");
@@ -55,13 +69,6 @@ void StartPoms()
   intt->AddAction(new SubSystemActionDrawPS(intt));
   pmf->RegisterSubSystem(intt);  
 
-  SubSystem *mbd = new SubSystem("MBD", "mbd");
-  mbd->AddAction("mbdDraw(\"FIRST\")", "MBD 1st Monitor");
-  mbd->AddAction("mbdDraw(\"SECOND\")", "MBD 2nd Monitor");
-  mbd->AddAction("mbdDraw(\"HISTORY\")", "MBD History Monitor");
-  mbd->AddAction(new SubSystemActionDrawPS(mbd));
-  pmf->RegisterSubSystem(mbd);  
-
   SubSystem *mvtx = new SubSystem("MVTX", "mvtx");
   mvtx->AddAction("mvtxDraw(\"FIRST\")", "MVTX 1st Monitor");
   mvtx->AddAction("mvtxDraw(\"SECOND\")", "MVTX 2nd Monitor");
@@ -69,13 +76,6 @@ void StartPoms()
   mvtx->AddAction(new SubSystemActionDrawPS(mvtx));
   pmf->RegisterSubSystem(mvtx);  
   
-  SubSystem *mbdll1 = new SubSystem("MBDLL1", "mbdll1");
-  mbdll1->AddAction("mbdll1Draw(\"FIRST\")", "MBDLL1 1st Monitor");
-  mbdll1->AddAction("mbdll1Draw(\"SECOND\")", "MBDLL1 2nd Monitor");
-  mbdll1->AddAction("mbdll1Draw(\"HISTORY\")", "MBDLL1 History Monitor");
-  mbdll1->AddAction(new SubSystemActionDrawPS(mbdll1));
-  pmf->RegisterSubSystem(mbdll1);  
-
   SubSystem *tpc = new SubSystem("TPC", "tpc");
   tpc->AddAction("tpcDraw(\"FIRST\")", "TPC 1st Monitor");
   tpc->AddAction("tpcDraw(\"SECOND\")", "TPC 2nd Monitor");

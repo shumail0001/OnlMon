@@ -1,4 +1,4 @@
-AC_INIT(mbdll1mon,[2.00])
+AC_INIT(bbcmon,[2.00])
 AC_CONFIG_SRCDIR([configure.ac])
 
 AM_INIT_AUTOMAKE

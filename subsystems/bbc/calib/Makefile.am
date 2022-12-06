@@ -4,4 +4,4 @@ include_HEADERS =
 mbddatadir = $(pkgdatadir)/mbd
 
 mbddata_DATA = \
-  MbdMonData.dat
+  BbcMonData.dat

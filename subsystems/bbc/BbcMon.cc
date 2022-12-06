@@ -3,8 +3,8 @@
 // otherwise you are asking for weird behavior
 // (more info - check the difference in include path search when using "" versus <>)
 
-#include "MbdMon.h"
-#include "MbdMonDefs.h"
+#include "BbcMon.h"
+#include "BbcMonDefs.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
@@ -31,37 +31,37 @@ enum
   FILLMESSAGE = 2
 };
 
-MbdMon::MbdMon(const std::string &name)
+BbcMon::BbcMon(const std::string &name)
   : OnlMon(name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
-  // during a new MbdMon()
+  // during a new BbcMon()
   return;
 }
 
-MbdMon::~MbdMon()
+BbcMon::~BbcMon()
 {
   // you can delete NULL pointers it results in a NOOP (No Operation)
   delete dbvars;
   return;
 }
 
-int MbdMon::Init()
+int BbcMon::Init()
 {
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
-  printf("MbdMon::Init()\n");
+  printf("BbcMon::Init()\n");
 
   trand3 = new TRandom3(0);
 
-  // read our calibrations from MbdMonData.dat
-  std::string fullfile = std::string(getenv("MBDCALIB")) + "/" + "MbdMonData.dat";
+  // read our calibrations from BbcMonData.dat
+  std::string fullfile = std::string(getenv("BBCCALIB")) + "/" + "BbcMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
 
   // Book Histograms
-  //mbdhist1 = new TH1F("mbdmon_hist1", "test 1d histo", 101, 0., 100.);
-  //mbdhist2 = new TH2F("mbdmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
+  //bbchist1 = new TH1F("bbcmon_hist1", "test 1d histo", 101, 0., 100.);
+  //bbchist2 = new TH2F("bbcmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
   std::ostringstream name, title;
  
   // TDC Distribution ----------------------------------------------------
@@ -69,37 +69,37 @@ int MbdMon::Init()
   name << "bbc_tdc" ;
   title << "BBC Raw TDC Distribution" ;
   bbc_tdc = new TH2F(name.str().c_str(), title.str().c_str(),
-      nPMT_MBD, -.5, nPMT_MBD - .5,
-      mbd_onlmon::nBIN_TDC, 0, mbd_onlmon::tdc_max_overflow * mbd_onlmon::TDC_CONVERSION_FACTOR );
+      nPMT_BBC, -.5, nPMT_BBC - .5,
+      bbc_onlmon::nBIN_TDC, 0, bbc_onlmon::tdc_max_overflow * bbc_onlmon::TDC_CONVERSION_FACTOR );
   name.str("");
   title.str("");
 
   // TDC Overflow Deviation ----------------------------------------------
   name << "bbc_tdc_overflow" ;
-  title << "MBD/BBC TDC Overflow Deviation" ;
+  title << "BBC/BBC TDC Overflow Deviation" ;
   bbc_tdc_overflow = new TH2F(name.str().c_str(), title.str().c_str(),
-      nPMT_MBD, -.5, nPMT_MBD - .5,
-      int(mbd_onlmon::VIEW_OVERFLOW_MAX - mbd_onlmon::VIEW_OVERFLOW_MIN + 1),
-      mbd_onlmon::VIEW_OVERFLOW_MIN - .5, mbd_onlmon::VIEW_OVERFLOW_MAX + .5 );
+      nPMT_BBC, -.5, nPMT_BBC - .5,
+      int(bbc_onlmon::VIEW_OVERFLOW_MAX - bbc_onlmon::VIEW_OVERFLOW_MIN + 1),
+      bbc_onlmon::VIEW_OVERFLOW_MIN - .5, bbc_onlmon::VIEW_OVERFLOW_MAX + .5 );
   name.str("");
   title.str("");
 
 
   // TDC Overflow Distribution for each PMT ------------------------------
-  for ( int ipmt = 0 ; ipmt < nPMT_MBD ; ipmt++ )
+  for ( int ipmt = 0 ; ipmt < nPMT_BBC ; ipmt++ )
   {
     name << "bbc_tdc_overflow_" << std::setw(3) << std::setfill('0') << ipmt ;
-    title << "MBD/BBC TDC Overflow Deviation of #" << std::setw(3) << std::setfill('0') << ipmt ;
+    title << "BBC/BBC TDC Overflow Deviation of #" << std::setw(3) << std::setfill('0') << ipmt ;
     bbc_tdc_overflow_each[ipmt] = new TH1F(name.str().c_str(), title.str().c_str(),
-        int(mbd_onlmon::VIEW_OVERFLOW_MAX - mbd_onlmon::VIEW_OVERFLOW_MIN + 1),
-        mbd_onlmon::VIEW_OVERFLOW_MIN, mbd_onlmon::VIEW_OVERFLOW_MAX );
+        int(bbc_onlmon::VIEW_OVERFLOW_MAX - bbc_onlmon::VIEW_OVERFLOW_MIN + 1),
+        bbc_onlmon::VIEW_OVERFLOW_MIN, bbc_onlmon::VIEW_OVERFLOW_MAX );
     name.str("");
     title.str("");
   }
 
   // ADC Distribution --------------------------------------------------------
 
-  bbc_adc = new TH2F("bbc_adc", "MBD/BBC ADC(Charge) Distribution", nPMT_MBD, -.5, nPMT_MBD - .5, mbd_onlmon::nBIN_ADC, 0, mbd_onlmon::MAX_ADC_MIP );
+  bbc_adc = new TH2F("bbc_adc", "BBC/BBC ADC(Charge) Distribution", nPMT_BBC, -.5, nPMT_BBC - .5, bbc_onlmon::nBIN_ADC, 0, bbc_onlmon::MAX_ADC_MIP );
 
   /*
      for ( int trig = 0 ; trig < nTRIGGER ; trig++ )
@@ -109,19 +109,19 @@ int MbdMon::Init()
   name << "bbc_nhit_" << TRIGGER_str[trig] ;
   title << "BBC nHIT by " << TRIGGER_str[trig] ;
   bbc_nhit[trig] = new TH1D(name.str().c_str(), title.str().c_str(),
-  nPMT_MBD, -.5, nPMT_MBD - .5 );
+  nPMT_BBC, -.5, nPMT_BBC - .5 );
   name.str("");
   title.str("");
   }
   */
 
   bbc_tdc_armhittime = new TH2F("bbc_tdc_armhittime", "Arm-Hit-Time Correlation of North and South BBC",
-      64, mbd_onlmon::min_armhittime, mbd_onlmon::max_armhittime,
-      64, mbd_onlmon::min_armhittime, mbd_onlmon::max_armhittime );
+      64, bbc_onlmon::min_armhittime, bbc_onlmon::max_armhittime,
+      64, bbc_onlmon::min_armhittime, bbc_onlmon::max_armhittime );
   bbc_tdc_armhittime->GetXaxis()->SetTitle("South[ns]");
   bbc_tdc_armhittime->GetYaxis()->SetTitle("North[ns]");
 
-  bbc_zvertex = new TH1F("bbc_zvertex", "BBC ZVertex", 128, mbd_onlmon::min_zvertex, mbd_onlmon::max_zvertex );
+  bbc_zvertex = new TH1F("bbc_zvertex", "BBC ZVertex", 128, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex );
   bbc_zvertex->GetXaxis()->SetTitle("BBC Raw ZVertex [cm]");
   bbc_zvertex->GetYaxis()->SetTitle("Number of Event");
   bbc_zvertex->GetXaxis()->SetTitleSize( 0.05);
@@ -130,7 +130,7 @@ int MbdMon::Init()
   bbc_zvertex->GetYaxis()->SetTitleOffset(1.75);
 
   bbc_zvertex_bbll1 = new TH1F("bbc_zvertex_bbll1", "BBC ZVertex triggered by BBLL1",
-      mbd_onlmon::zvtnbin, mbd_onlmon::min_zvertex, mbd_onlmon::max_zvertex );
+      bbc_onlmon::zvtnbin, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex );
   bbc_zvertex_bbll1->Sumw2();
   bbc_zvertex_bbll1->GetXaxis()->SetTitle("ZVertex [cm]");
   bbc_zvertex_bbll1->GetYaxis()->SetTitle("Number of Event");
@@ -164,7 +164,7 @@ int MbdMon::Init()
   */
 
   bbc_zvertex_bbll1_novtx = new TH1F("bbc_zvertex_bbll1_novtx", "BBC ZVertex triggered by BBLL1(noVtxCut)",
-      mbd_onlmon::zvtnbin/2, mbd_onlmon::min_zvertex, mbd_onlmon::max_zvertex );
+      bbc_onlmon::zvtnbin/2, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex );
   bbc_zvertex_bbll1_novtx->Sumw2();
   bbc_zvertex_bbll1_novtx->GetXaxis()->SetTitle("ZVertex [cm]");
   bbc_zvertex_bbll1_novtx->GetYaxis()->SetTitle("Number of Event");
@@ -175,7 +175,7 @@ int MbdMon::Init()
 
   bbc_zvertex_bbll1_narrowvtx = new TH1F("bbc_zvertex_bbll1_narrowvtx",//RUN11 AuAu
       "BBC ZVertex triggered by BBLL1(narrowVtxCut)",
-      mbd_onlmon::zvtnbin, mbd_onlmon::min_zvertex, mbd_onlmon::max_zvertex );
+      bbc_onlmon::zvtnbin, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex );
   bbc_zvertex_bbll1_narrowvtx->Sumw2();
   bbc_zvertex_bbll1_narrowvtx->GetXaxis()->SetTitle("ZVertex [cm]");
   bbc_zvertex_bbll1_narrowvtx->GetYaxis()->SetTitle("Number of Event");
@@ -213,8 +213,8 @@ int MbdMon::Init()
   bbc_avr_hittime = new TH1F("bbc_avr_hittime", "BBC Average Hittime", 128, 0, 24 );
   bbc_south_hittime = new TH1F("bbc_south_hittime", "BBC South Hittime", 128, 0, 24 );
   bbc_north_hittime = new TH1F("bbc_north_hittime", "BBC North Hittime", 128, 0, 24 );
-  bbc_south_chargesum = new TH1F("bbc_south_chargesum", "BBC South ChargeSum [MIP]", 128, 0, mbd_onlmon::MAX_CHARGE_SUM );
-  bbc_north_chargesum = new TH1F("bbc_north_chargesum", "BBC North ChargeSum [MIP]", 128, 0, mbd_onlmon::MAX_CHARGE_SUM );
+  bbc_south_chargesum = new TH1F("bbc_south_chargesum", "BBC South ChargeSum [MIP]", 128, 0, bbc_onlmon::MAX_CHARGE_SUM );
+  bbc_north_chargesum = new TH1F("bbc_north_chargesum", "BBC North ChargeSum [MIP]", 128, 0, bbc_onlmon::MAX_CHARGE_SUM );
   bbc_avr_hittime->Sumw2();
   bbc_avr_hittime->GetXaxis()->SetTitle("Avr HitTime [ns]");
   bbc_avr_hittime->GetYaxis()->SetTitle("Number of Event");
@@ -259,8 +259,8 @@ int MbdMon::Init()
 
   // register histograms with server otherwise client won't get them
   OnlMonServer *se = OnlMonServer::instance();
-  //se->registerHisto(this, mbdhist1);  // uses the TH1->GetName() as key
-  //se->registerHisto(this, mbdhist2);
+  //se->registerHisto(this, bbchist1);  // uses the TH1->GetName() as key
+  //se->registerHisto(this, bbchist2);
 
   se->registerHisto( this, bbc_adc );
   se->registerHisto( this, bbc_tdc );
@@ -294,14 +294,14 @@ int MbdMon::Init()
   return 0;
 }
 
-int MbdMon::BeginRun(const int /* runno */)
+int BbcMon::BeginRun(const int /* runno */)
 {
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
   return 0;
 }
 
-int MbdMon::process_event(Event * /* evt */)
+int BbcMon::process_event(Event * /* evt */)
 {
   evtcnt++;
   OnlMonServer *se = OnlMonServer::instance();
@@ -323,7 +323,7 @@ int MbdMon::process_event(Event * /* evt */)
 
 
   // get temporary pointers to histograms
-  // one can do in principle directly se->getHisto("mbdhist1")->Fill()
+  // one can do in principle directly se->getHisto("bbchist1")->Fill()
   // but the search in the histogram Map is somewhat expensive and slows
   // things down if you make more than one operation on a histogram
   double zvtx = trand3->Gaus(0, 10.0);
@@ -337,9 +337,9 @@ int MbdMon::process_event(Event * /* evt */)
   {
     if (dbvars)
     {
-      dbvars->SetVar("mbdmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-      dbvars->SetVar("mbdmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      dbvars->SetVar("mbdmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
+      dbvars->SetVar("bbcmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
+      dbvars->SetVar("bbcmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
+      dbvars->SetVar("bbcmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
       dbvars->DBcommit();
     }
     std::ostringstream msg;
@@ -350,7 +350,7 @@ int MbdMon::process_event(Event * /* evt */)
   return 0;
 }
 
-int MbdMon::Reset()
+int BbcMon::Reset()
 {
   // reset our internal counters
   evtcnt = 0;
@@ -358,15 +358,15 @@ int MbdMon::Reset()
   return 0;
 }
 
-int MbdMon::DBVarInit()
+int BbcMon::DBVarInit()
 {
   // variable names are not case sensitive
   std::string varname;
-  varname = "mbdmoncount";
+  varname = "bbcmoncount";
   dbvars->registerVar(varname);
-  varname = "mbdmondummy";
+  varname = "bbcmondummy";
   dbvars->registerVar(varname);
-  varname = "mbdmonnew";
+  varname = "bbcmonnew";
   dbvars->registerVar(varname);
   if (verbosity > 0)
   {
