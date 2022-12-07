@@ -10,6 +10,8 @@
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/pseudoRunningMean.h>
 
+#include <caloreco/CaloWaveformProcessing.h>
+
 #include <Event/Event.h>
 #include <Event/msg_profile.h>
 
@@ -23,7 +25,6 @@
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
 
-#include <caloreco/CaloWaveformProcessing.h>
 
 enum
 {

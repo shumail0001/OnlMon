@@ -2,15 +2,16 @@
 #define HCAL_HCALMON_H
 
 #include <onlmon/OnlMon.h>
+
 #include <vector>
 
+class CaloWaveformProcessing;
 class Event;
 class OnlMonDB;
 class TH1;
 class TH2;
 class Packet;
 class runningMean;
-class CaloWaveformProcessing;
 
 class HcalMon : public OnlMon
 {
@@ -44,7 +45,7 @@ class HcalMon : public OnlMon
   TH1* h_event = nullptr;
   TH1* h_rm_sectorAvg[100] = {nullptr};
 
-  CaloWaveformProcessing* WaveformProcessing;
+  CaloWaveformProcessing* WaveformProcessing = nullptr;
 
   std::vector<runningMean*> rm_vector_sectAvg;
   std::vector<runningMean*> rm_vector_twr;

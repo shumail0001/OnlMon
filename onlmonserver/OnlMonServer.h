@@ -23,7 +23,7 @@ class OnlMonServer : public OnlMonBase
 {
  public:
   static OnlMonServer *instance();
-  virtual ~OnlMonServer();
+  ~OnlMonServer() override;
 
  // delete copy ctor and assignment operator (cppcheck)
   explicit OnlMonServer(const OnlMonServer&) = delete;

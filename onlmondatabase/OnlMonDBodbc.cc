@@ -329,7 +329,7 @@ int OnlMonDBodbc::AddRow(const time_t ticks, const int runnumber, const std::map
   std::map<const std::string, OnlMonDBVar*>::const_iterator iter;
   int iret = 0;
   int minutesinterval = MINUTESINTERVAL;
-  std::ostringstream cmd, cmd1, datestream, datestreamhalf;
+  std::ostringstream cmd, cmd1, datestream;
   odbc::Timestamp thistime(ticks);
   odbc::Timestamp mintime;
   odbc::Timestamp maxtime;
