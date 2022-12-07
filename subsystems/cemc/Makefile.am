@@ -19,7 +19,8 @@ libonlcemcmon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(OFFLINE_MAIN)/lib \
   -lonlmonserver \
-  -lonlmondb
+  -lonlmondb \
+  -lonlmonutils
 
 libonlcemcmon_client_la_LIBADD = \
   -L$(libdir) \
@@ -32,14 +33,10 @@ cemcincludedir=$(pkgincludedir)/cemc
 
 cemcinclude_HEADERS = \
   CemcMon.h \
-  CemcMonDraw.h \
-  runningMean.h
+  CemcMonDraw.h
 
 libonlcemcmon_server_la_SOURCES = \
-  CemcMon.cc \
-  runningMean.cc \
-  pseudoRunningMean.cc \
-  fullRunningMean.cc
+  CemcMon.cc
 
 libonlcemcmon_client_la_SOURCES = \
   CemcMonDraw.cc

@@ -4,15 +4,17 @@
 // (more info - check the difference in include path search when using "" versus <>)
 
 #include "CemcMon.h"
-#include "pseudoRunningMean.h"
+
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
+#include <onlmon/pseudoRunningMean.h>
 
 #include <Event/Event.h>
 #include <Event/EventTypes.h>
 #include <Event/msg_profile.h>
+
 #include <TH1.h>
 #include <TH2.h>
 
@@ -58,12 +60,10 @@ emcxy adcxy[64];
 
 CemcMon::CemcMon(const std::string &name, const std::string &id)
   : OnlMon(name)
+  , id_string(id) // tag our histogram names
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new CemcMon()
-
-  // tag our histogram names
-  id_string = id;
 
   for (int ix = 0; ix < 8; ix++ )
     {

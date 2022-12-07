@@ -471,7 +471,7 @@ void OnlMonServer::Print(const std::string &what) const
     std::set<unsigned int>::const_iterator iter;
     for (iter = activepackets.begin(); iter != activepackets.end(); ++iter)
     {
-      printf("%d\n", *iter);
+      printf("%u\n", *iter);
     }
   }
   return;

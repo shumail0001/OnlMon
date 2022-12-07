@@ -70,6 +70,9 @@ public:
   fullRunningMean( const int /*NumberofChannels*/, const int /*depth*/);
   virtual ~fullRunningMean();
 
+ // delete copy ctor and assignment operator (cppcheck)
+  explicit fullRunningMean(const fullRunningMean&) = delete;
+  fullRunningMean& operator=(const fullRunningMean&) = delete;
 
   /// the getMean(i) funtion returns the current mean value of channel i 
   virtual double getMean(const int /*ich*/) const;

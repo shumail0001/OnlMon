@@ -6,5 +6,6 @@ SUBDIRS = \
   onlmonserver \
   onlmondatabase \
   onlmonclient \
+  onlmonutils \
   subsystems \
   poms
