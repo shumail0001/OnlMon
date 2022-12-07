@@ -2,6 +2,7 @@
 #define __ONLMONSERVER_H
 
 #include "OnlMonBase.h"
+#include "PortNumber.h"
 
 #include <pthread.h>
 #include <ctime>
@@ -23,6 +24,10 @@ class OnlMonServer : public OnlMonBase
  public:
   static OnlMonServer *instance();
   virtual ~OnlMonServer();
+
+ // delete copy ctor and assignment operator (cppcheck)
+  explicit OnlMonServer(const OnlMonServer&) = delete;
+  OnlMonServer& operator=(const OnlMonServer&) = delete;
 
   void registerHisto(const std::string &monitorname, const std::string &hname, TH1 *h1d, const int replace = 0);
   void registerHisto(const OnlMon *monitor, TH1 *h1d);
@@ -107,7 +112,7 @@ class OnlMonServer : public OnlMonBase
   unsigned int trigger[3];
   int runnumber = -1;
   int eventnumber = 0;
-  int portnumber;
+  int portnumber = MONIPORT;
   int badevents = 0;
   time_t currentticks = 0;
   time_t borticks = 0;

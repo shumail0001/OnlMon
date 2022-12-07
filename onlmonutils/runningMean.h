@@ -59,7 +59,7 @@ public:
 
  protected:
 
-  int NumberofChannels;
+  int NumberofChannels = 0;
   double * refArray;
 
 

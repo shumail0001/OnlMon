@@ -79,6 +79,9 @@ public:
   pseudoRunningMean( const int /*NumberofChannels*/, const int /*depth*/);
   virtual ~pseudoRunningMean();
 
+ // delete copy ctor and assignment operator (cppcheck)
+  explicit pseudoRunningMean(const pseudoRunningMean&) = delete;
+  pseudoRunningMean& operator=(const pseudoRunningMean&) = delete;
 
   /// the getMean(i) funtion returns the current mean value of channel i 
   virtual double getMean(const int /*ich*/) const;

@@ -31,11 +31,10 @@ libonlmonutils_la_SOURCES = \
 noinst_PROGRAMS = \
   testexternals
 
-
 testexternals_SOURCES = \
   testexternals.cc
 
-testexternals_server_LDADD = \
+testexternals_LDADD = \
   libonlmonutils.la
 
 testexternals.cc:
