@@ -4,11 +4,11 @@
 // (more info - check the difference in include path search when using "" versus <>)
 
 #include "HcalMon.h"
-#include "pseudoRunningMean.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
+#include <onlmon/pseudoRunningMean.h>
 
 #include <Event/Event.h>
 #include <Event/msg_profile.h>
