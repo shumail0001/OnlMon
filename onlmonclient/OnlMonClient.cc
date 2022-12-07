@@ -941,7 +941,7 @@ void OnlMonClient::PutHistoInMap(const std::string &hname, const std::string &ho
   return;
 }
 
-void OnlMonClient::AddServerHost(const char *hostname)
+void OnlMonClient::AddServerHost(const std::string &hostname)
 {
   std::vector<std::string>::iterator hostiter;
   hostiter = find(MonitorHosts.begin(), MonitorHosts.end(), hostname);

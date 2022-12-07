@@ -35,7 +35,7 @@ class OnlMonClient : public OnlMonBase
   void registerHisto(const std::string &hname, const std::string &subsys);
   void Print(const char *what = "ALL");
 
-  void AddServerHost(const char *hostname);
+  void AddServerHost(const std::string &hostname);
   void registerDrawer(OnlMonDraw *Drawer);
   int ReadHistogramsFromFile(const char *filename);
   int Draw(const char *who = "ALL", const char *what = "ALL");
