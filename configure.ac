@@ -26,7 +26,8 @@ onlmonclient/Makefile
 onlmondatabase/Makefile 
 poms/Makefile 
 onlmonserver/Makefile 
-subsystems/Makefile 
+onlmonutils/Makefile 
+subsystems/Makefile
 subsystems/bbc/Makefile
 subsystems/bbc/calib/Makefile
 subsystems/bbcll1/Makefile
