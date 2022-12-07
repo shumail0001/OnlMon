@@ -133,6 +133,12 @@ int CemcMonDraw::DrawStandard(const std::string & /* what */)
 
   TH1 *cemc_runningmean_SEB00 = cl->getHisto("cemc_runningmean_SEB00");
   TH1 *cemc_runningmean_SEB01 = cl->getHisto("cemc_runningmean_SEB01");
+  if (!cemc_runningmean_SEB00)
+  {
+    DrawDeadServer(transparent[0]);
+    TC[0]->SetEditable(false);
+    return -1;
+  }
   
   TH2F *cemc_occupancy = (TH2F *) cemc_occupancy_SEB00->Clone();
   cemc_occupancy->Add(cemc_occupancy_SEB01);
@@ -152,29 +158,10 @@ int CemcMonDraw::DrawStandard(const std::string & /* what */)
   TC[0]->Clear("D");
 
   Pad[0]->cd();
-  if (cemc_occupancy_SEB00)
-  {
-    cemc_occupancy->DrawCopy("colz");
-  }
-  else
-  {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
-    return -1;
-  }
+  cemc_occupancy->DrawCopy("colz");
 
   Pad[1]->cd();
-  if (cemc_runningmean)
-  {
-    cemc_runningmean->DrawCopy("colz");
-  }
-  else
-  {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
-    return -1;
-  }
-
+  cemc_runningmean->DrawCopy("colz");
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);

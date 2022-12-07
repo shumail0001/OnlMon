@@ -20,6 +20,7 @@ libonlhcalmon_server_la_LIBADD = \
   -L$(OFFLINE_MAIN)/lib \
   -lonlmonserver \
   -lonlmondb \
+  -lonlmonutils \
   -lcalo_reco
 
 libonlhcalmon_client_la_LIBADD = \
@@ -33,14 +34,10 @@ hcalincludedir=$(pkgincludedir)/hcal
 
 hcalinclude_HEADERS = \
   HcalMon.h \
-  HcalMonDraw.h \
-  runningMean.h
+  HcalMonDraw.h
 
 libonlhcalmon_server_la_SOURCES = \
-  HcalMon.cc \
-  runningMean.cc \
-  pseudoRunningMean.cc \
-  fullRunningMean.cc
+  HcalMon.cc
 
 libonlhcalmon_client_la_SOURCES = \
   HcalMonDraw.cc

@@ -23,7 +23,7 @@ class OnlMonServer : public OnlMonBase
 {
  public:
   static OnlMonServer *instance();
-  virtual ~OnlMonServer();
+  ~OnlMonServer() override;
 
  // delete copy ctor and assignment operator (cppcheck)
   explicit OnlMonServer(const OnlMonServer&) = delete;
@@ -89,7 +89,7 @@ class OnlMonServer : public OnlMonBase
   int send_message(const OnlMon *Monitor, const int msgsource, const int severity, const std::string &err_message, const int msgtype) const;
   int DisconnectDB();
   void GetMutex(pthread_mutex_t &lock) { lock = mutex; }
-  void SetThreadId(pthread_t &id) { serverthreadid = id; }
+  void SetThreadId(const pthread_t &id) { serverthreadid = id; }
 
   int LoadActivePackets();
   int parse_granuleDef(std::set<std::string> &pcffilelist);

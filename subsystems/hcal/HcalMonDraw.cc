@@ -167,6 +167,12 @@ int HcalMonDraw::DrawFirst(const std::string & /* what */)
   TH2D* hist1 = (TH2D*)cl->getHisto("h2_hcal_rm");
   TH2D* h2_hcal_mean = (TH2D*)cl->getHisto("h2_hcal_mean");
   TH1F* h_event = (TH1F*)cl->getHisto("h_event");
+  if (!hist1)
+  {
+    DrawDeadServer(transparent[0]);
+    TC[0]->SetEditable(0);
+    return -1;
+  }
   h2_hcal_mean->Scale(1./h_event->GetEntries()); 
   hist1->Divide(h2_hcal_mean); 
 
@@ -178,12 +184,6 @@ int HcalMonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->SetEditable(1);
   TC[0]->Clear("D");
   Pad[0]->cd();
-  if (!hist1)
-  {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(0);
-    return -1;
-  }
  
   hist1->GetXaxis()->SetTitle("eta index");
   hist1->GetYaxis()->SetTitle("phi index");

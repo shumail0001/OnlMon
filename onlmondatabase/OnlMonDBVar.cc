@@ -5,10 +5,7 @@
 
 OnlMonDBVar::OnlMonDBVar()
 {
-  for (float & i : val)
-  {
-    i = NAN;
-  }
+  val.fill(NAN);
   return;
 }
 

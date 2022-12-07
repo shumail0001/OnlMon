@@ -68,25 +68,25 @@ class fullRunningMean : public runningMean {
 
 public:
   fullRunningMean( const int /*NumberofChannels*/, const int /*depth*/);
-  virtual ~fullRunningMean();
+  ~fullRunningMean() override;
 
  // delete copy ctor and assignment operator (cppcheck)
   explicit fullRunningMean(const fullRunningMean&) = delete;
   fullRunningMean& operator=(const fullRunningMean&) = delete;
 
   /// the getMean(i) funtion returns the current mean value of channel i 
-  virtual double getMean(const int /*ich*/) const;
+  double getMean(const int /*ich*/) const override;
 
   /// Reset will reset th whole class
-  virtual int Reset();
+  int Reset() override;
 
   /**Add will add a new list of readings. It is your responsibility 
      to provide an approriate array of readings. (Typically you can get 
      the array of int's from the Packet object's fillIntArray function).
    */ 
-  int Add (const int /*iarr*/[]);
-  int Add (const float /*farr*/[]);
-  int Add (const double /*darr*/[]);
+  int Add (const int /*iarr*/[]) override;
+  int Add (const float /*farr*/[]) override;
+  int Add (const double /*darr*/[]) override;
 
 protected:
 

@@ -15,7 +15,7 @@ class TPad;
 class HcalMonDraw : public OnlMonDraw
 {
  public:
-  HcalMonDraw(const std::string &name = "HCALMON"); // same name as server!
+  explicit HcalMonDraw(const std::string &name = "HCALMON"); // same name as server!
 
   ~HcalMonDraw() override {}
 
