@@ -4,6 +4,7 @@
 
 #include <onlmon/OnlMonClient.h>
 
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpcmon_client.so)
 
 void tpcDrawInit(const int online = 0)

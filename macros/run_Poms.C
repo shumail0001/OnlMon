@@ -9,6 +9,7 @@
 
 #include <onlmon/Poms.h>
 
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libpoms.so)
 
 void StartPoms()

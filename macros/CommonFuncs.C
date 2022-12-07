@@ -6,18 +6,17 @@
 void CreateHostList(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  char node[10];
   if (!online || online == 1)
     {
       cl->AddServerHost("localhost");   // check local host first
       for (int i = 2061; i <= 2076; i++)
         {
-              sprintf(node, "rcas%d", i);
+	  string node = "rcas" + to_string(i);
               cl->AddServerHost(node);      // put all va machines in search list
         }
       for (int i = 1; i <= 2; i++)
         {
-              sprintf(node, "sphnx%02d", i);
+	  string node = "sphnx0" + to_string(i);
               cl->AddServerHost(node);      // put all va machines in search list
         }
       cl->AddServerHost("sphnxdev01");

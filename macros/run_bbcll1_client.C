@@ -4,6 +4,7 @@
 
 #include <onlmon/OnlMonClient.h>
 
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlbbcll1mon_client.so)
 
 void bbcll1DrawInit(const int online = 0)

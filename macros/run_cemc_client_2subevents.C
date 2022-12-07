@@ -4,6 +4,7 @@
 
 #include <onlmon/OnlMonClient.h>
 
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlcemcmon_client.so)
 
 void cemcDrawInit(const int online = 0)

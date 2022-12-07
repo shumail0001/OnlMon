@@ -4,6 +4,7 @@
 
 #include <onlmon/OnlMonClient.h>
 
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlepdmon_client.so)
 
 void epdDrawInit(const int online = 0)

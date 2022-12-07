@@ -4,6 +4,7 @@
 
 #include <onlmon/OnlMonClient.h>
 
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlmvtxmon_client.so)
 
 void mvtxDrawInit(const int online = 0)
