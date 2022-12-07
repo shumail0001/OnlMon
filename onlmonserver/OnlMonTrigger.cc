@@ -155,7 +155,7 @@ OnlMonTrigger::getLevel1Bit(const string &name)
     }
     if (ibit < 32)
     {
-      bittmp = 0x1 << ibit;
+      bittmp = u0x1 << ibit;
     }
     else
     {

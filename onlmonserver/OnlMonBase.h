@@ -6,7 +6,7 @@
 class OnlMonBase
 {
  public:
-  OnlMonBase(const std::string &name = "NONE");
+  explicit OnlMonBase(const std::string &name = "NONE");
   virtual ~OnlMonBase() {}
 
   const std::string Name() const { return ThisName; }
