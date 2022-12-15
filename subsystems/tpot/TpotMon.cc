@@ -51,12 +51,14 @@ int TpotMon::Init()
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("doing the Init\n");
-  tpothist1 = new TH1F("tpotmon_hist1", "test 1d histo", 101, 0., 100.);
-  tpothist2 = new TH2F("tpotmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
+  tpothist1 = new TH1F("tpotmon_hist1", "suppp 1d histo", 101, 0., 100.);
+  tpothist2 = new TH2F("tpotmon_hist2", "suppp 2d histo", 101, 0., 100., 101, 0., 100.);
+  tpothist3 = new TH1F("tpotmon_hist3", "comp 1d histo", 27, 2., 15.);
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, tpothist1);  // uses the TH1->GetName() as key
   se->registerHisto(this, tpothist2);
+  se->registerHisto(this, tpothist3);
   dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
   DBVarInit();
   Reset();
@@ -95,6 +97,7 @@ int TpotMon::process_event(Event * /* evt */)
   // things down if you make more than one operation on a histogram
   tpothist1->Fill((float) idummy);
   tpothist2->Fill((float) idummy, (float) idummy, 1.);
+  tpothist3->Fill((float) idummy);
 
   if (idummy++ > 10)
   {

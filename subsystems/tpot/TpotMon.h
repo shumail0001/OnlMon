@@ -25,6 +25,7 @@ class TpotMon : public OnlMon
   int idummy = 0;
   OnlMonDB *dbvars = nullptr;
   TH1 *tpothist1 = nullptr;
+  TH1 *tpothist3 =nullptr;
   TH2 *tpothist2 = nullptr;
 };
 
