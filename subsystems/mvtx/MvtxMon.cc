@@ -14,6 +14,9 @@
 #include <TH1.h>
 #include <TH2.h>
 
+#include <Event/Event.h>
+#include <Event/packet.h>
+
 #include <cmath>
 #include <cstdio>  // for printf
 #include <fstream>
@@ -70,13 +73,13 @@ int MvtxMon::BeginRun(const int /* runno */)
   return 0;
 }
 
-int MvtxMon::process_event(Event * /* evt */)
+int MvtxMon::process_event(Event *evt)
 {
   evtcnt++;
-  OnlMonServer *se = OnlMonServer::instance();
+  //OnlMonServer *se = OnlMonServer::instance();
   // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
   // e.g. if the BBCLL1 has problems or if it changes its name
-  if (!se->Trigger("ONLMONBBCLL1"))
+ /* if (!se->Trigger("ONLMONBBCLL1"))
   {
     std::ostringstream msg;
     msg << "Processing Event " << evtcnt
@@ -88,12 +91,23 @@ int MvtxMon::process_event(Event * /* evt */)
     // are throttled together, so distinct messages should get distinct
     // message types
     se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
+  }*/
+  Packet *p = evt->getPacket(2000);
+	if (p)
+	{
+    /*for (int ruid=0; ruid<5; ruid++)
+		{
+      std::cout<<p->iValue(ruid)<<std::endl;
+    }*/
+    p->identify();
+    delete p;
   }
   // get temporary pointers to histograms
   // one can do in principle directly se->getHisto("mvtxhist1")->Fill()
   // but the search in the histogram Map is somewhat expensive and slows
   // things down if you make more than one operation on a histogram
-  mvtxhist1->Fill((float) idummy);
+
+ /* mvtxhist1->Fill((float) idummy);
   mvtxhist2->Fill((float) idummy, (float) idummy, 1.);
 
   if (idummy++ > 10)
@@ -109,7 +123,7 @@ int MvtxMon::process_event(Event * /* evt */)
     msg << "Filling Histos";
     se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
     idummy = 0;
-  }
+  }*/
   return 0;
 }
 
