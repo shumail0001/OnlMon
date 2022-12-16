@@ -36,8 +36,8 @@ class MvtxMon : public OnlMon
   const static int IDMVTXV1_MAXRUCHN = 28;
   const int NRowMax = 512;
   const int NColMax = 1024;
-  int HitPerChip[NSTAVE][NCHIP];
-  float OccPerChip[NSTAVE][NCHIP];
+  int HitPerChip[NSTAVE][NCHIP] = {};
+  float OccPerChip[NSTAVE][NCHIP] = {};
   const int NBins = 30;
 
 
