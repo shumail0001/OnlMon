@@ -977,12 +977,12 @@ int OnlMonServer::CacheRunDB(const int runnoinput)
   {
     runno = 221;
   }
-  RunType = "UNKNOWN";
+  RunType = "PHYSICS";
   TriggerConfig = "UNKNOWN";
   standalone = 0;
   cosmicrun = 0;
   borticks = 0;
-
+  return 0;
   if (runno == 0xFEE2DCB)  // dcm2 standalone runs have this runnumber
   {
     TriggerConfig = "StandAloneMode";
