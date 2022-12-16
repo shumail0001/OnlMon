@@ -30,7 +30,7 @@ class MvtxMonDraw : public OnlMonDraw
   int TimeOffsetTicks = -1;
   TCanvas *TC[3] = {nullptr};
   TPad *transparent[3] = {nullptr};
-  TPad *Pad[6] = {nullptr};
+  TPad *Pad[7] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   OnlMonDB *dbvars = nullptr;
 };

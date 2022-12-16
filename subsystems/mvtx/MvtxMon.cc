@@ -14,12 +14,17 @@
 #include <TH1.h>
 #include <TH2.h>
 
+#include <Event/Event.h>
+#include <Event/packet.h>
+
 #include <cmath>
 #include <cstdio>  // for printf
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
+#include <utility>
+
 
 enum
 {
@@ -51,12 +56,24 @@ int MvtxMon::Init()
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("doing the Init\n");
-  mvtxhist1 = new TH1F("mvtxmon_hist1", "test 1d histo", 101, 0., 100.);
-  mvtxhist2 = new TH2F("mvtxmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
+  //mvtxhist1 = new TH1F("mvtxmon_hist1", "test 1d histo", 101, 0., 100.);
+  //mvtxhist2 = new TH2F("mvtxmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
+
+  //HitMap_1_4 = new TH2D ;1	2D HitMap: Run 872 Stave 1 and Chip ID 4
+  mvtxmon_ChipStaveOcc = new TH2D("mvtxmon_ChipStaveOcc","Average Occupancy: Run XX Stave Number and Chip Number",NCHIP,-0.5,NCHIP-0.5,NSTAVE,-0.5,NSTAVE-0.5);
+  mvtxmon_ChipStave1D = new TH1D("mvtxmon_ChipStave1D","Average Occupancy: Run XX Stave Number and Chip Number",NCHIP*NSTAVE,-0.5,NCHIP * NSTAVE-0.5);
+  mvtxmon_ChipFiredHis= new TH1D("mvtxmon_ChipFiredHis","Number of Chips Fired in Each Event Distribution: Run XX",NCHIP*NSTAVE,-0.5,NCHIP*NSTAVE - 0.5);
+  mvtxmon_EvtHitChip= new TH1D("mvtxmon_EvtHitChip","Number of Hits Per Event Per Chip Distribution: Run XX",25,-0.5,24.5);
+  mvtxmon_EvtHitDis = new TH1D("mvtxmon_EvtHitDis","Number of Hits Per Event Distribution: Run XX",25,-0.5,24.5);
+  //InfoCanvas= new TH1D;1	QC Process Information Canvas
+
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
-  se->registerHisto(this, mvtxhist1);  // uses the TH1->GetName() as key
-  se->registerHisto(this, mvtxhist2);
+  se->registerHisto(this, mvtxmon_ChipStaveOcc);  // uses the TH1->GetName() as key
+  se->registerHisto(this, mvtxmon_ChipStave1D);
+  se->registerHisto(this, mvtxmon_ChipFiredHis);
+  se->registerHisto(this, mvtxmon_EvtHitChip);
+  se->registerHisto(this, mvtxmon_EvtHitDis);
   dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
   DBVarInit();
   Reset();
@@ -70,10 +87,10 @@ int MvtxMon::BeginRun(const int /* runno */)
   return 0;
 }
 
-int MvtxMon::process_event(Event * /* evt */)
+int MvtxMon::process_event(Event *evt)
 {
   evtcnt++;
-  OnlMonServer *se = OnlMonServer::instance();
+ OnlMonServer *se = OnlMonServer::instance();
   // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
   // e.g. if the BBCLL1 has problems or if it changes its name
   if (!se->Trigger("ONLMONBBCLL1"))
@@ -89,11 +106,123 @@ int MvtxMon::process_event(Event * /* evt */)
     // message types
     se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
   }
+  
+int NAllHits = 0;
+
+
+	for(int i = 0; i < NSTAVE; i++){
+
+		for(int j = 0; j < NCHIP; j++){
+
+			HitPerChip[i][j] = 0;
+
+		}
+
+	}
+
+
+	Packet *p = evt->getPacket(2000);
+	if (p)
+	{
+
+		bool evnt_err = false;
+
+
+
+		//int npixels[NSTAVE] = {0};
+		//double mrow[NSTAVE] = {0};
+		//double mcol[NSTAVE] = {0};
+		//double mrow_refstave = -1;
+		//double mcol_refstave = -1;
+
+		if ( !evnt_err ) {
+			for (int ruid=0; ruid<IDMVTXV1_MAXRUID+1; ruid++)
+			{
+				if (p->iValue(ruid)!=-1)
+				{
+					for ( int ruchn = 0; ruchn < IDMVTXV1_MAXRUCHN+1; ruchn++)
+					{
+						if (p->iValue(ruid,ruchn)>0)
+						{
+							for (int i=0;i<p->iValue(ruid,ruchn);i++)
+							{
+								//int hit = p->iValue(ruid,ruchn,i);
+								//int irow = decode_row(hit);
+								//int icol = decode_col(hit);
+								//cout << "(ruid " << ruid << ", ruchn " << ruchn << ") ";
+								//cout << "(row " << irow << ", col " << icol << ") ";
+								if (chipmap.count({ruid,ruchn}) != 1) {
+									std::cout << "invalid: (ruid " << ruid << ", ruchn " << ruchn << ") " << std::endl;
+								} else {
+									std::pair<int, int> chiplocation = chipmap[{ruid,ruchn}];
+									int istave = chiplocation.first;
+									int ichip = chiplocation.second;
+									HitPerChip[istave][ichip] = HitPerChip[istave][ichip] + 1;
+
+								//	HitMap[istave][ichip]->Fill(icol,irow); do later
+
+								//	ChipStave->Fill(ichip,istave); do later
+									NAllHits = NAllHits + 1;
+
+								}
+							}
+							//cout << endl;
+						}
+					}
+				}
+			}
+
+			for(int i = 0; i < NSTAVE; i++){
+
+				for(int j = 0; j < NCHIP; j++){
+
+					int Index = NCHIP * i + j;
+
+					OccPerChip[i][j] = float(HitPerChip[i][j])/(float(NRowMax) * float(NRowMax));
+
+					mvtxmon_ChipStaveOcc->Fill(j,i,OccPerChip[i][j]);
+					mvtxmon_ChipStave1D->Fill(Index,OccPerChip[i][j]);
+				}
+			}
+
+
+
+			mvtxmon_EvtHitDis->Fill(NAllHits);
+			int NChipFired = 0;
+
+			for(int i = 0; i < NSTAVE; i++){
+
+				for(int j = 0; j < NCHIP; j++){
+
+					if(HitPerChip[i][j] > 0){
+						mvtxmon_EvtHitChip->Fill(HitPerChip[i][j]);
+						NChipFired = NChipFired + 1;
+					}
+
+
+				}
+
+			}
+
+			mvtxmon_ChipFiredHis->Fill(NChipFired);
+
+		}
+
+
+
+		//hnevnt->Fill(0);
+		delete p;
+
+	}
+
+
+
   // get temporary pointers to histograms
   // one can do in principle directly se->getHisto("mvtxhist1")->Fill()
   // but the search in the histogram Map is somewhat expensive and slows
   // things down if you make more than one operation on a histogram
-  mvtxhist1->Fill((float) idummy);
+
+ /* mvtxhist1->Fill((float) idummy);
   mvtxhist2->Fill((float) idummy, (float) idummy, 1.);
 
   if (idummy++ > 10)
@@ -109,7 +238,7 @@ int MvtxMon::process_event(Event * /* evt */)
     msg << "Filling Histos";
     se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
     idummy = 0;
-  }
+  }*/
   return 0;
 }
 

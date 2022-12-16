@@ -10,6 +10,7 @@
 #include <TDatime.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
+#include <TH2.h>
 #include <TPad.h>
 #include <TROOT.h>
 #include <TSystem.h>
@@ -51,10 +52,12 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     // gSystem->ProcessEvents(), otherwise your process will grow and
     // grow and grow but will not show a definitely lost memory leak
     gSystem->ProcessEvents();
-    Pad[0] = new TPad("mvtxpad1", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[1] = new TPad("mvtxpad2", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
+    Pad[0] = new TPad("mvtxpad1", "who needs this?", 0.1, 0.7, 0.9, 0.9, 0);
+    Pad[1] = new TPad("mvtxpad2", "who needs this?", 0.1, 0.3, 0.9, 0.7, 0);
+    Pad[2] = new TPad("mvtxpad3", "who needs this?", 0.1, 0.05, 0.9, 0.3, 0);
     Pad[0]->Draw();
     Pad[1]->Draw();
+      Pad[2]->Draw();
     // this one is used to plot the run number on the canvas
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
     transparent[0]->SetFillStyle(4000);
@@ -66,10 +69,10 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     // xpos negative: do not draw menu bar
     TC[1] = new TCanvas(name.c_str(), "MvtxMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    Pad[2] = new TPad("mvtxpad3", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[3] = new TPad("mvtxpad4", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[2]->Draw();
+    Pad[3] = new TPad("mvtxpad4", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
+    Pad[4] = new TPad("mvtxpad5", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
     Pad[3]->Draw();
+    Pad[4]->Draw();
     // this one is used to plot the run number on the canvas
     transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
     transparent[1]->SetFillStyle(4000);
@@ -80,10 +83,10 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
   {
     TC[2] = new TCanvas(name.c_str(), "MvtxMon3 Example Monitor", xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    Pad[4] = new TPad("mvtxpad5", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[5] = new TPad("mvtxpad6", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[4]->Draw();
+    Pad[5] = new TPad("mvtxpad6", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
+    Pad[6] = new TPad("mvtxpad7", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
     Pad[5]->Draw();
+    Pad[6]->Draw();
     // this one is used to plot the run number on the canvas
     //        transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
     //        transparent[2]->SetFillStyle(4000);
@@ -123,8 +126,13 @@ int MvtxMonDraw::Draw(const std::string &what)
 int MvtxMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *mvtxmon_hist1 = cl->getHisto("mvtxmon_hist1");
-  TH1 *mvtxmon_hist2 = cl->getHisto("mvtxmon_hist1");
+  //TH1 *mvtxmon_hist1 = cl->getHisto("mvtxmon_hist1");
+  //TH1 *mvtxmon_hist2 = cl->getHisto("mvtxmon_hist1");
+
+  TH2 *mvtxmon_ChipStaveOcc = dynamic_cast<TH2*>(cl->getHisto("mvtxmon_ChipStaveOcc"));
+  TH1 *mvtxmon_ChipStave1D = cl->getHisto("mvtxmon_ChipStave1D");
+  TH1 *mvtxmon_ChipFiredHis = cl->getHisto("mvtxmon_ChipFiredHis");
+
   if (!gROOT->FindObject("MvtxMon1"))
   {
     MakeCanvas("MvtxMon1");
@@ -132,9 +140,9 @@ int MvtxMonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   Pad[0]->cd();
-  if (mvtxmon_hist1)
+  if (mvtxmon_ChipStaveOcc)
   {
-    mvtxmon_hist1->DrawCopy();
+    mvtxmon_ChipStaveOcc->DrawCopy();
   }
   else
   {
@@ -143,9 +151,14 @@ int MvtxMonDraw::DrawFirst(const std::string & /* what */)
     return -1;
   }
   Pad[1]->cd();
-  if (mvtxmon_hist2)
+  if (mvtxmon_ChipStave1D)
   {
-    mvtxmon_hist2->DrawCopy();
+    mvtxmon_ChipStave1D->DrawCopy();
+  }
+  Pad[2]->cd();
+  if (mvtxmon_ChipFiredHis)
+  {
+    mvtxmon_ChipFiredHis->DrawCopy();
   }
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -170,18 +183,18 @@ int MvtxMonDraw::DrawFirst(const std::string & /* what */)
 int MvtxMonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *mvtxmon_hist1 = cl->getHisto("mvtxmon_hist2");
-  TH1 *mvtxmon_hist2 = cl->getHisto("mvtxmon_hist2");
+    TH1 *mvtxmon_EvtHitChip = cl->getHisto("mvtxmon_EvtHitChip");
+  TH1 *mvtxmon_EvtHitDis = cl->getHisto("mvtxmon_EvtHitDis");
   if (!gROOT->FindObject("MvtxMon2"))
   {
     MakeCanvas("MvtxMon2");
   }
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
-  Pad[2]->cd();
-  if (mvtxmon_hist1)
+  Pad[3]->cd();
+  if (mvtxmon_EvtHitChip)
   {
-    mvtxmon_hist1->DrawCopy();
+    mvtxmon_EvtHitChip->DrawCopy();
   }
   else
   {
@@ -189,10 +202,10 @@ int MvtxMonDraw::DrawSecond(const std::string & /* what */)
     TC[1]->SetEditable(false);
     return -1;
   }
-  Pad[3]->cd();
-  if (mvtxmon_hist2)
+  Pad[4]->cd();
+  if (mvtxmon_EvtHitDis)
   {
-    mvtxmon_hist2->DrawCopy();
+    mvtxmon_EvtHitDis->DrawCopy();
   }
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -308,7 +321,7 @@ int MvtxMonDraw::DrawHistory(const std::string & /* what */)
     ex[i] = 0;
     ey[i] = varerr[i];
   }
-  Pad[4]->cd();
+  Pad[5]->cd();
   if (gr[0])
   {
     delete gr[0];
@@ -354,7 +367,7 @@ int MvtxMonDraw::DrawHistory(const std::string & /* what */)
     ex[i] = 0;
     ey[i] = varerr[i];
   }
-  Pad[5]->cd();
+  Pad[6]->cd();
   if (gr[1])
   {
     delete gr[1];

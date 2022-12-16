@@ -6,7 +6,7 @@
 
 R__LOAD_LIBRARY(libonlmvtxmon_server.so)
 
-void run_mvtx_server(const char *prdffile = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000221-0000.prdf")
+void run_mvtx_server(const char *prdffile = "/sphenix/data/data01/mvtx/tb-1441-052019/calib_00000761-0000.prdf")
 {
   OnlMon *m = new MvtxMon();                    // create subsystem Monitor object
                                                 //  m->AddTrigger("PPG(Laser)");  // high efficiency triggers selection at et pool

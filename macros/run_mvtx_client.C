@@ -11,8 +11,14 @@ void mvtxDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
-  cl->registerHisto("mvtxmon_hist1", "MVTXMON");
-  cl->registerHisto("mvtxmon_hist2", "MVTXMON");
+  //cl->registerHisto("mvtxmon_hist1", "MVTXMON");
+  //cl->registerHisto("mvtxmon_hist2", "MVTXMON");
+  cl->registerHisto("mvtxmon_ChipStaveOcc", "MVTXMON");
+  cl->registerHisto("mvtxmon_ChipStave1D", "MVTXMON");
+  cl->registerHisto("mvtxmon_ChipFiredHis", "MVTXMON");
+  cl->registerHisto("mvtxmon_EvtHitChip", "MVTXMON");
+  cl->registerHisto("mvtxmon_EvtHitDis", "MVTXMON");
+
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);
   // get my histos from server, the second parameter = 1
