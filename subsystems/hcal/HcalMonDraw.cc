@@ -167,6 +167,10 @@ int HcalMonDraw::DrawFirst(const std::string & /* what */)
   TH2D* hist1 = (TH2D*)cl->getHisto("h2_hcal_rm");
   TH2D* h2_hcal_mean = (TH2D*)cl->getHisto("h2_hcal_mean");
   TH1F* h_event = (TH1F*)cl->getHisto("h_event");
+  if (!gROOT->FindObject("HcalMon1"))
+   {
+     MakeCanvas("HcalMon1");
+   }
   if (!hist1)
   {
     DrawDeadServer(transparent[0]);
@@ -176,10 +180,6 @@ int HcalMonDraw::DrawFirst(const std::string & /* what */)
   h2_hcal_mean->Scale(1./h_event->GetEntries()); 
   hist1->Divide(h2_hcal_mean); 
 
-  if (!gROOT->FindObject("HcalMon1"))
-   {
-     MakeCanvas("HcalMon1");
-   }
   
   TC[0]->SetEditable(1);
   TC[0]->Clear("D");
@@ -290,7 +290,7 @@ int HcalMonDraw::DrawSecond(const std::string & /* what */)
   if (!h_rm_sectorAvg[0] || !h_event || !h_sectorAvg_total)
   {
     DrawDeadServer(transparent[1]);
-    TC[3]->SetEditable(0);
+    TC[1]->SetEditable(0);
     return -1;
   }
  

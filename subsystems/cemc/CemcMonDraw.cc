@@ -133,6 +133,11 @@ int CemcMonDraw::DrawStandard(const std::string & /* what */)
 
   TH1 *cemc_runningmean_SEB00 = cl->getHisto("cemc_runningmean_SEB00");
   TH1 *cemc_runningmean_SEB01 = cl->getHisto("cemc_runningmean_SEB01");
+  if (!gROOT->FindObject("Standard"))
+  {
+    MakeCanvas("Standard");
+
+  }
   if (!cemc_runningmean_SEB00)
   {
     DrawDeadServer(transparent[0]);
@@ -149,11 +154,6 @@ int CemcMonDraw::DrawStandard(const std::string & /* what */)
   cemc_runningmean->SetMinimum(0);
 
 
-  if (!gROOT->FindObject("Standard"))
-  {
-    MakeCanvas("Standard");
-
-  }
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
 
