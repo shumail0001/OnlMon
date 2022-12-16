@@ -19,6 +19,12 @@ void mvtxDrawInit(const int online = 0)
   cl->registerHisto("mvtxmon_EvtHitChip", "MVTXMON");
   cl->registerHisto("mvtxmon_EvtHitDis", "MVTXMON");
 
+   for(int i = 0; i < MvtxMonDraw::NSTAVE; i++){
+		for(int j = 0; j < MvtxMonDraw::NCHIP; j++){
+			cl->registerHisto(Form("mvtxmon_HitMap_%d_%d",i,j), "MVTXMON");
+    }
+  }
+
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);
   // get my histos from server, the second parameter = 1

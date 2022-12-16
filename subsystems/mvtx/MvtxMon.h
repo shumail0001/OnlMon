@@ -38,6 +38,7 @@ class MvtxMon : public OnlMon
   const int NColMax = 1024;
   int HitPerChip[NSTAVE][NCHIP];
   float OccPerChip[NSTAVE][NCHIP];
+  const int NBins = 30;
 
 
 
@@ -49,6 +50,7 @@ class MvtxMon : public OnlMon
   TH1	*mvtxmon_ChipFiredHis= nullptr;
   TH1	*mvtxmon_EvtHitChip= nullptr;
   TH1 *mvtxmon_EvtHitDis= nullptr;
+  TH2 *mvtxmon_HitMap[NSTAVE][NCHIP] = {nullptr}; 
   //TH1	*InfoCanvas= nullptr;
 
   std::map<std::pair<int,int>,std::pair<int,int>> chipmap = {

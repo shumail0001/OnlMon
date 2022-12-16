@@ -93,6 +93,19 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     //        transparent[2]->Draw();
     //      TC[2]->SetEditable(0);
   }
+  else if (name == "MvtxMon_HitMap")
+  {
+    TC[3] = new TCanvas(name.c_str(), "MvtxMon Example Monitor", -1, 0, xsize, ysize);
+    gSystem->ProcessEvents();
+    TC[3]->Divide(NSTAVE,NCHIP);
+    // this one is used to plot the run number on the canvas
+    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[0]->SetFillStyle(4000);
+    transparent[0]->Draw();
+    TC[3]->SetEditable(false);
+    TC[3]->SetTopMargin(0.05);
+    TC[3]->SetBottomMargin(0.05);
+  }
   return 0;
 }
 
@@ -108,6 +121,11 @@ int MvtxMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SECOND")
   {
     iret += DrawSecond(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "HITMAP")
+  {
+    iret += DrawHitMap(what);
     idraw++;
   }
   if (what == "ALL" || what == "HISTORY")
@@ -224,6 +242,68 @@ int MvtxMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->Update();
   TC[1]->Show();
   TC[1]->SetEditable(false);
+  return 0;
+}
+
+int MvtxMonDraw::DrawHitMap(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  //TH1 *mvtxmon_hist1 = cl->getHisto("mvtxmon_hist1");
+  //TH1 *mvtxmon_hist2 = cl->getHisto("mvtxmon_hist1");
+  TH2 *mvtxmon_HitMap[NSTAVE][NCHIP] = {nullptr};
+
+  for(int i = 0; i < NSTAVE; i++){
+		for(int j = 0; j < NCHIP; j++){
+			mvtxmon_HitMap[i][j] = dynamic_cast<TH2*>(cl->getHisto(Form("mvtxmon_HitMap_%d_%d",i,j)));
+    }
+  }
+
+  if (!gROOT->FindObject("MvtxMon_HitMap"))
+  {
+    MakeCanvas("MvtxMon_HitMap");
+  }
+
+  TC[3]->SetEditable(true);
+  TC[3]->Clear("D");
+  for(int i = 0; i < NSTAVE; i++){
+		for(int j = 0; j < NCHIP; j++){
+      TC[3]->cd(i+NSTAVE*j+1);
+      if (mvtxmon_HitMap[i][j])
+      {
+        mvtxmon_HitMap[i][j]->GetXaxis()->SetTitle("Col");
+			  mvtxmon_HitMap[i][j]->GetYaxis()->SetTitle("Row");
+			  mvtxmon_HitMap[i][j]->GetXaxis()->CenterTitle();
+			  mvtxmon_HitMap[i][j]->GetYaxis()->CenterTitle();
+			  mvtxmon_HitMap[i][j]->GetYaxis()->SetTitleOffset(1.4);
+			  mvtxmon_HitMap[i][j]->SetTitle(Form("2D HitMap: Stave %d and Chip ID %d",i,j));
+			  mvtxmon_HitMap[i][j]->DrawCopy("COLZ");
+      }
+      else
+      {
+        DrawDeadServer(transparent[0]);
+        TC[3]->SetEditable(false);
+        return -1;
+      }
+    }
+  }
+  TC[3]->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_1 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[0]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[3]->Update();
+  TC[3]->Show();
+  TC[3]->SetEditable(false);
   return 0;
 }
 

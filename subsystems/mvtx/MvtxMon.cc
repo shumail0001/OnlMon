@@ -58,6 +58,7 @@ int MvtxMon::Init()
   printf("doing the Init\n");
   //mvtxhist1 = new TH1F("mvtxmon_hist1", "test 1d histo", 101, 0., 100.);
   //mvtxhist2 = new TH2F("mvtxmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
+   OnlMonServer *se = OnlMonServer::instance();
 
   //HitMap_1_4 = new TH2D ;1	2D HitMap: Run 872 Stave 1 and Chip ID 4
   mvtxmon_ChipStaveOcc = new TH2D("mvtxmon_ChipStaveOcc","Average Occupancy: Run XX Stave Number and Chip Number",NCHIP,-0.5,NCHIP-0.5,NSTAVE,-0.5,NSTAVE-0.5);
@@ -65,9 +66,17 @@ int MvtxMon::Init()
   mvtxmon_ChipFiredHis= new TH1D("mvtxmon_ChipFiredHis","Number of Chips Fired in Each Event Distribution: Run XX",NCHIP*NSTAVE,-0.5,NCHIP*NSTAVE - 0.5);
   mvtxmon_EvtHitChip= new TH1D("mvtxmon_EvtHitChip","Number of Hits Per Event Per Chip Distribution: Run XX",25,-0.5,24.5);
   mvtxmon_EvtHitDis = new TH1D("mvtxmon_EvtHitDis","Number of Hits Per Event Distribution: Run XX",25,-0.5,24.5);
+  for(int i = 0; i < NSTAVE; i++){
+		for(int j = 0; j < NCHIP; j++){
+			mvtxmon_HitMap[i][j] = new TH2D(Form("mvtxmon_HitMap_%d_%d",i,j),Form("HitMap_%d_%d",i,j),NBins,-0.5,NColMax+0.5,NBins,-0.5,NRowMax+0.5); 
+      se->registerHisto(this, mvtxmon_HitMap[i][j]);
+    }
+  }
+
+  
   //InfoCanvas= new TH1D;1	QC Process Information Canvas
 
-  OnlMonServer *se = OnlMonServer::instance();
+ 
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, mvtxmon_ChipStaveOcc);  // uses the TH1->GetName() as key
   se->registerHisto(this, mvtxmon_ChipStave1D);
@@ -146,9 +155,9 @@ int NAllHits = 0;
 						{
 							for (int i=0;i<p->iValue(ruid,ruchn);i++)
 							{
-								//int hit = p->iValue(ruid,ruchn,i);
-								//int irow = decode_row(hit);
-								//int icol = decode_col(hit);
+								int hit = p->iValue(ruid,ruchn,i);
+								int irow = decode_row(hit);
+								int icol = decode_col(hit);
 								//cout << "(ruid " << ruid << ", ruchn " << ruchn << ") ";
 								//cout << "(row " << irow << ", col " << icol << ") ";
 								if (chipmap.count({ruid,ruchn}) != 1) {
@@ -159,7 +168,7 @@ int NAllHits = 0;
 									int ichip = chiplocation.second;
 									HitPerChip[istave][ichip] = HitPerChip[istave][ichip] + 1;
 
-								//	HitMap[istave][ichip]->Fill(icol,irow); do later
+									mvtxmon_HitMap[istave][ichip]->Fill(icol,irow);
 
 								//	ChipStave->Fill(ichip,istave); do later
 									NAllHits = NAllHits + 1;
