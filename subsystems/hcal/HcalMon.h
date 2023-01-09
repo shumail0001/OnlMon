@@ -2,6 +2,7 @@
 #define HCAL_HCALMON_H
 
 #include <onlmon/OnlMon.h>
+#include <calobase/TowerInfoContainerv1.h>
 
 #include <vector>
 
@@ -32,6 +33,8 @@ class HcalMon : public OnlMon
   int idummy = 0;
   const int Nsector = 32;
   const int Ntower = 1536;
+  const int packetlow = 8001;
+  const int packethigh = 8024;
   OnlMonDB *dbvars = nullptr;
   //TH1 *hcalhist1 = nullptr;
   //TH2 *hcalhist2 = nullptr;
@@ -46,6 +49,7 @@ class HcalMon : public OnlMon
   TH1* h_rm_sectorAvg[100] = {nullptr};
 
   CaloWaveformProcessing* WaveformProcessing = nullptr;
+  TowerInfoContainerv1 * CaloInfoContainer = nullptr; //for using encode_key
 
   std::vector<runningMean*> rm_vector_sectAvg;
   std::vector<runningMean*> rm_vector_twr;

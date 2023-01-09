@@ -12,6 +12,8 @@
 
 #include <caloreco/CaloWaveformProcessing.h>
 
+#include <calobase/TowerInfoContainerv1.h>
+
 #include <Event/Event.h>
 #include <Event/msg_profile.h>
 
@@ -120,8 +122,8 @@ int HcalMon::Init()
   WaveformProcessing->set_processing_type(CaloWaveformProcessing::TEMPLATE);
   WaveformProcessing->set_template_file("testbeam_ohcal_template.root");
   WaveformProcessing->initialize_processing();
-
-
+  // initialize TowerInfoContainer
+  CaloInfoContainer = new TowerInfoContainerv1(TowerInfoContainerv1::DETECTOR::HCAL);  
 
   return 0;
 }
@@ -211,17 +213,17 @@ int HcalMon::process_event(Event *e /* evt */)
 
   h_waveform_twrAvg->Reset(); // only record the latest event waveform
   unsigned int towerNumber = 0;
-
+  float sectorAvg[Nsector] = {0};
   // loop over packets which contain a single sector 
-  for (int packet=8001; packet<8033; packet++) {
+  for (int packet=packetlow; packet<=packethigh; packet++) {
     Packet *p = e->getPacket(packet);
-    int sectorNumber = packet - 8000;
+   
     if (p) {
-        float sectorAvg = 0;
-        int ip = p->getIdentifier() - 8001;
-
-        for ( int c = 0; c < 48; c++) {
+      //float sectorAvg = 0;
+        
+        for ( int c = 0; c < p->iValue(0,"CHANNELS"); c++) {
           towerNumber++;
+	  
           //std::vector result =  getSignal(p,c); // simple peak extraction
           std::vector result =  anaWaveform(p,c); // full waveform fitting 
           float signal   = result.at(0);
@@ -229,21 +231,23 @@ int HcalMon::process_event(Event *e /* evt */)
           float pedestal = result.at(2);
 
           // channel mapping
-          double phi_bin =  (2*ip + hcal_phybin[c] + 0.5) ;
-          double eta_bin = hcal_etabin[c]+0.5;
+          unsigned int key = CaloInfoContainer->encode_key(towerNumber-1);
+	  unsigned int phi_bin = CaloInfoContainer->getTowerPhiBin(key);
+	  unsigned int eta_bin = CaloInfoContainer->getTowerEtaBin(key);
 
+	  int sectorNumber = phi_bin / 2 + 1;
           h_waveform_time->Fill(time);
           h_waveform_pedestal->Fill(pedestal);
 
-          sectorAvg += signal;
+          sectorAvg[sectorNumber - 1] += signal;
 
           rm_vector_twr[towerNumber-1]->Add(&signal);
 
-          int bin = h2_hcal_mean->FindBin(eta_bin,phi_bin);
+          int bin = h2_hcal_mean->FindBin(eta_bin + 0.5,phi_bin + 0.5);
           h2_hcal_mean->SetBinContent(bin,h2_hcal_mean->GetBinContent(bin) + signal);
           h2_hcal_rm->SetBinContent(bin,rm_vector_twr[towerNumber-1]->getMean(0));
           if (signal > hit_threshold) {
-              h2_hcal_hits->Fill(eta_bin,phi_bin);
+              h2_hcal_hits->Fill(eta_bin + 0.5,phi_bin + 0.5);
           }
 
           // record waveform
@@ -252,7 +256,7 @@ int HcalMon::process_event(Event *e /* evt */)
           }
 
         }// channel loop
-
+	/*
         sectorAvg /= 48; // average tower energy in particular sector
         h_sectorAvg_total->Fill(sectorNumber,sectorAvg);
         rm_vector_sectAvg[sectorNumber-1]->Add(&sectorAvg);
@@ -265,11 +269,27 @@ int HcalMon::process_event(Event *e /* evt */)
           }
           h_rm_sectorAvg[sectorNumber-1]->SetBinContent(historyLength,rm_vector_sectAvg[sectorNumber-1]->getMean(0));
         }
-
+	*/
         delete p;
       }// if packet good
     }// packet loop
-    
+  //sector loop
+  for ( int isec=0; isec < Nsector; isec++) {
+    sectorAvg[isec] /= 48; 
+    h_sectorAvg_total->Fill(isec + 1,sectorAvg[isec]);
+    rm_vector_sectAvg[isec]->Add(&sectorAvg[isec]);
+    if (evtcnt <= historyLength){
+      h_rm_sectorAvg[isec]->SetBinContent(evtcnt,rm_vector_sectAvg[isec]->getMean(0));
+    }
+    else {
+      for(int ib=1; ib<historyLength; ib++){
+	h_rm_sectorAvg[isec]->SetBinContent(ib,h_rm_sectorAvg[isec]->GetBinContent(ib+1));
+      }
+      h_rm_sectorAvg[isec]->SetBinContent(evtcnt,rm_vector_sectAvg[isec]->getMean(0));
+    }
+
+  }//sector loop
+  
    h_event->Fill(0);
    h_waveform_twrAvg->Scale(1./32./48.); // average tower waveform
 
