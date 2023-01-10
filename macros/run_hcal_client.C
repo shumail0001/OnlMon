@@ -12,33 +12,42 @@ void hcalDrawInit(const int online = 0)
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
   cl->registerHisto("h2_hcal_hits", "HCALMON");
+  cl->registerHisto("h2_hcal_rm", "HCALMON");
   cl->registerHisto("h2_hcal_mean", "HCALMON");
-  cl->AddServerHost("localhost");  // check local host first
+  cl->registerHisto("h_event", "HCALMON");
+  cl->registerHisto("h_sectorAvg_total", "HCALMON");
+  cl->registerHisto("h_waveform_twrAvg", "HCALMON");
+  cl->registerHisto("h_waveform_time", "HCALMON");
+  cl->registerHisto("h_waveform_pedestal", "HCALMON");
+  for (int ih=0; ih<32; ih++){
+    cl->registerHisto(Form("h_rm_sectorAvg_s%d",ih), "HCALMON");
+  }
+  cl->AddServerHost("localhost");   // check local host first
   CreateHostList(online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
   cl->requestHistoBySubSystem("HCALMON", 1);
-  OnlMonDraw *hcalmon = new HcalMonDraw();  // create Drawing Object
+  OnlMonDraw *hcalmon = new HcalMonDraw();    // create Drawing Object
   cl->registerDrawer(hcalmon);              // register with client framework
 }
 
-void hcalDraw(const char *what = "ALL")
+void hcalDraw(const char *what="ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("HCALMON");       // update histos
-  cl->Draw("HCALMON", what);                    // Draw Histos of registered Drawers
+  cl->requestHistoBySubSystem("HCALMON");         // update histos
+  cl->Draw("HCALMON",what);                       // Draw Histos of registered Drawers
 }
 
 void hcalPS()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("HCALMON");                        // Create PS files
+  cl->MakePS("HCALMON");                          // Create PS files
   return;
 }
 
 void hcalHtml()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeHtml("HCALMON");                      // Create html output
+  cl->MakeHtml("HCALMON");                        // Create html output
   return;
 }

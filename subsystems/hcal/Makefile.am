@@ -26,6 +26,7 @@ libonlhcalmon_server_la_LIBADD = \
 libonlhcalmon_client_la_LIBADD = \
   -L$(libdir) \
   -L$(OFFLINE_MAIN)/lib \
+  -lphool \
   -lonlmonclient \
   -lonlmondb
 
