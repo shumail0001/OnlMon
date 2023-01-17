@@ -39,8 +39,8 @@ public:
 	int MakePS(const std::string &what = "ALL") override;
 	int MakeHtml(const std::string &what = "ALL") override;
 
-	static void InttExec(std::string, int);
-	static void InttExecExec(std::string);
+	static void InttExec(const std::string&, int);
+	static void InttExecExec(const std::string&);
 
 	typedef TH1* (*MAIN_FUNC)(int);
 	typedef TH1* (*EXEC_FUNC)(int, int, int, int);
@@ -101,26 +101,26 @@ private:
 	static void DrawPad(TPad*);
 	static void DrawExecPad(TPad*);
 
-	static void DrawDisp(TPad*, std::string);
+	static void DrawDisp(TPad*, const std::string&);
 	//---	Main Drawing Methods	---//
-	static void DrawOption(std::string);
+	static void DrawOption(const std::string&);
 
-	static void DrawTitle	(TPad*, std::string, int);
-	static void DrawKey	(TPad*, std::string, int);
-	static void DrawHist	(TPad*, std::string, int);
-	static void DrawGrid	(TPad*, std::string, int);
-	static void DrawLabels	(TPad*, std::string, int);
-	static void DrawExec	(TPad*, std::string, int);
+	static void DrawTitle	(TPad*, const std::string&, int);
+	static void DrawKey	(TPad*, const std::string&, int);
+	static void DrawHist	(TPad*, const std::string&, int);
+	static void DrawGrid	(TPad*, const std::string&, int);
+	static void DrawLabels	(TPad*, const std::string&, int);
+	static void DrawExec	(TPad*, const std::string&, int);
 	//---	~Main Drawing Methods	---//
 
 	//---	Exec Drawing Methods	---//
-	static void DrawExecOption(std::string, int, int, int, int);
+	static void DrawExecOption(const std::string&, int, int, int, int);
 
-	static void DrawExecTitle	(TPad*, std::string, int, int, int, int);
-	static void DrawExecHist	(TPad*, std::string, int, int, int, int);
-	static void DrawExecExec	(TPad*, std::string, int, int, int, int);
-	static void DrawExecLines	(TPad*, std::string, int, int, int, int);
-	static void DrawExecDisp	(TPad*, std::string, int, int, int, int);
+	static void DrawExecTitle	(TPad*, const std::string&, int, int, int, int);
+	static void DrawExecHist	(TPad*, const std::string&, int, int, int, int);
+	static void DrawExecExec	(TPad*, const std::string&, int, int, int, int);
+	static void DrawExecLines	(TPad*, const std::string&, int, int, int, int);
+	static void DrawExecDisp	(TPad*, const std::string&, int, int, int, int);
 	//---	~Exec Drawing Methods	---//
 	//===	~Drawing Methods	===//
 };

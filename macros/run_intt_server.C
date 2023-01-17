@@ -4,6 +4,7 @@
 #include <onlmon/intt/InttMon.h>
 #include <onlmon/OnlMonServer.h>
 
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlinttmon_server.so)
 
 void run_intt_server(const char *prdffile = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000221-0000.prdf")

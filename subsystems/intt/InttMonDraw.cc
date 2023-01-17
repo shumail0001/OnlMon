@@ -134,7 +134,7 @@ void InttMonDraw::DrawExecPad(TPad* pad)
 	pad->Draw();
 }
 
-void InttMonDraw::DrawDisp(TPad* base_pad, std::string option)
+void InttMonDraw::DrawDisp(TPad* base_pad, const std::string& option)
 {
 	if(OPTIONS.find(option) == OPTIONS.end())return;
 
@@ -177,7 +177,7 @@ void InttMonDraw::DrawDisp(TPad* base_pad, std::string option)
 }
 
 //---		Main Drawing Methods		---//
-void InttMonDraw::DrawOption(std::string option)
+void InttMonDraw::DrawOption(const std::string& option)
 {
 	//if(!(0 <= opt and opt < OPT))return;
 	if(OPTIONS.find(option) == OPTIONS.end())return;
@@ -249,7 +249,7 @@ void InttMonDraw::DrawOption(std::string option)
 	canvas->SetEditable(0);
 }
 
-void InttMonDraw::DrawTitle(TPad* base_pad, std::string option, int layer)
+void InttMonDraw::DrawTitle(TPad* base_pad, const std::string& option, int layer)
 {
 	layer -= INTT::LAYER_OFFSET;
 
@@ -288,7 +288,7 @@ void InttMonDraw::DrawTitle(TPad* base_pad, std::string option, int layer)
 	}
 }
 
-void InttMonDraw::DrawKey(TPad* base_pad, std::string option, int layer)
+void InttMonDraw::DrawKey(TPad* base_pad, const std::string& option, int layer)
 {
 	layer -= INTT::LAYER_OFFSET;
 
@@ -414,7 +414,7 @@ void InttMonDraw::DrawKey(TPad* base_pad, std::string option, int layer)
 	}
 }
 
-void InttMonDraw::DrawHist(TPad* base_pad, std::string option, int layer)
+void InttMonDraw::DrawHist(TPad* base_pad, const std::string& option, int layer)
 {
 	layer -= INTT::LAYER_OFFSET;
 
@@ -445,7 +445,7 @@ void InttMonDraw::DrawHist(TPad* base_pad, std::string option, int layer)
 	if(hist)hist->DrawCopy("COLZ");
 }
 
-void InttMonDraw::DrawGrid(TPad* base_pad, std::string option, int layer)
+void InttMonDraw::DrawGrid(TPad* base_pad, const std::string& option, int layer)
 {
 	layer -= INTT::LAYER_OFFSET;
 
@@ -505,7 +505,7 @@ void InttMonDraw::DrawGrid(TPad* base_pad, std::string option, int layer)
 	}
 }
 
-void InttMonDraw::DrawLabels(TPad* base_pad, std::string option, int layer)
+void InttMonDraw::DrawLabels(TPad* base_pad, const std::string& option, int layer)
 {
 	layer -= INTT::LAYER_OFFSET;
 
@@ -560,7 +560,7 @@ void InttMonDraw::DrawLabels(TPad* base_pad, std::string option, int layer)
 	}
 }
 
-void InttMonDraw::DrawExec(TPad* base_pad, std::string option, int layer)
+void InttMonDraw::DrawExec(TPad* base_pad, const std::string& option, int layer)
 {
 	layer -= INTT::LAYER_OFFSET;
 
@@ -594,7 +594,7 @@ void InttMonDraw::DrawExec(TPad* base_pad, std::string option, int layer)
 //---		~Main Drawing Methods		---//
 
 //---		Exec Drawing Methods		---//
-void InttMonDraw::DrawExecOption(std::string option, int layer, int ladder, int northsouth, int chip)
+void InttMonDraw::DrawExecOption(const std::string& option, int layer, int ladder, int northsouth, int chip)
 {
 	layer -= INTT::LAYER_OFFSET;
 	chip -= INTT::CHIP_OFFSET;
@@ -663,7 +663,7 @@ void InttMonDraw::DrawExecOption(std::string option, int layer, int ladder, int 
 	DrawExecExec	(base_pad, option, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET);
 }
 
-void InttMonDraw::DrawExecTitle(TPad* base_pad, std::string option, int layer, int ladder, int northsouth, int chip)
+void InttMonDraw::DrawExecTitle(TPad* base_pad, const std::string& option, int layer, int ladder, int northsouth, int chip)
 {
 	layer -= INTT::LAYER_OFFSET;
 	chip -= INTT::CHIP_OFFSET;
@@ -709,7 +709,7 @@ void InttMonDraw::DrawExecTitle(TPad* base_pad, std::string option, int layer, i
 	}
 }
 
-void InttMonDraw::DrawExecHist(TPad* base_pad, std::string option, int layer, int ladder, int northsouth, int chip)
+void InttMonDraw::DrawExecHist(TPad* base_pad, const std::string& option, int layer, int ladder, int northsouth, int chip)
 {
 	layer -= INTT::LAYER_OFFSET;
 	chip -= INTT::CHIP_OFFSET;
@@ -745,7 +745,7 @@ void InttMonDraw::DrawExecHist(TPad* base_pad, std::string option, int layer, in
 	if(hist)hist->DrawCopy("COLZ");
 }
 
-void InttMonDraw::DrawExecExec(TPad* base_pad, std::string option, int layer, int ladder, int northsouth, int chip)
+void InttMonDraw::DrawExecExec(TPad* base_pad, const std::string& option, int layer, int ladder, int northsouth, int chip)
 {
 	layer -= INTT::LAYER_OFFSET;
 	chip -= INTT::CHIP_OFFSET;
@@ -781,7 +781,7 @@ void InttMonDraw::DrawExecExec(TPad* base_pad, std::string option, int layer, in
 	}
 }
 
-void InttMonDraw::DrawExecLines(TPad* base_pad, std::string option, int layer, int ladder, int northsouth, int chip)
+void InttMonDraw::DrawExecLines(TPad* base_pad, const std::string& option, int layer, int ladder, int northsouth, int chip)
 {
 	layer -= INTT::LAYER_OFFSET;
 	chip -= INTT::CHIP_OFFSET;
@@ -812,7 +812,7 @@ void InttMonDraw::DrawExecLines(TPad* base_pad, std::string option, int layer, i
 	}
 }
 
-void InttMonDraw::DrawExecDisp(TPad* base_pad, std::string option, int layer, int ladder, int northsouth, int chip)
+void InttMonDraw::DrawExecDisp(TPad* base_pad, const std::string& option, int layer, int ladder, int northsouth, int chip)
 {
 	layer -= INTT::LAYER_OFFSET;
 	chip -= INTT::CHIP_OFFSET;
@@ -864,7 +864,7 @@ void InttMonDraw::DrawExecDisp(TPad* base_pad, std::string option, int layer, in
 //===		~Drawing Methods		===//
 
 //===		Exec Functions			===//
-void InttMonDraw::InttExec(std::string option, int layer)
+void InttMonDraw::InttExec(const std::string& option, int layer)
 {
 	layer -= INTT::LAYER_OFFSET;
 
@@ -906,7 +906,7 @@ void InttMonDraw::InttExec(std::string option, int layer)
 	DrawExecOption(option, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET);
 }
 
-void InttMonDraw::InttExecExec(std::string option)
+void InttMonDraw::InttExecExec(const std::string& option)
 {
 	if(OPTIONS.find(option) == OPTIONS.end())return;
 

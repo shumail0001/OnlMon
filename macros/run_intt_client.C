@@ -4,6 +4,7 @@
 
 #include <onlmon/OnlMonClient.h>
 
+// cppcheck-surpress unknownMarco
 R__LOAD_LIBRARY(libonlinttmon_client.so)
 
 void run_intt_client()
