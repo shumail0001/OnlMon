@@ -1,7 +1,7 @@
 #ifndef INTT_MON_H
 #define INTT_MON_H
 
-#include "InttConstants.h"
+#include "InttMonConstants.h"
 
 #include <onlmon/OnlMon.h>
 #include <onlmon/OnlMonDB.h>
@@ -11,7 +11,7 @@
 
 #include <TH1D.h>
 #include <TH2D.h>
-#include <TRandom.h>  //for rng; remove later
+#include <TRandom.h> //for rng; remove later
 
 #include <cmath>
 #include <cstdio>
@@ -22,38 +22,35 @@
 
 class InttMon : public OnlMon
 {
- public:
-  InttMon(const std::string &name = "INTTMON"): OnlMon(name){}
-  virtual ~InttMon();
+public:
+	InttMon(const std::string &name = "INTTMON");
+	virtual ~InttMon();
+	
+	int Init();
+	int BeginRun(const int);
+	int process_event(Event*);
+	int Reset();
 
-  int Init();
-  int BeginRun(const int);
-  int process_event(Event*);
-  int Reset();
+	int MiscDebug(); //for testing/debugging without unpacker, remove later
+private:
+	// for testing/debugging without unpacker, remove later
+	TRandom* rng = nullptr;
+	const double HITS_PER_EVENT = 16.0; //assuming on average 16 total hits per each event
+	int InitExpectationHists();
+	//~for testing/debugging without unpacker, remove later
 
- protected:
-  // for testing/debugging without unpacker, remove later
-  TRandom* rng = nullptr;
-  const double HITS_PER_EVENT = 16.0;  //assuming on average 16 total hits per each event
-  int MiscDebug();
-  int InitExpectationHists();
-  //~for testing/debugging without unpacker, remove later
+	int DBVarInit();
+	int DBVarUpdate();
 
-  int DBVarInit();
-  OnlMonDB* dbvars = nullptr;
+	OnlMonDB* dbvars = nullptr;
+	int evtcnt = 0;
 
-  //some of these (NumEvents) can be replaced with DBVars
-  TH1D* NumEvents = nullptr;
-
-  TH2D** HitMap = nullptr;
-  TH2D** HitRateMap = nullptr;
-
-  TH1D***** ChipHitMap = nullptr;
-
-  bool CheckIndexes(int, int, int, int);
-  int GetBin(int&, int, int, int, int);
-  int GetLadderNorthSouthChip(int, int, int&, int&, int&);
-
+	TH1D* NumEvents = nullptr;
+	TH1D* HitMap = nullptr;
+	TH1D* HitMapRef = nullptr;
+	TH1D* ADCMap = nullptr;
+	TH1D* ADCMapRef = nullptr;
+	//...
 };
 
 #endif
