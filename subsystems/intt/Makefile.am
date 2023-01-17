@@ -1,5 +1,8 @@
 AUTOMAKE_OPTIONS = foreign
 
+BUILT_SOURCES = \
+  testexternals.cc
+
 SUBDIRS = calib
 
 AM_CPPFLAGS = \
@@ -28,10 +31,9 @@ libonlinttmon_client_la_LIBADD = \
 inttincludedir=$(pkgincludedir)/intt
 
 inttinclude_HEADERS = \
+  InttMonConstants.h \
   InttMon.h \
-  InttMonDraw.h \
-  InttExecs.h \
-  InttConstants.h
+  InttMonDraw.h
 
 libonlinttmon_server_la_SOURCES = \
   InttMon.cc
@@ -47,7 +49,6 @@ noinst_PROGRAMS = \
   testexternals_server \
   testexternals_client
 
-BUILT_SOURCES = testexternals.cc
 
 testexternals_server_SOURCES = \
   testexternals.cc

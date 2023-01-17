@@ -1,18 +1,32 @@
 #include <ServerFuncs.C>
 
-//#include <onlmon/intt/ConstantsToBeChanged.h>
-#include <onlmon/OnlMonServer.h>
+#include <onlmon/intt/InttMonConstants.h>
 #include <onlmon/intt/InttMon.h>
+#include <onlmon/OnlMonServer.h>
 
 R__LOAD_LIBRARY(libonlinttmon_server.so)
 
 void run_intt_server(const char *prdffile = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000221-0000.prdf")
 {
-  OnlMon *m = new InttMon();                    // create subsystem Monitor object
-                                                //  m->AddTrigger("PPG(Laser)");  // high efficiency triggers selection at et pool
-                                                //  m->AddTrigger("ONLMONBBCLL1"); // generic bbcll1 minbias trigger (defined in ServerFuncs.C)
-  OnlMonServer *se = OnlMonServer::instance();  // get pointer to Server Framework
-  se->registerMonitor(m);                       // register subsystem Monitor with Framework
+//  //for debugging
+//  InttMon *m = new InttMon();
+//  m->MiscDebug();
+
+  OnlMon *m = new InttMon();      // create subsystem Monitor object
+//  m->AddTrigger("PPG(Laser)");  // high efficiency triggers selection at et pool
+//  m->AddTrigger("ONLMONBBCLL1"); // generic bbcll1 minbias trigger (defined in ServerFuncs.C)
+  OnlMonServer *se = OnlMonServer::instance(); // get pointer to Server Framework
+  se->registerMonitor(m);       // register subsystem Monitor with Framework
   start_server(prdffile);
+
+  //m->Init(); this must already be called somewhere above
+  m->BeginRun(1);
+
+  int N = 1;
+  for(int n = 0; n < N; n++)
+  {
+    m->process_event(static_cast<Event*>(0x0));
+  }
+
   return;
 }
