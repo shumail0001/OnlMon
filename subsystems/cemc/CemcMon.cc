@@ -222,7 +222,7 @@ int CemcMon::BeginRun(const int /* runno */)
 //static int evtcount = 0; 
 
 
-double CemcMon::getSignal(Packet *p, const int channel)
+std::vector<float> CemcMon::getSignal(Packet *p, const int channel)
 {
 
   double baseline = 0;
@@ -244,7 +244,8 @@ double CemcMon::getSignal(Packet *p, const int channel)
 
   // simulate a failure  if ( evtcount > 450 && p->getIdentifier() ==6011) return 0;
 
-  return signal;
+  std::vector<float> result = {5,5,5};
+  return result;
 }
 	  
 
@@ -403,6 +404,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 
         // std::vector result =  getSignal(p,c); // simple peak extraction
         std::vector result = anaWaveform(p, c);  // full waveform fitting
+        //std::vector result = {5,5,5};
         float signal   =result.at(0);
         float time     =result.at(1);
         float pedestal =result.at(2);

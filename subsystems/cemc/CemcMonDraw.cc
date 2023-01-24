@@ -215,14 +215,17 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
       line_sector[i_line]->SetLineStyle(1);
     }
 
-  TLine *line_board1 = new TLine(36,0,36,256);
-  line_board1->SetLineColor(1);
-  line_board1->SetLineWidth(1.2);
-  line_board1->SetLineStyle(1);
-  TLine *line_board2 = new TLine(72,0,72,256);
-  line_board2->SetLineColor(1);
-  line_board2->SetLineWidth(1.2);
-  line_board2->SetLineStyle(1);
+
+  const int numVertDiv = 12;
+  int dEI = 96/numVertDiv;
+  TLine *l_board[numVertDiv-1];
+  for(int il=1; il<numVertDiv; il++){
+    l_board[il-1] = new TLine(dEI*il,0,dEI*il,256);
+    l_board[il-1]->SetLineColor(1);
+    l_board[il-1]->SetLineWidth(1.2);
+    l_board[il-1]->SetLineStyle(1);
+    if(il==6) l_board[il-1]->SetLineWidth(2);
+  }
   
   gPad->SetTopMargin(0.08);
   gPad->SetBottomMargin(0.07);
@@ -230,13 +233,10 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   gPad->SetRightMargin(0.12);
   
   hist1->Draw("colz");
-  for(int i_line=0;i_line<32;i_line++)
-    {
-      line_sector[i_line]->Draw();
-    }
-  line_board1->Draw();
-  line_board2->Draw();
+  for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
+  for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
 
+  // modify palette to black, green, and red
   Int_t palette[3] = {1,8,2};
   hcalStyle->SetPalette(3,palette);
   gROOT->SetStyle("hcalStyle");

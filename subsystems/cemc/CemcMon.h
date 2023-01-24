@@ -27,7 +27,7 @@ class CemcMon : public OnlMon
   int Reset();
 
  protected:
-  double getSignal(Packet *p, const int channel);
+  std::vector<float> getSignal(Packet *p, const int channel);
   std::vector<float> anaWaveform(Packet *p, const int channel);
 
   int DBVarInit();
