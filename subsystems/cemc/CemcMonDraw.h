@@ -4,6 +4,8 @@
 #include <onlmon/OnlMonDraw.h>
 
 #include <string>  // for allocator, string
+#include <TH2.h>
+#include <TStyle.h>
 
 class OnlMonDB;
 class TCanvas;
@@ -24,16 +26,20 @@ class CemcMonDraw : public OnlMonDraw
 
  protected:
   int MakeCanvas(const std::string &name);
-  int DrawStandard(const std::string &what = "ALL");
-  /* int DrawSecond(const std::string &what = "ALL"); */
-  /* int DrawHistory(const std::string &what = "ALL"); */
-  //  int DrawDeadServer(TPad *transparent);
+  int DrawFirst(const std::string &what = "ALL");
+  int DrawSecond(const std::string &what = "ALL");
+  int DrawThird(const std::string &what = "ALL");
+  int DrawHistory(const std::string &what = "ALL");
+  int FindHotTower(TPad *warn,TH2D* );
+
   int TimeOffsetTicks = -1;
-  TCanvas *TC[3] = {nullptr};
-  TPad *transparent[3] = {nullptr};
-  TPad *Pad[6] = {nullptr};
+  TCanvas *TC[9] = {nullptr};
+  TPad *transparent[9] = {nullptr};
+  TPad *Pad[18] = {nullptr};
+  TPad *warning[18] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   OnlMonDB *dbvars = nullptr;
+  TStyle* hcalStyle = nullptr;
 };
 
 #endif /* CEMC_CEMCMONDRAW_H */

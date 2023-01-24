@@ -6,6 +6,8 @@
 
 #include <vector>
 
+class CaloWaveformProcessing;
+class TowerInfoContainerv1;
 class Event;
 class OnlMonDB;
 class TH1;
@@ -26,6 +28,7 @@ class CemcMon : public OnlMon
 
  protected:
   double getSignal(Packet *p, const int channel);
+  std::vector<float> anaWaveform(Packet *p, const int channel);
 
   int DBVarInit();
   int evtcnt = 0;
@@ -35,8 +38,29 @@ class CemcMon : public OnlMon
   TH2 *cemc_runningmean = nullptr;
   TH1 *cemc_signal = nullptr;
 
+  const int Nsector = 32;
+  const int Ntower = 1536*4;
+  const int packetlow = 6001;
+  const int packethigh = 6024;
+  TH2* h2_hcal_hits = nullptr;
+  TH1* h_waveform_twrAvg = nullptr;
+  TH1* h_waveform_time = nullptr;
+  TH1* h_waveform_pedestal = nullptr;
+  TH2* h2_hcal_rm = nullptr;
+  TH2* h2_hcal_mean = nullptr;
+  TH1* h_sectorAvg_total = nullptr;
+  TH1* h_event = nullptr;
+  TH1* h_rm_sectorAvg[100] = {nullptr};
+
+  std::vector<runningMean*> rm_vector_twr;
+  std::vector<runningMean*> rm_vector_sectAvg;
+
   std::string runtypestr = "Unknown";
   std::string id_string;
+
+  CaloWaveformProcessing* WaveformProcessing = nullptr;
+  TowerInfoContainerv1* CaloInfoContainer = nullptr;  // for using encode_key
+
 
   std::vector<runningMean*> rm_vector; 
 
