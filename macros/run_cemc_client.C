@@ -13,6 +13,17 @@ void cemcDrawInit(const int online = 0)
   // register histos we want with monitor name
   cl->registerHisto("cemc_occupancy", "CEMCMON");
   cl->registerHisto("cemc_runningmean", "CEMCMON");
+  cl->registerHisto("h2_hcal_hits", "CEMCMON");
+  cl->registerHisto("h2_hcal_rm", "CEMCMON");
+  cl->registerHisto("h2_hcal_mean", "CEMCMON");
+  cl->registerHisto("h_event", "CEMCMON");
+  cl->registerHisto("h_sectorAvg_total", "CEMCMON");
+  cl->registerHisto("h_waveform_twrAvg", "CEMCMON");
+  cl->registerHisto("h_waveform_time", "CEMCMON");
+  cl->registerHisto("h_waveform_pedestal", "CEMCMON");
+  for (int ih=0; ih<32; ih++){
+    cl->registerHisto(Form("h_rm_sectorAvg_s%d",ih), "CEMCMON");
+  }
   cl->AddServerHost("localhost");  // check local host first
   // CreateHostList(online);
   //  get my histos from server, the second parameter = 1
