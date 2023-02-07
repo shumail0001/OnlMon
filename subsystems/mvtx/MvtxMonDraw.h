@@ -30,9 +30,10 @@ class MvtxMonDraw : public OnlMonDraw
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
   int DrawHitMap(const std::string &what = "ALL");
+int DrawGeneral(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
   int TimeOffsetTicks = -1;
-  TCanvas *TC[4] = {nullptr};
+  TCanvas *TC[5] = {nullptr};
   TPad *transparent[3] = {nullptr};
   TPad *Pad[7] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};

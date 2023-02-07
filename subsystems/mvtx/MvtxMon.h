@@ -3,13 +3,16 @@
 
 #include <onlmon/OnlMon.h>
 #include <map>
+#include <cmath>
 
 class Event;
 class OnlMonDB;
 class TH1;
 class TH2;
+class TH2Poly;
 class map;
 class pair;
+
 
 class MvtxMon : public OnlMon
 {
@@ -21,6 +24,7 @@ class MvtxMon : public OnlMon
   int Init();
   int BeginRun(const int runno);
   int Reset();
+  
 
  protected:
   int DBVarInit();
@@ -39,6 +43,14 @@ class MvtxMon : public OnlMon
   int HitPerChip[NSTAVE][NCHIP] = {};
   float OccPerChip[NSTAVE][NCHIP] = {};
   const int NBins = 30;
+static constexpr int NFlags = 3;
+
+  int mMaxGeneralAxisRange = -3;  // the range of TH2Poly plots z axis range, pow(10, mMinGeneralAxisRange) ~ pow(10, mMaxGeneralAxisRange)
+  int mMinGeneralAxisRange = -12;
+  std::string mLaneStatusFlag[NFlags] = { "WARNING", "ERROR", "FAULT" };
+
+ const int StaveBoundary[4] = { 0, 12, 28, 48};
+double** mOccupancyLane;
 
 
 
@@ -51,6 +63,12 @@ class MvtxMon : public OnlMon
   TH1	*mvtxmon_EvtHitChip= nullptr;
   TH1 *mvtxmon_EvtHitDis= nullptr;
   TH2 *mvtxmon_HitMap[NSTAVE][NCHIP] = {nullptr}; 
+  TH2Poly* mvtxmon_GeneralOccupancy = nullptr;
+  TH2Poly* mvtxmon_LaneStatusOverview[NFlags] = {nullptr}; 
+
+const int NStaves[3] = { 12, 16, 20 };
+const float StartAngle[3] = { 16.997 / 360 * (M_PI * 2.), 17.504 / 360 * (M_PI * 2.), 17.337 / 360 * (M_PI * 2.)}; // start angle of first stave in each layer
+const float MidPointRad[3] = { 23.49, 31.586, 39.341}; 
   //TH1	*InfoCanvas= nullptr;
 
   std::map<std::pair<int,int>,std::pair<int,int>> chipmap = {
@@ -96,6 +114,8 @@ private:
 unsigned short decode_row(int hit){	return hit >> 16;}
 
 unsigned short decode_col(int hit){	return hit & 0xffff;}
+
+void getStavePoint(int layer, int stave, double* px, double* py);
 
 
 };

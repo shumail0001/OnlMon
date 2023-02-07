@@ -9,6 +9,7 @@
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TH2Poly.h>
 #include <TPad.h>
 #include <TROOT.h>
 #include <TSystem.h>
@@ -104,6 +105,19 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     TC[3]->SetTopMargin(0.05);
     TC[3]->SetBottomMargin(0.05);
   }
+  else if (name == "MvtxMon_General")
+  {
+    TC[4] = new TCanvas(name.c_str(), "MVTX Monitoring General", -1, 0, xsize, ysize);
+    gSystem->ProcessEvents();
+    TC[4]->Divide(4,2);
+    // this one is used to plot the run number on the canvas
+    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[0]->SetFillStyle(4000);
+    transparent[0]->Draw();
+    TC[4]->SetEditable(false);
+    TC[4]->SetTopMargin(0.05);
+    TC[4]->SetBottomMargin(0.05);
+  }
   return 0;
 }
 
@@ -124,6 +138,11 @@ int MvtxMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "HITMAP")
   {
     iret += DrawHitMap(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "GENERAL")
+  {
+    iret += DrawGeneral(what);
     idraw++;
   }
   if (what == "ALL" || what == "HISTORY")
@@ -148,6 +167,9 @@ int MvtxMonDraw::DrawFirst(const std::string & /* what */)
   TH2 *mvtxmon_ChipStaveOcc = dynamic_cast<TH2*>( cl->getHisto("MVTXMON_0","mvtxmon_ChipStaveOcc"));
   TH1 *mvtxmon_ChipStave1D =  cl->getHisto("MVTXMON_0","mvtxmon_ChipStave1D");
   TH1 *mvtxmon_ChipFiredHis =  cl->getHisto("MVTXMON_0","mvtxmon_ChipFiredHis");
+
+  
+
 
   if (!gROOT->FindObject("MvtxMon1"))
   {
@@ -175,6 +197,7 @@ int MvtxMonDraw::DrawFirst(const std::string & /* what */)
   if (mvtxmon_ChipFiredHis)
   {
     mvtxmon_ChipFiredHis->DrawCopy();
+
   }
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -305,6 +328,63 @@ int MvtxMonDraw::DrawHitMap(const std::string & /* what */)
   return 0;
 }
 
+int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2Poly* mvtxmon_LaneStatusOverview[3] = {nullptr}; 
+  mvtxmon_LaneStatusOverview[0] = dynamic_cast<TH2Poly*>(cl->getHisto("LaneStatus/laneStatusOverviewFlagWARNING"));
+  mvtxmon_LaneStatusOverview[1] = dynamic_cast<TH2Poly*>(cl->getHisto("LaneStatus/laneStatusOverviewFlagERROR"));
+  mvtxmon_LaneStatusOverview[2] = dynamic_cast<TH2Poly*>(cl->getHisto("LaneStatus/laneStatusOverviewFlagFAULT"));
+TH2Poly* mvtxmon_mGeneralOccupancy = dynamic_cast<TH2Poly*>(cl->getHisto("General/General_Occupancy"));
+
+ 
+
+  if (!gROOT->FindObject("MvtxMon_General"))
+  {
+    MakeCanvas("MvtxMon_General");
+  }
+
+  TC[4]->SetEditable(true);
+  TC[4]->Clear("D");
+  for(int i = 0; i < 3; i++){
+      TC[4]->cd(i+1);
+      if (mvtxmon_LaneStatusOverview[i])
+      {      
+	mvtxmon_LaneStatusOverview[i]->DrawCopy("lcolz");
+      }
+      else
+      {
+        DrawDeadServer(transparent[0]);
+        TC[4]->SetEditable(false);
+        return -1;
+      }
+    }
+  TC[4]->cd(4);
+  mvtxmon_mGeneralOccupancy->DrawCopy();
+  mvtxmon_mGeneralOccupancy->DrawCopy("colz same");
+  
+  TC[4]->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_1 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[0]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[4]->Update();
+  TC[4]->Show();
+  TC[4]->SetEditable(false);
+  return 0;
+}
+
 int MvtxMonDraw::MakePS(const std::string &what)
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -367,7 +447,7 @@ int MvtxMonDraw::DrawHistory(const std::string & /* what */)
   std::vector<float> varerr;
   std::vector<time_t> timestamp;
   std::vector<int> runnumber;
-  std::string varname = "mvtxmondummy";
+  std::string varname = "n_events";
   // this sets the time range from whihc values should be returned
   time_t begin = 0;            // begin of time (1.1.1970)
   time_t end = time(nullptr);  // current time (right NOW)

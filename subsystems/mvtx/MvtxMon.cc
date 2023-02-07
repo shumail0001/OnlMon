@@ -13,6 +13,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TH2Poly.h>
 
 #include <Event/Event.h>
 #include <Event/packet.h>
@@ -72,6 +73,58 @@ int MvtxMon::Init()
       se->registerHisto(this, mvtxmon_HitMap[i][j]);
     }
   }
+ for (int i = 0; i < NFlags; i++) {
+    mvtxmon_LaneStatusOverview[i] = new TH2Poly();
+    mvtxmon_LaneStatusOverview[i]->SetName(Form("LaneStatus/laneStatusOverviewFlag%s", mLaneStatusFlag[i].c_str()));
+  }
+
+  mvtxmon_GeneralOccupancy = new TH2Poly();
+  mvtxmon_GeneralOccupancy->SetTitle("General Occupancy;mm (IB 3x);mm (IB 3x)");
+  mvtxmon_GeneralOccupancy->SetName("General/General_Occupancy");
+  mvtxmon_GeneralOccupancy->SetStats(0);
+  mvtxmon_GeneralOccupancy->SetMinimum(pow(10, mMinGeneralAxisRange));
+  mvtxmon_GeneralOccupancy->SetMaximum(pow(10, mMaxGeneralAxisRange));
+
+    for (int ilayer = 0; ilayer < 3; ilayer++) {
+      for (int istave = 0; istave < NStaves[ilayer]; istave++) {
+        double* px = new double[4];
+        double* py = new double[4];
+        getStavePoint(ilayer, istave, px, py);
+        if (ilayer < 3) {
+          for (int icoo = 0; icoo < 4; icoo++) {
+            px[icoo] *= 3.;
+            py[icoo] *= 3.;
+          }
+        }
+        mvtxmon_GeneralOccupancy->AddBin(4, px, py);
+      }
+    }
+
+  for (int i = 0; i < NFlags; i++) {
+    TString title = Form("Fraction of lanes into %s", mLaneStatusFlag[i].c_str());
+    title += ";mm (IB 3x);mm (IB 3x)";
+    mvtxmon_LaneStatusOverview[i]->SetTitle(title);
+    mvtxmon_LaneStatusOverview[i]->SetStats(0);
+    mvtxmon_LaneStatusOverview[i]->SetOption("lcolz");
+    mvtxmon_LaneStatusOverview[i]->SetMinimum(0);
+    mvtxmon_LaneStatusOverview[i]->SetMaximum(1);
+    mvtxmon_LaneStatusOverview[i]->SetBit(TH1::kIsAverage);
+    for (int ilayer = 0; ilayer < 3; ilayer++) {
+      for (int istave = 0; istave < NStaves[ilayer]; istave++) {
+        double* px = new double[4];
+        double* py = new double[4];
+        getStavePoint(ilayer, istave, px, py);
+        if (ilayer < 3) {
+          for (int icoo = 0; icoo < 4; icoo++) {
+            px[icoo] *= 3.;
+            py[icoo] *= 3.;
+          }
+        }
+        mvtxmon_LaneStatusOverview[i]->AddBin(4, px, py);
+      }
+    }
+    se->registerHisto(this, mvtxmon_LaneStatusOverview[i]); // mLaneStatusOverview
+  }
 
   
   //InfoCanvas= new TH1D;1	QC Process Information Canvas
@@ -83,6 +136,7 @@ int MvtxMon::Init()
   se->registerHisto(this, mvtxmon_ChipFiredHis);
   se->registerHisto(this, mvtxmon_EvtHitChip);
   se->registerHisto(this, mvtxmon_EvtHitDis);
+  se->registerHisto(this, mvtxmon_GeneralOccupancy);
   dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
   DBVarInit();
   Reset();
@@ -215,6 +269,49 @@ int NAllHits = 0;
 
 			mvtxmon_ChipFiredHis->Fill(NChipFired);
 
+mOccupancyLane = new double*[4/*NStaves[mLayer]*/];
+
+
+// calculate active staves according digit hit vector
+  std::vector<int> activeStaves;
+  for (int i = 0; i < 4/*NStaves[mLayer]*/; i++) {
+  mOccupancyLane[i] = new double[9];
+    for (int j = 0; j < 9/*nHicPerStave[mLayer]*/; j++) {
+      if (HitPerChip[i][j] != 0) {
+        activeStaves.push_back(i);
+	mOccupancyLane[i][j] = HitPerChip[i][j] / (/*GBTLinkInfo->statistics.nTriggers * */ 1024. * 512.);
+        break;
+      }
+    }
+  }
+
+
+for (int i = 0; i < (int)activeStaves.size(); i++) {
+    int istave = activeStaves[i];
+   // mOccupancyPlot->Add(occupancyPlotTmp[i]);
+      for (int ichip = 0; ichip < 9; ichip++) {
+        //mChipStaveOccupancy->SetBinContent(ichip + 1, istave + 1, mOccupancyLane[istave][ichip]);
+       /* if (!mChipStat[istave][ichip]) {
+          mDeadChipPos->SetBinContent(mDeadChipPos->GetXaxis()->FindBin(mChipEta[istave][ichip] + 0.009), mDeadChipPos->GetYaxis()->FindBin(mChipPhi[istave][ichip] + 0.001), 1);
+          mTotalDeadChipPos->SetBinContent(mTotalDeadChipPos->GetXaxis()->FindBin(mChipEta[istave][ichip] + 0.009), mTotalDeadChipPos->GetYaxis()->FindBin(mChipPhi[istave][ichip] + 0.001), 1);
+        } else {
+          mAliveChipPos->SetBinContent(mAliveChipPos->GetXaxis()->FindBin(mChipEta[istave][ichip] + 0.009), mAliveChipPos->GetYaxis()->FindBin(mChipPhi[istave][ichip] + 0.001), 1);
+          mTotalAliveChipPos->SetBinContent(mTotalAliveChipPos->GetXaxis()->FindBin(mChipEta[istave][ichip] + 0.009), mTotalAliveChipPos->GetYaxis()->FindBin(mChipPhi[istave][ichip] + 0.001), 1);
+          mDeadChipPos->SetBinContent(mDeadChipPos->GetXaxis()->FindBin(mChipEta[istave][ichip] + 0.009), mDeadChipPos->GetYaxis()->FindBin(mChipPhi[istave][ichip] + 0.001), 0);                // not dead
+          mTotalDeadChipPos->SetBinContent(mTotalDeadChipPos->GetXaxis()->FindBin(mChipEta[istave][ichip] + 0.009), mTotalDeadChipPos->GetYaxis()->FindBin(mChipPhi[istave][ichip] + 0.001), 0); // not dead
+        }*/
+        /*int ilink = ichip / 3;
+        for (int ierror = 0; ierror < o2::itsmft::GBTLinkDecodingStat::NErrorsDefined; ierror++) {
+          if (mErrorVsFeeid && (mErrorCount[istave][ilink][ierror] != 0)) {
+            mErrorVsFeeid->SetBinContent(((istave + StaveBoundary[mLayer]) * 3) + ilink + 1, ierror + 1, mErrorCount[istave][ilink][ierror]);
+          }
+        }*/
+      }
+      mvtxmon_GeneralOccupancy->SetBinContent(istave + 1 + StaveBoundary[0/*mLayer*/], *(std::max_element(mOccupancyLane[istave], mOccupancyLane[istave] + 9/*nChipsPerHic[mLayer]*/)));
+      //mGeneralNoisyPixel->SetBinContent(istave + 1 + StaveBoundary[mLayer], mNoisyPixelNumber[mLayer][istave]);
+    }
+
+
 		}
 
 
@@ -233,12 +330,12 @@ int NAllHits = 0;
 
  /* mvtxhist1->Fill((float) idummy);
   mvtxhist2->Fill((float) idummy, (float) idummy, 1.);
-
-  if (idummy++ > 10)
-  {
+*/
+ // if (idummy++ > 10)
+  //{
     if (dbvars)
     {
-      dbvars->SetVar("mvtxmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
+      dbvars->SetVar("n_events", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
       dbvars->SetVar("mvtxmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
       dbvars->SetVar("mvtxmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
       dbvars->DBcommit();
@@ -247,7 +344,7 @@ int NAllHits = 0;
     msg << "Filling Histos";
     se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
     idummy = 0;
-  }*/
+ // }
   return 0;
 }
 
@@ -263,7 +360,7 @@ int MvtxMon::DBVarInit()
 {
   // variable names are not case sensitive
   std::string varname;
-  varname = "mvtxmoncount";
+  varname = "n_events";
   dbvars->registerVar(varname);
   varname = "mvtxmondummy";
   dbvars->registerVar(varname);
@@ -275,4 +372,24 @@ int MvtxMon::DBVarInit()
   }
   dbvars->DBInit();
   return 0;
+}
+
+void MvtxMon::getStavePoint(int layer, int stave, double* px, double* py)
+{
+  float stepAngle = M_PI * 2 / NStaves[layer];             // the angle between to stave
+  float midAngle = StartAngle[layer] + (stave * stepAngle);       // mid point angle
+  float staveRotateAngle = M_PI / 2 - (stave * stepAngle); // how many angle this stave rotate(compare with first stave)
+  px[1] = MidPointRad[layer] * std::cos(midAngle);              // there are 4 point to decide this TH2Poly bin
+                                                                  // 0:left point in this stave;
+                                                                  // 1:mid point in this stave;
+                                                                  // 2:right point in this stave;
+                                                                  // 3:higher point int this stave;
+  py[1] = MidPointRad[layer] * std::sin(midAngle);            // 4 point calculated accord the blueprint
+                                                                  // roughly calculate
+  px[0] = 7.7 * std::cos(staveRotateAngle) + px[1];
+  py[0] = -7.7 * std::sin(staveRotateAngle) + py[1];
+  px[2] = -7.7 * std::cos(staveRotateAngle) + px[1];
+  py[2] = 7.7 * std::sin(staveRotateAngle) + py[1];
+  px[3] = 5.623 * std::sin(staveRotateAngle) + px[1];
+  py[3] = 5.623 * std::cos(staveRotateAngle) + py[1];
 }
