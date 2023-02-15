@@ -26,7 +26,7 @@ enum
   FILLMESSAGE = 2
 };
 
-MyMon::MyMon(const char *name)
+MyMon::MyMon(const std::string &name)
   : OnlMon(name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
