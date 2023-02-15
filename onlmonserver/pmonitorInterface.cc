@@ -4,9 +4,8 @@
 
 #include "pmonitorInterface.h"
 #include "OnlMonServer.h"
-
+#include "OnlMonDefs.h"
 #include "HistoBinDefs.h"
-#include "PortNumber.h"
 
 #include <phool/phool.h>
 
@@ -315,7 +314,7 @@ int setup_server()
 static void *server(void * /* arg */)
 {
   OnlMonServer *Onlmonserver = OnlMonServer::instance();
-  int MoniPort = MONIPORT;
+  int MoniPort = OnlMonDefs::MONIPORT;
   //  int thread_arg[5];
   pthread_mutex_lock(&mutex);
   TServerSocket *ss = nullptr;
@@ -330,7 +329,7 @@ static void *server(void * /* arg */)
     // Accept a connection and return a full-duplex communication socket.
     Onlmonserver->PortNumber(MoniPort);
     MoniPort++;
-    if ((MoniPort - MONIPORT) >= NUMMONIPORT)
+    if ((MoniPort - OnlMonDefs::MONIPORT) >= OnlMonDefs::NUMMONIPORT)
     {
       std::ostringstream msg;
       msg << "Too many Online Monitors running on this machine, bailing out";
@@ -356,9 +355,9 @@ again:
   TSocket *s0 = ss->Accept();
   if (!s0)
   {
-    std::cout << "Server socket " << MONIPORT
+    std::cout << "Server socket " << OnlMonDefs::MONIPORT
               << " in use, either go to a different node or" << std::endl
-              << "change MONIPORT in server/PortNumber.h and recompile" << std::endl
+              << "change MONIPORT in server/OnlMonDefs.h and recompile" << std::endl
               << "server and client" << std::endl;
     exit(1);
   }
@@ -432,7 +431,7 @@ void handleconnection(void *arg)
       mess = nullptr;
       if (Onlmonserver->Verbosity() > 2)
       {
-        std::cout << "received message" << str << std::endl;
+        std::cout << "received message: " << str << std::endl;
       }
       if (!strcmp(str, "Finished"))
       {
@@ -454,13 +453,15 @@ void handleconnection(void *arg)
         {
           std::cout << "number of histos: " << Onlmonserver->nHistos() << std::endl;
         }
-        for (unsigned int i = 0; i < Onlmonserver->nHistos(); i++)
-        {
-          if (Onlmonserver->Verbosity() > 2)
-          {
-            std::cout << "HistoName: " << Onlmonserver->getHistoName(i) << std::endl;
-          }
-          s0->Send(Onlmonserver->getHistoName(i).c_str());
+	for (auto monitors = Onlmonserver->monibegin(); monitors != Onlmonserver->moniend(); ++monitors)
+	{
+	  for (auto &histos: monitors->second)
+	  {
+
+	    std::cout << "subsystem: " << monitors->first << ", histo: " << histos << std::endl;
+	    std::string subsyshisto =   monitors->first + ' ' + histos;
+            std::cout << " sending: \"" << subsyshisto << "\"" << std::endl;
+          s0->Send(subsyshisto.c_str());
           int nbytes = s0->Recv(mess);
           delete mess;
           mess = nullptr;
@@ -472,6 +473,7 @@ void handleconnection(void *arg)
             send_message(MSG_SEV_ERROR, msg.str());
           }
         }
+	}
         s0->Send("Finished");
       }
       else if (!strcmp(str, "ALL"))
