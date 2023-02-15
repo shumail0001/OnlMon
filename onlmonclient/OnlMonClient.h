@@ -2,7 +2,7 @@
 #define ONLMONCLIENT_H__
 
 #include <onlmon/OnlMonBase.h>
-#include <onlmon/PortNumber.h>
+#include <onlmon/OnlMonDefs.h>
 
 #include <ctime>
 #include <list>
@@ -28,10 +28,11 @@ class OnlMonClient : public OnlMonBase
   void updateHistoMap(const char *hname, TH1 *h1d);
   TH1 *getHisto(const std::string &hname);
   OnlMonDraw *getDrawer(const std::string &name);
-  int requestHisto(const char *what = "ALL", const std::string &hostname = "localhost", const int moniport = MONIPORT);
+  int requestHisto(const char *what = "ALL", const std::string &hostname = "localhost", const int moniport = OnlMonDefs::MONIPORT);
   int requestHistoList(const std::string &hostname, const int moniport, std::list<std::string> &histolist);
   int requestHistoByName(const std::string &what = "ALL");
   int requestHistoBySubSystem(const char *subsystem, int getall = 0);
+  int requestHistoBySubSystem_new(const std::string &subsystem, int getall = 0);
   void registerHisto(const std::string &hname, const std::string &subsys);
   void Print(const char *what = "ALL");
 
@@ -95,6 +96,7 @@ class OnlMonClient : public OnlMonBase
   int cachedrun = 0;
 
   std::string runtype = "UNKNOWN";
+  std::map<std::pair<const std::string, const std::string>, ClientHistoList *> SubsysHisto;
   std::map<const std::string, ClientHistoList *> Histo;
   std::map<const std::string, OnlMonDraw *> DrawerList;
   std::vector<std::string> MonitorHosts;

@@ -6,7 +6,7 @@
 #include <onlmon/HistoBinDefs.h>
 #include <onlmon/OnlMonBase.h>  // for OnlMonBase
 #include <onlmon/OnlMonTrigger.h>
-#include <onlmon/PortNumber.h>
+#include <onlmon/OnlMonDefs.h>
 
 #include <phool/phool.h>
 
@@ -164,12 +164,30 @@ OnlMonClient::~OnlMonClient()
 
 void OnlMonClient::registerHisto(const std::string &hname, const std::string &subsys)
 {
+  auto mypair = std::make_pair(subsys,hname);
+  auto hiter = SubsysHisto.find(mypair);
+  if (hiter != SubsysHisto.end())
+  {
+    hiter->second->SubSystem(subsys);
+  }
+  else
+  {
+    ClientHistoList *newhisto = new ClientHistoList();
+    newhisto->SubSystem(subsys);
+    SubsysHisto[mypair] = newhisto;
+    if (Verbosity() > 0)
+    {
+      std::cout << "new histogram " << hname << " of subsystem " << subsys << " at " << SubsysHisto[mypair] << std::endl;
+    }
+  }
+
   std::map<const std::string, ClientHistoList *>::const_iterator histoiter = Histo.find(hname);
   if (histoiter != Histo.end())
   {
-#ifdef DEBUG
+    if (Verbosity() > 0)
+    {
     std::cout << "deleting histogram " << hname << " at " << Histo[hname] << std::endl;
-#endif
+    }
 
     histoiter->second->SubSystem(subsys);
   }
@@ -178,13 +196,17 @@ void OnlMonClient::registerHisto(const std::string &hname, const std::string &su
     ClientHistoList *newhisto = new ClientHistoList();
     newhisto->SubSystem(subsys);
     Histo[hname] = newhisto;
-#ifdef DEBUG
-
+    if (Verbosity() > 0)
+    {
     std::cout << "new histogram " << hname << " at " << Histo[hname] << std::endl;
-#endif
+    }
   }
+  std::cout << PHWHERE << "Histos after registerHisto" << std::endl;
+  Print("HISTOS");
+  std::cout << PHWHERE << "done print" << std::endl;
   return;
 }
+
 
 int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
 {
@@ -217,6 +239,7 @@ int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
   {
     std::map<std::pair<std::string, int>, std::list<std::string> > transferlist;
     std::ostringstream host_port;
+    
     int failed_to_locate = 0;
     for (histoiter = Histo.begin(); histoiter != Histo.end(); ++histoiter)
     {
@@ -328,6 +351,162 @@ int OnlMonClient::requestHistoBySubSystem(const char *subsys, int getall)
           std::cout << "Request for all histograms from "
                     << hostname << " failed, trying single " << std::endl;
           iret = requestHistoBySubSystem(subsys, 0);
+        }
+      }
+    }
+    else
+    {
+      std::cout << "No Histogram of subsystem "
+                << subsys << " registered" << std::endl;
+    }
+  }
+  onltrig->RunNumber(RunNumber());
+  return iret;
+}
+
+int OnlMonClient::requestHistoBySubSystem_new(const std::string &subsys, int getall)
+{
+  int iret = 0;
+  std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
+  std::map<const std::string, ClientHistoList *>::const_iterator histonewiter;
+  if (!getall)
+  {
+    for (auto &histos: SubsysHisto)
+    {
+      if (histos.first.first == subsys)
+      {
+        if (requestHistoByName(histos.first.second))
+        {
+          std::cout << "Request for " << histos.first.second << " failed " << std::endl;
+          if (histos.second->Histo())
+          {
+            histos.second->Histo()->Delete();
+            histos.second->Histo(nullptr);
+            histos.second->ServerHost("UNKNOWN");
+            histos.second->ServerPort(0);
+          }
+          iret = -1;
+        }
+      }
+    }
+    requestHistoByName("FrameWorkVars");
+  }
+  else if (getall == 1)
+  {
+    std::map<std::pair<std::string, int>, std::list<std::string> > transferlist;
+    std::ostringstream host_port;
+    
+    int failed_to_locate = 0;
+    for (auto &histos : SubsysHisto)
+    {
+      if (histos.second->SubSystem() == subsys)
+      {
+        int unknown_histo = 0;
+        std::string hname = histos.first.second;
+        if (histos.second->ServerHost() == "UNKNOWN")
+        {
+          if (!failed_to_locate)
+          {
+            if (LocateHistogram(hname) < 1)
+            {
+              std::cout << "Histogram " << hname << " cannot be located" << std::endl;
+              failed_to_locate = 1;
+              unknown_histo = 1;
+              iret = -1;
+            }
+          }
+          else
+          {
+            unknown_histo = 1;
+          }
+        }
+        // reset histogram in case they don't exist on the server anymore
+        if (histos.second->Histo())
+        {
+          histos.second->Histo()->Reset();
+        }
+        if (!unknown_histo)
+        {
+          host_port.str("");
+          host_port << histos.second->ServerHost() << " "
+                    << histos.second->ServerPort();
+          std::pair<std::string, int> hostport(histos.second->ServerHost(), histos.second->ServerPort());
+          (transferlist[hostport]).push_back(hname);
+        }
+      }
+    }
+    std::map<std::pair<std::string, int>, std::list<std::string> >::const_iterator listiter;
+    std::list<std::string>::const_iterator liter;
+    for (listiter = transferlist.begin(); listiter != transferlist.end(); ++listiter)
+    {
+      std::list<std::string> hlist = listiter->second;
+      hlist.emplace_back("FrameWorkVars");  // get this histogram by default to get framework info
+      if (requestHistoList(listiter->first.first, listiter->first.second, hlist) != 0)
+      {
+        for (liter = hlist.begin(); liter != hlist.end(); ++liter)
+        {
+          if (requestHistoByName(*liter))
+          {
+            std::cout << "Request for " << *liter << " failed " << std::endl;
+            histoiter = Histo.find(*liter);
+            if (histoiter->second && histoiter->second->Histo())
+            {
+              histoiter->second->Histo()->Delete();
+              histoiter->second->Histo(nullptr);
+              histoiter->second->ServerHost("UNKNOWN");
+              histoiter->second->ServerPort(0);
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (getall == 2)
+  {
+    const char *hname = "none";
+    for (histoiter = Histo.begin(); histoiter != Histo.end(); ++histoiter)
+    {
+      if (histoiter->second->SubSystem() == subsys)
+      {
+        hname = histoiter->first.c_str();
+        break;
+      }
+    }
+    // histoiter points here to first histogram of subsystem
+    if (histoiter != Histo.end())
+    {
+      std::string hostname = histoiter->second->ServerHost();
+      int moniport = histoiter->second->ServerPort();
+      {
+        if (hostname == "UNKNOWN")
+        {
+          if (LocateHistogram(hname) < 1)
+          {
+            std::cout << "Histogram " << hname << " cannot be located" << std::endl;
+            return -1;
+          }
+          histonewiter = Histo.find(hname);
+          hostname = histonewiter->second->ServerHost();
+          moniport = histonewiter->second->ServerPort();
+        }
+
+        //Reset the histograms in case they don't exhist on the host.
+        for (histonewiter = Histo.begin(); histonewiter != Histo.end(); ++histonewiter)
+        {
+          if (histonewiter->second->SubSystem() == subsys)
+          {
+            if (histonewiter->second->Histo())
+            {
+              histonewiter->second->Histo()->Reset();
+            }
+          }
+        }
+
+        if (requestHisto("ALL", hostname, moniport))
+        {
+          std::cout << "Request for all histograms from "
+                    << hostname << " failed, trying single " << std::endl;
+          iret = requestHistoBySubSystem_new(subsys, 0);
         }
       }
     }
@@ -484,7 +663,7 @@ int OnlMonClient::DoSomething(const char *who, const char *what, const char *opt
 int OnlMonClient::requestHistoByName(const std::string &what)
 {
   std::string hostname = "UNKNOWN";
-  int moniport = MONIPORT;
+  int moniport = OnlMonDefs::MONIPORT;
   std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
   histoiter = Histo.find(what);
   if (histoiter != Histo.end())
@@ -821,6 +1000,15 @@ void OnlMonClient::Print(const char *what)
                 << ", subsystem " << hiter->second->SubSystem() << std::endl;
     }
     std::cout << std::endl;
+    for (auto &histos : SubsysHisto)
+    {
+      std::cout << histos.first.second << " @ " << histos.first.first 
+<< " Address " << histos.second->Histo()
+                << " on host " << histos.second->ServerHost()
+                << " port " << histos.second->ServerPort()
+                << ", subsystem " << histos.second->SubSystem() << std::endl;
+    }
+    std::cout << std::endl;
   }
   if (!strcmp(what, "ALL") || !strcmp(what, "UNKNOWN"))
   {
@@ -850,7 +1038,7 @@ void OnlMonClient::Print(const char *what)
 int OnlMonClient::UpdateServerHistoMap(const std::string &hname, const std::string &hostname)
 {
   // Open connection to server
-  int MoniPort = MONIPORT;
+  int MoniPort = OnlMonDefs::MONIPORT;
   int foundit = 0;
   do
   {
@@ -888,8 +1076,8 @@ int OnlMonClient::UpdateServerHistoMap(const std::string &hname, const std::stri
       }
       if (mess->What() == kMESS_STRING)
       {
-        char str[64];
-        mess->ReadString(str, 64);
+        char str[256];
+        mess->ReadString(str, 256);
         delete mess;
         if (!strcmp(str, "Finished"))
         {
@@ -919,7 +1107,7 @@ int OnlMonClient::UpdateServerHistoMap(const std::string &hname, const std::stri
       return foundit;
     }
     MoniPort++;
-  } while ((MoniPort - MONIPORT) < NUMMONIPORT);  // no more than NUMMONIPORT parallel servers
+  } while ((MoniPort - OnlMonDefs::MONIPORT) < OnlMonDefs::NUMMONIPORT);  // no more than NUMMONIPORT parallel servers
   return foundit;
 }
 
