@@ -22,6 +22,11 @@ void hcalDrawInit(const int online = 0)
   for (int ih=0; ih<32; ih++){
     cl->registerHisto(Form("h_rm_sectorAvg_s%d",ih), "HCALMON");
   }
+  for (int ieta = 0; ieta < 24; ieta++) {
+    for (int iphi = 0; iphi < 64; iphi++) {
+      cl->registerHisto(Form("h_rm_tower_%d_%d", ieta, iphi), "HCALMON");
+    }
+  }
   cl->AddServerHost("localhost");   // check local host first
   CreateHostList(online);
   // get my histos from server, the second parameter = 1
