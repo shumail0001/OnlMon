@@ -6,17 +6,17 @@ R__LOAD_LIBRARY(libonlmonserver.so)
 R__LOAD_LIBRARY(libonlmonserver_funcs.so)
 void CleanUpServer();
 
-void start_server(const char *prdffile = 0)
+void start_server(const std::string &prdffile = "")
 {
   OnlMonServer *se = OnlMonServer::instance();  // get pointer to Server Framework
   // set the ONLMONBBCLL1 Trigger definition (multiple triggers are possible)
   //  se->OnlTrig()->AddBbcLL1TrigName("BBCLL1(>0 tubes) narrowvtx");
-  if (!prdffile)
+  if (prdffile.empty())
   {
     cout << "No Input file given" << endl;
     return;
   }
-  if (!strcmp(prdffile, "etpool"))
+  if (prdffile == "etpool")
   {
     // gSystem->Load("libcorbamsgbuffer.so");
     // corba_msg_buffer *enablecorbabuf = new corba_msg_buffer("monitor_event_channel");
@@ -29,7 +29,7 @@ void start_server(const char *prdffile = 0)
     //      delete enablecorbabuf;
     CleanUpServer();
   }
-  else if (!strcmp(prdffile, "et_test"))
+  else if (prdffile == "et_test")
   {
     //      petopen("/tmp/Monitor@etpool");
   }
@@ -37,7 +37,7 @@ void start_server(const char *prdffile = 0)
   {
     //         gSystem->Load("libcorbamsgbuffer.so");
     //         corba_msg_buffer *enablecorbabuf = new corba_msg_buffer("monitor_event_channel");
-    pfileopen(prdffile);
+    pfileopen(prdffile.c_str());
   }
   return;
 }
