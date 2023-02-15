@@ -13,6 +13,8 @@ void exampleDrawInit(const int online = 0)
   // register histos we want with monitor name
   cl->registerHisto("mymon_hist1", "MYMON");
   cl->registerHisto("mymon_hist2", "MYMON");
+  cl->registerHisto("mymon_hist1", "MYMON2");
+  cl->registerHisto("mymon_hist2", "MYMON2");
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);
   // get my histos from server, the second parameter = 1
