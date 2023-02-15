@@ -12,6 +12,11 @@ class Event;
 OnlMon::OnlMon(const std::string &name)
   : OnlMonBase(name)
 {
+  if (name.find('_') != std::string::npos)
+  {
+    std::cout << "No underscore (_) in online monitoring server name " << name << " allowed" << std::endl;
+    exit(1);
+  }
   livetrigmask = 0;
   status = OnlMon::ACTIVE;
   return;
@@ -139,3 +144,16 @@ void OnlMon::SetStatus(const int newstatus)
   }
   return;
 }
+
+void OnlMon::SetServerId(unsigned int i)
+{
+  if (Name().find('_') != std::string::npos)
+  {
+    std::cout << "Server Id was already set " << Name() << std::endl;
+    return;
+  }
+  m_ServerId = i;
+  Name(Name() + '_' + std::to_string(i));
+  return;
+}
+
