@@ -154,6 +154,11 @@ void OnlMonServer::registerHisto(const std::string &monitorname, const std::stri
 
 void OnlMonServer::registerHisto(const std::string &hname, TH1 *h1d, const int replace)
 {
+  if (hname.find(' ') != std::string::npos)
+  {
+    std::cout << "No empty spaces in registered histogram names : " << hname << std::endl;
+    exit(1);
+  }
   const std::string& tmpstr = hname;
   std::map<const std::string, TH1 *>::const_iterator histoiter = Histo.find(tmpstr);
   std::ostringstream msg;
