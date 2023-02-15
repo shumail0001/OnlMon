@@ -1,8 +1,8 @@
-#ifndef __ONLMONSERVER_H
-#define __ONLMONSERVER_H
+#ifndef ONLMONSERVER_ONLMONSERVER_H
+#define ONLMONSERVER_ONLMONSERVER_H
 
 #include "OnlMonBase.h"
-#include "PortNumber.h"
+#include "OnlMonDefs.h"
 
 #include <pthread.h>
 #include <ctime>
@@ -101,6 +101,8 @@ class OnlMonServer : public OnlMonBase
   PHCompositeNode *TopNode() { return topNode; }
 
   int run_empty(const int nevents);
+  std::map<std::string, std::set<std::string> >::const_iterator monibegin() {return MonitorHistoSet.begin();}
+  std::map<std::string, std::set<std::string> >::const_iterator moniend() {return MonitorHistoSet.end();}
 
  private:
   OnlMonServer(const std::string &name = "OnlMonServer");
@@ -112,7 +114,7 @@ class OnlMonServer : public OnlMonBase
   unsigned int trigger[3];
   int runnumber = -1;
   int eventnumber = 0;
-  int portnumber = MONIPORT;
+  int portnumber = OnlMonDefs::MONIPORT;
   int badevents = 0;
   time_t currentticks = 0;
   time_t borticks = 0;
