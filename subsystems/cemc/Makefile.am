@@ -20,7 +20,8 @@ libonlcemcmon_server_la_LIBADD = \
   -L$(OFFLINE_MAIN)/lib \
   -lonlmonserver \
   -lonlmondb \
-  -lonlmonutils
+  -lonlmonutils \
+  -lcalo_reco
 
 libonlcemcmon_client_la_LIBADD = \
   -L$(libdir) \

@@ -1,99 +1,128 @@
 #ifndef INTT_MON_DRAW_H
 #define INTT_MON_DRAW_H
 
-#include "InttConstants.h"
-#include "InttExecs.cc"  //maybe change to .h later
+#include "InttMonConstants.h"
+#include "InttMon.h"
 
+#include <onlmon/OnlMonDraw.h>
 #include <onlmon/OnlMonClient.h>
 #include <onlmon/OnlMonDB.h>
 
 #include <phool/phool.h>
 
+#include <TStyle.h>
 #include <TCanvas.h>
 #include <TPad.h>
-#include <TROOT.h>
-#include <TStyle.h>
 #include <TSystem.h>
+#include <TROOT.h>
 
 #include <TLine.h>
 #include <TText.h>
 
-#include <TH1D.h>
 #include <TH2D.h>
+#include <TH1D.h>
 
+#include <string>
+#include <vector>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <string>
-#include <vector>
 
-class InttMonDraw
+class InttMonDraw : public OnlMonDraw
 {
- protected:
-  //===	Constants for Drawing	===//
-  constexpr static double NUM_SIG = 2.0;
+public:
+	InttMonDraw(const std::string &name = "INTTMON");
+	~InttMonDraw() override;
 
-  const static int CNVS_WIDTH = 1280;
-  const static int CNVS_HEIGHT = 1440;
+	int Init() override;
+	int Draw(const std::string &what = "ALL") override;
+	int MakePS(const std::string &what = "ALL") override;
+	int MakeHtml(const std::string &what = "ALL") override;
 
-  constexpr static double T_MARGIN = 0.01;
-  constexpr static double B_MARGIN = 0.01;
-  constexpr static double L_MARGIN = 0.03;
-  constexpr static double R_MARGIN = 0.10;
+	static void InttExec(const std::string&, int);
+	static void InttExecExec(const std::string&);
 
-  constexpr static double KEY_TEXT_SIZE1 = 0.10;
-  constexpr static double KEY_TEXT_SIZE2 = 0.05;
-  constexpr static double LABEL_TEXT_SIZE1 = 0.35;
-  constexpr static double LABEL_TEXT_SIZE2 = 0.25;
-  constexpr static double TITLE_TEXT_SIZE = 0.50;
+	typedef TH1* (*MAIN_FUNC)(int);
+	typedef TH1* (*EXEC_FUNC)(int, int, int, int);
+	typedef std::map<std::string, std::pair<MAIN_FUNC, EXEC_FUNC>> OPTIONS_TYPE;
+	static OPTIONS_TYPE OPTIONS;
 
-  constexpr static double KEY_FRAC = 0.1;
-  constexpr static double LABEL_FRAC = 0.1;
-  constexpr static double TITLE_FRAC = 0.1;
+	static TH1* GetLayerHitMap(int);
+	static TH1* GetChipHitMap(int, int, int, int);
 
-  const static int OPT = 3;
-  const static int MAX_PADS = 20;
-  const static int MAX_LINES = 2 * CHIP + 1;
+	static TH1* GetLayerHitMapZ(int);
+	static TH1* GetChipHitMapZ(int, int, int, int);
+	//...
 
-  std::string WHAT[OPT] = {"HitMap", "ADC"};
-  std::string EXEC_NAME[OPT] = {"hit_map_exec", "adc_exec"};
-  std::string CMND_NAME[OPT] = {"HitMapExec", "ADCExec"};
-  //===	~Constants for Drawing	===//
+private:
+	OnlMonDB *dbvars = nullptr;
+	
+	//===	Constants for Drawing	===//
+	static constexpr double NUM_SIG = 2.0;
 
-  //===	Drawing Methods		===//
-  void DrawIntt(int);
-  void DrawPad(TPad*);
-  void DrawKey(TPad*, int);
-  void DrawGrid(TPad*, int);
-  void DrawLabels(TPad*, int);
-  void DrawTitle(TPad*, int);
+	static constexpr int CNVS_WIDTH = 1280;
+	static constexpr int CNVS_HEIGHT = 720;
 
-  void SetExec(TPad*, int, int);
+	static constexpr int EXEC_CNVS_WIDTH = 1280;
+	static constexpr int EXEC_CNVS_HEIGHT = 1440;
 
-  void DeletePtrs();
-  //===	~Drawing Methods	===//
+	static constexpr double T_MARGIN = 0.01;
+	static constexpr double B_MARGIN = 0.01;
+	static constexpr double L_MARGIN = 0.03;
+	static constexpr double R_MARGIN = 0.10;
 
-  //===	Pointers for Drawing	===//
-  TStyle* InttStyle[OPT] = {0x0};
-  TCanvas* InttCanvas[OPT] = {0x0};
-  TPad* InttPad[OPT * LAYER * MAX_PADS] = {0x0};
-  TH2D* InttHist[OPT * LAYER] = {0x0};
+	static constexpr double EXEC_T_MARGIN = 0.10;
+	static constexpr double EXEC_B_MARGIN = 0.10;
+	static constexpr double EXEC_L_MARGIN = 0.10;
+	static constexpr double EXEC_R_MARGIN = 0.10;
 
-  TLine** key_vline[LAYER] = {0x0};
-  TLine** key_hline[LAYER] = {0x0};
-  TText** key_nlabel[LAYER] = {0x0};
-  TText** key_slabel[LAYER] = {0x0};
+	static constexpr double DISP_TEXT_SIZE = 0.20;
+	static constexpr double EXEC_DISP_TEXT_SIZE = 0.20;
 
-  TLine** grid_vline[LAYER] = {0x0};
-  TLine** grid_hline[LAYER] = {0x0};
+	static constexpr double TITLE_TEXT_SIZE = 0.50;
+	static constexpr double EXEC_TITLE_TEXT_SIZE = 0.50;
 
-  TText** label[LAYER] = {0x0};
+	static constexpr double KEY_TEXT_SIZE1 = 0.10;
+	static constexpr double KEY_TEXT_SIZE2 = 0.05;
 
-  TText* title[LAYER] = {0x0};
-  //===	~Pointers for Drawing	===//
+	static constexpr double LABEL_TEXT_SIZE1 = 0.35;
+	static constexpr double LABEL_TEXT_SIZE2 = 0.25;
 
- public:
-  int Draw(const std::string&);
+	static constexpr double KEY_FRAC = 0.1;
+	static constexpr double LABEL_FRAC = 0.1;
+	static constexpr double TITLE_FRAC = 0.1;
+	static constexpr double DISP_FRAC = 0.1;
+
+	static constexpr double EXEC_TITLE_FRAC = 0.1;
+	static constexpr double EXEC_DISP_FRAC = 0.1;
+	//===	~Constants for Drawing	===//
+
+	//===	Drawing Methods		===//
+	static void DrawPad(TPad*);
+	static void DrawExecPad(TPad*);
+
+	static void DrawDisp(TPad*, const std::string&);
+	//---	Main Drawing Methods	---//
+	static void DrawOption(const std::string&);
+
+	static void DrawTitle	(TPad*, const std::string&, int);
+	static void DrawKey	(TPad*, const std::string&, int);
+	static void DrawHist	(TPad*, const std::string&, int);
+	static void DrawGrid	(TPad*, const std::string&, int);
+	static void DrawLabels	(TPad*, const std::string&, int);
+	static void DrawExec	(TPad*, const std::string&, int);
+	//---	~Main Drawing Methods	---//
+
+	//---	Exec Drawing Methods	---//
+	static void DrawExecOption(const std::string&, int, int, int, int);
+
+	static void DrawExecTitle	(TPad*, const std::string&, int, int, int, int);
+	static void DrawExecHist	(TPad*, const std::string&, int, int, int, int);
+	static void DrawExecExec	(TPad*, const std::string&, int, int, int, int);
+	static void DrawExecLines	(TPad*, const std::string&, int, int, int, int);
+	static void DrawExecDisp	(TPad*, const std::string&, int, int, int, int);
+	//---	~Exec Drawing Methods	---//
+	//===	~Drawing Methods	===//
 };
 
 #endif
