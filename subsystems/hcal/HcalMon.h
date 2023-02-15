@@ -34,7 +34,7 @@ class HcalMon : public OnlMon
   const int Nsector = 32;
   const int Ntower = 1536;
   const int packetlow = 8001;
-  const int packethigh = 8024;
+  const int packethigh = 8008;
   OnlMonDB* dbvars = nullptr;
   // TH1 *hcalhist1 = nullptr;
   // TH2 *hcalhist2 = nullptr;
@@ -46,7 +46,8 @@ class HcalMon : public OnlMon
   TH2* h2_hcal_mean = nullptr;
   TH1* h_sectorAvg_total = nullptr;
   TH1* h_event = nullptr;
-  TH1* h_rm_sectorAvg[100] = {nullptr};
+  TH1* h_rm_sectorAvg[32] = {nullptr};
+  TH1* h_rm_tower[24][64] = {nullptr};
 
   CaloWaveformProcessing* WaveformProcessing = nullptr;
   TowerInfoContainerv1* CaloInfoContainer = nullptr;  // for using encode_key

@@ -56,9 +56,11 @@ const float hit_threshold = 100;
 int HcalMon::Init()
 {
   // read our calibrations from HcalMonData.dat
+  /*
   std::string fullfile = std::string(getenv("HCALCALIB")) + "/" + "HcalMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
+  */
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("doing the Init\n");
@@ -73,7 +75,11 @@ int HcalMon::Init()
   h_sectorAvg_total = new TH1F("h_sectorAvg_total", "", 32, 0.5, 32.5);
   for (int ih = 0; ih < Nsector; ih++)
     h_rm_sectorAvg[ih] = new TH1F(Form("h_rm_sectorAvg_s%d", ih), "", historyLength, 0, historyLength);
-
+  for (int ieta = 0; ieta < 24; ieta++) {
+    for (int iphi = 0; iphi < 64; iphi++) {
+      h_rm_tower[ieta][iphi] = new TH1F(Form("h_rm_tower_%d_%d", ieta, iphi), Form("running mean of tower ieta=%d, iphi=%d", ieta, iphi), historyLength, 0, historyLength);
+    }
+  }
   // make the per-packet running mean objects
   // 32 packets and 48 channels for hcal detectors
   for (int i = 0; i < Nsector; i++)
@@ -84,7 +90,6 @@ int HcalMon::Init()
   {
     rm_vector_twr.push_back(new pseudoRunningMean(1, depth));
   }
-
   OnlMonServer* se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, h2_hcal_hits);
@@ -98,13 +103,20 @@ int HcalMon::Init()
   for (int ih = 0; ih < Nsector; ih++)
     se->registerHisto(this, h_rm_sectorAvg[ih]);
 
+
+  for (int ieta = 0; ieta < 24; ieta++) {
+    for (int iphi = 0; iphi < 64; iphi++) {
+      se->registerHisto(this, h_rm_tower[ieta][iphi]);
+    }
+  }
+
   dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
   DBVarInit();
   Reset();
 
   // initialize waveform extraction tool
   WaveformProcessing = new CaloWaveformProcessing();
-  WaveformProcessing->set_processing_type(CaloWaveformProcessing::TEMPLATE);
+  WaveformProcessing->set_processing_type(CaloWaveformProcessing::FAST);
   WaveformProcessing->set_template_file("testbeam_ohcal_template.root");
   WaveformProcessing->initialize_processing();
   // initialize TowerInfoContainer
@@ -236,6 +248,22 @@ int HcalMon::process_event(Event* e /* evt */)
         int bin = h2_hcal_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
         h2_hcal_mean->SetBinContent(bin, h2_hcal_mean->GetBinContent(bin) + signal);
         h2_hcal_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
+        //fill tower_rm here
+
+        if (evtcnt <= historyLength)
+        {
+          h_rm_tower[eta_bin][phi_bin]->SetBinContent(evtcnt, rm_vector_twr[towerNumber - 1]->getMean(0));
+        }
+        else
+        {
+          for (int ib = 1; ib < historyLength; ib++)
+          {
+            h_rm_tower[eta_bin][phi_bin]->SetBinContent(ib, h_rm_tower[eta_bin][phi_bin]->GetBinContent(ib + 1));
+          }
+          h_rm_tower[eta_bin][phi_bin]->SetBinContent(historyLength, rm_vector_twr[towerNumber - 1]->getMean(0));
+        }
+
+
         if (signal > hit_threshold)
         {
           h2_hcal_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);
@@ -268,7 +296,7 @@ int HcalMon::process_event(Event* e /* evt */)
       {
         h_rm_sectorAvg[isec]->SetBinContent(ib, h_rm_sectorAvg[isec]->GetBinContent(ib + 1));
       }
-      h_rm_sectorAvg[isec]->SetBinContent(evtcnt, rm_vector_sectAvg[isec]->getMean(0));
+      h_rm_sectorAvg[isec]->SetBinContent(historyLength, rm_vector_sectAvg[isec]->getMean(0));
     }
 
   }  // sector loop

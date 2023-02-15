@@ -6,7 +6,7 @@
 
 R__LOAD_LIBRARY(libonlhcalmon_server.so)
 
-void run_hcal_server(const char *prdffile = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000221-0000.prdf")
+void run_hcal_server(const char *prdffile = "/sphenix/data/data02/sphenix/hcal/1008/LED/led-West-East-00001713-0000.prdf")
 {
   OnlMon *m = new HcalMon();                    // create subsystem Monitor object
                                                 //  m->AddTrigger("PPG(Laser)");  // high efficiency triggers selection at et pool
