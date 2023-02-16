@@ -3,6 +3,8 @@
 
 #include <Event/msg_profile.h>
 
+#include <TH1.h>
+
 #include <cstdio>  // for printf
 #include <iostream>
 #include <sstream>
@@ -89,8 +91,10 @@ void OnlMon::AddLiveTrigger(const std::string &name)
   return;
 }
 
-int OnlMon::InitCommon(OnlMonServer * /* se */)
+int OnlMon::InitCommon(OnlMonServer *  se)
 {
+//  m_LocalFrameWorkVars = static_cast<TH1 *>(se->getCommonHisto("FrameWorkVars")->Clone());
+  se->registerHisto(this,se->getCommonHisto("FrameWorkVars"));
   return 0;
 }
 

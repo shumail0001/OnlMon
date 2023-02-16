@@ -1,5 +1,5 @@
-#ifndef __ONLMON_H__
-#define __ONLMON_H__
+#ifndef ONLMONSERVER_ONLMON_H
+#define ONLMONSERVER_ONLMON_H
 
 #include "OnlMonBase.h"
 
@@ -9,6 +9,7 @@
 
 class Event;
 class OnlMonServer;
+class TH1;
 
 class OnlMon : public OnlMonBase
 {
@@ -44,6 +45,7 @@ class OnlMon : public OnlMonBase
   unsigned int livetrigmask;
   int status;
   unsigned int m_ServerId = 0;
+  TH1 *m_LocalFrameWorkVars = nullptr;
 };
 
-#endif /* __ONLMON_H__ */
+#endif /* ONLMONSERVER_ONLMON_H */

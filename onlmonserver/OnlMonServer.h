@@ -33,7 +33,8 @@ class OnlMonServer : public OnlMonBase
   void registerHisto(const OnlMon *monitor, TH1 *h1d);
 
   void registerCommonHisto(TH1 *h1d);
-  TH1 *getHisto(const std::string &hname) const;
+  TH1 *getHisto(const std::string &subsys, const std::string &hname) const;
+  TH1 *getCommonHisto(const std::string &hname) const;
   TH1 *getHisto(const unsigned int ihisto) const;
   const std::string getHistoName(const unsigned int ihisto) const;
   unsigned int nHistos() const { return Histo.size(); }
@@ -101,8 +102,8 @@ class OnlMonServer : public OnlMonBase
   PHCompositeNode *TopNode() { return topNode; }
 
   int run_empty(const int nevents);
-  std::map<std::string, std::set<std::string> >::const_iterator monibegin() {return MonitorHistoSet.begin();}
-  std::map<std::string, std::set<std::string> >::const_iterator moniend() {return MonitorHistoSet.end();}
+  std::map<std::string, std::map<std::string, TH1 *>>::const_iterator monibegin() {return MonitorHistoSet.begin();}
+  std::map<std::string, std::map<std::string, TH1 *>>::const_iterator moniend() {return MonitorHistoSet.end();}
 
  private:
   OnlMonServer(const std::string &name = "OnlMonServer");
@@ -134,7 +135,7 @@ class OnlMonServer : public OnlMonBase
   std::vector<OnlMon *> MonitorList;
   std::set<unsigned int> activepackets;
   std::map<std::string, MessageSystem *> MsgSystem;
-  std::map<std::string, std::set<std::string> > MonitorHistoSet;
+  std::map<std::string, std::map<std::string, TH1 *> > MonitorHistoSet;
   std::set<std::string> CommonHistoSet;
   pthread_mutex_t mutex;
   pthread_t serverthreadid = 0;

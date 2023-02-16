@@ -328,7 +328,6 @@ static void *server(void * /* arg */)
     ss = new TServerSocket(MoniPort, kTRUE);
     // Accept a connection and return a full-duplex communication socket.
     Onlmonserver->PortNumber(MoniPort);
-    MoniPort++;
     if ((MoniPort - OnlMonDefs::MONIPORT) >= OnlMonDefs::NUMMONIPORT)
     {
       std::ostringstream msg;
@@ -337,6 +336,7 @@ static void *server(void * /* arg */)
 
       exit(1);
     }
+    MoniPort++;
     if (!ss->IsValid())
     {
       printf("Ignore ROOT error about socket in use, I try another one\n");
@@ -425,29 +425,30 @@ void handleconnection(void *arg)
     }
     if (mess->What() == kMESS_STRING)
     {
-      char str[64];
-      mess->ReadString(str, 64);
+      char strchr[OnlMonDefs::MSGLEN];
+      mess->ReadString(strchr,OnlMonDefs::MSGLEN);
       delete mess;
       mess = nullptr;
+      std::string str = strchr;
       if (Onlmonserver->Verbosity() > 2)
       {
         std::cout << "received message: " << str << std::endl;
       }
-      if (!strcmp(str, "Finished"))
+      if (str == "Finished")
       {
         break;
       }
-      else if (!strcmp(str, "WriteRootFile"))
+      else if (str == "WriteRootFile")
       {
         Onlmonserver->WriteHistoFile();
         s0->Send("Finished");
         break;
       }
-      else if (!strcmp(str, "Ack"))
+      else if (str == "Ack")
       {
         continue;
       }
-      else if (!strcmp(str, "HistoList"))
+      else if (str == "HistoList")
       {
         if (Onlmonserver->Verbosity() > 2)
         {
@@ -458,8 +459,8 @@ void handleconnection(void *arg)
 	  for (auto &histos: monitors->second)
 	  {
 
-	    std::cout << "subsystem: " << monitors->first << ", histo: " << histos << std::endl;
-	    std::string subsyshisto =   monitors->first + ' ' + histos;
+	    std::cout << "subsystem: " << monitors->first << ", histo: " << histos.first << std::endl;
+	    std::string subsyshisto =   monitors->first + ' ' + histos.first;
             std::cout << " sending: \"" << subsyshisto << "\"" << std::endl;
           s0->Send(subsyshisto.c_str());
           int nbytes = s0->Recv(mess);
@@ -476,7 +477,7 @@ void handleconnection(void *arg)
 	}
         s0->Send("Finished");
       }
-      else if (!strcmp(str, "ALL"))
+      else if (str == "ALL")
       {
         if (Onlmonserver->Verbosity() > 2)
         {
@@ -498,12 +499,12 @@ void handleconnection(void *arg)
         }
         s0->Send("Finished");
       }
-      else if (!strcmp(str, "LIST"))
+      else if (str == "LIST")
       {
         s0->Send("go");
         while (true)
         {
-          char strmess[200];
+	  char strmess[OnlMonDefs::MSGLEN];
           s0->Recv(mess);
           if (!mess)
           {
@@ -511,15 +512,17 @@ void handleconnection(void *arg)
           }
           if (mess->What() == kMESS_STRING)
           {
-            mess->ReadString(strmess, 200);
+            mess->ReadString(strmess,OnlMonDefs::MSGLEN);
             delete mess;
             mess = nullptr;
-            if (!strcmp(strmess, "alldone"))
+            if (std::string(strmess) == "alldone")
             {
               break;
             }
           }
-          TH1 *histo = Onlmonserver->getHisto(strmess);
+	  std::string str(strmess);
+          unsigned int pos_space = str.find(' ');
+          TH1 *histo = Onlmonserver->getHisto(str.substr(0,pos_space),str.substr(pos_space+1,str.size()));
           if (histo)
           {
             outgoing.Reset();
@@ -537,7 +540,9 @@ void handleconnection(void *arg)
       }
       else
       {
-        TH1 *histo = Onlmonserver->getHisto(str);
+	std::string strstr(str);
+        unsigned int pos_space = str.find(' ');
+        TH1 *histo = Onlmonserver->getHisto(strstr.substr(0,pos_space),strstr.substr(pos_space+1,str.size()));
         if (histo)
         {
           //		  const char *hisname = histo->GetName();
