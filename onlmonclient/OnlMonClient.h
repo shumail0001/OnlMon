@@ -25,11 +25,11 @@ class OnlMonClient : public OnlMonBase
   ~OnlMonClient() override;
   int UpdateServerHistoMap(const std::string &hname, const std::string &subsys, const std::string &hostname);
   void PutHistoInMap(const std::string &hname, const std::string &subsys, const std::string &hostname, const int port);
-  void updateHistoMap(const char *hname, TH1 *h1d);
+  void updateHistoMap(const std::string &subsys, const std::string &hname, TH1 *h1d);
   TH1 *getHisto(const std::string &hname);
   OnlMonDraw *getDrawer(const std::string &name);
   int requestHisto(const char *what = "ALL", const std::string &hostname = "localhost", const int moniport = OnlMonDefs::MONIPORT);
-  int requestHistoList(const std::string &hostname, const int moniport, std::list<std::string> &histolist);
+  int requestHistoList(const std::string &subsys, const std::string &hostname, const int moniport, std::list<std::string> &histolist);
   int requestHistoByName(const std::string &what = "ALL");
   int requestHistoBySubSystem(const std::string &subsystem, int getall = 0);
   void registerHisto(const std::string &hname, const std::string &subsys);
@@ -96,6 +96,7 @@ class OnlMonClient : public OnlMonBase
 
   std::string runtype = "UNKNOWN";
   std::map<std::string, std::map<const std::string, ClientHistoList *>> SubsysHisto;
+  std::map<std::string, std::pair<std::string, unsigned int>> SubsysHostPorts;
   std::map<const std::string, ClientHistoList *> Histo;
   std::map<const std::string, OnlMonDraw *> DrawerList;
   std::vector<std::string> MonitorHosts;
