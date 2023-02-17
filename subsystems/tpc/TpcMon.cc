@@ -120,7 +120,7 @@ int TpcMon::process_event(Event * /* evt */)
     //std::cout << "r is: "<< r <<" theta is: "<< theta <<"\n";
 
     if(tpciter < 37){ //South side
-      SouthSideADC->Fill(theta,r, South_Side_Arr[tpciter]); //fill South side with the weight = bin content
+      SouthSideADC->Fill(theta,r, South_Side_Arr[tpciter-1]); //fill South side with the weight = bin content
     }
     else { //North side
       NorthSideADC->Fill(theta,r,North_Side_Arr[tpciter-37]); //fill North side with the weight = bin content
