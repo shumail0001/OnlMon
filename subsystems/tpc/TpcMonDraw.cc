@@ -10,10 +10,13 @@
 #include <TDatime.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
+#include <TH2.h>
 #include <TPad.h>
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TText.h>
+#include <TMath.h>
+#include <TPaveLabel.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -90,6 +93,12 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     //        transparent[2]->Draw();
     //      TC[2]->SetEditable(0);
   }
+  else if (name == "TPCModules")
+  {
+    TC[3] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1248, 598);
+    TC[3]->Divide(2,1);
+    TC[3]->SetEditable(false);
+  }
   return 0;
 }
 
@@ -105,6 +114,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SECOND")
   {
     iret += DrawSecond(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCMODULE")
+  {
+    iret += DrawTPCModules(what);
     idraw++;
   }
   if (what == "ALL" || what == "HISTORY")
@@ -214,6 +228,122 @@ int TpcMonDraw::DrawSecond(const std::string & /* what */)
   return 0;
 }
 
+int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
+{
+  std::cout<<"This is Charles' temporary function 02.15.23 !!!!!"<<std::endl;
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH2 *tpcmon_NSIDEADC = (TH2*)cl->getHisto("NorthSideADC");
+  TH2 *tpcmon_SSIDEADC = (TH2*)cl->getHisto("SouthSideADC");
+
+  if (!gROOT->FindObject("TPCModules"))
+  {
+    MakeCanvas("TPCModules");
+  }
+  dummy_his1 = new TH2F("dummy_his1", "ADC Counts North Side", 100, -1.5, 1.5, 100, -1.5, 1.5); //dummy histos for titles
+  dummy_his2 = new TH2F("dummy_his2", "ADC Counts South Side", 100, -1.5, 1.5, 100, -1.5, 1.5);
+
+  //labels
+  NS18 = new TPaveLabel( 1.046586,-0.1938999,1.407997,0.2144871, "18" );
+  NS17 = new TPaveLabel( 0.962076,0.4382608,1.323487,0.8466479 , "17" );
+  NS16 = new TPaveLabel( 0.4801947,0.8802139,0.8416056,1.288601 , "16" );
+  NS15 = new TPaveLabel( -0.1823921,1.011681,0.1790189,1.425662, "15" );
+  NS14 = new TPaveLabel( -0.8449788,0.8690253,-0.4835679,1.288601 , "14" );
+  NS13 = new TPaveLabel( -1.30879,0.441058,-0.9473786,0.8550394 , "13" );
+  NS12 = new TPaveLabel( -1.411009,-0.2050886,-1.049598,0.2144871, "12" );
+  NS23 = new TPaveLabel( -1.302585,-0.7757116,-0.9471979,-0.3561359 , "23" );
+  NS22 = new TPaveLabel( -0.8449788,-1.309971,-0.4835679,-0.8848013 , "22" );
+  NS21 = new TPaveLabel( -0.1823921,-1.426557,0.1790189,-1.006982 , "21" );
+  NS20 = new TPaveLabel( 0.4801947,-1.309076,0.8416056,-0.8839062 , "20" );
+  NS19 = new TPaveLabel( 0.9622567,-0.7785088,1.323668,-0.3533387 , "19" );
+
+  SS00 = new TPaveLabel( 1.046586,-0.1938999,1.407997,0.2144871, "00" );
+  SS01 = new TPaveLabel( 0.962076,0.4382608,1.323487,0.8466479 , "01" );
+  SS02 = new TPaveLabel( 0.4801947,0.8802139,0.8416056,1.288601 , "02" );
+  SS03 = new TPaveLabel( -0.1823921,1.011681,0.1790189,1.425662, "03" );
+  SS04 = new TPaveLabel( -0.8449788,0.8690253,-0.4835679,1.288601 , "04" );
+  SS05 = new TPaveLabel( -1.30879,0.441058,-0.9473786,0.8550394 , "05" );
+  SS06 = new TPaveLabel( -1.411009,-0.2050886,-1.049598,0.2144871, "06" );
+  SS07 = new TPaveLabel( -1.302585,-0.7757116,-0.9471979,-0.3561359 , "07" );
+  SS08 = new TPaveLabel( -0.8449788,-1.309971,-0.4835679,-0.8848013 , "08" );
+  SS09 = new TPaveLabel( -0.1823921,-1.426557,0.1790189,-1.006982 , "09" );
+  SS10 = new TPaveLabel( 0.4801947,-1.309076,0.8416056,-0.8839062 , "10" );
+  SS11 = new TPaveLabel( 0.9622567,-0.7785088,1.323668,-0.3533387 , "11" );
+
+  NS18->SetFillColor(0);
+  NS17->SetFillColor(0);
+  NS16->SetFillColor(0);
+  NS15->SetFillColor(0);
+  NS14->SetFillColor(0);
+  NS13->SetFillColor(0);
+  NS12->SetFillColor(0);
+  NS23->SetFillColor(0);
+  NS22->SetFillColor(0);
+  NS21->SetFillColor(0);
+  NS20->SetFillColor(0);
+  NS19->SetFillColor(0);
+
+  SS00->SetFillColor(0);
+  SS01->SetFillColor(0);
+  SS02->SetFillColor(0);
+  SS03->SetFillColor(0);
+  SS04->SetFillColor(0);
+  SS05->SetFillColor(0);
+  SS06->SetFillColor(0);
+  SS07->SetFillColor(0);
+  SS08->SetFillColor(0);
+  SS09->SetFillColor(0);
+  SS10->SetFillColor(0);
+  SS11->SetFillColor(0);
+
+
+  TC[3]->SetEditable(true);
+  TC[3]->Clear("D");
+  TC[3]->cd(1);
+  dummy_his1->Draw("");
+  if (tpcmon_SSIDEADC)
+  {
+    //std::cout<<"Yes, there is a histogram to draw !!!! Charles 02.16.23"<<std::endl;
+    tpcmon_SSIDEADC->DrawCopy("colpolzsame");
+  }
+  SS00->Draw("same");
+  SS01->Draw("same");
+  SS02->Draw("same");
+  SS03->Draw("same");
+  SS04->Draw("same");
+  SS05->Draw("same");
+  SS06->Draw("same");
+  SS07->Draw("same");
+  SS08->Draw("same");
+  SS09->Draw("same");
+  SS10->Draw("same");
+  SS11->Draw("same");
+
+  TC[3]->cd(2);
+  dummy_his2->Draw("");
+  if (tpcmon_NSIDEADC)
+  {
+    tpcmon_NSIDEADC->DrawCopy("colpolzsame");
+  }
+  NS18->Draw("same");
+  NS17->Draw("same");
+  NS16->Draw("same");
+  NS15->Draw("same");
+  NS14->Draw("same");
+  NS13->Draw("same");
+  NS12->Draw("same");
+  NS23->Draw("same");
+  NS22->Draw("same");
+  NS21->Draw("same");
+  NS20->Draw("same");
+  NS19->Draw("same");
+
+  TC[3]->Update();
+  TC[3]->Show();
+  TC[3]->SetEditable(false);
+  
+  return 0;
+}
+
 int TpcMonDraw::MakePS(const std::string &what)
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -230,6 +360,7 @@ int TpcMonDraw::MakePS(const std::string &what)
   TC[1]->Print(filename.str().c_str());
   return 0;
 }
+
 
 int TpcMonDraw::MakeHtml(const std::string &what)
 {

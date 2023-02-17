@@ -13,6 +13,8 @@ void tpcDrawInit(const int online = 0)
   // register histos we want with monitor name
   cl->registerHisto("tpcmon_hist1", "TPCMON");
   cl->registerHisto("tpcmon_hist2", "TPCMON");
+  cl->registerHisto("NorthSideADC", "TPCMON");
+  cl->registerHisto("SouthSideADC", "TPCMON");
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);
   // get my histos from server, the second parameter = 1

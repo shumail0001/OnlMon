@@ -13,6 +13,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TMath.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -53,10 +54,20 @@ int TpcMon::Init()
   printf("doing the Init\n");
   tpchist1 = new TH1F("tpcmon_hist1", "test 1d histo", 101, 0., 100.);
   tpchist2 = new TH2F("tpcmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
+
+  //TPC GEM Module Displays
+
+  NorthSideADC = new TH2F("NorthSideADC" , "ADC Counts North Side", N_thBins, -TMath::Pi()/12. , 23.*TMath::Pi()/12. , N_rBins , rBin_edges );
+  SouthSideADC = new TH2F("SouthSideADC" , "ADC Counts South Side", N_thBins, -TMath::Pi()/12. , 23.*TMath::Pi()/12. , N_rBins , rBin_edges );
+  //
+
+
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, tpchist1);  // uses the TH1->GetName() as key
   se->registerHisto(this, tpchist2);
+  se->registerHisto(this, NorthSideADC);
+  se->registerHisto(this, SouthSideADC);
   dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
   DBVarInit();
   Reset();
@@ -96,6 +107,29 @@ int TpcMon::process_event(Event * /* evt */)
   tpchist1->Fill((float) idummy);
   tpchist2->Fill((float) idummy, (float) idummy, 1.);
 
+  //fill the TPC module displays
+  float r, theta;
+
+  //dummy data
+  float North_Side_Arr[36] = { 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50 };
+  float South_Side_Arr[36] = { 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50 };
+
+  for(int tpciter = 1; tpciter < 73 ; tpciter++){
+
+    Locate(tpciter, &r, &theta);
+    //std::cout << "r is: "<< r <<" theta is: "<< theta <<"\n";
+
+    if(tpciter < 37){ //South side
+      SouthSideADC->Fill(theta,r, South_Side_Arr[tpciter-1]); //fill South side with the weight = bin content
+    }
+    else { //North side
+      NorthSideADC->Fill(theta,r,North_Side_Arr[tpciter-37]); //fill North side with the weight = bin content
+    }
+ 
+  }
+  //
+
+
   if (idummy++ > 10)
   {
     if (dbvars)
@@ -112,6 +146,35 @@ int TpcMon::process_event(Event * /* evt */)
   }
   return 0;
 }
+
+void TpcMon::Locate(int id, float *rbin, float *thbin)
+{
+   float CSIDE_angle_bins[12] = { 0.1*2.*TMath::Pi()/12 , 1.1*2.*TMath::Pi()/12 , 2.1*2.*TMath::Pi()/12 , 3.1*2.*TMath::Pi()/12 , 4.1*2.*TMath::Pi()/12 , 5.1*2.*TMath::Pi()/12 , 6.1*2.*TMath::Pi()/12 , 7.1*2.*TMath::Pi()/12 , 8.1*2.*TMath::Pi()/12 , 9.1*2.*TMath::Pi()/12 , 10.1*2.*TMath::Pi()/12 , 11.1*2.*TMath::Pi()/12 }; //CCW from x = 0 (RHS horizontal)
+
+   float ASIDE_angle_bins[12] = { 6.1*2.*TMath::Pi()/12 , 5.1*2.*TMath::Pi()/12 , 4.1*2.*TMath::Pi()/12 , 3.1*2.*TMath::Pi()/12 , 2.1*2.*TMath::Pi()/12 , 1.1*2.*TMath::Pi()/12 , 0.1*2.*TMath::Pi()/12 , 11.1*2.*TMath::Pi()/12 , 10.1*2.*TMath::Pi()/12 , 9.1*2.*TMath::Pi()/12 , 8.1*2.*TMath::Pi()/12 , 7.1*2.*TMath::Pi()/12  }; //CCW from x = 0 (RHS horizontal)
+
+   int modid3 = id % 3;
+
+   switch(modid3) {
+     case 1:
+       *rbin = 0.4; //R1
+       break;
+     case 2:
+       *rbin = 0.6; //R2
+       break;
+     case 0:
+       *rbin = 0.8; //R3
+       break;
+   }
+
+  if( id < 37){
+    *thbin = CSIDE_angle_bins[TMath::FloorNint((id-1)/3)];
+  }
+  else if( id >= 37){
+    *thbin = ASIDE_angle_bins[TMath::FloorNint((id-37)/3)];
+  }
+}
+
 
 int TpcMon::Reset()
 {
