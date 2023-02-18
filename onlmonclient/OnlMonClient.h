@@ -26,6 +26,7 @@ class OnlMonClient : public OnlMonBase
   int UpdateServerHistoMap(const std::string &hname, const std::string &subsys, const std::string &hostname);
   void PutHistoInMap(const std::string &hname, const std::string &subsys, const std::string &hostname, const int port);
   void updateHistoMap(const std::string &subsys, const std::string &hname, TH1 *h1d);
+  int requestMonitorList(const std::string &hostname, const int moniport);
   TH1 *getHisto(const std::string &hname);
   OnlMonDraw *getDrawer(const std::string &name);
   int requestHisto(const char *what = "ALL", const std::string &hostname = "localhost", const int moniport = OnlMonDefs::MONIPORT);

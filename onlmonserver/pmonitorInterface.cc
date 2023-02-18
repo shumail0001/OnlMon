@@ -5,6 +5,7 @@
 #include "pmonitorInterface.h"
 #include "OnlMonServer.h"
 #include "OnlMonDefs.h"
+#include "OnlMon.h"
 #include "HistoBinDefs.h"
 
 #include <phool/phool.h>
@@ -498,6 +499,34 @@ void handleconnection(void *arg)
           }
         }
         s0->Send("Finished");
+      }
+      else if (str == "LISTMONITORS")
+      {
+        for (auto moniter = Onlmonserver->monitor_vec_begin(); moniter != Onlmonserver->monitor_vec_end(); ++moniter)
+	{
+	  s0->Send((*moniter)->Name().c_str());
+	  while (true)
+	  {
+	    char strmess[OnlMonDefs::MSGLEN];
+	    s0->Recv(mess);
+	    if (!mess)
+	    {
+	      break;
+	    }
+	    mess->ReadString(strmess, OnlMonDefs::MSGLEN);
+	    delete mess;
+	    std::string str(strmess);
+	    std::cout << "got " << str << std::endl;
+	    if (str == "Finished")
+	    {
+	      break;
+	    }
+        s0->Send("Ack");
+
+	  }
+	}
+        s0->Send("Finished");
+	break;
       }
       else if (str == "LIST")
       {

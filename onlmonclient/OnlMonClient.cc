@@ -275,6 +275,12 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
       if (hostportiter == SubsysHostPorts.end())
       {
 	std::cout << PHWHERE << "Cannot find SubsysHostPorts entry for " << listiter->first << std::endl;
+	std::cout << "existing hosts: " << std::endl;
+	for (auto &hport : SubsysHostPorts)
+	{
+	  std::cout << "subsystem " << hport.first << " on host " << hport.second.first
+		    << " listening on port " << hport.second.second << std::endl;
+	}
 	continue;
       }
       if (requestHistoList(listiter->first, hostportiter->second.first, hostportiter->second.second, hlist) != 0)
@@ -664,6 +670,31 @@ int OnlMonClient::requestHisto(const char *what, const std::string &hostname, co
       sock.Send("Ack");
     }
   }
+  sock.Send("Finished");  // tell server we are finished
+
+  // Close the socket
+  sock.Close();
+  return 0;
+}
+int OnlMonClient::requestMonitorList(const std::string &hostname, const int moniport)
+{
+  TSocket sock(hostname.c_str(), moniport);
+  TMessage *mess;
+  sock.Send("LISTMONITORS");
+  sock.Recv(mess);
+  if (!mess)  // if server is not up mess is NULL
+  {
+    std::cout << PHWHERE << "Server not running on " << hostname << std::endl;
+    sock.Close();
+    return 1;
+  }
+    if (mess->What() == kMESS_STRING)
+    {
+      char str[OnlMonDefs::MSGLEN];
+      mess->ReadString(str, OnlMonDefs::MSGLEN);
+      delete mess;
+      std::cout << "received " << str << std::endl;
+    }
   sock.Send("Finished");  // tell server we are finished
 
   // Close the socket

@@ -104,6 +104,8 @@ class OnlMonServer : public OnlMonBase
   int run_empty(const int nevents);
   std::map<std::string, std::map<std::string, TH1 *>>::const_iterator monibegin() {return MonitorHistoSet.begin();}
   std::map<std::string, std::map<std::string, TH1 *>>::const_iterator moniend() {return MonitorHistoSet.end();}
+  std::vector<OnlMon *>::const_iterator monitor_vec_begin() {return MonitorList.begin();}
+  std::vector<OnlMon *>::const_iterator monitor_vec_end() {return MonitorList.end();}
 
  private:
   OnlMonServer(const std::string &name = "OnlMonServer");
