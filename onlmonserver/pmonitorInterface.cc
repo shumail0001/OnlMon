@@ -502,28 +502,11 @@ void handleconnection(void *arg)
       }
       else if (str == "LISTMONITORS")
       {
+        s0->Send("go");
         for (auto moniter = Onlmonserver->monitor_vec_begin(); moniter != Onlmonserver->monitor_vec_end(); ++moniter)
 	{
+	  std::cout << "sending " << (*moniter)->Name().c_str() << std::endl;
 	  s0->Send((*moniter)->Name().c_str());
-	  while (true)
-	  {
-	    char strmess[OnlMonDefs::MSGLEN];
-	    s0->Recv(mess);
-	    if (!mess)
-	    {
-	      break;
-	    }
-	    mess->ReadString(strmess, OnlMonDefs::MSGLEN);
-	    delete mess;
-	    std::string str(strmess);
-	    std::cout << "got " << str << std::endl;
-	    if (str == "Finished")
-	    {
-	      break;
-	    }
-        s0->Send("Ack");
-
-	  }
 	}
         s0->Send("Finished");
 	break;
