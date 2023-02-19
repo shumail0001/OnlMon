@@ -271,12 +271,12 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
     {
       std::list<std::string> hlist = listiter->second;
       hlist.emplace_back("FrameWorkVars");  // get this histogram by default to get framework info
-      auto hostportiter = SubsysHostPorts.find(listiter->first);
-      if (hostportiter == SubsysHostPorts.end())
+      auto hostportiter = MonitorHostPorts.find(listiter->first);
+      if (hostportiter == MonitorHostPorts.end())
       {
-	std::cout << PHWHERE << "Cannot find SubsysHostPorts entry for " << listiter->first << std::endl;
+	std::cout << PHWHERE << "Cannot find MonitorHostPorts entry for " << listiter->first << std::endl;
 	std::cout << "existing hosts: " << std::endl;
-	for (auto &hport : SubsysHostPorts)
+	for (auto &hport : MonitorHostPorts)
 	{
 	  std::cout << "subsystem " << hport.first << " on host " << hport.second.first
 		    << " listening on port " << hport.second.second << std::endl;
@@ -676,6 +676,7 @@ int OnlMonClient::requestHisto(const char *what, const std::string &hostname, co
   sock.Close();
   return 0;
 }
+
 int OnlMonClient::requestMonitorList(const std::string &hostname, const int moniport)
 {
   TSocket sock(hostname.c_str(), moniport);
@@ -688,13 +689,32 @@ int OnlMonClient::requestMonitorList(const std::string &hostname, const int moni
     sock.Close();
     return 1;
   }
+  delete mess;
+  while(true)
+  {
+    sock.Recv(mess);
     if (mess->What() == kMESS_STRING)
     {
-      char str[OnlMonDefs::MSGLEN];
-      mess->ReadString(str, OnlMonDefs::MSGLEN);
+      char strmess[OnlMonDefs::MSGLEN];
+      mess->ReadString(strmess, OnlMonDefs::MSGLEN);
       delete mess;
-      std::cout << "received " << str << std::endl;
+      if (Verbosity() > 1)
+      {
+        std::cout << "received " << strmess << std::endl;
+      }
+      std::string str(strmess);
+      if (str == "Finished")
+      {
+	break;
+      }
+      MonitorHostPorts.insert(std::make_pair(str,std::make_pair(hostname,moniport)));
     }
+    else
+    {
+      std::cout << "requestMonitorList: received unexpected message type: " << mess->What() << std::endl;
+      break;
+    }
+  }
   sock.Send("Finished");  // tell server we are finished
 
   // Close the socket
@@ -853,6 +873,19 @@ void OnlMonClient::Print(const char *what)
       std::cout << "ServerHost: " << *hostiter << std::endl;
     }
   }
+  if (!strcmp(what, "ALL") || !strcmp(what, "MONITORS"))
+  {
+    // loop over the map and print out the content (name and location in memory)
+    std::cout << "--------------------------------------" << std::endl
+              << std::endl;
+    std::cout << "List of Monitors in OnlMonClient:" << std::endl;
+
+    for (auto &moniiter : MonitorHostPorts)
+    {
+      std::cout << "Monitor " << moniiter.first << " runs on " <<  moniiter.second.first
+		<< " listening to port " << moniiter.second.second << std::endl;
+    }
+  }
   if (!strcmp(what, "ALL") || !strcmp(what, "HISTOS"))
   {
     // loop over the map and print out the content (name and location in memory)
@@ -871,8 +904,8 @@ void OnlMonClient::Print(const char *what)
     std::cout << std::endl;
     for (auto &subs : SubsysHisto)
     {
-      auto subiter = SubsysHostPorts.find(subs.first);
-      if (subiter != SubsysHostPorts.end())
+      auto subiter = MonitorHostPorts.find(subs.first);
+      if (subiter != MonitorHostPorts.end())
       {
       std::cout << "Subsystem " << subs.first << " runs on " << subiter->second.first;
       std::cout	<< " on port " <<  subiter->second.second << std::endl;
@@ -972,7 +1005,6 @@ int OnlMonClient::UpdateServerHistoMap(const std::string &hname, const std::stri
           foundit = 1;
         }
 	unsigned int pos_space = str.find(' ');
-	SubsysHostPorts.insert(std::make_pair(subsys,std::make_pair(hostname,MoniPort)));
         PutHistoInMap(str.substr(pos_space+1,str.size()), str.substr(0,pos_space),hostname, MoniPort);
         sock.Send("Ack");
       }

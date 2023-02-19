@@ -97,7 +97,7 @@ class OnlMonClient : public OnlMonBase
 
   std::string runtype = "UNKNOWN";
   std::map<std::string, std::map<const std::string, ClientHistoList *>> SubsysHisto;
-  std::map<std::string, std::pair<std::string, unsigned int>> SubsysHostPorts;
+  std::map<std::string, std::pair<std::string, unsigned int>> MonitorHostPorts;
   std::map<const std::string, ClientHistoList *> Histo;
   std::map<const std::string, OnlMonDraw *> DrawerList;
   std::vector<std::string> MonitorHosts;
