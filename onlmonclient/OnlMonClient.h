@@ -77,6 +77,7 @@ class OnlMonClient : public OnlMonBase
   int isStandalone();
   std::string RunType();
   void CacheRunDB(const int runno);
+  void FindAllMonitors();
 
  private:
   OnlMonClient(const std::string &name = "ONLMONCLIENT");

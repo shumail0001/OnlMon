@@ -1529,3 +1529,16 @@ OnlMonClient::RunType()
   CacheRunDB(RunNumber());
   return runtype;
 }
+
+void OnlMonClient::FindAllMonitors()
+{
+  for (auto &hostiter:  MonitorHosts)
+  {
+    std::cout << "checking " << hostiter << std::endl;
+    for (unsigned int moniport = OnlMonDefs::MONIPORT; moniport < OnlMonDefs::MONIPORT+OnlMonDefs::NUMMONIPORT; ++moniport)
+    {
+      requestMonitorList(hostiter,moniport);
+    }
+  }
+  return;
+}
