@@ -195,6 +195,9 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
   int iret = 0;
   std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
   std::map<const std::string, ClientHistoList *>::const_iterator histonewiter;
+  if (MonitorHostPorts.find(subsys) != MonitorHostPorts.end())
+  {
+  }
   if (!getall)
   {
     std::map<std::string, std::map<const std::string, ClientHistoList *>>::const_iterator histos = SubsysHisto.find(subsys);
@@ -1541,4 +1544,64 @@ void OnlMonClient::FindAllMonitors()
     }
   }
   return;
+}
+
+int OnlMonClient::FindMonitor(const std::string &name)
+{
+// loop over all hosts/ports until we find ours
+  int iret = -1;
+  for (auto &hostiter:  MonitorHosts)
+  {
+    std::cout << "checking " << hostiter << std::endl;
+    for (unsigned int moniport = OnlMonDefs::MONIPORT; moniport < OnlMonDefs::MONIPORT+OnlMonDefs::NUMMONIPORT; ++moniport)
+    {
+      requestMonitorList(hostiter,moniport);
+      auto moniter = MonitorHostPorts.find(name);
+      if (moniter != MonitorHostPorts.end())
+      {
+	std::cout << "found " << name << " running on " << moniter->second.first
+		  << " listening to port " <<  moniter->second.second << std::endl;
+	return 0;
+      }
+    }
+  }
+  return iret;
+}
+
+int OnlMonClient::IsMonitorRunning(const std::string &name)
+{
+  int iret = -1;
+  std::string command = std::string("ISRUNNING") + ' ' + name;
+  auto moniter = MonitorHostPorts.find(name);
+  if (moniter ==  MonitorHostPorts.end())
+  {
+    return iret;
+  }
+  TSocket sock(moniter->second.first.c_str(), moniter->second.second);
+  TMessage *mess;
+  sock.Send(command.c_str());
+    sock.Recv(mess);
+    if (!mess)  // if server is not up mess is NULL
+    {
+      std::cout << PHWHERE << "Server not running on " << moniter->second.first << std::endl;
+      sock.Close();
+      return iret;
+    }
+    if (mess->What() == kMESS_STRING)
+    {
+      char str[OnlMonDefs::MSGLEN];
+      mess->ReadString(str, OnlMonDefs::MSGLEN);
+      delete mess;
+      if (verbosity > 1)
+      {
+        std::cout << PHWHERE << "Message: " << str << std::endl;
+      }
+      if (!strcmp(str, "Yes"))
+      {
+	iret = 0;
+      }
+    }
+  sock.Send("Finished");
+  sock.Close();
+  return iret;
 }

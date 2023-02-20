@@ -500,6 +500,23 @@ void handleconnection(void *arg)
         }
         s0->Send("Finished");
       }
+      else if (str.find("ISRUNNING") != std::string::npos)
+      {
+        bool foundit = false;
+	std::string answer = "No";
+        unsigned int pos_space = str.find(' ');
+	std::string moniname = str.substr(pos_space+1,str.size());
+	for (auto moniter = Onlmonserver->monitor_vec_begin(); moniter != Onlmonserver->monitor_vec_end(); ++moniter)
+	{
+	  if ((*moniter)->Name() == moniname)
+	  {
+	    answer = "Yes";
+	    break;
+	  }
+	}
+	std::cout << "got " << str << ", replied " << answer << std::endl;
+	s0->Send(answer.c_str());
+      }
       else if (str == "LISTMONITORS")
       {
         s0->Send("go");
@@ -532,9 +549,9 @@ void handleconnection(void *arg)
               break;
             }
           }
-	  std::string str(strmess);
-          unsigned int pos_space = str.find(' ');
-          TH1 *histo = Onlmonserver->getHisto(str.substr(0,pos_space),str.substr(pos_space+1,str.size()));
+	  std::string str1(strmess);
+          unsigned int pos_space = str1.find(' ');
+          TH1 *histo = Onlmonserver->getHisto(str1.substr(0,pos_space),str1.substr(pos_space+1,str1.size()));
           if (histo)
           {
             outgoing.Reset();
