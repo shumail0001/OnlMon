@@ -195,9 +195,28 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
   int iret = 0;
   std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
   std::map<const std::string, ClientHistoList *>::const_iterator histonewiter;
-  if (MonitorHostPorts.find(subsys) != MonitorHostPorts.end())
+  if (!IsMonitorRunning(subsys))
   {
+    auto moniiter = MonitorHostPorts.find(subsys);
+    if (moniiter != MonitorHostPorts.end())
+    {
+      MonitorHostPorts.erase(moniiter);
+    }
+    if (FindMonitor(subsys) == 0)
+    {
+      auto subsyshistos = SubsysHisto.find(subsys);
+      if (subsyshistos != SubsysHisto.end())
+      {
+	for (auto &histo: subsyshistos->second)
+	{
+          histo.second->ServerHost("UNKNOWN");
+          histo.second->ServerPort(0);
+	}
+      }
+      std::cout << "need to clean up for " << subsys << std::endl;
+    }
   }
+
   if (!getall)
   {
     std::map<std::string, std::map<const std::string, ClientHistoList *>>::const_iterator histos = SubsysHisto.find(subsys);
@@ -710,6 +729,8 @@ int OnlMonClient::requestMonitorList(const std::string &hostname, const int moni
       {
 	break;
       }
+      std::cout << "inserting " << str << " on host " << hostname
+		<< " listening to " << moniport << std::endl;
       MonitorHostPorts.insert(std::make_pair(str,std::make_pair(hostname,moniport)));
     }
     else
@@ -1549,28 +1570,29 @@ void OnlMonClient::FindAllMonitors()
 int OnlMonClient::FindMonitor(const std::string &name)
 {
 // loop over all hosts/ports until we find ours
-  int iret = -1;
+  int iret = 0;
   for (auto &hostiter:  MonitorHosts)
   {
     std::cout << "checking " << hostiter << std::endl;
     for (unsigned int moniport = OnlMonDefs::MONIPORT; moniport < OnlMonDefs::MONIPORT+OnlMonDefs::NUMMONIPORT; ++moniport)
     {
       requestMonitorList(hostiter,moniport);
+      std::cout << "looking for " << name << std::endl;
       auto moniter = MonitorHostPorts.find(name);
       if (moniter != MonitorHostPorts.end())
       {
 	std::cout << "found " << name << " running on " << moniter->second.first
 		  << " listening to port " <<  moniter->second.second << std::endl;
-	return 0;
+	return 1;
       }
     }
-  }
+             }
   return iret;
 }
 
 int OnlMonClient::IsMonitorRunning(const std::string &name)
 {
-  int iret = -1;
+  int iret = 0;
   std::string command = std::string("ISRUNNING") + ' ' + name;
   auto moniter = MonitorHostPorts.find(name);
   if (moniter ==  MonitorHostPorts.end())
@@ -1598,7 +1620,7 @@ int OnlMonClient::IsMonitorRunning(const std::string &name)
       }
       if (!strcmp(str, "Yes"))
       {
-	iret = 0;
+	iret = 1;
       }
     }
   sock.Send("Finished");
