@@ -17,10 +17,10 @@ class TpotMon : public OnlMon
   TpotMon(const std::string &name = "TPOTMON");
   ~TpotMon() override = default;
 
-  int process_event(Event *evt);
-  int Init();
-  int BeginRun(const int runno);
-  int Reset();
+  int process_event(Event *evt) override;
+  int Init() override;
+  int BeginRun(const int runno) override;
+  int Reset() override;
 
  protected:
   int DBVarInit();
