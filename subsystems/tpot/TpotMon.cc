@@ -45,9 +45,9 @@ int TpotMon::Init()
   }
 
   // detector names (ordered by tile_id (0 to 8) and layer (P or Z)
-  static const std::array<std::string, n_detectors> detector_names = 
+  static const std::array<std::string, n_detectors> detector_names =
   {
-    "M5P",  "M5Z", 
+    "M5P",  "M5Z",
     "M8P",  "M8Z",
     "M4P",  "M4Z",
     "M10P", "M10Z",
@@ -56,14 +56,14 @@ int TpotMon::Init()
     "M6P",  "M6Z",
     "M7P",  "M7Z"
   };
-  
-  auto se = OnlMonServer::instance();  
+
+  auto se = OnlMonServer::instance();
   {
     m_hv_onoff_phi = new TH2I( "m_hv_onoff_phi", "HV On/Off (phi)", 4, 0, 4, 3*n_resist, 0, 3*n_resist );
-    se->registerHisto(this, m_hv_onoff_phi); 
-    
+    se->registerHisto(this, m_hv_onoff_phi);
+
     m_hv_onoff_z = new TH2I( "m_hv_onoff_z", "HV On/Off (z)", 4*n_resist, 0, 4*n_resist, 3, 0, 3 );
-    se->registerHisto(this, m_hv_onoff_z); 
+    se->registerHisto(this, m_hv_onoff_z);
 
     m_fee_onoff_phi = new TH2I( "m_fee_onoff_phi", "FEE On/Off (phi)", 4, 0, 4, 3, 0, 3 );
     se->registerHisto(this, m_fee_onoff_phi);
@@ -71,64 +71,64 @@ int TpotMon::Init()
     m_fee_onoff_z = new TH2I( "m_fee_onoff_z", "FEE On/Off (z)", 4, 0, 4, 3, 0, 3 );
     se->registerHisto(this, m_fee_onoff_z);
   }
-  
+
   for( int idet=0; idet<n_detectors; ++idet )
   {
-    
+
     // local copy of detector name
     const auto& detector_name=detector_names[idet];
-    
+
     // adc vs sample
-    m_adc_vs_sample[idet] = new TH2I( 
+    m_adc_vs_sample[idet] = new TH2I(
       Form( "m_adc_sample_%s", detector_name.c_str() ),
       Form( "adc count vs sample id (%s);sample id;adc", detector_name.c_str() ),
       350, 0, 350,
       1024, 0, 1024 );
-    se->registerHisto(this, m_adc_vs_sample[idet]); 
-    
+    se->registerHisto(this, m_adc_vs_sample[idet]);
+
     // hit charge
-    m_hit_charge[idet] = new TH1I( 
+    m_hit_charge[idet] = new TH1I(
       Form( "m_hit_charge_%s", detector_name.c_str() ),
       Form( "hit charge distribution (%s);adc", detector_name.c_str() ),
       1024, 0, 1024 );
-    se->registerHisto(this, m_hit_charge[idet]); 
-      
+    se->registerHisto(this, m_hit_charge[idet]);
+
     // hit multiplicity
     m_hit_multiplicity[idet] = new TH1I(
       Form( "m_hit_multiplicity_%s", detector_name.c_str() ),
       Form( "hit multiplicity (%s);#hits", detector_name.c_str() ),
       256, 0, 256 );
-    se->registerHisto(this, m_hit_multiplicity[idet]); 
+    se->registerHisto(this, m_hit_multiplicity[idet]);
 
     // hit per channel
     m_hit_vs_channel[idet] = new TH1I(
       Form( "m_hit_vs_channel_%s", detector_name.c_str() ),
       Form( "hit profile (%s);channel", detector_name.c_str() ),
       256, 0, 256 );
-    se->registerHisto(this, m_hit_vs_channel[idet]); 
-    
+    se->registerHisto(this, m_hit_vs_channel[idet]);
+
     // cluster size
-    m_cluster_size[idet] = new TH1I( 
+    m_cluster_size[idet] = new TH1I(
       Form( "m_cluster_size_%s", detector_name.c_str() ),
       Form( "cluster size (%s);#strips/cluster", detector_name.c_str() ),
       30, 0, 30 );
-    se->registerHisto(this, m_cluster_size[idet]); 
-    
+    se->registerHisto(this, m_cluster_size[idet]);
+
     // cluster charge
-    m_cluster_charge[idet] = new TH1I( 
+    m_cluster_charge[idet] = new TH1I(
       Form( "m_cluster_charge_%s", detector_name.c_str() ),
       Form( "cluster charge (%s);adc", detector_name.c_str() ),
       100, 0, 10000 );
-    se->registerHisto(this, m_cluster_charge[idet]); 
+    se->registerHisto(this, m_cluster_charge[idet]);
 
     // cluster multiplicity
-    m_cluster_multiplicity[idet] = new TH1I( 
+    m_cluster_multiplicity[idet] = new TH1I(
       Form( "m_cluster_multiplicity_%s", detector_name.c_str() ),
       Form( "cluster multiplicity (%s);#clusters", detector_name.c_str() ),
       20, 0, 20 );
-    se->registerHisto(this, m_cluster_multiplicity[idet]); 
+    se->registerHisto(this, m_cluster_multiplicity[idet]);
   }
-    
+
   // use monitor name for db table name
   dbvars.reset( new OnlMonDB(ThisName) );
   DBVarInit();
@@ -147,7 +147,7 @@ int TpotMon::process_event(Event * /* evt */)
 {
   // increment event counter
   ++evtcnt;
-  
+
   auto se = OnlMonServer::instance();
   // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
   // e.g. if the BBCLL1 has problems or if it changes its name
@@ -164,7 +164,7 @@ int TpotMon::process_event(Event * /* evt */)
     // message types
     se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
   }
-  
+
 //   // get temporary pointers to histograms
 //   // one can do in principle directly se->getHisto("tpothist1")->Fill()
 //   // but the search in the histogram Map is somewhat expensive and slows

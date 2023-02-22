@@ -29,8 +29,8 @@ class TpotMonDraw : public OnlMonDraw
 
   private:
 
-  TCanvas* GetCanvas(const std::string& name, bool clear = true );
-  TCanvas* CreateCanvas(const std::string &name);
+  TCanvas* get_canvas(const std::string& name, bool clear = true );
+  TCanvas* create_canvas(const std::string &name);
   
   int draw_hv_onoff();
   int draw_fee_onoff();
@@ -52,7 +52,6 @@ class TpotMonDraw : public OnlMonDraw
   
   // canvases
   std::array<TCanvas*, 9> m_canvas = {{nullptr}};
-  std::array<TPad*, 9> m_transparent = {{nullptr}};
   std::unique_ptr<OnlMonDB> dbvars;
 };
 
