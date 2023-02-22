@@ -45,7 +45,8 @@ int TpotMon::Init()
   }
 
   // detector names (ordered by tile_id (0 to 8) and layer (P or Z)
-  std::array<std::string, n_detectors> detector_names = {
+  static const std::array<std::string, n_detectors> detector_names = 
+  {
     "M5P",  "M5Z", 
     "M8P",  "M8Z",
     "M4P",  "M4Z",
@@ -61,13 +62,13 @@ int TpotMon::Init()
     m_hv_onoff_phi = new TH2I( "m_hv_onoff_phi", "HV On/Off (phi)", 4, 0, 4, 3*n_resist, 0, 3*n_resist );
     se->registerHisto(this, m_hv_onoff_phi); 
     
-    m_hv_onoff_z = new TH2I( "m_hv_onoff_phi", "HV On/Off (phi)", 4*n_resist, 0, 4*n_resist, 3, 0, 3 );
+    m_hv_onoff_z = new TH2I( "m_hv_onoff_z", "HV On/Off (z)", 4*n_resist, 0, 4*n_resist, 3, 0, 3 );
     se->registerHisto(this, m_hv_onoff_z); 
 
-    m_fee_onoff_phi = new TH2I( "m_hv_onoff_phi", "HV On/Off (phi)", 4, 0, 4, 3, 0, 3 );
+    m_fee_onoff_phi = new TH2I( "m_fee_onoff_phi", "FEE On/Off (phi)", 4, 0, 4, 3, 0, 3 );
     se->registerHisto(this, m_fee_onoff_phi);
 
-    m_fee_onoff_z = new TH2I( "m_hv_onoff_phi", "HV On/Off (phi)", 4, 0, 4, 3, 0, 3 );
+    m_fee_onoff_z = new TH2I( "m_fee_onoff_z", "FEE On/Off (z)", 4, 0, 4, 3, 0, 3 );
     se->registerHisto(this, m_fee_onoff_z);
   }
   
