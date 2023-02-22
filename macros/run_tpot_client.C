@@ -1,8 +1,9 @@
 #include <CommonFuncs.C>
-
 #include <onlmon/tpot/TpotMonDraw.h>
-
+#include <onlmon/tpot/TpotDefs.h>
 #include <onlmon/OnlMonClient.h>
+
+#include <array>
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpotmon_client.so)
@@ -10,10 +11,22 @@ R__LOAD_LIBRARY(libonltpotmon_client.so)
 void tpotDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-//   // register histos we want with monitor name
-//   cl->registerHisto("tpotmon_hist1", "TPOTMON");
-//   cl->registerHisto("tpotmon_hist2", "TPOTMON");
-//   cl->AddServerHost("localhost");  // check local host first
+  
+  // register all histograms
+  cl->registerHisto("m_hv_onoff_phi", "TPOTMON");
+  cl->registerHisto("m_hv_onoff_z", "TPOTMON");
+
+  cl->registerHisto("m_fee_onoff_phi", "TPOTMON");
+  cl->registerHisto("m_fee_onoff_z", "TPOTMON");
+
+  for( const std::string& hname: {
+    "m_adc_sample", "m_hit_charge", "m_hit_multiplicity", "m_hit_vs_channel", 
+    "m_cluster_size", "m_cluster_charge", "m_cluster_multiplicity" } )
+  {
+    for( const auto& detname : TpotDefs::detector_names )
+    { cl->registerHisto( hname+"_"+detname, "TPOTMON" ); }
+  }
+  
   CreateHostList(online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
@@ -41,4 +54,11 @@ void tpotHtml()
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
   cl->MakeHtml("TPOTMON");                      // Create html output
   return;
+}
+
+
+void run_tpot_client()
+{
+  tpotDrawInit();
+  tpotDraw();
 }

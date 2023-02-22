@@ -31,6 +31,7 @@ libonltpotmon_client_la_LIBADD = \
 tpotincludedir=$(pkgincludedir)/tpot
 
 tpotinclude_HEADERS = \
+  TpotDefs.h \
   TpotMon.h \
   TpotMonDraw.h
 

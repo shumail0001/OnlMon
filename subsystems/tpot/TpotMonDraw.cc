@@ -410,22 +410,10 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& n
   histogram_array_t out{{nullptr}};
 
   // detector names (ordered by tile_id (0 to 8) and layer (P or Z)
-  static const std::array<std::string, n_detectors> detector_names =
-  {
-    "M5P",  "M5Z",
-    "M8P",  "M8Z",
-    "M4P",  "M4Z",
-    "M10P", "M10Z",
-    "M9P",  "M9Z",
-    "M2P",  "M2Z",
-    "M6P",  "M6Z",
-    "M7P",  "M7Z"
-  };
-
   auto cl = OnlMonClient::instance();
-  for( int i = 0; i < n_detectors; ++i )
+  for( int i = 0; i < TpotDefs::n_detectors; ++i )
   { 
-    const auto hname = name + "_" + detector_names[i];
+    const auto hname = name + "_" + TpotDefs::detector_names[i];
     out[i] = cl->getHisto( hname );
     if( Verbosity() )
     { std::cout << "TpotMonDraw::get_histograms - " << hname << (out[i]?" found":" not found" ) << std::endl; }

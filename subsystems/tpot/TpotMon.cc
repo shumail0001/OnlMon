@@ -4,6 +4,7 @@
 // (more info - check the difference in include path search when using "" versus <>)
 
 #include "TpotMon.h"
+#include "TpotDefs.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
@@ -43,26 +44,12 @@ int TpotMon::Init()
     std::ifstream calib(fullfile);
     calib.close();
   }
-
-  // detector names (ordered by tile_id (0 to 8) and layer (P or Z)
-  static const std::array<std::string, n_detectors> detector_names =
-  {
-    "M5P",  "M5Z",
-    "M8P",  "M8Z",
-    "M4P",  "M4Z",
-    "M10P", "M10Z",
-    "M9P",  "M9Z",
-    "M2P",  "M2Z",
-    "M6P",  "M6Z",
-    "M7P",  "M7Z"
-  };
-
   auto se = OnlMonServer::instance();
   {
-    m_hv_onoff_phi = new TH2I( "m_hv_onoff_phi", "HV On/Off (phi)", 4, 0, 4, 3*n_resist, 0, 3*n_resist );
+    m_hv_onoff_phi = new TH2I( "m_hv_onoff_phi", "HV On/Off (phi)", 4, 0, 4, 3*TpotDefs::n_resist, 0, 3*TpotDefs::n_resist );
     se->registerHisto(this, m_hv_onoff_phi);
 
-    m_hv_onoff_z = new TH2I( "m_hv_onoff_z", "HV On/Off (z)", 4*n_resist, 0, 4*n_resist, 3, 0, 3 );
+    m_hv_onoff_z = new TH2I( "m_hv_onoff_z", "HV On/Off (z)", 4*TpotDefs::n_resist, 0, 4*TpotDefs::n_resist, 3, 0, 3 );
     se->registerHisto(this, m_hv_onoff_z);
 
     m_fee_onoff_phi = new TH2I( "m_fee_onoff_phi", "FEE On/Off (phi)", 4, 0, 4, 3, 0, 3 );
@@ -72,11 +59,11 @@ int TpotMon::Init()
     se->registerHisto(this, m_fee_onoff_z);
   }
 
-  for( int idet=0; idet<n_detectors; ++idet )
+  for( size_t idet=0; idet<TpotDefs::detector_names.size(); ++idet )
   {
 
     // local copy of detector name
-    const auto& detector_name=detector_names[idet];
+    const auto& detector_name=TpotDefs::detector_names[idet];
 
     // adc vs sample
     m_adc_vs_sample[idet] = new TH2I(

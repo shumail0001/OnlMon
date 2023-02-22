@@ -1,6 +1,8 @@
 #ifndef TPOT_TPOTMONDRAW_H
 #define TPOT_TPOTMONDRAW_H
 
+#include "TpotDefs.h"
+
 #include <onlmon/OnlMonDraw.h>
 
 #include <array>
@@ -35,8 +37,7 @@ class TpotMonDraw : public OnlMonDraw
   int draw_hv_onoff();
   int draw_fee_onoff();
   
-  static constexpr int n_detectors = 16;
-  using histogram_array_t = std::array<TH1*, n_detectors>;
+  using histogram_array_t = std::array<TH1*, TpotDefs::n_detectors>;
   
   /// get detector dependent histogram array from base name
   histogram_array_t get_histograms( const std::string& name );  
