@@ -47,7 +47,7 @@ namespace
   };
 
   TPad* get_transparent_pad( const std::string& name )
-  { return static_cast<TPad*>( gROOT->FindObject( (name+"_transparent").c_str() ) ); }
+  { return dynamic_cast<TPad*>( gROOT->FindObject( (name+"_transparent").c_str() ) ); }
 
 }
 
@@ -79,7 +79,8 @@ TCanvas* TpotMonDraw::get_canvas(const std::string& name, bool clear )
 TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 {
   
-  std::cout << "TpotMonDraw::create_canvas - name: " << name << std::endl;
+  if( Verbosity() ) 
+  { std::cout << "TpotMonDraw::create_canvas - name: " << name << std::endl; }
   
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
@@ -111,7 +112,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     return cv;
   } else if (name == "TPOT_adc_vs_sample") {
 
-    auto cv = m_canvas[2] = new TCanvas(name.c_str(), "TpotMon adc vs sample" );
+    auto cv = m_canvas[2] = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
     cv->Divide( 4, 4 );
 
     // this one is used to plot the run number on the canvas
@@ -120,7 +121,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     return cv;
   } else if (name == "TPOT_hit_charge") {
 
-    auto cv = m_canvas[3] = new TCanvas(name.c_str(), "TpotMon hit charge" );
+    auto cv = m_canvas[3] = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
     cv->Divide( 4, 4 );
 
     // this one is used to plot the run number on the canvas
@@ -129,7 +130,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     return cv;
   } else if (name == "TPOT_hit_multiplicity") {
 
-    auto cv = m_canvas[4] = new TCanvas(name.c_str(), "TpotMon hit multiplicity" );
+    auto cv = m_canvas[4] = new TCanvas(name.c_str(), "TpotMon hit multiplicity", -1, 0, xsize / 2, ysize);
     cv->Divide( 4, 4 );
 
     // this one is used to plot the run number on the canvas
@@ -138,7 +139,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     return cv;
   } else if (name == "TPOT_hit_vs_channel") {
 
-    auto cv = m_canvas[5] = new TCanvas(name.c_str(), "TpotMon hit vs channel" );
+    auto cv = m_canvas[5] = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
     cv->Divide( 4, 4 );
 
     // this one is used to plot the run number on the canvas
@@ -147,7 +148,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     return cv;
   } else if (name == "TPOT_cluster_size") {
 
-    auto cv = m_canvas[6] = new TCanvas(name.c_str(), "TpotMon cluster size" );
+    auto cv = m_canvas[6] = new TCanvas(name.c_str(), "TpotMon cluster size", -1, 0, xsize / 2, ysize);
     cv->Divide( 4, 4 );
 
     // this one is used to plot the run number on the canvas
@@ -156,7 +157,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     return cv;
   } else if (name == "TPOT_cluster_charge") {
 
-    auto cv = m_canvas[7] = new TCanvas(name.c_str(), "TpotMon cluster charge" );
+    auto cv = m_canvas[7] = new TCanvas(name.c_str(), "TpotMon cluster charge", -1, 0, xsize / 2, ysize);
     cv->Divide( 4, 4 );
 
     // this one is used to plot the run number on the canvas
@@ -165,7 +166,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     return cv;
   } else if (name == "TPOT_cluster_multiplicity") {
 
-    auto cv = m_canvas[8] = new TCanvas(name.c_str(), "TpotMon cluster multiplicity" );
+    auto cv = m_canvas[8] = new TCanvas(name.c_str(), "TpotMon cluster multiplicity", -1, 0, xsize / 2, ysize);
     cv->Divide( 4, 4 );
 
     // this one is used to plot the run number on the canvas
@@ -179,7 +180,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 //_______________________________________________________________________________
 int TpotMonDraw::Draw(const std::string &what)
 {
-  std::cout << "TpotMonDraw::Draw - what: " << what << std::endl;
+  if( Verbosity() ) std::cout << "TpotMonDraw::Draw - what: " << what << std::endl;
 
   int iret = 0;
   int idraw = 0;
@@ -329,7 +330,7 @@ void TpotMonDraw::draw_time( TPad* pad )
   time_t evttime = cl->EventTime("CURRENT");
 
   runnostream
-    << ThisName << "_1 Run " << cl->RunNumber()
+    << ThisName << " Run " << cl->RunNumber()
     << ", Time: " << ctime(&evttime);
 
   pad->cd();
@@ -339,6 +340,7 @@ void TpotMonDraw::draw_time( TPad* pad )
 //__________________________________________________________________________________
 int TpotMonDraw::draw_hv_onoff()
 {
+ 
   // get histograms
   auto cl = OnlMonClient::instance();
   auto m_hv_onoff_phi = cl->getHisto("m_hv_onoff_phi");
@@ -351,7 +353,7 @@ int TpotMonDraw::draw_hv_onoff()
   CanvasEditor cv_edit(cv);
 
   if( m_hv_onoff_phi && m_hv_onoff_z )
-  {
+  {    
     cv->cd(1);
     m_hv_onoff_phi->DrawCopy();
 
@@ -422,7 +424,12 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& n
 
   auto cl = OnlMonClient::instance();
   for( int i = 0; i < n_detectors; ++i )
-  { out[i] = cl->getHisto( Form( "%s_%s", name.c_str(), detector_names[i].c_str() ) ); }
+  { 
+    const auto hname = name + "_" + detector_names[i];
+    out[i] = cl->getHisto( hname );
+    if( Verbosity() )
+    { std::cout << "TpotMonDraw::get_histograms - " << hname << (out[i]?" found":" not found" ) << std::endl; }
+  }
 
   return out;
 }
@@ -437,12 +444,12 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
 
   bool drawn = false;
   CanvasEditor cv_edit(cv);
-  for( size_t i = 0l; i < histograms.size(); ++i )
+  for( size_t i = 0; i < histograms.size(); ++i )
   {
     if( histograms[i] )
     {
       cv->cd(i+1);
-      histograms[i+1]->DrawCopy();
+      histograms[i]->DrawCopy();
       drawn = true;
     }
   }
