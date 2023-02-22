@@ -78,6 +78,9 @@ TCanvas* TpotMonDraw::get_canvas(const std::string& name, bool clear )
 //__________________________________________________________________________________
 TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 {
+  
+  std::cout << "TpotMonDraw::create_canvas - name: " << name << std::endl;
+  
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
@@ -176,6 +179,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 //_______________________________________________________________________________
 int TpotMonDraw::Draw(const std::string &what)
 {
+  std::cout << "TpotMonDraw::Draw - what: " << what << std::endl;
 
   int iret = 0;
   int idraw = 0;
