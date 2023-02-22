@@ -49,6 +49,28 @@ namespace
   TPad* get_transparent_pad( const std::string& name )
   { return dynamic_cast<TPad*>( gROOT->FindObject( (name+"_transparent").c_str() ) ); }
 
+  // divide canvas, adjusting canvas positions to leave room for a banner at the top
+  void divide_canvas( TCanvas* cv, int ncol, int nrow )
+  {
+    
+    static constexpr double max_height = 0.94;
+    
+    
+    cv->Divide( ncol, nrow );
+    for( int i = 0; i < ncol*nrow; ++i )
+    {
+      auto pad = cv->GetPad( i+1 );
+      int col = i%ncol;
+      int row = i/ncol;
+      const double xmin = double(col)/ncol;
+      const double xmax = double(col+1)/ncol;
+        
+      const double ymin = max_height*(1. - double(row+1)/nrow);
+      const double ymax = max_height*(1. - double(row)/nrow);
+      pad->SetPad( xmin, ymin, xmax, ymax );
+    }    
+    
+  }
 }
 
 //__________________________________________________________________________________
@@ -93,7 +115,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     auto cv = m_canvas[0] = new TCanvas(name.c_str(), "TpotMon HV On/Off monitor", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
 
-    cv->Divide( 1, 2 );
+    divide_canvas( cv, 1, 2 );
 
     // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
@@ -104,7 +126,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     auto cv = m_canvas[1] = new TCanvas(name.c_str(), "TpotMon FEE On/Off monitor", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
 
-    cv->Divide( 1, 2 );
+    divide_canvas( cv, 1, 2 );
 
     // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
@@ -113,7 +135,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
   } else if (name == "TPOT_adc_vs_sample") {
 
     auto cv = m_canvas[2] = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
-    cv->Divide( 4, 4 );
+    gSystem->ProcessEvents();
+
+    divide_canvas( cv, 4, 4 );
 
     // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
@@ -122,7 +146,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
   } else if (name == "TPOT_hit_charge") {
 
     auto cv = m_canvas[3] = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
-    cv->Divide( 4, 4 );
+    gSystem->ProcessEvents();
+
+    divide_canvas( cv, 4, 4 );
 
     // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
@@ -131,7 +157,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
   } else if (name == "TPOT_hit_multiplicity") {
 
     auto cv = m_canvas[4] = new TCanvas(name.c_str(), "TpotMon hit multiplicity", -1, 0, xsize / 2, ysize);
-    cv->Divide( 4, 4 );
+    gSystem->ProcessEvents();
+
+    divide_canvas( cv, 4, 4 );
 
     // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
@@ -140,7 +168,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
   } else if (name == "TPOT_hit_vs_channel") {
 
     auto cv = m_canvas[5] = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
-    cv->Divide( 4, 4 );
+    gSystem->ProcessEvents();
+
+    divide_canvas( cv, 4, 4 );
 
     // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
@@ -149,7 +179,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
   } else if (name == "TPOT_cluster_size") {
 
     auto cv = m_canvas[6] = new TCanvas(name.c_str(), "TpotMon cluster size", -1, 0, xsize / 2, ysize);
-    cv->Divide( 4, 4 );
+    gSystem->ProcessEvents();
+
+    divide_canvas( cv, 4, 4 );
 
     // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
@@ -158,7 +190,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
   } else if (name == "TPOT_cluster_charge") {
 
     auto cv = m_canvas[7] = new TCanvas(name.c_str(), "TpotMon cluster charge", -1, 0, xsize / 2, ysize);
-    cv->Divide( 4, 4 );
+    gSystem->ProcessEvents();
+
+    divide_canvas( cv, 4, 4 );
 
     // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
@@ -167,7 +201,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
   } else if (name == "TPOT_cluster_multiplicity") {
 
     auto cv = m_canvas[8] = new TCanvas(name.c_str(), "TpotMon cluster multiplicity", -1, 0, xsize / 2, ysize);
-    cv->Divide( 4, 4 );
+    gSystem->ProcessEvents();
+
+    divide_canvas( cv, 4, 4 );
 
     // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
@@ -334,7 +370,7 @@ void TpotMonDraw::draw_time( TPad* pad )
     << ", Time: " << ctime(&evttime);
 
   pad->cd();
-  PrintRun.DrawText(0.5, 1., runnostream.str().c_str());
+  PrintRun.DrawText(0.5, 0.98, runnostream.str().c_str());
 }
 
 //__________________________________________________________________________________
@@ -438,6 +474,7 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
     {
       cv->cd(i+1);
       histograms[i]->DrawCopy();
+      gPad->SetBottomMargin(0.12);
       drawn = true;
     }
   }
