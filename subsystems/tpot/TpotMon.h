@@ -34,7 +34,7 @@ class TpotMon : public OnlMon
   /// total number of phi detectors  
   static constexpr int n_detectors_z = 8;
 
-  /// total number of phi detectors  
+  /// total number of detectors  
   static constexpr int n_detectors = 16;
 
   /// number of resist sector in each detector
