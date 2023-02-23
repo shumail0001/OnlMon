@@ -93,27 +93,6 @@ int TpotMon::Init()
       Form( "hit profile (%s);channel", detector_name.c_str() ),
       256, 0, 256 );
     se->registerHisto(this, m_hit_vs_channel[idet]);
-
-    // cluster size
-    m_cluster_size[idet] = new TH1I(
-      Form( "m_cluster_size_%s", detector_name.c_str() ),
-      Form( "cluster size (%s);#strips/cluster", detector_name.c_str() ),
-      30, 0, 30 );
-    se->registerHisto(this, m_cluster_size[idet]);
-
-    // cluster charge
-    m_cluster_charge[idet] = new TH1I(
-      Form( "m_cluster_charge_%s", detector_name.c_str() ),
-      Form( "cluster charge (%s);adc", detector_name.c_str() ),
-      100, 0, 10000 );
-    se->registerHisto(this, m_cluster_charge[idet]);
-
-    // cluster multiplicity
-    m_cluster_multiplicity[idet] = new TH1I(
-      Form( "m_cluster_multiplicity_%s", detector_name.c_str() ),
-      Form( "cluster multiplicity (%s);#clusters", detector_name.c_str() ),
-      20, 0, 20 );
-    se->registerHisto(this, m_cluster_multiplicity[idet]);
   }
 
   // use monitor name for db table name

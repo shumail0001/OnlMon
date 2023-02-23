@@ -176,39 +176,6 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     create_transparent_pad(name)->Draw();
     cv->SetEditable(false);
     return cv;
-  } else if (name == "TPOT_cluster_size") {
-
-    auto cv = m_canvas[6] = new TCanvas(name.c_str(), "TpotMon cluster size", -1, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-
-    divide_canvas( cv, 4, 4 );
-
-    // this one is used to plot the run number on the canvas
-    create_transparent_pad(name)->Draw();
-    cv->SetEditable(false);
-    return cv;
-  } else if (name == "TPOT_cluster_charge") {
-
-    auto cv = m_canvas[7] = new TCanvas(name.c_str(), "TpotMon cluster charge", -1, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-
-    divide_canvas( cv, 4, 4 );
-
-    // this one is used to plot the run number on the canvas
-    create_transparent_pad(name)->Draw();
-    cv->SetEditable(false);
-    return cv;
-  } else if (name == "TPOT_cluster_multiplicity") {
-
-    auto cv = m_canvas[8] = new TCanvas(name.c_str(), "TpotMon cluster multiplicity", -1, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-
-    divide_canvas( cv, 4, 4 );
-
-    // this one is used to plot the run number on the canvas
-    create_transparent_pad(name)->Draw();
-    cv->SetEditable(false);
-    return cv;
   }
   return nullptr;
 }
@@ -253,24 +220,6 @@ int TpotMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPOT_hit_vs_channel")
   {
     iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ) );
-    ++idraw;
-  }
-
-  if (what == "ALL" || what == "TPOT_cluster_size")
-  {
-    iret += draw_array("TPOT_cluster_size", get_histograms( "m_cluster_size" ) );
-    ++idraw;
-  }
-
-  if (what == "ALL" || what == "TPOT_cluster_charge")
-  {
-    iret += draw_array("TPOT_cluster_charge", get_histograms( "m_cluster_charge" ) );
-    ++idraw;
-  }
-
-  if (what == "ALL" || what == "TPOT_cluster_multiplicity")
-  {
-    iret += draw_array("TPOT_cluster_multiplicity", get_histograms( "m_cluster_multiplicity" ) );
     ++idraw;
   }
 

@@ -19,9 +19,7 @@ void tpotDrawInit(const int online = 0)
   cl->registerHisto("m_fee_onoff_phi", "TPOTMON");
   cl->registerHisto("m_fee_onoff_z", "TPOTMON");
 
-  for( const std::string& hname: {
-    "m_adc_sample", "m_hit_charge", "m_hit_multiplicity", "m_hit_vs_channel", 
-    "m_cluster_size", "m_cluster_charge", "m_cluster_multiplicity" } )
+  for( const std::string& hname: { "m_adc_sample", "m_hit_charge", "m_hit_multiplicity", "m_hit_vs_channel" } )
   {
     for( const auto& detname : TpotDefs::detector_names )
     { cl->registerHisto( hname+"_"+detname, "TPOTMON" ); }
@@ -54,11 +52,4 @@ void tpotHtml()
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
   cl->MakeHtml("TPOTMON");                      // Create html output
   return;
-}
-
-
-void run_tpot_client()
-{
-  tpotDrawInit();
-  tpotDraw();
 }

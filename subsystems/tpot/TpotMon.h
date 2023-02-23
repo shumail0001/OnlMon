@@ -55,17 +55,6 @@ class TpotMon : public OnlMon
 
   //@}
   
-  ///@name cluster histograms
-  //@{
-  /// cluster size distributin in each detector
-  std::array<TH1*, TpotDefs::n_detectors> m_cluster_size = {{nullptr}};
-  
-  /// charge per cluster in each detector
-  std::array<TH1*, TpotDefs::n_detectors> m_cluster_charge = {{nullptr}};
-
-  /// number of clusters per event in each detector
-  std::array<TH1*, TpotDefs::n_detectors> m_cluster_multiplicity= {{nullptr}};
-  //@}
 };
 
 #endif /* TPOT_TPOTMON_H */
