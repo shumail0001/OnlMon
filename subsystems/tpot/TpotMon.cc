@@ -4,6 +4,7 @@
 // (more info - check the difference in include path search when using "" versus <>)
 
 #include "TpotMon.h"
+#include "TpotDefs.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
@@ -35,31 +36,67 @@ TpotMon::TpotMon(const std::string &name)
   return;
 }
 
-TpotMon::~TpotMon()
-{
-  // you can delete NULL pointers it results in a NOOP (No Operation)
-  delete dbvars;
-  return;
-}
-
 int TpotMon::Init()
 {
   // read our calibrations from TpotMonData.dat
-  std::string fullfile = std::string(getenv("TPOTCALIB")) + "/" + "TpotMonData.dat";
-  std::ifstream calib(fullfile);
-  calib.close();
-  // use printf for stuff which should go the screen but not into the message
-  // system (all couts are redirected)
-  printf("doing the Init\n");
-  tpothist1 = new TH1F("tpotmon_hist1", "suppp 1d histo", 101, 0., 100.);
-  tpothist2 = new TH2F("tpotmon_hist2", "suppp 2d histo", 101, 0., 100., 101, 0., 100.);
-  tpothist3 = new TH1F("tpotmon_hist3", "comp 1d histo", 27, 2., 15.);
-  OnlMonServer *se = OnlMonServer::instance();
-  // register histograms with server otherwise client won't get them
-  se->registerHisto(this, tpothist1);  // uses the TH1->GetName() as key
-  se->registerHisto(this, tpothist2);
-  se->registerHisto(this, tpothist3);
-  dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
+  {
+    std::string fullfile = std::string(getenv("TPOTCALIB")) + "/" + "TpotMonData.dat";
+    std::ifstream calib(fullfile);
+    calib.close();
+  }
+  auto se = OnlMonServer::instance();
+  {
+    m_hv_onoff_phi = new TH2I( "m_hv_onoff_phi", "HV On/Off (phi)", 4, 0, 4, 3*TpotDefs::n_resist, 0, 3*TpotDefs::n_resist );
+    se->registerHisto(this, m_hv_onoff_phi);
+
+    m_hv_onoff_z = new TH2I( "m_hv_onoff_z", "HV On/Off (z)", 4*TpotDefs::n_resist, 0, 4*TpotDefs::n_resist, 3, 0, 3 );
+    se->registerHisto(this, m_hv_onoff_z);
+
+    m_fee_onoff_phi = new TH2I( "m_fee_onoff_phi", "FEE On/Off (phi)", 4, 0, 4, 3, 0, 3 );
+    se->registerHisto(this, m_fee_onoff_phi);
+
+    m_fee_onoff_z = new TH2I( "m_fee_onoff_z", "FEE On/Off (z)", 4, 0, 4, 3, 0, 3 );
+    se->registerHisto(this, m_fee_onoff_z);
+  }
+
+  for( size_t idet=0; idet<TpotDefs::detector_names.size(); ++idet )
+  {
+
+    // local copy of detector name
+    const auto& detector_name=TpotDefs::detector_names[idet];
+
+    // adc vs sample
+    m_adc_vs_sample[idet] = new TH2I(
+      Form( "m_adc_sample_%s", detector_name.c_str() ),
+      Form( "adc count vs sample id (%s);sample id;adc", detector_name.c_str() ),
+      350, 0, 350,
+      1024, 0, 1024 );
+    se->registerHisto(this, m_adc_vs_sample[idet]);
+
+    // hit charge
+    m_hit_charge[idet] = new TH1I(
+      Form( "m_hit_charge_%s", detector_name.c_str() ),
+      Form( "hit charge distribution (%s);adc", detector_name.c_str() ),
+      1024, 0, 1024 );
+    se->registerHisto(this, m_hit_charge[idet]);
+
+    // hit multiplicity
+    m_hit_multiplicity[idet] = new TH1I(
+      Form( "m_hit_multiplicity_%s", detector_name.c_str() ),
+      Form( "hit multiplicity (%s);#hits", detector_name.c_str() ),
+      256, 0, 256 );
+    se->registerHisto(this, m_hit_multiplicity[idet]);
+
+    // hit per channel
+    m_hit_vs_channel[idet] = new TH1I(
+      Form( "m_hit_vs_channel_%s", detector_name.c_str() ),
+      Form( "hit profile (%s);channel", detector_name.c_str() ),
+      256, 0, 256 );
+    se->registerHisto(this, m_hit_vs_channel[idet]);
+  }
+
+  // use monitor name for db table name
+  dbvars.reset( new OnlMonDB(ThisName) );
   DBVarInit();
   Reset();
   return 0;
@@ -74,8 +111,10 @@ int TpotMon::BeginRun(const int /* runno */)
 
 int TpotMon::process_event(Event * /* evt */)
 {
-  evtcnt++;
-  OnlMonServer *se = OnlMonServer::instance();
+  // increment event counter
+  ++evtcnt;
+
+  auto se = OnlMonServer::instance();
   // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
   // e.g. if the BBCLL1 has problems or if it changes its name
   if (!se->Trigger("ONLMONBBCLL1"))
@@ -91,13 +130,14 @@ int TpotMon::process_event(Event * /* evt */)
     // message types
     se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
   }
-  // get temporary pointers to histograms
-  // one can do in principle directly se->getHisto("tpothist1")->Fill()
-  // but the search in the histogram Map is somewhat expensive and slows
-  // things down if you make more than one operation on a histogram
-  tpothist1->Fill((float) idummy);
-  tpothist2->Fill((float) idummy, (float) idummy, 1.);
-  tpothist3->Fill((float) idummy);
+
+//   // get temporary pointers to histograms
+//   // one can do in principle directly se->getHisto("tpothist1")->Fill()
+//   // but the search in the histogram Map is somewhat expensive and slows
+//   // things down if you make more than one operation on a histogram
+//   tpothist1->Fill((float) idummy);
+//   tpothist2->Fill((float) idummy, (float) idummy, 1.);
+//   tpothist3->Fill((float) idummy);
 
   if (idummy++ > 10)
   {
