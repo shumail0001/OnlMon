@@ -551,6 +551,7 @@ void handleconnection(void *arg)
           }
 	  std::string str1(strmess);
           unsigned int pos_space = str1.find(' ');
+	  std::cout << PHWHERE << " getting subsystem " << str1.substr(0,pos_space) << ", histo " <<  str1.substr(pos_space+1,str1.size()) << std::endl;
           TH1 *histo = Onlmonserver->getHisto(str1.substr(0,pos_space),str1.substr(pos_space+1,str1.size()));
           if (histo)
           {
@@ -561,7 +562,7 @@ void handleconnection(void *arg)
           }
           else
           {
-            s0->Send("unknown");
+            s0->Send("UnknownHisto");
           }
           //		  delete mess;
         }

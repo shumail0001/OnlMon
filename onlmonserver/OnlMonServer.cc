@@ -158,6 +158,7 @@ void OnlMonServer::registerHisto(const std::string &monitorname, const std::stri
   {
     std::map<std::string, TH1 *> histo;
     histo[hname] = h1d;
+    std::cout << PHWHERE << " inserting " << monitorname << " hname " << hname << std::endl;
     MonitorHistoSet.insert(std::make_pair(monitorname, histo));
     return;
   }
@@ -330,11 +331,15 @@ OnlMonServer::getHistoName(const unsigned int ihisto) const
 
 TH1 *OnlMonServer::getHisto(const std::string &subsys, const std::string &hname) const
 {
-  
-  std::map<const std::string, TH1 *>::const_iterator histoiter = Histo.find(hname);
-  if (histoiter != Histo.end())
+  std::cout << PHWHERE << " checking for subsys " << subsys << ", hname " << hname << std::endl;
+  auto moniiter = MonitorHistoSet.find(subsys);
+  if (moniiter != MonitorHistoSet.end())
   {
-    return histoiter->second;
+    auto histoiter = moniiter->second.find(hname);
+    if (histoiter != moniiter->second.end())
+    {
+      return histoiter->second;
+    }
   }
   std::ostringstream msg;
 
