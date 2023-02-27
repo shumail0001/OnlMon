@@ -195,13 +195,15 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
   int iret = 0;
   std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
   std::map<const std::string, ClientHistoList *>::const_iterator histonewiter;
-  if (!IsMonitorRunning(subsys))
+  if (!IsMonitorRunning(subsys)) // test if saved monitor server is still running
   {
+// monitor is not running - remove its entry if it exists
     auto moniiter = MonitorHostPorts.find(subsys);
     if (moniiter != MonitorHostPorts.end())
     {
       MonitorHostPorts.erase(moniiter);
     }
+// Find monitor, if not found reset ClientHistoList entries for host and port
     if (FindMonitor(subsys) == 0)
     {
       auto subsyshistos = SubsysHisto.find(subsys);
@@ -214,6 +216,7 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
 	}
       }
       std::cout << "need to clean up for " << subsys << std::endl;
+      return iret;
     }
   }
 
@@ -245,11 +248,12 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
     std::ostringstream host_port;
     
     int failed_to_locate = 0;
-    for (auto &subs : SubsysHisto)
+    auto subs = SubsysHisto.find(subsys);
+//    for (auto &subs = SubsysHisto.find)
     {
-      for (auto &histos : subs.second)
+      for (auto &histos : subs->second)
       {
-      std::cout << "checking for subsystem " << subs.first << ", histo " << histos.first << std::endl;
+      std::cout << "checking for subsystem " << subs->first << ", histo " << histos.first << std::endl;
       if (histos.second->SubSystem() == subsys)
       {
         int unknown_histo = 0;
@@ -282,17 +286,17 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
           host_port << histos.second->ServerHost() << " "
                     << histos.second->ServerPort();
           std::pair<std::string, int> hostport(histos.second->ServerHost(), histos.second->ServerPort());
-          (transferlist[subsys]).push_back(hname);
+	  std::string fullhname = subsys + std::string(" ") + hname; 
+          (transferlist[subsys]).push_back(fullhname);
         }
       }
       }
     }
-//    std::map<std::pair<std::string, int>, std::list<std::string> >::const_iterator listiter;
     std::list<std::string>::const_iterator liter;
     for (auto listiter = transferlist.begin(); listiter != transferlist.end(); ++listiter)
     {
       std::list<std::string> hlist = listiter->second;
-      hlist.emplace_back("FrameWorkVars");  // get this histogram by default to get framework info
+      hlist.emplace_back(subsys + std::string(" FrameWorkVars"));  // get this histogram by default to get framework info
       auto hostportiter = MonitorHostPorts.find(listiter->first);
       if (hostportiter == MonitorHostPorts.end())
       {
@@ -764,6 +768,7 @@ int OnlMonClient::requestHistoList(const std::string &subsys, const std::string 
   delete mess;
   for (listiter = histolist.begin(); listiter != histolist.end(); ++listiter)
   {
+    std::cout << PHWHERE << "asking for " << *listiter << std::endl;
     sock.Send((*listiter).c_str());
     sock.Recv(mess);
     if (!mess)
@@ -1586,7 +1591,7 @@ int OnlMonClient::FindMonitor(const std::string &name)
 	return 1;
       }
     }
-             }
+  }
   return iret;
 }
 
