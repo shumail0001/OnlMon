@@ -899,6 +899,21 @@ TH1 *OnlMonClient::getHisto(const std::string &hname)
   return nullptr;
 }
 
+TH1 *OnlMonClient::getHisto(const std::string &monitor, const std::string &hname)
+{
+    auto subsysiter = SubsysHisto.find(monitor);
+    if (subsysiter == SubsysHisto.end())
+    {
+      return nullptr;
+    }
+  auto hiter = subsysiter->second.find(hname);
+  if (hiter == subsysiter->second.end())
+  {
+    return nullptr;
+  }
+  return hiter->second->Histo();
+}
+
 void OnlMonClient::Print(const char *what)
 {
   if (!strcmp(what, "ALL") || !strcmp(what, "DRAWER"))
