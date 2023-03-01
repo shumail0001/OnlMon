@@ -164,27 +164,50 @@ OnlMonClient::~OnlMonClient()
 
 void OnlMonClient::registerHisto(const std::string &hname, const std::string &subsys)
 {
-  auto hiter = SubsysHisto.find(subsys);
-  if (hiter == SubsysHisto.end())
+  auto subsysiter = SubsysHisto.find(subsys);
+  if (subsysiter == SubsysHisto.end())
   {
     std::map<const std::string, ClientHistoList *> entry;
 // c++11 map.insert returns pair<iterator,bool>
-    hiter = SubsysHisto.insert(std::make_pair(subsys,entry)).first;
+    subsysiter = SubsysHisto.insert(std::make_pair(subsys,entry)).first;
     if (Verbosity()>2)
     {
-      std::cout << "inserting " << subsys << " into SubsysHisto, readback: " << hiter->first << std::endl;
+      std::cout << "inserting " << subsys << " into SubsysHisto, readback: " << subsysiter->first << std::endl;
     }
   }
-  if (hiter->second.find(hname) == hiter->second.end())
+  auto hiter = subsysiter->second.find(hname);
+  if (hiter == subsysiter->second.end())
   {
     ClientHistoList *newhisto = new ClientHistoList();
     newhisto->SubSystem(subsys);
-    hiter->second.insert(std::make_pair(hname,newhisto));
+    subsysiter->second.insert(std::make_pair(hname,newhisto));
     if (Verbosity() > 0)
     {
       std::cout << "new histogram " << hname << " of subsystem " << subsys << std::endl;
     }
   }
+  else
+  {
+    hiter->second->SubSystem(subsys);
+  }
+// register FrameWorkVars histo if we don't have it already
+  std::string frameworkhistoname = "FrameWorkVars";
+  hiter = subsysiter->second.find(frameworkhistoname);
+  if (hiter == subsysiter->second.end())
+  {
+    ClientHistoList *newhisto = new ClientHistoList();
+    newhisto->SubSystem(subsys);
+    subsysiter->second.insert(std::make_pair(frameworkhistoname,newhisto));
+    if (Verbosity() > 0)
+    {
+      std::cout << "new histogram " << frameworkhistoname << " of subsystem " << subsys << std::endl;
+    }
+  }
+else
+  {
+    hiter->second->SubSystem(subsys);
+  }
+
   return;
 }
 
@@ -209,13 +232,17 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
       auto subsyshistos = SubsysHisto.find(subsys);
       if (subsyshistos != SubsysHisto.end())
       {
-	for (auto &histo: subsyshistos->second)
+	for (auto &hiter: subsyshistos->second)
 	{
-          histo.second->ServerHost("UNKNOWN");
-          histo.second->ServerPort(0);
+          hiter.second->ServerHost("UNKNOWN");
+          hiter.second->ServerPort(0);
+          if (hiter.second->Histo() != nullptr)
+	  {
+            hiter.second->Histo()->Delete();
+	  }
+          hiter.second->Histo(nullptr);
 	}
       }
-      std::cout << "need to clean up for " << subsys << std::endl;
       return iret;
     }
   }
@@ -282,10 +309,10 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
         }
         if (!unknown_histo)
         {
-          host_port.str("");
-          host_port << histos.second->ServerHost() << " "
-                    << histos.second->ServerPort();
-          std::pair<std::string, int> hostport(histos.second->ServerHost(), histos.second->ServerPort());
+          // host_port.str("");
+          // host_port << histos.second->ServerHost() << " "
+          //           << histos.second->ServerPort();
+          // std::pair<std::string, int> hostport(histos.second->ServerHost(), histos.second->ServerPort());
 	  std::string fullhname = subsys + std::string(" ") + hname; 
           (transferlist[subsys]).push_back(fullhname);
         }
@@ -296,7 +323,6 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
     for (auto listiter = transferlist.begin(); listiter != transferlist.end(); ++listiter)
     {
       std::list<std::string> hlist = listiter->second;
-      hlist.emplace_back(subsys + std::string(" FrameWorkVars"));  // get this histogram by default to get framework info
       auto hostportiter = MonitorHostPorts.find(listiter->first);
       if (hostportiter == MonitorHostPorts.end())
       {
@@ -958,9 +984,8 @@ void OnlMonClient::Print(const char *what)
     std::map<const std::string, ClientHistoList *>::const_iterator hiter;
     for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
     {
-      if (hiter->first != "FrameWorkVars" &&
-          (hiter->second->ServerHost() == "UNKNOWN" ||
-           hiter->second->SubSystem() == "UNKNOWN"))
+      if  (hiter->second->ServerHost() == "UNKNOWN" ||
+           hiter->second->SubSystem() == "UNKNOWN")
       {
         std::cout << hiter->first << " Address " << hiter->second->Histo()
                   << " on host " << hiter->second->ServerHost()
@@ -1105,6 +1130,7 @@ int OnlMonClient::LocateHistogram(const std::string &hname, const std::string &s
 int OnlMonClient::RunNumber()
 {
   int runno = -9999;
+  return 6;
   std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
   histoiter = Histo.find("FrameWorkVars");
   if (histoiter != Histo.end())
