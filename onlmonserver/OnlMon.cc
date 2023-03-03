@@ -149,14 +149,14 @@ void OnlMon::SetStatus(const int newstatus)
   return;
 }
 
-void OnlMon::SetServerId(unsigned int i)
+void OnlMon::SetMonitorServerId(unsigned int i)
 {
   if (Name().find('_') != std::string::npos)
   {
-    std::cout << "Server Id was already set " << Name() << std::endl;
+    std::cout << "Monitor Server Id was already set " << Name() << std::endl;
     return;
   }
-  m_ServerId = i;
+  m_MonitorServerId = i;
   Name(Name() + '_' + std::to_string(i));
   return;
 }
