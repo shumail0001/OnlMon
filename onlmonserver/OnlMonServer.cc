@@ -331,7 +331,10 @@ OnlMonServer::getHistoName(const unsigned int ihisto) const
 
 TH1 *OnlMonServer::getHisto(const std::string &subsys, const std::string &hname) const
 {
+  if (Verbosity() > 2)
+  {
   std::cout << PHWHERE << " checking for subsys " << subsys << ", hname " << hname << std::endl;
+  }
   auto moniiter = MonitorHistoSet.find(subsys);
   if (moniiter != MonitorHistoSet.end())
   {

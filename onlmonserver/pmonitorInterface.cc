@@ -460,9 +460,12 @@ void handleconnection(void *arg)
 	  for (auto &histos: monitors->second)
 	  {
 
-	    std::cout << "subsystem: " << monitors->first << ", histo: " << histos.first << std::endl;
 	    std::string subsyshisto =   monitors->first + ' ' + histos.first;
+  if (Onlmonserver->Verbosity() > 2)
+  {
+	    std::cout << "subsystem: " << monitors->first << ", histo: " << histos.first << std::endl;
             std::cout << " sending: \"" << subsyshisto << "\"" << std::endl;
+  }
           s0->Send(subsyshisto.c_str());
           int nbytes = s0->Recv(mess);
           delete mess;
@@ -514,7 +517,10 @@ void handleconnection(void *arg)
 	    break;
 	  }
 	}
+  if (Onlmonserver->Verbosity() > 2)
+  {
 	std::cout << "got " << str << ", replied " << answer << std::endl;
+  }
 	s0->Send(answer.c_str());
       }
       else if (str == "LISTMONITORS")
@@ -522,7 +528,10 @@ void handleconnection(void *arg)
         s0->Send("go");
         for (auto moniter = Onlmonserver->monitor_vec_begin(); moniter != Onlmonserver->monitor_vec_end(); ++moniter)
 	{
+  if (Onlmonserver->Verbosity() > 2)
+  {
 	  std::cout << "sending " << (*moniter)->Name().c_str() << std::endl;
+  }
 	  s0->Send((*moniter)->Name().c_str());
 	}
         s0->Send("Finished");
@@ -551,7 +560,10 @@ void handleconnection(void *arg)
           }
 	  std::string str1(strmess);
           unsigned int pos_space = str1.find(' ');
+  if (Onlmonserver->Verbosity() > 2)
+  {
 	  std::cout << PHWHERE << " getting subsystem " << str1.substr(0,pos_space) << ", histo " <<  str1.substr(pos_space+1,str1.size()) << std::endl;
+  }
           TH1 *histo = Onlmonserver->getHisto(str1.substr(0,pos_space),str1.substr(pos_space+1,str1.size()));
           if (histo)
           {
