@@ -11,15 +11,16 @@ void exampleDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
-  cl->registerHisto("mymon_hist1", "MYMON");
-  cl->registerHisto("mymon_hist2", "MYMON");
-  cl->registerHisto("mymon_hist1", "MYMON2");
-  cl->registerHisto("mymon_hist2", "MYMON2");
+  cl->registerHisto("mymon_hist1", "MYMON_0");
+  cl->registerHisto("mymon_hist2", "MYMON_0");
+  cl->registerHisto("mymon_hist1", "MYMON_1");
+  cl->registerHisto("mymon_hist2", "MYMON_1");
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
-  cl->requestHistoBySubSystem("MYMON", 1);
+  cl->requestHistoBySubSystem("MYMON_0", 1);
+  cl->requestHistoBySubSystem("MYMON_1", 1);
   OnlMonDraw *mymon = new MyMonDraw();  // create Drawing Object
   cl->registerDrawer(mymon);            // register with client framework
 }
@@ -27,7 +28,8 @@ void exampleDrawInit(const int online = 0)
 void exampleDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("MYMON");         // update histos
+  cl->requestHistoBySubSystem("MYMON_1");         // update histos
+  cl->requestHistoBySubSystem("MYMON_0");         // update histos
   cl->Draw("MYMON", what);                      // Draw Histos of registered Drawers
 }
 
