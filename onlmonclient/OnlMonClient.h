@@ -32,7 +32,7 @@ class OnlMonClient : public OnlMonBase
   OnlMonDraw *getDrawer(const std::string &name);
   int requestHisto(const char *what = "ALL", const std::string &hostname = "localhost", const int moniport = OnlMonDefs::MONIPORT);
   int requestHistoList(const std::string &subsys, const std::string &hostname, const int moniport, std::list<std::string> &histolist);
-  int requestHistoByName(const std::string &what = "ALL");
+  int requestHistoByName(const std::string &subsystem, const std::string &what = "ALL");
   int requestHistoBySubSystem(const std::string &subsystem, int getall = 0);
   void registerHisto(const std::string &hname, const std::string &subsys);
   void Print(const char *what = "ALL");
