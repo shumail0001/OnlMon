@@ -25,9 +25,9 @@ class OnlMonServer : public OnlMonBase
   static OnlMonServer *instance();
   ~OnlMonServer() override;
 
- // delete copy ctor and assignment operator (cppcheck)
-  explicit OnlMonServer(const OnlMonServer&) = delete;
-  OnlMonServer& operator=(const OnlMonServer&) = delete;
+  // delete copy ctor and assignment operator (cppcheck)
+  explicit OnlMonServer(const OnlMonServer &) = delete;
+  OnlMonServer &operator=(const OnlMonServer &) = delete;
 
   void registerHisto(const std::string &monitorname, const std::string &hname, TH1 *h1d, const int replace = 0);
   void registerHisto(const OnlMon *monitor, TH1 *h1d);
@@ -102,10 +102,10 @@ class OnlMonServer : public OnlMonBase
   PHCompositeNode *TopNode() { return topNode; }
 
   int run_empty(const int nevents);
-  std::map<std::string, std::map<std::string, TH1 *>>::const_iterator monibegin() {return MonitorHistoSet.begin();}
-  std::map<std::string, std::map<std::string, TH1 *>>::const_iterator moniend() {return MonitorHistoSet.end();}
-  std::vector<OnlMon *>::const_iterator monitor_vec_begin() {return MonitorList.begin();}
-  std::vector<OnlMon *>::const_iterator monitor_vec_end() {return MonitorList.end();}
+  std::map<std::string, std::map<std::string, TH1 *>>::const_iterator monibegin() { return MonitorHistoSet.begin(); }
+  std::map<std::string, std::map<std::string, TH1 *>>::const_iterator moniend() { return MonitorHistoSet.end(); }
+  std::vector<OnlMon *>::const_iterator monitor_vec_begin() { return MonitorList.begin(); }
+  std::vector<OnlMon *>::const_iterator monitor_vec_end() { return MonitorList.end(); }
 
  private:
   OnlMonServer(const std::string &name = "OnlMonServer");
@@ -137,7 +137,7 @@ class OnlMonServer : public OnlMonBase
   std::vector<OnlMon *> MonitorList;
   std::set<unsigned int> activepackets;
   std::map<std::string, MessageSystem *> MsgSystem;
-  std::map<std::string, std::map<std::string, TH1 *> > MonitorHistoSet;
+  std::map<std::string, std::map<std::string, TH1 *>> MonitorHistoSet;
   std::set<std::string> CommonHistoSet;
   pthread_mutex_t mutex;
   pthread_t serverthreadid = 0;
