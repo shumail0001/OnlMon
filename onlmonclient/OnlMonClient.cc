@@ -902,16 +902,6 @@ OnlMonClient::getDrawer(const std::string &name)
   return nullptr;
 }
 
-TH1 *OnlMonClient::getHisto(const std::string &hname)
-{
-  std::map<const std::string, ClientHistoList *>::const_iterator histoiter = Histo.find(hname);
-  if (histoiter != Histo.end())
-  {
-    return histoiter->second->Histo();
-  }
-  return nullptr;
-}
-
 TH1 *OnlMonClient::getHisto(const std::string &monitor, const std::string &hname)
 {
   auto subsysiter = SubsysHisto.find(monitor);
