@@ -21,7 +21,7 @@ void exampleDrawInit(const int online = 0)
   // says I know they are all on the same node
   cl->requestHistoBySubSystem("MYMON_0", 1);
   cl->requestHistoBySubSystem("MYMON_1", 1);
-  OnlMonDraw *mymon = new MyMonDraw();  // create Drawing Object
+  OnlMonDraw *mymon = new MyMonDraw("MYMONDRAW");  // create Drawing Object
   cl->registerDrawer(mymon);            // register with client framework
 }
 
@@ -30,19 +30,19 @@ void exampleDraw(const char *what = "ALL")
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
   cl->requestHistoBySubSystem("MYMON_1");         // update histos
   cl->requestHistoBySubSystem("MYMON_0");         // update histos
-  cl->Draw("MYMON", what);                      // Draw Histos of registered Drawers
+  cl->Draw("MYMONDRAW", what);                      // Draw Histos of registered Drawers
 }
 
 void examplePS()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("MYMON");                          // Create PS files
+  cl->MakePS("MYMONDRAW");                          // Create PS files
   return;
 }
 
 void exampleHtml()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeHtml("MYMON");                        // Create html output
+  cl->MakeHtml("MYMONDRAW");                        // Create html output
   return;
 }

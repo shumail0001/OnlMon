@@ -37,7 +37,7 @@ void bbcDrawInit(const int online = 0)
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
   cl->requestHistoBySubSystem("BBCMON_0", 1);
-  OnlMonDraw *bbcmon = new BbcMonDraw();  // create Drawing Object
+  OnlMonDraw *bbcmon = new BbcMonDraw("BBCMONDRAW");  // create Drawing Object
   cl->registerDrawer(bbcmon);             // register with client framework
 }
 
@@ -45,19 +45,19 @@ void bbcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
   cl->requestHistoBySubSystem("BBCMON_0");        // update histos
-  cl->Draw("BBCMON", what);                     // Draw Histos of registered Drawers
+  cl->Draw("BBCMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 
 void bbcPS()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("BBCMON");                         // Create PS files
+  cl->MakePS("BBCMONDRAW");                         // Create PS files
   return;
 }
 
 void bbcHtml()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeHtml("BBCMON");                       // Create html output
+  cl->MakeHtml("BBCMONDRAW");                       // Create html output
   return;
 }
