@@ -5,6 +5,7 @@
 
 #include <TH2.h>
 #include <TStyle.h>
+
 #include <string>  // for allocator, string
 
 class OnlMonDB;
@@ -15,7 +16,7 @@ class TPad;
 class HcalMonDraw : public OnlMonDraw
 {
  public:
-  explicit HcalMonDraw(const std::string& name = "HCALMON");  // same name as server!
+  explicit HcalMonDraw(const std::string& name);
 
   ~HcalMonDraw() override {}
 
