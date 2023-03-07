@@ -31,7 +31,7 @@
 class InttMonDraw : public OnlMonDraw
 {
 public:
-	InttMonDraw(const std::string &name = "INTTMON");
+	InttMonDraw(const std::string &name);
 	~InttMonDraw() override;
 
 	int Init() override;
