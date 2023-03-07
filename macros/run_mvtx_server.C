@@ -6,9 +6,10 @@
 
 R__LOAD_LIBRARY(libonlmvtxmon_server.so)
 
-void run_mvtx_server(const char *prdffile = "/sphenix/data/data01/mvtx/tb-1441-052019/longrun/longrun_00000872-0000.prdf")
+void run_mvtx_server(const std::string &name = "MVTXMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/data/data01/mvtx/tb-1441-052019/longrun/longrun_00000872-0000.prdf")
 {
-  OnlMon *m = new MvtxMon();                    // create subsystem Monitor object
+  OnlMon *m = new MvtxMon(name);                    // create subsystem Monitor object
+  m->SetMonitorServerId(serverid);
                                                 //  m->AddTrigger("PPG(Laser)");  // high efficiency triggers selection at et pool
                                                 //  m->AddTrigger("ONLMONBBCLL1"); // generic bbcll1 minbias trigger (defined in ServerFuncs.C)
   OnlMonServer *se = OnlMonServer::instance();  // get pointer to Server Framework
