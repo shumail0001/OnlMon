@@ -123,8 +123,8 @@ int EpdMonDraw::Draw(const std::string &what)
 int EpdMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *epdmon_hist1 = cl->getHisto("epdmon_hist1");
-  TH1 *epdmon_hist2 = cl->getHisto("epdmon_hist1");
+  TH1 *epdmon_hist1 = cl->getHisto("EPDMON_0","epdmon_hist1");
+  TH1 *epdmon_hist2 = cl->getHisto("EPDMON_0","epdmon_hist1");
   if (!gROOT->FindObject("EpdMon1"))
   {
     MakeCanvas("EpdMon1");
@@ -170,8 +170,8 @@ int EpdMonDraw::DrawFirst(const std::string & /* what */)
 int EpdMonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *epdmon_hist1 = cl->getHisto("epdmon_hist2");
-  TH1 *epdmon_hist2 = cl->getHisto("epdmon_hist2");
+  TH1 *epdmon_hist1 = cl->getHisto("EPDMON_0","epdmon_hist2");
+  TH1 *epdmon_hist2 = cl->getHisto("EPDMON_0","epdmon_hist2");
   if (!gROOT->FindObject("EpdMon2"))
   {
     MakeCanvas("EpdMon2");
