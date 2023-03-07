@@ -30,7 +30,7 @@ class TSpectrum;
 class BbcMonDraw : public OnlMonDraw
 {
  public:
-  explicit BbcMonDraw(const std::string &name = "BBCMON");  // same name as server!
+  explicit BbcMonDraw(const std::string &name);
 
   ~BbcMonDraw() override;
 
