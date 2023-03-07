@@ -328,8 +328,8 @@ int TpotMonDraw::draw_hv_onoff()
  
   // get histograms
   auto cl = OnlMonClient::instance();
-  auto m_hv_onoff_phi = cl->getHisto("m_hv_onoff_phi");
-  auto m_hv_onoff_z = cl->getHisto("m_hv_onoff_z");
+  auto m_hv_onoff_phi =  cl->getHisto("TPOTMON_0","m_hv_onoff_phi");
+  auto m_hv_onoff_z =  cl->getHisto("TPOTMON_0","m_hv_onoff_z");
 
   auto cv = get_canvas("TPOT_hv_onoff");
   auto transparent = get_transparent_pad("TPOT_hv_onoff");
@@ -361,8 +361,8 @@ int TpotMonDraw::draw_fee_onoff()
 {
   // get histograms
   auto cl = OnlMonClient::instance();
-  auto m_fee_onoff_phi = cl->getHisto("m_fee_onoff_phi");
-  auto m_fee_onoff_z = cl->getHisto("m_fee_onoff_z");
+  auto m_fee_onoff_phi =  cl->getHisto("TPOTMON_0","m_fee_onoff_phi");
+  auto m_fee_onoff_z =  cl->getHisto("TPOTMON_0","m_fee_onoff_z");
 
   auto cv = get_canvas("TPOT_fee_onoff");
   auto transparent = get_transparent_pad("TPOT_fee_onoff");
@@ -399,7 +399,7 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& n
   for( int i = 0; i < TpotDefs::n_detectors; ++i )
   { 
     const auto hname = name + "_" + TpotDefs::detector_names[i];
-    out[i] = cl->getHisto( hname );
+    out[i] =  cl->getHisto("TPOTMON_0", hname );
     if( Verbosity() )
     { std::cout << "TpotMonDraw::get_histograms - " << hname << (out[i]?" found":" not found" ) << std::endl; }
   }
