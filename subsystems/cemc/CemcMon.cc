@@ -59,14 +59,11 @@ emcxy adcxy[64];
 
 
 
-CemcMon::CemcMon(const std::string &name, const std::string &id)
+CemcMon::CemcMon(const std::string &name)
   : OnlMon(name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new CemcMon()
-
-  // tag our histogram names
-  id_string = id;
 
   for (int ix = 0; ix < 8; ix++ )
     {
@@ -142,7 +139,7 @@ int CemcMon::Init()
   }
 
 
-  std::string h_id = "cemc_occupancy" + id_string; 
+  std::string h_id = "cemc_occupancy";
   cemc_occupancy = new TH2F(h_id.c_str(), "cemc_occupancy plot", 48*2 , -48 , 48, 32*8, -0.5, 255.5 );
   cemc_occupancy->GetXaxis()->SetTitle("eta");
   cemc_occupancy->GetYaxis()->SetTitle("phi");
@@ -150,7 +147,7 @@ int CemcMon::Init()
   //cemc_occupancy->SetMinimum(0);
   //  cemc_occupancy->SetMaximum(1200);
 
-  h_id = "cemc_runningmean" + id_string; 
+  h_id = "cemc_runningmean";
   cemc_runningmean = new TH2F(h_id.c_str(), "Cemc Running Mean Run 0 Event 0", 48*2 , -48 , 48, 32*8, -0.5, 255.5 );
   cemc_runningmean->GetXaxis()->SetTitle("eta");
   cemc_runningmean->GetYaxis()->SetTitle("phi");

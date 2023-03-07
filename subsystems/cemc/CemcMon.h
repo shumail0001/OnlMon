@@ -18,7 +18,7 @@ class runningMean;
 class CemcMon : public OnlMon
 {
  public:
-  CemcMon(const std::string &name = "CEMCMON", const std::string &id ="");
+  CemcMon(const std::string &name);
   virtual ~CemcMon();
 
   int process_event(Event *evt);
