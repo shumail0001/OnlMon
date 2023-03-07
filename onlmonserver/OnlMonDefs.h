@@ -5,7 +5,7 @@ namespace OnlMonDefs
 {
 // Port to use by framework
   const unsigned int MONIPORT = 9081;
-  const unsigned int NUMMONIPORT = 2;
+  const unsigned int NUMMONIPORT = 5;
   const unsigned int MSGLEN = 256;
 }
 
