@@ -137,8 +137,8 @@ int TpcMonDraw::Draw(const std::string &what)
 int TpcMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *tpcmon_hist1 = cl->getHisto("tpcmon_hist1");
-  TH1 *tpcmon_hist2 = cl->getHisto("tpcmon_hist1");
+  TH1 *tpcmon_hist1 =  cl->getHisto("TPCMON_0","tpcmon_hist1");
+  TH1 *tpcmon_hist2 =  cl->getHisto("TPCMON_0","tpcmon_hist1");
   if (!gROOT->FindObject("TpcMon1"))
   {
     MakeCanvas("TpcMon1");
@@ -184,8 +184,8 @@ int TpcMonDraw::DrawFirst(const std::string & /* what */)
 int TpcMonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *tpcmon_hist1 = cl->getHisto("tpcmon_hist2");
-  TH1 *tpcmon_hist2 = cl->getHisto("tpcmon_hist2");
+  TH1 *tpcmon_hist1 =  cl->getHisto("TPCMON_0","tpcmon_hist2");
+  TH1 *tpcmon_hist2 =  cl->getHisto("TPCMON_0","tpcmon_hist2");
   if (!gROOT->FindObject("TpcMon2"))
   {
     MakeCanvas("TpcMon2");
@@ -232,8 +232,8 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
 {
   std::cout<<"This is Charles' temporary function 02.15.23 !!!!!"<<std::endl;
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *tpcmon_NSIDEADC = (TH2*)cl->getHisto("NorthSideADC");
-  TH2 *tpcmon_SSIDEADC = (TH2*)cl->getHisto("SouthSideADC");
+  TH2 *tpcmon_NSIDEADC = (TH2*) cl->getHisto("TPCMON_0","NorthSideADC");
+  TH2 *tpcmon_SSIDEADC = (TH2*) cl->getHisto("TPCMON_0","SouthSideADC");
 
   if (!gROOT->FindObject("TPCModules"))
   {
