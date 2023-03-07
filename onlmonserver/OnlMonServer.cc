@@ -489,7 +489,6 @@ void OnlMonServer::Print(const std::string &what) const
     // loop over the map and print out the content (name and location in memory)
     printf("\n--------------------------------------\n\n");
     printf("List of Common Histograms in OnlMonServer:\n");
-    std::map<const std::string, TH1 *>::const_iterator hiter;
     for (auto &hiter : Histo)
     {
       std::cout << hiter.first << std::endl;
@@ -502,8 +501,6 @@ void OnlMonServer::Print(const std::string &what) const
     printf("--------------------------------------\n\n");
     printf("List of Monitors with registered histos in OnlMonServer:\n");
 
-    std::vector<OnlMon *>::const_iterator miter;
-    std::map<std::string, std::set<std::string>>::const_iterator mhisiter;
     for (auto &miter : MonitorList)
     {
       std::cout << miter->Name() << std::endl;

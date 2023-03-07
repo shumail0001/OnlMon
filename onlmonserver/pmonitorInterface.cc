@@ -504,7 +504,6 @@ void handleconnection(void *arg)
       }
       else if (str.find("ISRUNNING") != std::string::npos)
       {
-        bool foundit = false;
         std::string answer = "No";
         unsigned int pos_space = str.find(' ');
         std::string moniname = str.substr(pos_space + 1, str.size());
