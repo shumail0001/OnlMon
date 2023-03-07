@@ -13,7 +13,7 @@ class TPad;
 class DaqMonDraw : public OnlMonDraw
 {
  public:
-  DaqMonDraw(const std::string &name = "DAQMON"); // same name as server!
+  DaqMonDraw(const std::string &name);
 
   ~DaqMonDraw() override {}
 
