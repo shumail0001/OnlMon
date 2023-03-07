@@ -123,8 +123,8 @@ int Bbcll1MonDraw::Draw(const std::string &what)
 int Bbcll1MonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *bbcll1mon_hist1 = cl->getHisto("bbcll1mon_hist1");
-  TH1 *bbcll1mon_hist2 = cl->getHisto("bbcll1mon_hist1");
+  TH1 *bbcll1mon_hist1 = cl->getHisto("BBCLL1MON_0","bbcll1mon_hist1");
+  TH1 *bbcll1mon_hist2 = cl->getHisto("BBCLL1MON_0","bbcll1mon_hist1");
   if (!gROOT->FindObject("Bbcll1Mon1"))
   {
     MakeCanvas("Bbcll1Mon1");
@@ -170,8 +170,8 @@ int Bbcll1MonDraw::DrawFirst(const std::string & /* what */)
 int Bbcll1MonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *bbcll1mon_hist1 = cl->getHisto("bbcll1mon_hist2");
-  TH1 *bbcll1mon_hist2 = cl->getHisto("bbcll1mon_hist2");
+  TH1 *bbcll1mon_hist1 = cl->getHisto("BBCLL1MON_0","bbcll1mon_hist2");
+  TH1 *bbcll1mon_hist2 = cl->getHisto("BBCLL1MON_0","bbcll1mon_hist2");
   if (!gROOT->FindObject("Bbcll1Mon2"))
   {
     MakeCanvas("Bbcll1Mon2");

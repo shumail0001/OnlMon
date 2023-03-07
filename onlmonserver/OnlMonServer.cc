@@ -134,7 +134,8 @@ void OnlMonServer::dumpHistos(const std::string &filename)
 
 void OnlMonServer::registerCommonHisto(TH1 *h1d)
 {
-  registerHisto("COMMON", h1d->GetName(), h1d, 0);
+  Histo.insert(std::make_pair(h1d->GetName(), h1d));
+  //  registerCommonHisto(h1d->GetName(), h1d, 0);
   CommonHistoSet.insert(h1d->GetName());
   return;
 }
@@ -147,14 +148,49 @@ void OnlMonServer::registerHisto(const OnlMon *monitor, TH1 *h1d)
 
 void OnlMonServer::registerHisto(const std::string &monitorname, const std::string &hname, TH1 *h1d, const int replace)
 {
-  MonitorHistoSet[monitorname].insert(hname);
-  registerHisto(hname, h1d, replace);
+  if (hname.find(' ') != std::string::npos)
+  {
+    std::cout << "No empty spaces in registered histogram names : " << hname << std::endl;
+    exit(1);
+  }
+  auto moniiter = MonitorHistoSet.find(monitorname);
+  if (moniiter == MonitorHistoSet.end())
+  {
+    std::map<std::string, TH1 *> histo;
+    histo[hname] = h1d;
+    std::cout << PHWHERE << " inserting " << monitorname << " hname " << hname << std::endl;
+    MonitorHistoSet.insert(std::make_pair(monitorname, histo));
+    return;
+  }
+  auto histoiter = moniiter->second.find(hname);
+  if (histoiter == moniiter->second.end())
+  {
+    moniiter->second.insert(std::make_pair(hname, h1d));
+  }
+  else
+  {
+    if (replace)
+    {
+      delete histoiter->second;
+      histoiter->second = h1d;
+    }
+    else
+    {
+      std::cout << "Histogram " << hname << " already registered with " << monitorname
+                << ", it will not be overwritten" << std::endl;
+    }
+  }
   return;
 }
 
 void OnlMonServer::registerHisto(const std::string &hname, TH1 *h1d, const int replace)
 {
-  const std::string& tmpstr = hname;
+  if (hname.find(' ') != std::string::npos)
+  {
+    std::cout << "No empty spaces in registered histogram names : " << hname << std::endl;
+    exit(1);
+  }
+  const std::string &tmpstr = hname;
   std::map<const std::string, TH1 *>::const_iterator histoiter = Histo.find(tmpstr);
   std::ostringstream msg;
   int histoexist;
@@ -293,7 +329,31 @@ OnlMonServer::getHistoName(const unsigned int ihisto) const
   return nullptr;
 }
 
-TH1 *OnlMonServer::getHisto(const std::string &hname) const
+TH1 *OnlMonServer::getHisto(const std::string &subsys, const std::string &hname) const
+{
+  if (Verbosity() > 2)
+  {
+    std::cout << PHWHERE << " checking for subsys " << subsys << ", hname " << hname << std::endl;
+  }
+  auto moniiter = MonitorHistoSet.find(subsys);
+  if (moniiter != MonitorHistoSet.end())
+  {
+    auto histoiter = moniiter->second.find(hname);
+    if (histoiter != moniiter->second.end())
+    {
+      return histoiter->second;
+    }
+  }
+  std::ostringstream msg;
+
+  msg << "OnlMonServer::getHisto: ERROR Unknown Histogram " << hname
+      << ", The following are implemented: ";
+  send_message(MSG_SEV_ERROR, msg.str(), 7);
+  Print("HISTOS");
+  return nullptr;
+}
+
+TH1 *OnlMonServer::getCommonHisto(const std::string &hname) const
 {
   std::map<const std::string, TH1 *>::const_iterator histoiter = Histo.find(hname);
   if (histoiter != Histo.end())
@@ -312,17 +372,16 @@ TH1 *OnlMonServer::getHisto(const std::string &hname) const
 int OnlMonServer::run_empty(const int nevents)
 {
   int iret = 0;
-  for (int i = 0; i<nevents; i++)
+  for (int i = 0; i < nevents; i++)
   {
     iret = process_event(nullptr);
-    if (iret )
+    if (iret)
     {
       break;
     }
   }
   return iret;
 }
-
 
 int OnlMonServer::process_event(Event *evt)
 {
@@ -404,34 +463,37 @@ int OnlMonServer::EndRun(const int runno)
 
 void OnlMonServer::Print(const std::string &what) const
 {
+  if (what == "ALL" || what == "PORT")
+  {
+    utsname ThisNode;
+    uname(&ThisNode);
+    printf("--------------------------------------\n\n");
+    std::cout << "Server running on " << ThisNode.nodename
+              << " and is listening on port " << PortNumber() << std::endl
+              << std::endl;
+  }
   if (what == "ALL" || what == "HISTOS")
   {
     std::set<std::string> cached_hists;
-    std::map<std::string, std::set<std::string> >::const_iterator mhistiter;
     printf("--------------------------------------\n\n");
     printf("List of Assigned histograms in OnlMonServer:\n");
-    for (mhistiter = MonitorHistoSet.begin(); mhistiter != MonitorHistoSet.end(); ++mhistiter)
+    for (auto &moniiter : MonitorHistoSet)
     {
-      std::set<std::string> hists = mhistiter->second;
-      std::set<std::string>::const_iterator siter;
-      for (siter = hists.begin(); siter != hists.end(); ++siter)
+      std::cout << "Monitor " << moniiter.first << std::endl;
+      for (auto &histiter : moniiter.second)
       {
-        printf("%s: %s\n", (mhistiter->first).c_str(), (*siter).c_str());
-        cached_hists.insert(*siter);
+        std::cout << histiter.first << std::endl;
+        cached_hists.insert(histiter.first);
       }
     }
     // loop over the map and print out the content (name and location in memory)
     printf("\n--------------------------------------\n\n");
-    printf("List of unassigned Histograms in OnlMonServer:\n");
-    std::map<const std::string, TH1 *>::const_iterator hiter;
-    for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
+    printf("List of Common Histograms in OnlMonServer:\n");
+    for (auto &hiter : Histo)
     {
-      if (cached_hists.find(hiter->first) == cached_hists.end())
-      {
-        //	      printf("%s is at 0x%16x\n",(hiter->first).c_str(),(unsigned int)hiter->second);
-      }
+      std::cout << hiter.first << std::endl;
     }
-    printf("\n");
+    std::cout << std::endl;
   }
   if (what == "ALL" || what == "MONITOR")
   {
@@ -439,21 +501,9 @@ void OnlMonServer::Print(const std::string &what) const
     printf("--------------------------------------\n\n");
     printf("List of Monitors with registered histos in OnlMonServer:\n");
 
-    std::vector<OnlMon *>::const_iterator miter;
-    std::map<std::string, std::set<std::string> >::const_iterator mhisiter;
-    for (miter = MonitorList.begin(); miter != MonitorList.end(); ++miter)
+    for (auto &miter : MonitorList)
     {
-      printf("%s\n", (*miter)->Name().c_str());
-      mhisiter = MonitorHistoSet.find((*miter)->Name());
-      std::set<std::string>::const_iterator siter;
-      if (mhisiter != MonitorHistoSet.end())
-      {
-        std::set<std::string> hists = mhisiter->second;
-        for (siter = hists.begin(); siter != hists.end(); ++siter)
-        {
-          printf("%s: %s\n", (*miter)->Name().c_str(), (*siter).c_str());
-        }
-      }
+      std::cout << miter->Name() << std::endl;
     }
     printf("\n");
   }
@@ -498,80 +548,82 @@ void OnlMonServer::RunNumber(const int irun)
 
 int OnlMonServer::WriteHistoFile()
 {
-  utsname ThisNode;
-  uname(&ThisNode);
-  std::string nn = ThisNode.nodename;
-  std::string mm = nn.substr(0, nn.find('.'));  // strip the domain (all chars after first .)
-  std::ostringstream dirname, filename;
-  // filename is Run_<runno>_<monitor>_<nodename>.root
-  if (getenv("ONLMON_SAVEDIR"))
-  {
-    dirname << getenv("ONLMON_SAVEDIR") << "/";
-  }
-  int irun = RunNumber();
-  std::map<std::string, std::set<std::string> >::const_iterator mhistiter;
-  // assignedhists set stores all encountered histograms so histos which are not accounted
-  // for can be saved
-  std::set<std::string> assignedhists = CommonHistoSet;
-  std::set<std::string>::const_iterator siter;
-  std::map<const std::string, TH1 *>::const_iterator hiter;
-  for (mhistiter = MonitorHistoSet.begin(); mhistiter != MonitorHistoSet.end(); ++mhistiter)
-  {
-    if (mhistiter->first == "COMMON")
+  /*
+    utsname ThisNode;
+    uname(&ThisNode);
+    std::string nn = ThisNode.nodename;
+    std::string mm = nn.substr(0, nn.find('.'));  // strip the domain (all chars after first .)
+    std::ostringstream dirname, filename;
+    // filename is Run_<runno>_<monitor>_<nodename>.root
+    if (getenv("ONLMON_SAVEDIR"))
     {
-      continue;
+      dirname << getenv("ONLMON_SAVEDIR") << "/";
     }
+    int irun = RunNumber();
+    std::map<std::string, std::set<std::string> >::const_iterator mhistiter;
+    // assignedhists set stores all encountered histograms so histos which are not accounted
+    // for can be saved
+    std::set<std::string> assignedhists = CommonHistoSet;
+    std::set<std::string>::const_iterator siter;
+    std::map<const std::string, TH1 *>::const_iterator hiter;
+    for (auto &mhistiter :  MonitorHistoSet.begin())
+    {
+      if (mhistiter->first == "COMMON")
+      {
+        continue;
+      }
+      filename.str("");
+      filename << dirname.str() << "Run_" << irun << "_" << mhistiter->first << "_" << mm << "_" << PortNumber() << ".root";
+      TFile *hfile = new TFile(filename.str().c_str(), "RECREATE", "Created by Online Monitor", compression_level);
+      for (siter = CommonHistoSet.begin(); siter != CommonHistoSet.end(); ++siter)
+      {
+        hiter = Histo.find(*siter);
+        if (hiter != Histo.end())
+        {
+          hiter->second->Write();
+        }
+        else
+        {
+          std::cout << "could not locate histogram " << *siter << std::endl;
+        }
+      }
+      for (siter = (mhistiter->second).begin(); siter != (mhistiter->second).end(); ++siter)
+      {
+        hiter = Histo.find(*siter);
+        assignedhists.insert(*siter);
+        if (hiter != Histo.end())
+        {
+          hiter->second->Write();
+        }
+        else
+        {
+          std::cout << "could not locate histogram " << *siter << std::endl;
+        }
+      }
+      hfile->Close();
+      delete hfile;
+    }
+    TFile *hfile = nullptr;
     filename.str("");
-    filename << dirname.str() << "Run_" << irun << "_" << mhistiter->first << "_" << mm << "_" << PortNumber() << ".root";
-    TFile *hfile = new TFile(filename.str().c_str(), "RECREATE", "Created by Online Monitor", compression_level);
-    for (siter = CommonHistoSet.begin(); siter != CommonHistoSet.end(); ++siter)
+    filename << dirname.str() << "Run_" << irun << "_" << mm << "_"
+             << PortNumber() << ".root";
+    for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
     {
-      hiter = Histo.find(*siter);
-      if (hiter != Histo.end())
+      if (assignedhists.find(hiter->first) == assignedhists.end())
       {
+        if (!hfile)
+        {
+          hfile = new TFile(filename.str().c_str(), "RECREATE", "Created by Online Monitor", compression_level);
+        }
         hiter->second->Write();
       }
-      else
-      {
-        std::cout << "could not locate histogram " << *siter << std::endl;
-      }
     }
-    for (siter = (mhistiter->second).begin(); siter != (mhistiter->second).end(); ++siter)
+    if (hfile)
     {
-      hiter = Histo.find(*siter);
-      assignedhists.insert(*siter);
-      if (hiter != Histo.end())
-      {
-        hiter->second->Write();
-      }
-      else
-      {
-        std::cout << "could not locate histogram " << *siter << std::endl;
-      }
+      hfile->Close();
+      delete hfile;
     }
-    hfile->Close();
-    delete hfile;
-  }
-  TFile *hfile = nullptr;
-  filename.str("");
-  filename << dirname.str() << "Run_" << irun << "_" << mm << "_"
-           << PortNumber() << ".root";
-  for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
-  {
-    if (assignedhists.find(hiter->first) == assignedhists.end())
-    {
-      if (!hfile)
-      {
-        hfile = new TFile(filename.str().c_str(), "RECREATE", "Created by Online Monitor", compression_level);
-      }
-      hiter->second->Write();
-    }
-  }
-  if (hfile)
-  {
-    hfile->Close();
-    delete hfile;
-  }
+  */
   return 0;
 }
 

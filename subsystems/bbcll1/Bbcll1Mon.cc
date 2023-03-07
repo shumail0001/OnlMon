@@ -13,6 +13,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TRandom.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -44,6 +45,7 @@ Bbcll1Mon::~Bbcll1Mon()
 
 int Bbcll1Mon::Init()
 {
+  gRandom->SetSeed(rand());
   // read our calibrations from Bbcll1MonData.dat
   std::string fullfile = std::string(getenv("BBCLL1CALIB")) + "/" + "Bbcll1MonData.dat";
   std::ifstream calib(fullfile);
@@ -93,8 +95,8 @@ int Bbcll1Mon::process_event(Event * /* evt */)
   // one can do in principle directly se->getHisto("bbcll1hist1")->Fill()
   // but the search in the histogram Map is somewhat expensive and slows
   // things down if you make more than one operation on a histogram
-  bbcll1hist1->Fill((float) idummy);
-  bbcll1hist2->Fill((float) idummy, (float) idummy, 1.);
+  bbcll1hist1->Fill(gRandom->Gaus(50,10));
+  bbcll1hist2->Fill(gRandom->Gaus(50,10), gRandom->Gaus(50,10), 1.);
 
   if (idummy++ > 10)
   {

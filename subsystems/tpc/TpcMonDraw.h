@@ -15,7 +15,7 @@ class TPaveLabel;
 class TpcMonDraw : public OnlMonDraw
 {
  public:
-  TpcMonDraw(const std::string &name = "TPCMON"); // same name as server!
+  TpcMonDraw(const std::string &name);
 
   ~TpcMonDraw() override {}
 

@@ -13,6 +13,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TRandom.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -26,7 +27,7 @@ enum
   FILLMESSAGE = 2
 };
 
-MyMon::MyMon(const char *name)
+MyMon::MyMon(const std::string &name)
   : OnlMon(name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
@@ -43,6 +44,7 @@ MyMon::~MyMon()
 
 int MyMon::Init()
 {
+  gRandom->SetSeed(rand());
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("doing the Init\n");
@@ -88,8 +90,8 @@ int MyMon::process_event(Event * /* evt */)
   // one can do in principle directly se->getHisto("myhist1")->Fill()
   // but the search in the histogram Map is somewhat expensive and slows
   // things down if you make more than one operation on a histogram
-  myhist1->Fill((float) idummy);
-  myhist2->Fill((float) idummy, (float) idummy, 1.);
+  myhist1->Fill(gRandom->Gaus(50,10));
+  myhist2->Fill(gRandom->Gaus(50,10), gRandom->Gaus(50,10), 1.);
 
   if (idummy++ > 10)
   {

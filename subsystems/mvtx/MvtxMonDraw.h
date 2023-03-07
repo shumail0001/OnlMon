@@ -13,7 +13,7 @@ class TPad;
 class MvtxMonDraw : public OnlMonDraw
 {
  public:
-  MvtxMonDraw(const std::string &name = "MVTXMON"); // same name as server!
+  MvtxMonDraw(const std::string &name);
 
   ~MvtxMonDraw() override {}
 

@@ -3,10 +3,10 @@
 */
 
 #include "pmonitorInterface.h"
-#include "OnlMonServer.h"
-
 #include "HistoBinDefs.h"
-#include "PortNumber.h"
+#include "OnlMon.h"
+#include "OnlMonDefs.h"
+#include "OnlMonServer.h"
 
 #include <phool/phool.h>
 
@@ -77,7 +77,7 @@ int pinit()
   pthread_t ThreadId = 0;
   if (!ServerThread)
   {
-    //std::cout << "creating server thread" << std::endl;
+    // std::cout << "creating server thread" << std::endl;
 #ifdef SERVER
 
     ServerThread = pthread_create(&ThreadId, nullptr, server, (void *) nullptr);
@@ -168,8 +168,8 @@ int process_event(Event *evt)
     {
       std::ostringstream msg;
       msg << PHWHERE << " huge or tiny event run number "
-	  << evt->getRunNumber()
-	  << " discarding event" ;
+          << evt->getRunNumber()
+          << " discarding event" ;
       send_message(MSG_SEV_WARNING, msg.str());
       se->AddBadEvent();
       return 0;
@@ -315,7 +315,7 @@ int setup_server()
 static void *server(void * /* arg */)
 {
   OnlMonServer *Onlmonserver = OnlMonServer::instance();
-  int MoniPort = MONIPORT;
+  int MoniPort = OnlMonDefs::MONIPORT;
   //  int thread_arg[5];
   pthread_mutex_lock(&mutex);
   TServerSocket *ss = nullptr;
@@ -329,8 +329,7 @@ static void *server(void * /* arg */)
     ss = new TServerSocket(MoniPort, kTRUE);
     // Accept a connection and return a full-duplex communication socket.
     Onlmonserver->PortNumber(MoniPort);
-    MoniPort++;
-    if ((MoniPort - MONIPORT) >= NUMMONIPORT)
+    if ((MoniPort - OnlMonDefs::MONIPORT) >= OnlMonDefs::NUMMONIPORT)
     {
       std::ostringstream msg;
       msg << "Too many Online Monitors running on this machine, bailing out";
@@ -338,6 +337,7 @@ static void *server(void * /* arg */)
 
       exit(1);
     }
+    MoniPort++;
     if (!ss->IsValid())
     {
       printf("Ignore ROOT error about socket in use, I try another one\n");
@@ -356,9 +356,9 @@ again:
   TSocket *s0 = ss->Accept();
   if (!s0)
   {
-    std::cout << "Server socket " << MONIPORT
+    std::cout << "Server socket " << OnlMonDefs::MONIPORT
               << " in use, either go to a different node or" << std::endl
-              << "change MONIPORT in server/PortNumber.h and recompile" << std::endl
+              << "change MONIPORT in server/OnlMonDefs.h and recompile" << std::endl
               << "server and client" << std::endl;
     exit(1);
   }
@@ -373,11 +373,11 @@ again:
   }
   //  std::cout << "try locking mutex" << std::endl;
   pthread_mutex_lock(&mutex);
-  //std::cout << "got mutex" << std::endl;
+  // std::cout << "got mutex" << std::endl;
   handleconnection(s0);
-  //std::cout << "try releasing mutex" << std::endl;
+  // std::cout << "try releasing mutex" << std::endl;
   pthread_mutex_unlock(&mutex);
-  //std::cout << "mutex released" << std::endl;
+  // std::cout << "mutex released" << std::endl;
   delete s0;
   /*
     if (!aargh)
@@ -387,8 +387,8 @@ again:
     aargh->Run();
     }
   */
-  //std::cout << "closing socket" << std::endl;
-  //s0->Close();
+  // std::cout << "closing socket" << std::endl;
+  // s0->Close();
   goto again;
 }
 
@@ -426,55 +426,61 @@ void handleconnection(void *arg)
     }
     if (mess->What() == kMESS_STRING)
     {
-      char str[64];
-      mess->ReadString(str, 64);
+      char strchr[OnlMonDefs::MSGLEN];
+      mess->ReadString(strchr, OnlMonDefs::MSGLEN);
       delete mess;
       mess = nullptr;
+      std::string str = strchr;
       if (Onlmonserver->Verbosity() > 2)
       {
-        std::cout << "received message" << str << std::endl;
+        std::cout << "received message: " << str << std::endl;
       }
-      if (!strcmp(str, "Finished"))
+      if (str == "Finished")
       {
         break;
       }
-      else if (!strcmp(str, "WriteRootFile"))
+      else if (str == "WriteRootFile")
       {
         Onlmonserver->WriteHistoFile();
         s0->Send("Finished");
         break;
       }
-      else if (!strcmp(str, "Ack"))
+      else if (str == "Ack")
       {
         continue;
       }
-      else if (!strcmp(str, "HistoList"))
+      else if (str == "HistoList")
       {
         if (Onlmonserver->Verbosity() > 2)
         {
           std::cout << "number of histos: " << Onlmonserver->nHistos() << std::endl;
         }
-        for (unsigned int i = 0; i < Onlmonserver->nHistos(); i++)
+        for (auto monitors = Onlmonserver->monibegin(); monitors != Onlmonserver->moniend(); ++monitors)
         {
-          if (Onlmonserver->Verbosity() > 2)
+          for (auto &histos : monitors->second)
           {
-            std::cout << "HistoName: " << Onlmonserver->getHistoName(i) << std::endl;
-          }
-          s0->Send(Onlmonserver->getHistoName(i).c_str());
-          int nbytes = s0->Recv(mess);
-          delete mess;
-          mess = nullptr;
-          if (nbytes <= 0)
-          {
-            std::ostringstream msg;
+            std::string subsyshisto = monitors->first + ' ' + histos.first;
+            if (Onlmonserver->Verbosity() > 2)
+            {
+              std::cout << "subsystem: " << monitors->first << ", histo: " << histos.first << std::endl;
+              std::cout << " sending: \"" << subsyshisto << "\"" << std::endl;
+            }
+            s0->Send(subsyshisto.c_str());
+            int nbytes = s0->Recv(mess);
+            delete mess;
+            mess = nullptr;
+            if (nbytes <= 0)
+            {
+              std::ostringstream msg;
 
-            msg << "Problem receiving message: return code: " << nbytes;
-            send_message(MSG_SEV_ERROR, msg.str());
+              msg << "Problem receiving message: return code: " << nbytes;
+              send_message(MSG_SEV_ERROR, msg.str());
+            }
           }
         }
         s0->Send("Finished");
       }
-      else if (!strcmp(str, "ALL"))
+      else if (str == "ALL")
       {
         if (Onlmonserver->Verbosity() > 2)
         {
@@ -496,12 +502,45 @@ void handleconnection(void *arg)
         }
         s0->Send("Finished");
       }
-      else if (!strcmp(str, "LIST"))
+      else if (str.find("ISRUNNING") != std::string::npos)
+      {
+        std::string answer = "No";
+        unsigned int pos_space = str.find(' ');
+        std::string moniname = str.substr(pos_space + 1, str.size());
+        for (auto moniter = Onlmonserver->monitor_vec_begin(); moniter != Onlmonserver->monitor_vec_end(); ++moniter)
+        {
+          if ((*moniter)->Name() == moniname)
+          {
+            answer = "Yes";
+            break;
+          }
+        }
+        if (Onlmonserver->Verbosity() > 2)
+        {
+          std::cout << "got " << str << ", replied " << answer << std::endl;
+        }
+        s0->Send(answer.c_str());
+      }
+      else if (str == "LISTMONITORS")
+      {
+        s0->Send("go");
+        for (auto moniter = Onlmonserver->monitor_vec_begin(); moniter != Onlmonserver->monitor_vec_end(); ++moniter)
+        {
+          if (Onlmonserver->Verbosity() > 2)
+          {
+            std::cout << "sending " << (*moniter)->Name().c_str() << std::endl;
+          }
+          s0->Send((*moniter)->Name().c_str());
+        }
+        s0->Send("Finished");
+        break;
+      }
+      else if (str == "LIST")
       {
         s0->Send("go");
         while (true)
         {
-          char strmess[200];
+          char strmess[OnlMonDefs::MSGLEN];
           s0->Recv(mess);
           if (!mess)
           {
@@ -509,15 +548,21 @@ void handleconnection(void *arg)
           }
           if (mess->What() == kMESS_STRING)
           {
-            mess->ReadString(strmess, 200);
+            mess->ReadString(strmess, OnlMonDefs::MSGLEN);
             delete mess;
             mess = nullptr;
-            if (!strcmp(strmess, "alldone"))
+            if (std::string(strmess) == "alldone")
             {
               break;
             }
           }
-          TH1 *histo = Onlmonserver->getHisto(strmess);
+          std::string str1(strmess);
+          unsigned int pos_space = str1.find(' ');
+          if (Onlmonserver->Verbosity() > 2)
+          {
+            std::cout << PHWHERE << " getting subsystem " << str1.substr(0, pos_space) << ", histo " << str1.substr(pos_space + 1, str1.size()) << std::endl;
+          }
+          TH1 *histo = Onlmonserver->getHisto(str1.substr(0, pos_space), str1.substr(pos_space + 1, str1.size()));
           if (histo)
           {
             outgoing.Reset();
@@ -527,7 +572,7 @@ void handleconnection(void *arg)
           }
           else
           {
-            s0->Send("unknown");
+            s0->Send("UnknownHisto");
           }
           //		  delete mess;
         }
@@ -535,7 +580,9 @@ void handleconnection(void *arg)
       }
       else
       {
-        TH1 *histo = Onlmonserver->getHisto(str);
+        std::string strstr(str);
+        unsigned int pos_space = str.find(' ');
+        TH1 *histo = Onlmonserver->getHisto(strstr.substr(0, pos_space), strstr.substr(pos_space + 1, str.size()));
         if (histo)
         {
           //		  const char *hisname = histo->GetName();

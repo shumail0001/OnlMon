@@ -11,7 +11,7 @@ class TH2;
 class TpcMon : public OnlMon
 {
  public:
-  TpcMon(const std::string &name = "TPCMON");
+  TpcMon(const std::string &name);
   virtual ~TpcMon();
 
   int process_event(Event *evt);

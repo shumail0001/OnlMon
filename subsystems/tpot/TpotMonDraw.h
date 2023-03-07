@@ -19,7 +19,7 @@ class TpotMonDraw : public OnlMonDraw
   public:
   
   /// constructor
-  TpotMonDraw(const std::string &name = "TPOTMON");
+  TpotMonDraw(const std::string &name);
   
   /// destructor
   ~TpotMonDraw() override = default;

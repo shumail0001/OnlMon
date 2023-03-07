@@ -1,8 +1,8 @@
-#ifndef __ONLMONSERVER_H
-#define __ONLMONSERVER_H
+#ifndef ONLMONSERVER_ONLMONSERVER_H
+#define ONLMONSERVER_ONLMONSERVER_H
 
 #include "OnlMonBase.h"
-#include "PortNumber.h"
+#include "OnlMonDefs.h"
 
 #include <pthread.h>
 #include <ctime>
@@ -25,15 +25,16 @@ class OnlMonServer : public OnlMonBase
   static OnlMonServer *instance();
   ~OnlMonServer() override;
 
- // delete copy ctor and assignment operator (cppcheck)
-  explicit OnlMonServer(const OnlMonServer&) = delete;
-  OnlMonServer& operator=(const OnlMonServer&) = delete;
+  // delete copy ctor and assignment operator (cppcheck)
+  explicit OnlMonServer(const OnlMonServer &) = delete;
+  OnlMonServer &operator=(const OnlMonServer &) = delete;
 
   void registerHisto(const std::string &monitorname, const std::string &hname, TH1 *h1d, const int replace = 0);
   void registerHisto(const OnlMon *monitor, TH1 *h1d);
 
   void registerCommonHisto(TH1 *h1d);
-  TH1 *getHisto(const std::string &hname) const;
+  TH1 *getHisto(const std::string &subsys, const std::string &hname) const;
+  TH1 *getCommonHisto(const std::string &hname) const;
   TH1 *getHisto(const unsigned int ihisto) const;
   const std::string getHistoName(const unsigned int ihisto) const;
   unsigned int nHistos() const { return Histo.size(); }
@@ -101,6 +102,10 @@ class OnlMonServer : public OnlMonBase
   PHCompositeNode *TopNode() { return topNode; }
 
   int run_empty(const int nevents);
+  std::map<std::string, std::map<std::string, TH1 *>>::const_iterator monibegin() { return MonitorHistoSet.begin(); }
+  std::map<std::string, std::map<std::string, TH1 *>>::const_iterator moniend() { return MonitorHistoSet.end(); }
+  std::vector<OnlMon *>::const_iterator monitor_vec_begin() { return MonitorList.begin(); }
+  std::vector<OnlMon *>::const_iterator monitor_vec_end() { return MonitorList.end(); }
 
  private:
   OnlMonServer(const std::string &name = "OnlMonServer");
@@ -112,7 +117,7 @@ class OnlMonServer : public OnlMonBase
   unsigned int trigger[3];
   int runnumber = -1;
   int eventnumber = 0;
-  int portnumber = MONIPORT;
+  int portnumber = OnlMonDefs::MONIPORT;
   int badevents = 0;
   time_t currentticks = 0;
   time_t borticks = 0;
@@ -132,7 +137,7 @@ class OnlMonServer : public OnlMonBase
   std::vector<OnlMon *> MonitorList;
   std::set<unsigned int> activepackets;
   std::map<std::string, MessageSystem *> MsgSystem;
-  std::map<std::string, std::set<std::string> > MonitorHistoSet;
+  std::map<std::string, std::map<std::string, TH1 *>> MonitorHistoSet;
   std::set<std::string> CommonHistoSet;
   pthread_mutex_t mutex;
   pthread_t serverthreadid = 0;

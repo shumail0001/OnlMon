@@ -16,7 +16,7 @@ class TH2;
 class TpotMon : public OnlMon
 {
  public:
-  TpotMon(const std::string &name = "TPOTMON");
+  TpotMon(const std::string &name);
   ~TpotMon() override = default;
 
   int process_event(Event *evt) override;

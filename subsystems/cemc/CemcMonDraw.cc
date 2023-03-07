@@ -166,9 +166,9 @@ int CemcMonDraw::Draw(const std::string &what)
 int CemcMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2D* hist1 = (TH2D*)cl->getHisto("h2_hcal_rm");
-  TH2D* h2_hcal_mean = (TH2D*)cl->getHisto("h2_hcal_mean");
-  TH1F* h_event = (TH1F*)cl->getHisto("h_event");
+  TH2D* hist1 = (TH2D*)cl->getHisto("CEMC_0","h2_hcal_rm");
+  TH2D* h2_hcal_mean = (TH2D*)cl->getHisto("CEMC_0","h2_hcal_mean");
+  TH1F* h_event = (TH1F*)cl->getHisto("CEMC_0","h_event");
   if (!gROOT->FindObject("CemcMon1"))
    {
      MakeCanvas("CemcMon1");
@@ -276,11 +276,11 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 {
   const int Nsector = 32;
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1F* h_sectorAvg_total = (TH1F*) cl->getHisto("h_sectorAvg_total");
-  TH1F* h_event = (TH1F*) cl->getHisto("h_event");
+  TH1F* h_sectorAvg_total = (TH1F*) cl->getHisto("CEMC_0","h_sectorAvg_total");
+  TH1F* h_event = (TH1F*) cl->getHisto("CEMC_0","h_event");
   TH1F* h_rm_sectorAvg[Nsector];
   for (int ih=0; ih<Nsector; ih++) {
-    h_rm_sectorAvg[ih] = (TH1F*)cl->getHisto(Form("h_rm_sectorAvg_s%d",ih));
+    h_rm_sectorAvg[ih] = (TH1F*)cl->getHisto("CEMC_0",Form("h_rm_sectorAvg_s%d",ih));
   }
   
  if (!gROOT->FindObject("CemcMon2"))
@@ -361,9 +361,9 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 int CemcMonDraw::DrawThird(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1F* h_waveform_twrAvg = (TH1F*) cl->getHisto("h_waveform_twrAvg");
-  TH1F* h_waveform_time = (TH1F*) cl->getHisto("h_waveform_time");
-  TH1F* h_waveform_pedestal = (TH1F*) cl->getHisto("h_waveform_pedestal");
+  TH1F* h_waveform_twrAvg = (TH1F*) cl->getHisto("CEMC_0","h_waveform_twrAvg");
+  TH1F* h_waveform_time = (TH1F*) cl->getHisto("CEMC_0","h_waveform_time");
+  TH1F* h_waveform_pedestal = (TH1F*) cl->getHisto("CEMC_0","h_waveform_pedestal");
 
  if (!gROOT->FindObject("CemcMon3"))
    {
@@ -529,7 +529,7 @@ int CemcMonDraw::FindHotTower(TPad *warningpad,TH2D* hhit){
 /*
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2D* hist1 = (TH2D*)cl->getHisto("h2_hcal_rm");
+  TH2D* hist1 = (TH2D*)cl->getHisto("CEMC_0","h2_hcal_rm");
   
  if (!gROOT->FindObject("CemcMon2"))
    {

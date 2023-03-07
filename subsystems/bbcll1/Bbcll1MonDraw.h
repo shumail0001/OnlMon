@@ -13,7 +13,7 @@ class TPad;
 class Bbcll1MonDraw : public OnlMonDraw
 {
  public:
-  Bbcll1MonDraw(const std::string &name = "BBCLL1MON"); // same name as server!
+  Bbcll1MonDraw(const std::string &name);
 
   ~Bbcll1MonDraw() override {}
 

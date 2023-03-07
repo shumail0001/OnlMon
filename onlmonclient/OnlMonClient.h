@@ -1,8 +1,8 @@
-#ifndef ONLMONCLIENT_H__
-#define ONLMONCLIENT_H__
+#ifndef ONLMONCLIENT_ONLMONCLIENT_H
+#define ONLMONCLIENT_ONLMONCLIENT_H
 
 #include <onlmon/OnlMonBase.h>
-#include <onlmon/PortNumber.h>
+#include <onlmon/OnlMonDefs.h>
 
 #include <ctime>
 #include <list>
@@ -23,15 +23,16 @@ class OnlMonClient : public OnlMonBase
  public:
   static OnlMonClient *instance();
   ~OnlMonClient() override;
-  int UpdateServerHistoMap(const std::string &hname, const std::string &hostname);
-  void PutHistoInMap(const std::string &hname, const std::string &hostname, const int port);
-  void updateHistoMap(const char *hname, TH1 *h1d);
-  TH1 *getHisto(const std::string &hname);
+  int UpdateServerHistoMap(const std::string &hname, const std::string &subsys, const std::string &hostname);
+  void PutHistoInMap(const std::string &hname, const std::string &subsys, const std::string &hostname, const int port);
+  void updateHistoMap(const std::string &subsys, const std::string &hname, TH1 *h1d);
+  int requestMonitorList(const std::string &hostname, const int moniport);
+  TH1 *getHisto(const std::string &monitor, const std::string &hname);
   OnlMonDraw *getDrawer(const std::string &name);
-  int requestHisto(const char *what = "ALL", const std::string &hostname = "localhost", const int moniport = MONIPORT);
-  int requestHistoList(const std::string &hostname, const int moniport, std::list<std::string> &histolist);
-  int requestHistoByName(const std::string &what = "ALL");
-  int requestHistoBySubSystem(const char *subsystem, int getall = 0);
+  int requestHisto(const char *what = "ALL", const std::string &hostname = "localhost", const int moniport = OnlMonDefs::MONIPORT);
+  int requestHistoList(const std::string &subsys, const std::string &hostname, const int moniport, std::list<std::string> &histolist);
+  int requestHistoByName(const std::string &subsystem, const std::string &what = "ALL");
+  int requestHistoBySubSystem(const std::string &subsystem, int getall = 0);
   void registerHisto(const std::string &hname, const std::string &subsys);
   void Print(const char *what = "ALL");
 
@@ -54,7 +55,7 @@ class OnlMonClient : public OnlMonBase
                  const std::string &ext, std::string &fullfilename,
                  std::string &filename);
 
-  int LocateHistogram(const std::string &hname);
+  int LocateHistogram(const std::string &hname, const std::string &subsys);
   int RunNumber();
   time_t EventTime(const char *which = "CURRENT");
   int SendCommand(const char *hostname, const int port, const char *cmd);
@@ -76,6 +77,9 @@ class OnlMonClient : public OnlMonBase
   int isStandalone();
   std::string RunType();
   void CacheRunDB(const int runno);
+  void FindAllMonitors();
+  int FindMonitor(const std::string &name);
+  int IsMonitorRunning(const std::string &name);
 
  private:
   OnlMonClient(const std::string &name = "ONLMONCLIENT");
@@ -95,9 +99,11 @@ class OnlMonClient : public OnlMonBase
   int cachedrun = 0;
 
   std::string runtype = "UNKNOWN";
+  std::map<std::string, std::map<const std::string, ClientHistoList *>> SubsysHisto;
+  std::map<std::string, std::pair<std::string, unsigned int>> MonitorHostPorts;
   std::map<const std::string, ClientHistoList *> Histo;
   std::map<const std::string, OnlMonDraw *> DrawerList;
   std::vector<std::string> MonitorHosts;
 };
 
-#endif /* __ONLMONCLIENT_H__ */
+#endif /* ONLMONCLIENT_ONLMONCLIENT_H */

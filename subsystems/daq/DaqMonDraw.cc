@@ -123,8 +123,8 @@ int DaqMonDraw::Draw(const std::string &what)
 int DaqMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *daqmon_hist1 = cl->getHisto("daqmon_hist1");
-  TH1 *daqmon_hist2 = cl->getHisto("daqmon_hist1");
+  TH1 *daqmon_hist1 = cl->getHisto("DAQMON_0","daqmon_hist1");
+  TH1 *daqmon_hist2 = cl->getHisto("DAQMON_0","daqmon_hist1");
   if (!gROOT->FindObject("DaqMon1"))
   {
     MakeCanvas("DaqMon1");
@@ -170,8 +170,8 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
 int DaqMonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *daqmon_hist1 = cl->getHisto("daqmon_hist2");
-  TH1 *daqmon_hist2 = cl->getHisto("daqmon_hist2");
+  TH1 *daqmon_hist1 = cl->getHisto("DAQMON_0","daqmon_hist2");
+  TH1 *daqmon_hist2 = cl->getHisto("DAQMON_0","daqmon_hist2");
   if (!gROOT->FindObject("DaqMon2"))
   {
     MakeCanvas("DaqMon2");

@@ -23,7 +23,7 @@
 class InttMon : public OnlMon
 {
 public:
-	InttMon(const std::string &name = "INTTMON");
+	InttMon(const std::string &name);
 	virtual ~InttMon();
 	
 	int Init();

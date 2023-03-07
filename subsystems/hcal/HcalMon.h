@@ -1,8 +1,9 @@
 #ifndef HCAL_HCALMON_H
 #define HCAL_HCALMON_H
 
-#include <calobase/TowerInfoContainerv1.h>
 #include <onlmon/OnlMon.h>
+
+#include <calobase/TowerInfoContainerv1.h>
 
 #include <vector>
 
@@ -17,7 +18,7 @@ class runningMean;
 class HcalMon : public OnlMon
 {
  public:
-  HcalMon(const std::string& name = "HCALMON");
+  HcalMon(const std::string& name);
   virtual ~HcalMon();
 
   int process_event(Event* evt);

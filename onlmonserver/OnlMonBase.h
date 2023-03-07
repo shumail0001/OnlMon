@@ -10,6 +10,7 @@ class OnlMonBase
   virtual ~OnlMonBase() {}
 
   const std::string Name() const { return ThisName; }
+  void Name(const std::string &name) {ThisName = name;}
   virtual void Verbosity(const int i) { verbosity = i; }
   virtual int Verbosity() const { return verbosity; }
 

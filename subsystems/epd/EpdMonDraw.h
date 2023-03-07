@@ -13,7 +13,7 @@ class TPad;
 class EpdMonDraw : public OnlMonDraw
 {
  public:
-  EpdMonDraw(const std::string &name = "EPDMON"); // same name as server!
+  EpdMonDraw(const std::string &name);
 
   ~EpdMonDraw() override {}
 

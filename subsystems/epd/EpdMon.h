@@ -11,7 +11,7 @@ class TH2;
 class EpdMon : public OnlMon
 {
  public:
-  EpdMon(const std::string &name = "EPDMON");
+  EpdMon(const std::string &name);
   virtual ~EpdMon();
 
   int process_event(Event *evt);

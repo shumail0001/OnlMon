@@ -14,7 +14,7 @@ class pair;
 class MvtxMon : public OnlMon
 {
  public:
-  MvtxMon(const std::string &name = "MVTXMON");
+  MvtxMon(const std::string &name);
   virtual ~MvtxMon();
 
   int process_event(Event *evt);

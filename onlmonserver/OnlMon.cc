@@ -3,6 +3,8 @@
 
 #include <Event/msg_profile.h>
 
+#include <TH1.h>
+
 #include <cstdio>  // for printf
 #include <iostream>
 #include <sstream>
@@ -12,6 +14,11 @@ class Event;
 OnlMon::OnlMon(const std::string &name)
   : OnlMonBase(name)
 {
+  if (name.find('_') != std::string::npos)
+  {
+    std::cout << "No underscore (_) in online monitoring server name " << name << " allowed" << std::endl;
+    exit(1);
+  }
   livetrigmask = 0;
   status = OnlMon::ACTIVE;
   return;
@@ -84,8 +91,10 @@ void OnlMon::AddLiveTrigger(const std::string &name)
   return;
 }
 
-int OnlMon::InitCommon(OnlMonServer * /* se */)
+int OnlMon::InitCommon(OnlMonServer *  se)
 {
+//  m_LocalFrameWorkVars = static_cast<TH1 *>(se->getCommonHisto("FrameWorkVars")->Clone());
+  se->registerHisto(this,se->getCommonHisto("FrameWorkVars"));
   return 0;
 }
 
@@ -139,3 +148,16 @@ void OnlMon::SetStatus(const int newstatus)
   }
   return;
 }
+
+void OnlMon::SetMonitorServerId(unsigned int i)
+{
+  if (Name().find('_') != std::string::npos)
+  {
+    std::cout << "Monitor Server Id was already set " << Name() << std::endl;
+    return;
+  }
+  m_MonitorServerId = i;
+  Name(Name() + '_' + std::to_string(i));
+  return;
+}
+

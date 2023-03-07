@@ -44,10 +44,10 @@ pkginclude_HEADERS = \
   HistoBinDefs.h \
   OnlMon.h \
   OnlMonBase.h \
+  OnlMonDefs.h \
   OnlMonServer.h \
   OnlMonStatus.h \
-  OnlMonTrigger.h \
-  PortNumber.h
+  OnlMonTrigger.h
 
 libonlmonserver_funcs_la_SOURCES = \
   pmonitorInterface.cc

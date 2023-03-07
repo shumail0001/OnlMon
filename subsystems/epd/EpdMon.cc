@@ -13,6 +13,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TRandom.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -44,6 +45,7 @@ EpdMon::~EpdMon()
 
 int EpdMon::Init()
 {
+  gRandom->SetSeed(rand());
   // read our calibrations from EpdMonData.dat
   std::string fullfile = std::string(getenv("EPDCALIB")) + "/" + "EpdMonData.dat";
   std::ifstream calib(fullfile);
@@ -93,8 +95,8 @@ int EpdMon::process_event(Event * /* evt */)
   // one can do in principle directly se->getHisto("epdhist1")->Fill()
   // but the search in the histogram Map is somewhat expensive and slows
   // things down if you make more than one operation on a histogram
-  epdhist1->Fill((float) idummy);
-  epdhist2->Fill((float) idummy, (float) idummy, 1.);
+  epdhist1->Fill(gRandom->Gaus(50,10));
+  epdhist2->Fill(gRandom->Gaus(50,10), gRandom->Gaus(50,10), 1.);
 
   if (idummy++ > 10)
   {

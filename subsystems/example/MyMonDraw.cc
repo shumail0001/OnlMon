@@ -123,8 +123,8 @@ int MyMonDraw::Draw(const std::string &what)
 int MyMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *mymon_hist1 = cl->getHisto("mymon_hist1");
-  TH1 *mymon_hist2 = cl->getHisto("mymon_hist1");
+  TH1 *mymon_hist1 = cl->getHisto("MYMON_0","mymon_hist1");
+  TH1 *mymon_hist2 = cl->getHisto("MYMON_1","mymon_hist1");
   if (!gROOT->FindObject("MyMon1"))
   {
     MakeCanvas("MyMon1");
@@ -170,8 +170,8 @@ int MyMonDraw::DrawFirst(const std::string & /* what */)
 int MyMonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *mymon_hist1 = cl->getHisto("mymon_hist2");
-  TH1 *mymon_hist2 = cl->getHisto("mymon_hist2");
+  TH1 *mymon_hist1 = cl->getHisto("MYMON_0","mymon_hist2");
+  TH1 *mymon_hist2 = cl->getHisto("MYMON_1","mymon_hist2");
   if (!gROOT->FindObject("MyMon2"))
   {
     MakeCanvas("MyMon2");

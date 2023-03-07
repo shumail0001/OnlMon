@@ -26,13 +26,13 @@ int InttMonDraw::Init()
 
 /*
 	//===	Register OnlMon Histograms	===//
-	OnlMonClient* omc = OnlMonClient::instance();
+	OnlMonClient* cl = OnlMonClient::instance();
 
-//	omc->AddServerHost("localhost");
-	omc->requestHistoBySubSystem("INTTMON", 1);
+//	cl->AddServerHost("localhost");
+	cl->requestHistoBySubSystem("INTTMON", 1);
 
-	omc->registerHisto("InttHitMap", "INTTMON");
-	omc->registerHisto("InttHitMapRef", "INTTMON");
+	cl->registerHisto("InttHitMap", "INTTMON");
+	cl->registerHisto("InttHitMapRef", "INTTMON");
 	//...
 	//===	~Register OnlMon Histograms	===//
 */
@@ -69,7 +69,7 @@ int InttMonDraw::Draw(const std::string &what)
 
 int InttMonDraw::MakePS(const std::string &what)
 {
-	OnlMonClient* omc = OnlMonClient::instance();
+	OnlMonClient* cl = OnlMonClient::instance();
 	if(Draw(what))return 1;
 
 	TCanvas* canvas = nullptr;
@@ -79,10 +79,10 @@ int InttMonDraw::MakePS(const std::string &what)
 		filename.str("");
 		if(what == "ALL" or what == itr->first)
 		{
-			filename << ThisName << "_" <<  itr->first << "_" << omc->RunNumber() << ".ps";
+			filename << ThisName << "_" <<  itr->first << "_" << cl->RunNumber() << ".ps";
 			canvas = (TCanvas*)gROOT->FindObject(Form("INTT_%s_Canvas", itr->first.c_str()));
 			if(canvas)canvas->Print(filename.str().c_str());
-			if(canvas)omc->CanvasToPng(canvas, omc->htmlRegisterPage(*this, itr->first, itr->first, "png"));
+			if(canvas)cl->CanvasToPng(canvas, cl->htmlRegisterPage(*this, itr->first, itr->first, "png"));
 			//needs attention
 		}
 	}
@@ -92,7 +92,7 @@ int InttMonDraw::MakePS(const std::string &what)
 
 int InttMonDraw::MakeHtml(const std::string &what)
 {
-	OnlMonClient* omc = OnlMonClient::instance();
+	OnlMonClient* cl = OnlMonClient::instance();
 	if(Draw(what))return 1;
 
 	TCanvas* canvas = nullptr;
@@ -101,7 +101,7 @@ int InttMonDraw::MakeHtml(const std::string &what)
 		if(what == "ALL" or what == itr->first)
 		{
 			canvas = (TCanvas*)gROOT->FindObject(Form("INTT_%s_Canvas", itr->first.c_str()));
-			if(canvas)omc->CanvasToPng(canvas, omc->htmlRegisterPage(*this, itr->first, itr->first, "png"));
+			if(canvas)cl->CanvasToPng(canvas, cl->htmlRegisterPage(*this, itr->first, itr->first, "png"));
 		}
 	}
 
@@ -979,9 +979,9 @@ TH1* InttMonDraw::GetLayerHitMap(int layer)
 	//===	~Retrieve Hists from gROOT	===//
 
 	//===	~Retrieve Hists and Vars from OnlMon	===//
-	OnlMonClient* omc = OnlMonClient::instance();
+	OnlMonClient* cl = OnlMonClient::instance();
 
-	TH1D* hitmap = (TH1D*)(omc->getHisto("InttHitMap"));
+	TH1D* hitmap = (TH1D*)( cl->getHisto("INTTMON_0","InttHitMap"));
 	if(!hitmap)
 	{
 		std::cout << "In InttMonDraw::GetLayerHitMap()" << std::endl;
@@ -1053,9 +1053,9 @@ TH1* InttMonDraw::GetChipHitMap(int layer, int ladder, int northsouth, int chip)
 	//===	~Retrieve Hists from gROOT		===//
 
 	//===	Retrieve Hists and Vars from OnlMon	===//
-	OnlMonClient* omc = OnlMonClient::instance();
+	OnlMonClient* cl = OnlMonClient::instance();
 
-	TH1D* hitmap = (TH1D*)(omc->getHisto("InttHitMap"));
+	TH1D* hitmap = (TH1D*)( cl->getHisto("INTTMON_0","InttHitMap"));
 	if(!hitmap)
 	{
 		std::cout << "TH1* InttMonDraw::GetChipHitMap()" << std::endl;
@@ -1126,9 +1126,9 @@ TH1* InttMonDraw::GetLayerHitMapZ(int layer)
 	//===	~Retrieve Hists from gROOT	===//
 
 	//===	~Retrieve Hists and Vars from OnlMon	===//
-	OnlMonClient* omc = OnlMonClient::instance();
+	OnlMonClient* cl = OnlMonClient::instance();
 
-	TH1D* hitmap = (TH1D*)(omc->getHisto("InttHitMap"));
+	TH1D* hitmap = (TH1D*)( cl->getHisto("INTTMON_0","InttHitMap"));
 	if(!hitmap)
 	{
 		std::cout << "In InttMonDraw::GetLayerHitMapZ()" << std::endl;
@@ -1139,7 +1139,7 @@ TH1* InttMonDraw::GetLayerHitMapZ(int layer)
 		return hist;
 	}
 
-	TH1D* hitmapref = (TH1D*)(omc->getHisto("InttHitMapRef"));
+	TH1D* hitmapref = (TH1D*)( cl->getHisto("INTTMON_0","InttHitMapRef"));
 	if(!hitmap)
 	{
 		std::cout << "In InttMonDraw::GetLayerHitMapZ()" << std::endl;
@@ -1150,7 +1150,7 @@ TH1* InttMonDraw::GetLayerHitMapZ(int layer)
 		return hist;
 	}
 
-	TH1D* num_events = (TH1D*)(omc->getHisto("InttNumEvents"));
+	TH1D* num_events = (TH1D*)( cl->getHisto("INTTMON_0","InttNumEvents"));
 	if(!num_events)
 	{
 		std::cout << "In InttMonDraw::GetLayerHitMapZ()" << std::endl;
@@ -1247,9 +1247,9 @@ TH1* InttMonDraw::GetChipHitMapZ(int layer, int ladder, int northsouth, int chip
 	//===	~Retrieve Hists from gROOT		===//
 
 	//===	Retrieve Hists and Vars from OnlMon	===//
-	OnlMonClient* omc = OnlMonClient::instance();
+	OnlMonClient* cl = OnlMonClient::instance();
 
-	TH1D* hitmap = (TH1D*)(omc->getHisto("InttHitMap"));
+	TH1D* hitmap = (TH1D*)( cl->getHisto("INTTMON_0","InttHitMap"));
 	if(!hitmap)
 	{
 		std::cout << "In InttMonDraw::GetChipHitMapZ()" << std::endl;
@@ -1259,7 +1259,7 @@ TH1* InttMonDraw::GetChipHitMapZ(int layer, int ladder, int northsouth, int chip
 		return hist;
 	}
 
-	TH1D* hitmapref = (TH1D*)(omc->getHisto("InttHitMapRef"));
+	TH1D* hitmapref = (TH1D*)( cl->getHisto("INTTMON_0","InttHitMapRef"));
 	if(!hitmap)
 	{
 		std::cout << "In InttMonDraw::GetChipHitMapZ()" << std::endl;
@@ -1269,7 +1269,7 @@ TH1* InttMonDraw::GetChipHitMapZ(int layer, int ladder, int northsouth, int chip
 		return hist;
 	}
 
-	TH1D* num_events = (TH1D*)(omc->getHisto("InttNumEvents"));
+	TH1D* num_events = (TH1D*)( cl->getHisto("INTTMON_0","InttNumEvents"));
 	if(!num_events)
 	{
 		std::cout << "In InttMonDraw::GetLayerHitMapZ()" << std::endl;
