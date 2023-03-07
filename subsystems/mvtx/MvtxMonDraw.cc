@@ -144,12 +144,12 @@ int MvtxMonDraw::Draw(const std::string &what)
 int MvtxMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  //TH1 *mvtxmon_hist1 = cl->getHisto("mvtxmon_hist1");
-  //TH1 *mvtxmon_hist2 = cl->getHisto("mvtxmon_hist1");
+  //TH1 *mvtxmon_hist1 =  cl->getHisto("MVTXMON_0","mvtxmon_hist1");
+  //TH1 *mvtxmon_hist2 =  cl->getHisto("MVTXMON_0","mvtxmon_hist1");
 
-  TH2 *mvtxmon_ChipStaveOcc = dynamic_cast<TH2*>(cl->getHisto("mvtxmon_ChipStaveOcc"));
-  TH1 *mvtxmon_ChipStave1D = cl->getHisto("mvtxmon_ChipStave1D");
-  TH1 *mvtxmon_ChipFiredHis = cl->getHisto("mvtxmon_ChipFiredHis");
+  TH2 *mvtxmon_ChipStaveOcc = dynamic_cast<TH2*>( cl->getHisto("MVTXMON_0","mvtxmon_ChipStaveOcc"));
+  TH1 *mvtxmon_ChipStave1D =  cl->getHisto("MVTXMON_0","mvtxmon_ChipStave1D");
+  TH1 *mvtxmon_ChipFiredHis =  cl->getHisto("MVTXMON_0","mvtxmon_ChipFiredHis");
 
   if (!gROOT->FindObject("MvtxMon1"))
   {
@@ -201,8 +201,8 @@ int MvtxMonDraw::DrawFirst(const std::string & /* what */)
 int MvtxMonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-    TH1 *mvtxmon_EvtHitChip = cl->getHisto("mvtxmon_EvtHitChip");
-  TH1 *mvtxmon_EvtHitDis = cl->getHisto("mvtxmon_EvtHitDis");
+    TH1 *mvtxmon_EvtHitChip =  cl->getHisto("MVTXMON_0","mvtxmon_EvtHitChip");
+  TH1 *mvtxmon_EvtHitDis =  cl->getHisto("MVTXMON_0","mvtxmon_EvtHitDis");
   if (!gROOT->FindObject("MvtxMon2"))
   {
     MakeCanvas("MvtxMon2");
@@ -248,13 +248,13 @@ int MvtxMonDraw::DrawSecond(const std::string & /* what */)
 int MvtxMonDraw::DrawHitMap(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  //TH1 *mvtxmon_hist1 = cl->getHisto("mvtxmon_hist1");
-  //TH1 *mvtxmon_hist2 = cl->getHisto("mvtxmon_hist1");
+  //TH1 *mvtxmon_hist1 =  cl->getHisto("MVTXMON_0","mvtxmon_hist1");
+  //TH1 *mvtxmon_hist2 =  cl->getHisto("MVTXMON_0","mvtxmon_hist1");
   TH2 *mvtxmon_HitMap[NSTAVE][NCHIP] = {nullptr};
 
   for(int i = 0; i < NSTAVE; i++){
 		for(int j = 0; j < NCHIP; j++){
-			mvtxmon_HitMap[i][j] = dynamic_cast<TH2*>(cl->getHisto(Form("mvtxmon_HitMap_%d_%d",i,j)));
+			mvtxmon_HitMap[i][j] = dynamic_cast<TH2*>( cl->getHisto("MVTXMON_0",Form("mvtxmon_HitMap_%d_%d",i,j)));
     }
   }
 
