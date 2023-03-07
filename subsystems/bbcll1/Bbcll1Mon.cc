@@ -45,6 +45,7 @@ Bbcll1Mon::~Bbcll1Mon()
 
 int Bbcll1Mon::Init()
 {
+  gRandom->SetSeed(rand());
   // read our calibrations from Bbcll1MonData.dat
   std::string fullfile = std::string(getenv("BBCLL1CALIB")) + "/" + "Bbcll1MonData.dat";
   std::ifstream calib(fullfile);
