@@ -8,8 +8,6 @@
 #include <onlmon/OnlMonDefs.h>
 #include <onlmon/OnlMonTrigger.h>
 
-#include <phool/phool.h>
-
 #include <MessageTypes.h>  // for kMESS_STRING, kMESS_OBJECT
 #include <TCanvas.h>
 #include <TDirectory.h>
@@ -325,7 +323,7 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
       auto hostportiter = MonitorHostPorts.find(listiter->first);
       if (hostportiter == MonitorHostPorts.end())
       {
-        std::cout << PHWHERE << "Cannot find MonitorHostPorts entry for " << listiter->first << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << "Cannot find MonitorHostPorts entry for " << listiter->first << std::endl;
         std::cout << "existing hosts: " << std::endl;
         for (auto &hport : MonitorHostPorts)
         {
@@ -491,7 +489,7 @@ int OnlMonClient::DoSomething(const char *who, const char *what, const char *opt
       {
         if (verbosity > 0)
         {
-          std::cout << PHWHERE << " creating html output for "
+          std::cout << __PRETTY_FUNCTION__ << " creating html output for "
                     << iter->second->Name() << std::endl;
         }
         if (iter->second->MakeHtml(what))
@@ -526,7 +524,7 @@ int OnlMonClient::DoSomething(const char *who, const char *what, const char *opt
       {
         if (verbosity > 0)
         {
-          std::cout << PHWHERE << " creating html output for "
+          std::cout << __PRETTY_FUNCTION__ << " creating html output for "
                     << iter->second->Name() << std::endl;
         }
         gROOT->Reset();
@@ -561,7 +559,7 @@ int OnlMonClient::requestHistoByName(const std::string &subsys, const std::strin
   auto histoiter = histos->second.find(what);
   if (Verbosity() > 2)
   {
-    std::cout << PHWHERE << "checking for " << what << " on monitor " << subsys << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << "checking for " << what << " on monitor " << subsys << std::endl;
   }
   if (histoiter != histos->second.end())
   {
@@ -580,7 +578,7 @@ int OnlMonClient::requestHistoByName(const std::string &subsys, const std::strin
       moniport = histoiter->second->ServerPort();
       if (hostname == "UNKNOWN")
       {
-        std::cout << PHWHERE << "host UNKNOWN for whatever reason" << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << "host UNKNOWN for whatever reason" << std::endl;
         return -3;
       }
     }
@@ -599,13 +597,13 @@ int OnlMonClient::requestHistoByName(const std::string &subsys, const std::strin
       moniport = histoiter->second->ServerPort();
       if (hostname == "UNKNOWN")
       {
-        std::cout << PHWHERE << "host UNKNOWN for whatever reason" << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << "host UNKNOWN for whatever reason" << std::endl;
         return -3;
       }
     }
     else
     {
-      std::cout << PHWHERE << "Problem determining host" << std::endl;
+      std::cout << __PRETTY_FUNCTION__ << "Problem determining host" << std::endl;
     }
   }
   // Open connection to server
@@ -614,20 +612,20 @@ int OnlMonClient::requestHistoByName(const std::string &subsys, const std::strin
   std::string fullhistoname = subsys + std::string(" ") + what;
   if (Verbosity() > 2)
   {
-    std::cout << PHWHERE << " sending " << fullhistoname << " to " << hostname << " port " << moniport << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << " sending " << fullhistoname << " to " << hostname << " port " << moniport << std::endl;
   }
   sock.Send(fullhistoname.c_str());
   while (true)
   {
     if (verbosity > 1)
     {
-      std::cout << PHWHERE << "Waiting for Message from : " << hostname
+      std::cout << __PRETTY_FUNCTION__ << "Waiting for Message from : " << hostname
                 << " on port " << moniport << std::endl;
     }
     sock.Recv(mess);
     if (!mess)  // if server is not up mess is NULL
     {
-      std::cout << PHWHERE << "Server not running on " << hostname << std::endl;
+      std::cout << __PRETTY_FUNCTION__ << "Server not running on " << hostname << std::endl;
       sock.Close();
       return 1;
     }
@@ -638,7 +636,7 @@ int OnlMonClient::requestHistoByName(const std::string &subsys, const std::strin
       delete mess;
       if (verbosity > 1)
       {
-        std::cout << PHWHERE << "Message: " << str << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << "Message: " << str << std::endl;
       }
       if (!strcmp(str, "Finished"))
       {
@@ -650,7 +648,7 @@ int OnlMonClient::requestHistoByName(const std::string &subsys, const std::strin
       }
       else
       {
-        std::cout << PHWHERE << "Unknown Text Message: " << str << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << "Unknown Text Message: " << str << std::endl;
         sock.Send("Ack");
       }
     }
@@ -661,7 +659,7 @@ int OnlMonClient::requestHistoByName(const std::string &subsys, const std::strin
       TH1 *maphist = static_cast<TH1 *>(histo->Clone(histo->GetName()));
       if (verbosity > 1)
       {
-        std::cout << PHWHERE << "histoname: " << histo->GetName() << " at "
+        std::cout << __PRETTY_FUNCTION__ << "histoname: " << histo->GetName() << " at "
                   << histo << std::endl;
       }
 
@@ -687,7 +685,7 @@ int OnlMonClient::requestHisto(const char *what, const std::string &hostname, co
     sock.Recv(mess);
     if (!mess)  // if server is not up mess is NULL
     {
-      std::cout << PHWHERE << "Server not running on " << hostname << std::endl;
+      std::cout << __PRETTY_FUNCTION__ << "Server not running on " << hostname << std::endl;
       sock.Close();
       return 1;
     }
@@ -698,7 +696,7 @@ int OnlMonClient::requestHisto(const char *what, const std::string &hostname, co
       delete mess;
       if (verbosity > 1)
       {
-        std::cout << PHWHERE << "Message: " << str << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << "Message: " << str << std::endl;
       }
 
       if (!strcmp(str, "Finished"))
@@ -711,7 +709,7 @@ int OnlMonClient::requestHisto(const char *what, const std::string &hostname, co
       }
       else
       {
-        std::cout << PHWHERE << "Unknown Text Message: " << str << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << "Unknown Text Message: " << str << std::endl;
         sock.Send("Ack");
       }
     }
@@ -722,7 +720,7 @@ int OnlMonClient::requestHisto(const char *what, const std::string &hostname, co
       delete mess;
       if (verbosity > 1)
       {
-        std::cout << PHWHERE << "histoname: " << histo->GetName() << " at "
+        std::cout << __PRETTY_FUNCTION__ << "histoname: " << histo->GetName() << " at "
                   << histo << std::endl;
       }
 
@@ -745,7 +743,7 @@ int OnlMonClient::requestMonitorList(const std::string &hostname, const int moni
   sock.Recv(mess);
   if (!mess)  // if server is not up mess is NULL
   {
-    std::cout << PHWHERE << "Server not running on " << hostname << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << "Server not running on " << hostname << std::endl;
     sock.Close();
     return 1;
   }
@@ -797,7 +795,7 @@ int OnlMonClient::requestHistoList(const std::string &subsys, const std::string 
   sock.Recv(mess);
   if (!mess)  // if server is not up mess is NULL
   {
-    std::cout << PHWHERE << "Server not running on " << hostname << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << "Server not running on " << hostname << std::endl;
     sock.Close();
     return 1;
   }
@@ -807,13 +805,13 @@ int OnlMonClient::requestHistoList(const std::string &subsys, const std::string 
   {
     if (Verbosity() > 2)
     {
-      std::cout << PHWHERE << "asking for " << *listiter << std::endl;
+      std::cout << __PRETTY_FUNCTION__ << "asking for " << *listiter << std::endl;
     }
     sock.Send((*listiter).c_str());
     sock.Recv(mess);
     if (!mess)
     {
-      std::cout << PHWHERE << "Server shut down during getting histo list" << std::endl;
+      std::cout << __PRETTY_FUNCTION__ << "Server shut down during getting histo list" << std::endl;
       sock.Close();
       return 1;
     }
@@ -824,7 +822,7 @@ int OnlMonClient::requestHistoList(const std::string &subsys, const std::string 
       delete mess;
       if (verbosity > 1)
       {
-        std::cout << PHWHERE << "Message: " << str << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << "Message: " << str << std::endl;
       }
 
       if (!strcmp(str, "Ack"))
@@ -837,7 +835,7 @@ int OnlMonClient::requestHistoList(const std::string &subsys, const std::string 
       }
       else
       {
-        std::cout << PHWHERE << "Unknown Text Message: " << str << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << "Unknown Text Message: " << str << std::endl;
       }
     }
     else if (mess->What() == kMESS_OBJECT)
@@ -847,7 +845,7 @@ int OnlMonClient::requestHistoList(const std::string &subsys, const std::string 
       delete mess;
       if (verbosity > 1)
       {
-        std::cout << PHWHERE << "histoname: " << histo->GetName() << " at "
+        std::cout << __PRETTY_FUNCTION__ << "histoname: " << histo->GetName() << " at "
                   << histo << std::endl;
       }
 
@@ -1306,7 +1304,7 @@ int OnlMonClient::SendCommand(const char *hostname, const int port, const char *
     sock.Recv(mess);
     if (!mess)  // if server is not up mess is NULL
     {
-      std::cout << PHWHERE << "No Recv, Server not running on " << hostname
+      std::cout << __PRETTY_FUNCTION__ << "No Recv, Server not running on " << hostname
                 << " on port " << port << std::endl;
       sock.Close();
       return -1;
@@ -1318,7 +1316,7 @@ int OnlMonClient::SendCommand(const char *hostname, const int port, const char *
       delete mess;
       if (verbosity > 1)
       {
-        std::cout << PHWHERE << " Message: " << str << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << " Message: " << str << std::endl;
       }
 
       if (!strcmp(str, "Finished"))
@@ -1381,12 +1379,12 @@ int OnlMonClient::CanvasToPng(TCanvas *canvas, std::string const &pngfilename)
   // returned char array needs to be free'd after use
   if (!canvas)
   {
-    std::cout << PHWHERE << " TCanvas is Null Pointer" << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << " TCanvas is Null Pointer" << std::endl;
     return -2;
   }
   if (pngfilename.empty())
   {
-    std::cout << PHWHERE << " emtpy png filename, not saving TCanvas "
+    std::cout << __PRETTY_FUNCTION__ << " emtpy png filename, not saving TCanvas "
               << canvas->GetName() << std::endl;
     return -1;
   }
@@ -1667,7 +1665,7 @@ int OnlMonClient::IsMonitorRunning(const std::string &name)
   sock.Recv(mess);
   if (!mess)  // if server is not up mess is NULL
   {
-    std::cout << PHWHERE << "Server not running on " << moniter->second.first << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << "Server not running on " << moniter->second.first << std::endl;
     sock.Close();
     return iret;
   }
@@ -1678,7 +1676,7 @@ int OnlMonClient::IsMonitorRunning(const std::string &name)
     delete mess;
     if (verbosity > 1)
     {
-      std::cout << PHWHERE << "Message: " << str << std::endl;
+      std::cout << __PRETTY_FUNCTION__ << "Message: " << str << std::endl;
     }
     if (!strcmp(str, "Yes"))
     {

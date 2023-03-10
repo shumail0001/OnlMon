@@ -8,8 +8,6 @@
 #include "OnlMonDefs.h"
 #include "OnlMonServer.h"
 
-#include <phool/phool.h>
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <Event/Event.h>
@@ -167,7 +165,7 @@ int process_event(Event *evt)
   if ((evt->getRunNumber() > 500000 || evt->getRunNumber() < 60000)  && evt->getRunNumber() != 1 && evt->getRunNumber() != 0xFEE2DCB)
     {
       std::ostringstream msg;
-      msg << PHWHERE << " huge or tiny event run number "
+      msg << __PRETTY_FUNCTION__ << " huge or tiny event run number "
           << evt->getRunNumber()
           << " discarding event" ;
       send_message(MSG_SEV_WARNING, msg.str());
@@ -178,7 +176,7 @@ int process_event(Event *evt)
   if (evt->getEvtLength() <= 0 || evt->getEvtLength() > 2500000)
   {
     std::ostringstream msg;
-    msg << PHWHERE << "Discarding event with length "
+    msg << __PRETTY_FUNCTION__ << "Discarding event with length "
         << evt->getEvtLength();
     send_message(MSG_SEV_WARNING, msg.str());
     se->AddBadEvent();
@@ -263,7 +261,7 @@ int process_event(Event *evt)
   if (evt->getErrorCode())
   {
     std::ostringstream msg;
-    msg << PHWHERE << " Event with error code: "
+    msg << __PRETTY_FUNCTION__ << " Event with error code: "
         << evt->getErrorCode()
         << " discarding event " << evt->getEvtSequence();
     send_message(MSG_SEV_WARNING, msg.str());
@@ -560,7 +558,7 @@ void handleconnection(void *arg)
           unsigned int pos_space = str1.find(' ');
           if (Onlmonserver->Verbosity() > 2)
           {
-            std::cout << PHWHERE << " getting subsystem " << str1.substr(0, pos_space) << ", histo " << str1.substr(pos_space + 1, str1.size()) << std::endl;
+            std::cout << __PRETTY_FUNCTION__ << " getting subsystem " << str1.substr(0, pos_space) << ", histo " << str1.substr(pos_space + 1, str1.size()) << std::endl;
           }
           TH1 *histo = Onlmonserver->getHisto(str1.substr(0, pos_space), str1.substr(pos_space + 1, str1.size()));
           if (histo)

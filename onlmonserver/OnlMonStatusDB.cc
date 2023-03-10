@@ -1,7 +1,5 @@
 #include "OnlMonStatusDB.h"
 
-#include <phool/phool.h>
-
 #include <odbc++/connection.h>
 #include <odbc++/drivermanager.h>
 #include <odbc++/resultset.h>
@@ -90,7 +88,7 @@ int OnlMonStatusDB::CheckAndCreateMonitor(const std::string& name)
   }
   catch (odbc::SQLException& e)
   {
-    std::cout << PHWHERE << "Exception caught" << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << "Exception caught" << std::endl;
     std::cout << "Message: " << e.getMessage() << std::endl;
     return -1;
   }
@@ -198,12 +196,12 @@ int OnlMonStatusDB::UpdateStatus(const std::string& name, const int runnumber, c
 {
   if (CheckAndCreateMonitor(name))
   {
-    std::cout << PHWHERE << "Problem encountered, cannot do update" << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << "Problem encountered, cannot do update" << std::endl;
     return -1;
   }
   if (FindAndInsertRunNum(runnumber) != 0)
   {
-    std::cout << PHWHERE << "Problem updating runnumber encountered, cannot do update" << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << "Problem updating runnumber encountered, cannot do update" << std::endl;
     return -1;
   }
 
@@ -232,7 +230,7 @@ int OnlMonStatusDB::UpdateStatus(const std::string& name, const int runnumber, c
   }
   catch (odbc::SQLException& e)
   {
-    std::cout << PHWHERE << "Exception caught" << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << "Exception caught" << std::endl;
     std::cout << "Message: " << e.getMessage() << std::endl;
     return -1;
   }
@@ -251,7 +249,7 @@ int OnlMonStatusDB::GetConnection()
   }
   catch (odbc::SQLException& e)
   {
-    std::cout << PHWHERE
+    std::cout << __PRETTY_FUNCTION__
               << " Exception caught during DriverManager::getConnection" << std::endl;
     std::cout << "Message: " << e.getMessage() << std::endl;
     if (con)

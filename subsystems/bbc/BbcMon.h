@@ -3,8 +3,6 @@
 
 #include <onlmon/OnlMon.h>
 
-#include <gsl/gsl_const.h>
-
 class Event;
 class OnlMonDB;
 class TH1;

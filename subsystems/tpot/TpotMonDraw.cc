@@ -3,8 +3,6 @@
 #include <onlmon/OnlMonClient.h>
 #include <onlmon/OnlMonDB.h>
 
-#include <phool/phool.h>
-
 #include <TAxis.h>  // for TAxis
 #include <TCanvas.h>
 #include <TDatime.h>
@@ -225,7 +223,7 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (!idraw)
   {
-    std::cout << PHWHERE << " Unimplemented Drawing option: " << what << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
     iret = -1;
   }
   return iret;

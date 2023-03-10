@@ -3,11 +3,11 @@
 
 #include <onlmon/OnlMon.h>
 
-#include <calobase/TowerInfoContainerv1.h>
+//#include <calobase/TowerInfoContainerv1.h>
 
 #include <vector>
 
-class CaloWaveformProcessing;
+//class CaloWaveformProcessing;
 class Event;
 class OnlMonDB;
 class TH1;
@@ -50,8 +50,8 @@ class HcalMon : public OnlMon
   TH1* h_rm_sectorAvg[32] = {nullptr};
   TH1* h_rm_tower[24][64] = {nullptr};
 
-  CaloWaveformProcessing* WaveformProcessing = nullptr;
-  TowerInfoContainerv1* CaloInfoContainer = nullptr;  // for using encode_key
+//  CaloWaveformProcessing* WaveformProcessing = nullptr;
+//  TowerInfoContainerv1* CaloInfoContainer = nullptr;  // for using encode_key
 
   std::vector<runningMean*> rm_vector_sectAvg;
   std::vector<runningMean*> rm_vector_twr;
