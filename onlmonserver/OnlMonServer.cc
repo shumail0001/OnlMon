@@ -8,10 +8,6 @@
 
 #include <Event/msg_profile.h>  // for MSG_SEV_ERROR, MSG_SEV...
 
-#include <phool/PHCompositeNode.h>
-#include <phool/phool.h>
-#include <phool/recoConsts.h>
-
 #include <TFile.h>
 #include <TH1.h>
 #include <TROOT.h>
@@ -72,7 +68,7 @@ OnlMonServer::~OnlMonServer()
   pthread_mutex_lock(&mutex);
   if (int tret = pthread_cancel(serverthreadid))
   {
-    std::cout << PHWHERE << "pthread cancel returned error: " << tret << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << "pthread cancel returned error: " << tret << std::endl;
   }
   delete serverrunning;
   pthread_mutex_destroy(&mutex);
@@ -81,7 +77,6 @@ OnlMonServer::~OnlMonServer()
     delete MonitorList.back();
     MonitorList.pop_back();
   }
-  delete topNode;
   delete onltrig;
   delete statusDB;
   delete RunStatusDB;
@@ -115,7 +110,6 @@ void OnlMonServer::InitAll()
   {
     Trigger(inittrig, i);
   }
-  topNode = new PHCompositeNode("TOP");
   return;
 }
 
@@ -158,7 +152,7 @@ void OnlMonServer::registerHisto(const std::string &monitorname, const std::stri
   {
     std::map<std::string, TH1 *> histo;
     histo[hname] = h1d;
-    std::cout << PHWHERE << " inserting " << monitorname << " hname " << hname << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << " inserting " << monitorname << " hname " << hname << std::endl;
     MonitorHistoSet.insert(std::make_pair(monitorname, histo));
     return;
   }
@@ -220,7 +214,7 @@ void OnlMonServer::registerHisto(const std::string &hname, TH1 *h1d, const int r
       if (strcmp(h1d->GetName(), tmpstr.c_str()))
       {
         msg.str("");
-        msg << PHWHERE << "Histogram " << h1d->GetName()
+        msg << __PRETTY_FUNCTION__ << "Histogram " << h1d->GetName()
             << " at " << h1d << " renamed to " << tmpstr;
         send_message(MSG_SEV_INFORMATIONAL, msg.str(), 3);
       }
@@ -333,7 +327,7 @@ TH1 *OnlMonServer::getHisto(const std::string &subsys, const std::string &hname)
 {
   if (Verbosity() > 2)
   {
-    std::cout << PHWHERE << " checking for subsys " << subsys << ", hname " << hname << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << " checking for subsys " << subsys << ", hname " << hname << std::endl;
   }
   auto moniiter = MonitorHistoSet.find(subsys);
   if (moniiter != MonitorHistoSet.end())
@@ -541,8 +535,8 @@ int OnlMonServer::Trigger(const std::string &trigname, const unsigned short int 
 void OnlMonServer::RunNumber(const int irun)
 {
   runnumber = irun;
-  recoConsts *rc = recoConsts::instance();
-  rc->set_IntFlag("RUNNUMBER", irun);
+  // recoConsts *rc = recoConsts::instance();
+  // rc->set_IntFlag("RUNNUMBER", irun);
   return;
 }
 
@@ -624,6 +618,8 @@ int OnlMonServer::WriteHistoFile()
       delete hfile;
     }
   */
+  TFile *hfile = TFile::Open("test.root","RECREATE");
+  hfile->Close();
   return 0;
 }
 

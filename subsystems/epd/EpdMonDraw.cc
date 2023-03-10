@@ -3,8 +3,6 @@
 #include <onlmon/OnlMonClient.h>
 #include <onlmon/OnlMonDB.h>
 
-#include <phool/phool.h>
-
 #include <TAxis.h>  // for TAxis
 #include <TCanvas.h>
 #include <TDatime.h>
@@ -114,7 +112,7 @@ int EpdMonDraw::Draw(const std::string &what)
   }
   if (!idraw)
   {
-    std::cout << PHWHERE << " Unimplemented Drawing option: " << what << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
     iret = -1;
   }
   return iret;
@@ -283,7 +281,7 @@ int EpdMonDraw::DrawHistory(const std::string & /* what */)
   iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
   if (iret)
   {
-    std::cout << PHWHERE << " Error in db access" << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << " Error in db access" << std::endl;
     return iret;
   }
   if (!gROOT->FindObject("EpdMon3"))
@@ -334,7 +332,7 @@ int EpdMonDraw::DrawHistory(const std::string & /* what */)
   iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
   if (iret)
   {
-    std::cout << PHWHERE << " Error in db access" << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << " Error in db access" << std::endl;
     return iret;
   }
   x = new float[var.size()];

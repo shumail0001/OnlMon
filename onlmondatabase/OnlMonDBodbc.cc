@@ -4,8 +4,6 @@
 
 #include <onlmon/OnlMonBase.h>  // for OnlMonBase
 
-#include <phool/phool.h>
-
 #include <odbc++/connection.h>
 #include <odbc++/databasemetadata.h>
 #include <odbc++/drivermanager.h>
@@ -431,7 +429,7 @@ searchagain:
               int iret2 = upd->executeUpdate(cmd.str());
               if (!iret2)
               {
-                std::cout << PHWHERE << "Update failed please send mail to pinkenburg@bnl.gov"
+                std::cout << __PRETTY_FUNCTION__ << "Update failed please send mail to pinkenburg@bnl.gov"
                           << std::endl;
                 std::cout << "And include the macro and the following info" << std::endl;
                 std::cout << "TableName: " << table << std::endl;
@@ -494,7 +492,7 @@ searchagain:
       }
       else
       {
-        std::cout << PHWHERE << " DB Error in execute stmt: " << e.getMessage() << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << " DB Error in execute stmt: " << e.getMessage() << std::endl;
         std::ofstream savesql("lostupdates.sql", std::ios_base::app);
         savesql << cmd.str() << std::endl;
         savesql.close();
@@ -621,7 +619,7 @@ int OnlMonDBodbc::GetConnection()
   }
   catch (odbc::SQLException& e)
   {
-    std::cout << PHWHERE
+    std::cout << __PRETTY_FUNCTION__
               << " Exception caught during DriverManager::getConnection" << std::endl;
     std::cout << "Message: " << e.getMessage() << std::endl;
     if (con)

@@ -2,14 +2,12 @@ AUTOMAKE_OPTIONS = foreign
 
 AM_CPPFLAGS = \
   -I$(includedir) \
-  -I$(OFFLINE_MAIN)/include \
-  -I$(ONLINE_MAIN)/include/Event \
+  -I$(ONLINE_MAIN)/include \
   -I$(OPT_SPHENIX)/include \
   -isystem$(ROOTSYS)/include
 
 RINCLUDES = \
   -I$(includedir) \
-  -I$(OFFLINE_MAIN)/include \
   -I$(ONLINE_MAIN)/include \
   -I$(OPT_SPHENIX)/include \
   -I$(ROOTSYS)/include
@@ -24,16 +22,15 @@ lib_LTLIBRARIES = \
 libonlmonserver_funcs_la_LIBADD = \
   libonlmonserver.la \
   -L$(libdir) \
-  -L$(OFFLINE_MAIN)/lib \
-  -lphool \
+  -L$(ONLINE_MAIN)/lib \
   -lpmonitor \
   -lmessage
 
-libonlmonserver_la_LIBADD = \
+libonlmonserver_la_LDFLAGS = \
   -L$(libdir) \
-  -L$(OFFLINE_MAIN)/lib \
+  -L$(ONLINE_MAIN)/lib \
+  `root-config --libs` \
   -lmessage \
-  -lphool \
   -lodbc++
 
 

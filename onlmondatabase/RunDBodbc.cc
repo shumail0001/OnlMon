@@ -1,7 +1,5 @@
 #include "RunDBodbc.h"
 
-#include <phool/phool.h>
-
 #include <boost/tokenizer.hpp>
 
 #include <odbc++/connection.h>
@@ -49,7 +47,7 @@ RunDBodbc::RunType(const int runnoinput) const
   }
   catch (odbc::SQLException &e)
   {
-    std::cout << PHWHERE
+    std::cout << __PRETTY_FUNCTION__
               << " Exception caught during DriverManager::getConnection" << std::endl;
     std::cout << "Message: " << e.getMessage() << std::endl;
     goto noopen;
@@ -196,7 +194,7 @@ int RunDBodbc::GetRunNumbers(std::set<int> &result, const std::string &type, con
   }
   catch (odbc::SQLException &e)
   {
-    std::cout << PHWHERE
+    std::cout << __PRETTY_FUNCTION__
               << " Exception caught during DriverManager::getConnection" << std::endl;
     std::cout << "Message: " << e.getMessage() << std::endl;
     return -1;

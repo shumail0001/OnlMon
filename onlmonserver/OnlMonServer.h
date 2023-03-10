@@ -16,7 +16,6 @@ class MessageSystem;
 class OnlMon;
 class OnlMonStatusDB;
 class OnlMonTrigger;
-class PHCompositeNode;
 class TH1;
 
 class OnlMonServer : public OnlMonBase
@@ -99,7 +98,6 @@ class OnlMonServer : public OnlMonBase
   int LoadLL1Packets();
   int isStandaloneRun() const { return standalone; }
   int isCosmicRun() const { return cosmicrun; }
-  PHCompositeNode *TopNode() { return topNode; }
 
   int run_empty(const int nevents);
   std::map<std::string, std::map<std::string, TH1 *>>::const_iterator monibegin() { return MonitorHistoSet.begin(); }
@@ -141,7 +139,6 @@ class OnlMonServer : public OnlMonBase
   std::set<std::string> CommonHistoSet;
   pthread_mutex_t mutex;
   pthread_t serverthreadid = 0;
-  PHCompositeNode *topNode = nullptr;
 };
 
 #endif /* __ONLMONSERVER_H */

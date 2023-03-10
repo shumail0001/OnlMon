@@ -17,8 +17,6 @@
 #include <TRandom3.h>
 #include <TString.h>
 
-#include <gsl/gsl_const.h>
-
 #include <cmath>
 #include <cstdio>  // for printf
 #include <fstream>
@@ -326,7 +324,7 @@ int BbcMon::process_event(Event * /* evt */)
   // but the search in the histogram Map is somewhat expensive and slows
   // things down if you make more than one operation on a histogram
   double zvtx = trand3->Gaus(0, 10.0);
-  double t0 = trand3->Gaus(0, 10 / GSL_CONST_CGS_SPEED_OF_LIGHT / 1.e9);
+  double t0 = trand3->Gaus(0, 10 / 2.99792458e10 / 1.e9);
 
   bbc_adc->Fill(10, 1000);
   bbc_zvertex->Fill(zvtx);

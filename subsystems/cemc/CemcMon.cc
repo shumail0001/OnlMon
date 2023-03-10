@@ -8,7 +8,7 @@
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
-#include "onlmon/pseudoRunningMean.h"
+#include <onlmon/pseudoRunningMean.h>
 
 #include <Event/Event.h>
 #include <Event/EventTypes.h>
@@ -23,8 +23,8 @@
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
 
-#include <caloreco/CaloWaveformProcessing.h>
-#include <calobase/TowerInfoContainerv1.h> 
+//#include <caloreco/CaloWaveformProcessing.h>
+//#include <calobase/TowerInfoContainerv1.h> 
 
 enum
 {
@@ -188,13 +188,14 @@ int CemcMon::Init()
 
 
   // initialize waveform extraction tool
+/*
   WaveformProcessing = new CaloWaveformProcessing();
   WaveformProcessing->set_processing_type(CaloWaveformProcessing::TEMPLATE);
   WaveformProcessing->set_template_file("testbeam_cemc_template.root");
   WaveformProcessing->initialize_processing();
   // initialize TowerInfoContainer
   CaloInfoContainer = new TowerInfoContainerv1(TowerInfoContainerv1::DETECTOR::EMCAL);
-
+*/
 
 
 
@@ -257,10 +258,10 @@ std::vector<float> CemcMon::anaWaveform(Packet *p, const int channel)
   multiple_wfs.push_back(waveform);
 
   std::vector<std::vector<float>> fitresults_ohcal;
-  fitresults_ohcal = WaveformProcessing->process_waveform(multiple_wfs);
+//  fitresults_ohcal = WaveformProcessing->process_waveform(multiple_wfs);
 
   std::vector<float> result;
-  result = fitresults_ohcal.at(0);
+//  result = fitresults_ohcal.at(0);
 
   return result;
 }
@@ -400,18 +401,19 @@ int CemcMon::process_event(Event *e  /* evt */)
         towerNumber++;
 
         // std::vector result =  getSignal(p,c); // simple peak extraction
-        std::vector result = anaWaveform(p, c);  // full waveform fitting
-        //std::vector result = {5,5,5};
+//        std::vector result = anaWaveform(p, c);  // full waveform fitting
+        std::vector<int> result = {5,5,5};
         float signal   =result.at(0);
         float time     =result.at(1);
         float pedestal =result.at(2);
 
         // channel mapping
-        unsigned int key = CaloInfoContainer->encode_key(towerNumber - 1);
-        unsigned int phi_bin = CaloInfoContainer->getTowerPhiBin(key);
-        unsigned int eta_bin = CaloInfoContainer->getTowerEtaBin(key);
+//        unsigned int key = CaloInfoContainer->encode_key(towerNumber - 1);
+//        unsigned int phi_bin = CaloInfoContainer->getTowerPhiBin(key);
+//        unsigned int eta_bin = CaloInfoContainer->getTowerEtaBin(key);
         //std::cout << "ieta " << eta_bin << "  iphi " << phi_bin<< std::endl;
-
+	unsigned int phi_bin = 0;
+	unsigned int eta_bin = 0;
         int sectorNumber = phi_bin / 8 + 1;
         h_waveform_time->Fill(time);
         h_waveform_pedestal->Fill(pedestal);

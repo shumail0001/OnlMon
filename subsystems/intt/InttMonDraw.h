@@ -8,8 +8,6 @@
 #include <onlmon/OnlMonClient.h>
 #include <onlmon/OnlMonDB.h>
 
-#include <phool/phool.h>
-
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <TPad.h>
