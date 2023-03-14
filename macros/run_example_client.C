@@ -1,3 +1,10 @@
+//
+// You need to run 2 servers by executing (in 2 separate root sessions)
+// .x run_example_server0.C
+// .x run_example_server1.C
+// and then start the client
+// if you only start one server only one set of histograms will be displayed
+
 #include <CommonFuncs.C>
 
 #include <onlmon/example/MyMonDraw.h>
