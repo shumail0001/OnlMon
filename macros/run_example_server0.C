@@ -1,4 +1,4 @@
-// This starts the example server with id=1
+// This starts the example server with id=0
 
 #include <ServerFuncs.C>
 
@@ -8,7 +8,7 @@
 
 R__LOAD_LIBRARY(libonlmymon_server.so)
 
-void run_example_server1(const std::string &name = "MYMON", unsigned int serverid = 1, const std::string &prdffile = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000221-0000.prdf")
+void run_example_server0(const std::string &name = "MYMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000221-0000.prdf")
 {
 // create subsystem Monitor object
   OnlMon *m = new MyMon(name);
