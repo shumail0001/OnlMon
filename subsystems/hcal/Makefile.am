@@ -19,7 +19,8 @@ libonlhcalmon_server_la_LIBADD = \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
   -lonlmondb \
-  -lonlmonutils
+  -lonlmonutils \
+  -lcalo_reco 
 
 libonlhcalmon_client_la_LIBADD = \
   -L$(libdir) \
