@@ -127,6 +127,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
 
 int CemcMonDraw::Draw(const std::string &what)
 {
+  std::cout << what.c_str()  << " should say ALL"<< std::endl;
   int iret = 0;
   int idraw = 0;
   if (what == "ALL" || what == "FIRST")
@@ -180,7 +181,6 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   h2_hcal_mean->Scale(1./h_event->GetEntries()); 
   hist1->Divide(h2_hcal_mean); 
 
-  
   TC[0]->SetEditable(1);
   TC[0]->Clear("D");
   Pad[0]->cd();
@@ -522,125 +522,6 @@ int CemcMonDraw::FindHotTower(TPad *warningpad,TH2D* hhit){
 }
 
 
-
-//int CemcMonDraw::DrawSecond(const std::string & /* what */)
-/*
-{
-  OnlMonClient *cl = OnlMonClient::instance();
-  TH2D* hist1 = (TH2D*)cl->getHisto("CEMCMON_0","h2_hcal_rm");
-  
- if (!gROOT->FindObject("CemcMon2"))
-   {
-     MakeCanvas("CemcMon2");
-   }
-  
-  
-  TC[1]->SetEditable(1);
-  TC[1]->Clear("D");
-  Pad[2]->cd();
-  if (!hist1)
-  {
-    DrawDeadServer(transparent[1]);
-    TC[1]->SetEditable(0);
-    return -1;
-  }
- 
-  
- 
-  gStyle->SetTitleFontSize(0.03);
-  
-  gStyle->SetOptStat(0);
-  gStyle->SetPalette(57);
-  
-	
-  hist1->GetXaxis()->SetTitle("ieta");
-  hist1->GetYaxis()->SetTitle("iphi");
-  hist1->GetXaxis()->SetTitleSize(0.025);
-  hist1->GetYaxis()->SetTitleSize(0.025);
-  hist1->GetXaxis()->CenterTitle();
-  hist1->GetYaxis()->CenterTitle();
-  hist1->GetXaxis()->SetNdivisions(24);
-  hist1->GetYaxis()->SetNdivisions(232);
-  hist1->GetXaxis()->SetLabelSize(0.02);
-  hist1->GetYaxis()->SetLabelSize(0.02);
-  hist1->GetZaxis()->SetLabelSize(0.018);
-  
-  
-  TLine *line_sector[32];
-  for(int i_line=0;i_line<32;i_line++)
-    {
-      line_sector[i_line] = new TLine(0,(i_line+1)*2,24,(i_line+1)*2);
-      line_sector[i_line]->SetLineColor(1);
-      line_sector[i_line]->SetLineWidth(1.2);
-      line_sector[i_line]->SetLineStyle(1);
-    }
-  TLine *line_board1 = new TLine(8,0,8,64);
-  line_board1->SetLineColor(1);
-  line_board1->SetLineWidth(1.2);
-  line_board1->SetLineStyle(1);
-  TLine *line_board2 = new TLine(16,0,16,64);
-  line_board2->SetLineColor(1);
-  line_board2->SetLineWidth(1.2);
-  line_board2->SetLineStyle(1);
-  
-  gPad->SetTopMargin(0.04);
-  gPad->SetBottomMargin(0.06);
-  gPad->SetLeftMargin(0.06);
-  gPad->SetRightMargin(0.11);
-  gPad->SetTickx();
-  gPad->SetTicky();
-  
-  hist1->Draw("colz");
-  for(int i_line=0;i_line<32;i_line++)
-    {
-      line_sector[i_line]->Draw();
-    }
-  line_board1->Draw();
-  line_board2->Draw();
-
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.03);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
-  // fill run number and event time into string
-  runnostream << ThisName << "_running mean, Run" << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
-  runstring = runnostream.str();
-  transparent[1]->cd();
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[1]->Update();
-  TC[1]->Show();
-  TC[1]->SetEditable(0);
-  return 0;
-}
-*/
-
-
-
-
-/* currently not using the hits 2D plot
-int CemcMonDraw::DrawDeadServer(TPad *transparentpad)
-{
-  transparentpad->cd();
-  TText FatalMsg;
-  FatalMsg.SetTextFont(62);
-  FatalMsg.SetTextSize(0.1);
-  FatalMsg.SetTextColor(4);
-  FatalMsg.SetNDC();          // set to normalized coordinates
-  FatalMsg.SetTextAlign(23);  // center/top alignment
-  FatalMsg.DrawText(0.5, 0.9, "HCAL MONITOR");
-  FatalMsg.SetTextAlign(22);  // center/center alignment
-  FatalMsg.DrawText(0.5, 0.5, "SERVER");
-  FatalMsg.SetTextAlign(21);  // center/bottom alignment
-  FatalMsg.DrawText(0.5, 0.1, "DEAD");
-  transparentpad->Update();
-  return 0;
-}
-*/
 
 int CemcMonDraw::MakePS(const std::string &what)
 {

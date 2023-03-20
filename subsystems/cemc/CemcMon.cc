@@ -23,8 +23,8 @@
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
 
-//#include <caloreco/CaloWaveformProcessing.h>
-//#include <calobase/TowerInfoContainerv1.h> 
+#include <caloreco/CaloWaveformProcessing.h>
+#include <calobase/TowerInfoContainerv1.h> 
 
 enum
 {
@@ -35,28 +35,6 @@ enum
 using namespace std;
 
 
-const  int emc_adc_map[8][8] = {
-  62,60,46,44,30,28,14,12,
-  63,61,47,45,31,29,15,13,
-  58,56,42,40,26,24,10,8,
-  59,57,43,41,27,25,11,9,
-  54,52,38,36,22,20,6,4,
-  55,53,39,37,23,21,7,5,
-  50,48,34,32,18,16,2,0,
-  51,49,35,33,19,17,3,1
-};
-
-// this one has the channel number for each x/y position
-int sector_adcmap[48][8];
-
-struct emcxy {
-  int x;
-  int y;
-};
-
-// this one gives the x and y positions of a given ADC channel
-emcxy adcxy[64];
-
 
 
 CemcMon::CemcMon(const std::string &name)
@@ -64,29 +42,6 @@ CemcMon::CemcMon(const std::string &name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new CemcMon()
-
-  for (int ix = 0; ix < 8; ix++ )
-    {
-      for (int iy = 0; iy < 8; iy++ )
-        {
-          adcxy[ emc_adc_map[ix][iy] ].x = ix;
-          adcxy[ emc_adc_map[ix][iy] ].y = iy;
-        }
-    }
-
-  for (int i =0; i < 8;i++)
-    {
-      for (int j = 0 ; j < 8;j++)
-        {
-          sector_adcmap[i][j] = emc_adc_map[i][j];
-          sector_adcmap[i+8][j] = emc_adc_map[i][j]+64;
-          sector_adcmap[i+16][j] = emc_adc_map[i][j]+128;
-          sector_adcmap[i+24][j] = emc_adc_map[i][j]+192;
-          sector_adcmap[i+32][j] = emc_adc_map[i][j]+256;
-          sector_adcmap[i+40][j] = emc_adc_map[i][j]+320;
-        }
-    }
-
 
   return;
 }
@@ -188,15 +143,13 @@ int CemcMon::Init()
 
 
   // initialize waveform extraction tool
-/*
   WaveformProcessing = new CaloWaveformProcessing();
-  WaveformProcessing->set_processing_type(CaloWaveformProcessing::TEMPLATE);
-  WaveformProcessing->set_template_file("testbeam_cemc_template.root");
+  WaveformProcessing->set_processing_type(CaloWaveformProcessing::FAST);
+  //WaveformProcessing->set_template_file("testbeam_cemc_template.root");
   WaveformProcessing->initialize_processing();
-  // initialize TowerInfoContainer
-  CaloInfoContainer = new TowerInfoContainerv1(TowerInfoContainerv1::DETECTOR::EMCAL);
-*/
 
+  // initialize TowerInfoContainer
+  CaloInfoContainer = new TowerInfoContainerv1(TowerInfoContainer::DETECTOR::EMCAL);
 
 
   return 0;
@@ -220,6 +173,7 @@ int CemcMon::BeginRun(const int /* runno */)
 //static int evtcount = 0; 
 
 
+// simple wavefrom analysis for possibe issues with the wavforProcessor
 std::vector<float> CemcMon::getSignal(Packet *p, const int channel)
 {
 
@@ -242,7 +196,10 @@ std::vector<float> CemcMon::getSignal(Packet *p, const int channel)
 
   // simulate a failure  if ( evtcount > 450 && p->getIdentifier() ==6011) return 0;
 
-  std::vector<float> result = {5,5,5};
+  std::vector<float> result;
+  result.push_back(signal);
+  result.push_back(2);
+  result.push_back(1);
   return result;
 }
 	  
@@ -258,10 +215,10 @@ std::vector<float> CemcMon::anaWaveform(Packet *p, const int channel)
   multiple_wfs.push_back(waveform);
 
   std::vector<std::vector<float>> fitresults_ohcal;
-//  fitresults_ohcal = WaveformProcessing->process_waveform(multiple_wfs);
+  fitresults_ohcal = WaveformProcessing->process_waveform(multiple_wfs);
 
   std::vector<float> result;
-//  result = fitresults_ohcal.at(0);
+  result = fitresults_ohcal.at(0);
 
   return result;
 }
@@ -281,105 +238,6 @@ int CemcMon::process_event(Event *e  /* evt */)
 
     se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
   }
-/*
-  if ( e->getEvtType() == BEGRUNEVENT)  // see what kind of run this is, LED or Physics 
-    {
-//      Packet *p961 = e->getPacket(961);
-//      if ( p961)   // this is only printing a message
-//	{
-//	  p961->dump();
-//	  delete p961;
-//	}
-
-      Packet *p962 = e->getPacket(962);
-      if ( p962)   // we extract the flag 0 = Physics, 1= LED, more can be defined
-	{
-	  switch (p962->iValue(0) )
-	    {
-	    case 0:
-	      runtypestr = "Physics";
-	      break;
-	    case 1:
-	      runtypestr = "LED";
-	      break;
-	    default:
-	      runtypestr = "Unknown";
-	      break;
-	    }
-	  delete p962;
-	}
-      return 0;
-    }
-
-  char title[512];
-  sprintf ( title , "Cemc Running Mean Run %d Event %d RunType %s",  e->getRunNumber(), e->getEvtSequence(), runtypestr.c_str());
-  cemc_runningmean->SetTitle(title);
-
-  sprintf ( title , "Cemc Occupancy Run %d Event %d RunType %s",  e->getRunNumber(), e->getEvtSequence(), runtypestr.c_str());
-  cemc_occupancy->SetTitle(title);
-
-  if ( e->getEvtType() == 1) cemc_runningmean->Reset();
-  evtcount = e->getEvtSequence();
-
-  for ( int pid = 6001; pid <= 6128; pid++)
-    { 
-      Packet *p = e->getPacket(pid);
-      if (p)
-	{
-	  //p->identify();
-	  
-	  int phi_slice = (p->getIdentifier() - 6001)/4 *8 ; 
-	  int high_low_eta = (1 - p->getIdentifier()%2) ;  // 0=low eta  1 high eta
-	  int north_or_south = ((p->getIdentifier() - 6001)/2) %2;   
-	  
-	  double signalvector[192] = {0};
-
-	  for ( int c = 0; c <  p->iValue(0,"CHANNELS"); c++)
-	    {
-              // std::vector result =  getSignal(p,c); // simple peak extraction
-              std::vector result = anaWaveform(p, c);  // full waveform fitting
-              float signal = result.at(0);
-
-	      signalvector[c] = signal;
-	    }
-
-	  int rm_index = p->getIdentifier() - 6001;
-	  rm_vector[rm_index]->Add(signalvector);
-
-	      // cout << __FILE__ << " " << __LINE__ << " signal is " << signal << endl;
-	      
-	  for ( int channel = 0; channel <  p->iValue(0,"CHANNELS"); channel++)
-	    {
-	      double signal = getSignal(p, channel);
-	      int adc_channel = channel%64;
-	      int adc_group = channel / 64;
-	      float etabin = adcxy[adc_channel].x + adc_group * 8 + high_low_eta *24 +0.5;
-	      int phibin = adcxy[adc_channel].y + phi_slice;
-
-	      cemc_signal->Fill(signal);
-
-	      if ( signal > 10. ) 
-		{
-		  if ( north_or_south  ) //
-		    {
-		      cemc_occupancy->Fill( etabin, phibin);
-		      cemc_runningmean->Fill(etabin, phibin, rm_vector[rm_index]->getMean(channel));
-
-		    }
-		  else
-		    {
-		      cemc_occupancy->Fill( -1 * etabin, phibin);
-		      cemc_runningmean->Fill(-1 * etabin, phibin, rm_vector[rm_index]->getMean(channel));
-		    }
-		}
-	      
-	      
-	    }
-	  delete p;
-
-	}
-    }
-*/
 
   h_waveform_twrAvg->Reset();  // only record the latest event waveform
   unsigned int towerNumber = 0;
@@ -401,19 +259,16 @@ int CemcMon::process_event(Event *e  /* evt */)
         towerNumber++;
 
         // std::vector result =  getSignal(p,c); // simple peak extraction
-//        std::vector result = anaWaveform(p, c);  // full waveform fitting
-        std::vector<int> result = {5,5,5};
+        std::vector result = anaWaveform(p, c);  // full waveform fitting
         float signal   =result.at(0);
         float time     =result.at(1);
         float pedestal =result.at(2);
 
         // channel mapping
-//        unsigned int key = CaloInfoContainer->encode_key(towerNumber - 1);
-//        unsigned int phi_bin = CaloInfoContainer->getTowerPhiBin(key);
-//        unsigned int eta_bin = CaloInfoContainer->getTowerEtaBin(key);
+        unsigned int key = CaloInfoContainer->encode_key(towerNumber - 1);
+        unsigned int phi_bin = CaloInfoContainer->getTowerPhiBin(key);
+        unsigned int eta_bin = CaloInfoContainer->getTowerEtaBin(key);
         //std::cout << "ieta " << eta_bin << "  iphi " << phi_bin<< std::endl;
-	unsigned int phi_bin = 0;
-	unsigned int eta_bin = 0;
         int sectorNumber = phi_bin / 8 + 1;
         h_waveform_time->Fill(time);
         h_waveform_pedestal->Fill(pedestal);
