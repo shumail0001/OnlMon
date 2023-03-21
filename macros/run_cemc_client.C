@@ -33,7 +33,7 @@ void cemcDrawInit(const int online = 0)
   cl->registerDrawer(cemcmon);              // register with client framework
 }
 
-void cemcDraw(const char *what = "Standard")
+void cemcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
   std::cout << 1 << std::endl;
