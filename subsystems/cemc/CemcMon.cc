@@ -10,9 +10,13 @@
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/pseudoRunningMean.h>
 
+#include <caloreco/CaloWaveformFitting.h>
+#include <calobase/TowerInfoDefs.h>
+
 #include <Event/Event.h>
 #include <Event/EventTypes.h>
 #include <Event/msg_profile.h>
+
 #include <TH1.h>
 #include <TH2.h>
 
@@ -23,8 +27,6 @@
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
 
-#include <caloreco/CaloWaveformProcessing.h>
-#include <calobase/TowerInfoContainerv1.h> 
 
 enum
 {
@@ -143,13 +145,13 @@ int CemcMon::Init()
 
 
   // initialize waveform extraction tool
-  WaveformProcessing = new CaloWaveformProcessing();
-  WaveformProcessing->set_processing_type(CaloWaveformProcessing::FAST);
+  WaveformProcessing = new CaloWaveformFitting();
+  //  WaveformProcessing->set_processing_type(CaloWaveformProcessing::FAST);
   //WaveformProcessing->set_template_file("testbeam_cemc_template.root");
-  WaveformProcessing->initialize_processing();
+  WaveformProcessing->initialize_processing("testbeam_cemc_template.root");
 
   // initialize TowerInfoContainer
-  CaloInfoContainer = new TowerInfoContainerv1(TowerInfoContainer::DETECTOR::EMCAL);
+  //  CaloInfoContainer = new TowerInfoContainerv1(TowerInfoContainer::DETECTOR::EMCAL);
 
 
   return 0;
@@ -259,15 +261,15 @@ int CemcMon::process_event(Event *e  /* evt */)
         towerNumber++;
 
         // std::vector result =  getSignal(p,c); // simple peak extraction
-        std::vector result = anaWaveform(p, c);  // full waveform fitting
+        std::vector<float> result = anaWaveform(p, c);  // full waveform fitting
         float signal   =result.at(0);
         float time     =result.at(1);
         float pedestal =result.at(2);
 
         // channel mapping
-        unsigned int key = CaloInfoContainer->encode_key(towerNumber - 1);
-        unsigned int phi_bin = CaloInfoContainer->getTowerPhiBin(key);
-        unsigned int eta_bin = CaloInfoContainer->getTowerEtaBin(key);
+        unsigned int key = TowerInfoDefs::encode_emcal(towerNumber - 1);
+        unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
+        unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
         //std::cout << "ieta " << eta_bin << "  iphi " << phi_bin<< std::endl;
         int sectorNumber = phi_bin / 8 + 1;
         h_waveform_time->Fill(time);

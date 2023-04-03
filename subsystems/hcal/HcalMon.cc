@@ -10,8 +10,8 @@
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/pseudoRunningMean.h>
 
-#include <caloreco/CaloWaveformProcessing.h>
-#include <calobase/TowerInfoContainerv1.h>
+#include <caloreco/CaloWaveformFitting.h>
+#include <calobase/TowerInfoDefs.h>
 
 #include <Event/Event.h>
 #include <Event/msg_profile.h>
@@ -114,13 +114,8 @@ int HcalMon::Init()
   Reset();
 
   // initialize waveform extraction tool
-  WaveformProcessing = new CaloWaveformProcessing();
-  WaveformProcessing->set_processing_type(CaloWaveformProcessing::FAST);
-  WaveformProcessing->set_template_file("testbeam_ohcal_template.root");
-  WaveformProcessing->initialize_processing();
-
-  // initialize TowerInfoContainer
-  CaloInfoContainer = new TowerInfoContainerv1(TowerInfoContainerv1::DETECTOR::HCAL);
+  WaveformProcessing = new CaloWaveformFitting();
+  WaveformProcessing->initialize_processing("testbeam_ohcal_template.root");
 
   return 0;
 }
@@ -225,15 +220,15 @@ int HcalMon::process_event(Event* e /* evt */)
         towerNumber++;
 
         // std::vector result =  getSignal(p,c); // simple peak extraction
-        std::vector result = anaWaveform(p, c);  // full waveform fitting
+        std::vector<float> result = anaWaveform(p, c);  // full waveform fitting
         float signal = result.at(0);
         float time = result.at(1);
         float pedestal = result.at(2);
 
         // channel mapping
-        unsigned int key = CaloInfoContainer->encode_key(towerNumber - 1);
-        unsigned int phi_bin = CaloInfoContainer->getTowerPhiBin(key);
-        unsigned int eta_bin = CaloInfoContainer->getTowerEtaBin(key);
+        unsigned int key = TowerInfoDefs::encode_hcal(towerNumber - 1);
+        unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
+        unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
         int sectorNumber = phi_bin / 2 + 1;
         h_waveform_time->Fill(time);
         h_waveform_pedestal->Fill(pedestal);

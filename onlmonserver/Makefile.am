@@ -29,9 +29,11 @@ libonlmonserver_funcs_la_LIBADD = \
 libonlmonserver_la_LDFLAGS = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
+  -L$(OPT_SPHENIX)/lib \
   `root-config --libs` \
   -lmessage \
-  -lodbc++
+  -lodbc++ \
+  -lz
 
 
 noinst_HEADERS = \
