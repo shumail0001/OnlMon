@@ -23,6 +23,7 @@ libonlbbcmon_server_la_LIBADD = \
 libonlbbcmon_client_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
+  -L$(ROOTSYS)/lib \
   -lonlmonclient \
   -lSpectrum \
   -lonlmondb

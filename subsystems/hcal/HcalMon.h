@@ -5,7 +5,7 @@
 
 #include <vector>
 
-class CaloWaveformProcessing;
+class CaloWaveformFitting;
 class TowerInfoContainer;
 class Event;
 class OnlMonDB;
@@ -49,8 +49,7 @@ class HcalMon : public OnlMon
   TH1* h_rm_sectorAvg[32] = {nullptr};
   TH1* h_rm_tower[24][64] = {nullptr};
 
-  CaloWaveformProcessing* WaveformProcessing = nullptr;
-  TowerInfoContainer* CaloInfoContainer = nullptr;  // for using encode_key
+  CaloWaveformFitting* WaveformProcessing = nullptr;
 
   std::vector<runningMean*> rm_vector_sectAvg;
   std::vector<runningMean*> rm_vector_twr;

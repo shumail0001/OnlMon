@@ -6,7 +6,7 @@
 
 #include <vector>
 
-class CaloWaveformProcessing;
+class CaloWaveformFitting;
 class TowerInfoContainer;
 class Event;
 class OnlMonDB;
@@ -58,8 +58,7 @@ class CemcMon : public OnlMon
   std::string runtypestr = "Unknown";
   std::string id_string;
 
-  CaloWaveformProcessing* WaveformProcessing = nullptr;
-  TowerInfoContainer* CaloInfoContainer = nullptr;  // for using encode_key
+  CaloWaveformFitting* WaveformProcessing = nullptr;
 
 
   std::vector<runningMean*> rm_vector; 
