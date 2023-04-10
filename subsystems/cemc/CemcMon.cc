@@ -147,12 +147,17 @@ int CemcMon::Init()
   // initialize waveform extraction tool
   WaveformProcessing = new CaloWaveformFitting();
   //  WaveformProcessing->set_processing_type(CaloWaveformProcessing::FAST);
-  //WaveformProcessing->set_template_file("testbeam_cemc_template.root");
-  WaveformProcessing->initialize_processing("testbeam_cemc_template.root");
-
-  // initialize TowerInfoContainer
-  //  CaloInfoContainer = new TowerInfoContainerv1(TowerInfoContainer::DETECTOR::EMCAL);
-
+  std::string cemctemplate;
+  if (getenv("CEMCCALIB"))
+    {
+      cemctemplate = getenv("CEMCCALIB");
+    }
+  else
+  {
+    cemctemplate = ".";
+  }
+  cemctemplate += std::string("/testbeam_cemc_template.root");
+  WaveformProcessing->initialize_processing(cemctemplate);
 
   return 0;
 }
@@ -171,8 +176,6 @@ int CemcMon::BeginRun(const int /* runno */)
 
   return 0;
 }
-
-//static int evtcount = 0; 
 
 
 // simple wavefrom analysis for possibe issues with the wavforProcessor
