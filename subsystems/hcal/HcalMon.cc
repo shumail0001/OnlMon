@@ -115,7 +115,18 @@ int HcalMon::Init()
 
   // initialize waveform extraction tool
   WaveformProcessing = new CaloWaveformFitting();
-  WaveformProcessing->initialize_processing("testbeam_ohcal_template.root");
+
+  std::string hcaltemplate;
+  if (getenv("HCALCALIB"))
+    {
+      hcaltemplate = getenv("HCALCALIB");
+    }
+  else
+  {
+    hcaltemplate = ".";
+  }
+  hcaltemplate += std::string("/testbeam_ohcal_template.root");
+  WaveformProcessing->initialize_processing(hcaltemplate);
 
   return 0;
 }
