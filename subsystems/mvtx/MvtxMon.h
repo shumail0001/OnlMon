@@ -76,34 +76,34 @@ class MvtxMon : public OnlMon
   TH2Poly* mvtxmon_GeneralOccupancy = nullptr;
   TH2Poly* mvtxmon_LaneStatusOverview[NFlags] = {nullptr}; 
  //fee
-  TH2I* mTriggerVsFeeId;
-  TH1I* mTrigger;
-  TH2I* mLaneInfo;
-  TH2I* mLaneStatus[NFlags];
-  TH2I* mLaneStatusCumulative[NFlags];
-  TH1I* mLaneStatusSummary[NLAYERS];
-  TH1I* mLaneStatusSummaryIB;
+  TH2I* mTriggerVsFeeId= nullptr;
+  TH1I* mTrigger= nullptr;
+  TH2I* mLaneInfo= nullptr;
+  TH2I* mLaneStatus[NFlags] = {nullptr};
+  TH2I* mLaneStatusCumulative[NFlags] = {nullptr};
+  TH1I* mLaneStatusSummary[NLAYERS] = {nullptr};
+  TH1I* mLaneStatusSummaryIB= nullptr;
   TString mTriggerType[NTrigger] = { "ORBIT", "HB", "HBr", "HC", "PHYSICS", "PP", "CAL", "SOT", "EOT", "SOC", "EOC", "TF", "INT" };
 
   //raw task
-  TH1D* hErrorPlots;
-  TH2D* hErrorFile;
-  TH1D* hOccupancyPlot[NLAYERS];
-  TH2I* hEtaPhiHitmap[NLAYERS];
-  TH2D* hChipStaveOccupancy[NLAYERS];
-  TH2I* hChipHitmap[3][20][9];
-  TH2I* hChipHitmap_evt[3][20][9];
+  TH1D* hErrorPlots;= nullptr
+  TH2D* hErrorFile= nullptr;
+  TH1D* hOccupancyPlot[NLAYERS] = {nullptr};
+  TH2I* hEtaPhiHitmap[NLAYERS] = {nullptr};
+  TH2D* hChipStaveOccupancy[NLAYERS] = {nullptr};
+  TH2I* hChipHitmap[3][20][9] = {nullptr};
+  TH2I* hChipHitmap_evt[3][20][9] = {nullptr};
 
   //fhr
-  TH2I* mErrorVsFeeid;
-  TH2Poly* mGeneralOccupancy;
-  TH2Poly* mGeneralNoisyPixel;
-  TH2D* mDeadChipPos[NLAYERS];
-  TH2D* mAliveChipPos[NLAYERS];
-  TH2D* mTotalDeadChipPos;
-  TH2D* mTotalAliveChipPos;
-  TH2D* mChipStaveOccupancy[NLAYERS];
-  TH1D* mOccupancyPlot[NLAYERS];
+  TH2I* mErrorVsFeeid= nullptr;
+  TH2Poly* mGeneralOccupancy;= nullptr
+  TH2Poly* mGeneralNoisyPixel= nullptr;
+  TH2D* mDeadChipPos[NLAYERS] = {nullptr};
+  TH2D* mAliveChipPos[NLAYERS] = {nullptr};
+  TH2D* mTotalDeadChipPos= nullptr;
+  TH2D* mTotalAliveChipPos= nullptr;
+  TH2D* mChipStaveOccupancy[NLAYERS] = {nullptr};
+  TH1D* mOccupancyPlot[NLAYERS] = {nullptr};
 
   static constexpr int NCols = 1024;
   static constexpr int NRows = 512;
