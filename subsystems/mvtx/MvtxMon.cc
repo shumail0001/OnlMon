@@ -190,6 +190,8 @@ int MvtxMon::Init()
   hErrorPlots->SetMinimum(0);  //remove
   hErrorPlots->SetFillColor(kRed); //remove
   hErrorPlots->SetStats(0);
+
+  TPaveText* pt[NError]={nullptr};
   for (int i = 0; i < NError; i++) {
     pt[i] = new TPaveText(0.20, 0.80 - i * 0.05, 0.85, 0.85 - i * 0.05, "NDC");
     pt[i]->SetTextSize(0.04);

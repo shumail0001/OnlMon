@@ -65,7 +65,7 @@ class MvtxMon : public OnlMon
 
   const int StaveBoundary[4] = { 0, 12, 28, 48};
   const int LayerBoundaryFEE[NLAYERS - 1] = { 35, 83};
-  double** mOccupancyLane;
+  //double** mOccupancyLane;
 
   TH2	*mvtxmon_ChipStaveOcc= nullptr;
   TH1	*mvtxmon_ChipStave1D= nullptr;
@@ -120,7 +120,7 @@ class MvtxMon : public OnlMon
 
   static constexpr int NError = 11;
   static constexpr int NErrorExtended = 19;
-  TPaveText* pt[NError];
+ 
  /* TString ErrorType[NError] = { "Error ID 1: ErrPageCounterDiscontinuity", "Error ID 2: ErrRDHvsGBTHPageCnt",
                                 "Error ID 3: ErrMissingGBTHeader", "Error ID 4: ErrMissingGBTTrailer", "Error ID 5: ErrNonZeroPageAfterStop",
                                 "Error ID 6: ErrUnstoppedLanes", "Error ID 7: ErrDataForStoppedLane", "Error ID 8: ErrNoDataForActiveLane",
