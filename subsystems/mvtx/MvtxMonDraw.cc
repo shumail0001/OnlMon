@@ -15,6 +15,10 @@
 #include <TSystem.h>
 #include <TText.h>
 #include <TStyle.h>
+#include <TPaveText.h>
+#include <TLatex.h>
+#include <TColor.h>
+#include <TEllipse.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -29,7 +33,10 @@ MvtxMonDraw::MvtxMonDraw(const std::string &name)
   // this TimeOffsetTicks is neccessary to get the time axis right
   TDatime T0(2003, 01, 01, 00, 00, 00);
   TimeOffsetTicks = T0.Convert();
-  dbvars = new OnlMonDB(ThisName);
+  //dbvars = new OnlMonDB(ThisName);
+  for (int iFelix = 0; iFelix < NFlx; iFelix++){
+    dbvars[iFelix] = new OnlMonDB(Form("MVTXMON_%d",iFelix));
+  }
   return;
 }
 
@@ -43,7 +50,7 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
-  if (name == "MvtxMon1")
+ /* if (name == "MvtxMon1")
   {
     // xpos (-1) negative: do not draw menu bar
     TC[0] = new TCanvas(name.c_str(), "MvtxMon Example Monitor", -1, 0, xsize / 2, ysize);
@@ -83,22 +90,70 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
   {
     TC[2] = new TCanvas(name.c_str(), "MvtxMon3 Example Monitor", xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    Pad[5] = new TPad("mvtxpad6", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[6] = new TPad("mvtxpad7", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
+    Pad[5] = new TPad("mvtxpad6", "who needs this?", 0.1, 0.1, 0.9, 0.9, 0);
+    //Pad[6] = new TPad("mvtxpad7", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
     Pad[5]->Draw();
-    Pad[6]->Draw();
+    //Pad[6]->Draw();
     // this one is used to plot the run number on the canvas
     //        transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
     //        transparent[2]->SetFillStyle(4000);
     //        transparent[2]->Draw();
     //      TC[2]->SetEditable(0);
-  }
-  else if (name == "MvtxMon_HitMap")
+  }*/
+  if (name == "MvtxMon_HitMap")
   {
-    TC[3] = new TCanvas(name.c_str(), "MvtxMon Example Monitor", -1, 0, xsize, ysize);
+    TC[0] = new TCanvas(name.c_str(), "MvtxMon Example Monitor", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     //TC[3]->Divide(2,1/*NSTAVE*/);
-    TC[3]->Divide(NCHIP,9/*NSTAVE*/);
+    Pad[0] = new TPad("mvtxpad0", "who needs this?", 0.05, 0.02, 0.98, 0.92, 0);  
+    Pad[0]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[0]->SetFillStyle(4000);
+    transparent[0]->Draw();
+    TC[0]->SetEditable(false);
+    TC[0]->SetTopMargin(0.05);
+    TC[0]->SetBottomMargin(0.05);
+  }
+  else if (name == "MvtxMon_General")
+  {
+    TC[1] = new TCanvas(name.c_str(), "MVTX Monitoring General", -1, 0, xsize, ysize);
+    gSystem->ProcessEvents();
+    TC[1]->cd();
+    Pad[1] = new TPad("mvtxpad1", "who needs this?", 0., 0.02, 0.98, 0.97, 0);  
+    Pad[1]->Draw();
+    //Pad[7]->Divide(4,2);  
+    // this one is used to plot the run number on the canvas
+    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[0]->SetFillStyle(4000);
+    transparent[0]->Draw();
+    TC[1]->SetEditable(false);
+    TC[1]->SetTopMargin(0.05);
+    TC[1]->SetBottomMargin(0.05);
+//Pad[8]->SetRightMargin(0.13);
+  }
+  else if (name == "MvtxMon_FEE")
+  {
+    TC[2] = new TCanvas(name.c_str(), "MVTX Monitoring FEE", -1, 0, xsize, ysize);
+    gSystem->ProcessEvents();
+    Pad[2] = new TPad("mvtxpad2", "who needs this?", 0., 0.02, 0.98, 0.97, 0);  
+    Pad[2]->Draw();
+    
+    // this one is used to plot the run number on the canvas
+    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[0]->SetFillStyle(4000);
+    transparent[0]->Draw();
+    TC[2]->SetEditable(false);
+    TC[2]->SetTopMargin(0.05);
+    TC[2]->SetBottomMargin(0.05);
+  }
+  else if (name == "MvtxMon_OCC")
+  {
+    TC[3] = new TCanvas(name.c_str(), "MVTX Monitoring Occupancy", -1, 0, xsize, ysize);
+    gSystem->ProcessEvents();
+    Pad[3] = new TPad("mvtxpad3", "who needs this?", 0., 0.02, 0.98, 0.97, 0);  
+    Pad[3]->Draw();
+    
     // this one is used to plot the run number on the canvas
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
     transparent[0]->SetFillStyle(4000);
@@ -107,14 +162,13 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     TC[3]->SetTopMargin(0.05);
     TC[3]->SetBottomMargin(0.05);
   }
-  else if (name == "MvtxMon_General")
+  else if (name == "MvtxMon_FHR")
   {
-    TC[4] = new TCanvas(name.c_str(), "MVTX Monitoring General", -1, 0, xsize, ysize);
+    TC[4] = new TCanvas(name.c_str(), "MVTX Monitoring FHR", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
-    TC[4]->cd();
-    Pad[7] = new TPad("mvtxpad9", "who needs this?", 0., 0.02, 0.98, 0.95, 0);  
-    Pad[7]->Draw();
-    Pad[7]->Divide(4,2);  
+    Pad[4] = new TPad("mvtxpad4", "who needs this?", 0., 0.02, 0.98, 0.97, 0);  
+    Pad[4]->Draw();
+    
     // this one is used to plot the run number on the canvas
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
     transparent[0]->SetFillStyle(4000);
@@ -122,46 +176,26 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     TC[4]->SetEditable(false);
     TC[4]->SetTopMargin(0.05);
     TC[4]->SetBottomMargin(0.05);
-//Pad[8]->SetRightMargin(0.13);
   }
-  else if (name == "MvtxMon_FEE")
+  else if (name == "MvtxMon3")
   {
-    TC[5] = new TCanvas(name.c_str(), "MVTX Monitoring FEE", -1, 0, xsize, ysize);
+    TC[5] = new TCanvas(name.c_str(), "MvtxMon3 Example Monitor", xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    TC[5]->Divide(5,3);
-    // this one is used to plot the run number on the canvas
+    Pad[5] = new TPad("mvtxpad5", "who needs this?", 0.1, 0.1, 0.9, 0.9, 0);
+    //Pad[6] = new TPad("mvtxpad7", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
+    Pad[5]->Draw();
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
     transparent[0]->SetFillStyle(4000);
     transparent[0]->Draw();
     TC[5]->SetEditable(false);
     TC[5]->SetTopMargin(0.05);
     TC[5]->SetBottomMargin(0.05);
-  }
-  else if (name == "MvtxMon_OCC")
-  {
-    TC[6] = new TCanvas(name.c_str(), "MVTX Monitoring Occupancy", -1, 0, xsize, ysize);
-    gSystem->ProcessEvents();
-    TC[6]->Divide(3,3);
+    //Pad[6]->Draw();
     // this one is used to plot the run number on the canvas
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
-    TC[6]->SetEditable(false);
-    TC[6]->SetTopMargin(0.05);
-    TC[6]->SetBottomMargin(0.05);
-  }
-  else if (name == "MvtxMon_FHR")
-  {
-    TC[7] = new TCanvas(name.c_str(), "MVTX Monitoring FHR", -1, 0, xsize, ysize);
-    gSystem->ProcessEvents();
-    TC[7]->Divide(5,4);
-    // this one is used to plot the run number on the canvas
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
-    TC[7]->SetEditable(false);
-    TC[7]->SetTopMargin(0.05);
-    TC[7]->SetBottomMargin(0.05);
+    //        transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+    //        transparent[2]->SetFillStyle(4000);
+    //        transparent[2]->Draw();
+    //      TC[2]->SetEditable(0);
   }
   return 0;
 }
@@ -170,16 +204,6 @@ int MvtxMonDraw::Draw(const std::string &what)
 {
   int iret = 0;
   int idraw = 0;
-  if (what == "ALL" || what == "FIRST")
-  {
-    iret += DrawFirst(what);
-    idraw++;
-  }
-  if (what == "ALL" || what == "SECOND")
-  {
-    iret += DrawSecond(what);
-    idraw++;
-  }
   if (what == "ALL" || what == "L0L"|| what == "L0R"|| what == "L1L"|| what == "L1R"|| what == "L2L"|| what == "L2R")
   {
     iret += DrawHitMap(what);
@@ -218,58 +242,13 @@ int MvtxMonDraw::Draw(const std::string &what)
   return iret;
 }
 
-int MvtxMonDraw::DrawFirst(const std::string & /* what */)
-{
-  OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *mvtxmon_ChipStaveOcc = dynamic_cast<TH2*>(cl->getHisto("MVTXMON_0","MVTXMON/RawData/mvtxmon_ChipStaveOcc"));
-  TH1 *mvtxmon_ChipStave1D = cl->getHisto("MVTXMON_0","MVTXMON/RawData/mvtxmon_ChipStave1D");
-  TH1 *mvtxmon_ChipFiredHis = cl->getHisto("MVTXMON_0","MVTXMON/RawData/mvtxmon_ChipFiredHis");
-
-  
-  if (!gROOT->FindObject("MvtxMon1"))
-  {
-    MakeCanvas("MvtxMon1");
-  }
-  TC[0]->SetEditable(true);
-  TC[0]->Clear("D");
-  
-  PublishHistogram<TH2*>(Pad[0],mvtxmon_ChipStaveOcc);
-  PublishHistogram<TH1*>(Pad[1],mvtxmon_ChipStave1D);
-  PublishHistogram<TH1*>(Pad[2],mvtxmon_ChipFiredHis);
-
-  PublishStatistics(TC[0],cl);
-  TC[0]->SetEditable(false);
-  return 0;
-}
-
-int MvtxMonDraw::DrawSecond(const std::string & /* what */)
-{
-  OnlMonClient *cl = OnlMonClient::instance();
-
-  TH1 *mvtxmon_EvtHitChip = cl->getHisto("MVTXMON_0","MVTXMON/RawData/mvtxmon_EvtHitChip");
-  TH1 *mvtxmon_EvtHitDis = cl->getHisto("MVTXMON_0","MVTXMON/RawData/mvtxmon_EvtHitDis");
-
-  if (!gROOT->FindObject("MvtxMon2"))
-  {
-    MakeCanvas("MvtxMon2");
-  }
-  TC[1]->SetEditable(true);
-  TC[1]->Clear("D");
-
-  PublishHistogram<TH1*>(Pad[3],mvtxmon_EvtHitChip);
-  PublishHistogram<TH1*>(Pad[4],mvtxmon_EvtHitDis);
-
-  PublishStatistics(TC[1],cl);
-  TC[1]->SetEditable(false);
-  return 0;
-}
-
 int MvtxMonDraw::DrawHitMap(const std::string &what )
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  const int canvasID = 3;
-  TH2 *mvtxmon_HitMap[NSTAVE][NCHIP][NFlx] = {nullptr};
+  const int canvasID = 0;
+  const int padID = 0;
+  TH2 *mvtxmon_HitMap[NSTAVE][NCHIP][NFlx+1] = {nullptr};
   if (!gROOT->FindObject("MvtxMon_HitMap"))
   {
     MakeCanvas("MvtxMon_HitMap");
@@ -305,6 +284,7 @@ int MvtxMonDraw::DrawHitMap(const std::string &what )
     aLs = 2; aLe = 3;
     aSs = 10; aSe = 20;
   }
+  Pad[padID]->Divide(NCHIP,aSe-aSs/*NSTAVE*/);
   
   int ipad = 0;
   int returnCode = 0;
@@ -313,19 +293,60 @@ int MvtxMonDraw::DrawHitMap(const std::string &what )
       for (int iChip = 0; iChip < 9; iChip++) {
         int stave = aLayer==0?aStave:NStaves[aLayer]+aStave;
 	for (int iFelix = 0; iFelix <NFlx; iFelix++){
-          mvtxmon_HitMap[stave][iChip][iFelix] = dynamic_cast<TH2*>(cl->getHisto(Form("MVTXMON/chipHitmapL%dS%dC%d", aLayer, aStave, iChip)));
-	  mvtxmon_HitMap[stave][iChip][iFelix]->GetXaxis()->CenterTitle();
-	  mvtxmon_HitMap[stave][iChip][iFelix]->GetYaxis()->CenterTitle();
-	  mvtxmon_HitMap[stave][iChip][iFelix]->GetYaxis()->SetTitleOffset(1.4);
-          if(iFelix > 0) mvtxmon_HitMap[stave][iChip][0]->Add(mvtxmon_HitMap[stave][iChip][iFelix]); //merge all felix servers into 1
+          mvtxmon_HitMap[stave][iChip][iFelix] = dynamic_cast<TH2*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/chipHitmapL%dS%dC%d", aLayer, aStave, iChip)));
         }
-        returnCode += PublishHistogram<TH2*>(TC[canvasID],ipad*9+iChip+1,mvtxmon_HitMap[stave][iChip][0],"colz"); //publish merged one
+        MergeServers<TH2*>(mvtxmon_HitMap[stave][iChip]);
+        mvtxmon_HitMap[stave][iChip][NFlx]->GetXaxis()->CenterTitle();
+	mvtxmon_HitMap[stave][iChip][NFlx]->GetYaxis()->CenterTitle();
+	mvtxmon_HitMap[stave][iChip][NFlx]->GetYaxis()->SetTitleOffset(1.4);
+        mvtxmon_HitMap[stave][iChip][NFlx]->GetXaxis()->SetTitleOffset(0.75);
+        mvtxmon_HitMap[stave][iChip][NFlx]->GetXaxis()->SetTitleSize(0.06);
+        mvtxmon_HitMap[stave][iChip][NFlx]->GetYaxis()->SetTitleOffset(0.75);
+        mvtxmon_HitMap[stave][iChip][NFlx]->GetYaxis()->SetTitleSize(0.06);
+        returnCode += PublishHistogram(Pad[padID],ipad*9+iChip+1,mvtxmon_HitMap[stave][iChip][NFlx],"colz"); //publish merged one
       }
       ipad++;
     }
   }
 
+  TC[canvasID]->cd();
+  TPaveText *ptchip[9] = {nullptr};
+  for(int i = 0; i < 9; i++){
+    ptchip[i] = new TPaveText(0.05+0.1033*i,.92,0.05+0.1033*(i+1),0.97,"blNDC");
+    ptchip[i]->SetTextSize(0.03);
+    ptchip[i]->SetFillColor(4000);
+    ptchip[i]->SetLineColor(0);
+    ptchip[i]->SetBorderSize(1);
+    ptchip[i]->AddText(Form("Chip %d",i));
+    ptchip[i]->Draw();
+  }
+
+  TPaveText *ptstave[10] = {nullptr};
+  for(int i = 0; i < aSe - aSs; i++){
+    ptstave[i] = new TPaveText(0.0,0.93- ((i+1) * 0.92/(aSe - aSs)),0.05,0.93- (i * 0.92/(aSe - aSs)),"blNDC");
+    ptstave[i]->SetTextSize(0.02);
+    ptstave[i]->SetFillColor(4000);
+    ptstave[i]->SetLineColor(0);
+    ptstave[i]->SetBorderSize(1);
+    ptstave[i]->AddText(Form("Stave %d",aSs + i));
+    ptstave[i]->Draw();
+  }
+
+  TPaveText *ptlayer = {nullptr};
+  ptlayer = new TPaveText(0.01,.92,0.06,0.97,"blNDC");
+  ptlayer->SetTextSize(0.035);
+  ptlayer->SetFillColor(4000);
+  ptlayer->SetLineColor(0);
+  ptlayer->SetBorderSize(1);
+  if (what == "L0R" || what == "L0R"|| what == "ALL") ptlayer->AddText("Layer 0");
+  if (what == "L1R" || what == "L1R") ptlayer->AddText("Layer 1");
+  if (what == "L2R" || what == "L2R") ptlayer->AddText("Layer 2");
+  ptlayer->Draw();
+
   PublishStatistics(TC[canvasID],cl);
+
+  //TC[canvasID]->Modified();
+  TC[canvasID]->Update();
   TC[canvasID]->SetEditable(false);
   return returnCode < 0 ? -1 : 0;
 }
@@ -333,35 +354,55 @@ int MvtxMonDraw::DrawHitMap(const std::string &what )
 int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  const int canvasID = 4;
+  const int canvasID = 1;
+  const int padID = 1;
 
-  TH2Poly* mvtxmon_LaneStatusOverview[3][NFlx] = {nullptr};  
-  TH2Poly* mvtxmon_mGeneralOccupancy[NFlx] = {nullptr}; 
-  TH1D* mvtxmon_mGeneralErrorPlots[NFlx]  = {nullptr}; 
-  TH2D* mvtxmon_mGeneralErrorFile[NFlx]  = {nullptr}; 
+  TH2Poly* mvtxmon_LaneStatusOverview[3][NFlx+1] = {nullptr};  
+  TH2Poly* mvtxmon_mGeneralOccupancy[NFlx+1] = {nullptr}; 
+  TH1D* mvtxmon_mGeneralErrorPlots[NFlx+1]  = {nullptr}; 
+  TH2D* mvtxmon_mGeneralErrorFile[NFlx+1]  = {nullptr}; 
 
-  for (int iFelix = 0; iFelix <1; iFelix++){
-    mvtxmon_LaneStatusOverview[0][iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto("MVTXMON/LaneStatus/laneStatusOverviewFlagWARNING"));
-    mvtxmon_LaneStatusOverview[1][iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto("MVTXMON/LaneStatus/laneStatusOverviewFlagERROR"));
-    mvtxmon_LaneStatusOverview[2][iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto("MVTXMON/LaneStatus/laneStatusOverviewFlagFAULT"));
-    mvtxmon_mGeneralOccupancy[iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto("MVTXMON/General/General_Occupancy"));
-    mvtxmon_mGeneralErrorPlots[iFelix] = dynamic_cast<TH1D*>(cl->getHisto("MVTXMON/General/ErrorPlots"));
-    mvtxmon_mGeneralErrorFile[iFelix] = dynamic_cast<TH2D*>(cl->getHisto("MVTXMON/General/ErrorFile"));
-    for(int i = 0; i < 3; i++){
-      if(iFelix > 0) mvtxmon_LaneStatusOverview[i][0]->Add(mvtxmon_LaneStatusOverview[i][iFelix],1.); //merge all felix servers into 1
-    }
-    if(iFelix > 0) mvtxmon_mGeneralOccupancy[0]->Add(mvtxmon_mGeneralOccupancy[iFelix],1.);
-    if(iFelix > 0) mvtxmon_mGeneralErrorPlots[0]->Add(mvtxmon_mGeneralErrorPlots[iFelix]);
-    if(iFelix > 0) mvtxmon_mGeneralErrorFile[0]->Add(mvtxmon_mGeneralErrorFile[iFelix]);
+  for (int iFelix = 0; iFelix < NFlx; iFelix++){
+    mvtxmon_LaneStatusOverview[0][iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/LaneStatus/laneStatusOverviewFlagWARNING"));
+    mvtxmon_LaneStatusOverview[1][iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/LaneStatus/laneStatusOverviewFlagERROR"));
+    mvtxmon_LaneStatusOverview[2][iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/LaneStatus/laneStatusOverviewFlagFAULT"));
+    mvtxmon_mGeneralOccupancy[iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/General/General_Occupancy"));
+    mvtxmon_mGeneralErrorPlots[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/General/ErrorPlots"));
+    mvtxmon_mGeneralErrorFile[iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/General/ErrorFile"));
   }
+  
+  //injecting errors here
+  mvtxmon_LaneStatusOverview[0][1] = mvtxmon_LaneStatusOverview[0][0];
+  //injecting errors done
 
+  int bitset = 0;
+  int bitsetOR = 0;
+  int bitsetAND = 1;
+  bitset = MergeServers<TH2Poly*>(mvtxmon_LaneStatusOverview[0]);
+  bitsetOR |= bitset; bitsetAND &= bitset;
+  bitset = MergeServers<TH2Poly*>(mvtxmon_LaneStatusOverview[1]);
+  bitsetOR |= bitset; bitsetAND &= bitset;
+  bitset = MergeServers<TH2Poly*>(mvtxmon_LaneStatusOverview[2]);
+  bitsetOR |= bitset; bitsetAND &= bitset;
+  bitset = MergeServers<TH2Poly*>(mvtxmon_mGeneralOccupancy);
+  bitsetOR |= bitset; bitsetAND &= bitset;
+  bitset = MergeServers<TH1D*>(mvtxmon_mGeneralErrorPlots);
+  bitsetOR |= bitset; bitsetAND &= bitset;
+  bitset = MergeServers<TH2D*>(mvtxmon_mGeneralErrorFile);
+  bitsetOR |= bitset; bitsetAND &= bitset;
+  
   for(int i = 0; i < 3; i++){
-    mvtxmon_LaneStatusOverview[i][0]->SetStats(0);
-    mvtxmon_LaneStatusOverview[i][0]->SetMinimum(0);
-    mvtxmon_LaneStatusOverview[i][0]->SetMaximum(1);
-    mvtxmon_LaneStatusOverview[i][0]->SetBit(TH1::kIsAverage);
+    mvtxmon_LaneStatusOverview[i][NFlx]->SetStats(0);
+    mvtxmon_LaneStatusOverview[i][NFlx]->GetYaxis()->SetTitleOffset(0.6);
+    mvtxmon_LaneStatusOverview[i][NFlx]->SetMinimum(0);
+    mvtxmon_LaneStatusOverview[i][NFlx]->SetMaximum(1);
+    mvtxmon_LaneStatusOverview[i][NFlx]->SetBit(TH1::kIsAverage);
   }
+  mvtxmon_mGeneralOccupancy[NFlx]->GetYaxis()->SetTitleOffset(0.6);
 
+  for(int bin = 1; bin < mvtxmon_mGeneralErrorFile[NFlx]->GetNbinsX()+1;bin++ ){
+   mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetBinLabel(bin,Form("%d",(bin-1)%8));
+  }
 
   if (!gROOT->FindObject("MvtxMon_General"))
   {
@@ -371,47 +412,137 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   TC[canvasID]->SetEditable(true);
   TC[canvasID]->Clear("D");
   
+  Pad[padID]->Divide(4,2);
   int returnCode = 0;
 
-Pad[7]->Divide(4,2);
-//TC[canvasID]->ls();
-//TC[canvasID]->Print();
-Pad[7]->ls();
-Pad[7]->Print();
-//TC[canvasID]->cd(1);
-  //Pad[7]->cd(2);
-//mvtxmon_LaneStatusOverview[0][0]->DrawCopy("lcolz");
-  returnCode += PublishHistogram<TH2Poly*>(Pad[7],1,mvtxmon_LaneStatusOverview[0][0],"lcolz");
-  returnCode += PublishHistogram<TH2Poly*>(Pad[7],2,mvtxmon_LaneStatusOverview[1][0],"lcolz");
-  returnCode += PublishHistogram<TH2Poly*>(Pad[7],3,mvtxmon_LaneStatusOverview[2][0],"lcolz");
-  returnCode += PublishHistogram<TH2Poly*>(Pad[7],4,mvtxmon_mGeneralOccupancy[0]);
-  returnCode += PublishHistogram<TH2Poly*>(Pad[7],4,mvtxmon_mGeneralOccupancy[0],"colz same");
-  returnCode += PublishHistogram<TH1D*>(Pad[7],5,mvtxmon_mGeneralErrorPlots[0]);
-  returnCode += PublishHistogram<TH2D*>(Pad[7],6,mvtxmon_mGeneralErrorFile[0]);
+  Pad[padID]->cd(4)->SetRightMargin(0.12);
+  Pad[padID]->cd(5)->SetLeftMargin(0.16);
+  Pad[padID]->cd(6)->SetTopMargin(0.16);
+
+  //injecting errors here
+  mvtxmon_LaneStatusOverview[1][NFlx]->SetBinContent(5,0.5);
+  mvtxmon_LaneStatusOverview[2][NFlx]->SetBinContent(11,0.5);
+  mvtxmon_LaneStatusOverview[2][NFlx]->SetBinContent(12,0.5);
+  mvtxmon_LaneStatusOverview[2][NFlx]->SetBinContent(13,0.5);
+  mvtxmon_LaneStatusOverview[2][NFlx]->SetBinContent(14,0.5);
+  mvtxmon_LaneStatusOverview[2][NFlx]->SetBinContent(15,0.5);
+  mvtxmon_LaneStatusOverview[2][NFlx]->SetBinContent(16,0.5);
+  mvtxmon_LaneStatusOverview[2][NFlx]->SetBinContent(17,0.5);
+  mvtxmon_LaneStatusOverview[2][NFlx]->SetBinContent(18,0.5);
+  mvtxmon_LaneStatusOverview[2][NFlx]->SetBinContent(19,0.5);
+  mvtxmon_mGeneralErrorFile[NFlx]->SetBinContent(17,5,20);
+  //injecting errors done
+
+  mvtxmon_mGeneralErrorPlots[NFlx]->GetXaxis()->SetTitleSize(0.045);
+  mvtxmon_mGeneralErrorPlots[NFlx]->GetYaxis()->SetTitleSize(0.045);
+  mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetTitleSize(0.045);
+  mvtxmon_mGeneralErrorFile[NFlx]->GetYaxis()->SetTitleSize(0.045);
+
+  std::vector<MvtxMonDraw::Quality> status;
+  status = analyseForError(mvtxmon_LaneStatusOverview[0][NFlx],mvtxmon_LaneStatusOverview[1][NFlx],mvtxmon_LaneStatusOverview[2][NFlx],mvtxmon_mGeneralErrorFile[NFlx]);
+
+  returnCode += PublishHistogram(Pad[padID],1,mvtxmon_LaneStatusOverview[0][NFlx],"lcolz");
+  DrawPave(status, 0);
+  returnCode += PublishHistogram(Pad[padID],2,mvtxmon_LaneStatusOverview[1][NFlx],"lcolz");
+  DrawPave(status, 3);
+  returnCode += PublishHistogram(Pad[padID],3,mvtxmon_LaneStatusOverview[2][NFlx],"lcolz");
+  DrawPave(status, 6);
+  returnCode += PublishHistogram(Pad[padID],4,mvtxmon_mGeneralOccupancy[NFlx]);
+  returnCode += PublishHistogram(Pad[padID],4,mvtxmon_mGeneralOccupancy[NFlx],"colz same");
+  returnCode += PublishHistogram(Pad[padID],5,mvtxmon_mGeneralErrorPlots[NFlx]);
+  returnCode += PublishHistogram(Pad[padID],6,mvtxmon_mGeneralErrorFile[NFlx],"lcol");
+
+  TPaveText *ptt5 = new TPaveText(.1,.85,.9,.95,"blNDC");
+  ptt5->SetTextSize(0.04);
+  ptt5->SetFillColor(0);
+  ptt5->SetLineColor(0);
+  ptt5->SetBorderSize(1);
+  ptt5->AddText(" FLX 0   FLX 1   FLX 2   FLX 3   FLX 4   FLX 5");
+  ptt5->Draw();
+ 
+  Pad[padID]->cd(7);
+
+  TPaveText *bulbRed = new TPaveText(0.1, 0.82, 0.9, 0.92, "NDC");
+  bulbRed->SetName("BulbRed");
+  formatPaveText(bulbRed, 0.05, kRed, 12, "#color[2]{It's Burning! Call The Expert!!!}");
+
+  TPaveText *bulbYellow = new TPaveText(0.1, 0.82, 0.9, 0.92, "NDC");
+  bulbYellow->SetName("BulbYellow");
+  formatPaveText(bulbYellow, 0.05, kRed, 12, "#color[808]{Did you break it? Call The Expert!}");
+
+  TPaveText *bulbGreen = new TPaveText(0.1, 0.82, 0.9, 0.92, "NDC");
+  bulbGreen->SetName("BulbGreen");
+  formatPaveText(bulbGreen, 0.05, kGreen, 12, "#color[418]{Chill, Have Some Coffee}");
+
+  TPaveText *bulb = new TPaveText(0.05, 0.05, 0.95, 0.95, "NDC");
+  
+  
+  TPaveText *ptt4 = new TPaveText(.1,.07,.9,.58,"blNDC");
+  ptt4->SetTextSize(0.04);
+  ptt4->SetFillColor(0);
+  ptt4->SetTextAlign(22);
+  ptt4->SetLineColor(0);
+  ptt4->SetBorderSize(1); 
+  ptt4->AddText("Alarms:");
 
 
-  //mvtxmon_mGeneralOccupancy[0]->SetRightMargin(0.07);
-/*mvtxmon_mGeneralOccupancy[0]->GetYaxis()->SetTitleOffset(0.6);
-  PublishHistogram<TH2Poly*>(Pad[8],mvtxmon_mGeneralOccupancy[0]);
-  PublishHistogram<TH2Poly*>(Pad[8],mvtxmon_mGeneralOccupancy[0],"colz same");*/
+  if(status.at(9) == Quality::Good && status.at(10) == Quality::Good && status.at(11) == Quality::Good){
+    bulb->SetFillColor(kGreen);
+    bulb->Draw();
+    bulbGreen->Draw("same");
+  }
 
- /* TC[canvasID]->cd();
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
-  // fill run number and event time into string
-  runnostream << ThisName << "_1 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
-  runstring = runnostream.str();
-  Pad[7]->cd();
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[canvasID]->Update();
-  TC[canvasID]->Show();*/
+  if(status.at(9) == Quality::Medium || status.at(10) == Quality::Medium || status.at(11) == Quality::Medium){
+    if(status.at(9) == Quality::Medium) ptt4->AddText("#color[808]{QA Layer 0 Medium}");
+    if(status.at(10) == Quality::Medium) ptt4->AddText("#color[808]{QA Layer 1 Medium}");
+    if(status.at(11) == Quality::Medium) ptt4->AddText("#color[808]{QA Layer 2 Medium}");
+    bulb->SetFillColor(kYellow);
+    bulb->Draw();
+    bulbYellow->Draw("same");
+  }
+
+  if(status.at(9) == Quality::Bad || status.at(10) == Quality::Bad || status.at(11) == Quality::Bad ||status.at(12) == Quality::Bad||status.at(13) == Quality::Bad||status.at(14) == Quality::Bad||status.at(15) == Quality::Bad||status.at(16) == Quality::Bad||status.at(17) == Quality::Bad){
+    if(status.at(9) == Quality::Bad) ptt4->AddText("#color[2]{QA Layer 0 Bad}");
+    if(status.at(10) == Quality::Bad) ptt4->AddText("#color[2]{QA Layer 1 Bad}");
+    if(status.at(11) == Quality::Bad) ptt4->AddText("#color[2]{QA Layer 2 Bad}");
+    if(status.at(12) == Quality::Bad) ptt4->AddText("#color[2]{Felix 0 Decoder Errors}");
+    if(status.at(13) == Quality::Bad) ptt4->AddText("#color[2]{Felix 1 Decoder Errors}");
+    if(status.at(14) == Quality::Bad) ptt4->AddText("#color[2]{Felix 2 Decoder Errors}");
+    if(status.at(15) == Quality::Bad) ptt4->AddText("#color[2]{Felix 3 Decoder Errors}");
+    if(status.at(16) == Quality::Bad) ptt4->AddText("#color[2]{Felix 4 Decoder Errors}");
+    if(status.at(17) == Quality::Bad) ptt4->AddText("#color[2]{Felix 5 Decoder Errors}");
+    bulb->SetFillColor(kRed);
+    bulb->Draw();
+    bulbRed->Draw("same");
+  }
+
+  if((bitsetAND & 0x3F) != 0x3F) ptt4->AddText("#color[2]{Some Servers are Offline or in Error}");
+
+  ptt4->Draw();
+
+  TPaveText *tlegend = new TPaveText(.2,.6,.8,.8,"blNDC");
+  tlegend->SetTextSize(0.04);
+  tlegend->SetFillColor(0);
+  tlegend->SetTextAlign(22);
+  tlegend->SetLineColor(0);
+  tlegend->SetBorderSize(1);
+  tlegend->AddText("Legend:");
+  tlegend->AddText("#color[418]{Green = QA OK}");
+  tlegend->AddText("#color[808]{Yellow = QA Medium}");
+  tlegend->AddText("#color[2]{Red = QA Bad}");
+  tlegend->Draw();
+ 
+  Pad[padID]->cd(8);
+  TPaveText *pt = new TPaveText(.05,.1,.95,.8);
+  pt->AddText("Online Monitoring Server Status");
+  for (int iFelix = 0; iFelix < NFlx; iFelix++){
+    std::string serverStatus = "Felix " + std::to_string(iFelix);
+    if((bitsetOR & (1<<iFelix)) == 1<<iFelix && (bitsetAND & (1<<iFelix)) == 1<<iFelix) serverStatus += " #color[418]{ONLINE} ";
+    if((bitsetOR & (1<<iFelix)) == 0 && (bitsetAND & (1<<iFelix)) == 0) serverStatus += " #color[2]{OFFLINE}";
+    if((bitsetOR & (1<<iFelix)) == 1<<iFelix && (bitsetAND & (1<<iFelix)) == 0) serverStatus += " #color[2]{ERROR}";
+    pt->AddText(serverStatus.c_str());
+  }
+  pt->Draw();
   
   PublishStatistics(TC[canvasID],cl);
   TC[canvasID]->SetEditable(false);
@@ -421,34 +552,38 @@ Pad[7]->Print();
 int MvtxMonDraw::DrawFEE(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  const int canvasID = 5;
+  const int canvasID = 2;
+  const int padID = 2;
 
-  TH2I* mTriggerVsFeeId[NFlx] = {nullptr}; 
-  TH1I* mTrigger[NFlx] ={nullptr}; 
-  TH2I* mLaneInfo[NFlx] = {nullptr}; 
-  TH2I* mLaneStatus[3][NFlx] = {nullptr}; 
-  TH2I* mLaneStatusCumulative[3][NFlx] = {nullptr}; 
-  TH1I* mLaneStatusSummary[3][NFlx] = {nullptr}; 
-  TH1I* mLaneStatusSummaryIB[NFlx] = {nullptr}; 
+  TH2I* mTriggerVsFeeId[NFlx+1] = {nullptr}; 
+  TH1I* mTrigger[NFlx+1] ={nullptr}; 
+  //TH2I* mLaneInfo[NFlx+1] = {nullptr}; 
+  TH2I* mLaneStatus[3][NFlx+1] = {nullptr}; 
+  TH2I* mLaneStatusCumulative[3][NFlx+1] = {nullptr}; 
+  TH1I* mLaneStatusSummary[3][NFlx+1] = {nullptr}; 
+  TH1I* mLaneStatusSummaryIB[NFlx+1] = {nullptr}; 
 
   for (int iFelix = 0; iFelix <NFlx; iFelix++){
-    mTriggerVsFeeId[iFelix] = dynamic_cast<TH2I*>(cl->getHisto("MVTXMON/FEE/TriggerVsFeeid"));
-    mTrigger[iFelix] = dynamic_cast<TH1I*>(cl->getHisto("MVTXMON/FEE/TriggerFlag"));
-    mLaneInfo[iFelix] = dynamic_cast<TH2I*>(cl->getHisto("MVTXMON/FEE/LaneInfo"));
-    mLaneStatusSummaryIB[iFelix]= dynamic_cast<TH1I*>(cl->getHisto("MVTXMON/LaneStatusSummary/LaneStatusSummaryIB"));
+    mTriggerVsFeeId[iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/FEE/TriggerVsFeeid"));
+    mTrigger[iFelix] = dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/FEE/TriggerFlag"));
+    //mLaneInfo[iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/FEE/LaneInfo"));
+    mLaneStatusSummaryIB[iFelix]= dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/LaneStatusSummary/LaneStatusSummary"));
     for (int i = 0; i < 3; i++) {
-      mLaneStatus[i][iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON/LaneStatus/laneStatusFlag%s", mLaneStatusFlag[i].c_str())));
-      mLaneStatusCumulative[i][iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON/LaneStatus/laneStatusFlagCumulative%s", mLaneStatusFlag[i].c_str())));
-      mLaneStatusSummary[i][iFelix] = dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON/LaneStatusSummary/LaneStatusSummaryL%i", i)));
-     if(iFelix > 0) mLaneStatus[i][0]->Add(mLaneStatus[i][iFelix]); //merge all felix servers into 1
-     if(iFelix > 0) mLaneStatusCumulative[i][0]->Add(mLaneStatusCumulative[i][iFelix]); //merge all felix servers into 1
-     if(iFelix > 0) mLaneStatusSummary[i][0]->Add(mLaneStatusSummary[i][iFelix]); //merge all felix servers into 1
+      mLaneStatus[i][iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/LaneStatus/laneStatusFlag%s", mLaneStatusFlag[i].c_str())));
+      mLaneStatusCumulative[i][iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/LaneStatus/laneStatusFlagCumulative%s", mLaneStatusFlag[i].c_str())));
+      mLaneStatusSummary[i][iFelix] = dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/LaneStatusSummary/LaneStatusSummaryL%i", i)));
     }
-    if(iFelix > 0) mTriggerVsFeeId[0]->Add(mTriggerVsFeeId[iFelix]);
-    if(iFelix > 0) mTrigger[0]->Add(mTrigger[iFelix]);
-    if(iFelix > 0) mLaneInfo[0]->Add(mLaneInfo[iFelix]);
-    if(iFelix > 0) mLaneStatusSummaryIB[0]->Add(mLaneStatusSummaryIB[iFelix]);
   }
+
+  for (int i = 0; i < 3; i++) {
+    MergeServers<TH2I*>(mLaneStatus[i]);
+    MergeServers<TH2I*>(mLaneStatusCumulative[i]);
+    MergeServers<TH1I*>(mLaneStatusSummary[i]);
+  }
+  MergeServers<TH2I*>(mTriggerVsFeeId);
+  MergeServers<TH1I*>(mTrigger);
+  //MergeServers<TH2I*>(mLaneInfo);
+  MergeServers<TH1I*>(mLaneStatusSummaryIB);
 
   if (!gROOT->FindObject("MvtxMon_FEE"))
   {
@@ -457,21 +592,85 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
 
   TC[canvasID]->SetEditable(true);
   TC[canvasID]->Clear("D");
+  Pad[padID]->Divide(4,3);
+
+  for (int i = 0; i < 3; i++) {
+    mLaneStatus[i][NFlx]->GetXaxis()->SetTitleSize(0.055);
+    mLaneStatus[i][NFlx]->GetXaxis()->SetTitleOffset(0.85);
+    mLaneStatus[i][NFlx]->GetYaxis()->SetTitleSize(0.06);
+    mLaneStatus[i][NFlx]->GetXaxis()->SetLabelSize(0.05);
+    mLaneStatus[i][NFlx]->GetYaxis()->SetLabelSize(0.05);
+    mLaneStatusCumulative[i][NFlx]->GetXaxis()->SetTitleSize(0.055);
+    mLaneStatusCumulative[i][NFlx]->GetXaxis()->SetTitleOffset(0.85);
+    mLaneStatusCumulative[i][NFlx]->GetYaxis()->SetTitleSize(0.06);
+    mLaneStatusCumulative[i][NFlx]->GetXaxis()->SetLabelSize(0.05);
+    mLaneStatusCumulative[i][NFlx]->GetYaxis()->SetLabelSize(0.05);
+
+    mLaneStatusSummary[i][NFlx]->GetXaxis()->SetLabelSize(0.07);
+    mLaneStatusSummary[i][NFlx]->GetYaxis()->SetTitleSize(0.06);
+    mLaneStatusSummary[i][NFlx]->GetYaxis()->SetLabelSize(0.05);
+    mLaneStatusSummary[i][NFlx]->GetYaxis()->SetTitleOffset(0.9);
+  }
+  mLaneStatusSummaryIB[NFlx]->GetXaxis()->SetLabelSize(0.07);
+  mLaneStatusSummaryIB[NFlx]->GetYaxis()->SetTitleSize(0.06);
+  mLaneStatusSummaryIB[NFlx]->GetYaxis()->SetLabelSize(0.05);
+  mLaneStatusSummaryIB[NFlx]->GetYaxis()->SetTitleOffset(0.9);
+
+  mTriggerVsFeeId[NFlx]->GetXaxis()->SetTitleSize(0.055);
+  mTriggerVsFeeId[NFlx]->GetXaxis()->SetTitleOffset(0.75);
+  mTriggerVsFeeId[NFlx]->GetYaxis()->SetTitleOffset(1.2);
+  mTriggerVsFeeId[NFlx]->GetYaxis()->SetTitleSize(0.06);
+  mTriggerVsFeeId[NFlx]->GetYaxis()->SetLabelSize(0.06);
+  mTriggerVsFeeId[NFlx]->GetXaxis()->SetLabelSize(0.05);
+  mTrigger[NFlx]->GetXaxis()->SetTitleSize(0.055);
+  mTrigger[NFlx]->GetXaxis()->SetTitleOffset(0.85);
+  mTrigger[NFlx]->GetYaxis()->SetTitleSize(0.06);
+  mTrigger[NFlx]->GetYaxis()->SetLabelSize(0.06);
+  mTrigger[NFlx]->GetXaxis()->SetLabelSize(0.05);
+  mTrigger[NFlx]->GetYaxis()->SetTitleOffset(0.85);
+
+  TPaveText *tlayer[3] = {nullptr};
+  
+  for (int i = 0; i < 3 ; i++){
+    double shift[3] = {0,0.25,0.55};
+    tlayer[i] = new TPaveText(.14+shift[i],.87,.24+shift[i],.93,"blNDC");
+    tlayer[i]->SetTextSize(0.05);
+    tlayer[i]->SetFillColor(0);
+    tlayer[i]->SetTextAlign(22);
+    tlayer[i]->SetLineColor(0);
+    tlayer[i]->SetBorderSize(1);
+    tlayer[i]->AddText(Form("Layer %d", i));
+  }
+
+  Pad[padID]->cd(3)->SetTopMargin(0.16);
+  Pad[padID]->cd(4)->SetTopMargin(0.16);
+  Pad[padID]->cd(4)->SetTopMargin(0.145);
+  Pad[padID]->cd(7)->SetTopMargin(0.16);
+  Pad[padID]->cd(8)->SetTopMargin(0.16);
+  Pad[padID]->cd(11)->SetTopMargin(0.16);
+  Pad[padID]->cd(12)->SetTopMargin(0.16);
 
   int returnCode = 0;
-  returnCode += PublishHistogram<TH2I*>(TC[canvasID],1,mTriggerVsFeeId[0],"lcol");
-  returnCode += PublishHistogram<TH1I*>(TC[canvasID],2,mTrigger[0]);
-  returnCode += PublishHistogram<TH2I*>(TC[canvasID],3,mLaneInfo[0]);
-  returnCode += PublishHistogram<TH2I*>(TC[canvasID],4,mLaneStatus[0][0]);
-  returnCode += PublishHistogram<TH2I*>(TC[canvasID],5,mLaneStatus[1][0]);
-  returnCode += PublishHistogram<TH2I*>(TC[canvasID],6,mLaneStatus[2][0]);
-  returnCode += PublishHistogram<TH2I*>(TC[canvasID],7,mLaneStatusCumulative[0][0]);
-  returnCode += PublishHistogram<TH2I*>(TC[canvasID],8,mLaneStatusCumulative[1][0]);
-  returnCode += PublishHistogram<TH2I*>(TC[canvasID],9,mLaneStatusCumulative[2][0]);
-  returnCode += PublishHistogram<TH1I*>(TC[canvasID],10,mLaneStatusSummary[0][0]);
-  returnCode += PublishHistogram<TH1I*>(TC[canvasID],11,mLaneStatusSummary[1][0]);
-  returnCode += PublishHistogram<TH1I*>(TC[canvasID],12,mLaneStatusSummary[2][0]);
-  returnCode += PublishHistogram<TH1I*>(TC[canvasID],13,mLaneStatusSummaryIB[0]);
+   Pad[padID]->cd(1)->SetLeftMargin(0.16);
+  returnCode += PublishHistogram(Pad[padID],1,mTriggerVsFeeId[NFlx],"lcol");
+  returnCode += PublishHistogram(Pad[padID],5,mTrigger[NFlx]);
+  //returnCode += PublishHistogram(Pad[9],3,mLaneInfo[NFlx]);
+  returnCode += PublishHistogram(Pad[padID],3,mLaneStatus[0][NFlx]);
+  for(int i = 0;i<3;i++)tlayer[i]->Draw();
+  returnCode += PublishHistogram(Pad[padID],7,mLaneStatus[1][NFlx]);
+  for(int i = 0;i<3;i++)tlayer[i]->Draw();
+  returnCode += PublishHistogram(Pad[padID],11,mLaneStatus[2][NFlx]);
+  for(int i = 0;i<3;i++)tlayer[i]->Draw();
+  returnCode += PublishHistogram(Pad[padID],4,mLaneStatusCumulative[0][NFlx]);
+  for(int i = 0;i<3;i++)tlayer[i]->Draw();
+  returnCode += PublishHistogram(Pad[padID],8,mLaneStatusCumulative[1][NFlx]);
+  for(int i = 0;i<3;i++)tlayer[i]->Draw();
+  returnCode += PublishHistogram(Pad[padID],12,mLaneStatusCumulative[2][NFlx]);
+  for(int i = 0;i<3;i++)tlayer[i]->Draw();
+  returnCode += PublishHistogram(Pad[padID],2,mLaneStatusSummary[0][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],6,mLaneStatusSummary[1][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],10,mLaneStatusSummary[2][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],9,mLaneStatusSummaryIB[NFlx]);
   
   PublishStatistics(TC[canvasID],cl);
   TC[canvasID]->SetEditable(false);
@@ -481,21 +680,66 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
 int MvtxMonDraw::DrawOCC(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  const int canvasID = 6;
-  TH1D* hOccupancyPlot[3][NFlx];
-  TH2I* hEtaPhiHitmap[3][NFlx];
-  TH2D* hChipStaveOccupancy[3][NFlx];
+  const int canvasID = 3;
+  const int padID = 3;
+
+  TH1D* hOccupancyPlot[3][NFlx+1];
+  //TH2I* hEtaPhiHitmap[3][NFlx+1];
+  TH2D* hChipStaveOccupancy[3][NFlx+1];
+  TH1D *mvtxmon_ChipStave1D[NFlx+1];
+  TH1D *mvtxmon_ChipFiredHis[NFlx+1];
 
   for (int aLayer = 0; aLayer < 3; aLayer++) {
     for (int iFelix = 0; iFelix <NFlx; iFelix++){
-      hOccupancyPlot[aLayer][iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON/Occupancy/Layer%dOccupancy", aLayer)));
-      hEtaPhiHitmap[aLayer][iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dEtaPhi", aLayer, aLayer)));
-      hChipStaveOccupancy[aLayer][iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dChipStave", aLayer, aLayer)));
-      if(iFelix > 0) hOccupancyPlot[aLayer][0]->Add(hOccupancyPlot[aLayer][iFelix]); //merge all felix servers into 1
-      if(iFelix > 0) hEtaPhiHitmap[aLayer][0]->Add(hEtaPhiHitmap[aLayer][iFelix]); //merge all felix servers into 1
-      if(iFelix > 0) hChipStaveOccupancy[aLayer][0]->Add(hChipStaveOccupancy[aLayer][iFelix]); //merge all felix servers into 1
+      hOccupancyPlot[aLayer][iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/Occupancy/Layer%dOccupancy", aLayer)));
+      //hEtaPhiHitmap[aLayer][iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/Occupancy/Layer%d/Layer%dEtaPhi", aLayer, aLayer)));
+      hChipStaveOccupancy[aLayer][iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/Occupancy/Layer%d/Layer%dChipStave", aLayer, aLayer)));
     }
   }
+ 
+  for (int iFelix = 0; iFelix <NFlx; iFelix++){
+    mvtxmon_ChipStave1D[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/RawData/mvtxmon_ChipStave1D"));
+    mvtxmon_ChipFiredHis[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/RawData/mvtxmon_ChipFiredHis"));
+  }
+
+  for (int i = 0; i < 3; i++) {
+    MergeServers<TH1D*>(hOccupancyPlot[i]);
+   // MergeServers<TH2I*>(hEtaPhiHitmap[i]);
+    MergeServers<TH2D*>(hChipStaveOccupancy[i]); 
+  }
+
+  for (int i = 0; i < 3; i++) {
+    hOccupancyPlot[i][NFlx]->GetXaxis()->SetLabelSize(0.05);  
+    hOccupancyPlot[i][NFlx]->GetXaxis()->SetTitleSize(0.05);
+    hOccupancyPlot[i][NFlx]->GetXaxis()->SetTitleOffset(0.85);
+    hOccupancyPlot[i][NFlx]->GetYaxis()->SetLabelSize(0.045);
+    hOccupancyPlot[i][NFlx]->GetYaxis()->SetTitleSize(0.05);
+    hOccupancyPlot[i][NFlx]->GetYaxis()->SetTitleOffset(1);
+
+    hChipStaveOccupancy[i][NFlx]->GetXaxis()->SetLabelSize(0.05);  
+    hChipStaveOccupancy[i][NFlx]->GetXaxis()->SetTitleSize(0.05);
+    hChipStaveOccupancy[i][NFlx]->GetXaxis()->SetTitleOffset(0.85);
+    hChipStaveOccupancy[i][NFlx]->GetYaxis()->SetLabelSize(0.06);
+    hChipStaveOccupancy[i][NFlx]->GetYaxis()->SetTitleSize(0.05);
+    hChipStaveOccupancy[i][NFlx]->GetYaxis()->SetTitleOffset(0.7);
+  }
+
+  MergeServers<TH1D*>(mvtxmon_ChipStave1D);
+  MergeServers<TH1D*>(mvtxmon_ChipFiredHis);
+
+  mvtxmon_ChipStave1D[NFlx]->GetXaxis()->SetLabelSize(0.05);  
+  mvtxmon_ChipStave1D[NFlx]->GetXaxis()->SetTitleSize(0.055);
+  mvtxmon_ChipStave1D[NFlx]->GetXaxis()->SetTitleOffset(0.75);
+  mvtxmon_ChipStave1D[NFlx]->GetYaxis()->SetLabelSize(0.045);
+  mvtxmon_ChipStave1D[NFlx]->GetYaxis()->SetTitleSize(0.06);
+  mvtxmon_ChipStave1D[NFlx]->GetYaxis()->SetTitleOffset(1.2);
+
+  mvtxmon_ChipFiredHis[NFlx]->GetXaxis()->SetLabelSize(0.05);  
+  mvtxmon_ChipFiredHis[NFlx]->GetXaxis()->SetTitleSize(0.055);
+  mvtxmon_ChipFiredHis[NFlx]->GetXaxis()->SetTitleOffset(0.75);
+  mvtxmon_ChipFiredHis[NFlx]->GetYaxis()->SetLabelSize(0.06);
+  mvtxmon_ChipFiredHis[NFlx]->GetYaxis()->SetTitleSize(0.06);
+  mvtxmon_ChipFiredHis[NFlx]->GetYaxis()->SetTitleOffset(1.2);
 
   if (!gROOT->FindObject("MvtxMon_OCC"))
   {
@@ -504,17 +748,19 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
 
   TC[canvasID]->SetEditable(true);
   TC[canvasID]->Clear("D");
-
+  Pad[padID]->Divide(3,3);
   int returnCode = 0;
-  returnCode += PublishHistogram<TH1D*>(TC[canvasID],1,hOccupancyPlot[0][0]);
-  returnCode += PublishHistogram<TH1D*>(TC[canvasID],2,hOccupancyPlot[1][0]);
-  returnCode += PublishHistogram<TH1D*>(TC[canvasID],3,hOccupancyPlot[2][0]);
-  returnCode += PublishHistogram<TH2I*>(TC[canvasID],4,hEtaPhiHitmap[0][0]);
-  returnCode += PublishHistogram<TH2I*>(TC[canvasID],5,hEtaPhiHitmap[1][0]);
-  returnCode += PublishHistogram<TH2I*>(TC[canvasID],6,hEtaPhiHitmap[2][0]);
-  returnCode += PublishHistogram<TH2D*>(TC[canvasID],7,hChipStaveOccupancy[0][0],"colz");
-  returnCode += PublishHistogram<TH2D*>(TC[canvasID],8,hChipStaveOccupancy[1][0],"colz");
-  returnCode += PublishHistogram<TH2D*>(TC[canvasID],9,hChipStaveOccupancy[2][0],"colz");
+  returnCode += PublishHistogram(Pad[padID],1,hOccupancyPlot[0][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],2,hOccupancyPlot[1][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],3,hOccupancyPlot[2][NFlx]);
+ // returnCode += PublishHistogram(Pad[10],4,hEtaPhiHitmap[0][NFlx]);
+  //returnCode += PublishHistogram(Pad[10],5,hEtaPhiHitmap[1][NFlx]);
+  //returnCode += PublishHistogram(Pad[10],6,hEtaPhiHitmap[2][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],4,hChipStaveOccupancy[0][NFlx],"colz");
+  returnCode += PublishHistogram(Pad[padID],5,hChipStaveOccupancy[1][NFlx],"colz");
+  returnCode += PublishHistogram(Pad[padID],6,hChipStaveOccupancy[2][NFlx],"colz");
+  returnCode += PublishHistogram(Pad[padID],7,mvtxmon_ChipStave1D[NFlx]);
+  returnCode += PublishHistogram(Pad[padID],8,mvtxmon_ChipFiredHis[NFlx]);
 
   PublishStatistics(TC[canvasID],cl);
   TC[canvasID]->SetEditable(false);
@@ -524,43 +770,60 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
 int MvtxMonDraw::DrawFHR(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  const int canvasID = 7;
+  const int canvasID = 4;
+  const int padID = 4;
 
-  TH2D* mDeadChipPos[3][NFlx];
-  TH2D* mAliveChipPos[3][NFlx];
+  TH2D* mDeadChipPos[3][NFlx+1];
+  TH2D* mAliveChipPos[3][NFlx+1];
   //TH2D* mChipStaveOccupancy[3][NFlx];
-  TH1D* mOccupancyPlot[3][NFlx];
+  TH1D* mOccupancyPlot[3][NFlx+1];
   
-  TH2I* mErrorVsFeeid[NFlx] = {nullptr}; 
-  TH2Poly* mGeneralOccupancy[NFlx] = {nullptr}; 
-  TH2Poly* mGeneralNoisyPixel[NFlx] = {nullptr}; 
-  TH2D* mTotalDeadChipPos[NFlx] = {nullptr}; 
-  TH2D* mTotalAliveChipPos[NFlx] = {nullptr}; 
+  TH2I* mErrorVsFeeid[NFlx+1] = {nullptr}; 
+  TH2Poly* mGeneralOccupancy[NFlx+1] = {nullptr}; 
+  TH2Poly* mGeneralNoisyPixel[NFlx+1] = {nullptr}; 
+  TH2D* mTotalDeadChipPos[NFlx+1] = {nullptr}; 
+  TH2D* mTotalAliveChipPos[NFlx+1] = {nullptr}; 
+  TH1D *mvtxmon_EvtHitChip[NFlx+1] = {nullptr}; 
+  TH1D *mvtxmon_EvtHitDis[NFlx+1] = {nullptr}; 
 
   for (int iFelix = 0; iFelix <NFlx; iFelix++){
-    mErrorVsFeeid[iFelix] =  dynamic_cast<TH2I*>(cl->getHisto("MVTXMON/General/ErrorVsFeeid"));
-    mGeneralOccupancy[iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto("MVTXMON/General/General_Occupancy"));
-    mGeneralNoisyPixel[iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto("MVTXMON/General/Noisy_Pixel"));
-    mTotalDeadChipPos[iFelix] = dynamic_cast<TH2D*>(cl->getHisto("MVTXMON/Occupancy/TotalDeadChipPos"));
-    mTotalAliveChipPos[iFelix] = dynamic_cast<TH2D*>(cl->getHisto("MVTXMON/Occupancy/TotalAliveChipPos"));
+    mErrorVsFeeid[iFelix] =  dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/General/ErrorVsFeeid"));
+    mGeneralOccupancy[iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/General/General_Occupancy"));
+    mGeneralNoisyPixel[iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/General/Noisy_Pixel"));
+    mTotalDeadChipPos[iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/Occupancy/TotalDeadChipPos"));
+    mTotalAliveChipPos[iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/Occupancy/TotalAliveChipPos"));
+    mvtxmon_EvtHitChip[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/RawData/mvtxmon_EvtHitChip"));
+    mvtxmon_EvtHitDis[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/RawData/mvtxmon_EvtHitDis"));
     for (int mLayer = 0; mLayer < 3; mLayer++) {
-      mDeadChipPos[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dDeadChipPos", mLayer, mLayer)));
-      mAliveChipPos[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dAliveChipPos", mLayer, mLayer)));
+      mDeadChipPos[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/Occupancy/Layer%d/Layer%dDeadChipPos", mLayer, mLayer)));
+      mAliveChipPos[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/Occupancy/Layer%d/Layer%dAliveChipPos", mLayer, mLayer)));
      // mChipStaveOccupancy[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dChipStaveC", mLayer, mLayer)));
-      mOccupancyPlot[mLayer][iFelix] =  dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON/Occupancy/Layer%dOccupancy/LOG", mLayer)));
-     if(iFelix > 0) mDeadChipPos[mLayer][0]->Add(mDeadChipPos[mLayer][iFelix]);
-     if(iFelix > 0) mAliveChipPos[mLayer][0]->Add(mAliveChipPos[mLayer][iFelix]);
-   //  if(iFelix > 0) mChipStaveOccupancy[mLayer][0]->Add(mChipStaveOccupancy[mLayer][iFelix]);
-     if(iFelix > 0) mOccupancyPlot[mLayer][0]->Add(mOccupancyPlot[mLayer][iFelix]);
+      mOccupancyPlot[mLayer][iFelix] =  dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/Occupancy/Layer%dOccupancy/LOG", mLayer)));
     }
-    if(iFelix > 0) mErrorVsFeeid[0]->Add(mErrorVsFeeid[iFelix]);
-    if(iFelix > 0) mGeneralOccupancy[0]->Add(mGeneralOccupancy[iFelix],1.);
-    if(iFelix > 0) mGeneralNoisyPixel[0]->Add(mGeneralNoisyPixel[iFelix],1.);
-    if(iFelix > 0) mTotalDeadChipPos[0]->Add(mTotalDeadChipPos[iFelix]);
-    if(iFelix > 0) mTotalAliveChipPos[0]->Add(mTotalAliveChipPos[iFelix]);
   }
 
+  for (int mLayer = 0; mLayer < 3; mLayer++) {
+    MergeServers<TH2D*>(mDeadChipPos[mLayer]);
+    MergeServers<TH2D*>(mAliveChipPos[mLayer]);
+    MergeServers<TH1D*>(mOccupancyPlot[mLayer]);
+    mDeadChipPos[mLayer][NFlx]->SetMinimum(0);
+    mDeadChipPos[mLayer][NFlx]->SetMaximum(1);
+    mAliveChipPos[mLayer][NFlx]->SetMinimum(0);
+    mAliveChipPos[mLayer][NFlx]->SetMaximum(1);
+  }
 
+  MergeServers<TH2I*>(mErrorVsFeeid);
+  MergeServers<TH2Poly*>(mGeneralOccupancy);
+  MergeServers<TH2Poly*>(mGeneralNoisyPixel);
+  MergeServers<TH2D*>(mTotalDeadChipPos);
+  MergeServers<TH2D*>(mTotalAliveChipPos);
+  MergeServers<TH1D*>(mvtxmon_EvtHitChip);
+  MergeServers<TH1D*>(mvtxmon_EvtHitDis);
+
+  mTotalDeadChipPos[NFlx]->SetMinimum(0);
+  mTotalDeadChipPos[NFlx]->SetMaximum(1);
+  mTotalAliveChipPos[NFlx]->SetMinimum(0);
+  mTotalAliveChipPos[NFlx]->SetMaximum(1);
 
   if (!gROOT->FindObject("MvtxMon_FHR"))
   {
@@ -569,27 +832,30 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
 
   TC[canvasID]->SetEditable(true);
   TC[canvasID]->Clear("D");
+  Pad[padID]->Divide(5,3);
 
   int returnCode = 0;
-  returnCode += PublishHistogram<TH2I*>(TC[canvasID],1,mErrorVsFeeid[0]);
-  returnCode += PublishHistogram<TH2Poly*>(TC[canvasID],2,mGeneralOccupancy[0]);
-  returnCode += PublishHistogram<TH2Poly*>(TC[canvasID],3,mGeneralNoisyPixel[0]);
-  returnCode += PublishHistogram<TH2D*>(TC[canvasID],4,mDeadChipPos[0][0],"lcol");
-  returnCode += PublishHistogram<TH2D*>(TC[canvasID],5,mDeadChipPos[1][0],"lcol");
-  returnCode += PublishHistogram<TH2D*>(TC[canvasID],6,mDeadChipPos[2][0],"lcol");
-  gStyle->SetPalette(85);
-  returnCode += PublishHistogram<TH2D*>(TC[canvasID],7,mAliveChipPos[0][0],"lcol");
-  returnCode += PublishHistogram<TH2D*>(TC[canvasID],8,mAliveChipPos[1][0],"lcol");
-  returnCode += PublishHistogram<TH2D*>(TC[canvasID],9,mAliveChipPos[2][0],"lcol");
-  returnCode += PublishHistogram<TH2D*>(TC[canvasID],17,mTotalAliveChipPos[0],"lcol");
-  gStyle->SetPalette(55);
+  returnCode += PublishHistogram(Pad[padID],1,mErrorVsFeeid[0]);
+  returnCode += PublishHistogram(Pad[padID],6,mGeneralOccupancy[0]);
+  returnCode += PublishHistogram(Pad[padID],11,mGeneralNoisyPixel[0]);
+  returnCode += PublishHistogram(Pad[padID],3,mDeadChipPos[0][NFlx],"COL");
+  returnCode += PublishHistogram(Pad[padID],8,mDeadChipPos[1][NFlx],"COL");
+  returnCode += PublishHistogram(Pad[padID],13,mDeadChipPos[2][NFlx],"COL");
+  returnCode += PublishHistogram(Pad[padID],4,mAliveChipPos[0][NFlx],"COL");
+  returnCode += PublishHistogram(Pad[padID],9,mAliveChipPos[1][NFlx],"COL");
+  returnCode += PublishHistogram(Pad[padID],14,mAliveChipPos[2][NFlx],"COL");
  // returnCode += PublishHistogram<TH2D*>(TC[canvasID],10,mChipStaveOccupancy[0][0]);
  // returnCode += PublishHistogram<TH2D*>(TC[canvasID],11,mChipStaveOccupancy[1][0]);
 //  returnCode += PublishHistogram<TH2D*>(TC[canvasID],12,mChipStaveOccupancy[2][0]);
-  returnCode += PublishHistogram<TH1D*>(TC[canvasID],13,mOccupancyPlot[0][0]);
-  returnCode += PublishHistogram<TH1D*>(TC[canvasID],14,mOccupancyPlot[1][0]);
-  returnCode += PublishHistogram<TH1D*>(TC[canvasID],15,mOccupancyPlot[2][0]);
-  returnCode += PublishHistogram<TH2D*>(TC[canvasID],16,mTotalDeadChipPos[0],"lcol");
+  returnCode += PublishHistogram(Pad[padID],2,mOccupancyPlot[0][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],7,mOccupancyPlot[1][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],12,mOccupancyPlot[2][NFlx]);  
+
+  PublishHistogram(Pad[padID],5,mvtxmon_EvtHitChip[NFlx]);
+  PublishHistogram(Pad[padID],10,mvtxmon_EvtHitDis[NFlx]);
+
+  //returnCode += PublishHistogram(Pad[11],16,mTotalDeadChipPos[NFlx],"COL");
+  //returnCode += PublishHistogram(Pad[11],17,mTotalAliveChipPos[NFlx],"COL");
 
   
   PublishStatistics(TC[canvasID],cl);
@@ -652,68 +918,82 @@ int MvtxMonDraw::MakeHtml(const std::string &what)
 
 int MvtxMonDraw::DrawHistory(const std::string & /* what */)
 {
-  int iret = 0;
+
+  const int canvasID = 5;
+  const int padID = 5;
+
+  int iret[NFlx] = {0,0,0,0,0,0};
   // you need to provide the following vectors
   // which are filled from the db
-  std::vector<float> var;
-  std::vector<float> varerr;
-  std::vector<time_t> timestamp;
-  std::vector<int> runnumber;
+  std::vector<float> var[NFlx];
+  std::vector<float> varerr[NFlx];
+  std::vector<time_t> timestamp[NFlx];
+  std::vector<int> runnumber[NFlx];
   std::string varname = "n_events";
   // this sets the time range from whihc values should be returned
   time_t begin = 0;            // begin of time (1.1.1970)
   time_t end = time(nullptr);  // current time (right NOW)
-  iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
-  if (iret)
-  {
-    std::cout << __PRETTY_FUNCTION__ << " Error in db access" << std::endl;
-    return iret;
+
+  for (int iFelix = 0; iFelix <NFlx; iFelix++){
+    iret[iFelix] = dbvars[iFelix]->GetVar(begin, end, varname, timestamp[iFelix], runnumber[iFelix], var[iFelix], varerr[iFelix]);
+    if (iret[iFelix]){
+      std::cout << __PRETTY_FUNCTION__ << " Error in db access: FELIX "<<iFelix << std::endl;
+    //return iret;
+    }
   }
+
+
   if (!gROOT->FindObject("MvtxMon3"))
   {
     MakeCanvas("MvtxMon3");
   }
-  // timestamps come sorted in ascending order
-  float *x = new float[var.size()];
-  float *y = new float[var.size()];
-  float *ex = new float[var.size()];
-  float *ey = new float[var.size()];
-  int n = var.size();
-  for (unsigned int i = 0; i < var.size(); i++)
-  {
-    //       std::cout << "timestamp: " << ctime(&timestamp[i])
-    // 	   << ", run: " << runnumber[i]
-    // 	   << ", var: " << var[i]
-    // 	   << ", varerr: " << varerr[i]
-    // 	   << std::endl;
-    x[i] = timestamp[i] - TimeOffsetTicks;
-    y[i] = var[i];
-    ex[i] = 0;
-    ey[i] = varerr[i];
-  }
-  Pad[5]->cd();
-  if (gr[0])
-  {
-    delete gr[0];
-  }
-  gr[0] = new TGraphErrors(n, x, y, ex, ey);
-  gr[0]->SetMarkerColor(4);
-  gr[0]->SetMarkerStyle(21);
-  gr[0]->Draw("ALP");
-  gr[0]->GetXaxis()->SetTimeDisplay(1);
-  gr[0]->GetXaxis()->SetLabelSize(0.03);
-  // the x axis labeling looks like crap
-  // please help me with this, the SetNdivisions
-  // don't do the trick
-  gr[0]->GetXaxis()->SetNdivisions(-1006);
-  gr[0]->GetXaxis()->SetTimeOffset(TimeOffsetTicks);
-  gr[0]->GetXaxis()->SetTimeFormat("%Y/%m/%d %H:%M");
-  delete[] x;
-  delete[] y;
-  delete[] ex;
-  delete[] ey;
+  TC[canvasID]->SetEditable(true);
+  TC[canvasID]->Clear("D");
+  Pad[padID]->Divide(3,2);
 
-  varname = "mvtxmoncount";
+  for (int iFelix = 0; iFelix <NFlx; iFelix++){
+    // timestamps come sorted in ascending order
+    float *x = new float[var[iFelix].size()];
+    float *y = new float[var[iFelix].size()];
+    float *ex = new float[var[iFelix].size()];
+    float *ey = new float[var[iFelix].size()];
+    int n = var[iFelix].size();
+    for (unsigned int i = 0; i < var[iFelix].size(); i++)
+    {
+      //       std::cout << "timestamp: " << ctime(&timestamp[i])
+      // 	   << ", run: " << runnumber[i]
+      // 	   << ", var: " << var[i]
+      // 	   << ", varerr: " << varerr[i]
+      // 	   << std::endl;
+      x[i] = timestamp[iFelix][i] - TimeOffsetTicks;
+      y[i] = var[iFelix][i];
+      ex[i] = 0;
+      ey[i] = varerr[iFelix][i];
+    }
+    Pad[padID]->cd(iFelix+1);
+    if (gr[iFelix])
+    {
+      delete gr[iFelix];
+    }
+    gr[iFelix] = new TGraphErrors(n, x, y, ex, ey);
+    gr[iFelix]->SetMarkerColor(4);
+    gr[iFelix]->SetMarkerStyle(21);
+    gr[iFelix]->Draw("ALP");
+    gr[iFelix]->GetXaxis()->SetTimeDisplay(1);
+    gr[iFelix]->GetXaxis()->SetLabelSize(0.03);
+    // the x axis labeling looks like crap
+    // please help me with this, the SetNdivisions
+    // don't do the trick
+    gr[iFelix]->GetXaxis()->SetNdivisions(-1006);
+    gr[iFelix]->GetXaxis()->SetTimeOffset(TimeOffsetTicks);
+    gr[iFelix]->GetXaxis()->SetTimeFormat("%Y/%m/%d %H:%M");
+    delete[] x;
+    delete[] y;
+    delete[] ex;
+    delete[] ey;
+  }
+
+ /* varname = "mvtxmoncount";
   iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
   if (iret)
   {
@@ -757,17 +1037,18 @@ int MvtxMonDraw::DrawHistory(const std::string & /* what */)
   delete[] x;
   delete[] y;
   delete[] ex;
-  delete[] ey;
+  delete[] ey;*/
 
-  TC[2]->Update();
+  TC[canvasID]->Update();
+  TC[canvasID]->SetEditable(false);
   return 0;
 }
 
-template <typename T>
-int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, T h, const char* opt ){
+//template <typename T>
+int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, TH1 *h, const char* opt ){
   if(c && pad !=0){
     c->cd(pad);
-    std::cout<<"ups"<<std::endl;
+    //std::cout<<"ups"<<std::endl;
   }
   if(h){  
     h->DrawCopy(opt);
@@ -779,12 +1060,24 @@ int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, T h, const char* opt ){
   }
 }
 
-template <typename T>
-int MvtxMonDraw::PublishHistogram(TPad *p, int pad, T h, const char* opt ){
+//template <typename T>
+int MvtxMonDraw::PublishHistogram(TPad *p, int pad, TH1 *h, const char* opt ){
   if(p && pad !=0){
     p->cd(pad);
     TCanvas *c = nullptr;
-    return PublishHistogram<T>(c,0,h,opt);
+    return PublishHistogram(c,0,h,opt);
+  }
+  else{
+    return -1;
+  }
+}
+
+//template <typename T>
+int MvtxMonDraw::PublishHistogram(TPad *p, TH1 *h, const char* opt ){
+  if(p){
+    p->cd();
+    TCanvas *c = nullptr;
+    return PublishHistogram(c,0,h,opt);
   }
   else{
     return -1;
@@ -792,15 +1085,26 @@ int MvtxMonDraw::PublishHistogram(TPad *p, int pad, T h, const char* opt ){
 }
 
 template <typename T>
-int MvtxMonDraw::PublishHistogram(TPad *p, T h, const char* opt ){
-  if(p){
-    p->cd();
-    TCanvas *c = nullptr;
-    return PublishHistogram<T>(c,0,h,opt);
+int MvtxMonDraw::MergeServers(T *h){
+  bool cloned = false;
+  int bitset = 0;
+  for (int iFelix = 0; iFelix < NFlx; iFelix++){
+    if (cloned == false){
+      if(h[iFelix]){
+        h[NFlx] = dynamic_cast<T>(h[iFelix]->Clone());
+        bitset |= (1U << (iFelix));
+        cloned = true;
+      }
+      else continue;
+    }
+    else {
+      if(h[iFelix]){
+        h[NFlx]->Add(h[iFelix],1.);
+        bitset |= (1U << (iFelix));
+      }
+    }
   }
-  else{
-    return -1;
-  }
+  return bitset;
 }
 
 void MvtxMonDraw::PublishStatistics(TCanvas *c,OnlMonClient *cl){
@@ -821,6 +1125,130 @@ void MvtxMonDraw::PublishStatistics(TCanvas *c,OnlMonClient *cl){
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   c->Update();
   c->Show();
+}
+
+void MvtxMonDraw::formatPaveText(TPaveText* aPT, float aTextSize, Color_t aTextColor, short aTextAlign, const char* aText)
+{
+  aPT->SetTextSize(aTextSize);
+  aPT->SetTextAlign(aTextAlign);
+  aPT->SetFillColor(0);
+  aPT->SetTextAlign(22);
+  aPT->SetTextColor(aTextColor);
+  aPT->AddText(aText);
+}
+
+std::vector<MvtxMonDraw::Quality> MvtxMonDraw::analyseForError(TH2Poly* over1, TH2Poly* over2,TH2Poly* over3, TH1* decErr){
+      std::vector<Quality> result((NFlags+1)*NLAYERS+6);
+      bool badStave[NFlags][NSTAVE];
+      for (int iflag = 0; iflag < NFlags; iflag++) {
+        for (int ilayer = 0; ilayer < NLAYERS; ilayer++) {
+          result.at((3*iflag)+ilayer) = Quality::Good;
+}
+}
+      //count dead staves
+      for (int iflag = 0; iflag < NFlags; iflag++) {
+        for (int ilayer = 0; ilayer < NLAYERS; ilayer++) {
+          int countStave = 0;
+          for (int ibin = StaveBoundary[ilayer] + 1; ibin <= StaveBoundary[ilayer + 1]; ++ibin) {
+            badStave[iflag][ibin-1] = false;
+            double bincontent = 0;
+            if(iflag==0) bincontent = over1->GetBinContent(ibin);
+            if(iflag==1) bincontent = over2->GetBinContent(ibin);
+            if(iflag==2) bincontent = over3->GetBinContent(ibin);
+            if (bincontent/*hp[iflag][NFlx]->GetBinContent(ibin)*/ > maxbadchips / 9.) {
+              badStave[iflag][ibin-1] = true;
+              //std::cout<<"bad stave"<<std::endl;
+              countStave++;
+              result.at((3*iflag)+ilayer) = Quality::Medium;
+            }
+          }
+          if (countStave > 0.25 * NStaves[ilayer]) {
+            result.at((3*iflag)+ilayer) = Quality::Bad;
+          }
+        }
+      }
+      
+      // check if more than 25% staves with error, warning or fault
+      for (int ilayer = 0; ilayer < NLAYERS; ilayer++) {
+        int countStave = 0;
+        result.at(ilayer+9) = Quality::Good;
+        for (int ibin = StaveBoundary[ilayer] + 1; ibin <= StaveBoundary[ilayer + 1]; ++ibin) {
+            if(badStave[0][ibin-1] || badStave[1][ibin-1] || badStave[2][ibin-1]){
+              result.at(ilayer+9) = Quality::Medium;
+              countStave++;
+            }
+          }
+          if (countStave > 0.25 * NStaves[ilayer]) {
+            result.at(ilayer+9) = Quality::Bad;
+          }
+        }
+
+      for (int iflx = 0; iflx < 6; iflx++) {
+        if(decErr->Integral(6*iflx+1,6*iflx+7)>0) result.at(12+iflx) = Quality::Bad;
+        else result.at(12+iflx) = Quality::Good;
+}
+      
+      return result;
+
+
+
+     /* if (mo->getName() == Form("LaneStatus/laneStatusFlag%s", mLaneStatusFlag[iflag].c_str())) {
+        result = Quality::Good;
+        auto* h = dynamic_cast<TH2I*>(mo->getObject());
+        if (h->GetMaximum() > 0) {
+          result.set(Quality::Bad);
+        }
+      }*/
+      //if (mo->getName() == Form("LaneStatus/laneStatusOverviewFlag%s", mLaneStatusFlag[iflag].c_str())) {
+     /*   result.at(iflag) = Quality.Good;
+        auto* hp = dynamic_cast<TH2Poly*>(mo->getObject());
+        badStave = false;
+        // Initialization of metaData for IB, ML, OL
+        for (int ilayer = 0; ilayer < NLAYERS; ilayer++) {
+          int countStave = 0;
+          badStaveCount = false;
+          for (int ibin = StaveBoundary[ilayer] + 1; ibin <= StaveBoundary[ilayer + 1]; ++ibin) {
+              // Check if there are staves in the IB with lane in Bad (bins are filled with %)
+              if (hp->GetBinContent(ibin) > maxbadchips / 9.) {
+                badStave = true;
+                result.at(iflag) = Quality.Medium;
+                countStave++;
+              }
+          } // end loop bins (staves)
+          // Initialize metadata for the 7 layers
+          result.addMetadata(Form("Layer%d", ilayer), "good");
+          // Check if there are more than 25% staves in Bad per layer
+          if (countStave > 0.25 * NStaves[ilayer]) {
+            badStaveCount = true;
+            result.updateMetadata(Form("Layer%d", ilayer), "bad");
+          }
+        } // end loop over layers
+        if (badStave) {
+          result.at(iflag) = Quality.Medium;
+        }
+        if (badStaveCount) {
+          result.at(iflag) = Quality.Bad;
+        }
+     // } // end lanestatusOverview
+    }*/
+
+}
+
+void MvtxMonDraw::DrawPave(std::vector<MvtxMonDraw::Quality> status, int position, const char*/* what*/){
+  TPaveText *pt = new TPaveText(.4,.4,.6,.6,"blNDC");
+  pt->SetTextSize(0.04);
+  pt->SetFillColor(0);
+  pt->SetLineColor(0);
+  pt->SetBorderSize(1);
+  if(status.at(position) == Quality::Good && status.at(position+1) == Quality::Good && status.at(position+2) == Quality::Good) pt->AddText("#color[418]{QA OK}");
+  if(status.at(position) == Quality::Medium) pt->AddText("#color[808]{QA Layer 0 Medium}");
+  if(status.at(position+1) == Quality::Medium) pt->AddText("#color[808]{QA Layer 1 Medium}");
+  if(status.at(position+2) == Quality::Medium) pt->AddText("#color[808]{QA Layer 2 Medium}");
+  if(status.at(position) == Quality::Bad) pt->AddText("#color[2]{QA Layer 0 Bad}");
+  if(status.at(position+1) == Quality::Bad) pt->AddText("#color[2]{QA Layer 1 Bad}");
+  if(status.at(position+2) == Quality::Bad) pt->AddText("#color[2]{QA Layer 2 Bad}");
+  pt->Draw();
+
 }
 
 

@@ -15,9 +15,6 @@
 #ifndef _MVTX_PIXELDATA_H_
 #define _MVTX_PIXELDATA_H_
 
-//#include "/sphenix/u/jkvapil/onlmon/src/subsystems/mvtx/InteractionRecord.h"
-//#include "/sphenix/u/jkvapil/onlmon/src/subsystems/mvtx/DecodingStat.h"
-
 #include "InteractionRecord.h"
 #include "DecodingStat.h"
 

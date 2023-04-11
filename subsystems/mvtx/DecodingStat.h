@@ -15,7 +15,6 @@
 #ifndef _MVTX_DECODINGSTAT_H_
 #define _MVTX_DECODINGSTAT_H_
 
-//#include "/sphenix/u/jkvapil/onlmon/src/subsystems/mvtx/GBTWord.h"
 #include "GBTWord.h"
 
 #include <string>
