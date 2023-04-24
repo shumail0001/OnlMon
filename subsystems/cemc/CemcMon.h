@@ -28,7 +28,8 @@ class CemcMon : public OnlMon
 
  protected:
   std::vector<float> getSignal(Packet *p, const int channel);
-  std::vector<float> anaWaveform(Packet *p, const int channel);
+  std::vector<float> anaWaveformFast(Packet *p, const int channel);
+  std::vector<float> anaWaveformTemp(Packet *p, const int channel);
 
   int DBVarInit();
   int evtcnt = 0;
@@ -38,19 +39,25 @@ class CemcMon : public OnlMon
   TH2 *cemc_runningmean = nullptr;
   TH1 *cemc_signal = nullptr;
 
-  const int Nsector = 32;
-  const int Ntower = 1536*4;
+  const int Nsector = 64;
+  const int Ntower = 64*2*192;
   const int packetlow = 6001;
-  const int packethigh = 6024;
-  TH2* h2_hcal_hits = nullptr;
-  TH1* h_waveform_twrAvg = nullptr;
-  TH1* h_waveform_time = nullptr;
-  TH1* h_waveform_pedestal = nullptr;
-  TH2* h2_hcal_rm = nullptr;
-  TH2* h2_hcal_mean = nullptr;
-  TH1* h_sectorAvg_total = nullptr;
-  TH1* h_event = nullptr;
-  TH1* h_rm_sectorAvg[100] = {nullptr};
+  const int packethigh = 6128;
+  TH1* h1_packet_chans = nullptr;
+  TH1* h1_packet_length = nullptr;
+  TH1* h1_packet_number = nullptr;
+  TH1* h1_cemc_fitting_sigDiff = nullptr;
+  TH1* h1_cemc_fitting_pedDiff = nullptr;
+  TH1* h1_cemc_fitting_timeDiff = nullptr;
+  TH2* h2_cemc_hits = nullptr;
+  TH1* h1_waveform_twrAvg = nullptr;
+  TH1* h1_waveform_time = nullptr;
+  TH1* h1_waveform_pedestal = nullptr;
+  TH2* h2_cemc_rm = nullptr;
+  TH2* h2_cemc_mean = nullptr;
+  TH1* h1_sectorAvg_total = nullptr;
+  TH1* h1_event = nullptr;
+  TH1* h1_rm_sectorAvg[100] = {nullptr};
 
   std::vector<runningMean*> rm_vector_twr;
   std::vector<runningMean*> rm_vector_sectAvg;
@@ -58,7 +65,8 @@ class CemcMon : public OnlMon
   std::string runtypestr = "Unknown";
   std::string id_string;
 
-  CaloWaveformFitting* WaveformProcessing = nullptr;
+  CaloWaveformFitting* WaveformProcessingFast = nullptr;
+  CaloWaveformFitting* WaveformProcessingTemp = nullptr;
 
 
   std::vector<runningMean*> rm_vector; 
