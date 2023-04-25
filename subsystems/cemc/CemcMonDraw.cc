@@ -214,7 +214,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
  
   hist1->GetXaxis()->SetTitle("eta index");
   hist1->GetYaxis()->SetTitle("phi index");
-  hist1->GetZaxis()->SetTitle("Tower Hit Variance");
+  hist1->GetZaxis()->SetTitle("Tower Running Mean/ Histogram Running Mean");
   hist1->GetXaxis()->CenterTitle();
   hist1->GetYaxis()->CenterTitle();
   hist1->GetZaxis()->CenterTitle();
@@ -263,7 +263,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
 
   // modify palette to black, green, and red
-  Int_t palette[3] = {kAzure-4,8,2};
+  Int_t palette[3] = {kGray+2,8,2};
   cemcStyle->SetPalette(3,palette);
   gROOT->SetStyle("cemcStyle");
   gROOT->ForceStyle();
@@ -282,7 +282,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream  << "Number of tower hits " ;
+  runnostream  << "Running mean of Tower Hits Normalized by All Towers " ;
   runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
   transparent[0]->cd();
   runstring = runnostream.str();
@@ -757,7 +757,8 @@ int CemcMonDraw::FindHotTower(TPad *warningpad,TH2D* hhit){
   //draw warning here
   warningpad->cd();
   TPaveText *dead = new TPaveText(0.01,0.7,0.33,1);
-  dead -> SetFillColor(kAzure-4);
+  dead -> SetFillColor(kGray+2);
+  dead -> SetTextColor(kWhite);
   dead -> AddText(Form("Dead towers: %.3g%%",100*ndeadt/nTowerTotal));
   if(100*ndeadt/nTowerTotal > 2.5)
     {
