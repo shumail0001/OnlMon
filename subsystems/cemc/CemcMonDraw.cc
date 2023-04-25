@@ -431,7 +431,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 		  badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
 		  badboys++;
 		}
-	      if(std::find(badPackets[i-2].begin(),badPackets[i-2].end(),badPackets[i][j]) == badPackets[i-1].end())
+	      if(std::find(badPackets[i-2].begin(),badPackets[i-2].end(),badPackets[i][j]) == badPackets[i-2].end())
 		{
 		  badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
 		  badboys++;
