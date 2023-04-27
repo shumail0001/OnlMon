@@ -11,7 +11,6 @@
 #include <onlmon/pseudoRunningMean.h>
 
 #include <caloreco/CaloWaveformFitting.h>
-#include <caloreco/CaloWaveformProcessing.h>
 #include <calobase/TowerInfoDefs.h>
 
 #include <Event/Event.h>

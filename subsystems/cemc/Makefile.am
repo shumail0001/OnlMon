@@ -20,6 +20,7 @@ libonlcemcmon_server_la_LIBADD = \
   -lonlmonserver \
   -lonlmondb \
   -lonlmonutils \
+  -lcalo_io \
   -lcalo_reco
 
 libonlcemcmon_client_la_LIBADD = \
