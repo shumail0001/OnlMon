@@ -51,6 +51,11 @@ namespace INTT
 			}
 			
 			bin = channel + CHANNEL * (chip + CHIP * (northsouth + NORTHSOUTH * (ladder)));
+			if(!(0 <= bin && bin < CHANNELS))
+			{
+				std::cout << "Bad FindGlobalBin()" << std::endl;
+				return 1;
+			}
 			
 			bin += 1;
 			
@@ -78,6 +83,19 @@ namespace INTT
 			{
 				ladder -= LADDER[layer];
 				layer++;
+			}
+
+			bool b = false;
+			if(!(0 <= layer && layer < LAYER))b = true;
+			if(!(0 <= ladder && ladder < LADDER[layer]))b = true;
+			if(!(0 <= northsouth && northsouth < NORTHSOUTH))b = true;
+			if(!(0 <= chip && chip < CHIP))b = true;
+			if(!(0 <= channel && channel < CHANNEL))b = true;
+
+			if(b)
+			{
+				std::cout << "Bad FindGlobalIndices()" << std::endl;
+				return 1;
 			}
 			
 			layer += LAYER_OFFSET;
