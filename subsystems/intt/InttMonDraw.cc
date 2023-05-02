@@ -110,7 +110,7 @@ int InttMonDraw::MakeHtml(const std::string &what)
 //===		~Inherited Functions		===//
 
 //===		Drawing Methods			===//
-void InttMonDraw::DrawPad(TPad* pad)
+void InttMonDraw::DrawPad(TPad* base, TPad* pad)
 {
 	pad->SetFillStyle(4000); //transparent
 	pad->Range(0.0, 0.0, 1.0, 1.0);
@@ -119,10 +119,14 @@ void InttMonDraw::DrawPad(TPad* pad)
 	pad->SetLeftMargin(L_MARGIN);
 	pad->SetRightMargin(R_MARGIN);
 
+	//base->Update();
+	base->cd();
 	pad->Draw();
+	//pad->Update();
+	pad->cd();
 }
 
-void InttMonDraw::DrawExecPad(TPad* pad)
+void InttMonDraw::DrawExecPad(TPad* base, TPad* pad)
 {
 	pad->SetFillStyle(4000); //transparent
 	pad->Range(0.0, 0.0, 1.0, 1.0);
@@ -131,7 +135,11 @@ void InttMonDraw::DrawExecPad(TPad* pad)
 	pad->SetLeftMargin(EXEC_L_MARGIN);
 	pad->SetRightMargin(EXEC_R_MARGIN);
 
+	//base->Update();
+	base->cd();
 	pad->Draw();
+	//pad->Update();
+	pad->cd();
 }
 
 void InttMonDraw::DrawDisp(TPad* base_pad, const std::string& option)
@@ -143,8 +151,6 @@ void InttMonDraw::DrawDisp(TPad* base_pad, const std::string& option)
 	TPad* disp_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_DispPad", option.c_str()));
 	if(!disp_pad)
 	{
-		base_pad->cd();
-		base_pad->Update();
 		disp_pad = new TPad
 		(
 			Form("INTT_%s_DispPad", option.c_str()),
@@ -154,14 +160,12 @@ void InttMonDraw::DrawDisp(TPad* base_pad, const std::string& option)
 			1.0,
 			DISP_FRAC
 		);
-		DrawPad(disp_pad);
+		DrawPad(base_pad, disp_pad);
 	}
 
 	TText* disp_text = (TText*)gROOT->FindObject(Form("INTT_%s_DispText", option.c_str()));
 	if(!disp_text)
 	{
-		disp_pad->cd();
-		disp_pad->Update();
 		disp_text = new TText
 		(
 			0.5,
@@ -211,6 +215,8 @@ void InttMonDraw::DrawOption(const std::string& option)
 		//...
 	}
 
+	//canvas->cd();
+	//canvas->Update();
 	DrawDisp(canvas, option);
 
 	TPad* base_pad;
@@ -219,8 +225,6 @@ void InttMonDraw::DrawOption(const std::string& option)
 		base_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_Layer%d_BasePad", option.c_str(), layer + INTT::LAYER_OFFSET));
 		if(!base_pad)
 		{
-			canvas->cd();
-			canvas->Update();
 			base_pad = new TPad
 			(
 				Form("INTT_%s_Layer%d_BasePad", option.c_str(), layer + INTT::LAYER_OFFSET),
@@ -230,21 +234,19 @@ void InttMonDraw::DrawOption(const std::string& option)
 				1.0,
 				(INTT::LAYER - layer + 0.0) / INTT::LAYER * (1.0 - DISP_FRAC) + DISP_FRAC
 			);
-			DrawPad(base_pad);
+			DrawPad(canvas, base_pad);
 		}
 
-		base_pad->cd();
-		base_pad->Update();
-		DrawTitle	(base_pad, option, layer + INTT::LAYER_OFFSET);
-		DrawKey		(base_pad, option, layer + INTT::LAYER_OFFSET);
-		DrawHist	(base_pad, option, layer + INTT::LAYER_OFFSET);
-		DrawGrid	(base_pad, option, layer + INTT::LAYER_OFFSET);
-		DrawLabels	(base_pad, option, layer + INTT::LAYER_OFFSET);
-		DrawExec	(base_pad, option, layer + INTT::LAYER_OFFSET);
+		DrawTitle		(base_pad, option, layer + INTT::LAYER_OFFSET);
+		if(KEY_FRAC)DrawKey	(base_pad, option, layer + INTT::LAYER_OFFSET);
+		DrawHist		(base_pad, option, layer + INTT::LAYER_OFFSET);
+		DrawGrid		(base_pad, option, layer + INTT::LAYER_OFFSET);
+		DrawLabels		(base_pad, option, layer + INTT::LAYER_OFFSET);
+		DrawExec		(base_pad, option, layer + INTT::LAYER_OFFSET);
 	}
 
 	//Show the canvas
-	canvas->Update();
+	//canvas->Update();
 	canvas->Show();
 	canvas->SetEditable(0);
 }
@@ -261,8 +263,6 @@ void InttMonDraw::DrawTitle(TPad* base_pad, const std::string& option, int layer
 	TPad* title_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_Layer%d_TitlePad", option.c_str(), layer + INTT::LAYER_OFFSET));
 	if(!title_pad)
 	{
-		base_pad->cd();
-		base_pad->Update();
 		title_pad = new TPad
 		(
 			Form("INTT_%s_Layer%d_TitlePad", option.c_str(), layer + INTT::LAYER_OFFSET),
@@ -272,10 +272,8 @@ void InttMonDraw::DrawTitle(TPad* base_pad, const std::string& option, int layer
 			1.0,
 			1.0
 		);
-		DrawPad(title_pad);
+		DrawPad(base_pad, title_pad);
 
-		title_pad->cd();
-		title_pad->Update();
 		TText title_text
 		(
 			(L_MARGIN + 1.0 - R_MARGIN) / 2.0,
@@ -300,8 +298,6 @@ void InttMonDraw::DrawKey(TPad* base_pad, const std::string& option, int layer)
 	TPad* key_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_Layer%d_KeyPad", option.c_str(), layer + INTT::LAYER_OFFSET));
 	if(!key_pad)
 	{
-		base_pad->cd();
-		base_pad->Update();
 		key_pad = new TPad
 		(
 			Form("INTT_%s_Layer%d_KeyPad", option.c_str(), layer + INTT::LAYER_OFFSET),
@@ -311,9 +307,7 @@ void InttMonDraw::DrawKey(TPad* base_pad, const std::string& option, int layer)
 			KEY_FRAC,
 			1.0 - TITLE_FRAC
 		);
-		DrawPad(key_pad);
-		key_pad->cd();
-		key_pad->Update();
+		DrawPad(base_pad, key_pad);
 
 		//want to draw it to scale with the histogram
 		//the hist pad is drawn on (1.0 - KEY_FRAC) of the layer pad
@@ -426,8 +420,6 @@ void InttMonDraw::DrawHist(TPad* base_pad, const std::string& option, int layer)
 	TPad* hist_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_Layer%d_HistPad", option.c_str(), layer + INTT::LAYER_OFFSET));
 	if(!hist_pad)
 	{
-		base_pad->cd();
-		base_pad->Update();
 		hist_pad = new TPad
 		(
 			Form("INTT_%s_Layer%d_HistPad", option.c_str(), layer + INTT::LAYER_OFFSET),
@@ -436,11 +428,10 @@ void InttMonDraw::DrawHist(TPad* base_pad, const std::string& option, int layer)
 			LABEL_FRAC,
 			1.0,
 			1.0 - TITLE_FRAC);
-		DrawPad(hist_pad);
+		DrawPad(base_pad, hist_pad);
 	}
-	hist_pad->cd();
-	hist_pad->Update();
 
+	hist_pad->cd();
 	TH1* hist = (*(OPTIONS.find(option)->second.first))(layer + INTT::LAYER_OFFSET);
 	if(hist)hist->DrawCopy("COLZ");
 }
@@ -457,8 +448,6 @@ void InttMonDraw::DrawGrid(TPad* base_pad, const std::string& option, int layer)
 	TPad* grid_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_Layer%d_GridPad", option.c_str(), layer + INTT::LAYER_OFFSET));
 	if(!grid_pad)
 	{
-		base_pad->cd();
-		base_pad->Update();
 		grid_pad = new TPad
 		(
 			Form("INTT_%s_Layer%d_GridPad", option.c_str(), layer + INTT::LAYER_OFFSET),
@@ -468,9 +457,7 @@ void InttMonDraw::DrawGrid(TPad* base_pad, const std::string& option, int layer)
 			1.0,
 			1.0 - TITLE_FRAC
 		);
-		DrawPad(grid_pad);
-		grid_pad->cd();
-		grid_pad->Update();
+		DrawPad(base_pad, grid_pad);
 
 		int i;
 		double temp;
@@ -515,10 +502,8 @@ void InttMonDraw::DrawLabels(TPad* base_pad, const std::string& option, int laye
 	if(!base_pad)return;
 
 	TPad* label_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_Layer%d_LabelPad", option.c_str(), layer + INTT::LAYER_OFFSET));
-	if(label_pad)
+	if(!label_pad)
 	{
-		base_pad->cd();
-		base_pad->Update();
 		label_pad = new TPad
 		(
 			Form("INTT_%s_Layer%d_LabelPad", option.c_str(), layer + INTT::LAYER_OFFSET),
@@ -528,9 +513,7 @@ void InttMonDraw::DrawLabels(TPad* base_pad, const std::string& option, int laye
 			1.0,
 			LABEL_FRAC
 		);
-		DrawPad(label_pad);
-		label_pad->cd();
-		label_pad->Update();
+		DrawPad(base_pad, label_pad);
 
 		int i;
 		double temp;
@@ -572,8 +555,6 @@ void InttMonDraw::DrawExec(TPad* base_pad, const std::string& option, int layer)
 	TPad* exec_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_Layer%d_ExecPad", option.c_str(), layer + INTT::LAYER_OFFSET));
 	if(!exec_pad)
 	{
-		base_pad->cd();
-		base_pad->Update();
 		exec_pad = new TPad
 		(
 			Form("INTT_%s_Layer%d_ExecPad", option.c_str(), layer + INTT::LAYER_OFFSET),
@@ -583,7 +564,7 @@ void InttMonDraw::DrawExec(TPad* base_pad, const std::string& option, int layer)
 			1.0 - R_MARGIN * (1.0 - KEY_FRAC),
 			1.0 - TITLE_FRAC - T_MARGIN * (1.0 - TITLE_FRAC - LABEL_FRAC)
 		);
-		DrawPad(exec_pad);
+		DrawPad(base_pad, exec_pad);
 		exec_pad->AddExec
 		(
 			Form("INTT_%s_Layer%d_Exec", option.c_str(), layer + INTT::LAYER_OFFSET),
@@ -606,10 +587,23 @@ void InttMonDraw::DrawExecOption(const std::string& option, int layer, int ladde
 	if(!(0 <= chip && chip < INTT::CHIP))return;
 
 	//TStyle
-	TStyle* style = (TStyle*)gROOT->FindObject(Form("INTT_%s_ExecStyle", option.c_str()));
+	char buff[256] = {'\0'};
+	sprintf
+	(
+		buff,
+		"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_ExecStyle",
+		option.c_str(),
+		layer,
+		ladder,
+		northsouth ? "South" : "North",
+		chip
+	);
+	TStyle* style = (TStyle*)gROOT->FindObject(buff);
+	//TStyle* style = (TStyle*)gROOT->FindObject(Form("INTT_%s_ExecStyle", option.c_str()));
 	if(!style)
 	{
-		style = new TStyle(Form("INTT_%s_ExecStyle", option.c_str()), Form("INTT_%s_ExecStyle", option.c_str()));
+		//style = new TStyle(Form("INTT_%s_ExecStyle", option.c_str()), Form("INTT_%s_ExecStyle", option.c_str()));
+		style = new TStyle(buff, buff);
 		style->SetOptStat(0);
 		style->SetOptTitle(0);
 		//...
@@ -618,13 +612,27 @@ void InttMonDraw::DrawExecOption(const std::string& option, int layer, int ladde
 	//style->Update();
 
 	//TCanvas
-	TCanvas* canvas = (TCanvas*)gROOT->FindObject(Form("INTT_%s_ExecCanvas", option.c_str()));
+	for(size_t i = 0; i < sizeof(buff); ++i)buff[i] = '\0';
+	sprintf
+	(
+		buff,
+		"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_ExecCanvas",
+		option.c_str(),
+		layer,
+		ladder,
+		northsouth ? "South" : "North",
+		chip
+	);
+	TCanvas* canvas = (TCanvas*)gROOT->FindObject(buff);
+	//TCanvas* canvas = (TCanvas*)gROOT->FindObject(Form("INTT_%s_ExecCanvas", option.c_str()));
 	if(!canvas)
 	{
 		canvas = new TCanvas
 		(
-			Form("INTT_%s_ExecCanvas", option.c_str()),
-			Form("INTT_%s_ExecCanvas", option.c_str()),
+			//Form("INTT_%s_ExecCanvas", option.c_str()),
+			//Form("INTT_%s_ExecCanvas", option.c_str()),
+			buff,
+			buff,
 			0,//-1, //no menu bar
 			0,
 			CNVS_WIDTH,
@@ -634,33 +642,53 @@ void InttMonDraw::DrawExecOption(const std::string& option, int layer, int ladde
 		//...
 	}
 
-	canvas->Update();
-	canvas->cd();
-
-	TPad* base_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecBasePad", option.c_str()));
+	for(size_t i = 0; i < sizeof(buff); ++i)buff[i] = '\0';
+	sprintf
+	(
+		buff,
+		"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_ExecBasePad",
+		option.c_str(),
+		layer,
+		ladder,
+		northsouth ? "South" : "North",
+		chip
+	);
+	TPad* base_pad = (TPad*)gROOT->FindObject(buff);
+	//TPad* base_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecBasePad", option.c_str()));
 	if(!base_pad)
 	{
-		canvas->Update();
 		base_pad = new TPad
 		(
-			Form("INTT_%s_ExecBasePad", option.c_str()),
-			Form("INTT_%s_ExecBasePad", option.c_str()),
+			buff,
+			buff,
+			//Form("INTT_%s_ExecBasePad", option.c_str()),
+			//Form("INTT_%s_ExecBasePad", option.c_str()),
 			0.0,
 			0.0,
 			1.0,
 			1.0
 		);
-		DrawExecPad(base_pad);
+		DrawExecPad(canvas, base_pad);
 	}
-
-	base_pad->Update();
-	base_pad->cd();
+	//canvas->Update();
+	//base_pad->Update();
 
 	DrawExecTitle	(base_pad, option, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET);
 	DrawExecHist	(base_pad, option, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET);
 	DrawExecLines	(base_pad, option, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET);
 	DrawExecDisp	(base_pad, option, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET);
 	DrawExecExec	(base_pad, option, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET);
+
+	//canvas->Update();
+	canvas->Show();
+	canvas->SetEditable(0);
+
+	TCanvas* base_canvas = (TCanvas*)gROOT->FindObject(Form("INTT_%s_Canvas", option.c_str()));
+	if(base_canvas)
+	{
+		base_canvas->cd();
+		//base_canvas->Update();
+	}
 }
 
 void InttMonDraw::DrawExecTitle(TPad* base_pad, const std::string& option, int layer, int ladder, int northsouth, int chip)
@@ -676,32 +704,41 @@ void InttMonDraw::DrawExecTitle(TPad* base_pad, const std::string& option, int l
 
 	if(!base_pad)return;
 
-	TPad* title_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecTitlePad", option.c_str()));
+	char buff[256] = {'\0'};
+	sprintf
+	(
+		buff,
+		"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_ExecTitlePad",
+		option.c_str(),
+		layer,
+		ladder,
+		northsouth ? "South" : "North",
+		chip
+	);
+	TPad* title_pad = (TPad*)gROOT->FindObject(buff);
+	//TPad* title_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecTitlePad", option.c_str()));
 	if(!title_pad)
 	{
-		base_pad->cd();
-		base_pad->Update();
 		title_pad = new TPad
 		(
-			Form("INTT_%s_ExecTitlePad", option.c_str()),
-			Form("INTT_%s_ExecTitlePad", option.c_str()),
+			//Form("INTT_%s_ExecTitlePad", option.c_str()),
+			//Form("INTT_%s_ExecTitlePad", option.c_str()),
+			buff,
+			buff,
 			0.0,
 			1.0 - EXEC_TITLE_FRAC,
 			1.0,
 			1.0
 		);
-		DrawExecPad(title_pad);
-
-		std::string northsouth_str = "North";
-		if(northsouth)northsouth_str = "South";
+		DrawExecPad(base_pad, title_pad);
 
 		title_pad->cd();
-		title_pad->Update();
+		//title_pad->Update();
 		TText title_text
 		(
 			(L_MARGIN + 1.0 - R_MARGIN) / 2.0,
 			0.5,
-			Form("Layer: %2d\tLadder: %2d\t(%s)\tChip: %2d", layer + INTT::LAYER_OFFSET, ladder, northsouth_str.c_str(), chip + INTT::CHIP_OFFSET)
+			Form("Layer: %2d\tLadder: %2d\t(%s)\tChip: %2d", layer + INTT::LAYER_OFFSET, ladder, northsouth ? "South" : "North", chip + INTT::CHIP_OFFSET)
 		);
 		title_text.SetTextAlign(22);
 		title_text.SetTextSize(EXEC_TITLE_TEXT_SIZE);
@@ -722,25 +759,36 @@ void InttMonDraw::DrawExecHist(TPad* base_pad, const std::string& option, int la
 
 	if(!base_pad)return;
 
-	TPad* hist_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecHistPad", option.c_str()));
+	char buff[256] = {'\0'};
+	sprintf
+	(
+		buff,
+		"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_ExecHistPad",
+		option.c_str(),
+		layer,
+		ladder,
+		northsouth ? "South" : "North",
+		chip
+	);
+	TPad* hist_pad = (TPad*)gROOT->FindObject(buff);
+	//TPad* hist_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecHistPad", option.c_str()));
 	if(!hist_pad)
 	{
-		base_pad->cd();
-		base_pad->Update();
 		hist_pad = new TPad
 		(
-			Form("INTT_%s_ExecHistPad", option.c_str()),
-			Form("INTT_%s_ExecHistPad", option.c_str()),
+			//Form("INTT_%s_ExecHistPad", option.c_str()),
+			//Form("INTT_%s_ExecHistPad", option.c_str()),
+			buff,
+			buff,
 			0.0,
 			EXEC_DISP_FRAC,
 			1.0,
 			1.0 - EXEC_TITLE_FRAC
 		);
-		DrawExecPad(hist_pad);
+		DrawExecPad(base_pad, hist_pad);
 	}
-	hist_pad->cd();
-	hist_pad->Update();
 
+	hist_pad->cd();
 	TH1* hist = (*(OPTIONS.find(option)->second.second))(layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET);
 	if(hist)hist->DrawCopy("COLZ");
 }
@@ -758,25 +806,62 @@ void InttMonDraw::DrawExecExec(TPad* base_pad, const std::string& option, int la
 
 	if(!base_pad)return;
 
-	TPad* exec_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecExecPad", option.c_str()));
+	char buff[256] = {'\0'};
+	sprintf
+	(
+		buff,
+		"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_ExecExecPad",
+		option.c_str(),
+		layer,
+		ladder,
+		northsouth ? "South" : "North",
+		chip
+	);
+	TPad* exec_pad = (TPad*)gROOT->FindObject(buff);
+	//TPad* exec_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecExecPad", option.c_str()));
 	if(!exec_pad)
 	{
-		base_pad->cd();
-		base_pad->Update();
 		exec_pad = new TPad
 		(
-			Form("INTT_%s_ExecExecPad", option.c_str()),
-			Form("INTT_%s_ExecExecPad", option.c_str()),
+			buff,
+			buff,
+			//Form("INTT_%s_ExecExecPad", option.c_str()),
+			//Form("INTT_%s_ExecExecPad", option.c_str()),
 			EXEC_L_MARGIN,
 			EXEC_DISP_FRAC + EXEC_B_MARGIN * (1.0 - TITLE_FRAC - EXEC_DISP_FRAC),
 			1.0 - EXEC_R_MARGIN,
 			1.0 - EXEC_TITLE_FRAC - EXEC_T_MARGIN * (1.0 - TITLE_FRAC - EXEC_DISP_FRAC)
 		);
-		DrawExecPad(exec_pad);
+		DrawExecPad(base_pad, exec_pad);
+		for(size_t i = 0; i < sizeof(buff); ++i)buff[i] = '\0';
+		sprintf
+		(
+			buff,
+			"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_Exec",
+			option.c_str(),
+			layer,
+			ladder,
+			northsouth ? "South" : "North",
+			chip
+		);
+		char duff[256] = {'\0'};
+		sprintf
+		(
+			duff,
+			//"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_Exec",
+			"InttMonDraw::InttExecExec(\"%s\", %d, %d, %d, %d)",
+			option.c_str(),
+			layer,
+			ladder,
+			northsouth,
+			chip
+		);
 		exec_pad->AddExec
 		(
-			Form("INTT_%s_Exec", option.c_str()),
-			Form("InttMonDraw::InttExecExec(\"%s\")", option.c_str())
+			buff,
+			duff
+			//Form("INTT_%s_Exec", option.c_str()),
+			//Form("InttMonDraw::InttExecExec(\"%s\")", option.c_str())
 		);
 	}
 }
@@ -794,21 +879,33 @@ void InttMonDraw::DrawExecLines(TPad* base_pad, const std::string& option, int l
 
 	if(!base_pad)return;
 
-	TPad* line_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecLinePad", option.c_str()));
+	char buff[256] = {'\0'};
+	sprintf
+	(
+		buff,
+		"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_ExecLinePad",
+		option.c_str(),
+		layer,
+		ladder,
+		northsouth ? "South" : "North",
+		chip
+	);
+	TPad* line_pad = (TPad*)gROOT->FindObject(buff);
+	//TPad* line_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecLinePad", option.c_str()));
 	if(!line_pad)
 	{
-		base_pad->cd();
-		base_pad->Update();
 		line_pad = new TPad
 		(
-			Form("INTT_%s_ExecLinePad", option.c_str()),
-			Form("INTT_%s_ExecLinePad", option.c_str()),
+			buff,
+			buff,
+			//Form("INTT_%s_ExecLinePad", option.c_str()),
+			//Form("INTT_%s_ExecLinePad", option.c_str()),
 			EXEC_L_MARGIN,
 			EXEC_DISP_FRAC + EXEC_B_MARGIN * (1.0 - TITLE_FRAC - EXEC_DISP_FRAC),
 			1.0 - EXEC_R_MARGIN,
 			1.0 - EXEC_TITLE_FRAC - EXEC_T_MARGIN * (1.0 - TITLE_FRAC - EXEC_DISP_FRAC)
 		);
-		DrawExecPad(line_pad);
+		DrawExecPad(base_pad, line_pad);
 	}
 }
 
@@ -825,35 +922,59 @@ void InttMonDraw::DrawExecDisp(TPad* base_pad, const std::string& option, int la
 
 	if(!base_pad)return;
 
-	TPad* disp_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecDispPad", option.c_str()));
+	char buff[256] = {'\0'};
+	sprintf
+	(
+		buff,
+		"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_ExecDispPad",
+		option.c_str(),
+		layer,
+		ladder,
+		northsouth ? "South" : "North",
+		chip
+	);
+	TPad* disp_pad = (TPad*)gROOT->FindObject(buff);
+	//TPad* disp_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecDispPad", option.c_str()));
 	if(!disp_pad)
 	{
-		base_pad->cd();
-		base_pad->Update();
 		disp_pad = new TPad
 		(
-			Form("INTT_%s_ExecDispPad", option.c_str()),
-			Form("INTT_%s_ExecDispPad", option.c_str()),
+			buff,
+			buff,
+			//Form("INTT_%s_ExecDispPad", option.c_str()),
+			//Form("INTT_%s_ExecDispPad", option.c_str()),
 			0.0,
 			0.0,
 			1.0,
 			EXEC_DISP_FRAC
 		);
-		DrawExecPad(disp_pad);
+		DrawExecPad(base_pad, disp_pad);
 	}
 
-	TText* disp_text = (TText*)gROOT->FindObject(Form("INTT_%s_ExecDispText", option.c_str()));
+	disp_pad->cd();
+	for(size_t i = 0; i < sizeof(buff); ++i)buff[i] = '\0';
+	sprintf
+	(
+		buff,
+		"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_ExecDispText",
+		option.c_str(),
+		layer,
+		ladder,
+		northsouth ? "South" : "North",
+		chip
+	);
+	TText* disp_text = (TText*)gROOT->FindObject(buff);
+	//TText* disp_text = (TText*)gROOT->FindObject(Form("INTT_%s_ExecDispText", option.c_str()));
 	if(!disp_text)
 	{
-		disp_pad->cd();
-		disp_pad->Update();
 		disp_text = new TText
 		(
 			0.5,
 			0.5,
 			Form("Channel: %d", 0)
 		);
-		disp_text->SetName(Form("INTT_%s_ExecDispText", option.c_str()));
+		disp_text->SetName(buff);
+		//disp_text->SetName(Form("INTT_%s_ExecDispText", option.c_str()));
 		disp_text->SetTextAlign(22);
 		disp_text->SetTextSize(EXEC_DISP_TEXT_SIZE);
 
@@ -884,30 +1005,31 @@ void InttMonDraw::InttExec(const std::string& option, int layer)
 	int northsouth = 1 - biny / (INTT::CHIP / 2);
 	int chip;
 
-	std::string northsouth_str;
 	if(northsouth == 0) //North
 	{
 		chip = INTT::CHIP / 2 - biny % (INTT::CHIP / 2) + (1 - binx % 2) * (INTT::CHIP / 2) - 1;
-		northsouth_str = "North";
 	}
 	if(northsouth == 1) //South
 	{
 		chip = biny % (INTT::CHIP / 2) + (binx % 2) * (INTT::CHIP / 2);
-		northsouth_str = "South";
 	}
 
 	TText* disp_text = (TText*)gROOT->FindObject(Form("INTT_%s_DispText", option.c_str()));
-	if(disp_text)disp_text->SetTitle(Form("Layer: %2d\tLadder: %2d\t(%s)\tChip: %2d", layer + INTT::LAYER_OFFSET, ladder, northsouth_str.c_str(), chip + INTT::CHIP_OFFSET));
+	if(disp_text)disp_text->SetTitle(Form("Layer: %2d\tLadder: %2d\t(%s)\tChip: %2d", layer + INTT::LAYER_OFFSET, ladder, northsouth ? "South" : "North", chip + INTT::CHIP_OFFSET));
+	//if(disp_text)disp_text->DrawText(0.5, 0.5, Form("Layer: %2d\tLadder: %2d\t(%s)\tChip: %2d", layer + INTT::LAYER_OFFSET, ladder, northsouth ? "South" : "North", chip + INTT::CHIP_OFFSET));
 	TPad* disp_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_DispPad", option.c_str()));
-	if(disp_pad)disp_pad->GetCanvas()->Update();
+	if(disp_pad)disp_pad->Update();
 
 	if(gPad->GetEvent() != 11)return; //left click
 
 	DrawExecOption(option, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET);
 }
 
-void InttMonDraw::InttExecExec(const std::string& option)
+void InttMonDraw::InttExecExec(const std::string& option, int layer, int ladder, int northsouth, int chip)
 {
+	//layer -= INTT::LAYER_OFFSET;
+	//chip -= INTT::CHIP_OFFSET;
+
 	if(OPTIONS.find(option) == OPTIONS.end())return;
 
 	float x = gPad->AbsPixeltoX(gPad->GetEventX());
@@ -915,26 +1037,85 @@ void InttMonDraw::InttExecExec(const std::string& option)
 
 	int channel = gPad->AbsPixeltoX(gPad->GetEventX()) * INTT::CHANNEL;
 
-	TText* exec_disp_text = (TText*)gROOT->FindObject(Form("INTT_%s_ExecDispText", option.c_str()));
+	char buff[256] = {'\0'};
+	sprintf
+	(
+		buff,
+		"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_ExecDispText",
+		option.c_str(),
+		layer,
+		ladder,
+		northsouth ? "South" : "North",
+		chip
+	);
+	TText* exec_disp_text = (TText*)gROOT->FindObject(buff);
+	//TText* exec_disp_text = (TText*)gROOT->FindObject(Form("INTT_%s_ExecDispText", option.c_str()));
 	if(exec_disp_text)exec_disp_text->SetTitle(Form("Channel: %d", channel));
-	TPad* exec_text_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecDispPad", option.c_str()));
+	//if(exec_disp_text)exec_disp_text->DrawText(0.5, 0.5, Form("Channel: %d", channel));
+	for(size_t i = 0; i < sizeof(buff); ++i)buff[i] = '\0';
+	sprintf
+	(
+		buff,
+		"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_ExecDispPad",
+		option.c_str(),
+		layer,
+		ladder,
+		northsouth ? "South" : "North",
+		chip
+	);
+	TPad* exec_text_pad = (TPad*)gROOT->FindObject(buff);
+	//TPad* exec_text_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecDispPad", option.c_str()));
 	if(exec_text_pad)exec_text_pad->Update();
 
-	TPad* exec_line_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecLinePad", option.c_str()));
+	if(gPad->GetEvent() != 11)return;
+
+	for(size_t i = 0; i < sizeof(buff); ++i)buff[i] = '\0';
+	sprintf
+	(
+		buff,
+		"INTT_%s_Layer%d_Ladder%02d_%s_Chip%03d_ExecLinePad",
+		option.c_str(),
+		layer,
+		ladder,
+		northsouth ? "South" : "North",
+		chip
+	);
+	TPad* exec_line_pad = (TPad*)gROOT->FindObject(buff);
+	//TPad* exec_line_pad = (TPad*)gROOT->FindObject(Form("INTT_%s_ExecLinePad", option.c_str()));
 	if(exec_line_pad)
 	{
-		exec_line_pad->Clear();
-
+		std::cout << "barey" << std::endl;
 		exec_line_pad->cd();
 		exec_line_pad->Update();
+		exec_line_pad->Clear();
+		//for(TObject* obj: *(exec_line_pad->GetListOfPrimitives()))
+		//{
+		//	std::cout << "\t" << "foo" << std::endl;
+		//	std::cout << obj->ClassName() << std::endl;
+		//}
+		//for(TObject* obj: *(gPad->GetListOfPrimitives()))
+		//{
+		//	std::cout << "\t" << "foo" << std::endl;
+		//	std::cout << obj->ClassName() << std::endl;
+		//}
 
 		TLine hline(0.0, y, 1.0, y);
-		hline.DrawClone();
+		hline.Draw();
 
 		TLine vline(x, 0.0, x, 1.0);
 		vline.DrawClone();
 
+		//TLine *hline = new TLine(0.0, y, 1.0, y);
+		//hline->Draw();
+
+		//TLine *vline = new TLine(x, 0.0, x, 1.0);
+		//vline->Draw();
+
 		exec_line_pad->Update();
+	}
+	else
+	{
+		std::cout << "fooey" << std::endl;
 	}
 }
 
@@ -1113,12 +1294,13 @@ TH1* InttMonDraw::GetLayerHitMapZ(int layer)
 		hist->GetXaxis()->SetTickLength(0.0);
 		hist->GetYaxis()->SetTickLength(0.0);
 
-		hist->SetMinimum(-2.0 * NUM_SIG);
-		hist->SetMaximum(2.0 * NUM_SIG);
+		hist->SetMinimum(-1.0);
+		//hist->SetMinimum(-2.0 * NUM_SIG);
+		//hist->SetMaximum(2.0 * NUM_SIG);
 
-		double levels[2] = {-NUM_SIG, NUM_SIG};
-		//double levels[4] = {-FLT_MAX, -NUM_SIG, NUM_SIG, FLT_MAX};
-		hist->SetContour(2, levels);
+		//double levels[2] = {-NUM_SIG, NUM_SIG};
+		////double levels[4] = {-FLT_MAX, -NUM_SIG, NUM_SIG, FLT_MAX};
+		//hist->SetContour(2, levels);
 		//...
 	}
 
@@ -1138,68 +1320,52 @@ TH1* InttMonDraw::GetLayerHitMapZ(int layer)
 
 		return hist;
 	}
-
-	TH1D* hitmapref = (TH1D*)( cl->getHisto("INTTMON_0","InttHitMapRef"));
-	if(!hitmap)
-	{
-		std::cout << "In InttMonDraw::GetLayerHitMapZ()" << std::endl;
-		std::cout << "Could not get histogram \"InttHitMapRef\"" << std::endl;
-		std::cout << "from OnlMonClient::instance()" << std::endl;
-		std::cout << "Exiting" << std::endl;
-
-		return hist;
-	}
-
-	TH1D* num_events = (TH1D*)( cl->getHisto("INTTMON_0","InttNumEvents"));
-	if(!num_events)
-	{
-		std::cout << "In InttMonDraw::GetLayerHitMapZ()" << std::endl;
-		std::cout << "Could not get histogram \"InttHitNumEvents\"" << std::endl;
-		std::cout << "from OnlMonClient::instance()" << std::endl;
-		std::cout << "Exiting" << std::endl;
-
-		return hist;
-	}
 	//===	~Retrieve Hists and Vars from OnlMon	===//
 
 	//===	Configure Histograms		===//
-	double count = 0;
-	double rate = 0;
+	double exp[INTT::CHIP / 2] = {0.0};
+	double z = 0.0;
+
+	int count = 0;
 
 	int ladder = 0;
 	int northsouth = 0;
 	int chip = 0;
 	int channel = 0;
 
-	int bin_local = 0;
 	int bin_global = 0;
+	int bin_local = 0;
 
+	//Go through the hitmap and find count rates empirically
+	//for a given layer, the chips i and i + CHIP have (about) the same eta for all ladders, all channels
+	//the counts / num chips, channels, ladders gives the expectation for a Poisson distribution for each
+	//normalize each by counts / sqrt(counts)
 	for(bin_local = 1; bin_local < hist->GetNcells() - 1; bin_local++)
 	{
-		if(INTT::HitMap::FindLayerIndices(bin_local, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip))
-		{
-			std::cout << "bad bin to indices:" << std::endl;
-			std::cout << "\tbin: " << bin_local << std::endl;
-			std::cout << "\tlayer: " << layer + INTT::LAYER_OFFSET << std::endl;
-		}
-		count = 0;
-		rate = 0;
+		INTT::HitMap::FindLayerIndices(bin_local, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip);
 		for(channel = 0; channel < INTT::CHANNEL; channel++)
 		{
-			if(INTT::HitMap::FindGlobalBin(bin_global, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip, channel))
-			{
-				std::cout << "bad indices to bin:" << std::endl;
-				std::cout << "\tlayer: " << layer + INTT::LAYER_OFFSET << std::endl;
-				std::cout << "\tladder: " << ladder << std::endl;
-				std::cout << "\tnorthsouth: " << northsouth << std::endl;
-				std::cout << "\tchip: " << chip + INTT::CHIP_OFFSET << std::endl;
-				std::cout << "\tchannel: " << channel << std::endl;
-			}
-			count += hitmap->GetBinContent(bin_global);
-			rate += hitmapref->GetBinContent(bin_global);
+			INTT::HitMap::FindGlobalBin(bin_global, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip, channel);
+			exp[(chip - 1) % (INTT::CHIP / 2)] += hitmap->GetBinContent(bin_global);
 		}
-		rate *= num_events->GetBinContent(1);
-		hist->SetBinContent(bin_local, (count - rate) / sqrt(rate));
+	}
+	for(chip = 0; chip < INTT::CHIP / 2; ++chip)
+	{
+		exp[chip] /= INTT::LADDER[layer] * INTT::NORTHSOUTH * INTT::CHANNEL * 2;
+	}
+	for(bin_local = 1; bin_local < hist->GetNcells() - 1; bin_local++)
+	{
+		INTT::HitMap::FindLayerIndices(bin_local, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip);
+		count = 0;
+		for(channel = 0; channel < INTT::CHANNEL; channel++)
+		{
+			INTT::HitMap::FindGlobalBin(bin_global, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip, channel);
+			z = hitmap->GetBinContent(bin_global);
+			z -= exp[(chip - 1) % (INTT::CHIP / 2)];
+			z /= sqrt(exp[(chip - 1) % (INTT::CHIP / 2)]);
+			if(z < -1.0 * NUM_SIG or z > NUM_SIG)++count;
+		}
+		hist->SetBinContent(bin_local, count);
 	}
 	//===	~Configure Histograms		===//
 
