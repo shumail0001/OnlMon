@@ -1,7 +1,8 @@
 #ifndef TPOT_TPOTMONDRAW_H
 #define TPOT_TPOTMONDRAW_H
 
-#include "TpotDefs.h"
+#include "MicromegasDefs.h"
+#include "MicromegasMapping.h"
 
 #include <onlmon/OnlMonDraw.h>
 
@@ -34,16 +35,18 @@ class TpotMonDraw : public OnlMonDraw
   TCanvas* get_canvas(const std::string& name, bool clear = true );
   TCanvas* create_canvas(const std::string &name);
   
-  int draw_hv_onoff();
-  int draw_fee_onoff();
+  int draw_global_occupancy();
   
-  using histogram_array_t = std::array<TH1*, TpotDefs::n_detectors>;
+  using histogram_array_t = std::array<TH1*, MicromegasDefs::m_nfee>;
   
   /// get detector dependent histogram array from base name
   histogram_array_t get_histograms( const std::string& name );  
 
   /// draw histogram array
   int draw_array( const std::string& name, const histogram_array_t& );
+  
+  // mapping
+  MicromegasMapping m_mapping;
   
   /// needed to get time axis right
   int TimeOffsetTicks = -1;
@@ -52,7 +55,7 @@ class TpotMonDraw : public OnlMonDraw
   void draw_time( TPad*);
   
   // canvases
-  std::array<TCanvas*, 9> m_canvas = {{nullptr}};
+  std::array<TCanvas*, 8> m_canvas = {{nullptr}};
   std::unique_ptr<OnlMonDB> dbvars;
 };
 

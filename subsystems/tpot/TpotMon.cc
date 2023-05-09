@@ -4,7 +4,6 @@
 // (more info - check the difference in include path search when using "" versus <>)
 
 #include "TpotMon.h"
-#include "TpotDefs.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
@@ -14,6 +13,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TH2Poly.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -27,17 +27,20 @@ enum
   TRGMESSAGE = 1,
   FILLMESSAGE = 2
 };
-
+  
+//__________________________________________________
 TpotMon::TpotMon(const std::string &name)
   : OnlMon(name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new TpotMon()
-  return;
 }
 
+//__________________________________________________
 int TpotMon::Init()
 {
+  setup_tiles();
+  
   // read our calibrations from TpotMonData.dat
   {
     std::string fullfile = std::string(getenv("TPOTCALIB")) + "/" + "TpotMonData.dat";
@@ -45,25 +48,26 @@ int TpotMon::Init()
     calib.close();
   }
   auto se = OnlMonServer::instance();
-  {
-    m_hv_onoff_phi = new TH2I( "m_hv_onoff_phi", "HV On/Off (phi)", 4, 0, 4, 3*TpotDefs::n_resist, 0, 3*TpotDefs::n_resist );
-    se->registerHisto(this, m_hv_onoff_phi);
+  
+  // global occupancy
+  m_global_occupancy_phi = new TH2Poly;
+  m_global_occupancy_phi->SetName( "m_global_occupancy_phi" );
+  m_global_occupancy_phi->SetTitle( "occupancy; z (cm); x (cm)" );
+  setup_bins(m_global_occupancy_phi);
+  se->registerHisto(this, m_global_occupancy_phi);
+  
+  m_global_occupancy_z = new TH2Poly;
+  m_global_occupancy_z->SetName( "m_global_occupancy_z" );
+  m_global_occupancy_z->SetTitle( "occupancy; z (cm); x(cm)" );
+  setup_bins(m_global_occupancy_z);
+  se->registerHisto(this, m_global_occupancy_z);
 
-    m_hv_onoff_z = new TH2I( "m_hv_onoff_z", "HV On/Off (z)", 4*TpotDefs::n_resist, 0, 4*TpotDefs::n_resist, 3, 0, 3 );
-    se->registerHisto(this, m_hv_onoff_z);
-
-    m_fee_onoff_phi = new TH2I( "m_fee_onoff_phi", "FEE On/Off (phi)", 4, 0, 4, 3, 0, 3 );
-    se->registerHisto(this, m_fee_onoff_phi);
-
-    m_fee_onoff_z = new TH2I( "m_fee_onoff_z", "FEE On/Off (z)", 4, 0, 4, 3, 0, 3 );
-    se->registerHisto(this, m_fee_onoff_z);
-  }
-
-  for( size_t idet=0; idet<TpotDefs::detector_names.size(); ++idet )
+  const auto detector_names = m_mapping.get_detnames_sphenix();
+  for( size_t idet=0; idet<detector_names.size(); ++idet )
   {
 
     // local copy of detector name
-    const auto& detector_name=TpotDefs::detector_names[idet];
+    const auto& detector_name=detector_names[idet];
 
     // adc vs sample
     m_adc_vs_sample[idet] = new TH2I(
@@ -102,6 +106,7 @@ int TpotMon::Init()
   return 0;
 }
 
+//________________________________
 int TpotMon::BeginRun(const int /* runno */)
 {
   // if you need to read calibrations on a run by run basis
@@ -109,6 +114,7 @@ int TpotMon::BeginRun(const int /* runno */)
   return 0;
 }
 
+//________________________________
 int TpotMon::process_event(Event * /* evt */)
 {
   // increment event counter
@@ -135,10 +141,14 @@ int TpotMon::process_event(Event * /* evt */)
 //   // one can do in principle directly se->getHisto("tpothist1")->Fill()
 //   // but the search in the histogram Map is somewhat expensive and slows
 //   // things down if you make more than one operation on a histogram
-//   tpothist1->Fill((float) idummy);
-//   tpothist2->Fill((float) idummy, (float) idummy, 1.);
-//   tpothist3->Fill((float) idummy);
 
+  for( const auto& point:m_tile_centers )
+  {
+    m_global_occupancy_phi->Fill(point.first, point.second);  
+    m_global_occupancy_z->Fill(point.first, point.second);  
+  }
+  
+  
   if (idummy++ > 10)
   {
     if (dbvars)
@@ -156,6 +166,7 @@ int TpotMon::process_event(Event * /* evt */)
   return 0;
 }
 
+//________________________________
 int TpotMon::Reset()
 {
   // reset our internal counters
@@ -164,6 +175,7 @@ int TpotMon::Reset()
   return 0;
 }
 
+//________________________________
 int TpotMon::DBVarInit()
 {
   // variable names are not case sensitive
@@ -180,4 +192,58 @@ int TpotMon::DBVarInit()
   }
   dbvars->DBInit();
   return 0;
+}
+
+//________________________________
+void TpotMon::setup_tiles()
+{
+  // clear previous tiles
+  m_tile_centers.clear();
+
+  /*
+   * to convert sphenix coordinates into a x,y 2D histogram, 
+   * we transform z(3D) = x(2D)
+   * and x (3D) = y (2D)
+   */
+
+  {
+    const double tile_x = 0;
+    for( const double& tile_z:{ -84.6, -28.2, 28.2, 84.6 } )
+    { m_tile_centers.push_back( {tile_z, tile_x} ); }
+  }
+    
+  {
+    // neighbor sectors have two modules, separated by 10cm
+    for( const double& tile_x: { -m_tile_width - 2, m_tile_width+2 } )
+      for( const double& tile_z:{ -37.1, 37.1 } )
+    { m_tile_centers.push_back( {tile_z, tile_x} ); }
+  }
+  
+}
+
+
+//________________________________
+void TpotMon::setup_bins(TH2Poly* h2)
+{
+  // loop over tile centers
+  for( const auto& point:m_tile_centers )
+  {
+    const std::array<double,4> x = 
+    {
+      point.first-m_tile_length/2,
+      point.first-m_tile_length/2,
+      point.first+m_tile_length/2,
+      point.first+m_tile_length/2
+    };
+
+    const std::array<double,4> y = 
+    {
+      point.second-m_tile_width/2,
+      point.second+m_tile_width/2,
+      point.second+m_tile_width/2,
+      point.second-m_tile_width/2
+    };
+      
+    h2->AddBin( 4, &x[0], &y[0] );
+  }
 }
