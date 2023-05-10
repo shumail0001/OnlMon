@@ -4,12 +4,14 @@
 // (more info - check the difference in include path search when using "" versus <>)
 
 #include "TpotMon.h"
+#include "TpotMonDefs.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
 #include <Event/msg_profile.h>
+#include <Event/Event.h>
 
 #include <TH1.h>
 #include <TH2.h>
@@ -40,6 +42,7 @@ TpotMon::TpotMon(const std::string &name)
 int TpotMon::Init()
 {
   setup_tiles();
+  m_det_index_map.clear();
   
   // read our calibrations from TpotMonData.dat
   {
@@ -48,6 +51,14 @@ int TpotMon::Init()
     calib.close();
   }
   auto se = OnlMonServer::instance();
+  
+  // counters
+  /* arbitrary counters. First bin is number of events */
+  m_counters = new TH1I( "m_counters", "counters", 10, 0, 10 );
+  m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kEventCounter, "events" );
+  m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kValidEventCounter, "valid events" );
+  se->registerHisto(this, m_counters);
+
   
   // global occupancy
   m_global_occupancy_phi = new TH2Poly;
@@ -63,40 +74,46 @@ int TpotMon::Init()
   se->registerHisto(this, m_global_occupancy_z);
 
   const auto detector_names = m_mapping.get_detnames_sphenix();
+  const auto fee_id_list = m_mapping.get_fee_id_list();
   for( size_t idet=0; idet<detector_names.size(); ++idet )
   {
 
     // local copy of detector name
     const auto& detector_name=detector_names[idet];
-
+    
+    // fill detector index map
+    m_det_index_map.emplace( fee_id_list[idet],idet );
+    
     // adc vs sample
-    m_adc_vs_sample[idet] = new TH2I(
+    static constexpr int max_sample = 32;
+    m_detector_histograms[idet].m_adc_vs_sample = new TH2I(
       Form( "m_adc_sample_%s", detector_name.c_str() ),
       Form( "adc count vs sample id (%s);sample id;adc", detector_name.c_str() ),
-      350, 0, 350,
+      max_sample, 0, max_sample,
       1024, 0, 1024 );
-    se->registerHisto(this, m_adc_vs_sample[idet]);
+    se->registerHisto(this, m_detector_histograms[idet].m_adc_vs_sample);
 
     // hit charge
-    m_hit_charge[idet] = new TH1I(
+    static constexpr double max_hit_charge = 1024;
+    m_detector_histograms[idet].m_hit_charge = new TH1I(
       Form( "m_hit_charge_%s", detector_name.c_str() ),
       Form( "hit charge distribution (%s);adc", detector_name.c_str() ),
-      1024, 0, 1024 );
-    se->registerHisto(this, m_hit_charge[idet]);
+      100, 0, max_hit_charge );
+    se->registerHisto(this, m_detector_histograms[idet].m_hit_charge);
 
     // hit multiplicity
-    m_hit_multiplicity[idet] = new TH1I(
+    m_detector_histograms[idet].m_hit_multiplicity = new TH1I(
       Form( "m_hit_multiplicity_%s", detector_name.c_str() ),
       Form( "hit multiplicity (%s);#hits", detector_name.c_str() ),
       256, 0, 256 );
-    se->registerHisto(this, m_hit_multiplicity[idet]);
+    se->registerHisto(this, m_detector_histograms[idet].m_hit_multiplicity);
 
     // hit per channel
-    m_hit_vs_channel[idet] = new TH1I(
+    m_detector_histograms[idet].m_hit_vs_channel = new TH1I(
       Form( "m_hit_vs_channel_%s", detector_name.c_str() ),
       Form( "hit profile (%s);channel", detector_name.c_str() ),
       256, 0, 256 );
-    se->registerHisto(this, m_hit_vs_channel[idet]);
+    se->registerHisto(this, m_detector_histograms[idet].m_hit_vs_channel);
   }
 
   // use monitor name for db table name
@@ -115,11 +132,25 @@ int TpotMon::BeginRun(const int /* runno */)
 }
 
 //________________________________
-int TpotMon::process_event(Event * /* evt */)
+int TpotMon::process_event(Event* event)
 {
-  // increment event counter
+  
+  // increment by one a given bin number
+  auto increment = []( TH1* h, int bin )
+  { h->SetBinContent(bin, h->GetBinContent(bin)+1 ); };
+  
+  // increment total number of event
+  increment( m_counters, TpotMonDefs::kEventCounter );
+  
+  // check event and event type
+  if( !event ) { return 0; }
+  if(event->getEvtType() >= 8) { return 0; }
+  
+  // increment total number of valid events
   ++evtcnt;
-
+  
+  increment( m_counters, TpotMonDefs::kValidEventCounter );
+  
   auto se = OnlMonServer::instance();
   // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
   // e.g. if the BBCLL1 has problems or if it changes its name
@@ -142,12 +173,75 @@ int TpotMon::process_event(Event * /* evt */)
 //   // but the search in the histogram Map is somewhat expensive and slows
 //   // things down if you make more than one operation on a histogram
 
-  for( const auto& point:m_tile_centers )
+  // read the data
+  auto packet = event->getPacket(MicromegasDefs::m_packet_id);
+  if( !packet )
   {
-    m_global_occupancy_phi->Fill(point.first, point.second);  
-    m_global_occupancy_z->Fill(point.first, point.second);  
+    // no data
+    std::cout << "TpotMon::process_event - event contains no TPOT data" << std::endl;
+    return 0;
+  }
+    
+  // hit multiplicity
+  std::array<int,MicromegasDefs::m_nfee> multiplicity = {{0}};
+  
+  // get number of datasets (also call waveforms)
+  const auto n_waveforms = packet->iValue(0, "NR_WF" );
+  if( Verbosity() )
+  { std::cout << "TpotMon::process_event - n_waveforms: " << n_waveforms << std::endl; }
+  for( int i=0; i<n_waveforms; ++i )
+  {
+    auto channel = packet->iValue( i, "CHANNEL" );
+    int fee_id = packet->iValue(i, "FEE" );
+    int samples = packet->iValue( i, "SAMPLES" );
+
+    // get detector index from fee id
+    const auto iter = m_det_index_map.find( fee_id );
+    if( iter == m_det_index_map.end() )
+    {
+      std::cout << "TpotMon::process_event - invalid fee_id: " << fee_id << std::endl;
+      continue;
+    }
+    
+    const auto& det_index = iter->second;
+    
+    if( Verbosity()>1 )
+    {
+      std::cout
+        << "TpotMon::process_event -"
+        << " waveform: " << i
+        << " fee: " << fee_id
+        << " channel: " << channel
+        << " samples: " << samples
+        << std::endl;
+    }
+       
+    for( int is = 0; is < samples; ++is )
+    {
+      const auto adc =  packet->iValue( i, is );
+      m_detector_histograms[det_index].m_adc_vs_sample->Fill( is, adc );
+      m_detector_histograms[det_index].m_hit_charge->Fill( adc );
+    }
+    
+    // update multiplicity for this detector
+    ++multiplicity[det_index];
+    
+    // fill hit profile for this channel
+    const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
+    m_detector_histograms[det_index].m_hit_vs_channel->Fill( strip_index );
+    
   }
   
+  // fill hit multiplicities
+  for( size_t idet = 0; idet < m_detector_histograms.size(); ++idet )
+  { m_detector_histograms[idet].m_hit_multiplicity->Fill( multiplicity[idet] ); }
+    
+
+//   for( const auto& point:m_tile_centers )
+//   {
+//     m_global_occupancy_phi->Fill(point.first, point.second);  
+//     m_global_occupancy_z->Fill(point.first, point.second);  
+//   }
   
   if (idummy++ > 10)
   {
