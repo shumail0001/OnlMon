@@ -3,6 +3,7 @@
 
 #include "MicromegasDefs.h"
 #include "MicromegasMapping.h"
+#include "MicromegasGeometry.h"
 
 #include <onlmon/OnlMon.h>
 
@@ -28,10 +29,7 @@ class TpotMon : public OnlMon
 
   private:
   int DBVarInit();
-  
-  //! create tiles
-  void setup_tiles();
-  
+    
   //! setup bins in a TH2Poly
   void setup_bins( TH2Poly* );
   
@@ -39,16 +37,23 @@ class TpotMon : public OnlMon
   int idummy = 0;
   std::unique_ptr<OnlMonDB> dbvars;
   
-  // mapping
+  //! mapping
   MicromegasMapping m_mapping;
     
+  //! geometry
+  MicromegasGeometry m_geometry;
+  
   //! counter
   TH1* m_counters = nullptr;
    
-  //! TPOT status histogram
-  TH2Poly* m_global_occupancy_phi = nullptr;
-  TH2Poly* m_global_occupancy_z = nullptr;
+  //! TPOT per/detector multiplicity
+  TH2Poly* m_detector_multiplicity_z = nullptr;
+  TH2Poly* m_detector_multiplicity_phi = nullptr;
   
+  //! TPOT per/detector occupancy
+  TH2Poly* m_detector_occupancy_z = nullptr;
+  TH2Poly* m_detector_occupancy_phi = nullptr;
+
   //@name per detector structure
   //@{
   class detector_histograms_t 
@@ -69,20 +74,11 @@ class TpotMon : public OnlMon
   };
   //@}
   
-  //@name detector histograms
-  std::array<detector_histograms_t, MicromegasDefs::m_nfee> m_detector_histograms;
-
-  //! map fee id to index
-  std::map<int, size_t> m_det_index_map;
+  //@name map tile centers (from MicromegasGeometry) to fee_id
+  std::map<int, MicromegasGeometry::point_t> m_tile_centers;
   
-  //! tile definitions
-  static constexpr double m_tile_length = 54.2; // cm
-  static constexpr double m_tile_width = 31.6;  // cm
-  
-  //! tile centers
-  using point_t = std::pair<double, double>;
-  using point_list_t = std::vector<point_t>; 
-  point_list_t m_tile_centers;
+  //@name map detector histograms to fee id
+  std::map<int, detector_histograms_t> m_detector_histograms;
   
 };
 

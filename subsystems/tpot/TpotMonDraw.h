@@ -2,6 +2,7 @@
 #define TPOT_TPOTMONDRAW_H
 
 #include "MicromegasDefs.h"
+#include "MicromegasGeometry.h"
 #include "MicromegasMapping.h"
 
 #include <onlmon/OnlMonDraw.h>
@@ -35,7 +36,7 @@ class TpotMonDraw : public OnlMonDraw
   TCanvas* get_canvas(const std::string& name, bool clear = true );
   TCanvas* create_canvas(const std::string &name);
   
-  int draw_global_occupancy();
+  int draw_detector_occupancy();
   
   using histogram_array_t = std::array<TH1*, MicromegasDefs::m_nfee>;
   
@@ -45,8 +46,15 @@ class TpotMonDraw : public OnlMonDraw
   /// draw histogram array
   int draw_array( const std::string& name, const histogram_array_t&, const std::string& /*option*/ = "" );
   
+  /// draw detector names in current canvas
+  /** only works if canvas contains one of the properly formated TH2Poly histograms */
+  void draw_detnames_sphenix();
+    
   // mapping
   MicromegasMapping m_mapping;
+  
+  // geometry
+  MicromegasGeometry m_geometry;
   
   /// needed to get time axis right
   int TimeOffsetTicks = -1;

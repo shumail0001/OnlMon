@@ -1,8 +1,3 @@
-// use #include "" only for your local include and put
-// those in the first line(s) before any #include <>
-// otherwise you are asking for weird behavior
-// (more info - check the difference in include path search when using "" versus <>)
-
 #include "TpotMon.h"
 #include "TpotMonDefs.h"
 
@@ -33,16 +28,11 @@ enum
 //__________________________________________________
 TpotMon::TpotMon(const std::string &name)
   : OnlMon(name)
-{
-  // leave ctor fairly empty, its hard to debug if code crashes already
-  // during a new TpotMon()
-}
+{}
 
 //__________________________________________________
 int TpotMon::Init()
 {
-  setup_tiles();
-  m_det_index_map.clear();
   
   // read our calibrations from TpotMonData.dat
   {
@@ -52,68 +42,78 @@ int TpotMon::Init()
   }
   auto se = OnlMonServer::instance();
   
+  // map tile centers to fee id
+  const auto fee_id_list = m_mapping.get_fee_id_list();
+  for( const auto& fee_id:fee_id_list )
+  { m_tile_centers.emplace( fee_id, m_geometry.get_tile_center( m_mapping.get_tile( fee_id ) ) ); }
+  
   // counters
   /* arbitrary counters. First bin is number of events */
   m_counters = new TH1I( "m_counters", "counters", 10, 0, 10 );
   m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kEventCounter, "events" );
   m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kValidEventCounter, "valid events" );
   se->registerHisto(this, m_counters);
-
   
   // global occupancy
-  m_global_occupancy_phi = new TH2Poly;
-  m_global_occupancy_phi->SetName( "m_global_occupancy_phi" );
-  m_global_occupancy_phi->SetTitle( "occupancy; z (cm); x (cm)" );
-  setup_bins(m_global_occupancy_phi);
-  se->registerHisto(this, m_global_occupancy_phi);
+  m_detector_multiplicity_phi = new TH2Poly( "m_detector_multiplicity_phi", "multiplicity (#phi); z (cm); x (cm)", -120, 120, -60, 60 );
+  m_detector_occupancy_phi = new TH2Poly( "m_detector_occupancy_phi", "occupancy (#phi); z (cm); x (cm)", -120, 120, -60, 60 );
+  se->registerHisto(this, m_detector_occupancy_phi);
   
-  m_global_occupancy_z = new TH2Poly;
-  m_global_occupancy_z->SetName( "m_global_occupancy_z" );
-  m_global_occupancy_z->SetTitle( "occupancy; z (cm); x(cm)" );
-  setup_bins(m_global_occupancy_z);
-  se->registerHisto(this, m_global_occupancy_z);
+  m_detector_multiplicity_z = new TH2Poly( "m_detector_multiplicity_z", "multiplicity (z); z (cm); x (cm)", -120, 120, -60, 60 );
+  m_detector_occupancy_z = new TH2Poly( "m_detector_occupancy_z", "occupancy (z); z (cm); x(cm)", -120, 120, -60, 60 );
+  se->registerHisto(this, m_detector_occupancy_z);
 
-  const auto detector_names = m_mapping.get_detnames_sphenix();
-  const auto fee_id_list = m_mapping.get_fee_id_list();
-  for( size_t idet=0; idet<detector_names.size(); ++idet )
+  // setup bins
+  for( auto&& h:{m_detector_multiplicity_phi, m_detector_occupancy_phi, m_detector_multiplicity_z, m_detector_occupancy_z } )
+  { 
+    setup_bins( h ); 
+    h->GetXaxis()->SetTitleOffset(1);
+    h->GetYaxis()->SetTitleOffset(0.65);
+  }
+  
+  for( const auto& fee_id:fee_id_list )
   {
-
     // local copy of detector name
-    const auto& detector_name=detector_names[idet];
+    const auto& detector_name=m_mapping.get_detname_sphenix(fee_id);
     
-    // fill detector index map
-    m_det_index_map.emplace( fee_id_list[idet],idet );
+    detector_histograms_t detector_histograms;
     
     // adc vs sample
     static constexpr int max_sample = 32;
-    m_detector_histograms[idet].m_adc_vs_sample = new TH2I(
+    auto h = detector_histograms.m_adc_vs_sample = new TH2I(
       Form( "m_adc_sample_%s", detector_name.c_str() ),
-      Form( "adc count vs sample id (%s);sample id;adc", detector_name.c_str() ),
+      Form( "adc count vs sample (%s);sample;adc", detector_name.c_str() ),
       max_sample, 0, max_sample,
       1024, 0, 1024 );
-    se->registerHisto(this, m_detector_histograms[idet].m_adc_vs_sample);
+    h->GetXaxis()->SetTitleOffset(1.);
+    h->GetYaxis()->SetTitleOffset(1.65);
+    se->registerHisto(this, detector_histograms.m_adc_vs_sample);
 
     // hit charge
     static constexpr double max_hit_charge = 1024;
-    m_detector_histograms[idet].m_hit_charge = new TH1I(
+    detector_histograms.m_hit_charge = new TH1I(
       Form( "m_hit_charge_%s", detector_name.c_str() ),
       Form( "hit charge distribution (%s);adc", detector_name.c_str() ),
       100, 0, max_hit_charge );
-    se->registerHisto(this, m_detector_histograms[idet].m_hit_charge);
+    se->registerHisto(this, detector_histograms.m_hit_charge);
 
     // hit multiplicity
-    m_detector_histograms[idet].m_hit_multiplicity = new TH1I(
+    detector_histograms.m_hit_multiplicity = new TH1I(
       Form( "m_hit_multiplicity_%s", detector_name.c_str() ),
       Form( "hit multiplicity (%s);#hits", detector_name.c_str() ),
       256, 0, 256 );
-    se->registerHisto(this, m_detector_histograms[idet].m_hit_multiplicity);
+    se->registerHisto(this, detector_histograms.m_hit_multiplicity);
 
     // hit per channel
-    m_detector_histograms[idet].m_hit_vs_channel = new TH1I(
+    detector_histograms.m_hit_vs_channel = new TH1I(
       Form( "m_hit_vs_channel_%s", detector_name.c_str() ),
       Form( "hit profile (%s);channel", detector_name.c_str() ),
       256, 0, 256 );
-    se->registerHisto(this, m_detector_histograms[idet].m_hit_vs_channel);
+    se->registerHisto(this, detector_histograms.m_hit_vs_channel);
+
+    // store in map
+    m_detector_histograms.emplace( fee_id, std::move( detector_histograms ) );
+    
   }
 
   // use monitor name for db table name
@@ -182,8 +182,8 @@ int TpotMon::process_event(Event* event)
     return 0;
   }
     
-  // hit multiplicity
-  std::array<int,MicromegasDefs::m_nfee> multiplicity = {{0}};
+  // hit multiplicity vs fee id
+  std::map<int, int> multiplicity;
   
   // get number of datasets (also call waveforms)
   const auto n_waveforms = packet->iValue(0, "NR_WF" );
@@ -194,16 +194,19 @@ int TpotMon::process_event(Event* event)
     auto channel = packet->iValue( i, "CHANNEL" );
     int fee_id = packet->iValue(i, "FEE" );
     int samples = packet->iValue( i, "SAMPLES" );
-
+    
     // get detector index from fee id
-    const auto iter = m_det_index_map.find( fee_id );
-    if( iter == m_det_index_map.end() )
+    const auto iter = m_detector_histograms.find( fee_id );
+    if( iter == m_detector_histograms.end() )
     {
       std::cout << "TpotMon::process_event - invalid fee_id: " << fee_id << std::endl;
       continue;
     }
-    
-    const auto& det_index = iter->second;
+    const auto& detector_histograms = iter->second;
+
+    // get tile center, segmentation
+    const auto& [tile_x, tile_y]  = m_tile_centers.at(fee_id);
+    const auto segmentation = m_mapping.get_segmentation( fee_id );
     
     if( Verbosity()>1 )
     {
@@ -219,29 +222,43 @@ int TpotMon::process_event(Event* event)
     for( int is = 0; is < samples; ++is )
     {
       const auto adc =  packet->iValue( i, is );
-      m_detector_histograms[det_index].m_adc_vs_sample->Fill( is, adc );
-      m_detector_histograms[det_index].m_hit_charge->Fill( adc );
+      detector_histograms.m_adc_vs_sample->Fill( is, adc );
+      detector_histograms.m_hit_charge->Fill( adc );
     }
     
     // update multiplicity for this detector
-    ++multiplicity[det_index];
+    ++multiplicity[fee_id];
     
+    // fill detector multiplicity
+    switch( segmentation )
+    {
+      case MicromegasDefs::SegmentationType::SEGMENTATION_Z: 
+      m_detector_multiplicity_z->Fill( tile_x, tile_y );
+      break;
+    
+      case MicromegasDefs::SegmentationType::SEGMENTATION_PHI: 
+      m_detector_multiplicity_phi->Fill( tile_x, tile_y );
+      break;
+    }
+
     // fill hit profile for this channel
     const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
-    m_detector_histograms[det_index].m_hit_vs_channel->Fill( strip_index );
+    detector_histograms.m_hit_vs_channel->Fill( strip_index );
     
   }
   
   // fill hit multiplicities
-  for( size_t idet = 0; idet < m_detector_histograms.size(); ++idet )
-  { m_detector_histograms[idet].m_hit_multiplicity->Fill( multiplicity[idet] ); }
-    
-
-//   for( const auto& point:m_tile_centers )
-//   {
-//     m_global_occupancy_phi->Fill(point.first, point.second);  
-//     m_global_occupancy_z->Fill(point.first, point.second);  
-//   }
+  for( auto&& [fee_id, detector_histograms]:m_detector_histograms )
+  { detector_histograms.m_hit_multiplicity->Fill( multiplicity[fee_id] ); }
+      
+  // convert multiplicity histogram in occupancy
+  for( const auto& [fee_id, tile_center]:m_tile_centers )
+  {
+    const auto& [tile_x,tile_y] = tile_center;
+    auto bin = m_detector_multiplicity_z->FindBin( tile_x, tile_y );
+    m_detector_occupancy_z->SetBinContent( bin, m_detector_multiplicity_z->GetBinContent( bin )/(evtcnt*MicromegasDefs::m_nchannels_fee));
+    m_detector_occupancy_phi->SetBinContent( bin, m_detector_multiplicity_phi->GetBinContent( bin )/(evtcnt*MicromegasDefs::m_nchannels_fee));
+  }
   
   if (idummy++ > 10)
   {
@@ -289,55 +306,29 @@ int TpotMon::DBVarInit()
 }
 
 //________________________________
-void TpotMon::setup_tiles()
-{
-  // clear previous tiles
-  m_tile_centers.clear();
-
-  /*
-   * to convert sphenix coordinates into a x,y 2D histogram, 
-   * we transform z(3D) = x(2D)
-   * and x (3D) = y (2D)
-   */
-
-  {
-    const double tile_x = 0;
-    for( const double& tile_z:{ -84.6, -28.2, 28.2, 84.6 } )
-    { m_tile_centers.push_back( {tile_z, tile_x} ); }
-  }
-    
-  {
-    // neighbor sectors have two modules, separated by 10cm
-    for( const double& tile_x: { -m_tile_width - 2, m_tile_width+2 } )
-      for( const double& tile_z:{ -37.1, 37.1 } )
-    { m_tile_centers.push_back( {tile_z, tile_x} ); }
-  }
-  
-}
-
-
-//________________________________
 void TpotMon::setup_bins(TH2Poly* h2)
 {
-  // loop over tile centers
-  for( const auto& point:m_tile_centers )
+  
+  // get first member of pairs into a list
+  auto get_x = []( const MicromegasGeometry::point_list_t& point_list )
   {
-    const std::array<double,4> x = 
-    {
-      point.first-m_tile_length/2,
-      point.first-m_tile_length/2,
-      point.first+m_tile_length/2,
-      point.first+m_tile_length/2
-    };
-
-    const std::array<double,4> y = 
-    {
-      point.second-m_tile_width/2,
-      point.second+m_tile_width/2,
-      point.second+m_tile_width/2,
-      point.second-m_tile_width/2
-    };
-      
-    h2->AddBin( 4, &x[0], &y[0] );
+    std::vector<double> out;
+    std::transform( point_list.begin(), point_list.end(), std::back_inserter( out ), []( const auto& p ) { return p.first; } );
+    return out;
+  };
+  
+  // get second member of pairs into a list
+  auto get_y = []( const MicromegasGeometry::point_list_t& point_list )
+  {
+    std::vector<double> out;
+    std::transform( point_list.begin(), point_list.end(), std::back_inserter( out ), []( const auto& p ) { return p.second; } );
+    return out;
+  };
+  
+  // loop over tile centers
+  for( size_t i = 0; i < m_geometry.get_ntiles(); ++i )
+  {
+    const auto boundaries = m_geometry.get_tile_boundaries( i );
+    h2->AddBin( boundaries.size(), &get_x( boundaries )[0], &get_y( boundaries )[0] );
   }
 }
