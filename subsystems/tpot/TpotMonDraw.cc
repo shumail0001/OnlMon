@@ -86,7 +86,11 @@ TpotMonDraw::TpotMonDraw(const std::string &name)
   TDatime T0(2003, 01, 01, 00, 00, 00);
   TimeOffsetTicks = T0.Convert();
   dbvars.reset( new OnlMonDB(ThisName) );
-  return;
+  
+  // initialize local list of detector names
+  for( const auto& fee_id:m_mapping.get_fee_id_list() )
+  { m_detnames_sphenix.push_back( m_mapping.get_detname_sphenix( fee_id ) ); }
+
 }
 
 //__________________________________________________________________________________
@@ -386,10 +390,9 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& n
   histogram_array_t out{{nullptr}};
 
   auto cl = OnlMonClient::instance();
-  const auto detector_names = m_mapping.get_detnames_sphenix();
-  for( size_t i=0; i<detector_names.size(); ++i)
+  for( size_t i=0; i<m_detnames_sphenix.size(); ++i)
   { 
-    const auto& detector_name=detector_names[i];
+    const auto& detector_name=m_detnames_sphenix[i];
     const auto hname = name + "_" + detector_name;
     out[i] =  cl->getHisto("TPOTMON_0", hname );
     if( Verbosity() )
