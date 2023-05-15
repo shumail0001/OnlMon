@@ -294,20 +294,22 @@ int TpotMon::process_event(Event* event)
     }
     
   }
-  
+    
   // fill hit multiplicities
   for( auto&& [fee_id, detector_histograms]:m_detector_histograms )
   { detector_histograms.m_hit_multiplicity->Fill( multiplicity[fee_id] ); }
-
-  // convert multiplicity histogram in occupancy
-  for( const auto& [fee_id, tile_center]:m_tile_centers )
+  
+  // convert multiplicity histogram into occupancy
+  auto copy_content = []( TH2Poly* source, TH2Poly* destination, double scale )
   {
-    const auto& [tile_x,tile_y] = tile_center;
-    auto bin = m_detector_multiplicity_z->FindBin( tile_x, tile_y );
-    std::cout << "TpotMon::process_event - bin: " << bin << std::endl;
-    m_detector_occupancy_z->SetBinContent( bin, m_detector_multiplicity_z->GetBinContent( bin )/(evtcnt*MicromegasDefs::m_nchannels_fee));
-    m_detector_occupancy_phi->SetBinContent( bin, m_detector_multiplicity_phi->GetBinContent( bin )/(evtcnt*MicromegasDefs::m_nchannels_fee));
-  }
+    for( int bin = 0; bin < source->GetNumberOfBins(); ++bin )
+    { destination->SetBinContent( bin+1, source->GetBinContent( bin+1 )*scale ); }
+  };
+  
+  copy_content( m_detector_multiplicity_z, m_detector_occupancy_z, 1./(evtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_detector_multiplicity_phi, m_detector_occupancy_phi, 1./(evtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_resist_multiplicity_z, m_resist_occupancy_z, 4./(evtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_resist_multiplicity_phi, m_resist_occupancy_phi, 4./(evtcnt*MicromegasDefs::m_nchannels_fee) );
   
   if (idummy++ > 10)
   {

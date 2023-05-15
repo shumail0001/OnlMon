@@ -129,6 +129,16 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     cv->SetEditable(false);
     return cv;
     
+  } else if (name == "TPOT_resist_occupancy") {
+
+    // xpos (-1) negative: do not draw menu bar
+    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TPOT detector occupancy", -1, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 1, 2 );
+    cv->SetEditable(false);
+    return cv;
+
   } else if (name == "TPOT_adc_vs_sample") {
 
     auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
@@ -196,6 +206,12 @@ int TpotMonDraw::Draw(const std::string &what)
   if( what == "ALL" || what == "TPOT_detector_occupancy" )
   {
     iret += draw_detector_occupancy();
+    ++idraw;
+  }
+  
+  if( what == "ALL" || what == "TPOT_resist_occupancy" )
+  {
+    iret += draw_resist_occupancy();
     ++idraw;
   }
   
@@ -355,6 +371,52 @@ int TpotMonDraw::draw_detector_occupancy()
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
     m_detector_occupancy_phi->DrawCopy( "colz" );
+    draw_detnames_sphenix();
+    
+    if( transparent ) draw_time(transparent);
+    return 0;
+
+  } else {
+
+    if( transparent ) DrawDeadServer(transparent);
+    return -1;
+
+  }
+}
+
+//__________________________________________________________________________________
+int TpotMonDraw::draw_resist_occupancy()
+{
+ 
+  if( Verbosity() ) std::cout << "TpotMonDraw::draw_resist_occupancy" << std::endl;
+
+  // get histograms
+  auto cl = OnlMonClient::instance();
+  auto m_resist_occupancy_phi =  cl->getHisto("TPOTMON_0","m_resist_occupancy_phi");
+  auto m_resist_occupancy_z =  cl->getHisto("TPOTMON_0","m_resist_occupancy_z");
+
+  auto cv = get_canvas("TPOT_resist_occupancy");
+  auto transparent = get_transparent_pad( cv, "TPOT_resist_occupancy");
+  if( !cv ) 
+  {
+    if( Verbosity() ) std::cout << "TpotMonDraw::draw_resist_occupancy - no canvas" << std::endl;
+    return -1;
+  }
+  
+  CanvasEditor cv_edit(cv);
+
+  if( m_resist_occupancy_phi && m_resist_occupancy_z )
+  {    
+    cv->cd(1);
+    gPad->SetLeftMargin( 0.07 );
+    gPad->SetRightMargin( 0.15 );
+    m_resist_occupancy_z->DrawCopy( "colz" );
+    draw_detnames_sphenix();
+
+    cv->cd(2);
+    gPad->SetLeftMargin( 0.07 );
+    gPad->SetRightMargin( 0.15 );
+    m_resist_occupancy_phi->DrawCopy( "colz" );
     draw_detnames_sphenix();
     
     if( transparent ) draw_time(transparent);

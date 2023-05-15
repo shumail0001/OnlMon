@@ -20,7 +20,7 @@ void tpotDrawInit(const int online = 0)
   const auto detector_names = tpotmon->get_detnames_sphenix();
 
   // register histograms
-  for( const std::string& hname: { "m_counters", "m_detector_occupancy_phi", "m_detector_occupancy_z" } )
+  for( const std::string& hname: { "m_counters", "m_detector_occupancy_phi", "m_detector_occupancy_z", "m_resist_occupancy_phi", "m_resist_occupancy_z" } )
   { cl->registerHisto( hname, "TPOTMON_0" ); } 
   
   for( const std::string& hname: { "m_adc_sample", "m_hit_charge", "m_hit_multiplicity", "m_hit_vs_channel" } )
