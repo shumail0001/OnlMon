@@ -57,6 +57,14 @@ class TpotMon : public OnlMon
   TH2Poly* m_detector_occupancy_z = nullptr;
   TH2Poly* m_detector_occupancy_phi = nullptr;
 
+  //! TPOT per/detector multiplicity
+  TH2Poly* m_resist_multiplicity_z = nullptr;
+  TH2Poly* m_resist_multiplicity_phi = nullptr;
+  
+  //! TPOT per/detector occupancy
+  TH2Poly* m_resist_occupancy_z = nullptr;
+  TH2Poly* m_resist_occupancy_phi = nullptr;
+
   //@name per detector structure
   //@{
   class detector_histograms_t 
