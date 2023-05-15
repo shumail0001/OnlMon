@@ -284,12 +284,12 @@ int TpotMon::process_event(Event* event)
     {
       case MicromegasDefs::SegmentationType::SEGMENTATION_Z: 
       m_detector_multiplicity_z->Fill( tile_x, tile_y );
-      m_resist_multiplicity_z->Fill( tile_x - MicromegasGeometry::m_tile_length/2 + MicromegasGeometry::m_pitch_z*strip_index, tile_y );
+      m_resist_multiplicity_z->Fill( tile_x + MicromegasGeometry::m_tile_length*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5), tile_y );
       break;
     
       case MicromegasDefs::SegmentationType::SEGMENTATION_PHI: 
       m_detector_multiplicity_phi->Fill( tile_x, tile_y );
-      m_resist_multiplicity_phi->Fill( tile_x, tile_y - MicromegasGeometry::m_tile_width/2 + MicromegasGeometry::m_pitch_phi*strip_index );
+      m_resist_multiplicity_phi->Fill( tile_x, tile_y + MicromegasGeometry::m_tile_width*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5) );
       break;
     }
     
