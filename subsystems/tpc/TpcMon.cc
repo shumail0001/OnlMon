@@ -50,6 +50,7 @@ int TpcMon::Init()
   if (!tpccalib)
   {
     std::cout << "TPCCALIB environment variable not set" << std::endl;
+    exit(1);
   }
   std::string fullfile = std::string(tpccalib) + "/" + "TpcMonData.dat";
   std::ifstream calib(fullfile);
