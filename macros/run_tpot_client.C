@@ -39,21 +39,21 @@ void tpotDrawInit(const int online = 0)
 
 void tpotDraw(const char *what = "ALL")
 {
-  OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
+  auto cl = OnlMonClient::instance();  // get pointer to framewrk
   cl->requestHistoBySubSystem("TPOTMON_0");       // update histos
   cl->Draw("TPOTMONDRAW", what);                    // Draw Histos of registered Drawers
 }
 
 void tpotPS()
 {
-  OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
+  auto cl = OnlMonClient::instance();  // get pointer to framewrk
   cl->MakePS("TPOTMONDRAW");                        // Create PS files
   return;
 }
 
 void tpotHtml()
 {
-  OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
+  auto cl = OnlMonClient::instance();  // get pointer to framewrk
   cl->MakeHtml("TPOTMONDRAW");                      // Create html output
   return;
 }
