@@ -30,8 +30,11 @@ class TpotMon : public OnlMon
   private:
   int DBVarInit();
     
-  //! setup bins in a TH2Poly
-  void setup_bins( TH2Poly* );
+  //! setup bins in a TH2Poly. One bin per detector
+  void setup_detector_bins( TH2Poly* );
+  
+  //! setup bins in TH2Poly, one bin per Resist sector
+  void setup_resist_bins( TH2Poly*, MicromegasDefs::SegmentationType );
   
   int evtcnt = 0;
   int idummy = 0;
@@ -53,6 +56,14 @@ class TpotMon : public OnlMon
   //! TPOT per/detector occupancy
   TH2Poly* m_detector_occupancy_z = nullptr;
   TH2Poly* m_detector_occupancy_phi = nullptr;
+
+  //! TPOT per/detector multiplicity
+  TH2Poly* m_resist_multiplicity_z = nullptr;
+  TH2Poly* m_resist_multiplicity_phi = nullptr;
+  
+  //! TPOT per/detector occupancy
+  TH2Poly* m_resist_occupancy_z = nullptr;
+  TH2Poly* m_resist_occupancy_phi = nullptr;
 
   //@name per detector structure
   //@{
