@@ -45,13 +45,14 @@ namespace
     return transparent;
   };
 
-  TPad* get_transparent_pad( TPad* parent, const std::string& name )
+  TPad* get_transparent_pad( TPad* parent, const std::string& name, bool clear = true)
   {
     if( !parent ) return nullptr;
     const std::string transparent_name = name+"_transparent";
     auto out = dynamic_cast<TPad*>( parent->FindObject( transparent_name.c_str() ) );
 
     if( !out ) std::cout << "get_transparent_pad - " << transparent_name << " not found" << std::endl;
+    if( clear ) out->Clear("D");
     return out;
 
   }
@@ -98,11 +99,11 @@ int TpotMonDraw::Init()
 { return 0; }
 
 //__________________________________________________________________________________
-TCanvas* TpotMonDraw::get_canvas(const std::string& name, bool /*clear*/ )
+TCanvas* TpotMonDraw::get_canvas(const std::string& name, bool clear )
 {
   auto cv = dynamic_cast<TCanvas*>( gROOT->FindObject( name.c_str() ) );
   if( !cv ) cv = create_canvas( name );
-  // if( cv && clear ) cv->Clear("D");
+  if( cv && clear ) cv->Clear("D");
   return cv;
 }
 
@@ -124,8 +125,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     // xpos (-1) negative: do not draw menu bar
     auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TPOT detector occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 1, 2 );
+    create_transparent_pad(name)->Draw();
     cv->SetEditable(false);
     return cv;
 
@@ -134,8 +135,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     // xpos (-1) negative: do not draw menu bar
     auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TPOT resist occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 1, 2 );
+    create_transparent_pad(name)->Draw();
     cv->SetEditable(false);
     return cv;
 
@@ -143,8 +144,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name)->Draw();
     for( int i = 0; i < 16; ++i )
     {
       cv->GetPad(i+1)->SetLeftMargin(0.15);
@@ -157,8 +158,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name)->Draw();
     cv->SetEditable(false);
     return cv;
 
@@ -166,8 +167,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon hit multiplicity", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name)->Draw();
     cv->SetEditable(false);
     return cv;
 
@@ -175,8 +176,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name)->Draw();
     cv->SetEditable(false);
     return cv;
 
@@ -322,6 +323,7 @@ int TpotMonDraw::MakeHtml(const std::string &what)
 //__________________________________________________________________________________
 void TpotMonDraw::draw_time( TPad* pad )
 {
+  pad->Clear();
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);
