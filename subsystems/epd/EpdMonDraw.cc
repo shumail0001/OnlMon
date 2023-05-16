@@ -37,7 +37,6 @@ int EpdMonDraw::Init()
 
 int EpdMonDraw::MakeCanvas(const std::string &name)
 {
-  OnlMonClient *cl = OnlMonClient::instance();
   if (name == "EpdMon1")
   {
     // xpos (-1) negative: do not draw menu bar
