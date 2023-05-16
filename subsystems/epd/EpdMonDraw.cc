@@ -133,6 +133,21 @@ int EpdMonDraw::DrawFirst(const std::string & /* what */)
   TH2D *h_hits0_n = (TH2D*) cl->getHisto("EPDMON_0","h_hits0_n");
   TH2D *h_hits_s  = (TH2D*) cl->getHisto("EPDMON_0","h_hits_s");
   TH2D *h_hits_n  = (TH2D*) cl->getHisto("EPDMON_0","h_hits_n");
+  
+  if (!gROOT->FindObject("EpdMon1"))
+  {
+    MakeCanvas("EpdMon1");
+  }
+  TC[0]->SetEditable(true);
+  TC[0]->Clear("D");
+  
+  if(!h_ADC0_s)
+  {
+    DrawDeadServer(transparent[0]);
+    TC[0]->SetEditable(false);
+    return -1;
+  }
+  
 
   int nbinsx0 = h_ADC0_s->GetNbinsX();
   int nbinsy0 = h_ADC0_s->GetNbinsY(); 
@@ -161,20 +176,6 @@ int EpdMonDraw::DrawFirst(const std::string & /* what */)
     }
   }
 
-  if (!gROOT->FindObject("EpdMon1"))
-  {
-    MakeCanvas("EpdMon1");
-  }
-  TC[0]->SetEditable(true);
-  TC[0]->Clear("D");
-  
-  if(!h_ADC0_s)
-  {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
-    return -1;
-  }
-  
   Pad[0]->cd();
   h_ADC0_s->Draw("COLZPOL");
   h_ADC_s->Draw("COLZPOL same");
@@ -212,27 +213,27 @@ int EpdMonDraw::DrawSecond(const std::string & /* what */)
 
   TH1D *h_event = (TH1D*) cl->getHisto("EPDMON_0","h_event");
 
+  if (!gROOT->FindObject("EpdMon2"))
+  {
+    MakeCanvas("EpdMon2");
+  }
+  if(!h_hits0_s)
+  {
+    DrawDeadServer(transparent[0]);
+    TC[0]->SetEditable(false);
+    return -1;
+  }
   int nevt = h_event->GetEntries();
   h_hits0_s->Scale(1./nevt);
   h_hits_s->Scale(1./nevt);
   h_hits0_n->Scale(1./nevt);
   h_hits_n->Scale(1./nevt);
 
-  if (!gROOT->FindObject("EpdMon2"))
-  {
-    MakeCanvas("EpdMon2");
-  }
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
   Pad[2]->cd();
   h_hits0_s->Draw("COLZPOL");
   h_hits_s->Draw("COLZPOL same");
-  if(!h_hits_s)
-  {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
-    return -1;
-  }
   Pad[3]->cd();
   h_hits0_n->Draw("COLZPOL");
   h_hits_n->Draw("COLZPOL same");
@@ -265,16 +266,16 @@ int EpdMonDraw::DrawThird(const std::string & /* what */)
   {
     MakeCanvas("EpdMon2");
   }
-  TC[2]->SetEditable(true);
-  TC[2]->Clear("D");
-  Pad[4]->cd();
-  h_ADC_corr->Draw("COLZ");
   if(!h_ADC_corr)
   {
     DrawDeadServer(transparent[0]);
     TC[0]->SetEditable(false);
     return -1;
   }
+  TC[2]->SetEditable(true);
+  TC[2]->Clear("D");
+  Pad[4]->cd();
+  h_ADC_corr->Draw("COLZ");
   Pad[5]->cd();
   h_hits_corr->Draw("COLZ");
   TText PrintRun;

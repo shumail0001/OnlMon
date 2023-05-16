@@ -273,7 +273,7 @@ int EpdMon::process_event(Event *e /* evt */)
 
       // channel mapping
       int ChMap = EpdMapChannel(ChannelNumber-1);
-      if(ChMap == -1){ std::cout << "Unused channel - " << ChannelNumber << "go to next channel" << std::endl;}
+      if(ChMap == -1){ std::cout << "Unused channel - " << ChannelNumber << "go to next channel" << std::endl;continue;}
       unsigned int key = TowerInfoDefs::encode_epd(ChMap);
       int phi_bin = TowerInfoDefs::get_epd_phibin(key);
       int r_bin = TowerInfoDefs::get_epd_rbin(key);
