@@ -383,19 +383,20 @@ int MvtxMon::process_event(Event *evt)
     Packet *p = evt->getPacket(packet_init + iPkt);  
     if (p){
       //std::cout<<"PACKET: "<<iPkt<<std::endl;
-      std::map<mvtx::InteractionRecord, std::vector<mvtx::ChipPixelData>> *data = reinterpret_cast<std::map<mvtx::InteractionRecord, std::vector<mvtx::ChipPixelData>>*>(p->pValue(-1, "ChipData"));
+     // std::map<mvtx::InteractionRecord, std::vector<mvtx::ChipPixelData>> *data = reinterpret_cast<std::map<mvtx::InteractionRecord, std::vector<mvtx::ChipPixelData>>*>(p->pValue(-1, "ChipData"));
       int nevents_packet = 0; 
-     if(data){
-      for (auto const& mapit : *data){
+    if(false){
+    // if(data){
+      /*for (auto const& mapit : *data){
         nevents_packet++;
         ntriggers++;
         COUT << "Key orbit: " << mapit.first.orbit<< " Key bc: " << mapit.first.bc <<ENDL;
         mvtxmon_ChipFiredHis->Fill(mapit.second.size());
-        for(auto el : mapit.second){
+        for(auto el : mapit.second){*/
           /*if(el.getChipID() ==270)*///std::cout<<" chip "<<el.getChipID()<<std::endl;
           //COUT << "Key orbit: " << mapit.first.orbit<< " Key bc: " << mapit.first.bc << ", Value orbit: " << el.getInteractionRecord().orbit << " chip id "<<el.getChipID()<<ENDL;
           //std::vector<PixelData> *data = reinterpret_cast<std::vector<PixelData>*>(p->pValue(ruchn, "ChipData"));
-          std::vector<int> location = *(reinterpret_cast<std::vector<int>*>(p->pValue(el.getChipID(), "ChipLocation")));
+         /* std::vector<int> location = *(reinterpret_cast<std::vector<int>*>(p->pValue(el.getChipID(), "ChipLocation")));
           int feeid = 3 * StaveBoundary[location.at(0)] + location.at(1) * 3 + location.at(2)/3;
           //std::cout<<"chip id "<<el.getChipID()<<" feeid "<<location.at(3)<<" "<<feeid<<std::endl;
           for (int i = 0; i < 13; i++) {
@@ -415,7 +416,7 @@ int MvtxMon::process_event(Event *evt)
                 //mHitPerChip[location.at(0)][location.at(1)][location.at(2)] = 0;
 	  }
         }
-      }
+      }*/
   std::cout<<"nevents: "<<nevents_packet<<std::endl;
 
   double pixelOccupancy, chipOccupancy;
@@ -487,8 +488,8 @@ int MvtxMon::process_event(Event *evt)
   }
 }// if (data)
 
-    std::vector<mvtx::GBTLinkDecodingStat> *linkErrors = reinterpret_cast<std::vector<mvtx::GBTLinkDecodingStat>*>(p->pValue(-1, "linkErrors"));
-
+    //std::vector<mvtx::GBTLinkDecodingStat> *linkErrors = reinterpret_cast<std::vector<mvtx::GBTLinkDecodingStat>*>(p->pValue(-1, "linkErrors"));
+/*
       if(linkErrors){
         for (auto error : *linkErrors){
           for (int ierror = 0; ierror < mvtx::GBTLinkDecodingStat::NErrorsDefined; ierror++) {
@@ -505,7 +506,7 @@ int MvtxMon::process_event(Event *evt)
        //   }
         }
       }
-	
+*/	
   delete p;
   }// if(p)
 }// for packet loop
