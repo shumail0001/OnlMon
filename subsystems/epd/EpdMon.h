@@ -76,6 +76,7 @@ class EpdMon : public OnlMon
   CaloWaveformFitting* WaveformProcessingFast = nullptr;
   CaloWaveformFitting* WaveformProcessingTemp = nullptr;
 
+
 };
 
 
