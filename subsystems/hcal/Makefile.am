@@ -20,6 +20,7 @@ libonlhcalmon_server_la_LIBADD = \
   -lonlmonserver \
   -lonlmondb \
   -lonlmonutils \
+  -lcalo_io \
   -lcalo_reco 
 
 libonlhcalmon_client_la_LIBADD = \

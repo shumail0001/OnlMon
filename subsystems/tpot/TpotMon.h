@@ -1,8 +1,10 @@
 #ifndef TPOT_TPOTMON_H
 #define TPOT_TPOTMON_H
 
-#include "TpotDefs.h"
+#include "MicromegasGeometry.h"
 
+#include <micromegas/MicromegasDefs.h>
+#include <micromegas/MicromegasMapping.h>
 #include <onlmon/OnlMon.h>
 
 #include <array>
@@ -12,10 +14,11 @@ class Event;
 class OnlMonDB;
 class TH1;
 class TH2;
+class TH2Poly;
 
 class TpotMon : public OnlMon
 {
- public:
+  public:
   TpotMon(const std::string &name);
   ~TpotMon() override = default;
 
@@ -24,36 +27,69 @@ class TpotMon : public OnlMon
   int BeginRun(const int runno) override;
   int Reset() override;
 
- protected:
+  private:
   int DBVarInit();
+    
+  //! setup bins in a TH2Poly. One bin per detector
+  void setup_detector_bins( TH2Poly* );
+  
+  //! setup bins in TH2Poly, one bin per Resist sector
+  void setup_resist_bins( TH2Poly*, MicromegasDefs::SegmentationType );
+  
   int evtcnt = 0;
   int idummy = 0;
   std::unique_ptr<OnlMonDB> dbvars;
   
-  ///@name on/off histograms
-  //@{
-  TH2* m_hv_onoff_phi = nullptr;
-  TH2* m_hv_onoff_z = nullptr;
+  //! mapping
+  MicromegasMapping m_mapping;
+    
+  //! geometry
+  MicromegasGeometry m_geometry;
   
-  TH2* m_fee_onoff_phi = nullptr;
-  TH2* m_fee_onoff_z = nullptr;
+  //! counter
+  TH1* m_counters = nullptr;
+   
+  //! TPOT per/detector multiplicity
+  TH2Poly* m_detector_multiplicity_z = nullptr;
+  TH2Poly* m_detector_multiplicity_phi = nullptr;
+  
+  //! TPOT per/detector occupancy
+  TH2Poly* m_detector_occupancy_z = nullptr;
+  TH2Poly* m_detector_occupancy_phi = nullptr;
+
+  //! TPOT per/detector multiplicity
+  TH2Poly* m_resist_multiplicity_z = nullptr;
+  TH2Poly* m_resist_multiplicity_phi = nullptr;
+  
+  //! TPOT per/detector occupancy
+  TH2Poly* m_resist_occupancy_z = nullptr;
+  TH2Poly* m_resist_occupancy_phi = nullptr;
+
+  //@name per detector structure
+  //@{
+  class detector_histograms_t 
+  {
+    public:
+
+    /// adc counts vs sample id in each detector
+    TH2* m_adc_vs_sample = nullptr;
+    
+    /// total charge per hit in each detector
+    TH1* m_hit_charge = nullptr;
+    
+    /// number of hits per event in each detector
+    TH1* m_hit_multiplicity = nullptr;
+    
+    /// m_hit_vs_channel
+    TH1* m_hit_vs_channel = nullptr;    
+  };
   //@}
   
-  ///@name raw hits histograms
-  //@{
-  /// adc counts vs sample id in each detector
-  std::array<TH1*, TpotDefs::n_detectors> m_adc_vs_sample = {{nullptr}};
-
-  /// total charge per hit in each detector
-  std::array<TH1*, TpotDefs::n_detectors> m_hit_charge= {{nullptr}};
+  //@name map tile centers (from MicromegasGeometry) to fee_id
+  std::map<int, MicromegasGeometry::point_t> m_tile_centers;
   
-  /// number of hits per event in each detector
-  std::array<TH1*, TpotDefs::n_detectors> m_hit_multiplicity= {{nullptr}};
-
-  /// total number of hits per channel in each detector
-  std::array<TH1*, TpotDefs::n_detectors> m_hit_vs_channel = {{nullptr}};
-
-  //@}
+  //@name map detector histograms to fee id
+  std::map<int, detector_histograms_t> m_detector_histograms;
   
 };
 

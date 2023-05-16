@@ -38,7 +38,7 @@ public:
 	int MakeHtml(const std::string &what = "ALL") override;
 
 	static void InttExec(const std::string&, int);
-	static void InttExecExec(const std::string&);
+	static void InttExecExec(const std::string&, int, int, int, int);
 
 	typedef TH1* (*MAIN_FUNC)(int);
 	typedef TH1* (*EXEC_FUNC)(int, int, int, int);
@@ -96,8 +96,8 @@ private:
 	//===	~Constants for Drawing	===//
 
 	//===	Drawing Methods		===//
-	static void DrawPad(TPad*);
-	static void DrawExecPad(TPad*);
+	static void DrawPad(TPad*, TPad*);
+	static void DrawExecPad(TPad*, TPad*);
 
 	static void DrawDisp(TPad*, const std::string&);
 	//---	Main Drawing Methods	---//
