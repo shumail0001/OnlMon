@@ -10,6 +10,8 @@
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/pseudoRunningMean.h>
 
+#include <fun4all/Fun4AllReturnCodes.h>
+
 #include <caloreco/CaloWaveformFitting.h>
 #include <caloreco/CaloWaveformProcessing.h>
 #include <calobase/TowerInfoDefs.h>
@@ -241,7 +243,8 @@ std::vector<float> CemcMon::getSignal(Packet *p, const int channel)
 std::vector<float> CemcMon::anaWaveformFast(Packet *p, const int channel)
 {
   std::vector<float> waveform;
-  for ( int s = 0;  s< p->iValue(0,"SAMPLES"); s++) {
+  waveform.reserve(m_nSamples);  
+  for ( int s = 0;  s < m_nSamples/*p->iValue(0,"SAMPLES")*/; s++) {
     waveform.push_back(p->iValue(s,channel));
   }
   std::vector<std::vector<float>> multiple_wfs;
@@ -259,7 +262,9 @@ std::vector<float> CemcMon::anaWaveformFast(Packet *p, const int channel)
 std::vector<float> CemcMon::anaWaveformTemp(Packet *p, const int channel)
 {
   std::vector<float> waveform;
-  for ( int s = 0;  s< p->iValue(0,"SAMPLES"); s++) {
+  waveform.reserve(m_nSamples);
+  for ( int s = 0;  s < m_nSamples/*p->iValue(0,"SAMPLES")*/; s++) {
+    
     waveform.push_back(p->iValue(s,channel));
   }
   std::vector<std::vector<float>> multiple_wfs;
@@ -290,8 +295,8 @@ int CemcMon::process_event(Event *e  /* evt */)
   // }
 
   h1_waveform_twrAvg->Reset();  // only record the latest event waveform
-  unsigned int towerNumber = 0;
   float sectorAvg[Nsector] = {0};
+  unsigned int towerNumber = 0;	
   // loop over packets which contain a single sector
   for (int packet = packetlow; packet <= packethigh; packet++)
     {
@@ -303,21 +308,25 @@ int CemcMon::process_event(Event *e  /* evt */)
 	  h1_packet_number -> Fill(packet);
 	  
 	  h1_packet_length -> SetBinContent(packet-6000,h1_packet_length->GetBinContent(packet-6000) + p -> getLength());
-
-	  for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
+	  
+	  int nChannels = p->iValue(0, "CHANNELS");
+	  if(nChannels > m_nChannels) 
 	    {
+	      return Fun4AllReturnCodes::DISCARDEVENT;//packet is corrupted, reports too many channels
+	    }
+	  for (int c = 0; c < nChannels; c++)
+	    {
+	      	      
 	      h1_packet_chans -> Fill(packet);
-	      //msg << "Filling channel: " << c << " for packet: " << packet << std::endl;
-	      //se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-	      // record waveform to show the average waveform
+	      
 	      for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
 		{
 		  h1_waveform_twrAvg->Fill(s, p->iValue(s, c));
 		}
 	      towerNumber++;
-
+	      
 	      // std::vector result =  getSignal(p,c); // simple peak extraction
-	      std::vector<float> resultFast= anaWaveformFast(p, c);  // fast waveform fitting
+	      std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
 	      float signalFast = resultFast.at(0);
 	      float timeFast = resultFast.at(1);
 	      float pedestalFast = resultFast.at(2);
@@ -339,9 +348,6 @@ int CemcMon::process_event(Event *e  /* evt */)
 
 	      int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
 
-
-
-	  
 	      sectorAvg[sectorNumber - 1] += signalFast;
 
 	      rm_vector_twr[towerNumber - 1] -> Add(&signalFast);
@@ -358,13 +364,66 @@ int CemcMon::process_event(Event *e  /* evt */)
 		{
 		  h2_cemc_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);
 		}
-
-        
-
 	    }  // channel loop
+	  if(nChannels < m_nChannels)
+	    {
+	      //still need to correctly set bad channels to zero. 
+	      for(int channel = 0; channel < m_nChannels - nChannels; channel++)
+		{
+		  towerNumber++;
+		  
+		  unsigned int key = TowerInfoDefs::encode_emcal(towerNumber - 1);
+		  unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
+		  unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
 
+		  int sectorNumber = phi_bin / 8 + 1;
+
+		  //h1_waveform_time->Fill(timeFast);
+
+		  //h1_waveform_pedestal->Fill(pedestalFast);
+
+		  int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
+
+		  sectorAvg[sectorNumber -1] += 0.;
+		  
+		  float signalFast = 0.0;
+		  
+		  rm_vector_twr[towerNumber -1] -> Add(&signalFast);
+		  
+		  h2_cemc_rm -> SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
+		  
+		  h2_cemc_mean -> SetBinContent(bin, h2_cemc_mean->GetBinContent(bin));
+		
+		}
+	    }
 	  delete p;
 	}  // if packet good
+      else //packet is corrupted, treat all channels as zero suppressed
+	{
+	  h1_packet_length -> Fill(packet-6000,h1_packet_length->GetBinContent(packet-6000) +0);
+	  towerNumber = 0;
+	  for(int channel = 0; channel < m_nChannels; channel++)
+	    {
+	      towerNumber++;
+	      unsigned int key = TowerInfoDefs::encode_emcal(towerNumber - 1);
+	      unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
+	      unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
+
+	      int sectorNumber = phi_bin / 8 + 1;
+
+	      int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
+
+	      sectorAvg[sectorNumber -1] += 0;
+
+	      float signalFast = 0;
+		  
+	      rm_vector_twr[towerNumber -1] -> Add(&signalFast);
+		  
+	      h2_cemc_rm -> SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
+		  
+	      h2_cemc_mean -> SetBinContent(bin, h2_cemc_mean->GetBinContent(bin));
+	    }
+	} //zero filling bad packets
     }    // packet loop
 
 
