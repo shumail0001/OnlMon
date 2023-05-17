@@ -210,12 +210,8 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
     {
       for(int j = 0; j < nTowersPhi; j++)
 	{
-	  if(h2_cemc_mean->GetBinContent(i+1,j+1) == 0) 
-	    {
-	      continue;
-	      //hist1->SetBinContent(i+1, j+1, 0);
-	    }
-	  else hist1->SetBinContent(i+1, j+1, hist1->GetBinContent(i+1,j+1)/h2_cemc_mean->GetBinContent(i+1,j+1));
+	  if(i < 8) continue;
+	  hist1->SetBinContent(i+1, j+1, hist1->GetBinContent(i+1,j+1)/h2_cemc_mean->GetBinContent(i+1,j+1));
 	}
     } 
   
@@ -478,19 +474,22 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 	      badPacks -> AddEntry("",Form("%d",badPackets[i][j]),"");
 	      badboys++;
 	    }
-	  else if((i == 1) && !(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j])) /*== badPackets[i-1].end())*/)
+	  else if(i == 1)  
 	    {
-	      badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
-	      badboys++;
-	    }
-	  else//i == 2
-	    {
-	      if(!(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j]))/*== badPackets[i-1].end()*/) 
+	      if(!(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j])))
 		{
 		  badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
 		  badboys++;
 		}
-	      if(!(std::count(badPackets[i-2].begin(),badPackets[i-2].end(),badPackets[i][j])) && !(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j]))/*== badPackets[i-2].end()*/)
+	    }
+	  else//i == 2
+	    {
+	      if(!(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j]))) 
+		{
+		  badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
+		  badboys++;
+		}
+	      if(!(std::count(badPackets[i-2].begin(),badPackets[i-2].end(),badPackets[i][j])) && !(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j])))
 		{
 		  badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
 		  badboys++;
@@ -788,10 +787,12 @@ int CemcMonDraw::FindHotTower(TPad *warningpad,TH2D* hhit){
   float ndeadt = 0;
   float hot_threshold  = 1.25;
   float dead_threshold = 0.75;
-  float nTowerTotal = 24576.;
+  float nTowerTotal = 24576.-2048.;//-2048 to account for the non-functioning towers at the edge of the south
   for(int ieta=0; ieta<nTowersEta; ieta++){
     for(int iphi=0; iphi<nTowersPhi; iphi++){
-    
+      
+      if(ieta < 8) continue;
+      
       double nhit = hhit->GetBinContent(ieta+1, iphi+1);
 	
       if(nhit > hot_threshold)	nhott++;
