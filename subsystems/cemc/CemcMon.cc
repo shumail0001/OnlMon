@@ -10,8 +10,6 @@
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/pseudoRunningMean.h>
 
-#include <fun4all/Fun4AllReturnCodes.h>
-
 #include <caloreco/CaloWaveformFitting.h>
 #include <calobase/TowerInfoDefs.h>
 
@@ -316,7 +314,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 	  int nChannels = p->iValue(0, "CHANNELS");
 	  if(nChannels > m_nChannels) 
 	    {
-	      return Fun4AllReturnCodes::DISCARDEVENT;//packet is corrupted, reports too many channels
+	      return -1;//packet is corrupted, reports too many channels
 	    }
 	  for (int c = 0; c < nChannels; c++)
 	    {
