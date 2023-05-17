@@ -277,8 +277,8 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   gPad->SetLeftMargin(0.08);
   gPad->SetRightMargin(0.12);
   
-  //hist1->Draw("colz");
-  h2_cemc_mean->Draw("colz");
+  hist1->Draw("colz");
+  //h2_cemc_mean->Draw("colz");
   for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
   for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
 
