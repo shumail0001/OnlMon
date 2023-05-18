@@ -2,7 +2,6 @@
 #include "TpotMonDefs.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
-#include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
 #include <Event/msg_profile.h>
@@ -173,8 +172,6 @@ int TpotMon::Init()
   }
 
   // use monitor name for db table name
-  dbvars.reset( new OnlMonDB(ThisName) );
-  DBVarInit();
   Reset();
   return 0;
 }
@@ -206,21 +203,6 @@ int TpotMon::process_event(Event* event)
   ++evtcnt;
 
   increment( m_counters, TpotMonDefs::kValidEventCounter );
-
-  auto se = OnlMonServer::instance();
-  if (!se->Trigger("ONLMONBBCLL1"))
-  {
-    std::ostringstream msg;
-    msg << "Processing Event " << evtcnt
-        << ", Trigger : 0x" << std::hex << se->Trigger()
-        << std::dec;
-    // severity levels and id's for message sources can be found in
-    // $ONLINE_MAIN/include/msg_profile.h
-    // The last argument is a message type. Messages of the same type
-    // are throttled together, so distinct messages should get distinct
-    // message types
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-  }
 
   // read the data
   std::unique_ptr<Packet> packet(event->getPacket(MicromegasDefs::m_packet_id));
@@ -314,20 +296,6 @@ int TpotMon::process_event(Event* event)
   copy_content( m_resist_multiplicity_z, m_resist_occupancy_z, 4./(evtcnt*MicromegasDefs::m_nchannels_fee) );
   copy_content( m_resist_multiplicity_phi, m_resist_occupancy_phi, 4./(evtcnt*MicromegasDefs::m_nchannels_fee) );
 
-  if (idummy++ > 10)
-  {
-    if (dbvars)
-    {
-      dbvars->SetVar("tpotmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-      dbvars->SetVar("tpotmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      dbvars->SetVar("tpotmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
-      dbvars->DBcommit();
-    }
-    std::ostringstream msg;
-    msg << "Filling Histos";
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
-    idummy = 0;
-  }
   return 0;
 }
 
@@ -337,25 +305,6 @@ int TpotMon::Reset()
   // reset our internal counters
   evtcnt = 0;
   idummy = 0;
-  return 0;
-}
-
-//________________________________
-int TpotMon::DBVarInit()
-{
-  // variable names are not case sensitive
-  std::string varname;
-  varname = "tpotmoncount";
-  dbvars->registerVar(varname);
-  varname = "tpotmondummy";
-  dbvars->registerVar(varname);
-  varname = "tpotmonnew";
-  dbvars->registerVar(varname);
-  if (verbosity > 0)
-  {
-    dbvars->Print();
-  }
-  dbvars->DBInit();
   return 0;
 }
 

@@ -3,12 +3,11 @@
 
 #include <onlmon/OnlMon.h>
 #include <vector>
-#include <TMath.h>
+#include <cmath>
 
 class CaloWaveformFitting;
 class TowerInfoContainer;
 class Event;
-class OnlMonDB;
 class TH1;
 class TH2;
 class Packet;
@@ -30,7 +29,6 @@ class EpdMon : public OnlMon
   std::vector<float> getSignal(Packet *p, const int channel);
   std::vector<float> anaWaveformFast(Packet *p, const int channel);
   std::vector<float> anaWaveformTemp(Packet *p, const int channel);
-  int DBVarInit();
   int evtcnt = 0;
   int idummy = 0;
   
@@ -43,9 +41,8 @@ class EpdMon : public OnlMon
   int nPhi0 = 12;
   int nPhi = 24;
   int nRad = 24;
-  double axislimit = TMath::Pi();
+  double axislimit = M_PI;
   
-  OnlMonDB *dbvars = nullptr;
   TH2 *h_ADC0_s = nullptr;
   TH2 *h_ADC0_n = nullptr;
   TH2 *h_ADC_s = nullptr;
