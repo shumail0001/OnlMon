@@ -75,7 +75,6 @@ class OnlMonServer : public OnlMonBase
   std::string GetRunType() const { return RunType; }
 
   int send_message(const OnlMon *Monitor, const int msgsource, const int severity, const std::string &err_message, const int msgtype) const;
-  int DisconnectDB();
   void GetMutex(pthread_mutex_t &lock) { lock = mutex; }
   void SetThreadId(const pthread_t &id) { serverthreadid = id; }
 
@@ -100,7 +99,6 @@ class OnlMonServer : public OnlMonBase
   void registerHisto(const std::string &hname, TH1 *h1d, const int replace = 0);
 
   static OnlMonServer *__instance;
-  unsigned int trigger[3];
   int runnumber = -1;
   int eventnumber = 0;
   int portnumber = OnlMonDefs::MONIPORT;

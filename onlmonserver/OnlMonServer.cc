@@ -107,12 +107,16 @@ void OnlMonServer::InitAll()
 
 void OnlMonServer::dumpHistos(const std::string &filename)
 {
-  std::map<const std::string, TH1 *>::const_iterator hiter;
-  TFile *hfile = new TFile(filename.c_str(), "RECREATE", "Created by Online Monitor", compression_level);
-  for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
-  {
-    hiter->second->Write();
-  }
+  TFile *hfile = TFile::Open(filename.c_str(), "RECREATE", "Created by Online Monitor");
+  for (auto &moniiter : MonitorHistoSet)
+    {
+      std::cout << "saving " << moniiter.first << std::endl;
+      for (auto &histiter : moniiter.second)
+	{
+	  std::cout << "saving " << histiter.first << std::endl;
+	  histiter.second->Write();
+	}
+    }
   hfile->Close();
   delete hfile;
   return;
@@ -420,14 +424,11 @@ int OnlMonServer::BeginRun(const int runno)
 
   std::vector<OnlMon *>::iterator iter;
   activepacketsinit = 0;
-  scaledtrigmask = 0xFFFFFFFF;
-  scaledtrigmask_used = 0;
   for (iter = MonitorList.begin(); iter != MonitorList.end(); ++iter)
   {
     (*iter)->BeginRunCommon(runno, this);
     i += (*iter)->BeginRun(runno);
   }
-  DisconnectDB();
   return i;
 }
 
@@ -511,84 +512,26 @@ void OnlMonServer::RunNumber(const int irun)
 
 int OnlMonServer::WriteHistoFile()
 {
-  /*
-    utsname ThisNode;
-    uname(&ThisNode);
-    std::string nn = ThisNode.nodename;
-    std::string mm = nn.substr(0, nn.find('.'));  // strip the domain (all chars after first .)
-    std::ostringstream dirname, filename;
-    // filename is Run_<runno>_<monitor>_<nodename>.root
-    if (getenv("ONLMON_SAVEDIR"))
+  for (auto &moniiter : MonitorHistoSet)
     {
-      dirname << getenv("ONLMON_SAVEDIR") << "/";
-    }
-    int irun = RunNumber();
-    std::map<std::string, std::set<std::string> >::const_iterator mhistiter;
-    // assignedhists set stores all encountered histograms so histos which are not accounted
-    // for can be saved
-    std::set<std::string> assignedhists = CommonHistoSet;
-    std::set<std::string>::const_iterator siter;
-    std::map<const std::string, TH1 *>::const_iterator hiter;
-    for (auto &mhistiter :  MonitorHistoSet.begin())
-    {
-      if (mhistiter->first == "COMMON")
-      {
-        continue;
-      }
-      filename.str("");
-      filename << dirname.str() << "Run_" << irun << "_" << mhistiter->first << "_" << mm << "_" << PortNumber() << ".root";
-      TFile *hfile = new TFile(filename.str().c_str(), "RECREATE", "Created by Online Monitor", compression_level);
-      for (siter = CommonHistoSet.begin(); siter != CommonHistoSet.end(); ++siter)
-      {
-        hiter = Histo.find(*siter);
-        if (hiter != Histo.end())
-        {
-          hiter->second->Write();
-        }
-        else
-        {
-          std::cout << "could not locate histogram " << *siter << std::endl;
-        }
-      }
-      for (siter = (mhistiter->second).begin(); siter != (mhistiter->second).end(); ++siter)
-      {
-        hiter = Histo.find(*siter);
-        assignedhists.insert(*siter);
-        if (hiter != Histo.end())
-        {
-          hiter->second->Write();
-        }
-        else
-        {
-          std::cout << "could not locate histogram " << *siter << std::endl;
-        }
-      }
+      std::string dirname = "./";
+      if (getenv("ONLMON_SAVEDIR"))
+	{
+	  dirname  = std::string(getenv("ONLMON_SAVEDIR")) + "/";
+	}
+      std::string filename = dirname + "Run_" + std::to_string(RunNumber()) + "-" + moniiter.first + ".root";
+      if (Verbosity() > 2)
+	{
+	  std::cout << "saving histos for " << moniiter.first << " in " << filename << std::endl;
+	}
+      TFile *hfile = TFile::Open(filename.c_str(), "RECREATE", "Created by Online Monitor");
+      for (auto &histiter : moniiter.second)
+	{
+	  histiter.second->Write();
+	}
       hfile->Close();
       delete hfile;
     }
-    TFile *hfile = nullptr;
-    filename.str("");
-    filename << dirname.str() << "Run_" << irun << "_" << mm << "_"
-             << PortNumber() << ".root";
-    for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
-    {
-      if (assignedhists.find(hiter->first) == assignedhists.end())
-      {
-        if (!hfile)
-        {
-          hfile = new TFile(filename.str().c_str(), "RECREATE", "Created by Online Monitor", compression_level);
-        }
-        hiter->second->Write();
-      }
-    }
-    if (hfile)
-    {
-      hfile->Close();
-      delete hfile;
-    }
-  */
-  TFile *hfile = TFile::Open("test.root","RECREATE");
-  hfile->Close();
   return 0;
 }
 
@@ -1069,7 +1012,3 @@ int OnlMonServer::LookAtMe(OnlMon *Monitor, const int level, const std::string &
   return 0;
 }
 
-int OnlMonServer::DisconnectDB()
-{
-  return 0;
-}
