@@ -11,18 +11,21 @@ void start_server(const std::string &prdffile = "")
   OnlMonServer *se = OnlMonServer::instance();  // get pointer to Server Framework
   // set the ONLMONBBCLL1 Trigger definition (multiple triggers are possible)
   //  se->OnlTrig()->AddBbcLL1TrigName("BBCLL1(>0 tubes) narrowvtx");
+  cout << "prdffile is " << prdffile << endl;
   if (prdffile.empty())
   {
     cout << "No Input file given" << endl;
     return;
   }
-  if (prdffile == "etpool")
+  if (prdffile.find("seb") != 1)
   {
+    cout << "use rcdaqopen(\"" << prdffile << "\");" << endl;
     // gSystem->Load("libcorbamsgbuffer.so");
     // corba_msg_buffer *enablecorbabuf = new corba_msg_buffer("monitor_event_channel");
     //      petopen("/tmp/Monitor@etpool");
+    rcdaqopen(prdffile.c_str());
     prun();
-    //  if etpool gets restarted we execute the EndRun and then
+    //  if the rcdaq server is terminated we execute the EndRun and then
     // save the histograms
     se->EndRun(se->RunNumber());  //
     se->WriteHistoFile();

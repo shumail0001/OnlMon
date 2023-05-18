@@ -6,6 +6,22 @@ then
   exit
 fi
 
+for arg in "$@"
+do
+    case "$arg" in
+    -n)
+        opt_n=1
+        ;;
+    esac
+done
+
+if [ $opt_n != 0 ]
+then
+  tmponlmonmain=$ONLMON_MAIN
+  unset ${!ONLMON_*}
+  export ONLMON_MAIN=$tmponlmonmain
+fi
+
 if [[ -z "$ONLMON_MAIN" ]]
 then
   echo "ONLMON_MAIN environment variable not set, doing nothing"

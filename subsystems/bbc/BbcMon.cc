@@ -7,7 +7,6 @@
 #include "BbcMonDefs.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
-#include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
 #include <Event/msg_profile.h>
@@ -43,7 +42,6 @@ BbcMon::~BbcMon()
 {
   // you can delete NULL pointers it results in a NOOP (No Operation)
   delete trand3;
-  delete dbvars;
   return;
 }
 
@@ -291,10 +289,6 @@ int BbcMon::Init()
   se->registerHisto(this, bbc_north_chargesum);
   se->registerHisto(this, bbc_south_chargesum);
 
-  dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
-  DBVarInit();
-  Reset();
-
   return 0;
 }
 
@@ -336,20 +330,6 @@ int BbcMon::process_event(Event * /* evt */)
   bbc_zvertex->Fill(zvtx);
   bbc_tzero_zvtx->Fill(zvtx, t0);
 
-  if (idummy++ > 10)
-  {
-    if (dbvars)
-    {
-      dbvars->SetVar("bbcmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-      dbvars->SetVar("bbcmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      dbvars->SetVar("bbcmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
-      dbvars->DBcommit();
-    }
-    std::ostringstream msg;
-    msg << "Filling Histos";
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
-    idummy = 0;
-  }
   return 0;
 }
 
@@ -358,23 +338,5 @@ int BbcMon::Reset()
   // reset our internal counters
   evtcnt = 0;
   idummy = 0;
-  return 0;
-}
-
-int BbcMon::DBVarInit()
-{
-  // variable names are not case sensitive
-  std::string varname;
-  varname = "bbcmoncount";
-  dbvars->registerVar(varname);
-  varname = "bbcmondummy";
-  dbvars->registerVar(varname);
-  varname = "bbcmonnew";
-  dbvars->registerVar(varname);
-  if (verbosity > 0)
-  {
-    dbvars->Print();
-  }
-  dbvars->DBInit();
   return 0;
 }
