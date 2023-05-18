@@ -50,7 +50,6 @@ CemcMon::CemcMon(const std::string &name)
 
 const int depth = 50;
 const int historyLength = 100;
-const int n_channel = 48;
 const float hit_threshold = 100;
 
 
