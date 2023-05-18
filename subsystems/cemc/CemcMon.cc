@@ -6,7 +6,6 @@
 #include "CemcMon.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
-#include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/pseudoRunningMean.h>
 
@@ -55,8 +54,6 @@ const float hit_threshold = 100;
 
 CemcMon::~CemcMon()
 {
-  // you can delete NULL pointers it results in a NOOP (No Operation)
-  delete dbvars;
   return;
 }
 
@@ -160,12 +157,9 @@ int CemcMon::Init()
   se->registerHisto(this, h1_packet_chans);
 
   for (int ih = 0; ih < Nsector; ih++)
-    se->registerHisto(this, h1_rm_sectorAvg[ih]);
-
-  //  se->registerHisto(this, cemchist2);
-  dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
-  DBVarInit();
-  Reset();
+    {
+      se->registerHisto(this, h1_rm_sectorAvg[ih]);
+    }
 
   // make the per-packet runnumg mean objects
   for ( int i = 0; i < 64; i++)
@@ -283,19 +277,6 @@ std::vector<float> CemcMon::anaWaveformTemp(Packet *p, const int channel)
 
 int CemcMon::process_event(Event *e  /* evt */)
 {
-  OnlMonServer *se = OnlMonServer::instance();
-  // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
-  // e.g. if the BBCLL1 has problems or if it changes its name
-  // if (!se->Trigger("ONLMONBBCLL1"))
-  // {
-  //   std::ostringstream msg;
-  //   msg << "Processing Event " << evtcnt
-  //       << ", Trigger : 0x" << std::hex << se->Trigger()
-  //       << std::dec;
-
-  //   se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-  // }
-
   h1_waveform_twrAvg->Reset();  // only record the latest event waveform
   float sectorAvg[Nsector] = {0};
   unsigned int towerNumber = 0;	
@@ -453,20 +434,6 @@ int CemcMon::process_event(Event *e  /* evt */)
   //h1_waveform_twrAvg->Scale(1. / 32. / 48.);  // average tower waveform
   h1_waveform_twrAvg->Scale((float)1/towerNumber);
  
-  if (idummy++ > 10)
-    {
-      if (dbvars)
-	{
-	  dbvars->SetVar("cemcmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-	  dbvars->SetVar("cemcmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-	  dbvars->SetVar("cemcmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
-	  dbvars->DBcommit();
-	}
-      std::ostringstream msg;
-      msg << "Filling Histos";
-      se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
-      idummy = 0;
-    }
   return 0;
 }
 
@@ -476,23 +443,5 @@ int CemcMon::Reset()
   // reset our internal counters
   evtcnt = 0;
   idummy = 0;
-  return 0;
-}
-
-int CemcMon::DBVarInit()
-{
-  // variable names are not case sensitive
-  std::string varname;
-  varname = "cemcmoncount";
-  dbvars->registerVar(varname);
-  varname = "cemcmondummy";
-  dbvars->registerVar(varname);
-  varname = "cemcmonnew";
-  dbvars->registerVar(varname);
-  if (verbosity > 0)
-    {
-      dbvars->Print();
-    }
-  dbvars->DBInit();
   return 0;
 }
