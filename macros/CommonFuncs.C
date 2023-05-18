@@ -31,7 +31,7 @@ void CreateHostList(const int online = 0)
           char node[20];
 	  sprintf(hostlistname, "%s/monitoring_hosts.list", hostlist);
 	  FILE *f = fopen(hostlistname, "r");
-	  while (fscanf(f, "%s", &node[0]) != EOF)
+	  while (fscanf(f, "%19s", &node[0]) != EOF)
 	    {
 	      cout << "adding " << node << endl;
 	      cl->AddServerHost(node);      // put monitoring machines in search list
