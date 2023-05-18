@@ -105,20 +105,6 @@ int BbcMon::Init()
 
   bbc_adc = new TH2F("bbc_adc", "BBC/BBC ADC(Charge) Distribution", nPMT_BBC, -.5, nPMT_BBC - .5, bbc_onlmon::nBIN_ADC, 0, bbc_onlmon::MAX_ADC_MIP);
 
-  /*
-     for ( int trig = 0 ; trig < nTRIGGER ; trig++ )
-     {
-  // nHit ----------------------------------------------------------------
-
-  name << "bbc_nhit_" << TRIGGER_str[trig] ;
-  title << "BBC nHIT by " << TRIGGER_str[trig] ;
-  bbc_nhit[trig] = new TH1D(name.str().c_str(), title.str().c_str(),
-  nPMT_BBC, -.5, nPMT_BBC - .5 );
-  name.str("");
-  title.str("");
-  }
-  */
-
   bbc_tdc_armhittime = new TH2F("bbc_tdc_armhittime", "Arm-Hit-Time Correlation of North and South BBC",
                                 64, bbc_onlmon::min_armhittime, bbc_onlmon::max_armhittime,
                                 64, bbc_onlmon::min_armhittime, bbc_onlmon::max_armhittime);
@@ -302,22 +288,6 @@ int BbcMon::BeginRun(const int /* runno */)
 int BbcMon::process_event(Event * /* evt */)
 {
   evtcnt++;
-  OnlMonServer *se = OnlMonServer::instance();
-  // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
-  // e.g. if the BBCLL1 has problems or if it changes its name
-  if (!se->Trigger("ONLMONBBCLL1"))
-  {
-    std::ostringstream msg;
-    msg << "Processing Event " << evtcnt
-        << ", Trigger : 0x" << std::hex << se->Trigger()
-        << std::dec;
-    // severity levels and id's for message sources can be found in
-    // $ONLINE_MAIN/include/msg_profile.h
-    // The last argument is a message type. Messages of the same type
-    // are throttled together, so distinct messages should get distinct
-    // message types
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-  }
 
   // get temporary pointers to histograms
   // one can do in principle directly se->getHisto("bbchist1")->Fill()

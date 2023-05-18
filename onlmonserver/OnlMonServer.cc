@@ -2,7 +2,6 @@
 
 #include "OnlMon.h"
 #include "OnlMonStatusDB.h"
-#include "OnlMonTrigger.h"
 
 #include "MessageSystem.h"
 
@@ -56,7 +55,6 @@ OnlMonServer::OnlMonServer(const std::string &name)
 {
   pthread_mutex_init(&mutex, nullptr);
   MsgSystem[ThisName] = new MessageSystem(ThisName);
-  //  onltrig = new OnlMonTrigger();
   statusDB = new OnlMonStatusDB();
   RunStatusDB = new OnlMonStatusDB("onlmonrunstatus");
   InitAll();
@@ -77,7 +75,6 @@ OnlMonServer::~OnlMonServer()
     delete MonitorList.back();
     MonitorList.pop_back();
   }
-  delete onltrig;
   delete statusDB;
   delete RunStatusDB;
 
@@ -105,11 +102,6 @@ void OnlMonServer::InitAll()
     exit(1);
   }
   serverrunning = new TH1F("ServerRunning", "ServerRunning", 1, 0, 1);
-  unsigned int inittrig = 0;
-  for (int i = 0; i < 3; i++)
-  {
-    Trigger(inittrig, i);
-  }
   return;
 }
 
@@ -419,11 +411,6 @@ int OnlMonServer::Reset()
 int OnlMonServer::BeginRun(const int runno)
 {
   int i = 0;
-  if (onltrig)
-  {
-    onltrig->RunNumber(runno);
-  }
-
   i = CacheRunDB(runno);
   if (i)
   {
@@ -501,13 +488,6 @@ void OnlMonServer::Print(const std::string &what) const
     }
     printf("\n");
   }
-  if (what == "ALL" || what == "TRIGGER")
-  {
-    if (onltrig)
-    {
-      onltrig->Print(what);
-    }
-  }
   if (what == "ALL" || what == "ACTIVE")
   {
     printf("--------------------------------------\n\n");
@@ -519,17 +499,6 @@ void OnlMonServer::Print(const std::string &what) const
     }
   }
   return;
-}
-
-int OnlMonServer::Trigger(const std::string &trigname, const unsigned short int i)
-{
-  unsigned int ibit = getLevel1Bit(trigname);
-
-  if (trigger[i] & ibit)
-  {
-    return 1;
-  }
-  return 0;
 }
 
 void OnlMonServer::RunNumber(const int irun)
@@ -655,50 +624,6 @@ int OnlMonServer::send_message(const int severity, const std::string &err_messag
   return iret;
 }
 
-OnlMonTrigger *
-OnlMonServer::OnlTrig()
-{
-  // if (!onltrig)
-  //   {
-  //     onltrig = new OnlMonTrigger();
-  //   }
-  return nullptr;
-}
-
-void OnlMonServer::TrigMask(const std::string &trigname, const unsigned int bitmask)
-{
-  onltrig->TrigMask(trigname, bitmask);
-  return;
-}
-
-unsigned int
-OnlMonServer::getLevel1Bit(const std::string &name)
-{
-  return onltrig->getLevel1Bit(name);
-}
-
-unsigned int
-OnlMonServer::AddToTriggerMask(const std::string &name)
-{
-  unsigned int mask = getLevel1Bit(name);
-  unsigned int newmask = AddScaledTrigMask(mask);
-  return newmask;
-}
-
-unsigned int
-OnlMonServer::AddScaledTrigMask(const unsigned int mask)
-{
-  if (mask)
-  {
-    if (!scaledtrigmask_used)
-    {
-      scaledtrigmask = 0;
-      scaledtrigmask_used = 1;
-    }
-    scaledtrigmask |= mask;
-  }
-  return scaledtrigmask;
-}
 
 int OnlMonServer::WriteLogFile(const std::string &name, const std::string &message) const
 {
@@ -1026,17 +951,10 @@ int OnlMonServer::CacheRunDB(const int runnoinput)
     runno = 221;
   }
   RunType = "PHYSICS";
-  TriggerConfig = "UNKNOWN";
   standalone = 0;
   cosmicrun = 0;
   borticks = 0;
   return 0;
-  if (runno == 0xFEE2DCB)  // dcm2 standalone runs have this runnumber
-  {
-    TriggerConfig = "StandAloneMode";
-    standalone = 1;
-    return 0;
-  }
   odbc::Connection *con = nullptr;
   odbc::Statement *query = nullptr;
   std::ostringstream cmd;

@@ -45,7 +45,6 @@ EpdMon::EpdMon(const std::string &name)
 EpdMon::~EpdMon()
 {
   // you can delete NULL pointers it results in a NOOP (No Operation)
-  delete dbvars;
   return;
 }
 
@@ -138,8 +137,6 @@ int EpdMon::Init()
   epdtemplate += std::string("/testbeam_epd_template.root");
   WaveformProcessingTemp->initialize_processing(epdtemplate);
 
-  dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
-  DBVarInit();
   Reset();
   return 0;
 }
@@ -222,22 +219,6 @@ std::vector<float> EpdMon::anaWaveformTemp(Packet *p, const int channel)
 int EpdMon::process_event(Event *e /* evt */)
 {
   evtcnt++;
-  OnlMonServer *se = OnlMonServer::instance();
-  // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
-  // e.g. if the BBCLL1 has problems or if it changes its name
-  if (!se->Trigger("ONLMONBBCLL1"))
-  {
-    std::ostringstream msg;
-    msg << "Processing Event " << evtcnt
-        << ", Trigger : 0x" << std::hex << se->Trigger()
-        << std::dec;
-    // severity levels and id's for message sources can be found in
-    // $ONLINE_MAIN/include/msg_profile.h
-    // The last argument is a message type. Messages of the same type
-    // are throttled together, so distinct messages should get distinct
-    // message types
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-  }
   
   unsigned int ChannelNumber = 0;
 //  float sectorAvg[Nsector] = {0};
@@ -375,23 +356,6 @@ int EpdMon::Reset()
   return 0;
 }
 
-int EpdMon::DBVarInit()
-{
-  // variable names are not case sensitive
-  std::string varname;
-  varname = "epdmoncount";
-  dbvars->registerVar(varname);
-  varname = "epdmondummy";
-  dbvars->registerVar(varname);
-  varname = "epdmonnew";
-  dbvars->registerVar(varname);
-  if (verbosity > 0)
-  {
-    dbvars->Print();
-  }
-  dbvars->DBInit();
-  return 0;
-}
 
 int EpdMon::EpdMapChannel(int  ch){
   int nch = ch % 16;
