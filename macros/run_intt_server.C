@@ -14,9 +14,10 @@ void run_intt_server(const std::string &prdffile = _prdf_file)
 {
   const std::string &name = "INTTMON";
   unsigned int serverid = 0;
-//  //for debugging
-//  InttMon *m = new InttMon();
-//  m->MiscDebug();
+  //for debugging
+  //InttMon *m = new InttMon(name);
+  //m->MiscDebug();
+
 
   std::cout << "Using .evt file:" << std::endl;
   std::cout << "\t" << prdffile << std::endl;
