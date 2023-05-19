@@ -94,7 +94,7 @@ int InttMon::process_event(Event* evt)
 
 			indexes.adc = p->iValue(n, "ADC");
 
-			INTT::GetBinFromIndexes(bin, indexes);
+			INTT::GetGlobalBinFromIndexes(bin, indexes);
 			HitMap->AddBinContent(bin);
 		}
 	}
@@ -200,9 +200,9 @@ int InttMon::MiscDebug()
 
 	while(true)
 	{
-		INTT::GetBinFromIndexes(b, indexes);
-		INTT::GetIndexesFromBin(b, jndexes);
-		INTT::GetBinFromIndexes(c, jndexes);
+		INTT::GetGlobalBinFromIndexes(b, indexes);
+		INTT::GetGlobalIndexesFromBin(b, jndexes);
+		INTT::GetGlobalBinFromIndexes(c, jndexes);
 
 		if(b != c)
 		{

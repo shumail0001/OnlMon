@@ -48,8 +48,8 @@ namespace INTT
 		int adc = 0;
 	};
 
-	void GetBinFromIndexes(int&, struct Indexes_s const&);
-	void GetIndexesFromBin(int, struct Indexes_s&);
+	void GetGlobalBinFromIndexes(int&, struct Indexes_s const&);
+	void GetGlobalIndexesFromBin(int, struct Indexes_s&);
 
 	//namespace HitMap
 	//{

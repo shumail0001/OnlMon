@@ -1,6 +1,6 @@
 #include "InttMonConstants.h"
 
-void INTT::GetBinFromIndexes(int& b, struct Indexes_s const& indexes)
+void INTT::GetGlobalBinFromIndexes(int& b, struct Indexes_s const& indexes)
 {
 	int s = 1;
 	b = 0;
@@ -26,7 +26,7 @@ void INTT::GetBinFromIndexes(int& b, struct Indexes_s const& indexes)
 	++b;
 }
 
-void INTT::GetIndexesFromBin(int b, struct Indexes_s& indexes)
+void INTT::GetGlobalIndexesFromBin(int b, struct Indexes_s& indexes)
 {
 	--b;
 

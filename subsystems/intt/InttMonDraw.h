@@ -62,7 +62,7 @@ public:
 	static void DrawGlobalLadderMap(std::string const&);
 	static void DrawChipMap(std::string const&, struct INTT::Indexes_s);
 	static void InttGlobalLadderExec(const std::string&, int);
-	static void InttChipExec(const std::string&, int, int);
+	static void InttChipExec(const std::string&, int, int, int);
 
 	//GlobalChip-Channel methods
 	static void PrepHitmapGlobalChipHist(TH2D*, struct INTT::Indexes_s&);

@@ -265,9 +265,11 @@ void InttMonDraw::DrawGlobalChipMap(std::string const& option)
 			client_hist->GetYaxis()->SetTickLength(0.0);
 
 			client_hist->SetMinimum(-1.0);
-
-			client_hist->Draw("COLZ");
 		}
+
+		(*func)(client_hist, indexes);
+		hist_pad->cd();
+		client_hist->Draw("COLZ");
 
 		name = Form("Intt_%s_GlobalChip_GridPad_%d", option.c_str(), indexes.lyr);
 		grid_pad = (TPad*)gROOT->FindObject(name.c_str());
@@ -286,32 +288,25 @@ void InttMonDraw::DrawGlobalChipMap(std::string const& option)
 
 			int i;
 			double temp;
-			TLine grid_line;
 
 			for(i = 0; i < 2 * INTT::LADDER[indexes.lyr] + 1; ++i)
 			{
 				temp = L_MARGIN + (i / 2.0) * (1.0 - L_MARGIN - R_MARGIN) / INTT::LADDER[indexes.lyr];
-			
-				grid_line.SetX1(temp);
-				grid_line.SetY1(B_MARGIN);
-				grid_line.SetX2(temp);
-				grid_line.SetY2(1.0 - T_MARGIN);
-				grid_line.SetLineStyle((i % 2) ? 3 : 1);
-				grid_line.SetLineWidth((i % 2) ? 1 : 2);
-				grid_line.DrawClone();
+
+				TLine* line = new TLine(temp, B_MARGIN, temp, 1.0 - T_MARGIN);			
+				line->SetLineStyle((i % 2) ? 3 : 1);
+				line->SetLineWidth((i % 2) ? 1 : 2);
+				line->Draw();
 			}
 	
 			for(i = 0; i < INTT::CHIP + 1; ++i)
 			{
 				temp = B_MARGIN + i * (1.0 - T_MARGIN - B_MARGIN) / INTT::CHIP;
-			
-				grid_line.SetX1(L_MARGIN);
-				grid_line.SetY1(temp);
-				grid_line.SetX2(1.0 - R_MARGIN);
-				grid_line.SetY2(temp);
-				grid_line.SetLineStyle((i % (INTT::CHIP / 2)) ? 3 : 1);
-				grid_line.SetLineWidth((i % (INTT::CHIP / 2)) ? 1 : 2);
-				grid_line.DrawClone();
+		
+				TLine* line = new TLine(L_MARGIN, temp, 1.0 - R_MARGIN, temp);	
+				line->SetLineStyle((i % (INTT::CHIP / 2)) ? 3 : 1);
+				line->SetLineWidth((i % (INTT::CHIP / 2)) ? 1 : 2);
+				line->Draw();
 			}
 		}
 
@@ -335,8 +330,6 @@ void InttMonDraw::DrawGlobalChipMap(std::string const& option)
 				Form("InttMonDraw::InttGlobalChipExec(\"%s\", %d)", option.c_str(), indexes.lyr)
 			);
 		}
-
-		(*func)(client_hist, indexes);
 	}
 
 	cnvs->Show();
@@ -443,9 +436,11 @@ void InttMonDraw::DrawChannelMap(std::string const& option, struct INTT::Indexes
 		client_hist->GetYaxis()->SetTickLength(0.0);
 
 		client_hist->SetMinimum(-1.0);
-
-		client_hist->Draw("COLZ");
 	}
+
+	(*func)(client_hist, indexes);
+	hist_pad->cd();
+	client_hist->Draw("COLZ");
 
 	name = Form("Intt_%s_Channel_ExecPad_Lyr%02d_Ldr%02d_Arm%02d_Chp%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm, indexes.chp);
 	exec_pad = (TPad*)gROOT->FindObject(name.c_str());
@@ -467,8 +462,6 @@ void InttMonDraw::DrawChannelMap(std::string const& option, struct INTT::Indexes
 			Form("InttMonDraw::InttChannelExec(\"%s\", %d, %d, %d, %d)", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm, indexes.chp)
 		);
 	}
-
-	(*func)(client_hist, indexes);
 }
 
 void InttMonDraw::InttGlobalChipExec(std::string const& option, int layer)
@@ -626,12 +619,12 @@ void InttMonDraw::DrawGlobalLadderMap(std::string const& option)
 				INTT::LADDER[indexes.lyr],
 				-0.5,
 				INTT::LADDER[indexes.lyr] - 0.5,
-				1,
+				INTT::ARM,
 				-0.5,
-				0.5
+				INTT::ARM - 0.5
 			);
 			client_hist->GetXaxis()->SetNdivisions(INTT::LADDER[indexes.lyr], true);
-			client_hist->GetYaxis()->SetNdivisions(1, true);
+			client_hist->GetYaxis()->SetNdivisions(INTT::ARM, true);
 
 			client_hist->GetXaxis()->SetLabelSize(0.0);
 			client_hist->GetYaxis()->SetLabelSize(0.0);
@@ -640,9 +633,11 @@ void InttMonDraw::DrawGlobalLadderMap(std::string const& option)
 			client_hist->GetYaxis()->SetTickLength(0.0);
 
 			client_hist->SetMinimum(-1.0);
-
-			client_hist->Draw("COLZ");
 		}
+
+		(*func)(client_hist, indexes);
+		hist_pad->cd();
+		client_hist->Draw("COLZ");
 
 		name = Form("Intt_%s_GlobalLadder_GridPad_%d", option.c_str(), indexes.lyr);
 		grid_pad = (TPad*)gROOT->FindObject(name.c_str());
@@ -661,19 +656,23 @@ void InttMonDraw::DrawGlobalLadderMap(std::string const& option)
 
 			int i;
 			double temp;
-			TLine grid_line;
 
 			for(i = 0; i < INTT::LADDER[indexes.lyr] + 1; ++i)
 			{
 				temp = L_MARGIN + i * (1.0 - L_MARGIN - R_MARGIN) / INTT::LADDER[indexes.lyr];
-			
-				grid_line.SetX1(temp);
-				grid_line.SetY1(B_MARGIN);
-				grid_line.SetX2(temp);
-				grid_line.SetY2(1.0 - T_MARGIN);
-				grid_line.SetLineStyle(1);
-				grid_line.SetLineWidth(2);
-				grid_line.DrawClone();
+				TLine* line = new TLine(temp, B_MARGIN, temp, 1.0 - T_MARGIN);
+				line->SetLineStyle(1);
+				line->SetLineWidth(2);
+				line->Draw();
+			}
+
+			for(i = 0; i < 2; ++i)
+			{
+				temp = B_MARGIN + i * (1.0 - T_MARGIN - B_MARGIN) / 2;
+				TLine* line = new TLine(L_MARGIN, temp, 1.0 - R_MARGIN, temp);
+				line->SetLineStyle(1);
+				line->SetLineWidth(2);
+				line->Draw();
 			}
 		}
 
@@ -697,8 +696,6 @@ void InttMonDraw::DrawGlobalLadderMap(std::string const& option)
 				Form("InttMonDraw::InttGlobalLadderExec(\"%s\", %d)", option.c_str(), indexes.lyr)
 			);
 		}
-
-		(*func)(client_hist, indexes);
 	}
 
 	cnvs->Show();
@@ -723,7 +720,7 @@ void InttMonDraw::DrawChipMap(std::string const& option, struct INTT::Indexes_s 
 	TH2D* client_hist;
 	HistPrepFunc_t func = EXEC_OPTIONS.find(option)->second.second;
 
-	name = Form("Intt_%s_Chip_Canvas_Lyr%02d_Ldr%02d", option.c_str(), indexes.lyr, indexes.ldr);
+	name = Form("Intt_%s_Chip_Canvas_Lyr%02d_Ldr%02d_Arm%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm);
 	cnvs = (TCanvas*)gROOT->FindObject(name.c_str());
 	if(!cnvs)
 	{
@@ -738,7 +735,7 @@ void InttMonDraw::DrawChipMap(std::string const& option, struct INTT::Indexes_s 
 		);
 	}
 
-	name = Form("Intt_%s_Chip_DispPad_Lyr%02d_Ldr%02d", option.c_str(), indexes.lyr, indexes.ldr);
+	name = Form("Intt_%s_Chip_DispPad_Lyr%02d_Ldr%02d_Arm%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm);
 	disp_pad = (TPad*)gROOT->FindObject(name.c_str());
 	if(!disp_pad)
 	{
@@ -758,13 +755,13 @@ void InttMonDraw::DrawChipMap(std::string const& option, struct INTT::Indexes_s 
 			0.5,
 			Form("(%s) Chip: %2d Channel: %3d", "South", 0, INTT::CHIP_OFFSET)
 		);
-		disp_text->SetName(Form("Intt_%s_Chip_DispText_Lyr%02d_Ldr%02d", option.c_str(), indexes.lyr, indexes.ldr));
+		disp_text->SetName(Form("Intt_%s_Chip_DispText_Lyr%02d_Ldr%02d_Arm%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm));
 		disp_text->SetTextAlign(22);
 		disp_text->SetTextSize(DISP_TEXT_SIZE);
 		disp_text->Draw();
 	}
 
-	name = Form("Intt_%s_Chip_HistPad_Lyr%02d_Ldr%02d", option.c_str(), indexes.lyr, indexes.ldr);
+	name = Form("Intt_%s_Chip_HistPad_Lyr%02d_Ldr%02d_Arm%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm);
 	hist_pad = (TPad*)gROOT->FindObject(name.c_str());
 	if(!hist_pad)
 	{
@@ -780,7 +777,7 @@ void InttMonDraw::DrawChipMap(std::string const& option, struct INTT::Indexes_s 
 		DrawPad(cnvs, hist_pad);
 	}
 
-	name = Form("Intt_%s_Chip_ClientHist_Lyr%02d_Ldr%02d", option.c_str(), indexes.lyr, indexes.ldr);
+	name = Form("Intt_%s_Chip_ClientHist_Lyr%02d_Ldr%02d_Arm%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm);
 	client_hist = (TH2D*)gROOT->FindObject(name.c_str());
 	if(!client_hist)
 	{
@@ -791,13 +788,13 @@ void InttMonDraw::DrawChipMap(std::string const& option, struct INTT::Indexes_s 
 			2 * INTT::CHANNEL,
 			-0.5,
 			2 * INTT::CHANNEL - 0.5,
-			INTT::CHIP,
+			INTT::CHIP / 2,
 			-0.5,
-			INTT::CHIP - 0.5
+			INTT::CHIP / 2 - 0.5
 		);
 
 		client_hist->GetXaxis()->SetNdivisions(2 * INTT::CHANNEL, true);
-		client_hist->GetYaxis()->SetNdivisions(INTT::CHIP, true);
+		client_hist->GetYaxis()->SetNdivisions(INTT::CHIP / 2, true);
 
 		client_hist->GetXaxis()->SetLabelSize(0.0);
 		client_hist->GetYaxis()->SetLabelSize(0.0);
@@ -806,11 +803,13 @@ void InttMonDraw::DrawChipMap(std::string const& option, struct INTT::Indexes_s 
 		client_hist->GetYaxis()->SetTickLength(0.0);
 
 		client_hist->SetMinimum(-1.0);
-
-		client_hist->Draw("COLZ");
 	}
 
-	name = Form("Intt_%s_Chip_GridPad_Lyr%d_Ldr%02d", option.c_str(), indexes.lyr, indexes.ldr);
+	(*func)(client_hist, indexes);
+	hist_pad->cd();
+	client_hist->Draw("COLZ");
+
+	name = Form("Intt_%s_Chip_GridPad_Lyr%d_Ldr%02d_Arm%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm);
 	grid_pad = (TPad*)gROOT->FindObject(name.c_str());
 	if(!grid_pad)
 	{
@@ -827,36 +826,29 @@ void InttMonDraw::DrawChipMap(std::string const& option, struct INTT::Indexes_s 
 
 		int i;
 		double temp;
-		TLine grid_line;
 
 		for(i = 0; i < 2 * INTT::CHANNEL + 1; ++i)
 		{
 			temp = L_MARGIN + (i / 2.0) * (1.0 - R_MARGIN - L_MARGIN) / INTT::CHANNEL;
 		
-			grid_line.SetX1(temp);
-			grid_line.SetY1(B_MARGIN);
-			grid_line.SetX2(temp);
-			grid_line.SetY2(1.0 - T_MARGIN);
-			grid_line.SetLineStyle(i == INTT::CHANNEL ? 1 : 3);
-			grid_line.SetLineWidth(i == INTT::CHANNEL ? 2 : 1);
-			grid_line.DrawClone();
+			TLine* line = new TLine(temp, B_MARGIN, temp, 1.0 - T_MARGIN);
+			line->SetLineStyle(i == INTT::CHANNEL ? 1 : 3);
+			line->SetLineWidth(i == INTT::CHANNEL ? 2 : 1);
+			line->Draw();
 		}
 
-		for(i = 0; i < INTT::CHIP + 1; ++i)
+		for(i = 0; i < INTT::CHIP / 2 + 1; ++i)
 		{
-			temp = B_MARGIN + i * (1.0 - T_MARGIN - B_MARGIN) / INTT::CHIP;
-		
-			grid_line.SetX1(L_MARGIN);
-			grid_line.SetY1(temp);
-			grid_line.SetX2(1.0 - R_MARGIN);
-			grid_line.SetY2(temp);
-			grid_line.SetLineStyle(i == INTT::CHIP / 2 ? 1 : 3);
-			grid_line.SetLineWidth(i == INTT::CHIP / 2 ? 2 : 1);
-			grid_line.DrawClone();
+			temp = B_MARGIN + 2 * i * (1.0 - T_MARGIN - B_MARGIN) / INTT::CHIP;
+	
+			TLine* line = new TLine(L_MARGIN, temp, 1.0 - R_MARGIN, temp);	
+			line->SetLineStyle(i == INTT::CHIP / 2 ? 1 : 3);
+			line->SetLineWidth(i == INTT::CHIP / 2 ? 2 : 1);
+			line->Draw();
 		}
 	}
 
-	name = Form("Intt_%s_Chip_ExecPad_Lyr%02d_Ldr%02d", option.c_str(), indexes.lyr, indexes.ldr);
+	name = Form("Intt_%s_Chip_ExecPad_Lyr%02d_Ldr%02d_Arm%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm);
 	exec_pad = (TPad*)gROOT->FindObject(name.c_str());
 	if(!exec_pad)
 	{
@@ -872,33 +864,32 @@ void InttMonDraw::DrawChipMap(std::string const& option, struct INTT::Indexes_s 
 		DrawPad(cnvs, exec_pad);
 		exec_pad->AddExec
 		(
-			Form("Intt_%s_Chip_Exec_Lyr%02d_Ldr%02d", option.c_str(), indexes.lyr, indexes.ldr),
-			Form("InttMonDraw::InttChipExec(\"%s\", %d, %d)", option.c_str(), indexes.lyr, indexes.ldr)
+			Form("Intt_%s_Chip_Exec_Lyr%02d_Ldr%02d_Arm%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm),
+			Form("InttMonDraw::InttChipExec(\"%s\", %d, %d, %d)", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm)
 		);
 	}
-
-	(*func)(client_hist, indexes);
 }
 
 void InttMonDraw::InttGlobalLadderExec(std::string const& option, int layer)
 {
 	int bin_x = gPad->AbsPixeltoX(gPad->GetEventX()) * (2 * INTT::LADDER[layer]);
-	int bin_y = gPad->AbsPixeltoY(gPad->GetEventY()) * (INTT::CHIP);
+	int bin_y = gPad->AbsPixeltoY(gPad->GetEventY()) * INTT::ARM;
 	std::string name;
 
 	if(bin_x < 0)bin_x = 0;
 	if(bin_y < 0)bin_y = 0;
 
 	if(bin_x >= 2 * INTT::LADDER[layer])bin_x = 2 * INTT::LADDER[layer] - 1;
-	if(bin_y >= INTT::CHIP)bin_y = INTT::CHIP - 1;
+	if(bin_y >= INTT::ARM)bin_y = INTT::ARM - 1;
 
 	INTT::Indexes_s indexes;
 	indexes.lyr = layer;
 	indexes.ldr = bin_x / 2;
+	indexes.arm = bin_y;
 
 	name = Form("Intt_%s_GlobalLadder_DispText", option.c_str());
 	TText* disp_text = (TText*)gROOT->FindObject(name.c_str());
-	if(disp_text)disp_text->SetTitle(Form("Layer: %2d Ladder: %2d", indexes.lyr + INTT::LAYER_OFFSET, indexes.ldr));
+	if(disp_text)disp_text->SetTitle(Form("Layer: %2d Ladder: %2d (%s)", indexes.lyr + INTT::LAYER_OFFSET, indexes.ldr, indexes.arm ? "North" : "South"));
 
 	name = Form("Intt_%s_GlobalLadder_DispPad", option.c_str());
 	TPad* disp_pad = (TPad*)gROOT->FindObject(name.c_str());
@@ -909,30 +900,30 @@ void InttMonDraw::InttGlobalLadderExec(std::string const& option, int layer)
 	DrawChipMap(option, indexes);
 }
 
-void InttMonDraw::InttChipExec(const std::string& option, int layer, int ladder)
+void InttMonDraw::InttChipExec(const std::string& option, int layer, int ladder, int arm)
 {
 	int bin_x = gPad->AbsPixeltoX(gPad->GetEventX()) * 2 * INTT::CHANNEL;
-	int bin_y = gPad->AbsPixeltoY(gPad->GetEventY()) * INTT::CHIP;
+	int bin_y = gPad->AbsPixeltoY(gPad->GetEventY()) * INTT::CHIP / 2;
 	std::string name;
 
 	if(bin_x < 0)bin_x = 0;
 	if(bin_y < 0)bin_y = 0;
 
 	if(bin_x >= 2 * INTT::CHANNEL - 1)bin_x = 2 * INTT::CHANNEL - 1;
-	if(bin_y >= INTT::CHIP - 1)bin_y = INTT::CHIP - 1;
+	if(bin_y >= INTT::CHIP / 2 - 1)bin_y = INTT::CHIP / 2 - 1;
 
 	INTT::Indexes_s indexes;
 	indexes.lyr = layer;
 	indexes.ldr = ladder;
-	indexes.arm = bin_y / (INTT::CHIP / 2);
-	indexes.chp = indexes.arm * (INTT::CHIP / 2 - 1) - (2 * indexes.arm - 1) * bin_y % (INTT::CHIP / 2) + ((indexes.arm + bin_x / INTT::CHANNEL) % 2) * (INTT::CHIP / 2);
+	indexes.arm = arm;
+	indexes.chp = indexes.arm * (INTT::CHIP / 2 - 1) - (2 * indexes.arm - 1) * bin_y + ((indexes.arm + bin_x / INTT::CHANNEL) % 2) * (INTT::CHIP / 2);
 	indexes.chn = bin_x % INTT::CHANNEL;
 
-	name = Form("Intt_%s_Chip_DispText_Lyr%02d_Ldr%02d", option.c_str(), indexes.lyr, indexes.ldr);
+	name = Form("Intt_%s_Chip_DispText_Lyr%02d_Ldr%02d_Arm%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm);
 	TText* disp_text = (TText*)gROOT->FindObject(name.c_str());
-	if(disp_text)disp_text->SetTitle(Form("(%s) Chip: %2d Channel: %3d", indexes.arm ? "North" : "South", indexes.chp + INTT::CHIP_OFFSET, indexes.chn));
+	if(disp_text)disp_text->SetTitle(Form("Chip: %2d Channel: %3d", indexes.chp + INTT::CHIP_OFFSET, indexes.chn));
 
-	name = Form("Intt_%s_Chip_DispPad_Lyr%02d_Ldr%02d", option.c_str(), indexes.lyr, indexes.ldr);
+	name = Form("Intt_%s_Chip_DispPad_Lyr%02d_Ldr%02d_Arm%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm);
 	TPad* disp_pad = (TPad*)gROOT->FindObject(name.c_str());
 	if(disp_pad)disp_pad->Update();
 }
@@ -955,14 +946,16 @@ void InttMonDraw::PrepHitmapGlobalChipHist(TH2D* client_hist, struct INTT::Index
 	indexes.chn = 0;
 	indexes.adc = 0;
 
-	TH1D* server_hist = nullptr;
 	OnlMonClient* cl = OnlMonClient::instance();
+	TH1D* server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
 
-	while(!server_hist)
+	while(true)
 	{
-		server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
+		if(server_hist)break;
 		++felix;
+
 		if(felix >= INTT::FELIX)break;
+		server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
 	}
 	while(felix < INTT::FELIX)
 	{
@@ -998,9 +991,12 @@ void InttMonDraw::PrepHitmapGlobalChipHist(TH2D* client_hist, struct INTT::Index
 
 		++felix;
 		server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
-		while(!server_hist)
+
+		while(true)
 		{
+			if(server_hist)break;
 			++felix;
+
 			if(felix >= INTT::FELIX)break;
 			server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
 		}
@@ -1021,14 +1017,16 @@ void InttMonDraw::PrepHitmapChannelHist(TH2D* client_hist, struct INTT::Indexes_
 	indexes.chn = 0;
 	indexes.adc = 0;
 
-	TH1D* server_hist = nullptr;
 	OnlMonClient* cl = OnlMonClient::instance();
+	TH1D* server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
 
-	while(!server_hist)
+	while(true)
 	{
-		server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
+		if(server_hist)break;
 		++felix;
+
 		if(felix >= INTT::FELIX)break;
+		server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
 	}
 	while(felix < INTT::FELIX)
 	{
@@ -1058,9 +1056,12 @@ void InttMonDraw::PrepHitmapChannelHist(TH2D* client_hist, struct INTT::Indexes_
 
 		++felix;
 		server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
-		while(!server_hist)
+
+		while(true)
 		{
+			if(server_hist)break;
 			++felix;
+
 			if(felix >= INTT::FELIX)break;
 			server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
 		}
@@ -1085,14 +1086,16 @@ void InttMonDraw::PrepHitmapGlobalLadderHist(TH2D* client_hist, struct INTT::Ind
 	indexes.chn = 0;
 	indexes.adc = 0;
 
-	TH1D* server_hist = nullptr;
 	OnlMonClient* cl = OnlMonClient::instance();
+	TH1D* server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
 
-	while(!server_hist)
+	while(true)
 	{
-		server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
+		if(server_hist)break;
 		++felix;
+
 		if(felix >= INTT::FELIX)break;
+		server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
 	}
 	while(felix < INTT::FELIX)
 	{
@@ -1103,7 +1106,7 @@ void InttMonDraw::PrepHitmapGlobalLadderHist(TH2D* client_hist, struct INTT::Ind
 			indexes.arm = felix / 4;
 
 			bin_x = indexes.ldr + 1;
-			bin_y = 1;
+			bin_y = indexes.arm + 1;
 
 			client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.ldr); //for debugging
 			//...
@@ -1127,9 +1130,12 @@ void InttMonDraw::PrepHitmapGlobalLadderHist(TH2D* client_hist, struct INTT::Ind
 
 		++felix;
 		server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
-		while(!server_hist)
+
+		while(true)
 		{
+			if(server_hist)break;
 			++felix;
+
 			if(felix >= INTT::FELIX)break;
 			server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
 		}
@@ -1147,27 +1153,26 @@ void InttMonDraw::PrepHitmapChipHist(TH2D* client_hist, struct INTT::Indexes_s& 
 	int felix_channel = 0;
 	struct INTT_Felix::Ladder_s ldr_struct;
 
-	indexes.arm = 0;
 	indexes.chp = 0;
 	indexes.chn = 0;
 	indexes.adc = 0;
 
-	TH1D* server_hist = nullptr;
 	OnlMonClient* cl = OnlMonClient::instance();
+	TH1D* server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
 
-	while(!server_hist)
+	while(true)
 	{
-		server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
+		if(server_hist)break;
 		++felix;
+
 		if(felix >= INTT::FELIX)break;
+		server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
 	}
 	while(felix < INTT::FELIX)
 	{
 		INTT_Felix::FelixMap(felix, felix_channel, ldr_struct);
-		if(2 * ldr_struct.barrel + ldr_struct.layer == indexes.lyr && ldr_struct.ladder == indexes.ldr)
+		if(2 * ldr_struct.barrel + ldr_struct.layer == indexes.lyr && ldr_struct.ladder == indexes.ldr && felix / 4 == indexes.arm)
 		{
-			indexes.arm = felix / 4;
-
 			bin_x = indexes.chn + ((indexes.arm + indexes.chp / (INTT::CHIP / 2)) % 2) * INTT::CHANNEL + 1;
 			bin_y = (1 - 2 * indexes.arm) * (indexes.chp % (INTT::CHIP / 2)) + indexes.arm * (INTT::CHIP - 1) + 1;
 
@@ -1193,9 +1198,12 @@ void InttMonDraw::PrepHitmapChipHist(TH2D* client_hist, struct INTT::Indexes_s& 
 
 		++felix;
 		server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
-		while(!server_hist)
+
+		while(true)
 		{
+			if(server_hist)break;
 			++felix;
+
 			if(felix >= INTT::FELIX)break;
 			server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
 		}
