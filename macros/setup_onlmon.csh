@@ -77,17 +77,21 @@ if (! $?ONLMON_RUNDIR) then
 endif
 
 #set up root
-unsetenv ROOT_INCLUDE_PATH
 setenv EVT_LIB $ROOTSYS/lib
-# start with your local directory
-setenv ROOT_INCLUDE_PATH ./
-foreach local_incdir (`find $ONLINE_MAIN/include -maxdepth 1 -type d -print`)
-  if (-d $local_incdir) then
-    setenv ROOT_INCLUDE_PATH ${ROOT_INCLUDE_PATH}:$local_incdir
-  endif
-end
-setenv LD_LIBRARY_PATH ${ONLMON_MAIN}/lib:$LD_LIBRARY_PATH
-set path = (${ONLMON_MAIN}/bin $path)
+if (-f ${OPT_SPHENIX}/bin/setup_local.csh ) then
+  source ${OPT_SPHENIX}/bin/setup_local.csh $ONLMON_MAIN
+else
+  # start with your local directory
+  setenv ROOT_INCLUDE_PATH ./
+  foreach local_incdir (`find $ONLINE_MAIN/include -maxdepth 1 -type d -print`)
+    if (-d $local_incdir) then
+      setenv ROOT_INCLUDE_PATH ${ROOT_INCLUDE_PATH}:$local_incdir
+    endif
+  end
+  setenv ROOT_INCLUDE_PATH ${ONLMON_MAIN}/include:${ROOT_INCLUDE_PATH}
+  setenv LD_LIBRARY_PATH ${ONLMON_MAIN}/lib:$LD_LIBRARY_PATH
+  set path = (${ONLMON_MAIN}/bin $path)
+endif
 # all subsystems scripts end in Setup.csh
 foreach script ($ONLMON_BIN/*Setup.csh)
   source $script
