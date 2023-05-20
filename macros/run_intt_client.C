@@ -14,13 +14,19 @@ void inttDrawInit(const int online = 0)
   cl->AddServerHost("localhost");	// check local host first
   CreateHostList(online);
 
-  cl->registerHisto("InttNumEvents",	"INTTMON_0");
-  cl->registerHisto("InttMap",		"INTTMON_0");
+  for(int felix = 0; felix < INTT::FELIX; ++felix)
+  {
+    cl->registerHisto("InttNumEvents",	Form("INTTMON_%d", felix));
+    cl->registerHisto("InttMap",	Form("INTTMON_%d", felix));
+  }
   //cl->registerHisto("InttHitMapRef",	"INTTMON_0");
 
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
-  cl->requestHistoBySubSystem("INTTMON_0", 1);
+  for(int felix = 0; felix < INTT::FELIX; ++felix)
+  {
+    cl->requestHistoBySubSystem(Form("INTTMON_%d", felix), 1);
+  }
   OnlMonDraw *inttmon = new InttMonDraw("INTTMONDRAW");    // create Drawing Object
   inttmon->Init(); //registers the hists it will need to the OnlMonClient
   cl->registerDrawer(inttmon);              // register with client framework
@@ -28,9 +34,12 @@ void inttDrawInit(const int online = 0)
 
 void inttDraw(const char *what="ALL")
 {
-  OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("INTTMON_0");         // update histos
-  cl->Draw("INTTMONDRAW",what);                       // Draw Histos of registered Drawers
+  OnlMonClient *cl = OnlMonClient::instance();		// get pointer to framewrk
+  for(int felix = 0; felix < INTT::FELIX; ++felix)	// update histos
+  {
+    cl->requestHistoBySubSystem("INTTMON_%d", felix);
+  }
+  cl->Draw("INTTMONDRAW",what);				// Draw Histos of registered Drawers
 }
 
 void inttPS()

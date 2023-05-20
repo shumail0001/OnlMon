@@ -22,7 +22,7 @@ int InttMon::Init()
 
 	//histograms
 	NumEvents = new TH1D(Form("InttNumEvents"), Form("InttNumEvents"), 1, 0, 1);
-	HitMap = new TH1D(Form("InttMap"), Form("InttMap"), INTT::FELIX_CHANNELS, 0, INTT::FELIX_CHANNELS);
+	HitMap = new TH1D(Form("InttMap"), Form("InttMap"), INTT::ADCS, 0, INTT::ADCS);
 	//...
 
 	omc->registerHisto(this, NumEvents);
@@ -52,58 +52,60 @@ int InttMon::BeginRun(const int /* run_num */)
 	return 0;
 }
 
-int InttMon::process_event(Event*)// evt)
+int InttMon::process_event(Event* evt)
 {
-	RandomEvent(0);
-	return 0;
+	int bin;
+	int N;
+	int n;
+
+	int pid = 3001;
+	int felix;
+	int felix_channel;
+	struct INTT_Felix::Ladder_s lddr_s;
 
 	//int bin;
-	//int N;
-	//int n;
+	struct INTT::Indexes_s indexes;
 
-	//int pid = 3001;
-	//int felix;
-	//int felix_channel;
-	//struct INTT_Felix::Ladder_s lddr_s;
+	for(pid = 3001; pid < 3009; ++pid)
+	{
+		felix = pid - 3001;
 
-	////int bin;
-	//struct INTT::Indexes_s indexes;
+		//if(felix != server_id)continue;
 
-	//Packet* p = evt->getPacket(pid);
-	//if(!p)continue;
+		Packet* p = evt->getPacket(pid);
+		if(!p)continue;
 
-	//N = p->iValue(0, "NR_HITS");
+		N = p->iValue(0, "NR_HITS");
+		if(N)std::cout << N << std::endl;
 
-	//if(N)std::cout << N << std::endl;
+		for(n = 0; n < N; ++n)
+		{
+			felix_channel = p->iValue(n, "FEE");
 
-	//for(n = 0; n < N; ++n)
-	//{
-	//	felix = pid - 3001;
-	//	felix_channel = p->iValue(n, "FEE");
+			INTT_Felix::FelixMap(felix, felix_channel, lddr_s);
 
-	//	INTT_Felix::FelixMap(felix, felix_channel, lddr_s);
+			indexes.lyr = lddr_s.barrel * 2 + lddr_s.layer;
+			indexes.ldr = lddr_s.ladder;
 
-	//	indexes.lyr = lddr_s.barrel * 2 + lddr_s.layer;
-	//	indexes.ldr = lddr_s.ladder;
+			indexes.arm = (felix / 4) % 2;
 
-	//	indexes.arm = ((pid - 3001) / 4) % 2;
+			indexes.chp = p->iValue(n, "CHP_ID");
+			indexes.chp = (indexes.chp - 1) % 26;
 
-	//	indexes.chp = p->iValue(n, "CHP_ID");
-	//	indexes.chp = (indexes.chp - 1) % 26;
+			indexes.chn = p->iValue(n, "CHANNEL_ID");
 
-	//	indexes.chn = p->iValue(n, "CHANNEL_ID");
+			indexes.adc = p->iValue(n, "ADC");
 
-	//	indexes.adc = p->iValue(n, "ADC");
+			INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
+			HitMap->AddBinContent(bin);
+		}
+	}
 
-	//	INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
-	//	HitMap->AddBinContent(bin);
-	//}
+	NumEvents->AddBinContent(1);
 
-	//NumEvents->AddBinContent(1);
+	DBVarUpdate();
 
-	//DBVarUpdate();
-
-	//return 0;
+	return 0;
 }
 
 int InttMon::Reset()
@@ -143,37 +145,93 @@ int InttMon::DBVarUpdate()
 // for testing/debugging
 int InttMon::MiscDebug()
 {
-	int b;
-	int c;
+	//int b;
+	//int c;
 
-	INTT::Indexes_s indexes;
-	INTT::Indexes_s jndexes;
+	//INTT::Indexes_s indexes;
+	//INTT::Indexes_s jndexes;
+
+	//while(true)
+	//{
+	//	INTT::GetGlobalBinFromIndexes(b, indexes);
+	//	INTT::GetGlobalIndexesFromBin(b, jndexes);
+	//	INTT::GetGlobalBinFromIndexes(c, jndexes);
+
+	//	if(b != c)
+	//	{
+	//		std::cout << "Broke for round trip:" << std::endl;
+	//		std::cout << "\tindexes:" << std::endl;
+	//		std::cout << "\t\tadc: " << indexes.adc << " -> " << jndexes.adc << std::endl;
+	//		std::cout << "\t\tchn: " << indexes.chn << " -> " << jndexes.chn << std::endl;
+	//		std::cout << "\t\tchp: " << indexes.chp << " -> " << jndexes.chp << std::endl;
+	//		std::cout << "\t\tarm: " << indexes.arm << " -> " << jndexes.arm << std::endl;
+	//		std::cout << "\t\tldr: " << indexes.ldr << " -> " << jndexes.ldr << std::endl;
+	//		std::cout << "\t\tlyr: " << indexes.lyr << " -> " << jndexes.lyr << std::endl;
+	//		std::cout << "\tbin: " << b << " -> " << c << std::endl;
+
+	//		break;
+	//	}
+
+	//	++indexes.adc;
+	//	if(indexes.adc < INTT::ADC)continue;
+	//	indexes.adc = 0;
+	//	
+	//	++indexes.chn;
+	//	if(indexes.chn < INTT::CHANNEL)continue;
+	//	indexes.chn = 0;
+
+	//	++indexes.chp;
+	//	if(indexes.chp < INTT::CHIP)continue;
+	//	indexes.chp = 0;
+
+	//	++indexes.arm;
+	//	if(indexes.arm < INTT::ARM)continue;
+	//	indexes.arm = 0;
+
+	//	++indexes.ldr;
+	//	if(indexes.ldr < INTT::LADDER[indexes.lyr])continue;
+	//	indexes.ldr = 0;
+
+	//	++indexes.lyr;
+	//	if(indexes.lyr < INTT::LAYER)continue;
+	//	indexes.lyr = 0;
+
+	//	break;
+	//}
+
+	//std::cout << "Round trip worked" << std::endl;
+
+	int b = 0;
+	int c = -1;
+
+	int felix_channel = 0;
+	int gelix_channel = -1;
+
+	struct INTT::Indexes_s indexes = (struct INTT::Indexes_s){.lyr = 0, .ldr = 0, .arm = 0, .chp = 0, .chn = 0, .adc = 0};
+	struct INTT::Indexes_s jndexes = (struct INTT::Indexes_s){.lyr = -1, .ldr = -1, .arm = -1, .chp = -1, .chn = -1, .adc = -1};
 
 	while(true)
 	{
-		INTT::GetGlobalBinFromIndexes(b, indexes);
-		INTT::GetGlobalIndexesFromBin(b, jndexes);
-		INTT::GetGlobalBinFromIndexes(c, jndexes);
+		INTT::GetFelixBinFromIndexes(b, felix_channel, indexes);
+		INTT::GetFelixIndexesFromBin(b, gelix_channel, jndexes);
+		INTT::GetFelixBinFromIndexes(c, gelix_channel, jndexes);
 
 		if(b != c)
 		{
-			std::cout << "Broke for round trip:" << std::endl;
-			std::cout << "\tindexes:" << std::endl;
-			std::cout << "\t\tadc: " << indexes.adc << " -> " << jndexes.adc << std::endl;
-			std::cout << "\t\tchn: " << indexes.chn << " -> " << jndexes.chn << std::endl;
-			std::cout << "\t\tchp: " << indexes.chp << " -> " << jndexes.chp << std::endl;
-			std::cout << "\t\tarm: " << indexes.arm << " -> " << jndexes.arm << std::endl;
-			std::cout << "\t\tldr: " << indexes.ldr << " -> " << jndexes.ldr << std::endl;
-			std::cout << "\t\tlyr: " << indexes.lyr << " -> " << jndexes.lyr << std::endl;
-			std::cout << "\tbin: " << b << " -> " << c << std::endl;
+			std::cout << "Round trip failed" << std::endl;
+			std::cout << "bin: " << b << " -> " << c << std::endl;
+			std::cout << "felix_channel: " << felix_channel << " -> " << gelix_channel << std::endl;
+			std::cout << "chp: " << indexes.chp << " -> " << jndexes.chp << std::endl;
+			std::cout << "chn: " << indexes.chn << " -> " << jndexes.chn << std::endl;
+			std::cout << "adc: " << indexes.adc << " -> " << jndexes.adc << std::endl;
 
-			break;
+			return 0;
 		}
 
 		++indexes.adc;
 		if(indexes.adc < INTT::ADC)continue;
 		indexes.adc = 0;
-		
+
 		++indexes.chn;
 		if(indexes.chn < INTT::CHANNEL)continue;
 		indexes.chn = 0;
@@ -182,17 +240,8 @@ int InttMon::MiscDebug()
 		if(indexes.chp < INTT::CHIP)continue;
 		indexes.chp = 0;
 
-		++indexes.arm;
-		if(indexes.arm < INTT::ARM)continue;
-		indexes.arm = 0;
-
-		++indexes.ldr;
-		if(indexes.ldr < INTT::LADDER[indexes.lyr])continue;
-		indexes.ldr = 0;
-
-		++indexes.lyr;
-		if(indexes.lyr < INTT::LAYER)continue;
-		indexes.lyr = 0;
+		++felix_channel;
+		if(felix_channel < INTT::FELIX_CHANNEL)continue;
 
 		break;
 	}
@@ -216,6 +265,11 @@ void InttMon::RandomEvent(int felix)
 		felix_channel = rng->Uniform(INTT::FELIX_CHANNEL);
 		if(felix_channel == INTT::FELIX_CHANNEL)felix_channel -= 1;
 
+		INTT_Felix::FelixMap(felix, felix_channel, ldr_struct);
+		indexes.lyr = 2 * ldr_struct.barrel + ldr_struct.layer;
+		indexes.ldr = ldr_struct.ladder;
+		indexes.arm = felix / 4;
+
 		indexes.chp = rng->Uniform(INTT::CHIP);
 		if(indexes.chp == INTT::CHIP)indexes.chp -= 1;
 
@@ -226,13 +280,9 @@ void InttMon::RandomEvent(int felix)
 		if(indexes.adc == INTT::ADC)indexes.adc -= 1;
 
 		INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
-		HitMap->AddBinContent(bin);
+		HitMap->SetBinContent(bin, HitMap->GetBinContent(bin) + 1);
 		NumEvents->AddBinContent(1);
 
-
-		INTT_Felix::FelixMap(felix, felix_channel, ldr_struct);
-		indexes.ldr = 2 * ldr_struct.barrel + ldr_struct.ladder;
-		indexes.lyr = ldr_struct.ladder;
 		printf("Layer:%2d\tLadder:%3d (%s)\tChip:%3d\tChannel:%4d\n", indexes.lyr, indexes.ldr, indexes.arm ? "North" : "South", indexes.chp, indexes.chn);
 	}
 }
