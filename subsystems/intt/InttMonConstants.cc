@@ -66,7 +66,7 @@ void INTT::GetFelixBinFromIndexes(int& b, int felix_channel, struct Indexes_s co
 	b += indexes.chp * s;
 	s *= CHIP;
 
-	b += felix_channel;
+	b += felix_channel * s;
 
 	++b;
 }
