@@ -16,7 +16,6 @@ void run_intt_server(unsigned int serverid = 0, const std::string &prdffile = _p
 //  InttMon *m = new InttMon(name);
 //  m->MiscDebug();
 
-
   std::cout << "name:\t" << name << std::endl;
   std::cout << "Server ID:\t" << serverid << std::endl;
   std::cout << "Using .evt file:" << std::endl;
@@ -36,13 +35,10 @@ void run_intt_server(unsigned int serverid = 0, const std::string &prdffile = _p
   //**********************************************************
   //m->Init(); this must already be called somewhere above
   //m->BeginRun(1);
+  prun();
 
-  static_cast<InttMon*>(m)->RandomEvent(serverid);
-  //int N = 1;
-  //for(int n = 0; n < N; n++)
-  //{
-  //  m->process_event(static_cast<Event*>(0x0));
-  //}
+  //for debugging
+  //static_cast<InttMon*>(m)->RandomEvent(serverid);
 
   return;
 }
