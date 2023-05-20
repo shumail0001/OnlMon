@@ -216,6 +216,7 @@ void InttMonDraw::DrawGlobalChipMap(std::string const& option)
 	std::string name;
 	struct INTT::Indexes_s indexes;
 
+	TStyle* style;
 	TCanvas* cnvs;
 	TPad* disp_pad;
 	TPad* hist_pad;
@@ -224,6 +225,21 @@ void InttMonDraw::DrawGlobalChipMap(std::string const& option)
 
 	TH2D* client_hist;
 	HistPrepFunc_t func = EXEC_OPTIONS.find(option)->second.first;
+
+	name = Form("Intt_%s_GlobalChip_Style", option.c_str());
+	style = (TStyle*)gROOT->FindObject(name.c_str());
+	if(!style)
+	{
+		style = new TStyle
+		(
+			name.c_str(),
+			name.c_str()
+		);
+		style->SetOptStat(0);
+		style->SetOptTitle(0);
+		//...
+	}
+	style->cd();
 
 	name = Form("Intt_%s_GlobalChip_Canvas", option.c_str());
 	cnvs = (TCanvas*)gROOT->FindObject(name.c_str());
@@ -395,6 +411,7 @@ void InttMonDraw::DrawChannelMap(std::string const& option, struct INTT::Indexes
 
 	std::string name;
 
+	TStyle* style;
 	TCanvas* cnvs;
 	TPad* disp_pad;
 	TPad* hist_pad;
@@ -402,6 +419,21 @@ void InttMonDraw::DrawChannelMap(std::string const& option, struct INTT::Indexes
 	
 	TH2D* client_hist;
 	HistPrepFunc_t func = EXEC_OPTIONS.find(option)->second.second;
+
+	name = Form("Intt_%s_Channel_Style_Lyr%02d_Ldr%02d_Arm%02d_Chp%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm, indexes.chp);
+	style = (TStyle*)gROOT->FindObject(name.c_str());
+	if(!style)
+	{
+		style = new TStyle
+		(
+			name.c_str(),
+			name.c_str()
+		);
+		style->SetOptStat(0);
+		style->SetOptTitle(0);
+		//...
+	}
+	style->cd();
 
 	name = Form("Intt_%s_Channel_Canvas_Lyr%02d_Ldr%02d_Arm%02d_Chp%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm, indexes.chp);
 	cnvs = (TCanvas*)gROOT->FindObject(name.c_str());
@@ -586,6 +618,7 @@ void InttMonDraw::DrawGlobalLadderMap(std::string const& option)
 	std::string name;
 	struct INTT::Indexes_s indexes;
 
+	TStyle* style;
 	TCanvas* cnvs;
 	TPad* disp_pad;
 	TPad* hist_pad;
@@ -594,6 +627,21 @@ void InttMonDraw::DrawGlobalLadderMap(std::string const& option)
 
 	TH2D* client_hist;
 	HistPrepFunc_t func = EXEC_OPTIONS.find(option)->second.first;
+
+	name = Form("Intt_%s_GlobalChip_Style", option.c_str());
+	style = (TStyle*)gROOT->FindObject(name.c_str());
+	if(!style)
+	{
+		style = new TStyle
+		(
+			name.c_str(),
+			name.c_str()
+		);
+		style->SetOptStat(0);
+		style->SetOptTitle(0);
+		//...
+	}
+	style->cd();
 
 	name = Form("Intt_%s_GlobalLadder_Canvas", option.c_str());
 	cnvs = (TCanvas*)gROOT->FindObject(name.c_str());
@@ -763,6 +811,7 @@ void InttMonDraw::DrawChipMap(std::string const& option, struct INTT::Indexes_s 
 
 	std::string name;
 
+	TStyle* style;
 	TCanvas* cnvs;
 	TPad* disp_pad;
 	TPad* hist_pad;
@@ -771,6 +820,21 @@ void InttMonDraw::DrawChipMap(std::string const& option, struct INTT::Indexes_s 
 	
 	TH2D* client_hist;
 	HistPrepFunc_t func = EXEC_OPTIONS.find(option)->second.second;
+
+	name = Form("Intt_%s_Chip_Style_Lyr%02d_Ldr%02d_Arm%02d_Chp%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm, indexes.chp);
+	style = (TStyle*)gROOT->FindObject(name.c_str());
+	if(!style)
+	{
+		style = new TStyle
+		(
+			name.c_str(),
+			name.c_str()
+		);
+		style->SetOptStat(0);
+		style->SetOptTitle(0);
+		//...
+	}
+	style->cd();
 
 	name = Form("Intt_%s_Chip_Canvas_Lyr%02d_Ldr%02d_Arm%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm);
 	cnvs = (TCanvas*)gROOT->FindObject(name.c_str());
