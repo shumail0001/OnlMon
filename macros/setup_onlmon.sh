@@ -93,16 +93,22 @@ then
   export ONLMON_RUNDIR=$ONLMON_MAIN/share
 fi
 
-for local_incdir in `find $ONLMON_MAIN/include -maxdepth 1 -type d -print`
-do
-  if [ -d $local_incdir ]
-  then
-    ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$local_incdir:./
-  fi
-done
-export ROOT_INCLUDE_PATH
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${ONLMON_MAIN}/lib
-export PATH=${PATH}:${ONLMON_MAIN}/bin
+if [ -f ${OPT_SPHENIX}/bin/setup_local.sh ]
+then
+  source ${OPT_SPHENIX}/bin/setup_local.sh ${ONLMON_MAIN}
+else
+  ROOT_INCLUDE_PATH=./
+  for local_incdir in `find $ONLINE_MAIN/include -maxdepth 1 -type d -print`
+    do
+    if [ -d $local_incdir ]
+    then
+      ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$local_incdir:./
+    fi
+  done
+  export ROOT_INCLUDE_PATH
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${ONLMON_MAIN}/lib
+  export PATH=${PATH}:${ONLMON_MAIN}/bin
+fi
 # all subsystems scripts end in Setup.csh
 for script in $ONLMON_BIN/*Setup.sh
 do
