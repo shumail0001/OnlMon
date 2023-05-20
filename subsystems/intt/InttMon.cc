@@ -22,7 +22,7 @@ int InttMon::Init()
 
 	//histograms
 	NumEvents = new TH1D(Form("InttNumEvents"), Form("InttNumEvents"), 1, 0, 1);
-	HitMap = new TH1D(Form("InttMap"), Form("InttMap"), INTT::ADCS, 0, INTT::ADCS);
+	HitMap = new TH1D(Form("InttMap"), Form("InttMap"), INTT::FELIX_CHANNELS, 0, INTT::FELIX_CHANNELS);
 	//...
 
 	omc->registerHisto(this, NumEvents);
@@ -52,107 +52,58 @@ int InttMon::BeginRun(const int /* run_num */)
 	return 0;
 }
 
-int InttMon::process_event(Event* evt)
+int InttMon::process_event(Event*)// evt)
 {
-	int bin;
-	int N;
-	int n;
-
-	int pid;
-	int felix;
-	int felix_channel;
-	struct INTT_Felix::Ladder_s lddr_s;
+	RandomEvent(0);
+	return 0;
 
 	//int bin;
-	struct INTT::Indexes_s indexes;
+	//int N;
+	//int n;
 
-	for(pid = 3001; pid < 3009; ++pid)
-	{
-		Packet* p = evt->getPacket(pid);
-		if(!p)continue;
+	//int pid = 3001;
+	//int felix;
+	//int felix_channel;
+	//struct INTT_Felix::Ladder_s lddr_s;
 
-		N = p->iValue(0, "NR_HITS");
+	////int bin;
+	//struct INTT::Indexes_s indexes;
 
-		if(N)std::cout << N << std::endl;
+	//Packet* p = evt->getPacket(pid);
+	//if(!p)continue;
 
-		for(n = 0; n < N; ++n)
-		{
-			felix = pid - 3001;
-			felix_channel = p->iValue(n, "FEE");
+	//N = p->iValue(0, "NR_HITS");
 
-			INTT_Felix::FelixMap(felix, felix_channel, lddr_s);
+	//if(N)std::cout << N << std::endl;
 
-			indexes.lyr = lddr_s.barrel * 2 + lddr_s.layer;
-			indexes.ldr = lddr_s.ladder;
-
-			indexes.arm = ((pid - 3001) / 4) % 2;
-
-			indexes.chp = p->iValue(n, "CHP_ID");
-			indexes.chp = (indexes.chp - 1) % 26;
-
-			indexes.chn = p->iValue(n, "CHANNEL_ID");
-
-			indexes.adc = p->iValue(n, "ADC");
-
-			INTT::GetGlobalBinFromIndexes(bin, indexes);
-			HitMap->AddBinContent(bin);
-		}
-	}
-
-	////dummy method since unpacker is not done yet
-	//double temp;
-
-
-	////...
-
-	//int hits = rng->Poisson(HITS_PER_EVENT);
-	//for(int hit = 0; hit < hits; hit++)
+	//for(n = 0; n < N; ++n)
 	//{
-	//	//randomly choose a chip/channel for the hit to occur
-	//	//including guards in case upper bound of TRandom::Uniform(Double_t) is inclusive
-	//	layer = rng->Uniform(INTT::LAYER);
-	//	if(layer == INTT::LAYER)layer -= 1;
+	//	felix = pid - 3001;
+	//	felix_channel = p->iValue(n, "FEE");
 
-	//	ladder = rng->Uniform(INTT::LADDER[layer]);
-	//	if(ladder == INTT::LADDER[layer])ladder -= 1;
+	//	INTT_Felix::FelixMap(felix, felix_channel, lddr_s);
 
-	//	northsouth = rng->Uniform(INTT::NORTHSOUTH);
-	//	if(northsouth == INTT::NORTHSOUTH)northsouth -= 1;
+	//	indexes.lyr = lddr_s.barrel * 2 + lddr_s.layer;
+	//	indexes.ldr = lddr_s.ladder;
 
-	//	chip = rng->Uniform(INTT::CHIP);
-	//	if(chip == INTT::CHIP)chip -= 1;
+	//	indexes.arm = ((pid - 3001) / 4) % 2;
 
-	//	channel = rng->Uniform(INTT::CHANNEL);
-	//	if(channel == INTT::CHANNEL)channel -= 1;
+	//	indexes.chp = p->iValue(n, "CHP_ID");
+	//	indexes.chp = (indexes.chp - 1) % 26;
 
-	//	adc = rng->Uniform(INTT::ADC);
-	//	if(adc == INTT::ADC)adc -= 1;
+	//	indexes.chn = p->iValue(n, "CHANNEL_ID");
 
-	//	//Set temp to be the unscaled z position of the chip, to introduce eta dependence for the dummy method
-	//	//currently not used; hitrates are flat
-	//	temp = (2.0 * northsouth - 1.0) * ( (INTT::CHIP / 2) - chip % (INTT::CHIP / 2) - 0.5 );
+	//	indexes.adc = p->iValue(n, "ADC");
 
-	//	//get the bin these indexes correspond to
-	//	//INTT::FindBin returns 1 if there is an error; extra guard statement for typos
-	//	if(INTT::HitMap::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel))continue;
+	//	INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
 	//	HitMap->AddBinContent(bin);
-	//	if(INTT::ADCN::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel, adc))continue;
-	//	ADCMap->AddBinContent(bin);
-
-	//	std::string northsouth_str = "North";
-	//	if(northsouth)northsouth_str = "South";
-
-	//	printf("Layer:%2d\tLadder:%3d (%s)\tChip:%3d\tChannel:%4d\n", layer + INTT::LAYER_OFFSET, ladder, northsouth_str.c_str(), chip + INTT::CHIP_OFFSET, channel);
-	//	//...
-
-	//	bin = temp;//dummy line so it will compile; temp is "used"
 	//}
 
-	NumEvents->AddBinContent(1);
+	//NumEvents->AddBinContent(1);
 
-	DBVarUpdate();
+	//DBVarUpdate();
 
-	return 0;
+	//return 0;
 }
 
 int InttMon::Reset()
@@ -249,4 +200,39 @@ int InttMon::MiscDebug()
 	std::cout << "Round trip worked" << std::endl;
 
 	return 0;
+}
+
+void InttMon::RandomEvent(int felix)
+{
+	int bin;
+
+	int felix_channel;
+	struct INTT::Indexes_s indexes;
+	struct INTT_Felix::Ladder_s ldr_struct;
+
+	int hits = rng->Poisson(16);
+	for(int hit = 0; hit < hits; hit++)
+	{
+		felix_channel = rng->Uniform(INTT::FELIX_CHANNEL);
+		if(felix_channel == INTT::FELIX_CHANNEL)felix_channel -= 1;
+
+		indexes.chp = rng->Uniform(INTT::CHIP);
+		if(indexes.chp == INTT::CHIP)indexes.chp -= 1;
+
+		indexes.chn = rng->Uniform(INTT::CHANNEL);
+		if(indexes.chn == INTT::CHANNEL)indexes.chn -= 1;
+
+		indexes.adc = rng->Uniform(INTT::ADC);
+		if(indexes.adc == INTT::ADC)indexes.adc -= 1;
+
+		INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
+		HitMap->AddBinContent(bin);
+		NumEvents->AddBinContent(1);
+
+
+		INTT_Felix::FelixMap(felix, felix_channel, ldr_struct);
+		indexes.ldr = 2 * ldr_struct.barrel + ldr_struct.ladder;
+		indexes.lyr = ldr_struct.ladder;
+		printf("Layer:%2d\tLadder:%3d (%s)\tChip:%3d\tChannel:%4d\n", indexes.lyr, indexes.ldr, indexes.arm ? "North" : "South", indexes.chp, indexes.chn);
+	}
 }

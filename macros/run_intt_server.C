@@ -37,11 +37,11 @@ void run_intt_server(const std::string &prdffile = _prdf_file)
   //m->Init(); this must already be called somewhere above
   m->BeginRun(1);
 
-  //int N = 1;
-  //for(int n = 0; n < N; n++)
-  //{
-  //  m->process_event(static_cast<Event*>(0x0));
-  //}
+  int N = 1;
+  for(int n = 0; n < N; n++)
+  {
+    m->process_event(static_cast<Event*>(0x0));
+  }
 
   return;
 }

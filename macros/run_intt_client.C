@@ -15,7 +15,7 @@ void inttDrawInit(const int online = 0)
   CreateHostList(online);
 
   cl->registerHisto("InttNumEvents",	"INTTMON_0");
-  cl->registerHisto("InttHitMap",	"INTTMON_0");
+  cl->registerHisto("InttMap",		"INTTMON_0");
   //cl->registerHisto("InttHitMapRef",	"INTTMON_0");
 
   // get my histos from server, the second parameter = 1

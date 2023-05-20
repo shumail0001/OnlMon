@@ -91,7 +91,7 @@ int InttMonDraw::Draw(const std::string &what)
 	if(!found)
 	{
 		std::cout << "Option \"" << what << "\" not found" << std::endl;
-		std::cout << "Try \"ALL\" or one of the following (case insensitive)" << std::endl;
+		std::cout << "Try \"all\" or one of the following (case insensitive)" << std::endl;
 		for(Options_t::iterator itr = OPTIONS.begin(); itr != OPTIONS.end(); ++itr)
 		{
 			std::cout << "\t" << itr->first << std::endl;
@@ -108,16 +108,40 @@ int InttMonDraw::MakePS(const std::string &what)
 
 	TCanvas* canvas = nullptr;
 	std::ostringstream filename;
+
+	bool b = false;
+	bool found = false;
+
+	std::string temp = "";
+	for(std::size_t s = 0; s < what.length(); ++s)
+	{
+		temp += (char)std::tolower(what[s]);
+	}
 	for(Options_t::iterator itr = OPTIONS.begin(); itr != OPTIONS.end(); ++itr)
 	{
-		filename.str("");
-		if(what == "ALL" or what == itr->first)
+		b = false;
+
+		if(temp == "all")b = true;
+		if(temp == itr->first)b = true;
+
+		if(!b)continue;
+
+		found = true;
+
+		filename << ThisName << "_" <<  itr->first << "_" << cl->RunNumber() << ".ps";
+		canvas = (TCanvas*)gROOT->FindObject(Form("INTT_%s_Canvas", itr->first.c_str()));
+		if(canvas)canvas->Print(filename.str().c_str());
+		if(canvas)cl->CanvasToPng(canvas, cl->htmlRegisterPage(*this, itr->first, itr->first, "png"));
+		//needs attention
+	}
+
+	if(!found)
+	{
+		std::cout << "Option \"" << what << "\" not found" << std::endl;
+		std::cout << "Try \"all\" or one of the following (case insensitive)" << std::endl;
+		for(Options_t::iterator itr = OPTIONS.begin(); itr != OPTIONS.end(); ++itr)
 		{
-			filename << ThisName << "_" <<  itr->first << "_" << cl->RunNumber() << ".ps";
-			canvas = (TCanvas*)gROOT->FindObject(Form("INTT_%s_Canvas", itr->first.c_str()));
-			if(canvas)canvas->Print(filename.str().c_str());
-			if(canvas)cl->CanvasToPng(canvas, cl->htmlRegisterPage(*this, itr->first, itr->first, "png"));
-			//needs attention
+			std::cout << "\t" << itr->first << std::endl;
 		}
 	}
 
@@ -130,12 +154,37 @@ int InttMonDraw::MakeHtml(const std::string &what)
 	if(Draw(what))return 1;
 
 	TCanvas* canvas = nullptr;
+
+	bool b = false;
+	bool found = false;
+
+	std::string temp = "";
+	for(std::size_t s = 0; s < what.length(); ++s)
+	{
+		temp += (char)std::tolower(what[s]);
+	}
 	for(Options_t::iterator itr = OPTIONS.begin(); itr != OPTIONS.end(); ++itr)
 	{
-		if(what == "ALL" or what == itr->first)
-		{
-			canvas = (TCanvas*)gROOT->FindObject(Form("INTT_%s_Canvas", itr->first.c_str()));
+		b = false;
+
+		if(temp == "all")b = true;
+		if(temp == itr->first)b = true;
+
+		if(!b)continue;
+
+		found = true;
+
+		canvas = (TCanvas*)gROOT->FindObject(Form("INTT_%s_Canvas", itr->first.c_str()));
 		if(canvas)cl->CanvasToPng(canvas, cl->htmlRegisterPage(*this, itr->first, itr->first, "png"));
+	}
+
+	if(!found)
+	{
+		std::cout << "Option \"" << what << "\" not found" << std::endl;
+		std::cout << "Try \"all\" or one of the following (case insensitive)" << std::endl;
+		for(Options_t::iterator itr = OPTIONS.begin(); itr != OPTIONS.end(); ++itr)
+		{
+			std::cout << "\t" << itr->first << std::endl;
 		}
 	}
 
@@ -269,7 +318,8 @@ void InttMonDraw::DrawGlobalChipMap(std::string const& option)
 
 		(*func)(client_hist, indexes);
 		hist_pad->cd();
-		client_hist->Draw("COLZ");
+		client_hist->DrawCopy("COLZ");
+		delete client_hist;
 
 		name = Form("Intt_%s_GlobalChip_GridPad_%d", option.c_str(), indexes.lyr);
 		grid_pad = (TPad*)gROOT->FindObject(name.c_str());
@@ -440,7 +490,8 @@ void InttMonDraw::DrawChannelMap(std::string const& option, struct INTT::Indexes
 
 	(*func)(client_hist, indexes);
 	hist_pad->cd();
-	client_hist->Draw("COLZ");
+	client_hist->DrawCopy("COLZ");
+	delete client_hist;
 
 	name = Form("Intt_%s_Channel_ExecPad_Lyr%02d_Ldr%02d_Arm%02d_Chp%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm, indexes.chp);
 	exec_pad = (TPad*)gROOT->FindObject(name.c_str());
@@ -637,7 +688,8 @@ void InttMonDraw::DrawGlobalLadderMap(std::string const& option)
 
 		(*func)(client_hist, indexes);
 		hist_pad->cd();
-		client_hist->Draw("COLZ");
+		client_hist->DrawCopy("COLZ");
+		delete client_hist;
 
 		name = Form("Intt_%s_GlobalLadder_GridPad_%d", option.c_str(), indexes.lyr);
 		grid_pad = (TPad*)gROOT->FindObject(name.c_str());
@@ -807,7 +859,8 @@ void InttMonDraw::DrawChipMap(std::string const& option, struct INTT::Indexes_s 
 
 	(*func)(client_hist, indexes);
 	hist_pad->cd();
-	client_hist->Draw("COLZ");
+	client_hist->DrawCopy("COLZ");
+	delete client_hist;
 
 	name = Form("Intt_%s_Chip_GridPad_Lyr%d_Ldr%02d_Arm%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm);
 	grid_pad = (TPad*)gROOT->FindObject(name.c_str());
@@ -933,6 +986,9 @@ void InttMonDraw::PrepHitmapGlobalChipHist(TH2D* client_hist, struct INTT::Index
 {
 	client_hist->Reset();
 
+	int bin;
+	double temp;
+
 	int bin_x;
 	int bin_y;
 
@@ -968,9 +1024,14 @@ void InttMonDraw::PrepHitmapGlobalChipHist(TH2D* client_hist, struct INTT::Index
 			bin_x = 2 * indexes.ldr + (indexes.arm + indexes.chp / (INTT::CHIP / 2)) % 2 + 1;
 			bin_y = (1 - 2 * indexes.arm) * (indexes.chp % (INTT::CHIP / 2)) + indexes.arm * (INTT::CHIP - 1) + 1;
 
-			client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.chp); //for debugging
+			//client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.chp); //for debugging
 			//...
 
+			INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
+			temp = server_hist->GetBinContent(bin);
+			bin = client_hist->GetBin(bin_x, bin_y);
+			temp += client_hist->GetBinContent(bin);
+			client_hist->SetBinContent(bin, temp);
 		}
 
 		++indexes.adc;
@@ -1007,6 +1068,9 @@ void InttMonDraw::PrepHitmapChannelHist(TH2D* client_hist, struct INTT::Indexes_
 {
 	client_hist->Reset();
 
+	int bin;
+	double temp;
+
 	int bin_x;
 	int bin_y;
 
@@ -1036,10 +1100,15 @@ void InttMonDraw::PrepHitmapChannelHist(TH2D* client_hist, struct INTT::Indexes_
 			bin_x = indexes.chn + 1;
 			bin_y = indexes.adc + 1;
 
-			client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.chn); //for debugging
+			//client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.chn); //for debugging
 			//client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.adc); //for debugging
 			//...
 
+			INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
+			temp = server_hist->GetBinContent(bin);
+			bin = client_hist->GetBin(bin_x, bin_y);
+			temp += client_hist->GetBinContent(bin);
+			client_hist->SetBinContent(bin, temp);
 		}
 
 		++indexes.adc;
@@ -1072,6 +1141,9 @@ void InttMonDraw::PrepHitmapChannelHist(TH2D* client_hist, struct INTT::Indexes_
 void InttMonDraw::PrepHitmapGlobalLadderHist(TH2D* client_hist, struct INTT::Indexes_s& indexes)
 {
 	client_hist->Reset();
+
+	int bin;
+	double temp;
 
 	int bin_x;
 	int bin_y;
@@ -1108,8 +1180,14 @@ void InttMonDraw::PrepHitmapGlobalLadderHist(TH2D* client_hist, struct INTT::Ind
 			bin_x = indexes.ldr + 1;
 			bin_y = indexes.arm + 1;
 
-			client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.ldr); //for debugging
+			//client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.ldr); //for debugging
 			//...
+
+			INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
+			temp = server_hist->GetBinContent(bin);
+			bin = client_hist->GetBin(bin_x, bin_y);
+			temp += client_hist->GetBinContent(bin);
+			client_hist->SetBinContent(bin, temp);
 		}
 
 		++indexes.adc;
@@ -1146,6 +1224,9 @@ void InttMonDraw::PrepHitmapChipHist(TH2D* client_hist, struct INTT::Indexes_s& 
 {
 	client_hist->Reset();
 
+	int bin;
+	double temp;
+
 	int bin_x;
 	int bin_y;
 
@@ -1176,8 +1257,14 @@ void InttMonDraw::PrepHitmapChipHist(TH2D* client_hist, struct INTT::Indexes_s& 
 			bin_x = indexes.chn + ((indexes.arm + indexes.chp / (INTT::CHIP / 2)) % 2) * INTT::CHANNEL + 1;
 			bin_y = (1 - 2 * indexes.arm) * (indexes.chp % (INTT::CHIP / 2)) + indexes.arm * (INTT::CHIP - 1) + 1;
 
-			client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.chp); //for debugging
+			//client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.chp); //for debugging
 			//...
+
+			INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
+			temp = server_hist->GetBinContent(bin);
+			bin = client_hist->GetBin(bin_x, bin_y);
+			temp += client_hist->GetBinContent(bin);
+			client_hist->SetBinContent(bin, temp);
 		}
 
 		++indexes.adc;

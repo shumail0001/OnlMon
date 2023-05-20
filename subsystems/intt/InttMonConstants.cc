@@ -51,3 +51,38 @@ void INTT::GetGlobalIndexesFromBin(int b, struct Indexes_s& indexes)
 
 	indexes.ldr = b;
 }
+
+void INTT::GetFelixBinFromIndexes(int& b, int felix_channel, struct Indexes_s const& indexes)
+{
+	int s = 1;
+	b = 0;
+
+	b += indexes.adc * s;
+	s *= ADC;
+
+	b += indexes.chn * s;
+	s *= CHANNEL;
+
+	b += indexes.chp * s;
+	s *= CHIP;
+
+	b += felix_channel;
+
+	++b;
+}
+
+void INTT::GetFelixIndexesFromBin(int b, int& felix_channel, struct Indexes_s& indexes)
+{
+	--b;
+
+	indexes.adc = b % ADC;
+	b /= ADC;
+
+	indexes.chn = b % CHANNEL;
+	b /= CHANNEL;
+
+	indexes.chp = b % CHIP;
+	b /= CHIP;
+
+	felix_channel = b;
+}

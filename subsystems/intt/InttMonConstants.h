@@ -51,6 +51,9 @@ namespace INTT
 	void GetGlobalBinFromIndexes(int&, struct Indexes_s const&);
 	void GetGlobalIndexesFromBin(int, struct Indexes_s&);
 
+	void GetFelixBinFromIndexes(int&, int, struct Indexes_s const&);
+	void GetFelixIndexesFromBin(int, int&, struct Indexes_s&);
+
 	//namespace HitMap
 	//{
 	//	int FindGlobalBin(int& bin, int layer, int ladder, int northsouth, int chip, int channel)
