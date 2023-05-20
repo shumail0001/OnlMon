@@ -407,6 +407,7 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
                 << subsys << " registered" << std::endl;
     }
   }
+  m_LastMonitorFetched = subsys;
   onltrig->RunNumber(RunNumber());
   return iret;
 }
@@ -1146,33 +1147,15 @@ int OnlMonClient::LocateHistogram(const std::string &hname, const std::string &s
 int OnlMonClient::RunNumber()
 {
   int runno = -9999;
-  return 6;
-  std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
-  histoiter = Histo.find("FrameWorkVars");
-  if (histoiter != Histo.end())
+  TH1 *frameworkvars = getHisto(m_LastMonitorFetched,"FrameWorkVars");
+  if (frameworkvars)
   {
-    if (histoiter->second->Histo())
-    {
-      runno = (int) histoiter->second->Histo()->GetBinContent(RUNNUMBERBIN);
-    }
+    runno = frameworkvars->GetBinContent(RUNNUMBERBIN);
   }
   else
   {
-    if (requestHistoByName("FrameWorkVars"))
-    {
-      std::cout << "Histogram FrameWorkVars cannot be located" << std::endl;
-      return -9999;
-    }
-    histoiter = Histo.find("FrameWorkVars");
-    if (histoiter != Histo.end())
-    {
-      runno = (int) histoiter->second->Histo()->GetBinContent(RUNNUMBERBIN);
-    }
-    else
-    {
-      std::cout << "Histogram FrameWorkVars cannot be located" << std::endl;
-      return -9999;
-    }
+    std::cout << __PRETTY_FUNCTION__ << " could not fetch FrameWorkVars from "
+	      << m_LastMonitorFetched << " returning " << runno << std::endl;
   }
   return (runno);
 }

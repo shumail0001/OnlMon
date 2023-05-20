@@ -6,7 +6,7 @@ BUILT_SOURCES = \
 AM_CPPFLAGS = \
   -I$(includedir) \
   -I$(ONLMON_MAIN)/include \
-  -I$(OFFLINE_MAIN)/include \
+  -I$(ONLINE_MAIN)/include \
   -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \
@@ -14,7 +14,7 @@ lib_LTLIBRARIES = \
 
 libonlmonutils_la_LIBADD = \
   -L$(libdir) \
-  -L$(OFFLINE_MAIN)/lib \
+  -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
   -lonlmondb
 

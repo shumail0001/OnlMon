@@ -11,36 +11,39 @@ void cemcDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
-  cl->registerHisto("cemc_occupancy", "CEMCMON_0");
-  cl->registerHisto("cemc_runningmean", "CEMCMON_0");
-  cl->registerHisto("h2_hcal_hits", "CEMCMON_0");
-  cl->registerHisto("h2_hcal_rm", "CEMCMON_0");
-  cl->registerHisto("h2_hcal_mean", "CEMCMON_0");
-  cl->registerHisto("h_event", "CEMCMON_0");
-  cl->registerHisto("h_sectorAvg_total", "CEMCMON_0");
-  cl->registerHisto("h_waveform_twrAvg", "CEMCMON_0");
-  cl->registerHisto("h_waveform_time", "CEMCMON_0");
-  cl->registerHisto("h_waveform_pedestal", "CEMCMON_0");
-  for (int ih=0; ih<32; ih++){
-    cl->registerHisto(Form("h_rm_sectorAvg_s%d",ih), "CEMCMON_0");
+  int serverid = 0;
+  cl->registerHisto("h2_cemc_rm", Form("CEMCMON_%d",serverid));
+  cl->registerHisto("h2_cemc_mean", Form("CEMCMON_%d",serverid));
+  cl->registerHisto("h1_event", Form("CEMCMON_%d",serverid));
+  cl->registerHisto("h1_waveform_twrAvg", Form("CEMCMON_%d",serverid));
+  cl->registerHisto("h1_waveform_time", Form("CEMCMON_%d",serverid));
+  cl->registerHisto("h1_waveform_pedestal", Form("CEMCMON_%d",serverid));
+  cl->registerHisto("h1_fitting_sigDiff",Form("CEMCMON_%d",serverid));
+  cl->registerHisto("h1_fitting_pedDiff",Form("CEMCMON_%d",serverid));
+  cl->registerHisto("h1_fitting_timeDiff",Form("CEMCMON_%d",serverid));
+  cl->registerHisto("h1_packet_number",Form("CEMCMON_%d",serverid));
+  cl->registerHisto("h1_packet_length",Form("CEMCMON_%d",serverid));
+  cl->registerHisto("h1_packet_chans",Form("CEMCMON_%d",serverid));
+
+		    
+for (int ih=0; ih<32; ih++){
+    cl->registerHisto(Form("h1_rm_sectorAvg_s%d",ih), Form("CEMCMON_%d",serverid));
   }
-  cl->AddServerHost("localhost");  // check local host first
-  // CreateHostList(online);
+  CreateHostList(online);
   //  get my histos from server, the second parameter = 1
   //  says I know they are all on the same node
-  cl->requestHistoBySubSystem("CEMCMON_0", 1);
-  OnlMonDraw *cemcmon = new CemcMonDraw("CEMCMONDRAW");  // create Drawing Object
+  cl->requestHistoBySubSystem(Form("CEMCMON_%d",serverid), 1);
+  CemcMonDraw *cemcmon = new CemcMonDraw("CEMCMONDRAW");  // create Drawing Object
+  cemcmon -> setSave(0);
   cl->registerDrawer(cemcmon);              // register with client framework
 }
 
-void cemcDraw(const char *what = "Standard")
+void cemcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  std::cout << 1 << std::endl;
   cl->requestHistoBySubSystem("CEMCMON_0");  // update histos
-  std::cout << 2 << std::endl;
   cl->Draw("CEMCMONDRAW", what);  // Draw Histos of registered Drawers
-  std::cout << 3 << std::endl;
+
 }
 
 void cemcPS()

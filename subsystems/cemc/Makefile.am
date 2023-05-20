@@ -19,7 +19,9 @@ libonlcemcmon_server_la_LIBADD = \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
   -lonlmondb \
-  -lonlmonutils
+  -lonlmonutils \
+  -lcalo_io \
+  -lcalo_reco
 
 libonlcemcmon_client_la_LIBADD = \
   -L$(libdir) \

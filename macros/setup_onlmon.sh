@@ -6,6 +6,22 @@ then
   exit
 fi
 
+for arg in "$@"
+do
+    case "$arg" in
+    -n)
+        opt_n=1
+        ;;
+    esac
+done
+
+if [ $opt_n != 0 ]
+then
+  tmponlmonmain=$ONLMON_MAIN
+  unset ${!ONLMON_*}
+  export ONLMON_MAIN=$tmponlmonmain
+fi
+
 if [[ -z "$ONLMON_MAIN" ]]
 then
   echo "ONLMON_MAIN environment variable not set, doing nothing"
@@ -77,7 +93,16 @@ then
   export ONLMON_RUNDIR=$ONLMON_MAIN/share
 fi
 
-source /opt/sphenix/core/bin/setup_local.sh $ONLMON_MAIN
+for local_incdir in `find $ONLMON_MAIN/include -maxdepth 1 -type d -print`
+do
+  if [ -d $local_incdir ]
+  then
+    ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$local_incdir:./
+  fi
+done
+export ROOT_INCLUDE_PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${ONLMON_MAIN}/lib
+export PATH=${PATH}:${ONLMON_MAIN}/bin
 # all subsystems scripts end in Setup.csh
 for script in $ONLMON_BIN/*Setup.sh
 do

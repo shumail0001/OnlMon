@@ -3,13 +3,11 @@
 
 #include <onlmon/OnlMon.h>
 
-//#include <calobase/TowerInfoContainerv1.h>
-
 #include <vector>
 
-//class CaloWaveformProcessing;
+class CaloWaveformFitting;
+class TowerInfoContainer;
 class Event;
-class OnlMonDB;
 class TH1;
 class TH2;
 class Packet;
@@ -29,14 +27,12 @@ class HcalMon : public OnlMon
   std::vector<float> anaWaveform(Packet* p, const int channel);
 
  protected:
-  int DBVarInit();
   int evtcnt = 0;
   int idummy = 0;
   const int Nsector = 32;
   const int Ntower = 1536;
   const int packetlow = 8001;
   const int packethigh = 8008;
-  OnlMonDB* dbvars = nullptr;
   // TH1 *hcalhist1 = nullptr;
   // TH2 *hcalhist2 = nullptr;
   TH2* h2_hcal_hits = nullptr;
@@ -50,8 +46,7 @@ class HcalMon : public OnlMon
   TH1* h_rm_sectorAvg[32] = {nullptr};
   TH1* h_rm_tower[24][64] = {nullptr};
 
-//  CaloWaveformProcessing* WaveformProcessing = nullptr;
-//  TowerInfoContainerv1* CaloInfoContainer = nullptr;  // for using encode_key
+  CaloWaveformFitting* WaveformProcessing = nullptr;
 
   std::vector<runningMean*> rm_vector_sectAvg;
   std::vector<runningMean*> rm_vector_twr;

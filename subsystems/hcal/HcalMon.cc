@@ -10,9 +10,8 @@
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/pseudoRunningMean.h>
 
-//#include <caloreco/CaloWaveformProcessing.h>
-
-//#include <calobase/TowerInfoContainerv1.h>
+#include <caloreco/CaloWaveformFitting.h>
+#include <calobase/TowerInfoDefs.h>
 
 #include <Event/Event.h>
 #include <Event/msg_profile.h>
@@ -44,7 +43,6 @@ HcalMon::HcalMon(const std::string& name)
 HcalMon::~HcalMon()
 {
   // you can delete NULL pointers it results in a NOOP (No Operation)
-  delete dbvars;
   return;
 }
 
@@ -57,7 +55,14 @@ int HcalMon::Init()
 {
   // read our calibrations from HcalMonData.dat
   /*
-  std::string fullfile = std::string(getenv("HCALCALIB")) + "/" + "HcalMonData.dat";
+
+  const char *hcalcalib = getenv("HCALCALIB");
+  if (!hcalcalib)
+  {
+    std::cout << "HCALCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+  std::string fullfile = std::string(hcalcalib) + "/" + "HcalMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
   */
@@ -110,17 +115,22 @@ int HcalMon::Init()
     }
   }
 
-  dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
-  DBVarInit();
   Reset();
 
   // initialize waveform extraction tool
-  // WaveformProcessing = new CaloWaveformProcessing();
-  // WaveformProcessing->set_processing_type(CaloWaveformProcessing::FAST);
-  // WaveformProcessing->set_template_file("testbeam_ohcal_template.root");
-  // WaveformProcessing->initialize_processing();
-  // // initialize TowerInfoContainer
-  // CaloInfoContainer = new TowerInfoContainerv1(TowerInfoContainerv1::DETECTOR::HCAL);
+  WaveformProcessing = new CaloWaveformFitting();
+
+  std::string hcaltemplate;
+  if (getenv("HCALCALIB"))
+    {
+      hcaltemplate = getenv("HCALCALIB");
+    }
+  else
+  {
+    hcaltemplate = ".";
+  }
+  hcaltemplate += std::string("/testbeam_ohcal_template.root");
+  WaveformProcessing->initialize_processing(hcaltemplate);
 
   return 0;
 }
@@ -165,10 +175,10 @@ std::vector<float> HcalMon::anaWaveform(Packet* p, const int channel)
   multiple_wfs.push_back(waveform);
 
   std::vector<std::vector<float>> fitresults_ohcal;
-//  fitresults_ohcal = WaveformProcessing->process_waveform(multiple_wfs);
+  fitresults_ohcal = WaveformProcessing->process_waveform(multiple_wfs);
 
   std::vector<float> result;
-//  result = fitresults_ohcal.at(0);
+  result = fitresults_ohcal.at(0);
 
   return result;
 }
@@ -193,52 +203,30 @@ int HcalMon::BeginRun(const int /* runno */)
 int HcalMon::process_event(Event* e /* evt */)
 {
   evtcnt++;
-  OnlMonServer* se = OnlMonServer::instance();
-  // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
-  // e.g. if the BBCLL1 has problems or if it changes its name
-  if (!se->Trigger("ONLMONBBCLL1"))
-  {
-    std::ostringstream msg;
-    msg << "Processing Event " << evtcnt
-        << ", Trigger : 0x" << std::hex << se->Trigger()
-        << std::dec;
-    // severity levels and id's for message sources can be found in
-    // $ONLINE_MAIN/include/msg_profile.h
-    // The last argument is a message type. Messages of the same type
-    // are throttled together, so distinct messages should get distinct
-    // message types
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-  }
-
   h_waveform_twrAvg->Reset();  // only record the latest event waveform
   unsigned int towerNumber = 0;
   float sectorAvg[Nsector] = {0};
-  // loop over packets which contain a single sector
+ 
   for (int packet = packetlow; packet <= packethigh; packet++)
   {
     Packet* p = e->getPacket(packet);
 
     if (p)
     {
-      // float sectorAvg = 0;
-
       for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
       {
         towerNumber++;
 
         // std::vector result =  getSignal(p,c); // simple peak extraction
-//        std::vector result = anaWaveform(p, c);  // full waveform fitting
-	std::vector<float> result = {5.,5.,5.};
+        std::vector<float> result = anaWaveform(p, c);  // full waveform fitting
         float signal = result.at(0);
         float time = result.at(1);
         float pedestal = result.at(2);
 
         // channel mapping
-        // unsigned int key = CaloInfoContainer->encode_key(towerNumber - 1);
-        // unsigned int phi_bin = CaloInfoContainer->getTowerPhiBin(key);
-        // unsigned int eta_bin = CaloInfoContainer->getTowerEtaBin(key);
-	unsigned int phi_bin = 0;
-	unsigned int eta_bin = 0;
+        unsigned int key = TowerInfoDefs::encode_hcal(towerNumber - 1);
+        unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
+        unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
         int sectorNumber = phi_bin / 2 + 1;
         h_waveform_time->Fill(time);
         h_waveform_pedestal->Fill(pedestal);
@@ -250,8 +238,8 @@ int HcalMon::process_event(Event* e /* evt */)
         int bin = h2_hcal_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
         h2_hcal_mean->SetBinContent(bin, h2_hcal_mean->GetBinContent(bin) + signal);
         h2_hcal_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
-        //fill tower_rm here
 
+        //fill tower_rm here
         if (evtcnt <= historyLength)
         {
           h_rm_tower[eta_bin][phi_bin]->SetBinContent(evtcnt, rm_vector_twr[towerNumber - 1]->getMean(0));
@@ -281,7 +269,8 @@ int HcalMon::process_event(Event* e /* evt */)
 
       delete p;
     }  // if packet good
-  }    // packet loop
+  } // packet loop
+
   // sector loop
   for (int isec = 0; isec < Nsector; isec++)
   {
@@ -306,21 +295,6 @@ int HcalMon::process_event(Event* e /* evt */)
   h_event->Fill(0);
   h_waveform_twrAvg->Scale(1. / 32. / 48.);  // average tower waveform
 
-  if (idummy++ > 10)
-  {
-    if (dbvars)
-    {
-      dbvars->SetVar("hcalmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-      dbvars->SetVar("hcalmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      // dbvars->SetVar("hcalmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
-      dbvars->DBcommit();
-    }
-    std::ostringstream msg;
-    msg << "Filling Histos";
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
-    idummy = 0;
-  }
-
   return 0;
 }
 
@@ -329,24 +303,5 @@ int HcalMon::Reset()
   // reset our internal counters
   evtcnt = 0;
   idummy = 0;
-  return 0;
-}
-
-int HcalMon::DBVarInit()
-{
-  // variable names are not case sensitive
-
-  std::string varname;
-  varname = "hcalmoncount";
-  dbvars->registerVar(varname);
-  varname = "hcalmondummy";
-  dbvars->registerVar(varname);
-  // varname = "hcalmonval_0_63";
-  // dbvars->registerVar(varname);
-  if (verbosity > 0)
-  {
-    dbvars->Print();
-  }
-  dbvars->DBInit();
   return 0;
 }

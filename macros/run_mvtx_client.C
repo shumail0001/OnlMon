@@ -11,25 +11,83 @@ void mvtxDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
-  //cl->registerHisto("mvtxmon_hist1", "MVTXMON_0");
-  //cl->registerHisto("mvtxmon_hist2", "MVTXMON_0");
-  cl->registerHisto("mvtxmon_ChipStaveOcc", "MVTXMON_0");
-  cl->registerHisto("mvtxmon_ChipStave1D", "MVTXMON_0");
-  cl->registerHisto("mvtxmon_ChipFiredHis", "MVTXMON_0");
-  cl->registerHisto("mvtxmon_EvtHitChip", "MVTXMON_0");
-  cl->registerHisto("mvtxmon_EvtHitDis", "MVTXMON_0");
+  //cl->registerHisto("mvtxmon_hist1", "MVTXMON");
+  //cl->registerHisto("mvtxmon_hist2", "MVTXMON");
+  std::string mLaneStatusFlag[3] = { "WARNING", "ERROR", "FAULT" };
+  const int NStaves[3] = { 12, 16, 20 };
 
-   for(int i = 0; i < MvtxMonDraw::NSTAVE; i++){
-		for(int j = 0; j < MvtxMonDraw::NCHIP; j++){
-			cl->registerHisto(Form("mvtxmon_HitMap_%d_%d",i,j), "MVTXMON_0");
+  for(int iflx = 0; iflx < 6; iflx++){
+    std::string instanceName = "MVTXMON_" + std::to_string(iflx);
+    std::cout<<instanceName<<std::endl;
+    cl->registerHisto("MVTXMON/RawData/mvtxmon_ChipStaveOcc", instanceName);
+    cl->registerHisto("MVTXMON/RawData/mvtxmon_ChipStave1D", instanceName);
+    cl->registerHisto("MVTXMON/RawData/mvtxmon_ChipFiredHis", instanceName);
+    cl->registerHisto("MVTXMON/RawData/mvtxmon_EvtHitChip", instanceName);
+    cl->registerHisto("MVTXMON/RawData/mvtxmon_EvtHitDis", instanceName);
+    cl->registerHisto("MVTXMON/General/General_Occupancy", instanceName);
+    cl->registerHisto("MVTXMON/LaneStatus/laneStatusOverviewFlagWARNING", instanceName);
+    cl->registerHisto("MVTXMON/LaneStatus/laneStatusOverviewFlagERROR", instanceName);
+    cl->registerHisto("MVTXMON/LaneStatus/laneStatusOverviewFlagFAULT", instanceName);
+
+    //FEE
+    cl->registerHisto("MVTXMON/FEE/TriggerVsFeeid", instanceName);
+    cl->registerHisto("MVTXMON/FEE/TriggerFlag", instanceName);
+    //cl->registerHisto("MVTXMON/FEE/LaneInfo", instanceName);
+
+    for (int i = 0; i < MvtxMonDraw::NFlags; i++) {
+      cl->registerHisto(Form("MVTXMON/LaneStatus/laneStatusFlag%s", mLaneStatusFlag[i].c_str()), instanceName);
+      cl->registerHisto(Form("MVTXMON/LaneStatus/laneStatusFlagCumulative%s", mLaneStatusFlag[i].c_str()), instanceName);
     }
+
+    for(int i = 0; i < 3; i++){
+      cl->registerHisto(Form("MVTXMON/LaneStatusSummary/LaneStatusSummaryL%i", i), instanceName);
+    }
+
+    cl->registerHisto("MVTXMON/LaneStatusSummary/LaneStatusSummary", instanceName);
+
+    //raw task
+    cl->registerHisto("MVTXMON/General/ErrorPlots", instanceName);
+    cl->registerHisto("MVTXMON/General/ErrorFile", instanceName);
+
+    for (int aLayer = 0; aLayer < 3; aLayer++) {
+      cl->registerHisto(Form("MVTXMON/Occupancy/Layer%dOccupancy", aLayer), instanceName);
+      cl->registerHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dEtaPhi", aLayer, aLayer), instanceName);
+      cl->registerHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dChipStave", aLayer, aLayer), instanceName);
+      for (int aStave = 0; aStave < NStaves[aLayer]; aStave++) {
+        for (int iChip = 0; iChip < 9; iChip++) {
+          cl->registerHisto(Form("MVTXMON/chipHitmapL%dS%dC%d", aLayer, aStave, iChip), instanceName);
+        }
+      }
+    }
+
+    //fhr
+    cl->registerHisto("MVTXMON/General/ErrorVsFeeid", instanceName);
+    cl->registerHisto("MVTXMON/General/General_Occupancy", instanceName);
+    cl->registerHisto("MVTXMON/General/Noisy_Pixel", instanceName);
+
+    for (int mLayer = 0; mLayer < 3; mLayer++) {
+      cl->registerHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dDeadChipPos", mLayer, mLayer), instanceName);
+      cl->registerHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dAliveChipPos", mLayer, mLayer), instanceName);
+      //cl->registerHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dChipStaveC", mLayer, mLayer), instanceName);
+      cl->registerHisto(Form("MVTXMON/Occupancy/Layer%dOccupancy/LOG", mLayer), instanceName);
+    }
+
+    cl->registerHisto("MVTXMON/Occupancy/TotalDeadChipPos", instanceName);
+    cl->registerHisto("MVTXMON/Occupancy/TotalAliveChipPos", instanceName);
   }
 
+
   cl->AddServerHost("localhost");  // check local host first
-  CreateHostList(online);
+  //CreateHostList(online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
+
   cl->requestHistoBySubSystem("MVTXMON_0", 1);
+  cl->requestHistoBySubSystem("MVTXMON_1", 1);
+  cl->requestHistoBySubSystem("MVTXMON_2", 1);
+  cl->requestHistoBySubSystem("MVTXMON_3", 1);
+  cl->requestHistoBySubSystem("MVTXMON_4", 1);
+  cl->requestHistoBySubSystem("MVTXMON_5", 1);
   OnlMonDraw *mvtxmon = new MvtxMonDraw("MVTXMONDRAW");  // create Drawing Object
   cl->registerDrawer(mvtxmon);              // register with client framework
 }
