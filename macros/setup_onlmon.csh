@@ -5,6 +5,23 @@ if (! $?ONLMON_MAIN ) then
   exit
 endif
 
+set opt_n = 0
+
+foreach arg ($*)
+    switch ($arg)
+    case "-n":
+        set opt_n = 1
+	breaksw
+    endsw
+end
+
+if ($opt_n) then
+  set oldonlmon = $ONLMON_MAIN
+  unsetenv ONLMON_*
+  setenv ONLMON_MAIN $oldonlmon
+  unset oldonlmon
+endif
+
 # set the macros directory to the current dir (they
 # reside in the same directory as this setup script)
 if (! $?ONLMON_MACROS) then
