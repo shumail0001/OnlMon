@@ -15,7 +15,7 @@ do
     esac
 done
 
-if [ $opt_n != 0 ]
+if [[ $opt_n != 0 ]]
 then
   tmponlmonmain=$ONLMON_MAIN
   unset ${!ONLMON_*}
