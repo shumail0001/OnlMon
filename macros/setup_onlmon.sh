@@ -105,9 +105,9 @@ else
       ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$local_incdir:./
     fi
   done
-  export ROOT_INCLUDE_PATH
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${ONLMON_MAIN}/lib
-  export PATH=${PATH}:${ONLMON_MAIN}/bin
+  export ROOT_INCLUDE_PATH=${ONLMON_MAIN}/include:${ROOT_INCLUDE_PATH}
+  export LD_LIBRARY_PATH=${ONLMON_MAIN}/lib:$LD_LIBRARY_PATH
+  export PATH=${ONLMON_MAIN}/bin:${PATH}
 fi
 # all subsystems scripts end in Setup.csh
 for script in $ONLMON_BIN/*Setup.sh
