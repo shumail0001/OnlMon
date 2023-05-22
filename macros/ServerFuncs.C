@@ -16,7 +16,7 @@ void start_server(const std::string &prdffile = "")
     cout << "No Input file given" << endl;
     return;
   }
-  if (prdffile.find("seb") == 0)
+  if (prdffile.find("seb") == 0 || prdffile.find("ebdc") == 0)
   {
     rcdaqopen(prdffile.c_str());
     prun();
