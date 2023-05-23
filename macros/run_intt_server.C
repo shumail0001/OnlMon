@@ -36,11 +36,11 @@ void run_intt_server(unsigned int serverid = 0, const std::string &prdffile = _p
   //m->Init(); this must already be called somewhere above
   //m->BeginRun(1);
 
- 
-  //prun();
+  pidentify(0);
+  prun(2);
 
   //for debugging
-  static_cast<InttMon*>(m)->RandomEvent(serverid);
+  //static_cast<InttMon*>(m)->RandomEvent(serverid);
 
   return;
 }

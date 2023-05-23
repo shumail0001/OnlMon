@@ -208,7 +208,7 @@ void InttMonDraw::DrawPad(TPad* base, TPad* pad)
 //GlobalChip-Channel idiom
 void InttMonDraw::DrawGlobalChipMap(std::string const& option)
 {
-	double x_lower = KEY_FRAC;
+	double x_lower = KEY_FRAC + Y_LABEL_FRAC;
 	double y_lower = 0.0;
 	double x_upper = 1.0;
 	double y_upper = 1.0;
@@ -221,10 +221,11 @@ void InttMonDraw::DrawGlobalChipMap(std::string const& option)
 	TPad* disp_pad;
 	TPad* hist_pad;
 	TPad* grid_pad;
+	TPad* ylbl_pad;
+	TPad* xlbl_pad;
 	TPad* exec_pad;
 
-	TH2D* client_hist;
-	HistPrepFunc_t func = EXEC_OPTIONS.find(option)->second.first;
+	TH2D* client_hists[4] = {nullptr};
 
 	name = Form("Intt_%s_GlobalChip_Style", option.c_str());
 	style = (TStyle*)gROOT->FindObject(name.c_str());
@@ -284,10 +285,12 @@ void InttMonDraw::DrawGlobalChipMap(std::string const& option)
 		disp_text->Draw();
 	}
 
+	MakeSetGlobalChipHists(option, client_hists);
+
 	for(indexes.lyr = 0; indexes.lyr < INTT::LAYER; ++indexes.lyr)
 	{
-		y_lower = (INTT::LAYER - indexes.lyr - 1.0) / INTT::LAYER * (1.0 - DISP_FRAC) + DISP_FRAC;
-		y_upper = (INTT::LAYER - indexes.lyr - 0.0) / INTT::LAYER * (1.0 - DISP_FRAC) + DISP_FRAC;
+		y_lower = (INTT::LAYER - indexes.lyr - (1.0 - X_LABEL_FRAC)) / INTT::LAYER * (1.0 - TOP_FRAC - DISP_FRAC) + DISP_FRAC;
+		y_upper = (INTT::LAYER - indexes.lyr - 0.0) / INTT::LAYER * (1.0 - TOP_FRAC - DISP_FRAC) + DISP_FRAC;
 
 		name = Form("Intt_%s_GlobalChip_HistPad_%d", option.c_str(), indexes.lyr);
 		hist_pad = (TPad*)gROOT->FindObject(name.c_str());
@@ -305,37 +308,8 @@ void InttMonDraw::DrawGlobalChipMap(std::string const& option)
 			DrawPad(cnvs, hist_pad);
 		}
 
-		name = Form("Intt_%s_GlobalChip_ClientHist_%d", option.c_str(), indexes.lyr);
-		client_hist = (TH2D*)gROOT->FindObject(name.c_str());
-		if(!client_hist)
-		{
-			client_hist = new TH2D
-			(
-				name.c_str(),
-				name.c_str(),
-				2 * INTT::LADDER[indexes.lyr],
-				-0.5,
-				2 * INTT::LADDER[indexes.lyr] - 0.5,
-				INTT::CHIP,
-				-0.5,
-				INTT::CHIP - 0.5
-			);
-			client_hist->GetXaxis()->SetNdivisions(INTT::LADDER[indexes.lyr], true);
-			client_hist->GetYaxis()->SetNdivisions(INTT::CHIP, true);
-
-			client_hist->GetXaxis()->SetLabelSize(0.0);
-			client_hist->GetYaxis()->SetLabelSize(0.0);
-
-			client_hist->GetXaxis()->SetTickLength(0.0);
-			client_hist->GetYaxis()->SetTickLength(0.0);
-
-			client_hist->SetMinimum(-1.0);
-		}
-
-		(*func)(client_hist, indexes);
 		hist_pad->cd();
-		client_hist->DrawCopy("COLZ");
-		delete client_hist;
+		client_hists[indexes.lyr]->DrawCopy("COLZ");
 
 		name = Form("Intt_%s_GlobalChip_GridPad_%d", option.c_str(), indexes.lyr);
 		grid_pad = (TPad*)gROOT->FindObject(name.c_str());
@@ -373,6 +347,81 @@ void InttMonDraw::DrawGlobalChipMap(std::string const& option)
 				line->SetLineStyle((i % (INTT::CHIP / 2)) ? 3 : 1);
 				line->SetLineWidth((i % (INTT::CHIP / 2)) ? 1 : 2);
 				line->Draw();
+			}
+		}
+
+		name = Form("Intt_%s_GlobalChip_YLblPad_%d", option.c_str(), indexes.lyr);
+		ylbl_pad = (TPad*)gROOT->FindObject(name.c_str());
+		if(!ylbl_pad)
+		{
+			ylbl_pad = new TPad
+			(
+				name.c_str(),
+				name.c_str(),
+				x_lower - Y_LABEL_FRAC,
+				y_lower,
+				x_lower,
+				y_upper
+			);
+			DrawPad(cnvs, ylbl_pad);
+
+			TText* label = new TText
+			(
+				0.25,
+				0.5,
+				Form("B%01dL%01d", indexes.lyr / 2, indexes.lyr % 2)
+			);
+			label->SetTextSize(Y_LABEL_TEXT_SIZE);
+			label->SetTextAlign(22);
+			label->SetTextAngle(90);
+			label->Draw();
+
+			int i = 0;
+			for(i = 0; i < INTT::ARM; ++i)
+			{
+				label = new TText
+				(
+					0.75,
+					0.25 + 0.5 * i,
+					Form("%s", i ? "North" : "South")
+				);
+				label->SetTextSize(Y_LABEL_TEXT_SIZE / 2.0);
+				label->SetTextAlign(22);
+				label->SetTextAngle(90);
+				label->Draw();
+			}
+		}
+
+		name = Form("Intt_%s_GlobalChip_XLblPad_%d", option.c_str(), indexes.lyr);
+		xlbl_pad = (TPad*)gROOT->FindObject(name.c_str());
+		if(!xlbl_pad)
+		{
+			xlbl_pad = new TPad
+			(
+				name.c_str(),
+				name.c_str(),
+				x_lower,
+				y_lower - X_LABEL_FRAC / INTT::LAYER * (1.0 - TOP_FRAC - DISP_FRAC),
+				x_upper,
+				y_lower
+			);
+			DrawPad(cnvs, xlbl_pad);
+
+			int i;
+			double temp;
+
+			for(i = 0; i < INTT::LADDER[indexes.lyr]; ++i)
+			{
+				temp = L_MARGIN + (i + 0.5) * (1.0 - L_MARGIN - R_MARGIN) / INTT::LADDER[indexes.lyr];
+				TText* label = new TText
+				(
+					temp,
+					0.75,
+					Form("L%02d", i)
+				);
+				label->SetTextSize(X_LABEL_TEXT_SIZE);
+				label->SetTextAlign(22);
+				label->Draw();
 			}
 		}
 
@@ -1125,6 +1174,117 @@ void InttMonDraw::PrepHitmapGlobalChipHist(TH2D* client_hist, struct INTT::Index
 			if(felix >= INTT::FELIX)break;
 			server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
 		}
+	}
+}
+
+//rewrite of above
+void InttMonDraw::MakeSetGlobalChipHists(std::string const& option, TH2D** client_hists)
+{
+	int bin;
+	double temp;
+	int felix = 0;
+	int felix_channel = 0;
+	struct INTT_Felix::Ladder_s ldr_struct;
+
+	int bin_x;
+	int bin_y;
+	std::string name;
+
+	struct INTT::Indexes_s indexes;
+
+	OnlMonClient* cl = OnlMonClient::instance();
+	TH1D* server_hist = nullptr;
+
+	for(indexes.lyr = 0; indexes.lyr < INTT::LAYER; ++indexes.lyr)
+	{
+		name = Form("Intt_%s_ClientHist_%d", option.c_str(), indexes.lyr);
+		client_hists[indexes.lyr] = (TH2D*)gROOT->FindObject(name.c_str());
+		if(!client_hists[indexes.lyr])
+		{
+			client_hists[indexes.lyr] = new TH2D
+			(
+				name.c_str(),
+				name.c_str(),
+				2 * INTT::LADDER[indexes.lyr],
+				-0.5,
+				2 * INTT::LADDER[indexes.lyr] - 0.5,
+				INTT::CHIP,
+				-0.5,
+				INTT::CHIP - 0.5
+			);
+			client_hists[indexes.lyr]->GetXaxis()->SetNdivisions(INTT::LADDER[indexes.lyr], true);
+			client_hists[indexes.lyr]->GetYaxis()->SetNdivisions(INTT::CHIP, true);
+
+			client_hists[indexes.lyr]->GetXaxis()->SetLabelSize(0.0);
+			client_hists[indexes.lyr]->GetYaxis()->SetLabelSize(0.0);
+
+			client_hists[indexes.lyr]->GetXaxis()->SetTickLength(0.0);
+			client_hists[indexes.lyr]->GetYaxis()->SetTickLength(0.0);
+
+			client_hists[indexes.lyr]->SetMinimum(-1.0);
+		}
+
+		client_hists[indexes.lyr]->Reset();
+	}
+
+	indexes.lyr = 0;
+	indexes.ldr = 0;
+	indexes.arm = 0;
+	indexes.chp = 0;
+	indexes.chn = 0;
+	indexes.adc = 0;
+
+	felix = 0;
+	felix_channel = 0;
+	while(felix < INTT::FELIX)
+	{
+		server_hist = (TH1D*)cl->getHisto(Form("INTTMON_%d", felix), "InttMap");
+
+		INTT_Felix::FelixMap(felix, felix_channel, ldr_struct);
+		indexes.lyr = ldr_struct.barrel * 2 + ldr_struct.layer;
+		indexes.ldr = ldr_struct.ladder;
+		indexes.arm = felix / 4;
+
+		bin_x = 2 * indexes.ldr + (indexes.arm + indexes.chp / (INTT::CHIP / 2)) % 2 + 1;
+		bin_y = (1 - 2 * indexes.arm) * (indexes.chp % (INTT::CHIP / 2)) + indexes.arm * (INTT::CHIP - 1) + 1;
+
+		//for debugging
+		//client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.chp);
+		//...
+
+		INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
+		temp = server_hist ? server_hist->GetBinContent(bin) : 0;
+		bin = client_hists[indexes.lyr]->GetBin(bin_x, bin_y);
+		temp += client_hists[indexes.lyr]->GetBinContent(bin);
+		client_hists[indexes.lyr]->SetBinContent(bin, temp);
+
+		++indexes.adc;
+		if(indexes.adc < INTT::ADC)continue;
+		indexes.adc = 0;
+
+		++indexes.chn;
+		if(indexes.chn < INTT::CHANNEL)continue;
+		indexes.chn = 0;
+
+		++indexes.chp;
+		if(indexes.chp < INTT::CHIP)continue;
+		indexes.chp = 0;
+
+		++felix_channel;
+		if(felix_channel < INTT::FELIX_CHANNEL)continue;
+		felix_channel = 0;
+
+		++felix;
+	}
+
+	temp = -1;
+	for(indexes.lyr = 0; indexes.lyr < INTT::LAYER; ++indexes.lyr)
+	{
+		temp = client_hists[indexes.lyr]->GetMaximum() > temp ? client_hists[indexes.lyr]->GetMaximum() : temp;
+	}
+	for(indexes.lyr = 0; indexes.lyr < INTT::LAYER; ++indexes.lyr)
+	{
+		client_hists[indexes.lyr]->SetMaximum(temp);
 	}
 }
 

@@ -66,6 +66,9 @@ public:
 
 	//GlobalChip-Channel methods
 	static void PrepHitmapGlobalChipHist(TH2D*, struct INTT::Indexes_s&);
+
+	static void MakeSetGlobalChipHists(std::string const&, TH2D**);
+
 	static void PrepHitmapChannelHist(TH2D*, struct INTT::Indexes_s&);
 
 	//GlobalLadder-Chip methods
@@ -81,17 +84,20 @@ private:
 	static constexpr int CNVS_WIDTH = 1280;
 	static constexpr int CNVS_HEIGHT = 720;
 
-	static constexpr double T_MARGIN = 0.05;
-	static constexpr double B_MARGIN = 0.05;
-	static constexpr double L_MARGIN = 0.05;
-	static constexpr double R_MARGIN = 0.05;
+	static constexpr double T_MARGIN = 0.01;
+	static constexpr double B_MARGIN = 0.01;
+	static constexpr double L_MARGIN = 0.01;
+	static constexpr double R_MARGIN = 0.08;
 
+	static constexpr double TOP_FRAC = 0.05;
 	static constexpr double DISP_FRAC = 0.1;
 	static constexpr double DISP_TEXT_SIZE = 0.20;
 
-	static constexpr double KEY_FRAC = 0.1;
-	static constexpr double LABEL_FRAC = 0.1;
-	static constexpr double TITLE_FRAC = 0.1;
+	static constexpr double KEY_FRAC = 0.0;
+	static constexpr double Y_LABEL_FRAC = 0.05;
+	static constexpr double X_LABEL_FRAC = 0.15;
+	static constexpr double Y_LABEL_TEXT_SIZE = 0.5;
+	static constexpr double X_LABEL_TEXT_SIZE = 0.5;
 	//===	~Constants for Drawing	===//
 
 	//===	Drawing Methods		===//
