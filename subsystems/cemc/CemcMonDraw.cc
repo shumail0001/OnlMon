@@ -194,6 +194,8 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   TH2D* hist1 = (TH2D*)cl->getHisto("CEMCMON_0","h2_cemc_rm");
   TH2D* h2_cemc_mean = (TH2D*)cl->getHisto("CEMCMON_0","h2_cemc_mean");
   TH1F* h_event = (TH1F*)cl->getHisto("CEMCMON_0","h1_event");
+  TH1F* adcCount = (TH1F*)cl->getHisto("CEMCMON_0","h1_cemc_adc");
+  
   if (!gROOT->FindObject("CemcMon1"))
     {
       MakeCanvas("CemcMon1");
@@ -206,12 +208,17 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
     }
   h2_cemc_mean->Scale(1./h_event->GetEntries());
   
+  h2_cemc_mean->Scale(1./adcCount->GetMean());
+  
+  hist1 -> Scale(1./adcCount->GetMean());
+  
   for(int i = 0; i < nTowersEta; i++)
     {
       for(int j = 0; j < nTowersPhi; j++)
 	{
 	  if(i < 8) continue;
-	  hist1->SetBinContent(i+1, j+1, hist1->GetBinContent(i+1,j+1)/h2_cemc_mean->GetBinContent(i+1,j+1));
+	  if(h2_cemc_mean-> GetBinContent(i+1, j+1) < 0.75 && hist1 -> GetBinContent(i+1, j+1) < 0.75) hist1->SetBinContent(i+1, j+1, h2_cemc_mean-> GetBinContent(i+1, j+1));
+	  else hist1->SetBinContent(i+1, j+1, hist1->GetBinContent(i+1,j+1)/h2_cemc_mean->GetBinContent(i+1,j+1));
 	}
     } 
   
@@ -325,7 +332,11 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   TH1F* h1_packet_chans = (TH1F*) cl->getHisto("CEMCMON_0","h1_packet_chans");
   TH1F* h_event = (TH1F*) cl->getHisto("CEMCMON_0","h1_event");
   
-   
+  h1_packet_number -> Scale(1./h_event -> GetEntries());
+  h1_packet_length -> Scale(1./h_event -> GetEntries());
+  h1_packet_chans -> Scale(1./h_event -> GetEntries());
+
+ 
   if (!gROOT->FindObject("CemcMon2"))
     {
       MakeCanvas("CemcMon2");
@@ -344,6 +355,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   goodChans -> SetLineStyle(7);
 
   float param = 0.75;
+  //float param = 0.99;
   
   TLegend *leg = new TLegend(0.3,0.16,0.95,0.4);
   leg -> SetFillStyle(0);
@@ -379,7 +391,6 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 
   Pad[1]->cd();
   float tsize = 0.08;
-  h1_packet_number -> Scale(1./h_event -> GetEntries());
   h1_packet_number -> GetYaxis() -> SetRangeUser(0.0,1.3);
   h1_packet_number -> Draw("hist");
   std::vector<std::vector<int>> badPackets;
@@ -403,7 +414,6 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   gPad->SetTickx();
 
   Pad[2]->cd();
-  h1_packet_length -> Scale(1./h_event -> GetEntries());
   h1_packet_length -> Draw("hist");
   h1_packet_length -> GetYaxis() -> SetRangeUser(0,6500);
   badPackets.push_back(getBadPackets(h1_packet_length,1,param));
@@ -430,7 +440,6 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 
 
   Pad[3]->cd();
-  h1_packet_chans -> Scale(1./h_event -> GetEntries());
   h1_packet_chans -> Draw("hist");
   h1_packet_chans -> GetYaxis() -> SetRangeUser(0,212);
   badPackets.push_back(getBadPackets(h1_packet_chans,2,param));
@@ -482,7 +491,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 		  badboys++;
 		}
 	    }
-	  else//i == 2
+	  else if(i == 2)
 	    {
 	      if(!(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j]))) 
 		{
