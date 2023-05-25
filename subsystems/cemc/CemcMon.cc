@@ -40,6 +40,7 @@ using namespace std;
 
 CemcMon::CemcMon(const std::string &name)
   : OnlMon(name)
+  ,eventCounter(0)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new CemcMon()
@@ -73,7 +74,6 @@ int CemcMon::Init()
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("CemcMon::Init()\n");
-  eventCounter = 0;
   // Histograms definitions 
   //tower hit information
   h2_cemc_hits = new TH2F("h2_cemc_hits", "", 96, 0, 96, 256, 0, 256);
