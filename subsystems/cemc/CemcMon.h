@@ -30,7 +30,6 @@ class CemcMon : public OnlMon
   std::vector<float> anaWaveformFast(Packet *p, const int channel);
   std::vector<float> anaWaveformTemp(Packet *p, const int channel);
 
-  int evtcnt = 0;
   int idummy = 0;
   TH2 *cemc_occupancy = nullptr;
   TH2 *cemc_runningmean = nullptr;
@@ -43,7 +42,7 @@ class CemcMon : public OnlMon
   const int packethigh = 6128;
   const int m_nSamples = 16;
   const int m_nChannels = 192;
-  int eventCounter;
+  int eventCounter = 0;
   
   TH1* h1_packet_chans = nullptr;
   TH1* h1_packet_length = nullptr;
