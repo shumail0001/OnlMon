@@ -40,7 +40,6 @@ using namespace std;
 
 CemcMon::CemcMon(const std::string &name)
   : OnlMon(name)
-  ,eventCounter(0)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new CemcMon()
@@ -420,9 +419,9 @@ int CemcMon::process_event(Event *e  /* evt */)
       sectorAvg[isec] /= 48;
       h1_sectorAvg_total->Fill(isec + 1, sectorAvg[isec]);
       rm_vector_sectAvg[isec]->Add(&sectorAvg[isec]);
-      if (evtcnt <= historyLength)
+      if (eventCounter <= historyLength)
 	{
-	  h1_rm_sectorAvg[isec]->SetBinContent(evtcnt, rm_vector_sectAvg[isec]->getMean(0));
+	  h1_rm_sectorAvg[isec]->SetBinContent(eventCounter, rm_vector_sectAvg[isec]->getMean(0));
 	}
       else
 	{
@@ -430,7 +429,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 	    {
 	      h1_rm_sectorAvg[isec]->SetBinContent(ib, h1_rm_sectorAvg[isec]->GetBinContent(ib + 1));
 	    }
-	  h1_rm_sectorAvg[isec]->SetBinContent(evtcnt, rm_vector_sectAvg[isec]->getMean(0));
+	  h1_rm_sectorAvg[isec]->SetBinContent(eventCounter, rm_vector_sectAvg[isec]->getMean(0));
 	}
     }  // sector loop
 
@@ -445,7 +444,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 int CemcMon::Reset()
 {
   // reset our internal counters
-  evtcnt = 0;
+  eventCounter = 0;
   idummy = 0;
   return 0;
 }
