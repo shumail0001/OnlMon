@@ -9,6 +9,7 @@
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
+#include <Event/Event.h>
 #include <Event/msg_profile.h>
 
 #include <TH1.h>
@@ -61,11 +62,19 @@ int TpcMon::Init()
   tpchist2 = new TH2F("tpcmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
 
   //TPC GEM Module Displays
-
   NorthSideADC = new TH2F("NorthSideADC" , "ADC Counts North Side", N_thBins, -TMath::Pi()/12. , 23.*TMath::Pi()/12. , N_rBins , rBin_edges );
   SouthSideADC = new TH2F("SouthSideADC" , "ADC Counts South Side", N_thBins, -TMath::Pi()/12. , 23.*TMath::Pi()/12. , N_rBins , rBin_edges );
   //
 
+  // Sample size distribution 1D histogram
+  sample_size_hist = new TH1F("sample_size_hist" , "Distribution of Sample Sizes in Events", 1000, 0.5, 1000.5);
+  sample_size_hist->SetXTitle("sample size");
+  sample_size_hist->SetYTitle("counts");
+
+  // checksum error vs FEE*8 + SAMPA Number
+  //Check_Sum_Error = new TH1F("Check_Sum_Error" , "Check Sum Error Probability vs Fee*8 + SAMPA in Events",209,-0.5, 208.5);
+  //sample_size_hist->SetXTitle("FEE_NUM*8 + SAMPA_NUM");
+  //sample_size_hist->SetYTitle("counts");
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
@@ -73,6 +82,7 @@ int TpcMon::Init()
   se->registerHisto(this, tpchist2);
   se->registerHisto(this, NorthSideADC);
   se->registerHisto(this, SouthSideADC);
+  se->registerHisto(this, sample_size_hist);
   Reset();
   return 0;
 }
@@ -84,8 +94,47 @@ int TpcMon::BeginRun(const int /* runno */)
   return 0;
 }
 
-int TpcMon::process_event(Event * /* evt */)
+int TpcMon::process_event(Event *evt/* evt */)
 {
+
+  //std::cout << "TpcMon::process_event(Event * evt) Processing Event" << std::endl;
+
+  if (evt == nullptr)
+  {
+    std::cout << "TpcMon::process_event - Event not found" << std::endl;
+    return -1;
+  }
+
+  if (evt->getEvtType() >= 8)  /// special events
+  {
+    std::cout << "TpcMon::process_event - Special Event type >= 8, moving on" << std::endl;
+    return -1;
+  }
+
+  for( int packet = 4000; packet < 4231; packet++) //packet 4000 or 4001 = Sec 00, packet 4230 or 4231 = Sec 23
+  {
+    Packet* p = evt->getPacket(packet);
+
+    if (!p)
+    {
+      //std::cout << "TpcMon::process_event - No packet numbered " << packet << " in this event!!" << std::endl;
+      continue;
+    }
+    else
+    {
+      int nr_of_waveforms = p->iValue(0, "NR_WF");
+      std::cout << "Hello Waveforms ! - There are " << nr_of_waveforms << " of you !" << std::endl;
+      for( int wf = 0; wf < nr_of_waveforms; wf++)
+      {
+        int nr_Samples = p->iValue(wf, "SAMPLES");
+        sample_size_hist->Fill(nr_Samples);
+      }
+      delete p;
+    }
+  }
+
+
+
   evtcnt++;
   // get temporary pointers to histograms
   // one can do in principle directly se->getHisto("tpchist1")->Fill()
