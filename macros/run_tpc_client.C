@@ -27,7 +27,7 @@ void tpcDrawInit(const int online = 0)
 void tpcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("TPCMON_0");        // update histos
+  cl->requestHistoBySubSystem("TPCMON_0",1);        // update histos
   cl->Draw("TPCMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 

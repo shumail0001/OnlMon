@@ -18,7 +18,7 @@ void StartPoms()
   pmf = PomsMainFrame::Instance();
 
   // Register SubSystems
-  pmf->RegisterSubSystem("EXAMPLE", "example");
+//  pmf->RegisterSubSystem("EXAMPLE", "example");
 
   SubSystem *bbc = new SubSystem("BBC", "bbc");
   bbc->AddAction("bbcDraw(\"FIRST\")", "BBC 1st Monitor");

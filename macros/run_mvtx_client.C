@@ -95,7 +95,12 @@ void mvtxDrawInit(const int online = 0)
 void mvtxDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("MVTXMON_0");       // update histos
+  cl->requestHistoBySubSystem("MVTXMON_0", 1);
+  cl->requestHistoBySubSystem("MVTXMON_1", 1);
+  cl->requestHistoBySubSystem("MVTXMON_2", 1);
+  cl->requestHistoBySubSystem("MVTXMON_3", 1);
+  cl->requestHistoBySubSystem("MVTXMON_4", 1);
+  cl->requestHistoBySubSystem("MVTXMON_5", 1);
   cl->Draw("MVTXMONDRAW", what);                    // Draw Histos of registered Drawers
 }
 

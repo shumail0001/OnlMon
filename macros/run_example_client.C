@@ -35,8 +35,8 @@ void exampleDrawInit(const int online = 0)
 void exampleDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("MYMON_1");         // update histos
-  cl->requestHistoBySubSystem("MYMON_0");         // update histos
+  cl->requestHistoBySubSystem("MYMON_1",1);         // update histos
+  cl->requestHistoBySubSystem("MYMON_0",1);         // update histos
   cl->Draw("MYMONDRAW", what);                      // Draw Histos of registered Drawers
 }
 
