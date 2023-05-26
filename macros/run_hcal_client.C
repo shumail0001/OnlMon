@@ -39,7 +39,7 @@ void hcalDrawInit(const int online = 0)
 void hcalDraw(const char *what="ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("HCALMON_0");         // update histos
+  cl->requestHistoBySubSystem("HCALMON_0",1);         // update histos
   cl->Draw("HCALMONDRAW",what);                       // Draw Histos of registered Drawers
 }
 

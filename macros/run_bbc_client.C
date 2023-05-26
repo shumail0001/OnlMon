@@ -44,7 +44,7 @@ void bbcDrawInit(const int online = 0)
 void bbcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("BBCMON_0");        // update histos
+  cl->requestHistoBySubSystem("BBCMON_0",1);        // update histos
   cl->Draw("BBCMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 

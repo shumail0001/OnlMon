@@ -25,7 +25,7 @@ void epdDrawInit(const int online = 0)
 void epdDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("EPDMON_0");        // update histos
+  cl->requestHistoBySubSystem("EPDMON_0",1);        // update histos
   cl->Draw("EPDMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 
