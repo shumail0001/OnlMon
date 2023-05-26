@@ -31,6 +31,9 @@ class TpcMon : public OnlMon
   
   TH2 *NorthSideADC = nullptr;
   TH2 *SouthSideADC = nullptr;
+
+  TH1 *sample_size_hist = nullptr;
+
   void Locate(int id, float *rbin, float *thbin);
 };
 
