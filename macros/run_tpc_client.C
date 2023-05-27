@@ -15,6 +15,7 @@ void tpcDrawInit(const int online = 0)
   cl->registerHisto("tpcmon_hist2", "TPCMON_0");
   cl->registerHisto("NorthSideADC", "TPCMON_0");
   cl->registerHisto("SouthSideADC", "TPCMON_0");
+  cl->registerHisto("sample_size_hist","TPCMON_0");
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);
   // get my histos from server, the second parameter = 1
