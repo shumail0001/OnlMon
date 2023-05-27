@@ -41,7 +41,7 @@ for (int ih=0; ih<32; ih++){
 void cemcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("CEMCMON_0");  // update histos
+  cl->requestHistoBySubSystem("CEMCMON_0",1);  // update histos
   cl->Draw("CEMCMONDRAW", what);  // Draw Histos of registered Drawers
 
 }
