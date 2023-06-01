@@ -93,9 +93,22 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCModules")
   {
-    TC[3] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1248, 598);
+    TC[3] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1250, 600);
+    gSystem->ProcessEvents();
     TC[3]->Divide(2,1);
     TC[3]->SetEditable(false);
+  }
+  else if (name == "TPCSampleSize")
+  {
+    TC[4] = new TCanvas(name.c_str(), "TPC Sample Size Distribution in Events", -xsize / 2, 0, xsize / 2, ysize );
+    gSystem->ProcessEvents();
+    TC[4]->SetEditable(false);
+  }
+  else if (name == "TPCCheckSumError")
+  {
+    TC[5] = new TCanvas(name.c_str(), "TPC CheckSumError Probability in Events", 1250, 600);
+    gSystem->ProcessEvents();
+    TC[5]->SetEditable(false);
   }
   return 0;
 }
@@ -119,6 +132,16 @@ int TpcMonDraw::Draw(const std::string &what)
     iret += DrawTPCModules(what);
     idraw++;
   }
+  if (what == "ALL" || what == "TPCSAMPLESIZE")
+  {
+    iret += DrawTPCSampleSize(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCCHECKSUMERROR")
+  {
+    iret += DrawTPCCheckSum(what);
+    idraw++;
+  }
   if (what == "ALL" || what == "HISTORY")
   {
     iret += DrawHistory(what);
@@ -137,6 +160,7 @@ int TpcMonDraw::DrawFirst(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
   TH1 *tpcmon_hist1 =  cl->getHisto("TPCMON_0","tpcmon_hist1");
   TH1 *tpcmon_hist2 =  cl->getHisto("TPCMON_0","tpcmon_hist1");
+
   if (!gROOT->FindObject("TpcMon1"))
   {
     MakeCanvas("TpcMon1");
@@ -353,6 +377,55 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   TC[3]->Show();
   TC[3]->SetEditable(false);
   
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCSampleSize(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH1 *tpcmon_samplesizedist = (TH1*) cl->getHisto("TPCMON_0","sample_size_hist");
+
+  if (!gROOT->FindObject("TPCSampleSize"))
+  {
+    MakeCanvas("TPCSampleSize");
+  }
+
+  TC[4]->SetEditable(true);
+  TC[4]->Clear("D");
+  TC[4]->cd(1);
+  tpcmon_samplesizedist->DrawCopy("");
+  TC[4]->Update();
+  TC[4]->SetLogx();
+  TC[4]->Show();
+  TC[4]->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCCheckSum(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_checksumerror = (TH1*) cl->getHisto("TPCMON_0", "Check_Sum_Error");
+  TH1 *tpcmon_checksums = (TH1*) cl->getHisto("TPCMON_0", "Check_Sums");
+
+  if (!gROOT->FindObject("TPCCheckSumError"))
+  {
+    MakeCanvas("TPCCheckSumError");
+  }
+
+  TC[5]->SetEditable(true);
+  TC[5]->Clear("D");
+  TC[5]->cd(1);
+  tpcmon_checksumerror->Divide(tpcmon_checksums);
+  tpcmon_checksumerror->GetYaxis()->SetRangeUser(0.0001,1);
+  tpcmon_checksumerror->DrawCopy("HIST");
+  TC[5]->Update();
+  //TC[5]->SetLogy();
+  TC[5]->Show();
+  TC[5]->SetEditable(false);
+
+
   return 0;
 }
 

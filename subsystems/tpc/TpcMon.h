@@ -6,6 +6,7 @@
 class Event;
 class TH1;
 class TH2;
+class TTree;
 
 class TpcMon : public OnlMon
 {
@@ -33,6 +34,8 @@ class TpcMon : public OnlMon
   TH2 *SouthSideADC = nullptr;
 
   TH1 *sample_size_hist = nullptr;
+  TH1 *Check_Sum_Error = nullptr;
+  TH1 *Check_Sums = nullptr;
 
   void Locate(int id, float *rbin, float *thbin);
 };

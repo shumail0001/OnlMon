@@ -30,8 +30,11 @@ class TpcMonDraw : public OnlMonDraw
   int DrawSecond(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
   int DrawTPCModules(const std::string &what = "ALL");
+  int DrawTPCSampleSize(const std::string &what = "ALL");
+  int DrawTPCCheckSum(const std::string &what = "ALL");
+
   int TimeOffsetTicks = -1;
-  TCanvas *TC[4] = {nullptr};
+  TCanvas *TC[6] = {nullptr};
   TPad *transparent[3] = {nullptr};
   TPad *Pad[6] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};

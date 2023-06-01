@@ -15,6 +15,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TMath.h>
+#include <TTree.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -71,10 +72,17 @@ int TpcMon::Init()
   sample_size_hist->SetXTitle("sample size");
   sample_size_hist->SetYTitle("counts");
 
+  // entries vs FEE*8 + SAMPA Number
+  Check_Sums = new TH1F("Check_Sums" , "Entries vs Fee*8 + SAMPA in Events",208,-0.5, 207.5);
+  Check_Sums->SetXTitle("FEE_NUM*8 + SAMPA_ADRR");
+  Check_Sums->SetYTitle("Entries");
+  Check_Sums->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
+
   // checksum error vs FEE*8 + SAMPA Number
-  //Check_Sum_Error = new TH1F("Check_Sum_Error" , "Check Sum Error Probability vs Fee*8 + SAMPA in Events",209,-0.5, 208.5);
-  //sample_size_hist->SetXTitle("FEE_NUM*8 + SAMPA_NUM");
-  //sample_size_hist->SetYTitle("counts");
+  Check_Sum_Error = new TH1F("Check_Sum_Error" , "Check Sum Error Probability vs Fee*8 + SAMPA in Events",208,-0.5, 207.5);
+  Check_Sum_Error->SetXTitle("FEE_NUM*8 + SAMPA_ADDR");
+  Check_Sum_Error->SetYTitle("Prob. Check. Sum. Err.");
+  Check_Sum_Error->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
@@ -83,6 +91,8 @@ int TpcMon::Init()
   se->registerHisto(this, NorthSideADC);
   se->registerHisto(this, SouthSideADC);
   se->registerHisto(this, sample_size_hist);
+  se->registerHisto(this, Check_Sum_Error);
+  se->registerHisto(this, Check_Sums);
   Reset();
   return 0;
 }
@@ -114,7 +124,6 @@ int TpcMon::process_event(Event *evt/* evt */)
   for( int packet = 4000; packet < 4231; packet++) //packet 4000 or 4001 = Sec 00, packet 4230 or 4231 = Sec 23
   {
     Packet* p = evt->getPacket(packet);
-
     if (!p)
     {
       //std::cout << "TpcMon::process_event - No packet numbered " << packet << " in this event!!" << std::endl;
@@ -122,12 +131,21 @@ int TpcMon::process_event(Event *evt/* evt */)
     }
     else
     {
+      std::cout << "____________________________________" << std::endl;
+      std::cout << "Packet # " << packet << std::endl;
       int nr_of_waveforms = p->iValue(0, "NR_WF");
       std::cout << "Hello Waveforms ! - There are " << nr_of_waveforms << " of you !" << std::endl;
       for( int wf = 0; wf < nr_of_waveforms; wf++)
       {
+        int fee = p->iValue(wf, "FEE");
+        int sampaAddress = p->iValue(wf, "SAMPAADDRESS");
+        int checksumError = p->iValue(wf, "CHECKSUMERROR");
+        Check_Sums->Fill(fee*8 + sampaAddress); 
+        if( checksumError == 1){Check_Sum_Error->Fill(fee*8 + sampaAddress);}
+
         int nr_Samples = p->iValue(wf, "SAMPLES");
         sample_size_hist->Fill(nr_Samples);
+
       }
       delete p;
     }
