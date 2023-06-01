@@ -293,7 +293,7 @@ int MvtxMonDraw::DrawHitMap(const std::string &what )
       for (int iChip = 0; iChip < 9; iChip++) {
         int stave = aLayer==0?aStave:NStaves[aLayer]+aStave;
 	for (int iFelix = 0; iFelix <NFlx; iFelix++){
-          mvtxmon_HitMap[stave][iChip][iFelix] = dynamic_cast<TH2*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/chipHitmapL%dS%dC%d", aLayer, aStave, iChip)));
+          mvtxmon_HitMap[stave][iChip][iFelix] = dynamic_cast<TH2*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_chipHitmapL%dS%dC%d", aLayer, aStave, iChip)));
         }
         MergeServers<TH2*>(mvtxmon_HitMap[stave][iChip]);
         if(mvtxmon_HitMap[stave][iChip][NFlx]){
@@ -365,12 +365,12 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   TH2D* mvtxmon_mGeneralErrorFile[NFlx+1]  = {nullptr}; 
 
   for (int iFelix = 0; iFelix < NFlx; iFelix++){
-    mvtxmon_LaneStatusOverview[0][iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/LaneStatus/laneStatusOverviewFlagWARNING"));
-    mvtxmon_LaneStatusOverview[1][iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/LaneStatus/laneStatusOverviewFlagERROR"));
-    mvtxmon_LaneStatusOverview[2][iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/LaneStatus/laneStatusOverviewFlagFAULT"));
-    mvtxmon_mGeneralOccupancy[iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/General/General_Occupancy"));
-    mvtxmon_mGeneralErrorPlots[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/General/ErrorPlots"));
-    mvtxmon_mGeneralErrorFile[iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/General/ErrorFile"));
+    mvtxmon_LaneStatusOverview[0][iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_LaneStatus_laneStatusOverviewFlagWARNING"));
+    mvtxmon_LaneStatusOverview[1][iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_LaneStatus_laneStatusOverviewFlagERROR"));
+    mvtxmon_LaneStatusOverview[2][iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_LaneStatus_laneStatusOverviewFlagFAULT"));
+    mvtxmon_mGeneralOccupancy[iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_General_Occupancy"));
+    mvtxmon_mGeneralErrorPlots[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_General_ErrorPlots"));
+    mvtxmon_mGeneralErrorFile[iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_General_ErrorFile"));
   }
   
   //injecting errors here
@@ -544,7 +544,6 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   Pad[padID]->cd(8);
   TPaveText *pt = new TPaveText(.05,.1,.95,.8);
   pt->AddText("Online Monitoring Server Status");
-  std::cout<<"or "<<bitsetOR<<" and "<<bitsetAND<<std::endl;
   for (int iFelix = 0; iFelix < NFlx; iFelix++){
     std::string serverStatus = "Felix " + std::to_string(iFelix);
     if((bitsetOR & (1<<iFelix)) == 1<<iFelix && (bitsetAND & (1<<iFelix)) == 1<<iFelix) serverStatus += " #color[418]{ONLINE} ";
@@ -553,7 +552,6 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
     pt->AddText(serverStatus.c_str());
   }
   pt->Draw();
-  std::cout<<"D"<<std::endl;
   PublishStatistics(TC[canvasID],cl);
   TC[canvasID]->SetEditable(false);
   return returnCode < 0 ? -1 : 0;
@@ -574,14 +572,14 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   TH1I* mLaneStatusSummaryIB[NFlx+1] = {nullptr}; 
 
   for (int iFelix = 0; iFelix <NFlx; iFelix++){
-    mTriggerVsFeeId[iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/FEE/TriggerVsFeeid"));
-    mTrigger[iFelix] = dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/FEE/TriggerFlag"));
+    mTriggerVsFeeId[iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_FEE_TriggerVsFeeid"));
+    mTrigger[iFelix] = dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_FEE_TriggerFlag"));
     //mLaneInfo[iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/FEE/LaneInfo"));
-    mLaneStatusSummaryIB[iFelix]= dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/LaneStatusSummary/LaneStatusSummary"));
+    mLaneStatusSummaryIB[iFelix]= dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_LaneStatusSummary_LaneStatusSummary"));
     for (int i = 0; i < 3; i++) {
-      mLaneStatus[i][iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/LaneStatus/laneStatusFlag%s", mLaneStatusFlag[i].c_str())));
-      mLaneStatusCumulative[i][iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/LaneStatus/laneStatusFlagCumulative%s", mLaneStatusFlag[i].c_str())));
-      mLaneStatusSummary[i][iFelix] = dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/LaneStatusSummary/LaneStatusSummaryL%i", i)));
+      mLaneStatus[i][iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_LaneStatus_laneStatusFlag%s", mLaneStatusFlag[i].c_str())));
+      mLaneStatusCumulative[i][iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_LaneStatus_laneStatusFlagCumulative%s", mLaneStatusFlag[i].c_str())));
+      mLaneStatusSummary[i][iFelix] = dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_LaneStatusSummary_LaneStatusSummaryL%i", i)));
     }
   }
 
@@ -711,15 +709,15 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
 
   for (int aLayer = 0; aLayer < 3; aLayer++) {
     for (int iFelix = 0; iFelix <NFlx; iFelix++){
-      hOccupancyPlot[aLayer][iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/Occupancy/Layer%dOccupancy", aLayer)));
+      hOccupancyPlot[aLayer][iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Occupancy_Layer%dOccupancy", aLayer)));
       //hEtaPhiHitmap[aLayer][iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/Occupancy/Layer%d/Layer%dEtaPhi", aLayer, aLayer)));
-      hChipStaveOccupancy[aLayer][iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/Occupancy/Layer%d/Layer%dChipStave", aLayer, aLayer)));
+      hChipStaveOccupancy[aLayer][iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Occupancy_Layer%d_Layer%dChipStave", aLayer, aLayer)));
     }
   }
  
   for (int iFelix = 0; iFelix <NFlx; iFelix++){
-    mvtxmon_ChipStave1D[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/RawData/mvtxmon_ChipStave1D"));
-    mvtxmon_ChipFiredHis[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/RawData/mvtxmon_ChipFiredHis"));
+    mvtxmon_ChipStave1D[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_RawData_ChipStave1D"));
+    mvtxmon_ChipFiredHis[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_RawData_ChipFiredHis"));
   }
 
   for (int i = 0; i < 3; i++) {
@@ -814,18 +812,18 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
   TH1D *mvtxmon_EvtHitDis[NFlx+1] = {nullptr}; 
 
   for (int iFelix = 0; iFelix <NFlx; iFelix++){
-    mErrorVsFeeid[iFelix] =  dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/General/ErrorVsFeeid"));
-    mGeneralOccupancy[iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/General/General_Occupancy"));
-    mGeneralNoisyPixel[iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/General/Noisy_Pixel"));
-    mTotalDeadChipPos[iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/Occupancy/TotalDeadChipPos"));
-    mTotalAliveChipPos[iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/Occupancy/TotalAliveChipPos"));
-    mvtxmon_EvtHitChip[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/RawData/mvtxmon_EvtHitChip"));
-    mvtxmon_EvtHitDis[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/RawData/mvtxmon_EvtHitDis"));
+    mErrorVsFeeid[iFelix] =  dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_General_ErrorVsFeeid"));
+    mGeneralOccupancy[iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_General_Occupancy"));
+    mGeneralNoisyPixel[iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_General_Noisy_Pixel"));
+    mTotalDeadChipPos[iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_Occupancy_TotalDeadChipPos"));
+    mTotalAliveChipPos[iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_Occupancy_TotalAliveChipPos"));
+    mvtxmon_EvtHitChip[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_RawData_EvtHitChip"));
+    mvtxmon_EvtHitDis[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_RawData_EvtHitDis"));
     for (int mLayer = 0; mLayer < 3; mLayer++) {
-      mDeadChipPos[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/Occupancy/Layer%d/Layer%dDeadChipPos", mLayer, mLayer)));
-      mAliveChipPos[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/Occupancy/Layer%d/Layer%dAliveChipPos", mLayer, mLayer)));
+      mDeadChipPos[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Occupancy_Layer%d_Layer%dDeadChipPos", mLayer, mLayer)));
+      mAliveChipPos[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Occupancy_Layer%d_Layer%dAliveChipPos", mLayer, mLayer)));
      // mChipStaveOccupancy[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dChipStaveC", mLayer, mLayer)));
-      mOccupancyPlot[mLayer][iFelix] =  dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/Occupancy/Layer%dOccupancy/LOG", mLayer)));
+      mOccupancyPlot[mLayer][iFelix] =  dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Occupancy_Layer%dOccupancy_LOG", mLayer)));
     }
   }
 
