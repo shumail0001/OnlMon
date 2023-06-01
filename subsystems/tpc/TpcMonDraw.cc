@@ -106,7 +106,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCCheckSumError")
   {
-    TC[5] = new TCanvas(name.c_str(), "TPC CheckSumError Probability in Events", 1250, 600);
+    TC[5] = new TCanvas(name.c_str(), "TPC CheckSumError Probability in Events", 625, 600);
     gSystem->ProcessEvents();
     TC[5]->SetEditable(false);
   }

@@ -121,6 +121,10 @@ int TpcMon::process_event(Event *evt/* evt */)
     return -1;
   }
 
+  //reset these each event
+  float North_Side_Arr[36] = {0};
+  float South_Side_Arr[36] = {0};
+
   for( int packet = 4000; packet < 4231; packet++) //packet 4000 or 4001 = Sec 00, packet 4230 or 4231 = Sec 23
   {
     Packet* p = evt->getPacket(packet);
@@ -140,12 +144,24 @@ int TpcMon::process_event(Event *evt/* evt */)
         int fee = p->iValue(wf, "FEE");
         int sampaAddress = p->iValue(wf, "SAMPAADDRESS");
         int checksumError = p->iValue(wf, "CHECKSUMERROR");
+        int channel = p->iValue(wf, "CHANNEL");
         Check_Sums->Fill(fee*8 + sampaAddress); 
         if( checksumError == 1){Check_Sum_Error->Fill(fee*8 + sampaAddress);}
 
         int nr_Samples = p->iValue(wf, "SAMPLES");
         sample_size_hist->Fill(nr_Samples);
 
+        std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<std::endl;
+
+        for( int s =0; s < nr_Samples ; s++ ){
+
+          int adc = p->iValue(wf,s);
+
+          //increment 
+          if(serverid >= 0 && serverid < 12 ){ North_Side_Arr[ Index_from_Module(serverid,fee) ] += adc;}
+          else {South_Side_Arr[ Index_from_Module(serverid,fee) ] += adc;}
+
+        }
       }
       delete p;
     }
@@ -165,8 +181,8 @@ int TpcMon::process_event(Event *evt/* evt */)
   float r, theta;
 
   //dummy data
-  float North_Side_Arr[36] = { 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50 };
-  float South_Side_Arr[36] = { 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50 };
+  //float North_Side_Arr[36] = { 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50 };
+  //float South_Side_Arr[36] = { 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50 };
 
   for(int tpciter = 1; tpciter < 73 ; tpciter++){
 
@@ -174,10 +190,10 @@ int TpcMon::process_event(Event *evt/* evt */)
     //std::cout << "r is: "<< r <<" theta is: "<< theta <<"\n";
 
     if(tpciter < 37){ //South side
-      SouthSideADC->Fill(theta,r, South_Side_Arr[tpciter-1]); //fill South side with the weight = bin content
+      NorthSideADC->Fill(theta,r, North_Side_Arr[tpciter-1]); //fill South side with the weight = bin content
     }
     else { //North side
-      NorthSideADC->Fill(theta,r,North_Side_Arr[tpciter-37]); //fill North side with the weight = bin content
+      SouthSideADC->Fill(theta,r,South_Side_Arr[tpciter-37]); //fill North side with the weight = bin content
     }
  
   }
@@ -185,6 +201,21 @@ int TpcMon::process_event(Event *evt/* evt */)
 
 
   return 0;
+}
+
+int TpcMon::Index_from_Module(int sec_id, int fee_id)
+{
+  int mod_id;
+ 
+  if( fee_id == 2 || fee_id == 3 || fee_id == 4 || fee_id == 13 || fee_id == 16 || fee_id == 17 ){mod_id = 3*sec_id + 0;} // R1 
+
+  else if( fee_id == 0 || fee_id == 1 || fee_id == 11 || fee_id == 12 || fee_id == 14 || fee_id == 15 || fee_id == 18 || fee_id == 19 ){mod_id = 3*sec_id + 1;} // R2
+
+  else if( fee_id == 5 || fee_id == 6 || fee_id ==7 || fee_id == 8 || fee_id == 9 || fee_id == 10 || fee_id == 20 || fee_id == 21 || fee_id == 22 || fee_id == 23 || fee_id == 24 || fee_id == 25 ){mod_id = 3*sec_id + 2;} // R3
+
+  else mod_id = 0;
+
+  return mod_id;
 }
 
 void TpcMon::Locate(int id, float *rbin, float *thbin)

@@ -37,7 +37,10 @@ class TpcMon : public OnlMon
   TH1 *Check_Sum_Error = nullptr;
   TH1 *Check_Sums = nullptr;
 
+  int serverid = MonitorServerId();
+
   void Locate(int id, float *rbin, float *thbin);
+  int Index_from_Module(int sec_id, int fee_id);
 };
 
 #endif /* TPC_TPCMON_H */
