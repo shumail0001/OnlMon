@@ -3,6 +3,7 @@
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlmonserver.so)
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlmonserver_funcs.so)
 void CleanUpServer();
 
