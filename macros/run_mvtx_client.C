@@ -19,61 +19,61 @@ void mvtxDrawInit(const int online = 0)
   for(int iflx = 0; iflx < 6; iflx++){
     std::string instanceName = "MVTXMON_" + std::to_string(iflx);
     std::cout<<instanceName<<std::endl;
-    cl->registerHisto("MVTXMON/RawData/mvtxmon_ChipStaveOcc", instanceName);
-    cl->registerHisto("MVTXMON/RawData/mvtxmon_ChipStave1D", instanceName);
-    cl->registerHisto("MVTXMON/RawData/mvtxmon_ChipFiredHis", instanceName);
-    cl->registerHisto("MVTXMON/RawData/mvtxmon_EvtHitChip", instanceName);
-    cl->registerHisto("MVTXMON/RawData/mvtxmon_EvtHitDis", instanceName);
-    cl->registerHisto("MVTXMON/General/General_Occupancy", instanceName);
-    cl->registerHisto("MVTXMON/LaneStatus/laneStatusOverviewFlagWARNING", instanceName);
-    cl->registerHisto("MVTXMON/LaneStatus/laneStatusOverviewFlagERROR", instanceName);
-    cl->registerHisto("MVTXMON/LaneStatus/laneStatusOverviewFlagFAULT", instanceName);
+    cl->registerHisto("MVTXMON_RawData_ChipStaveOcc", instanceName);
+    cl->registerHisto("MVTXMON_RawData_ChipStave1D", instanceName);
+    cl->registerHisto("MVTXMON_RawData_ChipFiredHis", instanceName);
+    cl->registerHisto("MVTXMON_RawData_EvtHitChip", instanceName);
+    cl->registerHisto("MVTXMON_RawData_EvtHitDis", instanceName);
+    cl->registerHisto("MVTXMON_General_Occupancy", instanceName);
+    cl->registerHisto("MVTXMON_LaneStatus_laneStatusOverviewFlagWARNING", instanceName);
+    cl->registerHisto("MVTXMON_LaneStatus_laneStatusOverviewFlagERROR", instanceName);
+    cl->registerHisto("MVTXMON_LaneStatus_laneStatusOverviewFlagFAULT", instanceName);
 
     //FEE
-    cl->registerHisto("MVTXMON/FEE/TriggerVsFeeid", instanceName);
-    cl->registerHisto("MVTXMON/FEE/TriggerFlag", instanceName);
+    cl->registerHisto("MVTXMON_FEE_TriggerVsFeeid", instanceName);
+    cl->registerHisto("MVTXMON_FEE_TriggerFlag", instanceName);
     //cl->registerHisto("MVTXMON/FEE/LaneInfo", instanceName);
 
     for (int i = 0; i < MvtxMonDraw::NFlags; i++) {
-      cl->registerHisto(Form("MVTXMON/LaneStatus/laneStatusFlag%s", mLaneStatusFlag[i].c_str()), instanceName);
-      cl->registerHisto(Form("MVTXMON/LaneStatus/laneStatusFlagCumulative%s", mLaneStatusFlag[i].c_str()), instanceName);
+      cl->registerHisto(Form("MVTXMON_LaneStatus_laneStatusFlag%s", mLaneStatusFlag[i].c_str()), instanceName);
+      cl->registerHisto(Form("MVTXMON_LaneStatus_laneStatusFlagCumulative%s", mLaneStatusFlag[i].c_str()), instanceName);
     }
 
     for(int i = 0; i < 3; i++){
-      cl->registerHisto(Form("MVTXMON/LaneStatusSummary/LaneStatusSummaryL%i", i), instanceName);
+      cl->registerHisto(Form("MVTXMON_LaneStatusSummary_LaneStatusSummaryL%i", i), instanceName);
     }
 
-    cl->registerHisto("MVTXMON/LaneStatusSummary/LaneStatusSummary", instanceName);
+    cl->registerHisto("MVTXMON_LaneStatusSummary_LaneStatusSummary", instanceName);
 
     //raw task
-    cl->registerHisto("MVTXMON/General/ErrorPlots", instanceName);
-    cl->registerHisto("MVTXMON/General/ErrorFile", instanceName);
+    cl->registerHisto("MVTXMON_General_ErrorPlots", instanceName);
+    cl->registerHisto("MVTXMON_General_ErrorFile", instanceName);
 
     for (int aLayer = 0; aLayer < 3; aLayer++) {
-      cl->registerHisto(Form("MVTXMON/Occupancy/Layer%dOccupancy", aLayer), instanceName);
-      cl->registerHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dEtaPhi", aLayer, aLayer), instanceName);
-      cl->registerHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dChipStave", aLayer, aLayer), instanceName);
+      cl->registerHisto(Form("MVTXMON_Occupancy_Layer%dOccupancy", aLayer), instanceName);
+      cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dEtaPhi", aLayer, aLayer), instanceName);
+      cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dChipStave", aLayer, aLayer), instanceName);
       for (int aStave = 0; aStave < NStaves[aLayer]; aStave++) {
         for (int iChip = 0; iChip < 9; iChip++) {
-          cl->registerHisto(Form("MVTXMON/chipHitmapL%dS%dC%d", aLayer, aStave, iChip), instanceName);
+          cl->registerHisto(Form("MVTXMON_chipHitmapL%dS%dC%d", aLayer, aStave, iChip), instanceName);
         }
       }
     }
 
     //fhr
-    cl->registerHisto("MVTXMON/General/ErrorVsFeeid", instanceName);
-    cl->registerHisto("MVTXMON/General/General_Occupancy", instanceName);
-    cl->registerHisto("MVTXMON/General/Noisy_Pixel", instanceName);
+    cl->registerHisto("MVTXMON_General_ErrorVsFeeid", instanceName);
+    cl->registerHisto("MVTXMON_General_General_Occupancy", instanceName);
+    cl->registerHisto("MVTXMON_General_Noisy_Pixel", instanceName);
 
     for (int mLayer = 0; mLayer < 3; mLayer++) {
-      cl->registerHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dDeadChipPos", mLayer, mLayer), instanceName);
-      cl->registerHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dAliveChipPos", mLayer, mLayer), instanceName);
+      cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dDeadChipPos", mLayer, mLayer), instanceName);
+      cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dAliveChipPos", mLayer, mLayer), instanceName);
       //cl->registerHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dChipStaveC", mLayer, mLayer), instanceName);
-      cl->registerHisto(Form("MVTXMON/Occupancy/Layer%dOccupancy/LOG", mLayer), instanceName);
+      cl->registerHisto(Form("MVTXMON_Occupancy_Layer%dOccupancy_LOG", mLayer), instanceName);
     }
 
-    cl->registerHisto("MVTXMON/Occupancy/TotalDeadChipPos", instanceName);
-    cl->registerHisto("MVTXMON/Occupancy/TotalAliveChipPos", instanceName);
+    cl->registerHisto("MVTXMON_Occupancy_TotalDeadChipPos", instanceName);
+    cl->registerHisto("MVTXMON_Occupancy_TotalAliveChipPos", instanceName);
   }
 
 
