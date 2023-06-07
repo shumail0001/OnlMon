@@ -36,6 +36,7 @@ TpcMon::TpcMon(const std::string &name)
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new TpcMon()
 
+  serverid = 0; //default case - initializing in constructor
   //BCO initialization in TPCMon
   starting_BCO = -1;
   rollover_value = 0;

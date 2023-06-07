@@ -15,6 +15,7 @@
 #include <TText.h>
 #include <TMath.h>
 #include <TPaveLabel.h>
+#include <TStyle.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -95,6 +96,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   {
     TC[3] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1250, 600);
     gSystem->ProcessEvents();
+    gStyle->SetPalette(57); //kBird CVD friendly
     TC[3]->Divide(2,1);
     TC[3]->SetEditable(false);
   }
@@ -109,6 +111,13 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     TC[5] = new TCanvas(name.c_str(), "TPC CheckSumError Probability in Events", 625, 600);
     gSystem->ProcessEvents();
     TC[5]->SetEditable(false);
+  }
+  else if (name == "TPCADCSample")
+  {
+    TC[6] = new TCanvas(name.c_str(), "TPC ADC vs Sample in Whole Sector", 625, 700);
+    gSystem->ProcessEvents();
+    gStyle->SetPalette(57); //kBird CVD friendly
+    TC[6]->SetEditable(false);
   }
   return 0;
 }
@@ -140,6 +149,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCCHECKSUMERROR")
   {
     iret += DrawTPCCheckSum(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCADCVSSAMPLE")
+  {
+    iret += DrawTPCADCSample(what);
     idraw++;
   }
   if (what == "ALL" || what == "HISTORY")
@@ -254,8 +268,14 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
 {
   std::cout<<"This is Charles' temporary function 02.15.23 !!!!!"<<std::endl;
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *tpcmon_NSIDEADC = (TH2*) cl->getHisto("TPCMON_0","NorthSideADC");
-  TH2 *tpcmon_SSIDEADC = (TH2*) cl->getHisto("TPCMON_0","SouthSideADC");
+  TH2 *tpcmon_NSIDEADC0 = (TH2*) cl->getHisto("TPCMON_0","NorthSideADC");
+  TH2 *tpcmon_SSIDEADC0 = (TH2*) cl->getHisto("TPCMON_0","SouthSideADC");
+
+  TH2 *tpcmon_NSIDEADC1 = (TH2*) cl->getHisto("TPCMON_1","NorthSideADC");
+  TH2 *tpcmon_SSIDEADC1 = (TH2*) cl->getHisto("TPCMON_1","SouthSideADC");
+
+  //TH2 *tpcmon_NSIDEADC1 = (TH2*) cl->getHisto("TPCMON_0","NorthSideADC");
+  //TH2 *tpcmon_SSIDEADC1 = (TH2*) cl->getHisto("TPCMON_0","SouthSideADC");
 
   if (!gROOT->FindObject("TPCModules"))
   {
@@ -323,11 +343,12 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   TC[3]->Clear("D");
   TC[3]->cd(1);
   dummy_his1->Draw("");
-  if (tpcmon_NSIDEADC)
+  if (tpcmon_NSIDEADC0 && tpcmon_NSIDEADC1)
   {
     //std::cout<<"Yes, there is a histogram to draw !!!! Charles 02.16.23"<<std::endl;
 
-    tpcmon_NSIDEADC->DrawCopy("colpolzsame");
+    tpcmon_NSIDEADC0->DrawCopy("colpolzsame");
+    tpcmon_NSIDEADC1->DrawCopy("colpolzsame");
   }
   SS00->Draw("same");
   SS01->Draw("same");
@@ -344,9 +365,10 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
 
   TC[3]->cd(2);
   dummy_his2->Draw("");
-  if (tpcmon_SSIDEADC)
+  if (tpcmon_SSIDEADC0 && tpcmon_SSIDEADC1)
   {
-    tpcmon_SSIDEADC->DrawCopy("colpolzsame");
+    tpcmon_SSIDEADC0->DrawCopy("colpolzsame");
+    tpcmon_SSIDEADC1->DrawCopy("colpolzsame");
   }
   NS18->Draw("same");
   NS17->Draw("same");
@@ -368,11 +390,11 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   dummy_his2->SetStats(0);
 
   //dynamically set heat map color scale to start at the minimum and end at the maximum
-  dummy_his1->SetMaximum(TMath::Max(tpcmon_SSIDEADC->GetBinContent(tpcmon_SSIDEADC->GetMaximumBin()),tpcmon_NSIDEADC->GetBinContent(tpcmon_NSIDEADC->GetMaximumBin())));
-  dummy_his1->SetMinimum(TMath::Min(tpcmon_SSIDEADC->GetBinContent(tpcmon_SSIDEADC->GetMinimumBin()),tpcmon_NSIDEADC->GetBinContent(tpcmon_NSIDEADC->GetMinimumBin())));
+  dummy_his1->SetMaximum(TMath::Max(tpcmon_SSIDEADC0->GetBinContent(tpcmon_SSIDEADC0->GetMaximumBin()),tpcmon_NSIDEADC0->GetBinContent(tpcmon_NSIDEADC0->GetMaximumBin())));
+  dummy_his1->SetMinimum(TMath::Min(tpcmon_SSIDEADC0->GetBinContent(tpcmon_SSIDEADC0->GetMinimumBin()),tpcmon_NSIDEADC0->GetBinContent(tpcmon_NSIDEADC0->GetMinimumBin())));
 
-  dummy_his2->SetMaximum(TMath::Max(tpcmon_SSIDEADC->GetBinContent(tpcmon_SSIDEADC->GetMaximumBin()),tpcmon_NSIDEADC->GetBinContent(tpcmon_NSIDEADC->GetMaximumBin())));
-  dummy_his2->SetMinimum(TMath::Min(tpcmon_SSIDEADC->GetBinContent(tpcmon_SSIDEADC->GetMinimumBin()),tpcmon_NSIDEADC->GetBinContent(tpcmon_NSIDEADC->GetMinimumBin())));
+  dummy_his2->SetMaximum(TMath::Max(tpcmon_SSIDEADC0->GetBinContent(tpcmon_SSIDEADC0->GetMaximumBin()),tpcmon_NSIDEADC0->GetBinContent(tpcmon_NSIDEADC0->GetMaximumBin())));
+  dummy_his2->SetMinimum(TMath::Min(tpcmon_SSIDEADC0->GetBinContent(tpcmon_SSIDEADC0->GetMinimumBin()),tpcmon_NSIDEADC0->GetBinContent(tpcmon_NSIDEADC0->GetMinimumBin())));
 
   TC[3]->Show();
   TC[3]->SetEditable(false);
@@ -425,6 +447,27 @@ int TpcMonDraw::DrawTPCCheckSum(const std::string & /* what */)
   TC[5]->Show();
   TC[5]->SetEditable(false);
 
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCADCSample(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH2 *tpcmon_ADCSAMPLE = (TH2*) cl->getHisto("TPCMON_0","ADC_vs_SAMPLE");
+
+  if (!gROOT->FindObject("TPCADCSample"))
+  {
+    MakeCanvas("TPCADCSample");
+  }  
+
+  TC[6]->SetEditable(true);
+  TC[6]->Clear("D");
+  TC[6]->cd(1);
+  tpcmon_ADCSAMPLE->Draw("colz");
+  TC[6]->Update();
+  TC[6]->Show();
+  TC[6]->SetEditable(false);
 
   return 0;
 }
