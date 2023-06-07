@@ -35,6 +35,12 @@ TpcMon::TpcMon(const std::string &name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new TpcMon()
+
+  //BCO initialization in TPCMon
+  starting_BCO = -1;
+  rollover_value = 0;
+  current_BCOBIN = 0;
+
   return;
 }
 
@@ -67,6 +73,11 @@ int TpcMon::Init()
   SouthSideADC = new TH2F("SouthSideADC" , "ADC Counts South Side", N_thBins, -TMath::Pi()/12. , 23.*TMath::Pi()/12. , N_rBins , rBin_edges );
   //
 
+  // ADC vs Sample
+  ADC_vs_SAMPLE = new TH2F("ADC_vs_SAMPLE", "ADC Counts vs Sample: WHOLE SECTOR", 360, 0, 360, 256, 0, 1024);
+  ADC_vs_SAMPLE -> SetXTitle("Sector XX: ADC Time bin [1/20MHz]");
+  ADC_vs_SAMPLE -> SetYTitle("ADC [ADU]");
+
   // Sample size distribution 1D histogram
   sample_size_hist = new TH1F("sample_size_hist" , "Distribution of Sample Sizes in Events", 1000, 0.5, 1000.5);
   sample_size_hist->SetXTitle("sample size");
@@ -93,6 +104,7 @@ int TpcMon::Init()
   se->registerHisto(this, sample_size_hist);
   se->registerHisto(this, Check_Sum_Error);
   se->registerHisto(this, Check_Sums);
+  se->registerHisto(this, ADC_vs_SAMPLE);
   Reset();
   return 0;
 }
@@ -101,6 +113,12 @@ int TpcMon::BeginRun(const int /* runno */)
 {
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
+
+  // we reset the BCO for the new run
+  starting_BCO = -1;
+  rollover_value = 0;
+  current_BCOBIN = 0;
+
   return 0;
 }
 
@@ -141,21 +159,44 @@ int TpcMon::process_event(Event *evt/* evt */)
       std::cout << "Hello Waveforms ! - There are " << nr_of_waveforms << " of you !" << std::endl;
       for( int wf = 0; wf < nr_of_waveforms; wf++)
       {
+
+        int current_BCO = p->iValue(wf, "BCO") + rollover_value;
+        if (starting_BCO < 0)
+        {
+          starting_BCO = current_BCO;
+        }
+
+        if (current_BCO < starting_BCO)  // we have a rollover
+        {
+          rollover_value += 0x100000;
+          current_BCO = p->iValue(wf, "BCO") + rollover_value;
+          starting_BCO = current_BCO;
+          current_BCOBIN++;
+        }
+
+
         int fee = p->iValue(wf, "FEE");
         int sampaAddress = p->iValue(wf, "SAMPAADDRESS");
         int checksumError = p->iValue(wf, "CHECKSUMERROR");
         int channel = p->iValue(wf, "CHANNEL");
+
         Check_Sums->Fill(fee*8 + sampaAddress); 
         if( checksumError == 1){Check_Sum_Error->Fill(fee*8 + sampaAddress);}
 
         int nr_Samples = p->iValue(wf, "SAMPLES");
         sample_size_hist->Fill(nr_Samples);
 
-        std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<std::endl;
+        serverid = MonitorServerId();
+        //std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<std::endl;
 
         for( int s =0; s < nr_Samples ; s++ ){
 
+          //int t = s + 2 * (current_BCO - starting_BCO);
+
+          std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<", sample = "<<s<<""<<std::endl;
           int adc = p->iValue(wf,s);
+
+          if( checksumError == 0){ADC_vs_SAMPLE -> Fill(s, adc);}
 
           //increment 
           if(serverid >= 0 && serverid < 12 ){ North_Side_Arr[ Index_from_Module(serverid,fee) ] += adc;}

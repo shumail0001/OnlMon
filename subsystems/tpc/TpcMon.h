@@ -33,11 +33,17 @@ class TpcMon : public OnlMon
   TH2 *NorthSideADC = nullptr;
   TH2 *SouthSideADC = nullptr;
 
+  TH2 *ADC_vs_SAMPLE = nullptr;
+
   TH1 *sample_size_hist = nullptr;
   TH1 *Check_Sum_Error = nullptr;
   TH1 *Check_Sums = nullptr;
 
-  int serverid = MonitorServerId();
+  int starting_BCO;
+  int rollover_value;
+  int current_BCOBIN;
+
+  int serverid;
 
   void Locate(int id, float *rbin, float *thbin);
   int Index_from_Module(int sec_id, int fee_id);
