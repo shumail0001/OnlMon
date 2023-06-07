@@ -18,11 +18,19 @@ void tpcDrawInit(const int online = 0)
   cl->registerHisto("sample_size_hist","TPCMON_0");
   cl->registerHisto("Check_Sum_Error","TPCMON_0");
   cl->registerHisto("Check_Sums","TPCMON_0");
+  cl->registerHisto("ADC_vs_SAMPLE","TPCMON_0"); 
+
+  cl->registerHisto("NorthSideADC", "TPCMON_1");
+  cl->registerHisto("SouthSideADC", "TPCMON_1");
+
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
+
   cl->requestHistoBySubSystem("TPCMON_0", 1);
+  cl->requestHistoBySubSystem("TPCMON_1", 1);
+
   OnlMonDraw *tpcmon = new TpcMonDraw("TPCMONDRAW");  // create Drawing Object
   cl->registerDrawer(tpcmon);             // register with client framework
 }
@@ -30,7 +38,10 @@ void tpcDrawInit(const int online = 0)
 void tpcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
+
   cl->requestHistoBySubSystem("TPCMON_0",1);        // update histos
+  cl->requestHistoBySubSystem("TPCMON_1",1);        // update histos
+
   cl->Draw("TPCMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 
