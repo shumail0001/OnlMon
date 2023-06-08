@@ -77,7 +77,10 @@ class OnlMonServer : public OnlMonBase
   std::string GetRunType() const { return RunType; }
 
   int send_message(const OnlMon *Monitor, const int msgsource, const int severity, const std::string &err_message, const int msgtype) const;
+
+#ifdef USE_MUTEX
   void GetMutex(pthread_mutex_t &lock) { lock = mutex; }
+#endif
   void SetThreadId(const pthread_t &id) { serverthreadid = id; }
 
   int LoadActivePackets();

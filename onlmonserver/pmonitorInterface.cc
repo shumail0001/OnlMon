@@ -67,7 +67,9 @@ TH1 *FrameWorkVars = nullptr;
 int pinit()
 {
   OnlMonServer *Onlmonserver = OnlMonServer::instance();
+#ifdef USE_MUTEX
   Onlmonserver->GetMutex(mutex);
+#endif
   for (int i = 0; i < kMAXSIGNALS; i++)
   {
     gSystem->IgnoreSignal((ESignals) i);
