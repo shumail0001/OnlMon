@@ -1,6 +1,8 @@
 #ifndef ONLMONSERVER_ONLMONSERVER_H
 #define ONLMONSERVER_ONLMONSERVER_H
 
+//#define USE_MUTEX
+
 #include "OnlMonBase.h"
 #include "OnlMonDefs.h"
 
