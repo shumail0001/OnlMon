@@ -35,8 +35,6 @@
 #include <utility>  // for pair
 #include <vector>
 
-#define USE_MUTEX
-
 OnlMonServer *OnlMonServer::__instance = nullptr;
 
 // root TFile compression level
