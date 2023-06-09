@@ -16,6 +16,7 @@
 #include <TMath.h>
 #include <TPaveLabel.h>
 #include <TStyle.h>
+#include <TString.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -268,11 +269,20 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
 {
   std::cout<<"This is Charles' temporary function 02.15.23 !!!!!"<<std::endl;
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *tpcmon_NSIDEADC0 = (TH2*) cl->getHisto("TPCMON_0","NorthSideADC");
-  TH2 *tpcmon_SSIDEADC0 = (TH2*) cl->getHisto("TPCMON_0","SouthSideADC");
 
-  TH2 *tpcmon_NSIDEADC1 = (TH2*) cl->getHisto("TPCMON_1","NorthSideADC");
-  TH2 *tpcmon_SSIDEADC1 = (TH2*) cl->getHisto("TPCMON_1","SouthSideADC");
+  TH2 *tpcmon_NSIDEADC[12] = {nullptr};
+  TH2 *tpcmon_SSIDEADC[12] = {nullptr};
+
+  char TPCMON_STR[100];
+  // TPC ADC pie chart
+  for( int i=0; i<12; i++ ) //NS ONLY FOR NOW
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_NSIDEADC[i] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC");
+    tpcmon_SSIDEADC[i] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC");
+  }
+
 
   //TH2 *tpcmon_NSIDEADC1 = (TH2*) cl->getHisto("TPCMON_0","NorthSideADC");
   //TH2 *tpcmon_SSIDEADC1 = (TH2*) cl->getHisto("TPCMON_0","SouthSideADC");
@@ -343,13 +353,17 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   TC[3]->Clear("D");
   TC[3]->cd(1);
   dummy_his1->Draw("");
-  if (tpcmon_NSIDEADC0 && tpcmon_NSIDEADC1)
+ 
+  for( int i=0; i<12; i++ )
   {
-    //std::cout<<"Yes, there is a histogram to draw !!!! Charles 02.16.23"<<std::endl;
+    if( tpcmon_NSIDEADC[i] ){
+    std::cout<<"You have the NSIDEADC "<<i<<" histo"<<std::endl;
+    tpcmon_NSIDEADC[i] -> Draw("colpolzsame");
 
-    tpcmon_NSIDEADC0->DrawCopy("colpolzsame");
-    tpcmon_NSIDEADC1->DrawCopy("colpolzsame");
+    }
+
   }
+
   SS00->Draw("same");
   SS01->Draw("same");
   SS02->Draw("same");
@@ -365,11 +379,16 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
 
   TC[3]->cd(2);
   dummy_his2->Draw("");
-  if (tpcmon_SSIDEADC0 && tpcmon_SSIDEADC1)
+
+  for( int i=0; i<12; i++ )
   {
-    tpcmon_SSIDEADC0->DrawCopy("colpolzsame");
-    tpcmon_SSIDEADC1->DrawCopy("colpolzsame");
+    if( tpcmon_SSIDEADC[i] ){
+    tpcmon_SSIDEADC[i] -> Draw("colpolzsame");
+
+    }
+
   }
+
   NS18->Draw("same");
   NS17->Draw("same");
   NS16->Draw("same");
@@ -390,11 +409,11 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   dummy_his2->SetStats(0);
 
   //dynamically set heat map color scale to start at the minimum and end at the maximum
-  dummy_his1->SetMaximum(TMath::Max(tpcmon_SSIDEADC0->GetBinContent(tpcmon_SSIDEADC0->GetMaximumBin()),tpcmon_NSIDEADC0->GetBinContent(tpcmon_NSIDEADC0->GetMaximumBin())));
-  dummy_his1->SetMinimum(TMath::Min(tpcmon_SSIDEADC0->GetBinContent(tpcmon_SSIDEADC0->GetMinimumBin()),tpcmon_NSIDEADC0->GetBinContent(tpcmon_NSIDEADC0->GetMinimumBin())));
+  dummy_his1->SetMaximum(TMath::Max(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMaximumBin()),tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMaximumBin())));
+  dummy_his1->SetMinimum(TMath::Min(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMinimumBin()),tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMinimumBin())));
 
-  dummy_his2->SetMaximum(TMath::Max(tpcmon_SSIDEADC0->GetBinContent(tpcmon_SSIDEADC0->GetMaximumBin()),tpcmon_NSIDEADC0->GetBinContent(tpcmon_NSIDEADC0->GetMaximumBin())));
-  dummy_his2->SetMinimum(TMath::Min(tpcmon_SSIDEADC0->GetBinContent(tpcmon_SSIDEADC0->GetMinimumBin()),tpcmon_NSIDEADC0->GetBinContent(tpcmon_NSIDEADC0->GetMinimumBin())));
+  dummy_his2->SetMaximum(TMath::Max(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMaximumBin()),tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMaximumBin())));
+  dummy_his2->SetMinimum(TMath::Min(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMinimumBin()),tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMinimumBin())));
 
   TC[3]->Show();
   TC[3]->SetEditable(false);

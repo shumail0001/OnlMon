@@ -13,23 +13,36 @@ void tpcDrawInit(const int online = 0)
   // register histos we want with monitor name
   cl->registerHisto("tpcmon_hist1", "TPCMON_0");
   cl->registerHisto("tpcmon_hist2", "TPCMON_0");
-  cl->registerHisto("NorthSideADC", "TPCMON_0");
-  cl->registerHisto("SouthSideADC", "TPCMON_0");
+
   cl->registerHisto("sample_size_hist","TPCMON_0");
   cl->registerHisto("Check_Sum_Error","TPCMON_0");
   cl->registerHisto("Check_Sums","TPCMON_0");
   cl->registerHisto("ADC_vs_SAMPLE","TPCMON_0"); 
 
-  cl->registerHisto("NorthSideADC", "TPCMON_1");
-  cl->registerHisto("SouthSideADC", "TPCMON_1");
+  char TPCMON_STR[100];
+  // TPC ADC pie chart
+  for( int i=0; i<12; i++ )
+  {
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    std::cout<<"You registered the NSIDEADC/SSIDEADC "<<i<<" histo"<<std::endl;
+
+    cl->registerHisto("NorthSideADC", TPCMON_STR);
+    cl->registerHisto("SouthSideADC", TPCMON_STR);
+  } //
+
+
 
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
 
-  cl->requestHistoBySubSystem("TPCMON_0", 1);
-  cl->requestHistoBySubSystem("TPCMON_1", 1);
+  for( int i=0; i<12; i++ )
+  {
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    cl->requestHistoBySubSystem(TPCMON_STR, 1);
+  }
 
   OnlMonDraw *tpcmon = new TpcMonDraw("TPCMONDRAW");  // create Drawing Object
   cl->registerDrawer(tpcmon);             // register with client framework
@@ -39,8 +52,14 @@ void tpcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
 
-  cl->requestHistoBySubSystem("TPCMON_0",1);        // update histos
-  cl->requestHistoBySubSystem("TPCMON_1",1);        // update histos
+  char TPCMON_STR[100];
+
+  for( int i=0; i<12; i++ )
+  {
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    cl->requestHistoBySubSystem(TPCMON_STR, 1);
+  }
+
 
   cl->Draw("TPCMONDRAW", what);                     // Draw Histos of registered Drawers
 }
