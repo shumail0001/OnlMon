@@ -14,21 +14,20 @@ void tpcDrawInit(const int online = 0)
   cl->registerHisto("tpcmon_hist1", "TPCMON_0");
   cl->registerHisto("tpcmon_hist2", "TPCMON_0");
 
-  cl->registerHisto("sample_size_hist","TPCMON_0");
-  cl->registerHisto("Check_Sum_Error","TPCMON_0");
-  cl->registerHisto("Check_Sums","TPCMON_0");
-  cl->registerHisto("ADC_vs_SAMPLE","TPCMON_0"); 
-
   char TPCMON_STR[100];
   // TPC ADC pie chart
-  for( int i=0; i<12; i++ )
+  for( int i=0; i<5; i++ )
   {
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     std::cout<<"You registered the NSIDEADC/SSIDEADC "<<i<<" histo"<<std::endl;
 
-    cl->registerHisto("NorthSideADC", TPCMON_STR);
-    cl->registerHisto("SouthSideADC", TPCMON_STR);
+    if(i<12){ cl->registerHisto("NorthSideADC", TPCMON_STR); }
+    else { cl->registerHisto("SouthSideADC", TPCMON_STR); }
+
+    cl->registerHisto("sample_size_hist",TPCMON_STR);
+    cl->registerHisto("Check_Sum_Error",TPCMON_STR);
+    cl->registerHisto("Check_Sums",TPCMON_STR);
+    cl->registerHisto("ADC_vs_SAMPLE",TPCMON_STR); 
   } //
 
 
@@ -38,7 +37,7 @@ void tpcDrawInit(const int online = 0)
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
 
-  for( int i=0; i<12; i++ )
+  for( int i=0; i<5; i++ )
   {
     sprintf(TPCMON_STR,"TPCMON_%i",i);
     cl->requestHistoBySubSystem(TPCMON_STR, 1);
@@ -54,7 +53,7 @@ void tpcDraw(const char *what = "ALL")
 
   char TPCMON_STR[100];
 
-  for( int i=0; i<12; i++ )
+  for( int i=0; i<5; i++ )
   {
     sprintf(TPCMON_STR,"TPCMON_%i",i);
     cl->requestHistoBySubSystem(TPCMON_STR, 1);
