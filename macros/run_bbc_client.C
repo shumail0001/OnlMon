@@ -17,10 +17,6 @@ void bbcDrawInit(const int online = 0)
   cl->registerHisto("bbc_tdc_armhittime", "BBCMON_0");
   cl->registerHisto("bbc_zvertex", "BBCMON_0");
   cl->registerHisto("bbc_zvertex_bbll1", "BBCMON_0");
-  // cl->registerHisto("bbc_zvertex_zdc", "BBCMON_0");
-  // cl->registerHisto("bbc_zvertex_zdc_scale3", "BBCMON_0");
-  cl->registerHisto("bbc_zvertex_bbll1_novtx", "BBCMON_0");
-  cl->registerHisto("bbc_zvertex_bbll1_narrowvtx", "BBCMON_0");
   cl->registerHisto("bbc_nevent_counter", "BBCMON_0");
   cl->registerHisto("bbc_tzero_zvtx", "BBCMON_0");
   cl->registerHisto("bbc_prescale_hist", "BBCMON_0");
@@ -29,7 +25,8 @@ void bbcDrawInit(const int online = 0)
   cl->registerHisto("bbc_south_hittime", "BBCMON_0");
   cl->registerHisto("bbc_north_chargesum", "BBCMON_0");
   cl->registerHisto("bbc_south_chargesum", "BBCMON_0");
-  // cl->registerHisto("bbc_zvertex_bbll1_zdc", "BBCMON_0");
+  cl->registerHisto("bbc_time_wave", "BBCMON_0");
+  cl->registerHisto("bbc_charge_wave", "BBCMON_0");
 
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);

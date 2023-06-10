@@ -4,13 +4,15 @@
 #include <onlmon/OnlMon.h>
 
 class Event;
+//class OnlMonDB;
 class TH1;
 class TH2;
 class TRandom3;
+class OnlBbcEvent;
 
 class BbcMon : public OnlMon
 {
- public:
+public:
   explicit BbcMon(const std::string &name = "BBCMON");
   virtual ~BbcMon();
 
@@ -19,9 +21,13 @@ class BbcMon : public OnlMon
   int BeginRun(const int runno);  // Done at every start of run
   int Reset();
 
- protected:
+protected:
+  int DBVarInit();
+  OnlBbcEvent *bevt;
+
   int evtcnt = 0;
-  int idummy = 0;
+  //int idummy = 0;
+  //OnlMonDB *dbvars = nullptr;
 
   TH2 *bbc_adc = nullptr;
   TH2 *bbc_tdc = nullptr;
@@ -34,11 +40,8 @@ class BbcMon : public OnlMon
 
   TH1 *bbc_zvertex = nullptr;
   TH1 *bbc_zvertex_bbll1 = nullptr;
-  // TH1 *bbc_zvertex_zdc = nullptr;
-  // TH1 *bbc_zvertex_zdc_scale3 = nullptr;
   TH1 *bbc_zvertex_bbll1_novtx = nullptr;
   TH1 *bbc_zvertex_bbll1_narrowvtx = nullptr;  // Run11 pp
-  // TH1 *bbc_zvertex_bbll1_zdc = nullptr;
 
   TH2 *bbc_tzero_zvtx = nullptr;
   TH1 *bbc_avr_hittime = nullptr;
@@ -48,7 +51,12 @@ class BbcMon : public OnlMon
   TH1 *bbc_north_chargesum = nullptr;
   TH1 *bbc_prescale_hist = nullptr;
 
-  TRandom3 *trand3 = nullptr;
+  //TH2 *bbc_tmax[2] = {};  // [0 == time ch, 1 == chg ch], max sample in evt vs ch
+  TH2 *bbc_time_wave = nullptr;      // raw waveforms, time ch
+  TH2 *bbc_charge_wave = nullptr;    // raw waveforms, charge ch
+  //TH2 *bbc_trange = nullptr;       // subtracted tdc at maxsamp vs ch
+
+  //TRandom3 *trand3 = nullptr;
 };
 
 #endif /* BBC_BBCMON_H */

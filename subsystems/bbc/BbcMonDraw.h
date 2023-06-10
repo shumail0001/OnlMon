@@ -119,6 +119,12 @@ class BbcMonDraw : public OnlMonDraw
   TText *TextSouthChargeSum = nullptr;
   TText *TextNorthChargeSum = nullptr;
 
+  TH2 *TimeWave = nullptr;
+  TPad *PadTimeWave = nullptr;
+
+  TH2 *ChargeWave = nullptr;
+  TPad *PadChargeWave = nullptr;
+
   TLine *LineTzeroZvtx[4] = {};
   TText *TextTzeroZvtx = nullptr;
 
