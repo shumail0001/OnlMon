@@ -63,9 +63,8 @@ void StartPoms()
   pmf->RegisterSubSystem(hcal);
 
   SubSystem *intt = new SubSystem("INTT", "intt");
-  intt->AddAction("inttDraw(\"FIRST\")", "INTT 1st Monitor");
-  intt->AddAction("inttDraw(\"SECOND\")", "INTT 2nd Monitor");
-  intt->AddAction("inttDraw(\"HISTORY\")", "INTT History Monitor");
+  intt->AddAction("inttDraw(\"chip_hitmap\")", "INTT Chip Hitmap");
+  intt->AddAction("inttDraw(\"ladder_hitmap\")", "INTT ladder Hitmap");
   intt->AddAction(new SubSystemActionDrawPS(intt));
   pmf->RegisterSubSystem(intt);
 
@@ -77,7 +76,7 @@ void StartPoms()
   pmf->RegisterSubSystem(mvtx);
 
   SubSystem *tpc = new SubSystem("TPC", "tpc");
-  tpc->AddAction("tpcDraw(\"FIRST\")", "TPC 1st Monitor");
+  tpc->AddAction("tpcDraw(\"TPCCHECKSUMERROR\")", "TPC Checksum Error");
   tpc->AddAction("tpcDraw(\"SECOND\")", "TPC 2nd Monitor");
   tpc->AddAction("tpcDraw(\"HISTORY\")", "TPC History Monitor");
   tpc->AddAction(new SubSystemActionDrawPS(tpc));

@@ -1,4 +1,4 @@
-#include <ServerFuncs.C>
+#include "ServerFuncs.C"
 
 #include <onlmon/hcal/HcalMon.h>
 

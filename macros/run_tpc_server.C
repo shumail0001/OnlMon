@@ -1,4 +1,4 @@
-#include <ServerFuncs.C>
+#include "ServerFuncs.C"
 
 #include <onlmon/tpc/TpcMon.h>
 
