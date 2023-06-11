@@ -45,20 +45,20 @@ public:
     return (f_pmtt1[PmtIndx]);
   }
 
-  int getQ (int PmtIndx) const
+  float getQ (int PmtIndx) const
   {
     //return (Adc[PmtIndx]);
     return (f_pmtq[PmtIndx]);
   }
 
   // Time from Timing Channel
-  int getTT (int PmtIndx) const
+  float getTT (int PmtIndx) const
   {
     return (f_pmtt0[PmtIndx]);
   }
 
   // Time from Charge Channel
-  int getTQ (int PmtIndx) const
+  float getTQ (int PmtIndx) const
   {
     return (f_pmtt1[PmtIndx]);
   }

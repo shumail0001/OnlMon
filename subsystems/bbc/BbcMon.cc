@@ -145,7 +145,7 @@ int BbcMon::Init()
 
   // bbc_tzero_zvtx = new TH2F("bbc_tzero_zvtx",
   //     "TimeZero vs ZVertex", 100, -200, 200, 110, -11, 11 );
-  bbc_tzero_zvtx = new TH2F("bbc_tzero_zvtx", "TimeZero vs ZVertex", 100, -200, 200, 110, -6, 16);
+  bbc_tzero_zvtx = new TH2F("bbc_tzero_zvtx", "TimeZero vs ZVertex", 100, -200, 200, 110, -16, 16);
   bbc_tzero_zvtx->SetXTitle("ZVertex[cm]");
   bbc_tzero_zvtx->SetYTitle("TimeZero[ns]");
 
@@ -291,7 +291,7 @@ int BbcMon::process_event(Event *evt)
     return 0;
   }
 
-  //int f_evt = evt->getEvtSequence();
+  int f_evt = evt->getEvtSequence();
 
   // get temporary pointers to histograms
   // one can do in principle directly se->getHisto("bbchist1")->Fill()
@@ -320,7 +320,7 @@ int BbcMon::process_event(Event *evt)
   evtcnt++;
   if ( counter < 10 )
   {
-    std::cout << "zt\t" << evtcnt << "\t" << zvtx << "\t" << t0 << std::endl;
+    std::cout << "zt\t" << f_evt << "\t" << zvtx << "\t" << t0 << std::endl;
     counter++;
   }
 
@@ -328,20 +328,27 @@ int BbcMon::process_event(Event *evt)
   bbc_zvertex->Fill(zvtx);
   bbc_zvertex_bbll1->Fill(zvtx);
   bbc_tzero_zvtx->Fill(zvtx, t0);
+  //should this be the mean hit time, not per ipmt?
+  //bbc_south_hittime->Fill( tq );
+  //bbc_north_hittime->Fill( tq );
 
   for (int ipmt=0; ipmt<128; ipmt++)
   {
     float q = bevt->getQ(ipmt);
-    bbc_adc->Fill(ipmt, q/100);
+    bbc_adc->Fill(ipmt, q);
 
-    if ( q>50 )
+    //std::cout << f_evt << "\tipmt " << ipmt << "\t" << q << "\t";
+    if ( q>0.5 )
     {
       float tq = bevt->getTQ(ipmt);
       if (ipmt<64 )
         bbc_south_hittime->Fill( tq );
       else
         bbc_north_hittime->Fill( tq );
+
+      //std::cout << tq;
     }
+    //std::cout << std::endl;
   }
 
   // charge

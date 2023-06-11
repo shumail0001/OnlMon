@@ -13,8 +13,6 @@
 #include <TH2.h>
 #include <TCanvas.h>
 
-#include <gsl/gsl_const.h>
-
 #include <cmath>
 #include <iostream>
 #include <iomanip>
@@ -22,12 +20,13 @@
 using namespace std;
 
 // light velocity [cm/ns]
-static const float C = GSL_CONST_CGS_SPEED_OF_LIGHT / 1e9;
+//static const float C = GSL_CONST_CGS_SPEED_OF_LIGHT / 1e9;
 
 OnlBbcEvent::OnlBbcEvent(void) :
   EventNumber(0),
   calib_done(0),
-  _tres(0.05)
+  _tres(0.05),
+  ac(nullptr)
 {
   //set default values
 
@@ -69,8 +68,13 @@ OnlBbcEvent::OnlBbcEvent(void) :
   gaussian = new TF1("gaussian", "gaus", 0, 20);
   gaussian->FixParameter(2, _tres);  // set sigma to timing resolution
 
-  ac = new TCanvas("ac","ac",550*1.5,425*1.5);
-  ac->Divide(2,1);
+  /*
+  if ( verbose )
+  {
+    ac = new TCanvas("ac","ac",550*1.5,425*1.5);
+    ac->Divide(2,1);
+  }
+  */
 }
 
 ///
@@ -182,9 +186,11 @@ int OnlBbcEvent::calculate()
 
     // determine the trig_samp board by board
     int tq = (ich/8)%2;   // 0 = T-channel, 1 = Q-channel
+    int pmtch = (ich/16)*8 + ich%8;
+
     double x, y;
     bbcsig[ich].LocMax(x,y);
-    h2_tmax[tq]->Fill(x,ich);
+    h2_tmax[tq]->Fill(x,pmtch);
   }
 
   std::vector<float> hit_times[2];  // times of the hits in each [arm]
@@ -199,6 +205,7 @@ int OnlBbcEvent::calculate()
       h_trigsamp[iboard] = h2_tmax[0]->ProjectionX( name, iboard*8 + 1, (iboard+1)*8 );
       int maxbin = h_trigsamp[iboard]->GetMaximumBin();
       TRIG_SAMP[iboard] = h_trigsamp[iboard]->GetBinCenter( maxbin );
+      //std::cout << "iboard " << iboard << "\t" << iboard*8+1 << "\t" << (iboard+1)*8 << "\t" << h_trigsamp[iboard]->GetEntries() << std::endl;
       cout << "TRIG_SAMP" << iboard << "\t" << TRIG_SAMP[iboard] << endl;
     }
 
@@ -328,8 +335,8 @@ int OnlBbcEvent::calculate()
     // gaussian->SetParameter(1,hevt_bbct[iarm]->GetMean());
     // gaussian->SetRange(6,hevt_bbct[iarm]->GetMean()+0.125);
 
-    ac->cd(iarm+1);
-    hevt_bbct[iarm]->Fit(gaussian, "BQLR");
+    if ( ac ) ac->cd(iarm+1);
+    hevt_bbct[iarm]->Fit(gaussian, "BNQLR");
     //hevt_bbct[iarm]->Draw();
 
     // f_bbct[iarm] = f_bbct[iarm] / f_bbcn[iarm];
@@ -351,7 +358,7 @@ int OnlBbcEvent::calculate()
 
     //cout << "t0\t" << f_bbct[0] << "\t" << f_bbct[1] << endl;
     //cout << "te\t" << f_bbcte[0] << "\t" << f_bbcte[1] << endl;
-    f_bbcz = (f_bbcte[0] - f_bbcte[1]) * C / 2.0;
+    f_bbcz = (f_bbcte[0] - f_bbcte[1]) * TMath::C() * 1e-7 / 2.0; // in cm
     f_bbct0 = (f_bbcte[0] + f_bbcte[1]) / 2.0;
 
     //cout << "bbcz " << f_bbcz << endl;
