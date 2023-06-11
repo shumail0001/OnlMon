@@ -20,8 +20,36 @@ using namespace std;
 
 
 OnlBbcSig::OnlBbcSig(const int chnum, const int nsamp) :
-ch(chnum),
-nsamples(nsamp)
+  ch{chnum},
+  nsamples{nsamp},
+  f_ampl{0},
+  f_time{0},
+  f_time_offset{4.0}, // time shift from fit
+  f_integral{0.},     // time shift from fit
+  ped0{0},            // ped average
+  ped0rms{0},
+  use_ped0{0},
+  minped0samp{-9999},
+  maxped0samp{-9999},
+  minped0x{0.},
+  maxped0x{0.},
+  time_calib{0},
+  h2Template{nullptr},
+  h2Residuals{nullptr},
+  // range of good amplitudes for templates
+  // units are usually in ADC counts
+  hAmpl{nullptr},
+  hTime{nullptr},
+  template_npointsx{0},
+  template_npointsy{0},
+  template_begintime{0},
+  template_endtime{0},
+  template_min_good_amplitude{20.},
+  template_max_good_amplitude{4080},
+  template_min_xrange{0},
+  template_max_xrange{0},
+  template_fcn{nullptr},
+  verbose{0}
 {
   //cout << "In OnlBbcSig::OnlBbcSig(" << ch << "," << nsamples << ")" << endl;
   TString name;
@@ -44,37 +72,11 @@ nsamples(nsamp)
   gpulse = gRawPulse;   // we switch to sub for default if ped is applied
 
   //ped0stats = new RunningStats();
-  ped0 = 0.;  // ped average
-  use_ped0 = 0;
   name = "hPed0_"; name += ch;
   hPed0 = new TH1F(name,name,16384,-0.5,16383.5);
   //hPed0 = new TH1F(name,name,10000,1,0); // automatically determine the range
-  minped0samp = -9999;
-  maxped0samp = -9999;
-  minped0x = 0.;
-  maxped0x = 0.;
-
-  h2Template = 0;
-  h2Residuals = 0;
   SetTemplateSize(120,2048,-2,9.9);
 
-  // range of good amplitudes for templates
-  // units are usually in ADC counts
-  template_min_good_amplitude = 20.;
-  template_max_good_amplitude = 4080.;
-
-  // time shift from fit
-  f_time_offset = 4.0;
-
-  hAmpl = nullptr;
-  hTime = nullptr;
-
-  f_ampl = 0;
-  f_time = 0;
-
-  template_fcn = 0;
-
-  verbose = 0;
 }
 
 OnlBbcSig::OnlBbcSig(const OnlBbcSig &obj)
@@ -88,13 +90,25 @@ OnlBbcSig::OnlBbcSig(const OnlBbcSig &obj)
   hTime = obj.hTime;
   template_fcn = obj.template_fcn;
   verbose = obj.verbose;
+  //ped0 = obj.verbose;  // ped average
+  //use_ped0 = obj.use_ped0;
+  //minped0samp = obj.minped0samp;
+  //maxped0samp = obj.maxped0samp;
+  //minped0x = obj.minped0x;
+  //maxped0x = obj.maxped0x;
+  //template_min_good_amplitude = obj.template_min_good_amplitude;
+  //template_max_good_amplitude = obj.template_max_good_amplitude;
+  //f_time_offset = obj.f_time_offset;
+  //f_ampl = obj.f_ampl;
+  //f_time = obj.f_time;
+  //template_fcn = obj.template_fcn;
 
   TString name = "hrawpulse"; name += ch;
   hRawPulse = new TH1F(name,name,nsamples,-0.5,nsamples-0.5);
-  //*hRawPulse = *obj.hRawPulse;
+  // *hRawPulse = *obj.hRawPulse;
   name = "hsubpulse"; name += ch;
   hSubPulse = new TH1F(name,name,nsamples,-0.5,nsamples-0.5);
-  //*hSubPulse = *obj.hSubPulse;
+  // *hSubPulse = *obj.hSubPulse;
 
   //gRawPulse = new TGraphErrors(nsamples);
   gRawPulse = new TGraphErrors();
@@ -112,8 +126,10 @@ OnlBbcSig::OnlBbcSig(const OnlBbcSig &obj)
 
   name = "hPed0_"; name += ch;
   hPed0 = new TH1F(name,name,16384,-0.5,16383.5);
+
 }
 
+/*
 OnlBbcSig& OnlBbcSig::operator= (const OnlBbcSig& obj)
 {
   
@@ -131,10 +147,10 @@ OnlBbcSig& OnlBbcSig::operator= (const OnlBbcSig& obj)
 
     TString name = "hrawpulse"; name += ch;
     hRawPulse = new TH1F(name,name,nsamples,-0.5,nsamples-0.5);
-    //*hRawPulse = *obj.hRawPulse;
+    //hRawPulse = *obj.hRawPulse;
     name = "hsubpulse"; name += ch;
     hSubPulse = new TH1F(name,name,nsamples,-0.5,nsamples-0.5);
-    //*hSubPulse = *obj.hSubPulse;
+    //hSubPulse = *obj.hSubPulse;
 
     //gRawPulse = new TGraphErrors(nsamples);
     gRawPulse = new TGraphErrors();
@@ -153,6 +169,7 @@ OnlBbcSig& OnlBbcSig::operator= (const OnlBbcSig& obj)
 
   return *this;
 }
+*/
 
 void  OnlBbcSig::SetTemplateSize(const Int_t nptsx, const Int_t nptsy, const Double_t begt, const Double_t endt)
 {
