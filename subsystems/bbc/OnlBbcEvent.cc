@@ -25,6 +25,7 @@ using namespace std;
 OnlBbcEvent::OnlBbcEvent(void) :
   EventNumber(0),
   calib_done(0),
+  p{nullptr,nullptr},
   _tres(0.05),
   ac(nullptr)
 {
@@ -40,7 +41,6 @@ OnlBbcEvent::OnlBbcEvent(void) :
     // Do evt-by-evt pedestal using sample range below
     bbcsig[ich].SetEventPed0Range(0,1);
   }
-
 
   TString name, title;
   for (int iarm = 0; iarm < 2; iarm++)

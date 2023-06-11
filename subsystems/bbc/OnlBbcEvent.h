@@ -175,6 +175,7 @@ private:
 
   int EventNumber;
   int calib_done;
+  Packet *p[2] {nullptr,nullptr} ;
 
   //raw data
   Float_t f_adc[NCH][NSAMPLES];     // raw waveform
@@ -185,7 +186,6 @@ private:
   std::vector<OnlBbcSig> bbcsig;
   
   static const int BBC_N_PMT = 256;
-  Packet *p[2];
 
   // converted (corrected) data
   int iHit[BBC_N_PMT];

@@ -23,7 +23,7 @@ public:
 
 protected:
   int DBVarInit();
-  OnlBbcEvent *bevt;
+  OnlBbcEvent *bevt { nullptr };
 
   int evtcnt = 0;
   //int idummy = 0;
