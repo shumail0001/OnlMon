@@ -1,4 +1,4 @@
-#include <ServerFuncs.C>
+#include "ServerFuncs.C"
 
 #include <onlmon/intt/InttMonConstants.h>
 #include <onlmon/intt/InttMon.h>
