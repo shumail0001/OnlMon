@@ -79,29 +79,38 @@ OnlBbcSig::OnlBbcSig(const int chnum, const int nsamp) :
 
 }
 
-OnlBbcSig::OnlBbcSig(const OnlBbcSig &obj)
+OnlBbcSig::OnlBbcSig(const OnlBbcSig &obj) :
+  ch{obj.ch},
+  nsamples{obj.nsamples},
+  f_ampl{obj.f_ampl},
+  f_time{obj.f_time},
+  f_time_offset{obj.f_time_offset},
+  f_integral{obj.f_integral},
+  ped0{obj.ped0},
+  ped0rms{obj.ped0rms},
+  use_ped0{obj.use_ped0},
+  minped0samp{obj.minped0samp},
+  maxped0samp{obj.maxped0samp},
+  minped0x{obj.minped0x},
+  maxped0x{obj.maxped0x},
+  time_calib{obj.time_calib},
+  h2Template{obj.h2Template},
+  h2Residuals{obj.h2Residuals},
+  hAmpl{obj.hAmpl},
+  hTime{obj.hTime},
+  template_npointsx{obj.template_npointsx},
+  template_npointsy{obj.template_npointsy},
+  template_begintime{obj.template_begintime},
+  template_endtime{obj.template_endtime},
+  template_min_good_amplitude{obj.template_min_good_amplitude},
+  template_max_good_amplitude{obj.template_max_good_amplitude},
+  template_min_xrange{obj.template_min_xrange},
+  template_max_xrange{obj.template_max_xrange},
+  template_y{obj.template_y},
+  template_yrms{obj.template_yrms},
+  template_fcn{obj.template_fcn},
+  verbose{obj.verbose}
 {
-  
-  ch = obj.ch;
-  nsamples = obj.nsamples;
-  h2Template = obj.h2Template;
-  h2Residuals = obj.h2Residuals;
-  hAmpl = obj.hAmpl;
-  hTime = obj.hTime;
-  template_fcn = obj.template_fcn;
-  verbose = obj.verbose;
-  //ped0 = obj.verbose;  // ped average
-  //use_ped0 = obj.use_ped0;
-  //minped0samp = obj.minped0samp;
-  //maxped0samp = obj.maxped0samp;
-  //minped0x = obj.minped0x;
-  //maxped0x = obj.maxped0x;
-  //template_min_good_amplitude = obj.template_min_good_amplitude;
-  //template_max_good_amplitude = obj.template_max_good_amplitude;
-  //f_time_offset = obj.f_time_offset;
-  //f_ampl = obj.f_ampl;
-  //f_time = obj.f_time;
-  //template_fcn = obj.template_fcn;
 
   TString name = "hrawpulse"; name += ch;
   hRawPulse = new TH1F(name,name,nsamples,-0.5,nsamples-0.5);
