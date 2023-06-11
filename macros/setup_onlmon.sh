@@ -6,6 +6,8 @@ then
   exit
 fi
 
+opt_n=0
+
 for arg in "$@"
 do
     case "$arg" in
