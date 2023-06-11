@@ -22,8 +22,11 @@ OnlBbcSig: Single Channel digital signal class, includes processing
 class OnlBbcSig
 {
 public:
-  OnlBbcSig(const int chnum = 0, const int nsamp = 0);
+  explicit OnlBbcSig(const int chnum = 0, const int nsamp = 0);
+  explicit OnlBbcSig(const OnlBbcSig &obj);
   virtual ~OnlBbcSig();
+
+  OnlBbcSig& operator= (const OnlBbcSig& obj);
 
   void SetY(const Float_t *y, const int invert = 1);
   void SetXY(const Float_t *x, const Float_t *y, const int invert = 1);
@@ -97,11 +100,12 @@ public:
 
   //Double_t FitPulse();
   void     SetTimeOffset(const Double_t o) { f_time_offset = o; }
-  Double_t TemplateFcn(Double_t *x, Double_t *par);
+  Double_t TemplateFcn(const Double_t *x, const Double_t *par);
   TF1*     GetTemplateFcn() { return template_fcn; }
 
   void PadUpdate();
   void Print();
+  void Verbose(const int v) { verbose = v; }
 
 private:
   int ch;
@@ -155,6 +159,7 @@ private:
   std::vector<Double_t> template_yrms;
   TF1     *template_fcn;
 
+  int verbose;
 };
 
 #endif  // __OnlBbcSig_H__

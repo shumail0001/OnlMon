@@ -16,10 +16,10 @@ public:
   explicit BbcMon(const std::string &name = "BBCMON");
   virtual ~BbcMon();
 
-  int process_event(Event *evt);
-  int Init();                     // Done once at start of server
-  int BeginRun(const int runno);  // Done at every start of run
-  int Reset();
+  int process_event(Event *evt) override;
+  int Init() override;                     // Done once at start of server
+  int BeginRun(const int runno) override;  // Done at every start of run
+  int Reset() override;
 
 protected:
   int DBVarInit();

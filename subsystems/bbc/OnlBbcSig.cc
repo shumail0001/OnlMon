@@ -66,15 +66,92 @@ nsamples(nsamp)
   // time shift from fit
   f_time_offset = 4.0;
 
-  name = "hAmpl"; name += ch;
-  hAmpl = new TH1F(name,name,17100,-100,17000);
-  name = "hTime"; name += ch;
-  hTime = new TH1F(name,name,3100,0,31);
+  hAmpl = nullptr;
+  hTime = nullptr;
 
   f_ampl = 0;
   f_time = 0;
 
   template_fcn = 0;
+
+  verbose = 0;
+}
+
+OnlBbcSig::OnlBbcSig(const OnlBbcSig &obj)
+{
+  
+  ch = obj.ch;
+  nsamples = obj.nsamples;
+  h2Template = obj.h2Template;
+  h2Residuals = obj.h2Residuals;
+  hAmpl = obj.hAmpl;
+  hTime = obj.hTime;
+  template_fcn = obj.template_fcn;
+  verbose = obj.verbose;
+
+  TString name = "hrawpulse"; name += ch;
+  hRawPulse = new TH1F(name,name,nsamples,-0.5,nsamples-0.5);
+  //*hRawPulse = *obj.hRawPulse;
+  name = "hsubpulse"; name += ch;
+  hSubPulse = new TH1F(name,name,nsamples,-0.5,nsamples-0.5);
+  //*hSubPulse = *obj.hSubPulse;
+
+  //gRawPulse = new TGraphErrors(nsamples);
+  gRawPulse = new TGraphErrors();
+  name = "grawpulse"; name += ch;
+  gRawPulse->SetName(name);
+  *gRawPulse = *obj.gRawPulse;
+  //gSubPulse = new TGraphErrors(nsamples);
+  gSubPulse = new TGraphErrors();
+  name = "gsubpulse"; name += ch;
+  gSubPulse->SetName(name);
+  *gSubPulse = *obj.gSubPulse;
+
+  hpulse = hRawPulse;   // hpulse,gpulse point to raw by default
+  gpulse = gRawPulse;   // we switch to sub for default if ped is applied
+
+  name = "hPed0_"; name += ch;
+  hPed0 = new TH1F(name,name,16384,-0.5,16383.5);
+}
+
+OnlBbcSig& OnlBbcSig::operator= (const OnlBbcSig& obj)
+{
+  
+  if (&obj != this) {
+  
+    ch = obj.ch;
+    nsamples = obj.nsamples;
+    hPed0 = obj.hPed0;
+    h2Template = obj.h2Template;
+    h2Residuals = obj.h2Residuals;
+    hAmpl = obj.hAmpl;
+    hTime = obj.hTime;
+    template_fcn = obj.template_fcn;
+    verbose = obj.verbose;
+
+    TString name = "hrawpulse"; name += ch;
+    hRawPulse = new TH1F(name,name,nsamples,-0.5,nsamples-0.5);
+    //*hRawPulse = *obj.hRawPulse;
+    name = "hsubpulse"; name += ch;
+    hSubPulse = new TH1F(name,name,nsamples,-0.5,nsamples-0.5);
+    //*hSubPulse = *obj.hSubPulse;
+
+    //gRawPulse = new TGraphErrors(nsamples);
+    gRawPulse = new TGraphErrors();
+    name = "grawpulse"; name += ch;
+    gRawPulse->SetName(name);
+    *gRawPulse = *obj.gRawPulse;
+    //gSubPulse = new TGraphErrors(nsamples);
+    gSubPulse = new TGraphErrors();
+    name = "gsubpulse"; name += ch;
+    gSubPulse->SetName(name);
+    *gSubPulse = *obj.gSubPulse;
+
+    hpulse = hRawPulse;   // hpulse,gpulse point to raw by default
+    gpulse = gRawPulse;   // we switch to sub for default if ped is applied
+  }
+
+  return *this;
 }
 
 void  OnlBbcSig::SetTemplateSize(const Int_t nptsx, const Int_t nptsy, const Double_t begt, const Double_t endt)
@@ -412,7 +489,7 @@ Double_t OnlBbcSig::LeadingEdge(const Double_t threshold)
   {
     if ( y[isamp] > threshold )
     {
-      if ( isamp==n || y[isamp+1] > threshold )
+      if ( isamp==(n-1) || y[isamp+1] > threshold )
       {
         sample = isamp;
         break;
@@ -452,7 +529,7 @@ Double_t OnlBbcSig::dCFD(const Double_t fraction_threshold)
   {
     if ( y[isamp] > threshold )
     {
-      if ( isamp==n || y[isamp+1] > threshold )
+      if ( isamp==(n-1) || y[isamp+1] > threshold )
       {
         sample = isamp;
         break;
@@ -603,7 +680,7 @@ void OnlBbcSig::PadUpdate()
   }
 }
 
-Double_t OnlBbcSig::TemplateFcn(Double_t *x, Double_t *par)
+Double_t OnlBbcSig::TemplateFcn(const Double_t *x, const Double_t *par)
 {
   // par[0] is the amplitude (relative to the spline amplitude)
   // par[1] is the start time (in sample number)
@@ -611,7 +688,6 @@ Double_t OnlBbcSig::TemplateFcn(Double_t *x, Double_t *par)
   Double_t xx = x[0]-par[1];
   Double_t f = 0.;
 
-  int verbose = 0;
   //verbose = 100;
 
   // When fit is out of limits of good part of spline, ignore fit
@@ -680,7 +756,6 @@ Double_t OnlBbcSig::TemplateFcn(Double_t *x, Double_t *par)
 
 int OnlBbcSig::FitTemplate()
 {
-  int verbose = 0;
   //verbose = 100;	// uncomment to see fits
   if ( verbose>0 ) cout << "Fitting ch " << ch << endl;
  
@@ -771,8 +846,19 @@ int OnlBbcSig::FitTemplate()
 
 int OnlBbcSig::FillSplineTemplate()
 {
-  int verbose = 0;
   //verbose = 100;
+  
+  if ( ! hAmpl )
+  {
+    TString name = "hAmpl"; name += ch;
+    hAmpl = new TH1F(name,name,17100,-100,17000);
+  }
+  if ( ! hTime )
+  {
+    TString name = "hTime"; name += ch;
+    hTime = new TH1F(name,name,3100,0,31);
+  }
+
 
   Double_t max = TMath::MaxElement(gSubPulse->GetN(),gSubPulse->GetY());
 
@@ -857,7 +943,6 @@ int OnlBbcSig::FillSplineTemplate()
 
 void OnlBbcSig::MakeAndWriteTemplate(ostream& out, ostream& oerr)
 {
-  int verbose = 0;
   //verbose = 100;
   if ( verbose ) cout << "In  OnlBbcSig::MakeAndWriteTemplate" << endl;
 
@@ -954,8 +1039,18 @@ void OnlBbcSig::MakeAndWriteTemplate(ostream& out, ostream& oerr)
 
 void OnlBbcSig::FillFcnTemplate()
 {
-  int verbose = 0;
   //verbose = 100;
+  if ( ! hAmpl )
+  {
+    TString name = "hAmpl"; name += ch;
+    hAmpl = new TH1F(name,name,17100,-100,17000);
+  }
+  if ( ! hTime )
+  {
+    TString name = "hTime"; name += ch;
+    hTime = new TH1F(name,name,3100,0,31);
+  }
+
 
   FitTemplate();
 
@@ -987,8 +1082,7 @@ void OnlBbcSig::FillFcnTemplate()
 
 int OnlBbcSig::ReadTemplate(ifstream& shapefile, ifstream& sherrfile)
 {
-  int verbose = 0;
-  verbose = 100;
+  //verbose = 100;
   Int_t temp_ch = -9999;
   Int_t temp_nsamples;
   Double_t temp_begintime;

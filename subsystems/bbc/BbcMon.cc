@@ -276,7 +276,7 @@ int BbcMon::process_event(Event *evt)
 
   evtcnt++;
 
-  OnlMonServer *se = OnlMonServer::instance();
+  [[maybe_unused]] OnlMonServer *se = OnlMonServer::instance();
 
   Packet *p[2];
   p[0] = evt->getPacket(1001);

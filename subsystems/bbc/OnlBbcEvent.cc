@@ -65,8 +65,9 @@ OnlBbcEvent::OnlBbcEvent(void) :
     TRIG_SAMP[iboard] = -1;
   }
 
-  gaussian = new TF1("gaussian", "gaus", 0, 20);
-  gaussian->FixParameter(2, _tres);  // set sigma to timing resolution
+  gaussian = nullptr;
+
+  Clear();
 
   /*
   if ( verbose )
@@ -85,10 +86,12 @@ void OnlBbcEvent::Clear()
   {
     iHit[ipmt] = 0;
     armHitPmt[ipmt] = 0;
+    Charge[ipmt] = 0;
     HitTime0[ipmt] = 0;
     HitTime1[ipmt] = 0;
   }
  
+
   ///Reset BBC hits information
   for ( int iarm = 0; iarm < 2; iarm++ )
   {
@@ -179,6 +182,11 @@ int OnlBbcEvent::calculate()
 {
   //cout << "In OnlBbcEvent::calculate()" << endl;
   Clear();
+  if ( ! gaussian )
+  {
+    gaussian = new TF1("gaussian", "gaus", 0, 20);
+    gaussian->FixParameter(2, _tres);  // set sigma to timing resolution
+  }
 
   for (int ich=0; ich<256; ich++)
   {

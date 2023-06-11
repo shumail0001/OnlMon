@@ -1480,11 +1480,11 @@ int BbcMonDraw::Draw(const std::string &what)
     {
       // otext << "need not to move ... OK";
       // otext << " ... OK";
-      textok = "                                    ... OK";
+      //textok = "                                    ... OK";
     }
     else
     {
-      textok = " ";
+      //textok = " ";
       if (!(bbc_onlmon::BBC_MIN_REGULAR_TDC0_MEAN < FitNorthHitTime->GetParameter(1) &&
             bbc_onlmon::BBC_MAX_REGULAR_TDC0_MEAN > FitNorthHitTime->GetParameter(1) &&
             bbc_onlmon::BBC_MIN_REGULAR_TDC0_MEAN < FitSouthHitTime->GetParameter(1) &&
@@ -1496,7 +1496,7 @@ int BbcMonDraw::Draw(const std::string &what)
       else
       {
         // otext << " ... OK";
-        textok = "                            OK";
+        //textok = "                            OK";
       }
     }
 
@@ -1863,9 +1863,9 @@ int BbcMonDraw::Draw(const std::string &what)
       TextZVtxStatus[0]->SetText(0.0, 0.85, text.c_str());
       TextZVtxStatus[0]->SetTextSize(0.12);
       TextZVtxStatus[0]->Draw();
-      text = textok;
-      // TextZVtxStatus[1]->SetText(0.6, 0.85, text.c_str());
       /*
+      text = textok;
+      TextZVtxStatus[1]->SetText(0.6, 0.85, text.c_str());
       TextZVtxStatus[1]->SetText(0.0, 0.85, text.c_str());
       TextZVtxStatus[1]->SetTextSize(0.12);
       TextZVtxStatus[1]->SetTextColor(3);
@@ -2140,8 +2140,8 @@ int BbcMonDraw::DrawHistory(const std::string & /* what */)
   std::vector<float> var;
   std::vector<float> varerr;
   std::vector<time_t> timestamp;
-  std::vector<int> runnumber;
 /*chiu
+  std::vector<int> runnumber;
   //std::string varname = "bbcmondummy";
   // this sets the time range from whihc values should be returned
   time_t begin = 0;            // begin of time (1.1.1970)
