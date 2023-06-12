@@ -1,9 +1,10 @@
-#include <ServerFuncs.C>
+#include "ServerFuncs.C"
 
 #include <onlmon/hcal/HcalMon.h>
 
 #include <onlmon/OnlMonServer.h>
 
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlhcalmon_server.so)
 
 void run_hcal_server(const std::string &name = "HCALMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/data/data02/sphenix/hcal/1008/LED/led-West-East-00001713-0000.prdf")

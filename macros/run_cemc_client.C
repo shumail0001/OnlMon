@@ -24,7 +24,7 @@ void cemcDrawInit(const int online = 0)
   cl->registerHisto("h1_packet_number",Form("CEMCMON_%d",serverid));
   cl->registerHisto("h1_packet_length",Form("CEMCMON_%d",serverid));
   cl->registerHisto("h1_packet_chans",Form("CEMCMON_%d",serverid));
-
+  cl->registerHisto("h1_cemc_adc",Form("CEMCMON_%d",serverid));
 		    
 for (int ih=0; ih<32; ih++){
     cl->registerHisto(Form("h1_rm_sectorAvg_s%d",ih), Form("CEMCMON_%d",serverid));
@@ -41,7 +41,7 @@ for (int ih=0; ih<32; ih++){
 void cemcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("CEMCMON_0");  // update histos
+  cl->requestHistoBySubSystem("CEMCMON_0",1);  // update histos
   cl->Draw("CEMCMONDRAW", what);  // Draw Histos of registered Drawers
 
 }

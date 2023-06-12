@@ -15,6 +15,8 @@
 #include <TText.h>
 #include <TMath.h>
 #include <TPaveLabel.h>
+#include <TStyle.h>
+#include <TString.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -93,9 +95,33 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCModules")
   {
-    TC[3] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1248, 598);
+    TC[3] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1250, 600);
+    gSystem->ProcessEvents();
+    gStyle->SetPalette(57); //kBird CVD friendly
     TC[3]->Divide(2,1);
     TC[3]->SetEditable(false);
+  }
+  else if (name == "TPCSampleSize")
+  {
+    TC[4] = new TCanvas(name.c_str(), "TPC Sample Size Distribution in Events", -xsize / 2, 0, xsize / 2, ysize );
+    gSystem->ProcessEvents();
+    TC[4]->Divide(4,6);
+    TC[4]->SetEditable(false);
+  }
+  else if (name == "TPCCheckSumError")
+  {
+    TC[5] = new TCanvas(name.c_str(), "TPC CheckSumError Probability in Events", 625, 600);
+    gSystem->ProcessEvents();
+    TC[5]->Divide(4,6);
+    TC[5]->SetEditable(false);
+  }
+  else if (name == "TPCADCSample")
+  {
+    TC[6] = new TCanvas(name.c_str(), "TPC ADC vs Sample in Whole Sector", 1000, 1200);
+    gSystem->ProcessEvents();
+    gStyle->SetPalette(57); //kBird CVD friendly
+    TC[6]->Divide(4,6);
+    TC[6]->SetEditable(false);
   }
   return 0;
 }
@@ -119,6 +145,21 @@ int TpcMonDraw::Draw(const std::string &what)
     iret += DrawTPCModules(what);
     idraw++;
   }
+  if (what == "ALL" || what == "TPCSAMPLESIZE")
+  {
+    iret += DrawTPCSampleSize(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCCHECKSUMERROR")
+  {
+    iret += DrawTPCCheckSum(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCADCVSSAMPLE")
+  {
+    iret += DrawTPCADCSample(what);
+    idraw++;
+  }
   if (what == "ALL" || what == "HISTORY")
   {
     iret += DrawHistory(what);
@@ -137,6 +178,7 @@ int TpcMonDraw::DrawFirst(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
   TH1 *tpcmon_hist1 =  cl->getHisto("TPCMON_0","tpcmon_hist1");
   TH1 *tpcmon_hist2 =  cl->getHisto("TPCMON_0","tpcmon_hist1");
+
   if (!gROOT->FindObject("TpcMon1"))
   {
     MakeCanvas("TpcMon1");
@@ -228,15 +270,30 @@ int TpcMonDraw::DrawSecond(const std::string & /* what */)
 
 int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
 {
-  std::cout<<"This is Charles' temporary function 02.15.23 !!!!!"<<std::endl;
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *tpcmon_NSIDEADC = (TH2*) cl->getHisto("TPCMON_0","NorthSideADC");
-  TH2 *tpcmon_SSIDEADC = (TH2*) cl->getHisto("TPCMON_0","SouthSideADC");
+
+  TH2 *tpcmon_NSIDEADC[12] = {nullptr};
+  TH2 *tpcmon_SSIDEADC[12] = {nullptr};
+
+  char TPCMON_STR[100];
+  // TPC ADC pie chart
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    if(i<12){tpcmon_NSIDEADC[i] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC");}
+    else {tpcmon_SSIDEADC[i-12] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC");}
+  }
+
+
+  //TH2 *tpcmon_NSIDEADC1 = (TH2*) cl->getHisto("TPCMON_0","NorthSideADC");
+  //TH2 *tpcmon_SSIDEADC1 = (TH2*) cl->getHisto("TPCMON_0","SouthSideADC");
 
   if (!gROOT->FindObject("TPCModules"))
   {
     MakeCanvas("TPCModules");
   }
+
   dummy_his1 = new TH2F("dummy_his1", "ADC Counts North Side", 100, -1.5, 1.5, 100, -1.5, 1.5); //dummy histos for titles
   dummy_his2 = new TH2F("dummy_his2", "ADC Counts South Side", 100, -1.5, 1.5, 100, -1.5, 1.5);
 
@@ -298,11 +355,15 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   TC[3]->Clear("D");
   TC[3]->cd(1);
   dummy_his1->Draw("");
-  if (tpcmon_SSIDEADC)
+ 
+  for( int i=0; i<12; i++ )
   {
-    //std::cout<<"Yes, there is a histogram to draw !!!! Charles 02.16.23"<<std::endl;
-    tpcmon_SSIDEADC->DrawCopy("colpolzsame");
+    if( tpcmon_NSIDEADC[i] ){
+    tpcmon_NSIDEADC[i] -> Draw("colpolzsame");
+    }
+
   }
+
   SS00->Draw("same");
   SS01->Draw("same");
   SS02->Draw("same");
@@ -318,10 +379,16 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
 
   TC[3]->cd(2);
   dummy_his2->Draw("");
-  if (tpcmon_NSIDEADC)
+
+  for( int i=0; i<12; i++ )
   {
-    tpcmon_NSIDEADC->DrawCopy("colpolzsame");
+    if( tpcmon_SSIDEADC[i] ){
+    tpcmon_SSIDEADC[i] -> Draw("colpolzsame");
+
+    }
+
   }
+
   NS18->Draw("same");
   NS17->Draw("same");
   NS16->Draw("same");
@@ -336,9 +403,163 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   NS19->Draw("same");
 
   TC[3]->Update();
+
+  //turn off stats box
+  dummy_his1->SetStats(0);
+  dummy_his2->SetStats(0);
+
+  //dynamically set heat map color scale to start at the minimum and end at the maximum
+  if( tpcmon_NSIDEADC[0] && tpcmon_SSIDEADC[0] ) //you were able to draw North and South Side
+  {
+    dummy_his1->SetMaximum(TMath::Max(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMaximumBin()),tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMaximumBin())));
+    dummy_his1->SetMinimum(TMath::Min(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMinimumBin()),tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMinimumBin())));
+
+    dummy_his2->SetMaximum(TMath::Max(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMaximumBin()),tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMaximumBin())));
+    dummy_his2->SetMinimum(TMath::Min(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMinimumBin()),tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMinimumBin())));
+  }
+  else if( tpcmon_NSIDEADC[0] ) //only North side
+  {
+    dummy_his1->SetMaximum(tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMaximumBin()));
+    dummy_his1->SetMinimum(tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMinimumBin()));
+
+    dummy_his2->SetMaximum(tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMaximumBin()));
+    dummy_his2->SetMinimum(tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMinimumBin()));
+  }
+  else // South Side Only
+  {
+    dummy_his1->SetMaximum(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMaximumBin()));
+    dummy_his1->SetMinimum(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMinimumBin()));
+
+    dummy_his2->SetMaximum(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMaximumBin()));
+    dummy_his2->SetMinimum(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMinimumBin()));
+  }
+
   TC[3]->Show();
   TC[3]->SetEditable(false);
   
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCSampleSize(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_samplesizedist[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_samplesizedist[i] = (TH1*) cl->getHisto(TPCMON_STR,"sample_size_hist");
+  }
+
+  if (!gROOT->FindObject("TPCSampleSize"))
+  {
+    MakeCanvas("TPCSampleSize");
+  }
+
+  TC[4]->SetEditable(true);
+  TC[4]->Clear("D");
+  for( int i=0; i<24; i++ ) 
+  {
+    if( tpcmon_samplesizedist[i] )
+    {
+      TC[4]->cd(i+1);
+      tpcmon_samplesizedist[i]->DrawCopy("");
+      gPad->SetLogx(kTRUE);
+    }
+  }
+  TC[4]->Update();
+  TC[4]->SetLogx();
+  TC[4]->Show();
+  TC[4]->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCCheckSum(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  
+  TH1 *tpcmon_checksumerror[24] = {nullptr};
+  TH1 *tpcmon_checksums[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_checksumerror[i] = (TH1*) cl->getHisto(TPCMON_STR,"Check_Sum_Error");
+    tpcmon_checksums[i] = (TH1*) cl->getHisto(TPCMON_STR,"Check_Sums");
+  }
+
+  if (!gROOT->FindObject("TPCCheckSumError"))
+  {
+    MakeCanvas("TPCCheckSumError");
+  }
+
+  TC[5]->SetEditable(true);
+  TC[5]->Clear("D");
+  TC[5]->cd(1);
+
+  for( int i=0; i<24; i++ )
+  {
+    if( tpcmon_checksumerror[i] && tpcmon_checksums[i] )
+    {
+      TC[5]->cd(i+1);
+
+      tpcmon_checksumerror[i]->Divide(tpcmon_checksums[i]);
+      tpcmon_checksumerror[i]->GetYaxis()->SetRangeUser(0.0001,1);
+      tpcmon_checksumerror[i]->DrawCopy("HIST");
+    }
+  }
+
+  TC[5]->Update();
+  //TC[5]->SetLogy();
+  TC[5]->Show();
+  TC[5]->SetEditable(false);
+
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCADCSample(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *tpcmon_ADCSAMPLE[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_ADCSAMPLE[i] = (TH2*) cl->getHisto(TPCMON_STR,"ADC_vs_SAMPLE");
+  }
+
+
+  if (!gROOT->FindObject("TPCADCSample"))
+  {
+    MakeCanvas("TPCADCSample");
+  }  
+
+  TC[6]->SetEditable(true);
+  TC[6]->Clear("D");
+
+  for( int i=0; i<24; i++ )
+  {
+    if( tpcmon_ADCSAMPLE[i] ){
+      TC[6]->cd(i+1);
+      gPad->SetLogz(kTRUE);
+      tpcmon_ADCSAMPLE[i] -> DrawCopy("colz");
+    }
+  }
+
+  TC[6]->Update();
+  TC[6]->Show();
+  TC[6]->SetEditable(false);
+
   return 0;
 }
 

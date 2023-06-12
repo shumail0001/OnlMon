@@ -1,9 +1,10 @@
-#include <ServerFuncs.C>
+#include "ServerFuncs.C"
 
 #include <onlmon/mvtx/MvtxMon.h>
 
 #include <onlmon/OnlMonServer.h>
 
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlmvtxmon_server.so)
 
 //void run_mvtx_server(const char *prdffile = "/sphenix/data/data01/mvtx/tb-1441-052019/longrun/longrun_00000872-0000.prdf")

@@ -1,9 +1,10 @@
-#include <ServerFuncs.C>
+#include "ServerFuncs.C"
 
 #include <onlmon/epd/EpdMon.h>
 
 #include <onlmon/OnlMonServer.h>
 
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlepdmon_server.so)
 
 void run_epd_server(const std::string &name = "EPDMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/data/data02/sphenix/cemc/sepd/onlmon_test/EMCAL_to_SEPD_test.prdf")

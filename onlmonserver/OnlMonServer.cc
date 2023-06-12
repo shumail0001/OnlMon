@@ -53,7 +53,9 @@ OnlMonServer *OnlMonServer::instance()
 OnlMonServer::OnlMonServer(const std::string &name)
   : OnlMonBase(name)
 {
+#ifdef USE_MUTEX
   pthread_mutex_init(&mutex, nullptr);
+#endif
   MsgSystem[ThisName] = new MessageSystem(ThisName);
   statusDB = new OnlMonStatusDB();
   RunStatusDB = new OnlMonStatusDB("onlmonrunstatus");
@@ -63,13 +65,18 @@ OnlMonServer::OnlMonServer(const std::string &name)
 
 OnlMonServer::~OnlMonServer()
 {
+#ifdef USE_MUTEX
   pthread_mutex_lock(&mutex);
+#endif
   if (int tret = pthread_cancel(serverthreadid))
   {
     std::cout << __PRETTY_FUNCTION__ << "pthread cancel returned error: " << tret << std::endl;
   }
   delete serverrunning;
+
+#ifdef USE_MUTEX
   pthread_mutex_destroy(&mutex);
+#endif
   while (MonitorList.begin() != MonitorList.end())
   {
     delete MonitorList.back();
@@ -109,14 +116,14 @@ void OnlMonServer::dumpHistos(const std::string &filename)
 {
   TFile *hfile = TFile::Open(filename.c_str(), "RECREATE", "Created by Online Monitor");
   for (auto &moniiter : MonitorHistoSet)
+  {
+    std::cout << "saving " << moniiter.first << std::endl;
+    for (auto &histiter : moniiter.second)
     {
-      std::cout << "saving " << moniiter.first << std::endl;
-      for (auto &histiter : moniiter.second)
-	{
-	  std::cout << "saving " << histiter.first << std::endl;
-	  histiter.second->Write();
-	}
+      std::cout << "saving " << histiter.first << std::endl;
+      histiter.second->Write();
     }
+  }
   hfile->Close();
   delete hfile;
   return;
@@ -513,25 +520,25 @@ void OnlMonServer::RunNumber(const int irun)
 int OnlMonServer::WriteHistoFile()
 {
   for (auto &moniiter : MonitorHistoSet)
+  {
+    std::string dirname = "./";
+    if (getenv("ONLMON_SAVEDIR"))
     {
-      std::string dirname = "./";
-      if (getenv("ONLMON_SAVEDIR"))
-	{
-	  dirname  = std::string(getenv("ONLMON_SAVEDIR")) + "/";
-	}
-      std::string filename = dirname + "Run_" + std::to_string(RunNumber()) + "-" + moniiter.first + ".root";
-      if (Verbosity() > 2)
-	{
-	  std::cout << "saving histos for " << moniiter.first << " in " << filename << std::endl;
-	}
-      TFile *hfile = TFile::Open(filename.c_str(), "RECREATE", "Created by Online Monitor");
-      for (auto &histiter : moniiter.second)
-	{
-	  histiter.second->Write();
-	}
-      hfile->Close();
-      delete hfile;
+      dirname = std::string(getenv("ONLMON_SAVEDIR")) + "/";
     }
+    std::string filename = dirname + "Run_" + std::to_string(RunNumber()) + "-" + moniiter.first + ".root";
+    if (Verbosity() > 2)
+    {
+      std::cout << "saving histos for " << moniiter.first << " in " << filename << std::endl;
+    }
+    TFile *hfile = TFile::Open(filename.c_str(), "RECREATE", "Created by Online Monitor");
+    for (auto &histiter : moniiter.second)
+    {
+      histiter.second->Write();
+    }
+    hfile->Close();
+    delete hfile;
+  }
   return 0;
 }
 
@@ -566,7 +573,6 @@ int OnlMonServer::send_message(const int severity, const std::string &err_messag
   int iret = iter->second->send_message(MSG_SOURCE_UNSPECIFIED, severity, err_message, msgtype);
   return iret;
 }
-
 
 int OnlMonServer::WriteLogFile(const std::string &name, const std::string &message) const
 {
@@ -1011,4 +1017,3 @@ int OnlMonServer::LookAtMe(OnlMon *Monitor, const int level, const std::string &
             << std::endl;
   return 0;
 }
-

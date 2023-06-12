@@ -73,13 +73,12 @@ int CemcMon::Init()
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("CemcMon::Init()\n");
-
   // Histograms definitions 
   //tower hit information
   h2_cemc_hits = new TH2F("h2_cemc_hits", "", 96, 0, 96, 256, 0, 256);
   h2_cemc_rm = new TH2F("h2_cemc_rm", ""    , 96, 0, 96, 256, 0, 256);
   h2_cemc_mean = new TH2F("h2_cemc_mean", "", 96, 0, 96, 256, 0, 256);
-  
+  h1_cemc_adc = new TH1F("h1_cemc_adc","",1000,0.5,pow(2,14));
   //event couunter
   h1_event = new TH1F("h1_event", "", 1, 0, 1);
 
@@ -155,7 +154,8 @@ int CemcMon::Init()
   se->registerHisto(this, h1_packet_number);
   se->registerHisto(this, h1_packet_length);
   se->registerHisto(this, h1_packet_chans);
-
+  se->registerHisto(this, h1_cemc_adc);
+  
   for (int ih = 0; ih < Nsector; ih++)
     {
       se->registerHisto(this, h1_rm_sectorAvg[ih]);
@@ -281,6 +281,7 @@ int CemcMon::process_event(Event *e  /* evt */)
   float sectorAvg[Nsector] = {0};
   unsigned int towerNumber = 0;	
   // loop over packets which contain a single sector
+  eventCounter++;
   for (int packet = packetlow; packet <= packethigh; packet++)
     {
       Packet* p = e->getPacket(packet);
@@ -337,8 +338,11 @@ int CemcMon::process_event(Event *e  /* evt */)
 	
 	      h2_cemc_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
 		
-	      h2_cemc_mean->SetBinContent(bin, h2_cemc_mean->GetBinContent(bin) + signalFast);
+	      //create beginning of run template
+	      if(eventCounter < 10000)h2_cemc_mean->SetBinContent(bin, h2_cemc_mean->GetBinContent(bin) + signalFast);
 
+	      h1_cemc_adc ->Fill(signalFast);
+	      
 	      h1_cemc_fitting_sigDiff -> Fill(signalFast/signalTemp);
 	      h1_cemc_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
 	      h1_cemc_fitting_timeDiff -> Fill(timeFast - timeTemp);
@@ -383,8 +387,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 	}  // if packet good
       else //packet is corrupted, treat all channels as zero suppressed
 	{
-	  h1_packet_length -> Fill(packet-6000,h1_packet_length->GetBinContent(packet-6000) +0);
-	  towerNumber = 0;
+	 
 	  for(int channel = 0; channel < m_nChannels; channel++)
 	    {
 	      towerNumber++;
@@ -416,9 +419,9 @@ int CemcMon::process_event(Event *e  /* evt */)
       sectorAvg[isec] /= 48;
       h1_sectorAvg_total->Fill(isec + 1, sectorAvg[isec]);
       rm_vector_sectAvg[isec]->Add(&sectorAvg[isec]);
-      if (evtcnt <= historyLength)
+      if (eventCounter <= historyLength)
 	{
-	  h1_rm_sectorAvg[isec]->SetBinContent(evtcnt, rm_vector_sectAvg[isec]->getMean(0));
+	  h1_rm_sectorAvg[isec]->SetBinContent(eventCounter, rm_vector_sectAvg[isec]->getMean(0));
 	}
       else
 	{
@@ -426,7 +429,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 	    {
 	      h1_rm_sectorAvg[isec]->SetBinContent(ib, h1_rm_sectorAvg[isec]->GetBinContent(ib + 1));
 	    }
-	  h1_rm_sectorAvg[isec]->SetBinContent(evtcnt, rm_vector_sectAvg[isec]->getMean(0));
+	  h1_rm_sectorAvg[isec]->SetBinContent(eventCounter, rm_vector_sectAvg[isec]->getMean(0));
 	}
     }  // sector loop
 
@@ -441,7 +444,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 int CemcMon::Reset()
 {
   // reset our internal counters
-  evtcnt = 0;
+  eventCounter = 0;
   idummy = 0;
   return 0;
 }

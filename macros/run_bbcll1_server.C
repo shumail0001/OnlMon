@@ -1,9 +1,10 @@
-#include <ServerFuncs.C>
+#include "ServerFuncs.C"
 
 #include <onlmon/bbcll1/Bbcll1Mon.h>
 
 #include <onlmon/OnlMonServer.h>
 
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlbbcll1mon_server.so)
 
 void run_bbcll1_server(const std::string &name = "BBCLL1MON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000221-0000.prdf")

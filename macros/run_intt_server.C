@@ -1,4 +1,4 @@
-#include <ServerFuncs.C>
+#include "ServerFuncs.C"
 
 #include <onlmon/intt/InttMonConstants.h>
 #include <onlmon/intt/InttMon.h>
@@ -10,7 +10,7 @@ R__LOAD_LIBRARY(libonlinttmon_server.so)
 std::string _prdf_file = "/sphenix/u/jbertaux/evt_files/intt_intt0-00000025-0000.evt";
 //std::string _prdf_file = "/sphenix/u/jbertaux/evt_files/intt_intt2-00000023-0000.evt";
 
-void run_intt_server(unsigned int serverid = 0, const std::string &prdffile = _prdf_file, const std::string &name = "INTTMON")
+void run_intt_server(const std::string &name = "INTTMON", unsigned int serverid = 0, const std::string &prdffile = _prdf_file)
 {
 //  //for debugging
 //  InttMon *m = new InttMon(name);
