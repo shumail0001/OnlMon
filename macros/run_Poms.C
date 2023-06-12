@@ -27,12 +27,12 @@ void StartPoms()
   bbc->AddAction(new SubSystemActionDrawPS(bbc));
   pmf->RegisterSubSystem(bbc);
 
-  SubSystem *bbcll1 = new SubSystem("BBCLL1", "bbcll1");
-  bbcll1->AddAction("bbcll1Draw(\"FIRST\")", "BBCLL1 1st Monitor");
-  bbcll1->AddAction("bbcll1Draw(\"SECOND\")", "BBCLL1 2nd Monitor");
-  bbcll1->AddAction("bbcll1Draw(\"HISTORY\")", "BBCLL1 History Monitor");
-  bbcll1->AddAction(new SubSystemActionDrawPS(bbcll1));
-  pmf->RegisterSubSystem(bbcll1);
+  // SubSystem *bbcll1 = new SubSystem("BBCLL1", "bbcll1");
+  // bbcll1->AddAction("bbcll1Draw(\"FIRST\")", "BBCLL1 1st Monitor");
+  // bbcll1->AddAction("bbcll1Draw(\"SECOND\")", "BBCLL1 2nd Monitor");
+  // bbcll1->AddAction("bbcll1Draw(\"HISTORY\")", "BBCLL1 History Monitor");
+  // bbcll1->AddAction(new SubSystemActionDrawPS(bbcll1));
+  // pmf->RegisterSubSystem(bbcll1);
 
   SubSystem *cemc = new SubSystem("CEMC", "cemc");
   cemc->AddAction("cemcDraw(\"FIRST\")", "CEMC 1st Monitor");
@@ -41,19 +41,19 @@ void StartPoms()
   cemc->AddAction(new SubSystemActionDrawPS(cemc));
   pmf->RegisterSubSystem(cemc);
 
-  SubSystem *daq = new SubSystem("DAQ", "daq");
-  daq->AddAction("daqDraw(\"FIRST\")", "DAQ 1st Monitor");
-  daq->AddAction("daqDraw(\"SECOND\")", "DAQ 2nd Monitor");
-  daq->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
-  daq->AddAction(new SubSystemActionDrawPS(daq));
-  pmf->RegisterSubSystem(daq);
+  // SubSystem *daq = new SubSystem("DAQ", "daq");
+  // daq->AddAction("daqDraw(\"FIRST\")", "DAQ 1st Monitor");
+  // daq->AddAction("daqDraw(\"SECOND\")", "DAQ 2nd Monitor");
+  // daq->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
+  // daq->AddAction(new SubSystemActionDrawPS(daq));
+  // pmf->RegisterSubSystem(daq);
 
-  SubSystem *epd = new SubSystem("EPD", "epd");
-  epd->AddAction("epdDraw(\"FIRST\")", "EPD 1st Monitor");
-  epd->AddAction("epdDraw(\"SECOND\")", "EPD 2nd Monitor");
-  epd->AddAction("epdDraw(\"HISTORY\")", "EPD History Monitor");
-  epd->AddAction(new SubSystemActionDrawPS(epd));
-  pmf->RegisterSubSystem(epd);
+  // SubSystem *epd = new SubSystem("EPD", "epd");
+  // epd->AddAction("epdDraw(\"FIRST\")", "EPD 1st Monitor");
+  // epd->AddAction("epdDraw(\"SECOND\")", "EPD 2nd Monitor");
+  // epd->AddAction("epdDraw(\"HISTORY\")", "EPD History Monitor");
+  // epd->AddAction(new SubSystemActionDrawPS(epd));
+  // pmf->RegisterSubSystem(epd);
 
   SubSystem *hcal = new SubSystem("HCAL", "hcal");
   hcal->AddAction("hcalDraw(\"FIRST\")", "HCAL 1st Monitor");
@@ -69,9 +69,11 @@ void StartPoms()
   pmf->RegisterSubSystem(intt);
 
   SubSystem *mvtx = new SubSystem("MVTX", "mvtx");
-  mvtx->AddAction("mvtxDraw(\"FIRST\")", "MVTX 1st Monitor");
-  mvtx->AddAction("mvtxDraw(\"SECOND\")", "MVTX 2nd Monitor");
-  mvtx->AddAction("mvtxDraw(\"HISTORY\")", "MVTX History Monitor");
+  mvtx->AddAction("mvtxDraw(\"MvtxMon_General\")", "General Monitor");
+  mvtx->AddAction("mvtxDraw(\"MvtxMon_HitMap\")", "Hitmap");
+  mvtx->AddAction("mvtxDraw(\"MvtxMon_FEE\")", "FEE");
+  mvtx->AddAction("mvtxDraw(\"MvtxMon_FHR\")", "FHR");
+  mvtx->AddAction("mvtxDraw(\"MvtxMon_OCC\")", "OCC");
   mvtx->AddAction(new SubSystemActionDrawPS(mvtx));
   pmf->RegisterSubSystem(mvtx);
 
