@@ -11,7 +11,6 @@ void inttDrawInit(const int online = 0)
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
 
-  //cl->AddServerHost("rcas2068");	// for in-house debugging
   cl->AddServerHost("localhost");	// check local host first
   CreateHostList(online);
 
