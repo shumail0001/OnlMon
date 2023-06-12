@@ -5,7 +5,7 @@
 // and then start the client
 // if you only start one server only one set of histograms will be displayed
 
-#include <CommonFuncs.C>
+#include "CommonFuncs.C"
 
 #include <onlmon/example/MyMonDraw.h>
 
