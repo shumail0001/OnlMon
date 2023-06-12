@@ -23,10 +23,6 @@
 ZdcMonDraw::ZdcMonDraw(const std::string &name)
   : OnlMonDraw(name)
 {
-  // this TimeOffsetTicks is neccessary to get the time axis right
-  TDatime T0(2003, 01, 01, 00, 00, 00);
-  TimeOffsetTicks = T0.Convert();
-  dbvars = new OnlMonDB(ThisName);
   return;
 }
 
@@ -73,20 +69,6 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     transparent[1]->SetFillStyle(4000);
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
-  }
-  else if (name == "ZdcMon3")
-  {
-    TC[2] = new TCanvas(name.c_str(), "ZdcMon3 Example Monitor", xsize / 2, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-    Pad[4] = new TPad("zdcpad5", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[5] = new TPad("zdcpad6", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[4]->Draw();
-    Pad[5]->Draw();
-    // this one is used to plot the run number on the canvas
-    //        transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
-    //        transparent[2]->SetFillStyle(4000);
-    //        transparent[2]->Draw();
-    //      TC[2]->SetEditable(0);
   }
   return 0;
 }
