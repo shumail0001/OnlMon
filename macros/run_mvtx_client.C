@@ -1,4 +1,4 @@
-#include <CommonFuncs.C>
+#include "CommonFuncs.C"
 
 #include <onlmon/mvtx/MvtxMonDraw.h>
 

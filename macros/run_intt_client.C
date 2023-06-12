@@ -1,4 +1,4 @@
-#include <CommonFuncs.C>
+#include "CommonFuncs.C"
 
 #include <onlmon/OnlMonClient.h>
 #include <onlmon/intt/InttMonDraw.h>
