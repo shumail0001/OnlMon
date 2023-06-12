@@ -17,4 +17,5 @@ SUBDIRS = \
   intt \
   mvtx \
   tpc \
-  tpot
+  tpot \
+  zdc
