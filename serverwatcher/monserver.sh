@@ -10,7 +10,7 @@ if [ $# -le 1 ]
     echo "Usage : $0 {start|status|stop|restart|valgrind} n (1-5)"
     exit 1
 fi
-hostname=`hostname`
+hostname=`hostname -s`
 piddir=/tmp/sphnxonlmon
 pidfile=${piddir}/onlmon$2
 #echo $hostname

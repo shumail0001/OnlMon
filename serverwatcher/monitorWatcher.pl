@@ -119,11 +119,9 @@ sub checkMonitor {
   }  
   close STATUS;
   my $nres = scalar @result;
-  print "nres: $nres" ;
   if ( scalar @result == 2 ) 
     {
 	$_=$result[1];
-	print "looking for $va\n";
       if ( /$va/ ) {
 	my @s = split " ";
 	$monitors{$m}->{"pid"} = $s[0];
