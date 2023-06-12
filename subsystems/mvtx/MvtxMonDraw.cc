@@ -155,11 +155,6 @@ int MvtxMonDraw::Draw(const std::string &what)
     iret += DrawFHR(what);
     idraw++;
   }
-  if (what == "HISTORY")
-  {
-    iret += DrawHistory(what);
-    idraw++;
-  }
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;

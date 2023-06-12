@@ -68,7 +68,6 @@ class MvtxMonDraw : public OnlMonDraw
   int DrawFEE(const std::string &what = "ALL");
   int DrawOCC(const std::string &what = "ALL");
   int DrawFHR(const std::string &what = "ALL");
-  int DrawHistory(const std::string &what = "ALL");
   int TimeOffsetTicks = -1;
   TCanvas *TC[6] = {nullptr};
   TPad *transparent[1] = {nullptr};
