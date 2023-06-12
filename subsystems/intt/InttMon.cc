@@ -82,6 +82,8 @@ int InttMon::process_event(Event* evt)
 		if(!p)continue;
 
 		N = p->iValue(0, "NR_HITS");
+
+		p->identify();
 		if(N)std::cout << N << std::endl;
 
 		for(n = 0; n < N; ++n)
@@ -94,15 +96,24 @@ int InttMon::process_event(Event* evt)
 			indexes.ldr = lddr_s.ladder;
 
 			indexes.arm = (felix / 4) % 2;
-
-			indexes.chp = p->iValue(n, "CHP_ID");
-			indexes.chp = (indexes.chp - 1) % 26;
-
+			indexes.chp = p->iValue(n, "CHP_ID") % 26;
 			indexes.chn = p->iValue(n, "CHANNEL_ID");
-
 			indexes.adc = p->iValue(n, "ADC");
 
 			INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
+			if(bin < 0)
+			{
+				std::cout << "n: " << n << std::endl;
+				std::cout << "bin: " << bin << std::endl;
+				std::cout << "lyr: " << indexes.lyr << std::endl;
+				std::cout << "ldr: " << indexes.ldr << std::endl;
+				std::cout << "arm: " << indexes.arm << std::endl;
+				std::cout << "chp: " << indexes.chp << std::endl;
+				std::cout << "chn: " << indexes.chn << std::endl;
+				std::cout << "adc: " << indexes.adc << std::endl;
+
+				break;
+			}
 			HitMap->AddBinContent(bin);
 		}
 	}
