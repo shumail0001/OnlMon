@@ -83,11 +83,11 @@ class OnlMonServer : public OnlMonBase
 #endif
   void SetThreadId(const pthread_t &id) { serverthreadid = id; }
 
-  int LoadActivePackets();
-  int parse_granuleDef(std::set<std::string> &pcffilelist);
-  void parse_pcffile(const std::string &lfn);
+  //int LoadActivePackets();
+  //  int parse_granuleDef(std::set<std::string> &pcffilelist);
+  // void parse_pcffile(const std::string &lfn);
   void clearactivepackets() { activepackets.clear(); }
-  int LoadLL1Packets();
+  //int LoadLL1Packets();
   int isStandaloneRun() const { return standalone; }
   int isCosmicRun() const { return cosmicrun; }
 
