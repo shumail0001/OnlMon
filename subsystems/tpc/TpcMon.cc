@@ -154,10 +154,10 @@ int TpcMon::process_event(Event *evt/* evt */)
     }
     else
     {
-      std::cout << "____________________________________" << std::endl;
-      std::cout << "Packet # " << packet << std::endl;
+      //std::cout << "____________________________________" << std::endl;
+      //std::cout << "Packet # " << packet << std::endl;
       int nr_of_waveforms = p->iValue(0, "NR_WF");
-      std::cout << "Hello Waveforms ! - There are " << nr_of_waveforms << " of you !" << std::endl;
+      //std::cout << "Hello Waveforms ! - There are " << nr_of_waveforms << " of you !" << std::endl;
       for( int wf = 0; wf < nr_of_waveforms; wf++)
       {
 
@@ -179,7 +179,7 @@ int TpcMon::process_event(Event *evt/* evt */)
         int fee = p->iValue(wf, "FEE");
         int sampaAddress = p->iValue(wf, "SAMPAADDRESS");
         int checksumError = p->iValue(wf, "CHECKSUMERROR");
-        int channel = p->iValue(wf, "CHANNEL");
+        //int channel = p->iValue(wf, "CHANNEL");
 
         Check_Sums->Fill(fee*8 + sampaAddress); 
         if( checksumError == 1){Check_Sum_Error->Fill(fee*8 + sampaAddress);}
@@ -194,7 +194,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           //int t = s + 2 * (current_BCO - starting_BCO);
 
-          std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<", sample = "<<s<<""<<std::endl;
+          //std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<", sample = "<<s<<""<<std::endl;
           int adc = p->iValue(wf,s);
 
           if( checksumError == 0){ADC_vs_SAMPLE -> Fill(s, adc);}
