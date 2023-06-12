@@ -77,17 +77,13 @@ void mvtxDrawInit(const int online = 0)
   }
 
 
-  cl->AddServerHost("localhost");  // check local host first
-  //CreateHostList(online);
+  CreateHostList(online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
-
-  cl->requestHistoBySubSystem("MVTXMON_0", 1);
-  cl->requestHistoBySubSystem("MVTXMON_1", 1);
-  cl->requestHistoBySubSystem("MVTXMON_2", 1);
-  cl->requestHistoBySubSystem("MVTXMON_3", 1);
-  cl->requestHistoBySubSystem("MVTXMON_4", 1);
-  cl->requestHistoBySubSystem("MVTXMON_5", 1);
+  for (int server = 0; server < 6; server++)
+    {
+      cl->requestHistoBySubSystem("MVTXMON_" + to_string(server), 1);
+    }
   OnlMonDraw *mvtxmon = new MvtxMonDraw("MVTXMONDRAW");  // create Drawing Object
   cl->registerDrawer(mvtxmon);              // register with client framework
 }
@@ -95,12 +91,10 @@ void mvtxDrawInit(const int online = 0)
 void mvtxDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("MVTXMON_0", 1);
-  cl->requestHistoBySubSystem("MVTXMON_1", 1);
-  cl->requestHistoBySubSystem("MVTXMON_2", 1);
-  cl->requestHistoBySubSystem("MVTXMON_3", 1);
-  cl->requestHistoBySubSystem("MVTXMON_4", 1);
-  cl->requestHistoBySubSystem("MVTXMON_5", 1);
+  for (int server = 0; server < 6; server++)
+    {
+      cl->requestHistoBySubSystem("MVTXMON_" + to_string(server), 1);
+    }
   cl->Draw("MVTXMONDRAW", what);                    // Draw Histos of registered Drawers
 }
 
