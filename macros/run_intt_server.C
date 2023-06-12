@@ -11,7 +11,6 @@ R__LOAD_LIBRARY(libonlinttmon_server.so)
 //std::string _prdf_file = "/sphenix/u/jbertaux/evt_files/intt_intt2-00000023-0000.evt";
 std::string _prdf_file = "/sphenix/lustre01/sphnxpro/commissioning/INTT/beam/beam_intt0-00009328-0000.evt";
 
-
 void run_intt_server(const std::string &name = "INTTMON", unsigned int serverid = 0, const std::string &prdffile = _prdf_file)
 {
   OnlMon *m = new InttMon(name);      // create subsystem Monitor object
@@ -30,7 +29,7 @@ void run_intt_server(const std::string &name = "INTTMON", unsigned int serverid 
   //m->BeginRun(1);
 
   //pidentify(0);
-  prun();
+  //prun(100);
 
   //for debugging
   //static_cast<InttMon*>(m)->RandomEvent(serverid);
