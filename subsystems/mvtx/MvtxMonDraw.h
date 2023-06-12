@@ -3,8 +3,9 @@
 
 #include <onlmon/OnlMonDraw.h>
 
-#include <string>  // for allocator, string
 #include <TColor.h>
+
+#include <string>  // for allocator, string
 
 class OnlMonDB;
 class TCanvas;
@@ -69,11 +70,7 @@ static const int NFlx = 6;
   TPad *transparent[1] = {nullptr};
   TPad *Pad[6] = {nullptr};
   TGraphErrors *gr[6] = {nullptr};
-  OnlMonDB *dbvars[NFlx] = {nullptr};
-
-
- 
-int maxbadchips = 2;
+  int maxbadchips = 2;
 
 
 

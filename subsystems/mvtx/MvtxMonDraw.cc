@@ -33,10 +33,6 @@ MvtxMonDraw::MvtxMonDraw(const std::string &name)
   // this TimeOffsetTicks is neccessary to get the time axis right
   TDatime T0(2003, 01, 01, 00, 00, 00);
   TimeOffsetTicks = T0.Convert();
-  //dbvars = new OnlMonDB(ThisName);
-  for (int iFelix = 0; iFelix < NFlx; iFelix++){
-    dbvars[iFelix] = new OnlMonDB(Form("MVTXMON_%d",iFelix));
-  }
   return;
 }
 
@@ -50,56 +46,6 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
- /* if (name == "MvtxMon1")
-  {
-    // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "MvtxMon Example Monitor", -1, 0, xsize / 2, ysize);
-    // root is pathetic, whenever a new TCanvas is created root piles up
-    // 6kb worth of X11 events which need to be cleared with
-    // gSystem->ProcessEvents(), otherwise your process will grow and
-    // grow and grow but will not show a definitely lost memory leak
-    gSystem->ProcessEvents();
-    Pad[0] = new TPad("mvtxpad1", "who needs this?", 0.1, 0.7, 0.9, 0.9, 0);
-    Pad[1] = new TPad("mvtxpad2", "who needs this?", 0.1, 0.3, 0.9, 0.7, 0);
-    Pad[2] = new TPad("mvtxpad3", "who needs this?", 0.1, 0.05, 0.9, 0.3, 0);
-    Pad[0]->Draw();
-    Pad[1]->Draw();
-      Pad[2]->Draw();
-    // this one is used to plot the run number on the canvas
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
-    TC[0]->SetEditable(false);
-  }
-  else if (name == "MvtxMon2")
-  {
-    // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "MvtxMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-    Pad[3] = new TPad("mvtxpad4", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[4] = new TPad("mvtxpad5", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[3]->Draw();
-    Pad[4]->Draw();
-    // this one is used to plot the run number on the canvas
-    transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
-    transparent[1]->SetFillStyle(4000);
-    transparent[1]->Draw();
-    TC[1]->SetEditable(false);
-  }
-  else if (name == "MvtxMon3")
-  {
-    TC[2] = new TCanvas(name.c_str(), "MvtxMon3 Example Monitor", xsize / 2, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-    Pad[5] = new TPad("mvtxpad6", "who needs this?", 0.1, 0.1, 0.9, 0.9, 0);
-    //Pad[6] = new TPad("mvtxpad7", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[5]->Draw();
-    //Pad[6]->Draw();
-    // this one is used to plot the run number on the canvas
-    //        transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
-    //        transparent[2]->SetFillStyle(4000);
-    //        transparent[2]->Draw();
-    //      TC[2]->SetEditable(0);
-  }*/
   if (name == "MvtxMon_HitMap")
   {
     TC[0] = new TCanvas(name.c_str(), "MvtxMon Hitmaps", -1, 0, xsize, ysize);
@@ -176,26 +122,6 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     TC[4]->SetEditable(false);
     TC[4]->SetTopMargin(0.05);
     TC[4]->SetBottomMargin(0.05);
-  }
-  else if (name == "MvtxMon3")
-  {
-    TC[5] = new TCanvas(name.c_str(), "MvtxMon3 Example Monitor", xsize / 2, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-    Pad[5] = new TPad("mvtxpad5", "who needs this?", 0.1, 0.1, 0.9, 0.9, 0);
-    //Pad[6] = new TPad("mvtxpad7", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[5]->Draw();
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
-    TC[5]->SetEditable(false);
-    TC[5]->SetTopMargin(0.05);
-    TC[5]->SetBottomMargin(0.05);
-    //Pad[6]->Draw();
-    // this one is used to plot the run number on the canvas
-    //        transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
-    //        transparent[2]->SetFillStyle(4000);
-    //        transparent[2]->Draw();
-    //      TC[2]->SetEditable(0);
   }
   return 0;
 }
@@ -949,135 +875,7 @@ int MvtxMonDraw::MakeHtml(const std::string &what)
   return 0;
 }
 
-int MvtxMonDraw::DrawHistory(const std::string & /* what */)
-{
 
-  const int canvasID = 5;
-  const int padID = 5;
-
-  int iret[NFlx] = {0,0,0,0,0,0};
-  // you need to provide the following vectors
-  // which are filled from the db
-  std::vector<float> var[NFlx];
-  std::vector<float> varerr[NFlx];
-  std::vector<time_t> timestamp[NFlx];
-  std::vector<int> runnumber[NFlx];
-  std::string varname = "n_events";
-  // this sets the time range from whihc values should be returned
-  time_t begin = 0;            // begin of time (1.1.1970)
-  time_t end = time(nullptr);  // current time (right NOW)
-
-  for (int iFelix = 0; iFelix <NFlx; iFelix++){
-    iret[iFelix] = dbvars[iFelix]->GetVar(begin, end, varname, timestamp[iFelix], runnumber[iFelix], var[iFelix], varerr[iFelix]);
-    if (iret[iFelix]){
-      std::cout << __PRETTY_FUNCTION__ << " Error in db access: FELIX "<<iFelix << std::endl;
-    //return iret;
-    }
-  }
-
-
-  if (!gROOT->FindObject("MvtxMon3"))
-  {
-    MakeCanvas("MvtxMon3");
-  }
-  TC[canvasID]->SetEditable(true);
-  TC[canvasID]->Clear("D");
-  Pad[padID]->Divide(3,2);
-
-  for (int iFelix = 0; iFelix <NFlx; iFelix++){
-    // timestamps come sorted in ascending order
-    float *x = new float[var[iFelix].size()];
-    float *y = new float[var[iFelix].size()];
-    float *ex = new float[var[iFelix].size()];
-    float *ey = new float[var[iFelix].size()];
-    int n = var[iFelix].size();
-    for (unsigned int i = 0; i < var[iFelix].size(); i++)
-    {
-      //       std::cout << "timestamp: " << ctime(&timestamp[i])
-      // 	   << ", run: " << runnumber[i]
-      // 	   << ", var: " << var[i]
-      // 	   << ", varerr: " << varerr[i]
-      // 	   << std::endl;
-      x[i] = timestamp[iFelix][i] - TimeOffsetTicks;
-      y[i] = var[iFelix][i];
-      ex[i] = 0;
-      ey[i] = varerr[iFelix][i];
-    }
-    Pad[padID]->cd(iFelix+1);
-    if (gr[iFelix])
-    {
-      delete gr[iFelix];
-    }
-    gr[iFelix] = new TGraphErrors(n, x, y, ex, ey);
-    gr[iFelix]->SetMarkerColor(4);
-    gr[iFelix]->SetMarkerStyle(21);
-    gr[iFelix]->Draw("ALP");
-    gr[iFelix]->GetXaxis()->SetTimeDisplay(1);
-    gr[iFelix]->GetXaxis()->SetLabelSize(0.03);
-    // the x axis labeling looks like crap
-    // please help me with this, the SetNdivisions
-    // don't do the trick
-    gr[iFelix]->GetXaxis()->SetNdivisions(-1006);
-    gr[iFelix]->GetXaxis()->SetTimeOffset(TimeOffsetTicks);
-    gr[iFelix]->GetXaxis()->SetTimeFormat("%Y/%m/%d %H:%M");
-    delete[] x;
-    delete[] y;
-    delete[] ex;
-    delete[] ey;
-  }
-
- /* varname = "mvtxmoncount";
-  iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
-  if (iret)
-  {
-    std::cout << __PRETTY_FUNCTION__ << " Error in db access" << std::endl;
-    return iret;
-  }
-  x = new float[var.size()];
-  y = new float[var.size()];
-  ex = new float[var.size()];
-  ey = new float[var.size()];
-  n = var.size();
-  for (unsigned int i = 0; i < var.size(); i++)
-  {
-    //       std::cout << "timestamp: " << ctime(&timestamp[i])
-    // 	   << ", run: " << runnumber[i]
-    // 	   << ", var: " << var[i]
-    // 	   << ", varerr: " << varerr[i]
-    // 	   << std::endl;
-    x[i] = timestamp[i] - TimeOffsetTicks;
-    y[i] = var[i];
-    ex[i] = 0;
-    ey[i] = varerr[i];
-  }
-  Pad[6]->cd();
-  if (gr[1])
-  {
-    delete gr[1];
-  }
-  gr[1] = new TGraphErrors(n, x, y, ex, ey);
-  gr[1]->SetMarkerColor(4);
-  gr[1]->SetMarkerStyle(21);
-  gr[1]->Draw("ALP");
-  gr[1]->GetXaxis()->SetTimeDisplay(1);
-  // TC[2]->Update();
-  //    h1->GetXaxis()->SetTimeDisplay(1);
-  //    h1->GetXaxis()->SetLabelSize(0.03);
-  gr[1]->GetXaxis()->SetLabelSize(0.03);
-  gr[1]->GetXaxis()->SetTimeOffset(TimeOffsetTicks);
-  gr[1]->GetXaxis()->SetTimeFormat("%Y/%m/%d %H:%M");
-  //    h1->Draw();
-  delete[] x;
-  delete[] y;
-  delete[] ex;
-  delete[] ey;*/
-
-  TC[canvasID]->Update();
-  TC[canvasID]->SetEditable(false);
-  return 0;
-}
-
-//template <typename T>
 int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, TH1 *h, const char* opt ){
   if(c && pad !=0){
     c->cd(pad);
