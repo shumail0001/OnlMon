@@ -16,7 +16,6 @@ class TPaveText;
 class TH1;
 class TH2Poly;
 
-
 class MvtxMonDraw : public OnlMonDraw
 {
  public:
@@ -29,29 +28,34 @@ class MvtxMonDraw : public OnlMonDraw
   int MakePS(const std::string &what = "ALL") override;
   int MakeHtml(const std::string &what = "ALL") override;
 
-     const static int NSTAVE = 48;
+  const static int NSTAVE = 48;
   const static int NCHIP = 9;
-      const static int NLAYERS = 3;
+  const static int NLAYERS = 3;
   static constexpr int NFlags = 3;
-  const int NStaves[NLAYERS] = { 12, 16, 20 };
-  const int StaveBoundary[NLAYERS + 1] = { 0, 12, 28, 48};
-  std::string mLaneStatusFlag[NFlags] = { "WARNING", "ERROR", "FAULT" };
-  int PublishHistogram(TCanvas *c, int pad, TH1 *h, const char* opt = "");
-  int PublishHistogram(TPad *p, TH1 *h, const char* opt = "");
-  //template <typename T>
-  //int PublishHistogram(TPad *p, int pad, T h, const char* opt = "");
-  int PublishHistogram(TPad *p, int pad, TH1 *h, const char* opt = "");
-  void PublishStatistics(TCanvas *c,OnlMonClient *cl );
+  const int NStaves[NLAYERS] = {12, 16, 20};
+  const int StaveBoundary[NLAYERS + 1] = {0, 12, 28, 48};
+  std::string mLaneStatusFlag[NFlags] = {"WARNING", "ERROR", "FAULT"};
+  int PublishHistogram(TCanvas *c, int pad, TH1 *h, const char *opt = "");
+  int PublishHistogram(TPad *p, TH1 *h, const char *opt = "");
+  // template <typename T>
+  // int PublishHistogram(TPad *p, int pad, T h, const char* opt = "");
+  int PublishHistogram(TPad *p, int pad, TH1 *h, const char *opt = "");
+  void PublishStatistics(TCanvas *c, OnlMonClient *cl);
   template <typename T>
   int MergeServers(T *h);
-  void formatPaveText(TPaveText* aPT, float aTextSize, Color_t aTextColor, short aTextAlign, const char* aText);
-  enum Quality {Good, Medium, Bad};
-  std::vector<Quality> analyseForError(TH2Poly* over1, TH2Poly* over2,TH2Poly* over3, TH1* decErr);
-  void DrawPave(std::vector<MvtxMonDraw::Quality> status, int position, const char* what = "");
+  void formatPaveText(TPaveText *aPT, float aTextSize, Color_t aTextColor, short aTextAlign, const char *aText);
+  enum Quality
+  {
+    Good,
+    Medium,
+    Bad
+  };
+  std::vector<Quality> analyseForError(TH2Poly *over1, TH2Poly *over2, TH2Poly *over3, TH1 *decErr);
+  void DrawPave(std::vector<MvtxMonDraw::Quality> status, int position, const char *what = "");
 
  private:
-static const int NFlx = 6;
- static constexpr int NCols = 1024;
+  static const int NFlx = 6;
+  static constexpr int NCols = 1024;
   static constexpr int NRows = 512;
   static constexpr int NPixels = NRows * NCols;
 
@@ -71,9 +75,6 @@ static const int NFlx = 6;
   TPad *Pad[6] = {nullptr};
   TGraphErrors *gr[6] = {nullptr};
   int maxbadchips = 2;
-
-
-
 };
 
 #endif /* MVTX_MVTXMONDRAW_H */
