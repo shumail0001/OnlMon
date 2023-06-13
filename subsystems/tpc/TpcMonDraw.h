@@ -33,9 +33,10 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCSampleSize(const std::string &what = "ALL");
   int DrawTPCCheckSum(const std::string &what = "ALL");
   int DrawTPCADCSample(const std::string &what = "ALL");
+  int DrawTPCMaxADCModule(const std::string &what = "ALL");
 
   int TimeOffsetTicks = -1;
-  TCanvas *TC[7] = {nullptr};
+  TCanvas *TC[8] = {nullptr};
   TPad *transparent[3] = {nullptr};
   TPad *Pad[6] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};

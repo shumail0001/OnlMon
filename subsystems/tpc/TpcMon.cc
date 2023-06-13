@@ -75,12 +75,18 @@ int TpcMon::Init()
   //
 
   // ADC vs Sample
-  ADC_vs_SAMPLE = new TH2F("ADC_vs_SAMPLE", "ADC Counts vs Sample: WHOLE SECTOR", 360, 0, 360, 256, 0, 1024);
-  ADC_vs_SAMPLE -> SetXTitle("Sector XX: ADC Time bin [1/20MHz]");
+  char ADC_vs_SAMPLE_str[100];
+  char ADC_vs_SAMPLE_xaxis_str[100];
+  sprintf(ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
+  sprintf(ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
+  ADC_vs_SAMPLE = new TH2F("ADC_vs_SAMPLE", ADC_vs_SAMPLE_str, 360, 0, 360, 256, 0, 1024);
+  ADC_vs_SAMPLE -> SetXTitle(ADC_vs_SAMPLE_xaxis_str);
   ADC_vs_SAMPLE -> SetYTitle("ADC [ADU]");
 
   // Sample size distribution 1D histogram
-  sample_size_hist = new TH1F("sample_size_hist" , "Distribution of Sample Sizes in Events", 1000, 0.5, 1000.5);
+  char sample_size_title_str[100];
+  sprintf(sample_size_title_str,"Distribution of Sample Sizes in Events: SECTOR %i",MonitorServerId());
+  sample_size_hist = new TH1F("sample_size_hist" , sample_size_title_str, 1000, 0.5, 1000.5);
   sample_size_hist->SetXTitle("sample size");
   sample_size_hist->SetYTitle("counts");
 
@@ -91,10 +97,30 @@ int TpcMon::Init()
   Check_Sums->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
 
   // checksum error vs FEE*8 + SAMPA Number
-  Check_Sum_Error = new TH1F("Check_Sum_Error" , "Check Sum Error Probability vs Fee*8 + SAMPA in Events",208,-0.5, 207.5);
+  char checksum_title_str[100];
+  sprintf(checksum_title_str,"Check Sum Error Probability vs Fee*8 + SAMPA in Events: SECTOR %i",MonitorServerId());
+  Check_Sum_Error = new TH1F("Check_Sum_Error" , checksum_title_str,208,-0.5, 207.5);
   Check_Sum_Error->SetXTitle("FEE_NUM*8 + SAMPA_ADDR");
   Check_Sum_Error->SetYTitle("Prob. Check. Sum. Err.");
   Check_Sum_Error->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
+
+  // Max ADC per waveform dist for each module (R1, R2, R3)
+  char MAXADC_str[100];
+  char YLabel_str[5];
+  sprintf(MAXADC_str,"MAX ADC per Waveform: SECTOR %i",MonitorServerId());
+
+  MAXADC = new TH2F("MAXADC" , MAXADC_str,1025,-0.5, 1024.5,3,-0.5,2.5);
+  MAXADC->SetXTitle("MAX ADC per Waveform [ADU]");
+  MAXADC->SetYTitle("Module");
+  MAXADC->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
+
+  for(int i = 0; i < 3; i++ )
+  {
+    sprintf(YLabel_str,"R%i",i+1);
+    MAXADC->GetYaxis()->SetBinLabel(i+1,YLabel_str);
+    MAXADC->GetYaxis()->SetLabelSize(0.12);
+    MAXADC->GetXaxis()->SetLabelSize(0.04);
+  }
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
@@ -106,6 +132,7 @@ int TpcMon::Init()
   se->registerHisto(this, Check_Sum_Error);
   se->registerHisto(this, Check_Sums);
   se->registerHisto(this, ADC_vs_SAMPLE);
+  se->registerHisto(this, MAXADC);
   Reset();
   return 0;
 }
@@ -144,7 +171,7 @@ int TpcMon::process_event(Event *evt/* evt */)
   float North_Side_Arr[36] = {0};
   float South_Side_Arr[36] = {0};
 
-  for( int packet = 4000; packet < 4231; packet++) //packet 4000 or 4001 = Sec 00, packet 4230 or 4231 = Sec 23
+  for( int packet = 4000; packet < 4232; packet++) //packet 4000 or 4001 = Sec 00, packet 4230 or 4231 = Sec 23
   {
     Packet* p = evt->getPacket(packet);
     if (!p)
@@ -158,6 +185,9 @@ int TpcMon::process_event(Event *evt/* evt */)
       //std::cout << "Packet # " << packet << std::endl;
       int nr_of_waveforms = p->iValue(0, "NR_WF");
       //std::cout << "Hello Waveforms ! - There are " << nr_of_waveforms << " of you !" << std::endl;
+
+      bool is_channel_stuck = 0;
+
       for( int wf = 0; wf < nr_of_waveforms; wf++)
       {
 
@@ -190,6 +220,10 @@ int TpcMon::process_event(Event *evt/* evt */)
         serverid = MonitorServerId();
         //std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<std::endl;
 
+        if( nr_Samples > 3){if( (p->iValue(wf,0) == p->iValue(wf,1)) && (p->iValue(wf,0) == p->iValue(wf,2)) && (p->iValue(wf,0) == p->iValue(wf,3)) ){ is_channel_stuck = 1;};}
+
+        int max_adc_in_waveform = 0;
+
         for( int s =0; s < nr_Samples ; s++ ){
 
           //int t = s + 2 * (current_BCO - starting_BCO);
@@ -197,13 +231,20 @@ int TpcMon::process_event(Event *evt/* evt */)
           //std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<", sample = "<<s<<""<<std::endl;
           int adc = p->iValue(wf,s);
 
-          if( checksumError == 0){ADC_vs_SAMPLE -> Fill(s, adc);}
+          if( adc > max_adc_in_waveform){ max_adc_in_waveform = adc; } // if this number is greater, call it the max
+
+          if( checksumError == 0 && is_channel_stuck == 0){ADC_vs_SAMPLE -> Fill(s, adc);}
 
           //increment 
           if(serverid >= 0 && serverid < 12 ){ North_Side_Arr[ Index_from_Module(serverid,fee) ] += adc;}
           else {South_Side_Arr[ Index_from_Module(serverid,fee) ] += adc;}
 
         }
+ 
+      MAXADC->Fill(max_adc_in_waveform,Module_ID(fee));
+
+      is_channel_stuck = 0; //reset after looping through waveform samples
+
       }
       delete p;
     }
@@ -245,7 +286,23 @@ int TpcMon::process_event(Event *evt/* evt */)
   return 0;
 }
 
-int TpcMon::Index_from_Module(int sec_id, int fee_id)
+int TpcMon::Module_ID(int fee_id) //for simply determining which module you are in (doesn't care about sector)
+{
+  int mod_id;
+ 
+  if( fee_id == 2 || fee_id == 3 || fee_id == 4 || fee_id == 13 || fee_id == 16 || fee_id == 17 ){mod_id = 0;} // R1 
+
+  else if( fee_id == 0 || fee_id == 1 || fee_id == 11 || fee_id == 12 || fee_id == 14 || fee_id == 15 || fee_id == 18 || fee_id == 19 ){mod_id = 1;} // R2
+
+  else if( fee_id == 5 || fee_id == 6 || fee_id ==7 || fee_id == 8 || fee_id == 9 || fee_id == 10 || fee_id == 20 || fee_id == 21 || fee_id == 22 || fee_id == 23 || fee_id == 24 || fee_id == 25 ){mod_id = 2;} // R3
+
+  else mod_id = 0;
+
+  return mod_id;
+}
+
+
+int TpcMon::Index_from_Module(int sec_id, int fee_id) //for placing in the array (takes into account sector)
 {
   int mod_id;
  
