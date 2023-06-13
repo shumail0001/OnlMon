@@ -21,9 +21,8 @@ void StartPoms()
 //  pmf->RegisterSubSystem("EXAMPLE", "example");
 
   SubSystem *bbc = new SubSystem("BBC", "bbc");
-  bbc->AddAction("bbcDraw(\"FIRST\")", "BBC 1st Monitor");
-  bbc->AddAction("bbcDraw(\"SECOND\")", "BBC 2nd Monitor");
-  //  bbc->AddAction("bbcDraw(\"HISTORY\")", "BBC History Monitor");
+  bbc->AddAction("bbcDraw(\"BbcMonitor\")", "BBC Monitor");
+  bbc->AddAction("bbcDraw(\"VertexMonitor\")", "VertexMonitor");
   bbc->AddAction(new SubSystemActionDrawPS(bbc));
   pmf->RegisterSubSystem(bbc);
 
