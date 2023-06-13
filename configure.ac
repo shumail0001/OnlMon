@@ -52,5 +52,7 @@ subsystems/tpc/Makefile
 subsystems/tpc/calib/Makefile
 subsystems/tpot/Makefile
 subsystems/tpot/calib/Makefile
+subsystems/zdc/Makefile
+subsystems/zdc/calib/Makefile
 ])
 AC_OUTPUT

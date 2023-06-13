@@ -23,7 +23,7 @@ void StartPoms()
   SubSystem *bbc = new SubSystem("BBC", "bbc");
   bbc->AddAction("bbcDraw(\"FIRST\")", "BBC 1st Monitor");
   bbc->AddAction("bbcDraw(\"SECOND\")", "BBC 2nd Monitor");
-  bbc->AddAction("bbcDraw(\"HISTORY\")", "BBC History Monitor");
+  //  bbc->AddAction("bbcDraw(\"HISTORY\")", "BBC History Monitor");
   bbc->AddAction(new SubSystemActionDrawPS(bbc));
   pmf->RegisterSubSystem(bbc);
 
@@ -37,7 +37,7 @@ void StartPoms()
   SubSystem *cemc = new SubSystem("CEMC", "cemc");
   cemc->AddAction("cemcDraw(\"FIRST\")", "CEMC 1st Monitor");
   cemc->AddAction("cemcDraw(\"SECOND\")", "CEMC 2nd Monitor");
-  cemc->AddAction("cemcDraw(\"HISTORY\")", "CEMC History Monitor");
+  //  cemc->AddAction("cemcDraw(\"HISTORY\")", "CEMC History Monitor");
   cemc->AddAction(new SubSystemActionDrawPS(cemc));
   pmf->RegisterSubSystem(cemc);
 
@@ -58,7 +58,7 @@ void StartPoms()
   SubSystem *hcal = new SubSystem("HCAL", "hcal");
   hcal->AddAction("hcalDraw(\"FIRST\")", "HCAL 1st Monitor");
   hcal->AddAction("hcalDraw(\"SECOND\")", "HCAL 2nd Monitor");
-  hcal->AddAction("hcalDraw(\"HISTORY\")", "HCAL History Monitor");
+  //  hcal->AddAction("hcalDraw(\"HISTORY\")", "HCAL History Monitor");
   hcal->AddAction(new SubSystemActionDrawPS(hcal));
   pmf->RegisterSubSystem(hcal);
 
@@ -69,29 +69,28 @@ void StartPoms()
   pmf->RegisterSubSystem(intt);
 
   SubSystem *mvtx = new SubSystem("MVTX", "mvtx");
-  mvtx->AddAction("mvtxDraw(\"MvtxMon_General\")", "General Monitor");
-  mvtx->AddAction("mvtxDraw(\"MvtxMon_HitMap\")", "Hitmap");
-  mvtx->AddAction("mvtxDraw(\"MvtxMon_FEE\")", "FEE");
-  mvtx->AddAction("mvtxDraw(\"MvtxMon_FHR\")", "FHR");
-  mvtx->AddAction("mvtxDraw(\"MvtxMon_OCC\")", "OCC");
+  mvtx->AddAction("mvtxDraw(\"GENERAL\")", "General Monitor");
+  mvtx->AddAction("mvtxDraw(\"FEE\")", "FEE");
+  mvtx->AddAction("mvtxDraw(\"FHR\")", "FHR");
+  mvtx->AddAction("mvtxDraw(\"OCC\")", "OCC");
   mvtx->AddAction(new SubSystemActionDrawPS(mvtx));
   pmf->RegisterSubSystem(mvtx);
 
   SubSystem *tpc = new SubSystem("TPC", "tpc");
+
   tpc->AddAction("tpcDraw(\"TPCMODULE\")", "TPC SUM[ADC]");
   tpc->AddAction("tpcDraw(\"TPCSAMPLESIZE\")", "TPC Sample Size");
   tpc->AddAction("tpcDraw(\"TPCCHECKSUMERROR\")", "TPC Checksum Error Prob.");
   tpc->AddAction("tpcDraw(\"TPCADCVSSAMPLE\")", "TPC ADC vs. Sample");
   tpc->AddAction("tpcDraw(\"TPCMAXADCMODULE\")", "TPC MAX ADC");
-  tpc->AddAction("tpcDraw(\"SECOND\")", "TPC 2nd Monitor");
-  tpc->AddAction("tpcDraw(\"HISTORY\")", "TPC History Monitor");
+  
   tpc->AddAction(new SubSystemActionDrawPS(tpc));
   pmf->RegisterSubSystem(tpc);
 
   SubSystem *tpot = new SubSystem("TPOT", "tpot");
   tpot->AddAction("tpotDraw(\"FIRST\")", "TPOT 1st Monitor");
   tpot->AddAction("tpotDraw(\"SECOND\")", "TPOT 2nd Monitor");
-  tpot->AddAction("tpotDraw(\"HISTORY\")", "TPOT History Monitor");
+  //  tpot->AddAction("tpotDraw(\"HISTORY\")", "TPOT History Monitor");
   tpot->AddAction(new SubSystemActionDrawPS(tpot));
   pmf->RegisterSubSystem(tpot);
 
