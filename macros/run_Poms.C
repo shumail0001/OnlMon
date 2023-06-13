@@ -78,7 +78,11 @@ void StartPoms()
   pmf->RegisterSubSystem(mvtx);
 
   SubSystem *tpc = new SubSystem("TPC", "tpc");
-  tpc->AddAction("tpcDraw(\"TPCCHECKSUMERROR\")", "TPC Checksum Error");
+  tpc->AddAction("tpcDraw(\"TPCMODULE\")", "TPC SUM[ADC]");
+  tpc->AddAction("tpcDraw(\"TPCSAMPLESIZE\")", "TPC Sample Size");
+  tpc->AddAction("tpcDraw(\"TPCCHECKSUMERROR\")", "TPC Checksum Error Prob.");
+  tpc->AddAction("tpcDraw(\"TPCADCVSSAMPLE\")", "TPC ADC vs. Sample");
+  tpc->AddAction("tpcDraw(\"TPCMAXADCMODULE\")", "TPC MAX ADC");
   tpc->AddAction("tpcDraw(\"SECOND\")", "TPC 2nd Monitor");
   tpc->AddAction("tpcDraw(\"HISTORY\")", "TPC History Monitor");
   tpc->AddAction(new SubSystemActionDrawPS(tpc));

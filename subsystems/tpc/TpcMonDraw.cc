@@ -97,7 +97,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   {
     TC[3] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1250, 600);
     gSystem->ProcessEvents();
-    gStyle->SetPalette(57); //kBird CVD friendly
+    //gStyle->SetPalette(57); //kBird CVD friendly
     TC[3]->Divide(2,1);
     TC[3]->SetEditable(false);
   }
@@ -119,9 +119,17 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   {
     TC[6] = new TCanvas(name.c_str(), "TPC ADC vs Sample in Whole Sector", 1000, 1200);
     gSystem->ProcessEvents();
-    gStyle->SetPalette(57); //kBird CVD friendly
+    //gStyle->SetPalette(57); //kBird CVD friendly
     TC[6]->Divide(4,6);
     TC[6]->SetEditable(false);
+  }
+  else if (name == "TPCMaxADCModule")
+  {
+    TC[7] = new TCanvas(name.c_str(), "TPC MAX ADC per Waveform for each Module in Sector ", 1000, 1200);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[7]->Divide(4,6);
+    TC[7]->SetEditable(false);
   }
   return 0;
 }
@@ -158,6 +166,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCADCVSSAMPLE")
   {
     iret += DrawTPCADCSample(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCMAXADCMODULE")
+  {
+    iret += DrawTPCMaxADCModule(what);
     idraw++;
   }
   if (what == "ALL" || what == "HISTORY")
@@ -359,6 +372,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   for( int i=0; i<12; i++ )
   {
     if( tpcmon_NSIDEADC[i] ){
+    gStyle->SetPalette(57); //kBird CVD friendly
     tpcmon_NSIDEADC[i] -> Draw("colpolzsame");
     }
 
@@ -383,6 +397,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   for( int i=0; i<12; i++ )
   {
     if( tpcmon_SSIDEADC[i] ){
+    gStyle->SetPalette(57); //kBird CVD friendly
     tpcmon_SSIDEADC[i] -> Draw("colpolzsame");
 
     }
@@ -402,6 +417,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   NS20->Draw("same");
   NS19->Draw("same");
 
+  
   TC[3]->Update();
 
   //turn off stats box
@@ -551,6 +567,7 @@ int TpcMonDraw::DrawTPCADCSample(const std::string & /* what */)
   {
     if( tpcmon_ADCSAMPLE[i] ){
       TC[6]->cd(i+1);
+      gStyle->SetPalette(57); //kBird CVD friendly
       gPad->SetLogz(kTRUE);
       tpcmon_ADCSAMPLE[i] -> DrawCopy("colz");
     }
@@ -559,6 +576,46 @@ int TpcMonDraw::DrawTPCADCSample(const std::string & /* what */)
   TC[6]->Update();
   TC[6]->Show();
   TC[6]->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCMaxADCModule(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *tpcmon_MAXADC_MODULE[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_MAXADC_MODULE[i] = (TH2*) cl->getHisto(TPCMON_STR,"MAXADC");
+  }
+
+
+  if (!gROOT->FindObject("TPCMaxADCModule"))
+  {
+    MakeCanvas("TPCMaxADCModule");
+  }  
+
+  TC[7]->SetEditable(true);
+  TC[7]->Clear("D");
+
+  for( int i=0; i<24; i++ )
+  {
+    if( tpcmon_MAXADC_MODULE[i] ){
+      TC[7]->cd(i+1);
+      gStyle->SetPalette(57); //kBird CVD friendly
+      gPad->SetLogz(kTRUE);
+      tpcmon_MAXADC_MODULE[i] -> DrawCopy("colz");
+    }
+  }
+
+  TC[7]->Update();
+  TC[7]->Show();
+  TC[7]->SetEditable(false);
 
   return 0;
 }
