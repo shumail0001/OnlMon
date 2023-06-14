@@ -11,7 +11,7 @@ SUBDIRS = \
   bbcll1 \
   cemc \
   daq \
-  epd \
+  sepd \
   example \
   hcal \
   intt \

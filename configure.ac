@@ -38,8 +38,8 @@ subsystems/cemc/Makefile
 subsystems/cemc/calib/Makefile
 subsystems/daq/Makefile
 subsystems/daq/calib/Makefile
-subsystems/epd/Makefile
-subsystems/epd/calib/Makefile
+subsystems/sepd/Makefile
+subsystems/sepd/calib/Makefile
 subsystems/example/Makefile
 subsystems/example/calib/Makefile
 subsystems/hcal/Makefile
