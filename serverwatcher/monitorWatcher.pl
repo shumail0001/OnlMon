@@ -16,7 +16,6 @@ use Tk::FileSelect;
 use Time::localtime;
 use DirHandle;
 use Tk::Image;
-use Env;
 use File::Basename;
 
 use strict;
@@ -56,7 +55,7 @@ sub send_monitor_command {
   my $cmd;
 
   if ( $m eq "all" ) {
-    $cmd = "$ONLMON_RUNDIR/submit_all.sh $what";
+    $cmd = "$ENV{'ONLMON_RUNDIR'}/submit_all.sh $what";
     if ( $what eq "restart" )
       {
         system("restart_monitor_pool.sh");
@@ -148,12 +147,12 @@ sub checkMonitor {
 #_____________________________________________________________________________
 sub getMonitors() {
 
-  my $d = new DirHandle "$ONLMON_SERVERWATCHER";
+  my $d = new DirHandle "$ENV{'ONLMON_SERVERWATCHER'}";
 
   if (defined $d) {
     while (defined($_ = $d->read)) {
       if (/monitorserver/ && /cmd/ && $_ !~ /~/) {
-	my $cmdfile = "$ONLMON_SERVERWATCHER/$_";
+	my $cmdfile = "$ENV{'ONLMON_SERVERWATCHER'}/$_";
 	my ($va,$monitor,$number)=decode($cmdfile);
 	decode_new($cmdfile);
       }
@@ -273,7 +272,7 @@ foreach my $m ( sort keys %monitors ) {
 
 }
 
-my $logoimg = $mw->Photo('logo',-file=>"$ONLMON_SERVERWATCHER/sphenix-logo_transparent_small.gif");
+my $logoimg = $mw->Photo('logo',-file=>"$ENV{'ONLMON_SERVERWATCHER'}/sphenix-logo_transparent_small.gif");
 my $logo = $mw->Label('-image'=>'logo');
 $row+=$ncolumns;
 $logo->grid(-column=>0,-row=>$row,-columnspan=>2);
