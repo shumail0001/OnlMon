@@ -38,12 +38,11 @@ then
 fi
 
 # create save directory if not exist
-if [[ $ONLMON_SAVEDIR ]]
+if [[ ! -z $ONLMON_SAVEDIR ]]
 then
-  if  ! -d $ONLMON_SAVEDIR ]
-  then
-    mkdir -p $ONLMON_SAVEDIR
-  fi
+  [ -d $ONLMON_SAVEDIR ] || mkdir -p $ONLMON_SAVEDIR
+else
+  export ONLMON_SAVEDIR=`pwd`
 fi
 
 # create save directory if not exist
