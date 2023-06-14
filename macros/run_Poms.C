@@ -34,9 +34,10 @@ void StartPoms()
   // pmf->RegisterSubSystem(bbcll1);
 
   SubSystem *cemc = new SubSystem("CEMC", "cemc");
-  cemc->AddAction("cemcDraw(\"FIRST\")", "CEMC 1st Monitor");
-  cemc->AddAction("cemcDraw(\"SECOND\")", "CEMC 2nd Monitor");
-  //  cemc->AddAction("cemcDraw(\"HISTORY\")", "CEMC History Monitor");
+  cemc->AddAction("cemcDraw(\"FIRST\")", "Towers");
+  cemc->AddAction("cemcDraw(\"SECOND\")", "Packet Health");
+  cemc->AddAction("cemcDraw(\"THIRD\")", "Wave Forms");
+  cemc->AddAction("cemcDraw(\"FOURTH\")", "Wave vs Fast Fitting");
   cemc->AddAction(new SubSystemActionDrawPS(cemc));
   pmf->RegisterSubSystem(cemc);
 
@@ -47,17 +48,17 @@ void StartPoms()
   // daq->AddAction(new SubSystemActionDrawPS(daq));
   // pmf->RegisterSubSystem(daq);
 
-  // SubSystem *epd = new SubSystem("EPD", "epd");
-  // epd->AddAction("epdDraw(\"FIRST\")", "EPD 1st Monitor");
-  // epd->AddAction("epdDraw(\"SECOND\")", "EPD 2nd Monitor");
-  // epd->AddAction("epdDraw(\"HISTORY\")", "EPD History Monitor");
-  // epd->AddAction(new SubSystemActionDrawPS(epd));
-  // pmf->RegisterSubSystem(epd);
+   // SubSystem *epd = new SubSystem("EPD", "epd");
+   // epd->AddAction("epdDraw(\"FIRST\")", "EPD 1st Monitor");
+   // epd->AddAction("epdDraw(\"SECOND\")", "EPD 2nd Monitor");
+   // epd->AddAction("epdDraw(\"THIRD\")", "EPD 3rd Monitor");
+   // epd->AddAction(new SubSystemActionDrawPS(epd));
+   // pmf->RegisterSubSystem(epd);
 
   SubSystem *hcal = new SubSystem("HCAL", "hcal");
-  hcal->AddAction("hcalDraw(\"FIRST\")", "HCAL 1st Monitor");
-  hcal->AddAction("hcalDraw(\"SECOND\")", "HCAL 2nd Monitor");
-  //  hcal->AddAction("hcalDraw(\"HISTORY\")", "HCAL History Monitor");
+  hcal->AddAction("hcalDraw(\"FIRST\")", "Towers");
+  hcal->AddAction("hcalDraw(\"SECOND\")", "Sector Average");
+  hcal->AddAction("hcalDraw(\"THIRD\")", "Wave Form");
   hcal->AddAction(new SubSystemActionDrawPS(hcal));
   pmf->RegisterSubSystem(hcal);
 
@@ -87,9 +88,12 @@ void StartPoms()
   pmf->RegisterSubSystem(tpc);
 
   SubSystem *tpot = new SubSystem("TPOT", "tpot");
-  tpot->AddAction("tpotDraw(\"FIRST\")", "TPOT 1st Monitor");
-  tpot->AddAction("tpotDraw(\"SECOND\")", "TPOT 2nd Monitor");
-  //  tpot->AddAction("tpotDraw(\"HISTORY\")", "TPOT History Monitor");
+  tpot->AddAction("tpotDraw(\"TPOT_detector_occupancy\")", "Detector Occupancy");
+  tpot->AddAction("tpotDraw(\"TPOT_resist_occupancy\")", "Resist Occupnacy");
+  tpot->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC Sample");
+  tpot->AddAction("tpotDraw(\"TPOT_hit_charge\")", "Hit Charge");
+  tpot->AddAction("tpotDraw(\"TPOT_hit_multiplicity\")", "Hit Multiplicity");
+  tpot->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit Channel");
   tpot->AddAction(new SubSystemActionDrawPS(tpot));
   pmf->RegisterSubSystem(tpot);
 
