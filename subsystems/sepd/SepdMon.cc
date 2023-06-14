@@ -3,7 +3,7 @@
 // otherwise you are asking for weird behavior
 // (more info - check the difference in include path search when using "" versus <>)
 
-#include "EpdMon.h"
+#include "SepdMon.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
@@ -34,7 +34,7 @@ enum
   FILLMESSAGE = 2
 };
 
-EpdMon::EpdMon(const std::string &name)
+SepdMon::SepdMon(const std::string &name)
   : OnlMon(name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
@@ -42,23 +42,23 @@ EpdMon::EpdMon(const std::string &name)
   return;
 }
 
-EpdMon::~EpdMon()
+SepdMon::~SepdMon()
 {
   // you can delete NULL pointers it results in a NOOP (No Operation)
   return;
 }
 
-int EpdMon::Init()
+int SepdMon::Init()
 {
   gRandom->SetSeed(rand());
   // read our calibrations from EpdMonData.dat
-  const char *epdcalib = getenv("EPDCALIB");
-  if (!epdcalib)
+  const char *sepdcalib = getenv("SEPDCALIB");
+  if (!sepdcalib)
   {
-    std::cout << "EPDCALIB environment variable not set" << std::endl;
+    std::cout << "SEPDCALIB environment variable not set" << std::endl;
     exit(1);
   }
-  std::string fullfile = std::string(epdcalib) + "/" + "EpdMonData.dat";
+  std::string fullfile = std::string(sepdcalib) + "/" + "SepdMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
   // use printf for stuff which should go the screen but not into the message
@@ -89,9 +89,9 @@ int EpdMon::Init()
   h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 25, 1.2e3, 1.8e3);
   
   //waveform processing, template vs. fast interpolation
-  h1_epd_fitting_sigDiff = new TH1F("h1_fitting_sigDiff","",50,0,2);
-  h1_epd_fitting_pedDiff = new TH1F("h1_fitting_pedDiff","",50,0,2);
-  h1_epd_fitting_timeDiff = new TH1F("h1_fitting_timeDiff","",50,-10,10);
+  h1_sepd_fitting_sigDiff = new TH1F("h1_fitting_sigDiff","",50,0,2);
+  h1_sepd_fitting_pedDiff = new TH1F("h1_fitting_pedDiff","",50,0,2);
+  h1_sepd_fitting_timeDiff = new TH1F("h1_fitting_timeDiff","",50,-10,10);
 
 
   OnlMonServer *se = OnlMonServer::instance();
@@ -110,9 +110,9 @@ int EpdMon::Init()
   se->registerHisto(this, h1_waveform_twrAvg);
   se->registerHisto(this, h1_waveform_time);
   se->registerHisto(this, h1_waveform_pedestal);
-  se->registerHisto(this, h1_epd_fitting_sigDiff);
-  se->registerHisto(this, h1_epd_fitting_pedDiff);
-  se->registerHisto(this, h1_epd_fitting_timeDiff);
+//  se->registerHisto(this, h1_sepd_fitting_sigDiff);
+//  se->registerHisto(this, h1_sepd_fitting_pedDiff);
+//  se->registerHisto(this, h1_sepd_fitting_timeDiff);
   
   //save inidividual channel ADC distribution 
   for(int ichannel = 0; ichannel<nChannels; ichannel++){
@@ -125,23 +125,23 @@ int EpdMon::Init()
 
   WaveformProcessingTemp = new CaloWaveformFitting();
 
-  std::string epdtemplate;
-  if (getenv("EPDCALIB"))
+  std::string sepdtemplate;
+  if (getenv("SEPDCALIB"))
   {   
-    epdtemplate = getenv("EPDCALIB");
+    sepdtemplate = getenv("SEPDCALIB");
   }   
   else
   {   
-    epdtemplate = ".";
+    sepdtemplate = ".";
   }   
-  epdtemplate += std::string("/testbeam_epd_template.root");
-  WaveformProcessingTemp->initialize_processing(epdtemplate);
+  sepdtemplate += std::string("/testbeam_sepd_template.root");
+  WaveformProcessingTemp->initialize_processing(sepdtemplate);
 
   Reset();
   return 0;
 }
 
-int EpdMon::BeginRun(const int /* runno */)
+int SepdMon::BeginRun(const int /* runno */)
 {
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
@@ -149,7 +149,7 @@ int EpdMon::BeginRun(const int /* runno */)
 }
 
 // simple wavefrom analysis for possibe issues with the wavforProcessor
-std::vector<float> EpdMon::getSignal(Packet *p, const int channel)
+std::vector<float> SepdMon::getSignal(Packet *p, const int channel)
 {
 
   double baseline = 0;
@@ -178,7 +178,7 @@ std::vector<float> EpdMon::getSignal(Packet *p, const int channel)
   return result;
 }
 	  
-std::vector<float> EpdMon::anaWaveformFast(Packet *p, const int channel)
+std::vector<float> SepdMon::anaWaveformFast(Packet *p, const int channel)
 {
   std::vector<float> waveform;
   for ( int s = 0;  s< p->iValue(0,"SAMPLES"); s++) {
@@ -187,16 +187,16 @@ std::vector<float> EpdMon::anaWaveformFast(Packet *p, const int channel)
   std::vector<std::vector<float>> multiple_wfs;
   multiple_wfs.push_back(waveform);
 
-  std::vector<std::vector<float>> fitresults_cemc;
-  fitresults_cemc = WaveformProcessingFast->calo_processing_fast(multiple_wfs);
+  std::vector<std::vector<float>> fitresults_sepd;
+  fitresults_sepd = WaveformProcessingFast->calo_processing_fast(multiple_wfs);
 
   std::vector<float> result;
-  result = fitresults_cemc.at(0);
+  result = fitresults_sepd.at(0);
 
   return result;
 }
 
-std::vector<float> EpdMon::anaWaveformTemp(Packet *p, const int channel)
+std::vector<float> SepdMon::anaWaveformTemp(Packet *p, const int channel)
 {
   std::vector<float> waveform;
   for ( int s = 0;  s< p->iValue(0,"SAMPLES"); s++) {
@@ -205,18 +205,18 @@ std::vector<float> EpdMon::anaWaveformTemp(Packet *p, const int channel)
   std::vector<std::vector<float>> multiple_wfs;
   multiple_wfs.push_back(waveform);
 
-  std::vector<std::vector<float>> fitresults_cemc;
-  fitresults_cemc = WaveformProcessingTemp->process_waveform(multiple_wfs);
+  std::vector<std::vector<float>> fitresults_sepd;
+  fitresults_sepd = WaveformProcessingTemp->process_waveform(multiple_wfs);
 
   std::vector<float> result;
-  result = fitresults_cemc.at(0);
+  result = fitresults_sepd.at(0);
 
   return result;
 }
 
 
 
-int EpdMon::process_event(Event *e /* evt */)
+int SepdMon::process_event(Event *e /* evt */)
 {
   evtcnt++;
   
@@ -253,14 +253,15 @@ int EpdMon::process_event(Event *e /* evt */)
       float timeFast = resultFast.at(1);
       float pedestalFast = resultFast.at(2);
 
-      std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
-      float signalTemp = resultTemp.at(0);
-      float timeTemp  = resultTemp.at(1);
-      float pedestalTemp = resultTemp.at(2);
+//      std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
+//      float signalTemp = resultTemp.at(0);
+//      float timeTemp  = resultTemp.at(1);
+//      float pedestalTemp = resultTemp.at(2);
 
       // channel mapping
-      int ChMap = EpdMapChannel(ChannelNumber-1);
-      if(ChMap == -1){ std::cout << "Unused channel - " << ChannelNumber << "go to next channel" << std::endl;continue;}
+      int ChMap = SepdMapChannel(ChannelNumber-1);
+      if(ChMap == -1) continue;
+      //if(ChMap == -1){ std::cout << "Unused channel - " << ChMap << "go to next channel" << std::endl;continue;}
       unsigned int key = TowerInfoDefs::encode_epd(ChMap);
       int phi_bin = TowerInfoDefs::get_epd_phibin(key);
       int r_bin = TowerInfoDefs::get_epd_rbin(key);
@@ -273,9 +274,9 @@ int EpdMon::process_event(Event *e /* evt */)
       h1_waveform_time->Fill(timeFast);
       h1_waveform_pedestal->Fill(pedestalFast);
 	      
-      h1_epd_fitting_sigDiff -> Fill(signalFast/signalTemp);
-	    h1_epd_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
-	    h1_epd_fitting_timeDiff -> Fill(timeFast - timeTemp);
+      //h1_sepd_fitting_sigDiff -> Fill(signalFast/signalTemp);
+	    //h1_sepd_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
+	    //h1_sepd_fitting_timeDiff -> Fill(timeFast - timeTemp);
 
       float signal = signalFast;
 
@@ -295,7 +296,7 @@ int EpdMon::process_event(Event *e /* evt */)
           h_hits0_s->Fill(phi,r);
         }
         else if(r_bin!=0){
-          phi_in = (phi_bin>=nPhi) ? phi_bin-nPhi/2 : phi_bin + nPhi/2;
+          phi_in = (phi_bin>=nPhi/2) ? phi_bin-nPhi/2 : phi_bin + nPhi/2;
           phi    = -axislimit + axislimit/nPhi + 2*axislimit / nPhi * phi_in;
           r      = -axislimit + axislimit/nRad + 2*axislimit / nRad * r_bin;
           
@@ -320,7 +321,7 @@ int EpdMon::process_event(Event *e /* evt */)
           h_hits0_n->Fill(phi,r);
         }
         else if(r_bin!=0){
-          phi_in = (phi_bin>=nPhi) ? phi_bin-nPhi/2 : phi_bin + nPhi/2;
+          phi_in = (phi_bin>=nPhi/2) ? phi_bin-nPhi/2 : phi_bin + nPhi/2;
           phi    = -axislimit + axislimit/nPhi + 2*axislimit / nPhi * phi_in;
           r      = -axislimit + axislimit/nRad + 2*axislimit / nRad * r_bin;
           
@@ -348,7 +349,7 @@ int EpdMon::process_event(Event *e /* evt */)
 }
 
 
-int EpdMon::Reset()
+int SepdMon::Reset()
 {
   // reset our internal counters
   evtcnt = 0;
@@ -357,8 +358,8 @@ int EpdMon::Reset()
 }
 
 
-int EpdMon::EpdMapChannel(int  ch){
-  int nch = ch % 16;
+int SepdMon::SepdMapChannel(int  ch){
+  int nch = ch / 16;
   int chmap = -999;
   if(nch % 2 == 0){
     if(ch % 32==0) chmap = ch - nch/2;
@@ -369,7 +370,7 @@ int EpdMon::EpdMapChannel(int  ch){
     if( (ch-16)%32 ==0) chmap = -1;
     else{chmap = 2*(ch-16*nch) + 31*((nch-1)/2);} 
   }
-  if(chmap == -999){ std::cout << "WRONG Channel map !!!! " << std::endl; return -1;}
+  if(chmap ==-999){std::cout << "WRONG Channel map !!!! " << std::endl; return -1;}
   return chmap;
 }
 
