@@ -282,20 +282,20 @@ $quitButton->grid(-column=>2,-row=>$row);
 $quitButton->bind('<Button-1>' => sub {$mw->destroy});
 $quitButton->configure(-width=>5);
 
-$stopall = $mw->Button(-text=>'Stop All', 
-		       -command=> sub { send_monitor_command("all","stop") });
-$stopall->grid(-column=>3,-row=>$row);
-$stopall->configure(-state=>'active',-width=>7);
+#$stopall = $mw->Button(-text=>'Stop All', 
+#		       -command=> sub { send_monitor_command("all","stop") });
+#$stopall->grid(-column=>3,-row=>$row);
+#$stopall->configure(-state=>'active',-width=>7);
 
-$startall = $mw->Button(-text=>'Start All', 
-			-command=> sub { send_monitor_command("all","start") });
-$startall->grid(-column=>4,-row=>$row);
-$startall->configure(-state=>'disabled',-width=>7);
+#$startall = $mw->Button(-text=>'Start All', 
+#			-command=> sub { send_monitor_command("all","start") });
+#$startall->grid(-column=>4,-row=>$row);
+#$startall->configure(-state=>'disabled',-width=>7);
 
-$restartall = $mw->Button(-text=>'Restart All', 
-			  -command=> sub { send_monitor_command("all","restart") });
-$restartall->grid(-column=>5,-row=>$row);
-$restartall->configure(-state=>'active',-width=>7);
+#$restartall = $mw->Button(-text=>'Restart All', 
+#			  -command=> sub { send_monitor_command("all","restart") });
+#$restartall->grid(-column=>5,-row=>$row);
+#$restartall->configure(-state=>'active',-width=>7);
 
 my $date = $mw->Label(-text => "", -relief => 'sunk');
 $date->grid(-column=>(2*$ncolumns-2),-row=>$row,-columnspan=>2,-sticky=>'ew');
