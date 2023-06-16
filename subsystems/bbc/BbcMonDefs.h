@@ -15,9 +15,9 @@ namespace bbc_onlmon
   static const double TDC_FIT_MAX = 19.0;  // compatible type with TF::GetParameter(1)
   static const double TDC_FIT_MIN = 1.0;
   //static const int zvtnbin = 180;
-  static const int zvtnbin = 270;
-  static const float max_zvertex = 270;
-  static const float min_zvertex = -270;
+  static const int zvtnbin = 600;
+  static const float max_zvertex = 300;
+  static const float min_zvertex = -300;
 
 #define nPMT_1SIDE_BBC 64
 #define nPMT_BBC (nPMT_1SIDE_BBC * 2)
