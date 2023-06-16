@@ -11,6 +11,7 @@
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TH3.h>
 #include <TH2Poly.h>
 #include <TLatex.h>
 #include <TPad.h>
@@ -169,7 +170,8 @@ int MvtxMonDraw::DrawHitMap(const std::string &what)
 
   const int canvasID = 0;
   const int padID = 0;
-  TH2 *mvtxmon_HitMap[NSTAVE][NCHIP][NFlx + 1] = {nullptr};
+  TH3 *mvtxmon_HitMap[NFlx+1] = {nullptr};
+
   if (!gROOT->FindObject("MvtxMon_HitMap"))
   {
     MakeCanvas("MvtxMon_HitMap");
@@ -227,29 +229,29 @@ int MvtxMonDraw::DrawHitMap(const std::string &what)
 
   int ipad = 0;
   int returnCode = 0;
-  for (int aLayer = aLs; aLayer < aLe; aLayer++)
-  {
-    for (int aStave = aSs; aStave < aSe; aStave++)
-    {
-      for (int iChip = 0; iChip < 9; iChip++)
-      {
-        int stave = aLayer == 0 ? aStave : NStaves[aLayer] + aStave;
-        for (int iFelix = 0; iFelix < NFlx; iFelix++)
-        {
-          mvtxmon_HitMap[stave][iChip][iFelix] = dynamic_cast<TH2 *>(cl->getHisto(Form("MVTXMON_%d", iFelix), Form("MVTXMON_chipHitmapL%dS%dC%d", aLayer, aStave, iChip)));
-        }
-        MergeServers<TH2 *>(mvtxmon_HitMap[stave][iChip]);
-        if (mvtxmon_HitMap[stave][iChip][NFlx])
-        {
-          mvtxmon_HitMap[stave][iChip][NFlx]->GetXaxis()->CenterTitle();
-          mvtxmon_HitMap[stave][iChip][NFlx]->GetYaxis()->CenterTitle();
-          mvtxmon_HitMap[stave][iChip][NFlx]->GetYaxis()->SetTitleOffset(1.4);
-          mvtxmon_HitMap[stave][iChip][NFlx]->GetXaxis()->SetTitleOffset(0.75);
-          mvtxmon_HitMap[stave][iChip][NFlx]->GetXaxis()->SetTitleSize(0.06);
-          mvtxmon_HitMap[stave][iChip][NFlx]->GetYaxis()->SetTitleOffset(0.75);
-          mvtxmon_HitMap[stave][iChip][NFlx]->GetYaxis()->SetTitleSize(0.06);
-        }
-        returnCode += PublishHistogram(Pad[padID], ipad * 9 + iChip + 1, mvtxmon_HitMap[stave][iChip][NFlx], "colz");  // publish merged one
+
+  for (int iFelix = 0; iFelix <NFlx; iFelix++){
+    mvtxmon_HitMap[iFelix] = dynamic_cast<TH3*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_chipHitmapFLX%d", iFelix)));
+  }
+  MergeServers<TH3*>(mvtxmon_HitMap);
+  if(mvtxmon_HitMap[NFlx]){
+    mvtxmon_HitMap[NFlx]->GetXaxis()->CenterTitle();
+    mvtxmon_HitMap[NFlx]->GetYaxis()->CenterTitle();
+    mvtxmon_HitMap[NFlx]->GetYaxis()->SetTitleOffset(1.4);
+    mvtxmon_HitMap[NFlx]->GetXaxis()->SetTitleOffset(0.75);
+    mvtxmon_HitMap[NFlx]->GetXaxis()->SetTitleSize(0.06);
+    mvtxmon_HitMap[NFlx]->GetYaxis()->SetTitleOffset(0.75);
+    mvtxmon_HitMap[NFlx]->GetYaxis()->SetTitleSize(0.06);
+  }
+
+  for (int aLayer = aLs; aLayer < aLe; aLayer++) {
+    for (int aStave = aSs; aStave < aSe; aStave++) {
+      for (int iChip = 0; iChip < 9; iChip++) {
+        //int stave = aLayer==0?aStave:NStaves[aLayer]+aStave;
+	TString prefix = Form("%d%d%d",aLayer,aStave,iChip);
+        mvtxmon_HitMap[NFlx]->GetZaxis()->SetRange(((chipmapoffset[aLayer]+aStave)*9+iChip+1),((chipmapoffset[aLayer]+aStave)*9+iChip+1));
+        returnCode += PublishHistogram(Pad[padID],ipad*9+iChip+1,mvtxmon_HitMap[NFlx]->Project3D(prefix+"xy"),"colz"); //publish merged one
+	gStyle->SetOptStat(0);
       }
       ipad++;
     }

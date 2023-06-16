@@ -17,6 +17,7 @@ class TH1;
 class TH2;
 class TH1I;
 class TH2I;
+class TH3I;
 class TH1D;
 class TH2D;
 class TH2Poly;
@@ -57,18 +58,21 @@ class MvtxMon : public OnlMon
 
   int mMaxGeneralAxisRange = -3;  // the range of TH2Poly plots z axis range, pow(10, mMinGeneralAxisRange) ~ pow(10, mMaxGeneralAxisRange)
   int mMinGeneralAxisRange = -12;
-  std::string mLaneStatusFlag[NFlags] = {"WARNING", "ERROR", "FAULT"};
 
-  const int StaveBoundary[4] = {0, 12, 28, 48};
-  const int LayerBoundaryFEE[NLAYERS - 1] = {35, 83};
-  // double** mOccupancyLane;
+  std::string mLaneStatusFlag[NFlags] = { "WARNING", "ERROR", "FAULT" };
 
-  TH2* mvtxmon_ChipStaveOcc = nullptr;
-  TH1* mvtxmon_ChipStave1D = nullptr;
-  TH1* mvtxmon_ChipFiredHis = nullptr;
-  TH1* mvtxmon_EvtHitChip = nullptr;
-  TH1* mvtxmon_EvtHitDis = nullptr;
-  TH2* mvtxmon_HitMap[NSTAVE][NCHIP] = {nullptr};
+  const int StaveBoundary[4] = { 0, 12, 28, 48};
+  const int LayerBoundaryFEE[NLAYERS - 1] = { 35, 83};
+  const int chipmapoffset[3] = { 0, 12, 28};
+  //double** mOccupancyLane;
+
+  TH2	*mvtxmon_ChipStaveOcc= nullptr;
+  TH1	*mvtxmon_ChipStave1D= nullptr;
+  TH1	*mvtxmon_ChipFiredHis= nullptr;
+  TH1	*mvtxmon_EvtHitChip= nullptr;
+  TH1 *mvtxmon_EvtHitDis= nullptr;
+  TH2 *mvtxmon_HitMap[NSTAVE][NCHIP] = {nullptr}; 
+
   TH2Poly* mvtxmon_GeneralOccupancy = nullptr;
   TH2Poly* mvtxmon_LaneStatusOverview[NFlags] = {nullptr};
   // fee
@@ -87,8 +91,8 @@ class MvtxMon : public OnlMon
   TH1D* hOccupancyPlot[NLAYERS] = {nullptr};
   TH2I* hEtaPhiHitmap[NLAYERS] = {nullptr};
   TH2D* hChipStaveOccupancy[NLAYERS] = {nullptr};
-  TH2I* hChipHitmap[3][20][9] = {nullptr};
-  TH2I* hChipHitmap_evt[3][20][9] = {nullptr};
+  TH3I* hChipHitmap = nullptr;
+  TH3I* hChipHitmap_evt = nullptr;
 
   // fhr
   TH2I* mErrorVsFeeid = nullptr;

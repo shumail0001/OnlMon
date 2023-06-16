@@ -58,6 +58,7 @@ class MvtxMonDraw : public OnlMonDraw
   static constexpr int NCols = 1024;
   static constexpr int NRows = 512;
   static constexpr int NPixels = NRows * NCols;
+  const int chipmapoffset[3] = { 0, 12, 28};
 
  protected:
   int MakeCanvas(const std::string &name);
