@@ -18,11 +18,11 @@ void StartPoms()
   pmf = PomsMainFrame::Instance();
 
   // Register SubSystems
-//  pmf->RegisterSubSystem("EXAMPLE", "example");
+  //  pmf->RegisterSubSystem("EXAMPLE", "example");
 
   SubSystem *bbc = new SubSystem("BBC", "bbc");
-  bbc->AddAction("bbcDraw(\"BbcMonitor\")", "BBC Monitor");
-  bbc->AddAction("bbcDraw(\"VertexMonitor\")", "VertexMonitor");
+  bbc->AddAction("bbcDraw(\"FIRST\")", "BBC Vertex Monitor");
+  bbc->AddAction("bbcDraw(\"SECOND\")", "BBC Timing Monitor");
   bbc->AddAction(new SubSystemActionDrawPS(bbc));
   pmf->RegisterSubSystem(bbc);
 

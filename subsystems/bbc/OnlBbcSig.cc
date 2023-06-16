@@ -26,6 +26,13 @@ OnlBbcSig::OnlBbcSig(const int chnum, const int nsamp) :
   f_time{0},
   f_time_offset{4.0}, // time shift from fit
   f_integral{0.},     // time shift from fit
+  hRawPulse{nullptr},
+  hSubPulse{nullptr},
+  hpulse{nullptr},
+  gRawPulse{nullptr},
+  gSubPulse{nullptr},
+  gpulse{nullptr},
+  hPed0{nullptr},
   ped0{0},            // ped average
   ped0rms{0},
   use_ped0{0},
@@ -52,6 +59,12 @@ OnlBbcSig::OnlBbcSig(const int chnum, const int nsamp) :
   verbose{0}
 {
   //cout << "In OnlBbcSig::OnlBbcSig(" << ch << "," << nsamples << ")" << endl;
+
+}
+
+
+void OnlBbcSig::Init()
+{
   TString name;
 
   name = "hrawpulse"; name += ch;
@@ -75,110 +88,9 @@ OnlBbcSig::OnlBbcSig(const int chnum, const int nsamp) :
   name = "hPed0_"; name += ch;
   hPed0 = new TH1F(name,name,16384,-0.5,16383.5);
   //hPed0 = new TH1F(name,name,10000,1,0); // automatically determine the range
+
   SetTemplateSize(120,2048,-2,9.9);
-
 }
-
-OnlBbcSig::OnlBbcSig(const OnlBbcSig &obj) :
-  ch{obj.ch},
-  nsamples{obj.nsamples},
-  f_ampl{obj.f_ampl},
-  f_time{obj.f_time},
-  f_time_offset{obj.f_time_offset},
-  f_integral{obj.f_integral},
-  ped0{obj.ped0},
-  ped0rms{obj.ped0rms},
-  use_ped0{obj.use_ped0},
-  minped0samp{obj.minped0samp},
-  maxped0samp{obj.maxped0samp},
-  minped0x{obj.minped0x},
-  maxped0x{obj.maxped0x},
-  time_calib{obj.time_calib},
-  h2Template{obj.h2Template},
-  h2Residuals{obj.h2Residuals},
-  hAmpl{obj.hAmpl},
-  hTime{obj.hTime},
-  template_npointsx{obj.template_npointsx},
-  template_npointsy{obj.template_npointsy},
-  template_begintime{obj.template_begintime},
-  template_endtime{obj.template_endtime},
-  template_min_good_amplitude{obj.template_min_good_amplitude},
-  template_max_good_amplitude{obj.template_max_good_amplitude},
-  template_min_xrange{obj.template_min_xrange},
-  template_max_xrange{obj.template_max_xrange},
-  template_y{obj.template_y},
-  template_yrms{obj.template_yrms},
-  template_fcn{obj.template_fcn},
-  verbose{obj.verbose}
-{
-
-  TString name = "hrawpulse"; name += ch;
-  hRawPulse = new TH1F(name,name,nsamples,-0.5,nsamples-0.5);
-  // *hRawPulse = *obj.hRawPulse;
-  name = "hsubpulse"; name += ch;
-  hSubPulse = new TH1F(name,name,nsamples,-0.5,nsamples-0.5);
-  // *hSubPulse = *obj.hSubPulse;
-
-  //gRawPulse = new TGraphErrors(nsamples);
-  gRawPulse = new TGraphErrors();
-  name = "grawpulse"; name += ch;
-  gRawPulse->SetName(name);
-  *gRawPulse = *obj.gRawPulse;
-  //gSubPulse = new TGraphErrors(nsamples);
-  gSubPulse = new TGraphErrors();
-  name = "gsubpulse"; name += ch;
-  gSubPulse->SetName(name);
-  *gSubPulse = *obj.gSubPulse;
-
-  hpulse = hRawPulse;   // hpulse,gpulse point to raw by default
-  gpulse = gRawPulse;   // we switch to sub for default if ped is applied
-
-  name = "hPed0_"; name += ch;
-  hPed0 = new TH1F(name,name,16384,-0.5,16383.5);
-
-}
-
-/*
-OnlBbcSig& OnlBbcSig::operator= (const OnlBbcSig& obj)
-{
-  
-  if (&obj != this) {
-  
-    ch = obj.ch;
-    nsamples = obj.nsamples;
-    hPed0 = obj.hPed0;
-    h2Template = obj.h2Template;
-    h2Residuals = obj.h2Residuals;
-    hAmpl = obj.hAmpl;
-    hTime = obj.hTime;
-    template_fcn = obj.template_fcn;
-    verbose = obj.verbose;
-
-    TString name = "hrawpulse"; name += ch;
-    hRawPulse = new TH1F(name,name,nsamples,-0.5,nsamples-0.5);
-    //hRawPulse = *obj.hRawPulse;
-    name = "hsubpulse"; name += ch;
-    hSubPulse = new TH1F(name,name,nsamples,-0.5,nsamples-0.5);
-    //hSubPulse = *obj.hSubPulse;
-
-    //gRawPulse = new TGraphErrors(nsamples);
-    gRawPulse = new TGraphErrors();
-    name = "grawpulse"; name += ch;
-    gRawPulse->SetName(name);
-    *gRawPulse = *obj.gRawPulse;
-    //gSubPulse = new TGraphErrors(nsamples);
-    gSubPulse = new TGraphErrors();
-    name = "gsubpulse"; name += ch;
-    gSubPulse->SetName(name);
-    *gSubPulse = *obj.gSubPulse;
-
-    hpulse = hRawPulse;   // hpulse,gpulse point to raw by default
-    gpulse = gRawPulse;   // we switch to sub for default if ped is applied
-  }
-
-  return *this;
-}
-*/
 
 void  OnlBbcSig::SetTemplateSize(const Int_t nptsx, const Int_t nptsy, const Double_t begt, const Double_t endt)
 {
@@ -192,8 +104,8 @@ void  OnlBbcSig::SetTemplateSize(const Int_t nptsx, const Int_t nptsy, const Dou
 
   Double_t xbinwid = (template_endtime - template_begintime)/(template_npointsx-1);
   Double_t ybinwid = (1.1+0.1)/template_npointsy;  // yscale... should we vary this?
-  if ( h2Template != 0 ) delete h2Template;
-  if ( h2Residuals != 0 ) delete h2Residuals;
+  if ( h2Template ) delete h2Template;
+  if ( h2Residuals ) delete h2Residuals;
 
   TString name = "h2Template"; name += ch;
   h2Template = new TH2F(name,name,template_npointsx,template_begintime-xbinwid/2.,template_endtime+xbinwid/2,
@@ -240,6 +152,11 @@ void  OnlBbcSig::SetTemplateMinMaxFitRange(const Double_t min, const Double_t ma
 // This sets y, and x to sample number (starts at 0)
 void OnlBbcSig::SetY(const Float_t *y, const int invert)
 {
+  if ( hRawPulse == nullptr )
+  {
+    Init();
+  }
+
   hpulse->Reset();
   f_ampl = -9999.;
   f_time = -9999.;
@@ -276,8 +193,14 @@ void OnlBbcSig::SetY(const Float_t *y, const int invert)
 
 void OnlBbcSig::SetXY(const Float_t *x, const Float_t *y, const int invert)
 {
+  if ( hRawPulse == nullptr )
+  {
+    Init();
+  }
+
   hRawPulse->Reset();
   hSubPulse->Reset();
+
   f_ampl = -9999.;
   f_time = -9999.;
 
