@@ -32,8 +32,8 @@ macros/Makefile
 subsystems/Makefile
 subsystems/bbc/Makefile
 subsystems/bbc/calib/Makefile
-subsystems/bbcll1/Makefile
-subsystems/bbcll1/calib/Makefile
+subsystems/ll1/Makefile
+subsystems/ll1/calib/Makefile
 subsystems/cemc/Makefile
 subsystems/cemc/calib/Makefile
 subsystems/daq/Makefile

@@ -1,5 +1,5 @@
-#ifndef BBCLL1_BBCLL1MONDRAW_H
-#define BBCLL1_BBCLL1MONDRAW_H
+#ifndef LL1_LL1MONDRAW_H
+#define LL1_LL1MONDRAW_H
 
 #include <onlmon/OnlMonDraw.h>
 
@@ -10,12 +10,12 @@ class TCanvas;
 class TGraphErrors;
 class TPad;
 
-class Bbcll1MonDraw : public OnlMonDraw
+class LL1MonDraw : public OnlMonDraw
 {
  public:
-  Bbcll1MonDraw(const std::string &name);
+  LL1MonDraw(const std::string &name);
 
-  ~Bbcll1MonDraw() override {}
+  ~LL1MonDraw() override {}
 
   int Init() override;
   int Draw(const std::string &what = "ALL") override;
@@ -26,6 +26,7 @@ class Bbcll1MonDraw : public OnlMonDraw
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
+  int DrawThird(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
   int TimeOffsetTicks = -1;
   TCanvas *TC[3] = {nullptr};
@@ -33,6 +34,13 @@ class Bbcll1MonDraw : public OnlMonDraw
   TPad *Pad[6] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   OnlMonDB *dbvars = nullptr;
+
+  const int nPad1 = 4;
+  double edgediff = 0.03;
+  double padx1[4] = {edgediff, 0.5+edgediff, edgediff, 0.5 +edgediff};
+  double pady1[4] = {0.5+edgediff, 0.5+edgediff, edgediff, edgediff};
+  double padx2[4] = {0.5-edgediff, 1-edgediff, 0.5-edgediff, 1-edgediff};
+  double pady2[4] = {1-edgediff,1-edgediff,0.5-edgediff,0.5-edgediff};
 };
 
-#endif /* BBCLL1_BBCLL1MONDRAW_H */
+#endif /* LL1_LL1MONDRAW_H */

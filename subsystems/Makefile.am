@@ -8,7 +8,7 @@ include_HEADERS =
 ###
 SUBDIRS = \
   bbc \
-  bbcll1 \
+  ll1 \
   cemc \
   daq \
   sepd \

@@ -1,4 +1,4 @@
-#include "Bbcll1MonDraw.h"
+#include "LL1MonDraw.h"
 
 #include <onlmon/OnlMonClient.h>
 #include <onlmon/OnlMonDB.h>
@@ -8,10 +8,12 @@
 #include <TDatime.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
+#include <TH2.h>
 #include <TPad.h>
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TText.h>
+#include <TStyle.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -20,7 +22,7 @@
 #include <sstream>
 #include <vector>  // for vector
 
-Bbcll1MonDraw::Bbcll1MonDraw(const std::string &name)
+LL1MonDraw::LL1MonDraw(const std::string &name)
   : OnlMonDraw(name)
 {
   // this TimeOffsetTicks is neccessary to get the time axis right
@@ -30,68 +32,59 @@ Bbcll1MonDraw::Bbcll1MonDraw(const std::string &name)
   return;
 }
 
-int Bbcll1MonDraw::Init()
+int LL1MonDraw::Init()
 {
   return 0;
 }
 
-int Bbcll1MonDraw::MakeCanvas(const std::string &name)
+int LL1MonDraw::MakeCanvas(const std::string &name)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
-  if (name == "Bbcll1Mon1")
+  if (name == "LL1Mon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "Bbcll1Mon Example Monitor", -1, 0, xsize / 2, ysize);
+    TC[0] = new TCanvas(name.c_str(), "ll1Mon Monitor", -1, 0, xsize/2, ysize/2);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
     // grow and grow but will not show a definitely lost memory leak
     gSystem->ProcessEvents();
-    Pad[0] = new TPad("bbcll1pad1", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[1] = new TPad("bbcll1pad2", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[0]->Draw();
-    Pad[1]->Draw();
-    // this one is used to plot the run number on the canvas
+    for(int ipad=0; ipad<nPad1; ipad++){
+      Pad[ipad] = new TPad(Form("ll1pad%d",ipad),Form("ll1pad%d",ipad),padx1[ipad],pady1[ipad],padx2[ipad],pady2[ipad],0);
+      Pad[ipad]->Draw();
+    }
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
     transparent[0]->SetFillStyle(4000);
     transparent[0]->Draw();
     TC[0]->SetEditable(false);
   }
-  else if (name == "Bbcll1Mon2")
+  else if (name == "LL1Mon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "Bbcll1Mon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
+    TC[1] = new TCanvas(name.c_str(), "ll1Mon2 Monitor", -xsize / 2, 0, xsize / 2, ysize/2);
     gSystem->ProcessEvents();
-    Pad[2] = new TPad("bbcll1pad3", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[3] = new TPad("bbcll1pad4", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[2]->Draw();
-    Pad[3]->Draw();
     // this one is used to plot the run number on the canvas
     transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
     transparent[1]->SetFillStyle(4000);
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
   }
-  else if (name == "Bbcll1Mon3")
+  else if (name == "LL1Mon3")
   {
-    TC[2] = new TCanvas(name.c_str(), "Bbcll1Mon3 Example Monitor", xsize / 2, 0, xsize / 2, ysize);
+    TC[2] = new TCanvas(name.c_str(), "ll1Mon3 Monitor", xsize / 2, 0, xsize / 2, ysize/2);
     gSystem->ProcessEvents();
-    Pad[4] = new TPad("bbcll1pad5", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[5] = new TPad("bbcll1pad6", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[4]->Draw();
-    Pad[5]->Draw();
     // this one is used to plot the run number on the canvas
-    //        transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
-    //        transparent[2]->SetFillStyle(4000);
-    //        transparent[2]->Draw();
-    //      TC[2]->SetEditable(0);
+            transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+            transparent[2]->SetFillStyle(4000);
+            transparent[2]->Draw();
+          TC[2]->SetEditable(0);
   }
   return 0;
 }
 
-int Bbcll1MonDraw::Draw(const std::string &what)
+int LL1MonDraw::Draw(const std::string &what)
 {
   int iret = 0;
   int idraw = 0;
@@ -107,7 +100,7 @@ int Bbcll1MonDraw::Draw(const std::string &what)
   }
   if (what == "ALL" || what == "HISTORY")
   {
-    iret += DrawHistory(what);
+    iret += DrawThird(what);
     idraw++;
   }
   if (!idraw)
@@ -118,21 +111,24 @@ int Bbcll1MonDraw::Draw(const std::string &what)
   return iret;
 }
 
-int Bbcll1MonDraw::DrawFirst(const std::string & /* what */)
+int LL1MonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *bbcll1mon_hist1 = cl->getHisto("BBCLL1MON_0","bbcll1mon_hist1");
-  TH1 *bbcll1mon_hist2 = cl->getHisto("BBCLL1MON_0","bbcll1mon_hist1");
-  if (!gROOT->FindObject("Bbcll1Mon1"))
+  TH1 *h_nhit_n1 = cl->getHisto("LL1MON_0","h_nhit_n1");
+  TH1 *h_nhit_n2 = cl->getHisto("LL1MON_0","h_nhit_n2");
+  TH1 *h_nhit_s1 = cl->getHisto("LL1MON_0","h_nhit_s1");
+  TH1 *h_nhit_s2 = cl->getHisto("LL1MON_0","h_nhit_s2");
+  if (!gROOT->FindObject("LL1Mon1"))
   {
-    MakeCanvas("Bbcll1Mon1");
+    MakeCanvas("LL1Mon1");
   }
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   Pad[0]->cd();
-  if (bbcll1mon_hist1)
+  TStyle* m_gStyle = new TStyle();
+  if (h_nhit_n1)
   {
-    bbcll1mon_hist1->DrawCopy();
+    h_nhit_n1->DrawCopy();
   }
   else
   {
@@ -140,11 +136,17 @@ int Bbcll1MonDraw::DrawFirst(const std::string & /* what */)
     TC[0]->SetEditable(false);
     return -1;
   }
+  m_gStyle->SetOptStat(0);
   Pad[1]->cd();
-  if (bbcll1mon_hist2)
-  {
-    bbcll1mon_hist2->DrawCopy();
-  }
+  h_nhit_n2->DrawCopy();
+  m_gStyle->SetOptStat(0);
+  Pad[2]->cd();
+  h_nhit_s1->DrawCopy();
+  m_gStyle->SetOptStat(0);
+  Pad[3]->cd();
+  h_nhit_s2->DrawCopy();
+  m_gStyle->SetOptStat(0);
+
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);
@@ -165,32 +167,25 @@ int Bbcll1MonDraw::DrawFirst(const std::string & /* what */)
   return 0;
 }
 
-int Bbcll1MonDraw::DrawSecond(const std::string & /* what */)
+int LL1MonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *bbcll1mon_hist1 = cl->getHisto("BBCLL1MON_0","bbcll1mon_hist2");
-  TH1 *bbcll1mon_hist2 = cl->getHisto("BBCLL1MON_0","bbcll1mon_hist2");
-  if (!gROOT->FindObject("Bbcll1Mon2"))
+  TH2 *h_nhit_corr= (TH2D*) cl->getHisto("LL1MON_0","h_nhit_corr");
+  if (!gROOT->FindObject("LL1Mon2"))
   {
-    MakeCanvas("Bbcll1Mon2");
+    MakeCanvas("LL1Mon2");
   }
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
-  Pad[2]->cd();
-  if (bbcll1mon_hist1)
+  if (h_nhit_corr)
   {
-    bbcll1mon_hist1->DrawCopy();
+    h_nhit_corr->Draw("colz");
   }
   else
   {
     DrawDeadServer(transparent[1]);
     TC[1]->SetEditable(false);
     return -1;
-  }
-  Pad[3]->cd();
-  if (bbcll1mon_hist2)
-  {
-    bbcll1mon_hist2->DrawCopy();
   }
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -212,7 +207,47 @@ int Bbcll1MonDraw::DrawSecond(const std::string & /* what */)
   return 0;
 }
 
-int Bbcll1MonDraw::MakePS(const std::string &what)
+int LL1MonDraw::DrawThird(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH2 *h_line_up= (TH2*) cl->getHisto("LL1MON_0","h_line_up");
+  if (!gROOT->FindObject("LL1Mon3"))
+  {
+    MakeCanvas("LL1Mon3");
+  }
+  TC[2]->SetEditable(true);
+  TC[2]->Clear("D");
+  if (h_line_up)
+  {
+    h_line_up->Draw("colz");
+  }
+  else
+  {
+    DrawDeadServer(transparent[2]);
+    TC[2]->SetEditable(false);
+    return -1;
+  }
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_3 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[2]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[2]->Update();
+  TC[2]->Show();
+  TC[2]->SetEditable(false);
+  return 0;
+}
+
+int LL1MonDraw::MakePS(const std::string &what)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   std::ostringstream filename;
@@ -229,7 +264,7 @@ int Bbcll1MonDraw::MakePS(const std::string &what)
   return 0;
 }
 
-int Bbcll1MonDraw::MakeHtml(const std::string &what)
+int LL1MonDraw::MakeHtml(const std::string &what)
 {
   int iret = Draw(what);
   if (iret)  // on error no html output please
@@ -265,7 +300,7 @@ int Bbcll1MonDraw::MakeHtml(const std::string &what)
   return 0;
 }
 
-int Bbcll1MonDraw::DrawHistory(const std::string & /* what */)
+int LL1MonDraw::DrawHistory(const std::string & /* what */)
 {
   int iret = 0;
   // you need to provide the following vectors
@@ -274,7 +309,7 @@ int Bbcll1MonDraw::DrawHistory(const std::string & /* what */)
   std::vector<float> varerr;
   std::vector<time_t> timestamp;
   std::vector<int> runnumber;
-  std::string varname = "bbcll1mondummy";
+  std::string varname = "ll1mondummy";
   // this sets the time range from whihc values should be returned
   time_t begin = 0;            // begin of time (1.1.1970)
   time_t end = time(nullptr);  // current time (right NOW)
@@ -284,9 +319,9 @@ int Bbcll1MonDraw::DrawHistory(const std::string & /* what */)
     std::cout << __PRETTY_FUNCTION__ << " Error in db access" << std::endl;
     return iret;
   }
-  if (!gROOT->FindObject("Bbcll1Mon3"))
+  if (!gROOT->FindObject("LL1Mon3"))
   {
-    MakeCanvas("Bbcll1Mon3");
+    MakeCanvas("LL1Mon3");
   }
   // timestamps come sorted in ascending order
   float *x = new float[var.size()];
@@ -328,7 +363,7 @@ int Bbcll1MonDraw::DrawHistory(const std::string & /* what */)
   delete[] ex;
   delete[] ey;
 
-  varname = "bbcll1moncount";
+  varname = "ll1moncount";
   iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
   if (iret)
   {
