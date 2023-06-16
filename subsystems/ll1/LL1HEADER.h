@@ -26,65 +26,61 @@ class LL1HEADER
 {
 
  public:
-  int runnumber;
-  int evtnr;
-  int clock;
+  int runnumber=0;
+  int evtnr=0;
+  int clock=0;
 
-  int evenchecksum;
-  int calcevenchecksum;
-  int oddchecksum;
-  int calcoddchecksum;
+  int evenchecksum=0;
+  int calcevenchecksum=0;
+  int oddchecksum=0;
+  int calcoddchecksum=0;
 
-  int femslot[NRMOD];
-  int femevtnr[NRMOD];
-  int femclock[NRMOD];
+  int femslot[NRMOD]={0};
+  int femevtnr[NRMOD]={0};
+  int femclock[NRMOD]={0};
 
-  int adc[NRMOD*NCHANPERMOD][NRSAM];
-  int channel[NCH][NRSAM];
-  int triggerwords[NTRIGWORDS][NRSAM];
-  float mean[NRMOD*NCHANPERMOD];
-  float rms[NRMOD*NCHANPERMOD];
-  int minadc[NRMOD*NCHANPERMOD];
-  int maxadc[NRMOD*NCHANPERMOD];
-  float pedestal[NRMOD*NCHANPERMOD];
-  float pedsig[NRMOD*NCHANPERMOD];
-  float peak[NRMOD*NCHANPERMOD];
-  float time[NRMOD*NCHANPERMOD];
-  float integral[NRMOD*NCHANPERMOD];
-  float integral2[NRMOD*NCHANPERMOD];
+  int adc[NRMOD*NCHANPERMOD][NRSAM]={0};
+  int channel[NCH][NRSAM]={0};
+  int triggerwords[NTRIGWORDS][NRSAM]={0};
+  float mean[NRMOD*NCHANPERMOD]={0.};
+  float rms[NRMOD*NCHANPERMOD]={0.};
+  int minadc[NRMOD*NCHANPERMOD]={0};
+  int maxadc[NRMOD*NCHANPERMOD]={0};
+  float pedestal[NRMOD*NCHANPERMOD]={0.};
+  float pedsig[NRMOD*NCHANPERMOD]={0.};
+  float peak[NRMOD*NCHANPERMOD]={0.};
+  float time[NRMOD*NCHANPERMOD]={0.};
+  float integral[NRMOD*NCHANPERMOD]={0.};
+  float integral2[NRMOD*NCHANPERMOD]={0.};
 
-  int nhit_n1[NRSAM];
-  int nhit_n2[NRSAM];
-  int nhit_s1[NRSAM];
-  int nhit_s2[NRSAM];
-  int nhit_n[NRSAM];
-  int nhit_s[NRSAM];
-  int chargesum_s1[NRSAM];
-  int chargesum_s2[NRSAM];
-  int chargesum_n1[NRSAM];
-  int chargesum_n2[NRSAM];
-  int chargesum_s[NRSAM];
-  int chargesum_n[NRSAM];
-  int timesum_s1[NRSAM];
-  int timesum_s2[NRSAM];
-  int timesum_n1[NRSAM];
-  int timesum_n2[NRSAM];
-  int timesum_s[NRSAM];
-  int timesum_n[NRSAM];
+  int nhit_n1[NRSAM]={0};
+  int nhit_n2[NRSAM]={0};
+  int nhit_s1[NRSAM]={0};
+  int nhit_s2[NRSAM]={0};
+  int nhit_n[NRSAM]={0};
+  int nhit_s[NRSAM]={0};
+  int chargesum_s1[NRSAM]={0};
+  int chargesum_s2[NRSAM]={0};
+  int chargesum_n1[NRSAM]={0};
+  int chargesum_n2[NRSAM]={0};
+  int chargesum_s[NRSAM]={0};
+  int chargesum_n[NRSAM]={0};
+  int timesum_s1[NRSAM]={0};
+  int timesum_s2[NRSAM]={0};
+  int timesum_n1[NRSAM]={0};
+  int timesum_n2[NRSAM]={0};
+  int timesum_s[NRSAM]={0};
+  int timesum_n[NRSAM]={0};
 
-  int idxsample;
-  int idxhitn;
-  int idxhits;
+  int idxsample={0};
+  int idxhitn={0};
+  int idxhits={0};
 
-  int summary[NXMIT];
+  int summary[NXMIT]={0};
   
-  LL1HEADER() {
-    runnumber = 0;
-
-  };
+  LL1HEADER() {};
   
-  ~LL1HEADER() {
-  }; 
+  ~LL1HEADER() {}; 
 
 };
 

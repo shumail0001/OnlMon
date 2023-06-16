@@ -88,7 +88,7 @@ void ll1setup(Event *evt, LL1HEADER *&ll1h)
 
         for(int ic = 0; ic <NCH; ic++) {
           ll1h->channel[ic][is] = p->iValue(is,ic);
-          if(ic>=NADCSH*0 && ic<NHITCHANNEL+NADCSH*0) ll1h->chargesum_s1[is] += p->iValue(is,ic);
+          if(ic>=0 && ic<NHITCHANNEL) ll1h->chargesum_s1[is] += p->iValue(is,ic);
           else if(ic>=NADCSH*1 && ic<NHITCHANNEL+NADCSH*1) ll1h->chargesum_s2[is] += p->iValue(is,ic);
           else if(ic>=NADCSH*2 && ic<NHITCHANNEL+NADCSH*2) ll1h->chargesum_n1[is] += p->iValue(is,ic);
           else if(ic>=NADCSH*3 && ic<NHITCHANNEL+NADCSH*3) ll1h->chargesum_n2[is] += p->iValue(is,ic);
