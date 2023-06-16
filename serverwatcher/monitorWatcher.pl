@@ -16,7 +16,6 @@ use Tk::FileSelect;
 use Time::localtime;
 use DirHandle;
 use Tk::Image;
-use Env;
 use File::Basename;
 
 use strict;
@@ -56,7 +55,7 @@ sub send_monitor_command {
   my $cmd;
 
   if ( $m eq "all" ) {
-    $cmd = "$ONLMON_RUNDIR/submit_all.sh $what";
+    $cmd = "$ENV{'ONLMON_RUNDIR'}/submit_all.sh $what";
     if ( $what eq "restart" )
       {
         system("restart_monitor_pool.sh");
@@ -119,11 +118,9 @@ sub checkMonitor {
   }  
   close STATUS;
   my $nres = scalar @result;
-  print "nres: $nres" ;
   if ( scalar @result == 2 ) 
     {
 	$_=$result[1];
-	print "looking for $va\n";
       if ( /$va/ ) {
 	my @s = split " ";
 	$monitors{$m}->{"pid"} = $s[0];
@@ -150,12 +147,12 @@ sub checkMonitor {
 #_____________________________________________________________________________
 sub getMonitors() {
 
-  my $d = new DirHandle "$ONLMON_SERVERWATCHER";
+  my $d = new DirHandle "$ENV{'ONLMON_SERVERWATCHER'}";
 
   if (defined $d) {
     while (defined($_ = $d->read)) {
       if (/monitorserver/ && /cmd/ && $_ !~ /~/) {
-	my $cmdfile = "$ONLMON_SERVERWATCHER/$_";
+	my $cmdfile = "$ENV{'ONLMON_SERVERWATCHER'}/$_";
 	my ($va,$monitor,$number)=decode($cmdfile);
 	decode_new($cmdfile);
       }
@@ -275,7 +272,7 @@ foreach my $m ( sort keys %monitors ) {
 
 }
 
-my $logoimg = $mw->Photo('logo',-file=>"$ONLMON_SERVERWATCHER/sphenix-logo_transparent_small.gif");
+my $logoimg = $mw->Photo('logo',-file=>"$ENV{'ONLMON_SERVERWATCHER'}/sphenix-logo_transparent_small.gif");
 my $logo = $mw->Label('-image'=>'logo');
 $row+=$ncolumns;
 $logo->grid(-column=>0,-row=>$row,-columnspan=>2);
@@ -285,20 +282,20 @@ $quitButton->grid(-column=>2,-row=>$row);
 $quitButton->bind('<Button-1>' => sub {$mw->destroy});
 $quitButton->configure(-width=>5);
 
-$stopall = $mw->Button(-text=>'Stop All', 
-		       -command=> sub { send_monitor_command("all","stop") });
-$stopall->grid(-column=>3,-row=>$row);
-$stopall->configure(-state=>'active',-width=>7);
+#$stopall = $mw->Button(-text=>'Stop All', 
+#		       -command=> sub { send_monitor_command("all","stop") });
+#$stopall->grid(-column=>3,-row=>$row);
+#$stopall->configure(-state=>'active',-width=>7);
 
-$startall = $mw->Button(-text=>'Start All', 
-			-command=> sub { send_monitor_command("all","start") });
-$startall->grid(-column=>4,-row=>$row);
-$startall->configure(-state=>'disabled',-width=>7);
+#$startall = $mw->Button(-text=>'Start All', 
+#			-command=> sub { send_monitor_command("all","start") });
+#$startall->grid(-column=>4,-row=>$row);
+#$startall->configure(-state=>'disabled',-width=>7);
 
-$restartall = $mw->Button(-text=>'Restart All', 
-			  -command=> sub { send_monitor_command("all","restart") });
-$restartall->grid(-column=>5,-row=>$row);
-$restartall->configure(-state=>'active',-width=>7);
+#$restartall = $mw->Button(-text=>'Restart All', 
+#			  -command=> sub { send_monitor_command("all","restart") });
+#$restartall->grid(-column=>5,-row=>$row);
+#$restartall->configure(-state=>'active',-width=>7);
 
 my $date = $mw->Label(-text => "", -relief => 'sunk');
 $date->grid(-column=>(2*$ncolumns-2),-row=>$row,-columnspan=>2,-sticky=>'ew');

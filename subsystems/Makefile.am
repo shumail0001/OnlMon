@@ -11,10 +11,11 @@ SUBDIRS = \
   bbcll1 \
   cemc \
   daq \
-  epd \
+  sepd \
   example \
   hcal \
   intt \
   mvtx \
   tpc \
-  tpot
+  tpot \
+  zdc

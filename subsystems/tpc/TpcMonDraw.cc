@@ -17,6 +17,7 @@
 #include <TPaveLabel.h>
 #include <TStyle.h>
 #include <TString.h>
+#include <TLegend.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -24,6 +25,10 @@
 #include <iostream>  // for operator<<, basic_ostream, basic_os...
 #include <sstream>
 #include <vector>  // for vector
+
+#include <cmath>
+#include <cstdio>  // for printf
+#include <string>  // for allocator, string, char_traits
 
 TpcMonDraw::TpcMonDraw(const std::string &name)
   : OnlMonDraw(name)
@@ -97,7 +102,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   {
     TC[3] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1250, 600);
     gSystem->ProcessEvents();
-    gStyle->SetPalette(57); //kBird CVD friendly
+    //gStyle->SetPalette(57); //kBird CVD friendly
     TC[3]->Divide(2,1);
     TC[3]->SetEditable(false);
   }
@@ -119,9 +124,33 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   {
     TC[6] = new TCanvas(name.c_str(), "TPC ADC vs Sample in Whole Sector", 1000, 1200);
     gSystem->ProcessEvents();
-    gStyle->SetPalette(57); //kBird CVD friendly
+    //gStyle->SetPalette(57); //kBird CVD friendly
     TC[6]->Divide(4,6);
     TC[6]->SetEditable(false);
+  }
+  else if (name == "TPCMaxADCModule")
+  {
+    TC[7] = new TCanvas(name.c_str(), "(MAX ADC - pedestal) in SLIDING WINDOW for each Module in Sector", 1000, 1200);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[7]->Divide(4,6);
+    TC[7]->SetEditable(false);
+  }
+  else if (name == "TPCRawADC1D")
+  {
+    TC[8] = new TCanvas(name.c_str(), "TPC RAW ADC 1D distribution", 1000, 1200);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[8]->Divide(4,6);
+    TC[8]->SetEditable(false);
+  }
+  else if (name == "TPCMaxADC1D")
+  {
+    TC[9] = new TCanvas(name.c_str(), "(MAX ADC - pedestal) in SLIDING WINDOW 1D distribution", 1000, 1200);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[9]->Divide(4,6);
+    TC[9]->SetEditable(false);
   }
   return 0;
 }
@@ -158,6 +187,21 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCADCVSSAMPLE")
   {
     iret += DrawTPCADCSample(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCMAXADCMODULE")
+  {
+    iret += DrawTPCMaxADCModule(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCRAWADC1D")
+  {
+    iret += DrawTPCRawADC1D(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCMAXADC1D")
+  {
+    iret += DrawTPCMaxADC1D(what);
     idraw++;
   }
   if (what == "ALL" || what == "HISTORY")
@@ -359,6 +403,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   for( int i=0; i<12; i++ )
   {
     if( tpcmon_NSIDEADC[i] ){
+    gStyle->SetPalette(57); //kBird CVD friendly
     tpcmon_NSIDEADC[i] -> Draw("colpolzsame");
     }
 
@@ -383,6 +428,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   for( int i=0; i<12; i++ )
   {
     if( tpcmon_SSIDEADC[i] ){
+    gStyle->SetPalette(57); //kBird CVD friendly
     tpcmon_SSIDEADC[i] -> Draw("colpolzsame");
 
     }
@@ -402,6 +448,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   NS20->Draw("same");
   NS19->Draw("same");
 
+  
   TC[3]->Update();
 
   //turn off stats box
@@ -549,8 +596,10 @@ int TpcMonDraw::DrawTPCADCSample(const std::string & /* what */)
 
   for( int i=0; i<24; i++ )
   {
-    if( tpcmon_ADCSAMPLE[i] ){
+    if( tpcmon_ADCSAMPLE[i] )
+    {
       TC[6]->cd(i+1);
+      gStyle->SetPalette(57); //kBird CVD friendly
       gPad->SetLogz(kTRUE);
       tpcmon_ADCSAMPLE[i] -> DrawCopy("colz");
     }
@@ -560,6 +609,170 @@ int TpcMonDraw::DrawTPCADCSample(const std::string & /* what */)
   TC[6]->Show();
   TC[6]->SetEditable(false);
 
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCMaxADCModule(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *tpcmon_MAXADC_MODULE[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_MAXADC_MODULE[i] = (TH2*) cl->getHisto(TPCMON_STR,"MAXADC");
+  }
+
+
+  if (!gROOT->FindObject("TPCMaxADCModule"))
+  {
+    MakeCanvas("TPCMaxADCModule");
+  }  
+
+  TC[7]->SetEditable(true);
+  TC[7]->Clear("D");
+
+  for( int i=0; i<24; i++ )
+  {
+    if( tpcmon_MAXADC_MODULE[i] )
+    {
+      TC[7]->cd(i+1);
+      gStyle->SetPalette(57); //kBird CVD friendly
+      gPad->SetLogz(kTRUE);
+      tpcmon_MAXADC_MODULE[i] -> DrawCopy("colz");
+    }
+  }
+
+  TC[7]->Update();
+  TC[7]->Show();
+  TC[7]->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCRawADC1D(const std::string & /* what */)
+{
+  std::cout<<"Made it inside DrawTPCRawADC1D"<<std::endl;
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_RAWADC1D[24][3] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_RAWADC1D[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"RAWADC_1D_R1");
+    tpcmon_RAWADC1D[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"RAWADC_1D_R2");
+    tpcmon_RAWADC1D[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"RAWADC_1D_R3");
+  }
+
+
+  if (!gROOT->FindObject("TPCRawADC1D"))
+  {
+    MakeCanvas("TPCRawADC1D");
+  }  
+
+  TC[8]->SetEditable(true);
+  TC[8]->Clear("D");
+
+  auto legend = new TLegend(0.7,0.65,0.98,0.95);
+  bool draw_leg = 0;
+
+  for( int i=0; i<24; i++ )
+  {
+    TC[8]->cd(i+1);
+    for( int j = 2; j>-1; j-- )
+    {
+      if( tpcmon_RAWADC1D[i][j] )
+      {
+        if(j == 2){tpcmon_RAWADC1D[i][j] -> DrawCopy("HIST");}
+        else      {tpcmon_RAWADC1D[i][j] -> DrawCopy("HISTsame");} //assumes that R3 will always exist and is most entries
+      }
+    }
+    gPad->Update();
+    gPad->SetLogy(kTRUE);  
+
+    if(draw_leg == 0 && tpcmon_RAWADC1D[i][0] && tpcmon_RAWADC1D[i][1] && tpcmon_RAWADC1D[i][2]) //if you have not drawn the legend yet, draw it BUT ONLY ONCE
+    {
+      legend->AddEntry(tpcmon_RAWADC1D[i][0], "R1");
+      legend->AddEntry(tpcmon_RAWADC1D[i][1], "R2");
+      legend->AddEntry(tpcmon_RAWADC1D[i][2], "R3");
+      TC[8]->cd(i+1);
+      legend->Draw();
+      draw_leg = 1; //don't draw it again
+    }
+  }
+
+  TC[8]->Update();
+  TC[8]->Show();
+  TC[8]->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCMaxADC1D(const std::string & /* what */)
+{
+  std::cout<<"Made it inside DrawTPCMaxADC1D"<<std::endl;
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_MAXADC1D[24][3] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_MAXADC1D[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"MAXADC_1D_R1");
+    tpcmon_MAXADC1D[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"MAXADC_1D_R2");
+    tpcmon_MAXADC1D[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"MAXADC_1D_R3");
+  }
+
+
+  if (!gROOT->FindObject("TPCMaxADC1D"))
+  {
+    MakeCanvas("TPCMaxADC1D");
+  }  
+
+  TC[9]->SetEditable(true);
+  TC[9]->Clear("D");
+
+  auto legend = new TLegend(0.7,0.65,0.98,0.95);
+  bool draw_leg = 0;
+
+  for( int i=0; i<24; i++ )
+  {
+    TC[9]->cd(i+1);
+    for( int j = 2; j>-1; j-- )
+    {
+      if( tpcmon_MAXADC1D[i][j] )
+      {
+        if(j == 2){tpcmon_MAXADC1D[i][j] -> DrawCopy("HIST");}
+        else      {tpcmon_MAXADC1D[i][j] -> DrawCopy("HISTsame");} //assumes that R3 will always exist and is max
+      }
+    }
+    gPad->Update();
+    gPad->SetLogy(kTRUE);
+     
+    if(draw_leg == 0 && tpcmon_MAXADC1D[i][0] && tpcmon_MAXADC1D[i][1] && tpcmon_MAXADC1D[i][2]) //if you have not drawn the legend yet, draw it BUT ONLY ONCE
+    {
+      TC[9]->cd(i+1);
+      legend->AddEntry(tpcmon_MAXADC1D[i][0], "R1");
+      legend->AddEntry(tpcmon_MAXADC1D[i][1], "R2");
+      legend->AddEntry(tpcmon_MAXADC1D[i][2], "R3");
+      legend->Draw();
+      draw_leg = 1; //don't draw it again
+    }
+  }
+
+
+  TC[9]->Update();
+  TC[9]->Show();
+  TC[9]->SetEditable(false);
+  
   return 0;
 }
 

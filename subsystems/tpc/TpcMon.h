@@ -39,6 +39,17 @@ class TpcMon : public OnlMon
   TH1 *Check_Sum_Error = nullptr;
   TH1 *Check_Sums = nullptr;
 
+  TH2 *MAXADC = nullptr;
+
+  TH1 *RAWADC_1D_R1= nullptr;
+  TH1 *MAXADC_1D_R1 = nullptr;
+
+  TH1 *RAWADC_1D_R2= nullptr;
+  TH1 *MAXADC_1D_R2 = nullptr;
+
+  TH1 *RAWADC_1D_R3= nullptr;
+  TH1 *MAXADC_1D_R3 = nullptr;
+
   int starting_BCO;
   int rollover_value;
   int current_BCOBIN;
@@ -47,6 +58,8 @@ class TpcMon : public OnlMon
 
   void Locate(int id, float *rbin, float *thbin);
   int Index_from_Module(int sec_id, int fee_id);
+  int Module_ID(int fee_id);
+  int Max_Nine(int one, int two, int three, int four, int five, int six, int seven, int eight, int nine);
 };
 
 #endif /* TPC_TPCMON_H */

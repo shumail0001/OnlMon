@@ -1,5 +1,5 @@
-#ifndef EPD_EPDMONDRAW_H
-#define EPD_EPDMONDRAW_H
+#ifndef SEPD_SEPDMONDRAW_H
+#define SEPD_SEPDMONDRAW_H
 
 #include <onlmon/OnlMonDraw.h>
 
@@ -13,12 +13,12 @@ class TCanvas;
 class TGraphErrors;
 class TPad;
 
-class EpdMonDraw : public OnlMonDraw
+class SepdMonDraw : public OnlMonDraw
 {
  public:
-  EpdMonDraw(const std::string &name);
+  SepdMonDraw(const std::string &name);
 
-  ~EpdMonDraw() override {}
+  ~SepdMonDraw() override {}
 
   int Init() override;
   int Draw(const std::string &what = "ALL") override;
@@ -39,4 +39,4 @@ class EpdMonDraw : public OnlMonDraw
   OnlMonDB *dbvars = nullptr;
 };
 
-#endif /* EPD_EPDMONDRAW_H */
+#endif /* SEPD_SEPDMONDRAW_H */

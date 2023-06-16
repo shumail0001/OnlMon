@@ -6,11 +6,11 @@
 [ -f ~/.bash_profile ] && . ~/.bash_profile
 
 if [ $# -le 1 ]
-  then
+then
     echo "Usage : $0 {start|status|stop|restart|valgrind} n (1-5)"
     exit 1
 fi
-hostname=`hostname`
+hostname=`hostname -s`
 piddir=/tmp/sphnxonlmon
 pidfile=${piddir}/onlmon$2
 #echo $hostname
@@ -47,18 +47,22 @@ case "$1" in
 	echo $pid > $pidfile
 	;;
     stop)
-      if [ -s $pidfile ]
-      then
-      kill -9 `cat $pidfile`
-      if [ $? != 0 ]
-      then
-        echo "No Online Monitoring process " `cat $pidfile`
-      else
-        echo "Killed Online Monitoring process " `cat $pidfile`
-      fi
-      rm $pidfile
-      fi
-
+	if [ -s $pidfile ]
+	then
+	    kill -9 `cat $pidfile`
+	    if [ $? != 0 ]
+	    then
+		echo "No Online Monitoring process " `cat $pidfile`
+	    else
+		echo "Killed Online Monitoring process " `cat $pidfile`
+	    fi
+	    rm $pidfile
+	fi
+	;;
+    restart)
+	$0 stop $2
+	$0 start $2
+	;;
 esac
 
 #[[ -d /scratch/phnxrc/onlmon ]] || mkdir -p /scratch/phnxrc/onlmon

@@ -75,12 +75,18 @@ int TpcMon::Init()
   //
 
   // ADC vs Sample
-  ADC_vs_SAMPLE = new TH2F("ADC_vs_SAMPLE", "ADC Counts vs Sample: WHOLE SECTOR", 360, 0, 360, 256, 0, 1024);
-  ADC_vs_SAMPLE -> SetXTitle("Sector XX: ADC Time bin [1/20MHz]");
+  char ADC_vs_SAMPLE_str[100];
+  char ADC_vs_SAMPLE_xaxis_str[100];
+  sprintf(ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
+  sprintf(ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
+  ADC_vs_SAMPLE = new TH2F("ADC_vs_SAMPLE", ADC_vs_SAMPLE_str, 360, 0, 360, 256, 0, 1024);
+  ADC_vs_SAMPLE -> SetXTitle(ADC_vs_SAMPLE_xaxis_str);
   ADC_vs_SAMPLE -> SetYTitle("ADC [ADU]");
 
   // Sample size distribution 1D histogram
-  sample_size_hist = new TH1F("sample_size_hist" , "Distribution of Sample Sizes in Events", 1000, 0.5, 1000.5);
+  char sample_size_title_str[100];
+  sprintf(sample_size_title_str,"Distribution of Sample Sizes in Events: SECTOR %i",MonitorServerId());
+  sample_size_hist = new TH1F("sample_size_hist" , sample_size_title_str, 1000, 0.5, 1000.5);
   sample_size_hist->SetXTitle("sample size");
   sample_size_hist->SetYTitle("counts");
 
@@ -91,10 +97,89 @@ int TpcMon::Init()
   Check_Sums->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
 
   // checksum error vs FEE*8 + SAMPA Number
-  Check_Sum_Error = new TH1F("Check_Sum_Error" , "Check Sum Error Probability vs Fee*8 + SAMPA in Events",208,-0.5, 207.5);
+  char checksum_title_str[100];
+  sprintf(checksum_title_str,"Check Sum Error Probability vs Fee*8 + SAMPA in Events: SECTOR %i",MonitorServerId());
+  Check_Sum_Error = new TH1F("Check_Sum_Error" , checksum_title_str,208,-0.5, 207.5);
   Check_Sum_Error->SetXTitle("FEE_NUM*8 + SAMPA_ADDR");
   Check_Sum_Error->SetYTitle("Prob. Check. Sum. Err.");
   Check_Sum_Error->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
+
+  // Max ADC per waveform dist for each module (R1, R2, R3)
+  char MAXADC_str[100];
+  char YLabel_str[5];
+
+  sprintf(MAXADC_str,"MAX ADC per Waveform in SLIDING WINDOW: SECTOR %i",MonitorServerId());
+
+  MAXADC = new TH2F("MAXADC" , MAXADC_str,1025,-0.5, 1024.5,3,-0.5,2.5);
+  MAXADC->SetXTitle("LocalMAX ADC in Waveform [ADU]");
+  MAXADC->SetYTitle("Entries");
+  MAXADC->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
+
+  for(int i = 0; i < 3; i++ )
+  {
+    sprintf(YLabel_str,"R%i",i+1);
+    MAXADC->GetYaxis()->SetBinLabel(i+1,YLabel_str);
+    MAXADC->GetYaxis()->SetLabelSize(0.12);
+    MAXADC->GetXaxis()->SetLabelSize(0.04);
+  }
+
+  //________For 1D ADC spectra - Doing this the hard way because I'm not sure if I can have a TH1 array
+  char RAWADC_1D_titlestr[100];
+  char MAXADC_1D_titlestr[100];
+
+  sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R1",MonitorServerId());
+  sprintf(MAXADC_1D_titlestr,"MAX ADC in SLIDING WINDOW for Sector %i R1",MonitorServerId());
+
+  RAWADC_1D_R1 = new TH1F("RAWADC_1D_R1",RAWADC_1D_titlestr,1025,-0.5,1024.5);
+  MAXADC_1D_R1 = new TH1F("MAXADC_1D_R1",MAXADC_1D_titlestr,1025,-0.5,1024.5);
+
+  RAWADC_1D_R1->SetYTitle("Entries");
+  RAWADC_1D_R1->SetXTitle("ADC [ADU]");
+
+  MAXADC_1D_R1->SetYTitle("Entries");
+  MAXADC_1D_R1->SetXTitle("(MAXADC-pedestal) [ADU]");
+
+  MAXADC_1D_R1->Sumw2(kFALSE);
+  RAWADC_1D_R1->Sumw2(kFALSE);
+
+  MAXADC_1D_R1->SetLineColor(2);
+  RAWADC_1D_R1->SetLineColor(2);
+
+  sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R2",MonitorServerId());
+  sprintf(MAXADC_1D_titlestr,"MAX ADC for Sector %i R2",MonitorServerId());
+
+  RAWADC_1D_R2 = new TH1F("RAWADC_1D_R2",RAWADC_1D_titlestr,1025,-0.5,1024.5);
+  MAXADC_1D_R2 = new TH1F("MAXADC_1D_R2",MAXADC_1D_titlestr,1025,-0.5,1024.5);
+
+  RAWADC_1D_R2->SetYTitle("Entries");
+  RAWADC_1D_R2->SetXTitle("ADC [ADU]");
+
+  MAXADC_1D_R2->SetYTitle("Entries");
+  MAXADC_1D_R2->SetXTitle("(MAXADC-pedestal) [ADU]");
+
+  MAXADC_1D_R2->Sumw2(kFALSE);
+  RAWADC_1D_R2->Sumw2(kFALSE);
+
+  MAXADC_1D_R2->SetLineColor(3);
+  RAWADC_1D_R2->SetLineColor(3);
+
+  sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R3",MonitorServerId());
+  sprintf(MAXADC_1D_titlestr,"MAX ADC for Sector %i R3",MonitorServerId());
+
+  RAWADC_1D_R3 = new TH1F("RAWADC_1D_R3",RAWADC_1D_titlestr,1025,-0.5,1024.5);
+  MAXADC_1D_R3 = new TH1F("MAXADC_1D_R3",MAXADC_1D_titlestr,1025,-0.5,1024.5);
+
+  RAWADC_1D_R3->SetYTitle("Entries");
+  RAWADC_1D_R3->SetXTitle("ADC [ADU]");
+
+  MAXADC_1D_R3->SetYTitle("Entries");
+  MAXADC_1D_R3->SetXTitle("(MAXADC-pedestal) [ADU]");
+
+  MAXADC_1D_R3->Sumw2(kFALSE);
+  RAWADC_1D_R3->Sumw2(kFALSE);
+
+  MAXADC_1D_R3->SetLineColor(4);
+  RAWADC_1D_R3->SetLineColor(4);
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
@@ -106,6 +191,14 @@ int TpcMon::Init()
   se->registerHisto(this, Check_Sum_Error);
   se->registerHisto(this, Check_Sums);
   se->registerHisto(this, ADC_vs_SAMPLE);
+  se->registerHisto(this, MAXADC);
+  se->registerHisto(this, RAWADC_1D_R1);
+  se->registerHisto(this, MAXADC_1D_R1);
+  se->registerHisto(this, RAWADC_1D_R2);
+  se->registerHisto(this, MAXADC_1D_R2);
+  se->registerHisto(this, RAWADC_1D_R3);
+  se->registerHisto(this, MAXADC_1D_R3);
+
   Reset();
   return 0;
 }
@@ -144,7 +237,9 @@ int TpcMon::process_event(Event *evt/* evt */)
   float North_Side_Arr[36] = {0};
   float South_Side_Arr[36] = {0};
 
-  for( int packet = 4000; packet < 4231; packet++) //packet 4000 or 4001 = Sec 00, packet 4230 or 4231 = Sec 23
+  std::vector<int> store_ten; 
+
+  for( int packet = 4000; packet < 4232; packet++) //packet 4000 or 4001 = Sec 00, packet 4230 or 4231 = Sec 23
   {
     Packet* p = evt->getPacket(packet);
     if (!p)
@@ -154,10 +249,13 @@ int TpcMon::process_event(Event *evt/* evt */)
     }
     else
     {
-      std::cout << "____________________________________" << std::endl;
-      std::cout << "Packet # " << packet << std::endl;
+      //std::cout << "____________________________________" << std::endl;
+      //std::cout << "Packet # " << packet << std::endl;
       int nr_of_waveforms = p->iValue(0, "NR_WF");
-      std::cout << "Hello Waveforms ! - There are " << nr_of_waveforms << " of you !" << std::endl;
+      //std::cout << "Hello Waveforms ! - There are " << nr_of_waveforms << " of you !" << std::endl;
+
+      bool is_channel_stuck = 0;
+
       for( int wf = 0; wf < nr_of_waveforms; wf++)
       {
 
@@ -179,7 +277,7 @@ int TpcMon::process_event(Event *evt/* evt */)
         int fee = p->iValue(wf, "FEE");
         int sampaAddress = p->iValue(wf, "SAMPAADDRESS");
         int checksumError = p->iValue(wf, "CHECKSUMERROR");
-        int channel = p->iValue(wf, "CHANNEL");
+        //int channel = p->iValue(wf, "CHANNEL");
 
         Check_Sums->Fill(fee*8 + sampaAddress); 
         if( checksumError == 1){Check_Sum_Error->Fill(fee*8 + sampaAddress);}
@@ -190,21 +288,62 @@ int TpcMon::process_event(Event *evt/* evt */)
         serverid = MonitorServerId();
         //std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<std::endl;
 
-        for( int s =0; s < nr_Samples ; s++ ){
+        int mid = floor(nr_Samples/2); //get median sample
 
+        int pedestal;
+        pedestal = (p->iValue(wf,0) + p->iValue(wf,1) + p->iValue(wf,2) + p->iValue(wf,3) + p->iValue(wf,4))/5 ; //(assumes sample is > 4)
+
+        if( nr_Samples > 5){if( (p->iValue(wf,mid) == p->iValue(wf,mid-1)) && (p->iValue(wf,mid) == p->iValue(wf,mid-2)) && (p->iValue(wf,mid) == p->iValue(wf,mid+1)) && (p->iValue(wf,mid) == p->iValue(wf,mid+2)) ){ is_channel_stuck = 1;};} //Compare 5 values to determine stuck !!
+
+        for( int s =0; s < nr_Samples ; s++ ){
+          
           //int t = s + 2 * (current_BCO - starting_BCO);
 
-          std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<", sample = "<<s<<""<<std::endl;
-          int adc = p->iValue(wf,s);
+          int adc = p->iValue(wf,s);          
 
-          if( checksumError == 0){ADC_vs_SAMPLE -> Fill(s, adc);}
+          if( s >= 10 && s <= 19) // get first 10-19
+          {
+            store_ten.push_back(adc);
+          }
+          else if( s > 19 )  
+          {
+
+            //nine_max = Max_Nine(p->iValue(wf,s-9),p->iValue(wf,s-8),p->iValue(wf,s-7),p->iValue(wf,s-6),p->iValue(wf,s-5),p->iValue(wf,s-4),p->iValue(wf,s-3),p->iValue(wf,s-2),p->iValue(wf,s-1)); //take the previous 9 numbers
+
+            //VERY IMPORTANT, erase first entry, push_back current
+            store_ten.erase(store_ten.begin());
+            store_ten.push_back(adc);
+             
+            int max_of_previous_10 = *max_element(store_ten.begin(), store_ten.end());
+
+            if(adc == max_of_previous_10 && (checksumError == 0 && is_channel_stuck == 0)) //if the new value is greater than the previous 9
+            {
+               MAXADC->Fill(adc - pedestal,Module_ID(fee)); 
+               if(Module_ID(fee)==0){MAXADC_1D_R1->Fill(adc - pedestal);} //Raw 1D for R1
+               else if(Module_ID(fee)==1){MAXADC_1D_R2->Fill(adc - pedestal);} //Raw 1D for R2
+               else if(Module_ID(fee)==2){MAXADC_1D_R3->Fill(adc - pedestal);} //Raw 1D for R3
+            }
+
+          }
+
+          if( checksumError == 0 && is_channel_stuck == 0)
+          {
+            ADC_vs_SAMPLE -> Fill(s, adc);
+
+            if(Module_ID(fee)==0){RAWADC_1D_R1->Fill(adc);} //Raw 1D for R1
+            else if(Module_ID(fee)==1){RAWADC_1D_R2->Fill(adc);} //Raw 1D for R2
+            else if(Module_ID(fee)==2){RAWADC_1D_R3->Fill(adc);} //Raw 1D for R3
+          }
 
           //increment 
           if(serverid >= 0 && serverid < 12 ){ North_Side_Arr[ Index_from_Module(serverid,fee) ] += adc;}
           else {South_Side_Arr[ Index_from_Module(serverid,fee) ] += adc;}
 
-        }
-      }
+        } //nr samples
+        is_channel_stuck = 0; //reset after looping through waveform samples
+
+        store_ten.clear(); //clear this after every waveform
+      } //nr waveforms
       delete p;
     }
   }
@@ -245,7 +384,23 @@ int TpcMon::process_event(Event *evt/* evt */)
   return 0;
 }
 
-int TpcMon::Index_from_Module(int sec_id, int fee_id)
+int TpcMon::Module_ID(int fee_id) //for simply determining which module you are in (doesn't care about sector)
+{
+  int mod_id;
+ 
+  if( fee_id == 2 || fee_id == 3 || fee_id == 4 || fee_id == 13 || fee_id == 16 || fee_id == 17 ){mod_id = 0;} // R1 
+
+  else if( fee_id == 0 || fee_id == 1 || fee_id == 11 || fee_id == 12 || fee_id == 14 || fee_id == 15 || fee_id == 18 || fee_id == 19 ){mod_id = 1;} // R2
+
+  else if( fee_id == 5 || fee_id == 6 || fee_id ==7 || fee_id == 8 || fee_id == 9 || fee_id == 10 || fee_id == 20 || fee_id == 21 || fee_id == 22 || fee_id == 23 || fee_id == 24 || fee_id == 25 ){mod_id = 2;} // R3
+
+  else mod_id = 0;
+
+  return mod_id;
+}
+
+
+int TpcMon::Index_from_Module(int sec_id, int fee_id) //for placing in the array (takes into account sector)
 {
   int mod_id;
  
@@ -286,6 +441,19 @@ void TpcMon::Locate(int id, float *rbin, float *thbin)
   else if( id >= 37){
     *thbin = ASIDE_angle_bins[TMath::FloorNint((id-37)/3)];
   }
+}
+
+int TpcMon::Max_Nine(int one, int two, int three, int four, int five, int six, int seven, int eight, int nine)
+{ 
+  int max = 0;
+  int nine_array[9] = {one, two, three, four, five, six, seven, eight, nine};
+
+  for( int i = 0; i < 9; i++ )
+  {
+    if( nine_array[i] > max ){max = nine_array[i];}
+  }
+
+  return max;
 }
 
 

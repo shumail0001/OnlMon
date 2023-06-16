@@ -1,4 +1,4 @@
-#include "EpdMonDraw.h"
+#include "SepdMonDraw.h"
 
 #include <onlmon/OnlMonClient.h>
 #include <onlmon/OnlMonDB.h>
@@ -20,7 +20,7 @@
 #include <sstream>
 #include <vector>  // for vector
 
-EpdMonDraw::EpdMonDraw(const std::string &name)
+SepdMonDraw::SepdMonDraw(const std::string &name)
   : OnlMonDraw(name)
 {
   // this TimeOffsetTicks is neccessary to get the time axis right
@@ -30,24 +30,24 @@ EpdMonDraw::EpdMonDraw(const std::string &name)
   return;
 }
 
-int EpdMonDraw::Init()
+int SepdMonDraw::Init()
 {
   return 0;
 }
 
-int EpdMonDraw::MakeCanvas(const std::string &name)
+int SepdMonDraw::MakeCanvas(const std::string &name)
 {
-  if (name == "EpdMon1")
+  if (name == "SepdMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "EpdMon Example Monitor", 1200,600);
+    TC[0] = new TCanvas(name.c_str(), "SepdMon Example Monitor", 1200,600);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
     // grow and grow but will not show a definitely lost memory leak
     gSystem->ProcessEvents();
-    Pad[0] = new TPad("epdpad0", "Left", 0., 0., 0.5, 1);
-    Pad[1] = new TPad("epdpad1", "Right", 0.5, 0., 1, 1);
+    Pad[0] = new TPad("sepdpad0", "Left", 0., 0., 0.5, 1);
+    Pad[1] = new TPad("sepdpad1", "Right", 0.5, 0., 1, 1);
     Pad[0]->Draw();
     Pad[1]->Draw();
     // this one is used to plot the run number on the canvas
@@ -56,13 +56,13 @@ int EpdMonDraw::MakeCanvas(const std::string &name)
     transparent[0]->Draw();
     TC[0]->SetEditable(false);
   }
-  else if (name == "EpdMon2")
+  else if (name == "SepdMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "EpdMon2 Example Monitor", 1200,600);
+    TC[1] = new TCanvas(name.c_str(), "SepdMon2 Example Monitor", 1200,600);
     gSystem->ProcessEvents();
-    Pad[2] = new TPad("epdpad2", "Left", 0., 0., 0.5, 1);
-    Pad[3] = new TPad("epdpad3", "Right", 0.5, 0., 1, 1);
+    Pad[2] = new TPad("sepdpad2", "Left", 0., 0., 0.5, 1);
+    Pad[3] = new TPad("sepdpad3", "Right", 0.5, 0., 1, 1);
     Pad[2]->Draw();
     Pad[3]->Draw();
     // this one is used to plot the run number on the canvas
@@ -71,12 +71,12 @@ int EpdMonDraw::MakeCanvas(const std::string &name)
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
   }
-  else if (name == "EpdMon3")
+  else if (name == "SepdMon3")
   {
-    TC[2] = new TCanvas(name.c_str(), "EpdMon3 Example Monitor", 1200,600);
+    TC[2] = new TCanvas(name.c_str(), "SepdMon3 Example Monitor", 1200,600);
     gSystem->ProcessEvents();
-    Pad[4] = new TPad("epdpad4", "Left", 0., 0., 0.5, 1);
-    Pad[5] = new TPad("epdpad5", "Right", 0.5, 0., 1, 1);
+    Pad[4] = new TPad("sepdpad4", "Left", 0., 0., 0.5, 1);
+    Pad[5] = new TPad("sepdpad5", "Right", 0.5, 0., 1, 1);
     Pad[4]->Draw();
     Pad[5]->Draw();
     // this one is used to plot the run number on the canvas
@@ -88,7 +88,7 @@ int EpdMonDraw::MakeCanvas(const std::string &name)
   return 0;
 }
 
-int EpdMonDraw::Draw(const std::string &what)
+int SepdMonDraw::Draw(const std::string &what)
 {
   int iret = 0;
   int idraw = 0;
@@ -102,13 +102,14 @@ int EpdMonDraw::Draw(const std::string &what)
     iret += DrawSecond(what);
     idraw++;
   }
+  /*
   if (what == "ALL" || what == "THIRD")
   {
     iret += DrawThird(what);
     idraw++;
   }
  
- /* if (what == "ALL" || what == "HISTORY")
+  if (what == "ALL" || what == "HISTORY")
   {
     iret += DrawHistory(what);
     idraw++;
@@ -122,21 +123,21 @@ int EpdMonDraw::Draw(const std::string &what)
   return iret;
 }
 
-int EpdMonDraw::DrawFirst(const std::string & /* what */)
+int SepdMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2D *h_ADC0_s  = (TH2D*) cl->getHisto("EPDMON_0","h_ADC0_s");
-  TH2D *h_ADC0_n  = (TH2D*) cl->getHisto("EPDMON_0","h_ADC0_n");
-  TH2D *h_ADC_s   = (TH2D*) cl->getHisto("EPDMON_0","h_ADC_s");
-  TH2D *h_ADC_n   = (TH2D*) cl->getHisto("EPDMON_0","h_ADC_n");
-  TH2D *h_hits0_s = (TH2D*) cl->getHisto("EPDMON_0","h_hits0_s");
-  TH2D *h_hits0_n = (TH2D*) cl->getHisto("EPDMON_0","h_hits0_n");
-  TH2D *h_hits_s  = (TH2D*) cl->getHisto("EPDMON_0","h_hits_s");
-  TH2D *h_hits_n  = (TH2D*) cl->getHisto("EPDMON_0","h_hits_n");
+  TH2D *h_ADC0_s  = (TH2D*) cl->getHisto("SEPDMON_0","h_ADC0_s");
+  TH2D *h_ADC0_n  = (TH2D*) cl->getHisto("SEPDMON_0","h_ADC0_n");
+  TH2D *h_ADC_s   = (TH2D*) cl->getHisto("SEPDMON_0","h_ADC_s");
+  TH2D *h_ADC_n   = (TH2D*) cl->getHisto("SEPDMON_0","h_ADC_n");
+  TH2D *h_hits0_s = (TH2D*) cl->getHisto("SEPDMON_0","h_hits0_s");
+  TH2D *h_hits0_n = (TH2D*) cl->getHisto("SEPDMON_0","h_hits0_n");
+  TH2D *h_hits_s  = (TH2D*) cl->getHisto("SEPDMON_0","h_hits_s");
+  TH2D *h_hits_n  = (TH2D*) cl->getHisto("SEPDMON_0","h_hits_n");
   
-  if (!gROOT->FindObject("EpdMon1"))
+  if (!gROOT->FindObject("SepdMon1"))
   {
-    MakeCanvas("EpdMon1");
+    MakeCanvas("SepdMon1");
   }
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
@@ -203,19 +204,19 @@ int EpdMonDraw::DrawFirst(const std::string & /* what */)
   return 0;
 }
 
-int EpdMonDraw::DrawSecond(const std::string & /* what */)
+int SepdMonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2D *h_hits0_s = (TH2D*) cl->getHisto("EPDMON_0","h_hits0_s");
-  TH2D *h_hits0_n = (TH2D*) cl->getHisto("EPDMON_0","h_hits0_n");
-  TH2D *h_hits_s  = (TH2D*) cl->getHisto("EPDMON_0","h_hits_s");
-  TH2D *h_hits_n  = (TH2D*) cl->getHisto("EPDMON_0","h_hits_n");
+  TH2D *h_hits0_s = (TH2D*) cl->getHisto("SEPDMON_0","h_hits0_s");
+  TH2D *h_hits0_n = (TH2D*) cl->getHisto("SEPDMON_0","h_hits0_n");
+  TH2D *h_hits_s  = (TH2D*) cl->getHisto("SEPDMON_0","h_hits_s");
+  TH2D *h_hits_n  = (TH2D*) cl->getHisto("SEPDMON_0","h_hits_n");
 
-  TH1D *h_event = (TH1D*) cl->getHisto("EPDMON_0","h_event");
+  TH1D *h_event = (TH1D*) cl->getHisto("SEPDMON_0","h_event");
 
-  if (!gROOT->FindObject("EpdMon2"))
+  if (!gROOT->FindObject("SepdMon2"))
   {
-    MakeCanvas("EpdMon2");
+    MakeCanvas("SepdMon2");
   }
   if(!h_hits0_s)
   {
@@ -257,14 +258,14 @@ int EpdMonDraw::DrawSecond(const std::string & /* what */)
   return 0;
 }
 
-int EpdMonDraw::DrawThird(const std::string & /* what */)
+int SepdMonDraw::DrawThird(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *h_ADC_corr = (TH2D*) cl->getHisto("EPDMON_0","h_ADC_corr");
-  TH2 *h_hits_corr = (TH2D*) cl->getHisto("EPDMON_0","h_hits_corr");
-  if (!gROOT->FindObject("EpdMon2"))
+  TH2 *h_ADC_corr = (TH2D*) cl->getHisto("SEPDMON_0","h_ADC_corr");
+  TH2 *h_hits_corr = (TH2D*) cl->getHisto("SEPDMON_0","h_hits_corr");
+  if (!gROOT->FindObject("SepdMon3"))
   {
-    MakeCanvas("EpdMon2");
+    MakeCanvas("SepdMon3");
   }
   if(!h_ADC_corr)
   {
@@ -298,7 +299,7 @@ int EpdMonDraw::DrawThird(const std::string & /* what */)
   return 0;
 }
 
-int EpdMonDraw::MakePS(const std::string &what)
+int SepdMonDraw::MakePS(const std::string &what)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   std::ostringstream filename;
@@ -315,7 +316,7 @@ int EpdMonDraw::MakePS(const std::string &what)
   return 0;
 }
 
-int EpdMonDraw::MakeHtml(const std::string &what)
+int SepdMonDraw::MakeHtml(const std::string &what)
 {
   int iret = Draw(what);
   if (iret)  // on error no html output please
@@ -351,7 +352,7 @@ int EpdMonDraw::MakeHtml(const std::string &what)
   return 0;
 }
 
-int EpdMonDraw::DrawHistory(const std::string & /* what */)
+int SepdMonDraw::DrawHistory(const std::string & /* what */)
 {
   int iret = 0;
   // you need to provide the following vectors
@@ -360,7 +361,7 @@ int EpdMonDraw::DrawHistory(const std::string & /* what */)
   std::vector<float> varerr;
   std::vector<time_t> timestamp;
   std::vector<int> runnumber;
-  std::string varname = "epdmondummy";
+  std::string varname = "sepdmondummy";
   // this sets the time range from whihc values should be returned
   time_t begin = 0;            // begin of time (1.1.1970)
   time_t end = time(nullptr);  // current time (right NOW)
@@ -370,9 +371,9 @@ int EpdMonDraw::DrawHistory(const std::string & /* what */)
     std::cout << __PRETTY_FUNCTION__ << " Error in db access" << std::endl;
     return iret;
   }
-  if (!gROOT->FindObject("EpdMon3"))
+  if (!gROOT->FindObject("SepdMon3"))
   {
-    MakeCanvas("EpdMon3");
+    MakeCanvas("SepdMon3");
   }
   // timestamps come sorted in ascending order
   float *x = new float[var.size()];
@@ -414,7 +415,7 @@ int EpdMonDraw::DrawHistory(const std::string & /* what */)
   delete[] ex;
   delete[] ey;
 
-  varname = "epdmoncount";
+  varname = "sepdmoncount";
   iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
   if (iret)
   {

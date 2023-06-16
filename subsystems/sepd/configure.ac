@@ -1,4 +1,4 @@
-AC_INIT(epdmon,[2.00])
+AC_INIT(sepdmon,[2.00])
 AC_CONFIG_SRCDIR([configure.ac])
 
 AM_INIT_AUTOMAKE

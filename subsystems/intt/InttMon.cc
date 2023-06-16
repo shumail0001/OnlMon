@@ -69,20 +69,19 @@ int InttMon::process_event(Event* evt)
 	int felix_channel;
 	struct INTT_Felix::Ladder_s lddr_s;
 
-	//int bin;
 	struct INTT::Indexes_s indexes;
 
 	for(pid = 3001; pid < 3009; ++pid)
 	{
 		felix = pid - 3001;
 
-		//if(felix != server_id)continue;
-
 		Packet* p = evt->getPacket(pid);
 		if(!p)continue;
 
 		N = p->iValue(0, "NR_HITS");
-		if(N)std::cout << N << std::endl;
+
+		//p->identify();
+		//if(N)std::cout << N << std::endl;
 
 		for(n = 0; n < N; ++n)
 		{
@@ -94,15 +93,31 @@ int InttMon::process_event(Event* evt)
 			indexes.ldr = lddr_s.ladder;
 
 			indexes.arm = (felix / 4) % 2;
-
-			indexes.chp = p->iValue(n, "CHP_ID");
-			indexes.chp = (indexes.chp - 1) % 26;
-
+			indexes.chp = p->iValue(n, "CHIP_ID") % 26;
 			indexes.chn = p->iValue(n, "CHANNEL_ID");
-
 			indexes.adc = p->iValue(n, "ADC");
 
+			//std::cout << "\t" << indexes.lyr << std::endl;
+			//std::cout << "\t" << indexes.ldr << std::endl;
+			//std::cout << "\t" << indexes.arm << std::endl;
+			//std::cout << "\t" << indexes.chp << std::endl;
+			//std::cout << "\t" << indexes.chn << std::endl;
+			//std::cout << std::endl;
+
 			INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
+			if(bin < 0)
+			{
+				std::cout << "n: " << n << std::endl;
+				std::cout << "bin: " << bin << std::endl;
+				std::cout << "lyr: " << indexes.lyr << std::endl;
+				std::cout << "ldr: " << indexes.ldr << std::endl;
+				std::cout << "arm: " << indexes.arm << std::endl;
+				std::cout << "chp: " << indexes.chp << std::endl;
+				std::cout << "chn: " << indexes.chn << std::endl;
+				std::cout << "adc: " << indexes.adc << std::endl;
+
+				break;
+			}
 			HitMap->AddBinContent(bin);
 		}
 	}

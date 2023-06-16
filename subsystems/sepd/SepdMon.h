@@ -1,5 +1,5 @@
-#ifndef EPD_EPDMON_H
-#define EPD_EPDMON_H
+#ifndef SEPD_SEPDMON_H
+#define SEPD_SEPDMON_H
 
 #include <onlmon/OnlMon.h>
 #include <vector>
@@ -13,16 +13,16 @@ class TH2;
 class Packet;
 class runningMean;
 
-class EpdMon : public OnlMon
+class SepdMon : public OnlMon
 {
  public:
-  EpdMon(const std::string &name);
-  virtual ~EpdMon();
+  SepdMon(const std::string &name);
+  virtual ~SepdMon();
 
   int process_event(Event *evt);
   int Init();
   int BeginRun(const int runno);
-  int EpdMapChannel(int ch);
+  int SepdMapChannel(int ch);
   int Reset();
 
  protected:
@@ -61,9 +61,9 @@ class EpdMon : public OnlMon
   TH1* h1_waveform_pedestal = nullptr;
   TH1* h_event = nullptr;
 
-  TH1* h1_epd_fitting_sigDiff = nullptr;
-  TH1* h1_epd_fitting_pedDiff = nullptr;
-  TH1* h1_epd_fitting_timeDiff = nullptr;
+  TH1* h1_sepd_fitting_sigDiff = nullptr;
+  TH1* h1_sepd_fitting_pedDiff = nullptr;
+  TH1* h1_sepd_fitting_timeDiff = nullptr;
 
   TH1* h_ADC_channel[744] = {nullptr};
 
@@ -77,4 +77,4 @@ class EpdMon : public OnlMon
 };
 
 
-#endif /* EPD_EPDMON_H */
+#endif /* SEPD_SEPDMON_H */

@@ -11,39 +11,37 @@ AM_CPPFLAGS = \
   -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \
-  libonlepdmon_client.la \
-  libonlepdmon_server.la
+  libonlzdcmon_client.la \
+  libonlzdcmon_server.la
 
-libonlepdmon_server_la_LIBADD = \
+libonlzdcmon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
-  -lonlmondb \
-  -lcalo_io \
-  -lcalo_reco
+  -lonlmondb
 
-libonlepdmon_client_la_LIBADD = \
+libonlzdcmon_client_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonclient \
   -lonlmondb
 
 
-epdincludedir=$(pkgincludedir)/epd
+zdcincludedir=$(pkgincludedir)/zdc
 
-epdinclude_HEADERS = \
-  EpdMon.h \
-  EpdMonDraw.h
+zdcinclude_HEADERS = \
+  ZdcMon.h \
+  ZdcMonDraw.h
 
-libonlepdmon_server_la_SOURCES = \
-  EpdMon.cc
+libonlzdcmon_server_la_SOURCES = \
+  ZdcMon.cc
 
-libonlepdmon_client_la_SOURCES = \
-  EpdMonDraw.cc
+libonlzdcmon_client_la_SOURCES = \
+  ZdcMonDraw.cc
 
 bin_SCRIPTS = \
-  EpdMonSetup.csh \
-  EpdMonSetup.sh
+  ZdcMonSetup.csh \
+  ZdcMonSetup.sh
 
 noinst_PROGRAMS = \
   testexternals_server \
@@ -57,10 +55,10 @@ testexternals_client_SOURCES = \
   testexternals.cc
 
 testexternals_server_LDADD = \
-  libonlepdmon_server.la
+  libonlzdcmon_server.la
 
 testexternals_client_LDADD = \
-  libonlepdmon_client.la
+  libonlzdcmon_client.la
 
 testexternals.cc:
 	echo "//*** this is a generated file. Do not commit, do not edit" > $@
