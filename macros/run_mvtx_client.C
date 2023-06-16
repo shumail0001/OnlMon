@@ -77,6 +77,8 @@ void mvtxDrawInit(const int online = 0)
      cl->registerHisto(Form("MVTXMON_chipHitmapFLX%d", iflx), instanceName);
   }
 
+   
+
 
   CreateHostList(online);
 
