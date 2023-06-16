@@ -1,39 +1,24 @@
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include "LL1HEADER.h"
+
+#include <onlmon/OnlMon.h>
 
 // Event library
 
-//#include "Event.h"
-//#include "Eventiterator.h"
-//#include "fileEventiterator.h"
-//#include "packet_hbd_fpgashort.h"
 #include <Event/Event.h>
 #include <Event/EventTypes.h>
 #include <Event/msg_profile.h>
 
 // ROOT
 
-#include "TFile.h"
-#include "TTree.h"
-#include "TSystem.h"
+#include <TFile.h>
+#include <TTree.h>
+#include <TSystem.h>
 
-// Interpolator class and root of derivative
-
-//#include "Math/Interpolator.h"
-//#include "Math/Functor.h"
-//#include "Math/RootFinderAlgorithms.h" 
-#include <Event/msg_profile.h>
-#include <onlmon/OnlMon.h>
-
-#include <math.h>
-// data structures for this 
-
-#include "LL1HEADER.h"
-
-using namespace std;
+#include <cstdlib>
+#include <cmath>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 void ll1setup(Event *evt, LL1HEADER *&ll1h)
 {
