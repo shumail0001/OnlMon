@@ -40,7 +40,7 @@ fi
 # create save directory if not exist
 if [[ $ONLMON_SAVEDIR ]]
 then
-  if  ! -d $ONLMON_SAVEDIR ]
+  if [[ ! -d "$ONLMON_SAVEDIR" ]]
   then
     mkdir -p $ONLMON_SAVEDIR
   fi
@@ -49,7 +49,7 @@ fi
 # create save directory if not exist
 if [[ ! -z "$ONLMON_LOGDIR" ]]
 then
-  if [ ! -d $ONLMON_LOGDIR ]
+  if [[ ! -d "$ONLMON_LOGDIR" ]]
   then
     mkdir -p $ONLMON_LOGDIR
   fi
@@ -66,7 +66,7 @@ fi
 # create history directory if not exist
 if [[ ! -z "$ONLMON_HISTORYDIR" ]]
 then
-  if [ ! -d $ONLMON_HISTORYDIR ]
+  if [[ ! -d "$ONLMON_HISTORYDIR" ]]
   then
     mkdir -p $ONLMON_HISTORYDIR
   fi
@@ -102,7 +102,7 @@ else
   ROOT_INCLUDE_PATH=./
   for local_incdir in `find $ONLINE_MAIN/include -maxdepth 1 -type d -print`
     do
-    if [ -d $local_incdir ]
+    if [ -d "$local_incdir" ]
     then
       ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$local_incdir:./
     fi
