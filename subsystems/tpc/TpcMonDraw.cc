@@ -152,6 +152,15 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     TC[9]->Divide(4,6);
     TC[9]->SetEditable(false);
   }
+  else if (name == "TPCClusterXY")
+  {
+    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal) in SLIDING WINDOW for NS and SS", 1250, 600);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[10]->Divide(2,1);
+    TC[10]->SetEditable(false);
+  }
+  
   return 0;
 }
 
@@ -202,6 +211,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCMAXADC1D")
   {
     iret += DrawTPCMaxADC1D(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCCLUSTERSXY")
+  {
+    iret += DrawTPCXYclusters(what);
     idraw++;
   }
   if (what == "ALL" || what == "HISTORY")
@@ -773,6 +787,58 @@ int TpcMonDraw::DrawTPCMaxADC1D(const std::string & /* what */)
   TC[9]->Show();
   TC[9]->SetEditable(false);
   
+  return 0;
+}
+int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_NSTPC_clusXY[12] = {nullptr};
+  TH1 *tpcmon_SSTPC_clusXY[12] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    if(i<12){tpcmon_NSTPC_clusXY[i]= (TH1*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY");}
+    else{tpcmon_SSTPC_clusXY[i-12]= (TH1*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY");}
+
+  }
+
+  if (!gROOT->FindObject("TPCClusterXY"))
+  {
+    MakeCanvas("TPCClusterXY");
+  }  
+
+  TC[10]->SetEditable(true);
+  TC[10]->Clear("D");
+  TC[10]->cd(1);
+
+  for( int i=0; i<12; i++ )
+  {
+    if( tpcmon_NSTPC_clusXY[i] ){
+    gStyle->SetPalette(57); //kBird CVD friendly
+    tpcmon_NSTPC_clusXY[i] -> Draw("colzsame");
+    }
+
+  }
+
+  TC[10]->cd(2);
+
+  for( int i=0; i<12; i++ )
+  {
+    if( tpcmon_SSTPC_clusXY[i] ){
+    gStyle->SetPalette(57); //kBird CVD friendly
+    tpcmon_SSTPC_clusXY[i] -> Draw("colzsame");
+    }
+
+  }
+
+  TC[10]->Update();
+  TC[10]->Show();
+  TC[10]->SetEditable(false);
+
   return 0;
 }
 

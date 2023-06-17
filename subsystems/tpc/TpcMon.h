@@ -3,6 +3,12 @@
 
 #include <onlmon/OnlMon.h>
 
+#include <map>
+#include <tpc/TpcMap.h> //this needs to be pointed to coresoftware - not sure how to do that on EBDCXX...
+#include <memory>
+#include <string>
+
+
 class Event;
 class TH1;
 class TH2;
@@ -50,6 +56,11 @@ class TpcMon : public OnlMon
   TH1 *RAWADC_1D_R3= nullptr;
   TH1 *MAXADC_1D_R3 = nullptr;
 
+  TH2 *NorthSideADC_clusterXY = nullptr;
+  TH2 *SouthSideADC_clusterXY = nullptr;
+
+  TpcMap M; //declare Martin's map
+
   int starting_BCO;
   int rollover_value;
   int current_BCOBIN;
@@ -60,6 +71,7 @@ class TpcMon : public OnlMon
   int Index_from_Module(int sec_id, int fee_id);
   int Module_ID(int fee_id);
   int Max_Nine(int one, int two, int three, int four, int five, int six, int seven, int eight, int nine);
+  bool side(int server_id);
 };
 
 #endif /* TPC_TPCMON_H */
