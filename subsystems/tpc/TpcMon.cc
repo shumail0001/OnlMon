@@ -12,7 +12,7 @@
 #include <Event/Event.h>
 #include <Event/msg_profile.h>
 
-#include "TpcMap.h" 
+#include <tpc/TpcMap.h> 
 
 #include <TH1.h>
 #include <TH2.h>
