@@ -83,12 +83,14 @@ OnlMonServer::~OnlMonServer()
   delete statusDB;
   delete RunStatusDB;
 
-  while (Histo.begin() != Histo.end())
+  for (auto &moniiter : MonitorHistoSet)
   {
-    delete Histo.begin()->second;
-    Histo.erase(Histo.begin());
+     for (auto &histiter : moniiter.second)
+    {
+      delete histiter.second;
+      (moniiter.second).erase(histiter.first);
+    }
   }
-
   while (MsgSystem.begin() != MsgSystem.end())
   {
     delete MsgSystem.begin()->second;
@@ -404,6 +406,14 @@ int OnlMonServer::Reset()
     i += (*iter)->Reset();
   }
   std::map<const std::string, TH1 *>::const_iterator hiter;
+  for (auto &moniiter : MonitorHistoSet)
+  {
+     for (auto &histiter : moniiter.second)
+    {
+      histiter.second->Reset();
+    }
+  }
+
   for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
   {
     hiter->second->Reset();

@@ -121,7 +121,7 @@ int BbcMon::Init()
 
   // Vertex Distributions --------------------------------------------------------
 
-  bbc_zvertex = new TH1F("bbc_zvertex", "BBC ZVertex", 128, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex);
+  bbc_zvertex = new TH1F("bbc_zvertex", "BBC ZVertex (all trigs, wide)", 128, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex);
   bbc_zvertex->GetXaxis()->SetTitle("BBC Raw ZVertex [cm]");
   bbc_zvertex->GetYaxis()->SetTitle("Number of Event");
   bbc_zvertex->GetXaxis()->SetTitleSize(0.05);
@@ -129,7 +129,7 @@ int BbcMon::Init()
   bbc_zvertex->GetXaxis()->SetTitleOffset(0.70);
   bbc_zvertex->GetYaxis()->SetTitleOffset(1.75);
 
-  bbc_zvertex_bbll1 = new TH1F("bbc_zvertex_bbll1", "BBC ZVertex triggered by BBLL1",
+  bbc_zvertex_bbll1 = new TH1F("bbc_zvertex_bbll1", "BBC ZVertex (All triggers)",
                                bbc_onlmon::zvtnbin, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex);
   bbc_zvertex_bbll1->Sumw2();
   bbc_zvertex_bbll1->GetXaxis()->SetTitle("ZVertex [cm]");
@@ -310,7 +310,7 @@ int BbcMon::process_event(Event *evt)
 
   bbc_nevent_counter->Fill(1);
 
-  double zvtx = bevt->get_bbcz();
+  double zvtx = bevt->get_bbcz() - 12;
   double t0 = bevt->get_t0();
   double qsum[2] = {0,0};
   qsum[0] = bevt->getChargeSum(0);
@@ -406,6 +406,26 @@ int BbcMon::Reset()
   // reset our internal counters
   evtcnt = 0;
   //idummy = 0;
+
+  bbc_adc->Reset();
+  bbc_tdc->Reset();
+  bbc_tdc_overflow->Reset();
+  bbc_tdc_armhittime->Reset();
+  bbc_zvertex->Reset();
+  bbc_zvertex_bbll1->Reset();
+  bbc_nevent_counter->Reset();
+  bbc_tzero_zvtx->Reset();
+  bbc_prescale_hist->Reset();
+  bbc_avr_hittime->Reset();
+  bbc_north_hittime->Reset();
+  bbc_south_hittime->Reset();
+  bbc_north_chargesum->Reset();
+  bbc_south_chargesum->Reset();
+  bbc_time_wave->Reset();
+  bbc_charge_wave->Reset();
+
+
+
   return 0;
 }
 

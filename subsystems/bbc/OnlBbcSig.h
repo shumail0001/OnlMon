@@ -23,10 +23,10 @@ class OnlBbcSig
 {
 public:
   explicit OnlBbcSig(const int chnum = 0, const int nsamp = 0);
-  explicit OnlBbcSig(const OnlBbcSig &obj);    // never used
+  //explicit OnlBbcSig(const OnlBbcSig &obj);    // never used
   virtual ~OnlBbcSig();
 
-  OnlBbcSig& operator= (const OnlBbcSig& obj) = delete; // never used
+  //OnlBbcSig& operator= (const OnlBbcSig& obj) = delete; // never used
 
   void SetY(const Float_t *y, const int invert = 1);
   void SetXY(const Float_t *x, const Float_t *y, const int invert = 1);
@@ -108,6 +108,8 @@ public:
   void Verbose(const int v) { verbose = v; }
 
 private:
+  void Init();
+
   int ch;
   int nsamples;
 
