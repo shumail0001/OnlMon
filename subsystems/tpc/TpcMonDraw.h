@@ -36,9 +36,11 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCMaxADCModule(const std::string &what = "ALL");
   int DrawTPCRawADC1D(const std::string &what = "ALL");
   int DrawTPCMaxADC1D(const std::string &what = "ALL");
+  int DrawTPCXYclusters(const std::string &what = "ALL");
 
+  
   int TimeOffsetTicks = -1;
-  TCanvas *TC[10] = {nullptr};
+  TCanvas *TC[11] = {nullptr};
   TPad *transparent[3] = {nullptr};
   TPad *Pad[6] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};

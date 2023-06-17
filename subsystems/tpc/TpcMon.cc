@@ -12,6 +12,8 @@
 #include <Event/Event.h>
 #include <Event/msg_profile.h>
 
+#include "TpcMap.h" 
+
 #include <TH1.h>
 #include <TH2.h>
 #include <TMath.h>
@@ -41,6 +43,7 @@ TpcMon::TpcMon(const std::string &name)
   starting_BCO = -1;
   rollover_value = 0;
   current_BCOBIN = 0;
+  M.setMapNames("AutoPad-R1-RevA.sch.ChannelMapping.csv", "AutoPad-R2-RevA-Pads.sch.ChannelMapping.csv", "AutoPad-R3-RevA.sch.ChannelMapping.csv");
 
   return;
 }
@@ -72,6 +75,16 @@ int TpcMon::Init()
   //TPC GEM Module Displays
   NorthSideADC = new TH2F("NorthSideADC" , "ADC Counts North Side", N_thBins, -TMath::Pi()/12. , 23.*TMath::Pi()/12. , N_rBins , rBin_edges );
   SouthSideADC = new TH2F("SouthSideADC" , "ADC Counts South Side", N_thBins, -TMath::Pi()/12. , 23.*TMath::Pi()/12. , N_rBins , rBin_edges );
+  //
+
+  //TPC "cluster" XY heat maps
+  NorthSideADC_clusterXY = new TH2F("NorthSideADC_clusterXY" , "ADC Peaks North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY->SetXTitle("X [mm]");
+  NorthSideADC_clusterXY->SetYTitle("Y [mm]");
+
+  SouthSideADC_clusterXY = new TH2F("SouthSideADC_clusterXY" , "ADC Peaks South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY->SetXTitle("X [mm]");
+  SouthSideADC_clusterXY->SetYTitle("Y [mm]");
   //
 
   // ADC vs Sample
@@ -198,6 +211,8 @@ int TpcMon::Init()
   se->registerHisto(this, MAXADC_1D_R2);
   se->registerHisto(this, RAWADC_1D_R3);
   se->registerHisto(this, MAXADC_1D_R3);
+  se->registerHisto(this, NorthSideADC_clusterXY);
+  se->registerHisto(this, SouthSideADC_clusterXY);
 
   Reset();
   return 0;
@@ -277,7 +292,7 @@ int TpcMon::process_event(Event *evt/* evt */)
         int fee = p->iValue(wf, "FEE");
         int sampaAddress = p->iValue(wf, "SAMPAADDRESS");
         int checksumError = p->iValue(wf, "CHECKSUMERROR");
-        //int channel = p->iValue(wf, "CHANNEL");
+        int channel = p->iValue(wf, "CHANNEL");
 
         Check_Sums->Fill(fee*8 + sampaAddress); 
         if( checksumError == 1){Check_Sum_Error->Fill(fee*8 + sampaAddress);}
@@ -285,7 +300,26 @@ int TpcMon::process_event(Event *evt/* evt */)
         int nr_Samples = p->iValue(wf, "SAMPLES");
         sample_size_hist->Fill(nr_Samples);
 
+
+        // clockwise FEE mapping
+        //int FEE_map[26]={5, 6, 1, 3, 2, 12, 10, 11, 9, 8, 7, 1, 2, 4, 8, 7, 6, 5, 4, 3, 1, 3, 2, 4, 6, 5};
+        int FEE_R[26]={2, 2, 1, 1, 1, 3, 3, 3, 3, 3, 3, 2, 2, 1, 2, 2, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3};
+        // conter clockwise FEE mapping (From Takao)
+        int FEE_map[26]={3, 2, 5, 3, 4, 0, 2, 1, 3, 4, 5, 7, 6, 2, 0, 1, 0, 1, 4, 5, 11, 9, 10, 8, 6, 7};
+        //int pads_per_sector[3] = {96, 128, 192};
+
+
         serverid = MonitorServerId();
+
+        // setting the mapp of the FEE
+        int feeM = FEE_map[fee];
+        if(FEE_R[fee]==2) feeM += 6;
+        if(FEE_R[fee]==3) feeM += 14;
+
+        // getting R and Phi coordinates
+        double R = M.getR(feeM, channel);
+        double phi = M.getPhi(feeM, channel) + (serverid*side(serverid) - 12) * M_PI / 6 ;
+
         //std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<std::endl;
 
         int mid = floor(nr_Samples/2); //get median sample
@@ -322,6 +356,9 @@ int TpcMon::process_event(Event *evt/* evt */)
                if(Module_ID(fee)==0){MAXADC_1D_R1->Fill(adc - pedestal);} //Raw 1D for R1
                else if(Module_ID(fee)==1){MAXADC_1D_R2->Fill(adc - pedestal);} //Raw 1D for R2
                else if(Module_ID(fee)==2){MAXADC_1D_R3->Fill(adc - pedestal);} //Raw 1D for R3
+
+               if( serverid < 12){NorthSideADC_clusterXY ->Fill(R*cos(phi),R*sin(phi),adc - pedestal );}
+               else if( serverid >=12){SouthSideADC_clusterXY ->Fill(R*cos(phi),R*sin(phi),adc - pedestal );}
             }
 
           }
@@ -343,14 +380,14 @@ int TpcMon::process_event(Event *evt/* evt */)
         is_channel_stuck = 0; //reset after looping through waveform samples
 
         store_ten.clear(); //clear this after every waveform
+
       } //nr waveforms
       delete p;
     }
-  }
-
-
+  } //packet loop
 
   evtcnt++;
+
   // get temporary pointers to histograms
   // one can do in principle directly se->getHisto("tpchist1")->Fill()
   // but the search in the histogram Map is somewhat expensive and slows
@@ -369,17 +406,14 @@ int TpcMon::process_event(Event *evt/* evt */)
 
     Locate(tpciter, &r, &theta);
     //std::cout << "r is: "<< r <<" theta is: "<< theta <<"\n";
-
     if(tpciter < 37){ //South side
       NorthSideADC->Fill(theta,r, North_Side_Arr[tpciter-1]); //fill South side with the weight = bin content
     }
     else { //North side
       SouthSideADC->Fill(theta,r,South_Side_Arr[tpciter-37]); //fill North side with the weight = bin content
     }
- 
   }
   //
-
 
   return 0;
 }
@@ -454,6 +488,14 @@ int TpcMon::Max_Nine(int one, int two, int three, int four, int five, int six, i
   }
 
   return max;
+}
+
+bool TpcMon::side(int server_id)
+{
+  bool side_id = 0; // side = 0 for NS, side = 1 for SS
+  if(server_id >= 12){side_id=1;} // side = 1 when serverid 12 or more
+  
+  return side_id;
 }
 
 
