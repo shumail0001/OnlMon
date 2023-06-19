@@ -164,64 +164,44 @@ int InttMon::DBVarUpdate()
 //===	~Private Methods		===//
 
 // for testing/debugging
+void InttMon::RandomEvent(int felix)
+{
+	int bin;
+
+	int felix_channel;
+	struct INTT::Indexes_s indexes;
+	struct INTT_Felix::Ladder_s ldr_struct;
+
+	int hits = rng->Poisson(16);
+	for(int hit = 0; hit < hits; ++hit)
+	{
+		felix_channel = rng->Uniform(INTT::FELIX_CHANNEL);
+		if(felix_channel == INTT::FELIX_CHANNEL)felix_channel -= 1;
+
+		INTT_Felix::FelixMap(felix, felix_channel, ldr_struct);
+		indexes.lyr = 2 * ldr_struct.barrel + ldr_struct.layer;
+		indexes.ldr = ldr_struct.ladder;
+		indexes.arm = felix / 4;
+
+		indexes.chp = rng->Uniform(INTT::CHIP);
+		if(indexes.chp == INTT::CHIP)indexes.chp -= 1;
+
+		indexes.chn = rng->Uniform(INTT::CHANNEL);
+		if(indexes.chn == INTT::CHANNEL)indexes.chn -= 1;
+
+		indexes.adc = rng->Uniform(INTT::ADC);
+		if(indexes.adc == INTT::ADC)indexes.adc -= 1;
+
+		INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
+		HitMap->SetBinContent(bin, HitMap->GetBinContent(bin) + 1);
+		NumEvents->AddBinContent(1);
+
+		printf("Layer:%2d\tLadder:%3d (%s)\tChip:%3d\tChannel:%4d\n", indexes.lyr, indexes.ldr, indexes.arm ? "North" : "South", indexes.chp, indexes.chn);
+	}
+}
+
 int InttMon::MiscDebug()
 {
-	//int b;
-	//int c;
-
-	//INTT::Indexes_s indexes;
-	//INTT::Indexes_s jndexes;
-
-	//while(true)
-	//{
-	//	INTT::GetGlobalBinFromIndexes(b, indexes);
-	//	INTT::GetGlobalIndexesFromBin(b, jndexes);
-	//	INTT::GetGlobalBinFromIndexes(c, jndexes);
-
-	//	if(b != c)
-	//	{
-	//		std::cout << "Broke for round trip:" << std::endl;
-	//		std::cout << "\tindexes:" << std::endl;
-	//		std::cout << "\t\tadc: " << indexes.adc << " -> " << jndexes.adc << std::endl;
-	//		std::cout << "\t\tchn: " << indexes.chn << " -> " << jndexes.chn << std::endl;
-	//		std::cout << "\t\tchp: " << indexes.chp << " -> " << jndexes.chp << std::endl;
-	//		std::cout << "\t\tarm: " << indexes.arm << " -> " << jndexes.arm << std::endl;
-	//		std::cout << "\t\tldr: " << indexes.ldr << " -> " << jndexes.ldr << std::endl;
-	//		std::cout << "\t\tlyr: " << indexes.lyr << " -> " << jndexes.lyr << std::endl;
-	//		std::cout << "\tbin: " << b << " -> " << c << std::endl;
-
-	//		break;
-	//	}
-
-	//	++indexes.adc;
-	//	if(indexes.adc < INTT::ADC)continue;
-	//	indexes.adc = 0;
-	//	
-	//	++indexes.chn;
-	//	if(indexes.chn < INTT::CHANNEL)continue;
-	//	indexes.chn = 0;
-
-	//	++indexes.chp;
-	//	if(indexes.chp < INTT::CHIP)continue;
-	//	indexes.chp = 0;
-
-	//	++indexes.arm;
-	//	if(indexes.arm < INTT::ARM)continue;
-	//	indexes.arm = 0;
-
-	//	++indexes.ldr;
-	//	if(indexes.ldr < INTT::LADDER[indexes.lyr])continue;
-	//	indexes.ldr = 0;
-
-	//	++indexes.lyr;
-	//	if(indexes.lyr < INTT::LAYER)continue;
-	//	indexes.lyr = 0;
-
-	//	break;
-	//}
-
-	//std::cout << "Round trip worked" << std::endl;
-
 	int b = 0;
 	int c = -1;
 
@@ -267,43 +247,9 @@ int InttMon::MiscDebug()
 		break;
 	}
 
-	std::cout << "Round trip worked" << std::endl;
+	std::cout << "Felix Round trip worked" << std::endl;
 
 	return 0;
 }
 
-void InttMon::RandomEvent(int felix)
-{
-	int bin;
 
-	int felix_channel;
-	struct INTT::Indexes_s indexes;
-	struct INTT_Felix::Ladder_s ldr_struct;
-
-	int hits = rng->Poisson(16);
-	for(int hit = 0; hit < hits; hit++)
-	{
-		felix_channel = rng->Uniform(INTT::FELIX_CHANNEL);
-		if(felix_channel == INTT::FELIX_CHANNEL)felix_channel -= 1;
-
-		INTT_Felix::FelixMap(felix, felix_channel, ldr_struct);
-		indexes.lyr = 2 * ldr_struct.barrel + ldr_struct.layer;
-		indexes.ldr = ldr_struct.ladder;
-		indexes.arm = felix / 4;
-
-		indexes.chp = rng->Uniform(INTT::CHIP);
-		if(indexes.chp == INTT::CHIP)indexes.chp -= 1;
-
-		indexes.chn = rng->Uniform(INTT::CHANNEL);
-		if(indexes.chn == INTT::CHANNEL)indexes.chn -= 1;
-
-		indexes.adc = rng->Uniform(INTT::ADC);
-		if(indexes.adc == INTT::ADC)indexes.adc -= 1;
-
-		INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
-		HitMap->SetBinContent(bin, HitMap->GetBinContent(bin) + 1);
-		NumEvents->AddBinContent(1);
-
-		printf("Layer:%2d\tLadder:%3d (%s)\tChip:%3d\tChannel:%4d\n", indexes.lyr, indexes.ldr, indexes.arm ? "North" : "South", indexes.chp, indexes.chn);
-	}
-}
