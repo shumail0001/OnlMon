@@ -48,6 +48,10 @@ class TpcMonDraw : public OnlMonDraw
   TH2 *dummy_his1 = nullptr;
   TH2 *dummy_his2 = nullptr;
 
+  //TPC Module
+  TH2 *dummy_his1_XY = nullptr;
+  TH2 *dummy_his2_XY = nullptr;
+
   TPaveLabel* NS18 = nullptr; //North Side labels
   TPaveLabel* NS17 = nullptr;
   TPaveLabel* NS16 = nullptr;
