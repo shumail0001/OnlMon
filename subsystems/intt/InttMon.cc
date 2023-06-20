@@ -120,6 +120,8 @@ int InttMon::process_event(Event* evt)
 			}
 			HitMap->AddBinContent(bin);
 		}
+
+		delete p;
 	}
 
 	NumEvents->AddBinContent(1);
