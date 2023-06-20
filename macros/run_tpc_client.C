@@ -21,8 +21,17 @@ void tpcDrawInit(const int online = 0)
     sprintf(TPCMON_STR,"TPCMON_%i",i);
     std::cout<<"You registered the NSIDEADC/SSIDEADC "<<i<<" histo"<<std::endl;
 
-    if(i<12){ cl->registerHisto("NorthSideADC", TPCMON_STR);cl->registerHisto("NorthSideADC_clusterXY", TPCMON_STR);}
-    else { cl->registerHisto("SouthSideADC", TPCMON_STR);cl->registerHisto("SouthSideADC_clusterXY", TPCMON_STR);}
+    cl->registerHisto("NorthSideADC", TPCMON_STR);
+
+    cl->registerHisto("NorthSideADC_clusterXY_R1", TPCMON_STR);
+    cl->registerHisto("NorthSideADC_clusterXY_R2", TPCMON_STR);
+    cl->registerHisto("NorthSideADC_clusterXY_R3", TPCMON_STR);
+
+    cl->registerHisto("SouthSideADC", TPCMON_STR);
+
+    cl->registerHisto("SouthSideADC_clusterXY_R1", TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterXY_R2", TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterXY_R3", TPCMON_STR);
 
     cl->registerHisto("sample_size_hist",TPCMON_STR);
     cl->registerHisto("Check_Sum_Error",TPCMON_STR);
