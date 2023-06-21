@@ -48,8 +48,28 @@ BbcMon::BbcMon(const std::string &name)
 
 BbcMon::~BbcMon()
 {
-  // you can delete NULL pointers it results in a NOOP (No Operation)
-  //delete dbvars;
+  delete bevt;
+  delete bbc_tdc;
+  delete bbc_tdc_overflow;
+  for (int ipmt = 0; ipmt < nPMT_BBC; ipmt++)
+  {
+    delete bbc_tdc_overflow_each[ipmt];
+  }
+  delete bbc_adc;
+  delete bbc_tdc_armhittime;
+  delete bbc_zvertex;
+  delete bbc_zvertex_bbll1;
+  delete bbc_nevent_counter;
+  delete bbc_tzero_zvtx;
+  delete bbc_avr_hittime;
+  delete bbc_south_hittime;
+  delete bbc_north_hittime;
+  delete bbc_south_chargesum;
+  delete bbc_north_chargesum;
+  delete bbc_prescale_hist;
+  delete bbc_time_wave;
+  delete bbc_charge_wave;
+
   return;
 }
 
@@ -73,8 +93,6 @@ int BbcMon::Init()
   calib.close();
 
   // Book Histograms
-  // bbchist1 = new TH1F("bbcmon_hist1", "test 1d histo", 101, 0., 100.);
-  // bbchist2 = new TH2F("bbcmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
   std::ostringstream name, title;
 
   // TDC Distribution ----------------------------------------------------
@@ -113,23 +131,23 @@ int BbcMon::Init()
 
   bbc_adc = new TH2F("bbc_adc", "BBC/MBD ADC(Charge) Distribution", nPMT_BBC, -.5, nPMT_BBC - .5, bbc_onlmon::nBIN_ADC, 0, bbc_onlmon::MAX_ADC_MIP);
 
-  bbc_tdc_armhittime = new TH2F("bbc_tdc_armhittime", "Arm-Hit-Time Correlation of North and South BBC",
+  bbc_tdc_armhittime = new TH2F("bbc_tdc_armhittime", "Arm-Hit-Time Correlation of North and South BBC/MBD",
                                 64, bbc_onlmon::min_armhittime, bbc_onlmon::max_armhittime,
                                 64, bbc_onlmon::min_armhittime, bbc_onlmon::max_armhittime);
-  bbc_tdc_armhittime->GetXaxis()->SetTitle("South[ns]");
-  bbc_tdc_armhittime->GetYaxis()->SetTitle("North[ns]");
+  bbc_tdc_armhittime->GetXaxis()->SetTitle("South [ns]");
+  bbc_tdc_armhittime->GetYaxis()->SetTitle("North [ns]");
 
   // Vertex Distributions --------------------------------------------------------
 
-  bbc_zvertex = new TH1F("bbc_zvertex", "BBC ZVertex (all trigs, wide)", 128, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex);
-  bbc_zvertex->GetXaxis()->SetTitle("BBC Raw ZVertex [cm]");
+  bbc_zvertex = new TH1F("bbc_zvertex", "BBC/MBD ZVertex (all trigs, wide)", 128, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex);
+  bbc_zvertex->GetXaxis()->SetTitle("ZVertex [cm]");
   bbc_zvertex->GetYaxis()->SetTitle("Number of Event");
   bbc_zvertex->GetXaxis()->SetTitleSize(0.05);
   bbc_zvertex->GetYaxis()->SetTitleSize(0.05);
   bbc_zvertex->GetXaxis()->SetTitleOffset(0.70);
   bbc_zvertex->GetYaxis()->SetTitleOffset(1.75);
 
-  bbc_zvertex_bbll1 = new TH1F("bbc_zvertex_bbll1", "BBC ZVertex (All triggers)",
+  bbc_zvertex_bbll1 = new TH1F("bbc_zvertex_bbll1", "BBC/MBD ZVertex (All triggers)",
                                bbc_onlmon::zvtnbin, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex);
   bbc_zvertex_bbll1->Sumw2();
   bbc_zvertex_bbll1->GetXaxis()->SetTitle("ZVertex [cm]");
@@ -146,10 +164,10 @@ int BbcMon::Init()
   // bbc_tzero_zvtx = new TH2F("bbc_tzero_zvtx",
   //     "TimeZero vs ZVertex", 100, -200, 200, 110, -11, 11 );
   bbc_tzero_zvtx = new TH2F("bbc_tzero_zvtx", "TimeZero vs ZVertex", 100, -200, 200, 110, -16, 16);
-  bbc_tzero_zvtx->SetXTitle("ZVertex[cm]");
+  bbc_tzero_zvtx->SetXTitle("ZVertex [cm]");
   bbc_tzero_zvtx->SetYTitle("TimeZero[ns]");
 
-  bbc_avr_hittime = new TH1F("bbc_avr_hittime", "BBC Average Hittime", 128, 0, 24);
+  bbc_avr_hittime = new TH1F("bbc_avr_hittime", "BBC/MBD Average Hittime", 128, 0, 24);
   bbc_avr_hittime->Sumw2();
   bbc_avr_hittime->GetXaxis()->SetTitle("Avr HitTime [ns]");
   bbc_avr_hittime->GetYaxis()->SetTitle("Number of Event");
@@ -161,8 +179,8 @@ int BbcMon::Init()
   // should make plots of the raw tdc for time channels
   //bbc_south_hittime = new TH1F("bbc_south_hittime", "BBC South Hittime", 164, -100, 16300);
   //bbc_north_hittime = new TH1F("bbc_north_hittime", "BBC North Hittime", 164, -100, 16300);
-  bbc_south_hittime = new TH1F("bbc_south_hittime", "BBC South Hittime", 150, -15, 15);
-  bbc_north_hittime = new TH1F("bbc_north_hittime", "BBC North Hittime", 150, -15, 15);
+  bbc_south_hittime = new TH1F("bbc_south_hittime", "BBC/MBD South Hittime", 150, -15, 15);
+  bbc_north_hittime = new TH1F("bbc_north_hittime", "BBC/MBD North Hittime", 150, -15, 15);
 
   bbc_south_hittime->GetXaxis()->SetTitle("South HitTime [ns]");
   bbc_south_hittime->GetYaxis()->SetTitle("Number of Event");
@@ -183,7 +201,7 @@ int BbcMon::Init()
   bbc_south_chargesum = new TH1F("bbc_south_chargesum", "BBC South ChargeSum [AU]", 128, 0, bbc_onlmon::MAX_CHARGE_SUM);
   bbc_north_chargesum = new TH1F("bbc_north_chargesum", "BBC North ChargeSum [AU]", 128, 0, bbc_onlmon::MAX_CHARGE_SUM);
 
-  bbc_north_chargesum->SetTitle("BBC ChargeSum [MIP]");
+  bbc_north_chargesum->SetTitle("BBC/MBD ChargeSum [MIP]");
   bbc_north_chargesum->GetXaxis()->SetTitle("ChargeSum [MIP]");
   // bbc_north_chargesum->GetXaxis()->SetTitle("North ChargeSum [MIP]");
   bbc_north_chargesum->GetYaxis()->SetTitle("Number of Event");
@@ -222,8 +240,6 @@ int BbcMon::Init()
 
   // register histograms with server otherwise client won't get them
   OnlMonServer *se = OnlMonServer::instance();
-  // se->registerHisto(this, bbchist1);  // uses the TH1->GetName() as key
-  // se->registerHisto(this, bbchist2);
 
   se->registerHisto(this, bbc_adc);
   se->registerHisto(this, bbc_tdc);
@@ -275,6 +291,7 @@ int BbcMon::process_event(Event *evt)
   }
 
   evtcnt++;
+  bbc_nevent_counter->Fill(0);
 
   [[maybe_unused]] OnlMonServer *se = OnlMonServer::instance();
 
@@ -285,18 +302,18 @@ int BbcMon::process_event(Event *evt)
   {
     se = OnlMonServer::instance();
     std::ostringstream msg;
-    msg << "Bbc packet not found" ;
+    msg << "BBC/MBD packet not found" ;
     se->send_message(this,MSG_SOURCE_BBC,MSG_SEV_WARNING, msg.str(),1);
     msg.str("");
+    bbc_nevent_counter->Fill(3);  // bad event
+
+    delete p[0];
+    delete p[1];
+
     return 0;
   }
 
   int f_evt = evt->getEvtSequence();
-
-  // get temporary pointers to histograms
-  // one can do in principle directly se->getHisto("bbchist1")->Fill()
-  // but the search in the histogram Map is somewhat expensive and slows
-  // things down if you make more than one operation on a histogram
 
   // calculate BBC
   bevt->Clear();
@@ -381,22 +398,8 @@ int BbcMon::process_event(Event *evt)
     }
   }
 
-  /*
-  if (idummy++ > 10)
-  {
-    if (dbvars)
-    {
-      dbvars->SetVar("bbcmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-      dbvars->SetVar("bbcmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      dbvars->SetVar("bbcmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
-      dbvars->DBcommit();
-    }
-    std::ostringstream msg;
-    msg << "Filling Histos";
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
-    idummy = 0;
-  }
-  */
+  delete p[0];
+  delete p[1];
 
   return 0;
 }

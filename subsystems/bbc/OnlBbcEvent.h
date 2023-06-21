@@ -13,7 +13,7 @@ class OnlBbcEvent
 {
 public:
   OnlBbcEvent ();
-  ~OnlBbcEvent () { }
+  ~OnlBbcEvent ();
 
   bool setRawData(Event *);
   int calculate();

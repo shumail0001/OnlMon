@@ -79,6 +79,22 @@ OnlBbcEvent::OnlBbcEvent(void) :
 }
 
 ///
+OnlBbcEvent::~OnlBbcEvent()
+{
+  for (int iarm=0; iarm<2; iarm++)
+  {
+    delete hevt_bbct[iarm];
+  }
+
+  delete h2_tmax[0];
+  delete h2_tmax[1];
+  delete ac;
+  delete gaussian;
+
+
+}
+
+///
 void OnlBbcEvent::Clear()
 {
   ///reset BBC raw data
