@@ -4,6 +4,7 @@
 // (more info - check the difference in include path search when using "" versus <>)
 
 #include "LL1Mon.h"
+#include "ll1setup.cc"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
@@ -21,7 +22,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
-#include "ll1setup.cc"
 
 
 enum
