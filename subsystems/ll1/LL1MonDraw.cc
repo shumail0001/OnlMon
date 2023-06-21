@@ -36,10 +36,12 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
+  gStyle->SetOptStat(0);
   if (name == "LL1Mon1")
   {
     // xpos (-1) negative: do not draw menu bar
     TC[0] = new TCanvas(name.c_str(), "ll1Mon Monitor", -1, 0, xsize/2, ysize/2);
+    TC[0]->SetTicks(1,1);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -48,6 +50,7 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
     for(int ipad=0; ipad<nPad1; ipad++){
       Pad[ipad] = new TPad(Form("ll1pad%d",ipad),Form("ll1pad%d",ipad),padx1[ipad],pady1[ipad],padx2[ipad],pady2[ipad],0);
       Pad[ipad]->Draw();
+      Pad[ipad]->SetTicks(1,1);
     }
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
     transparent[0]->SetFillStyle(4000);
@@ -57,7 +60,9 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   else if (name == "LL1Mon2")
   {
     // xpos negative: do not draw menu bar
+    gStyle->SetOptStat(0);
     TC[1] = new TCanvas(name.c_str(), "ll1Mon2 Monitor", -xsize / 2, 0, xsize / 2, ysize/2);
+    TC[1]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
     transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
@@ -68,6 +73,7 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   else if (name == "LL1Mon3")
   {
     TC[2] = new TCanvas(name.c_str(), "ll1Mon3 Monitor", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[2]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
             transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
@@ -119,7 +125,6 @@ int LL1MonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   Pad[0]->cd();
-  TStyle* m_gStyle = new TStyle();
   if (h_nhit_n1)
   {
     h_nhit_n1->DrawCopy();
@@ -130,16 +135,12 @@ int LL1MonDraw::DrawFirst(const std::string & /* what */)
     TC[0]->SetEditable(false);
     return -1;
   }
-  m_gStyle->SetOptStat(0);
   Pad[1]->cd();
   h_nhit_n2->DrawCopy();
-  m_gStyle->SetOptStat(0);
   Pad[2]->cd();
   h_nhit_s1->DrawCopy();
-  m_gStyle->SetOptStat(0);
   Pad[3]->cd();
   h_nhit_s2->DrawCopy();
-  m_gStyle->SetOptStat(0);
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -155,7 +156,9 @@ int LL1MonDraw::DrawFirst(const std::string & /* what */)
   runstring = runnostream.str();
   transparent[0]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
+  gStyle->SetOptStat(0);
   TC[0]->Update();
+  TC[0]->SetTicks(1,1);
   TC[0]->Show();
   TC[0]->SetEditable(false);
   return 0;
@@ -195,6 +198,7 @@ int LL1MonDraw::DrawSecond(const std::string & /* what */)
   runstring = runnostream.str();
   transparent[1]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[1]->SetTicks(1,1);
   TC[1]->Update();
   TC[1]->Show();
   TC[1]->SetEditable(false);
@@ -211,6 +215,7 @@ int LL1MonDraw::DrawThird(const std::string & /* what */)
   }
   TC[2]->SetEditable(true);
   TC[2]->Clear("D");
+  gStyle->SetOptStat(0);
   if (h_line_up)
   {
     h_line_up->Draw("colz");
@@ -236,6 +241,7 @@ int LL1MonDraw::DrawThird(const std::string & /* what */)
   transparent[2]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[2]->Update();
+  TC[2]->SetTicks(1,1);
   TC[2]->Show();
   TC[2]->SetEditable(false);
   return 0;
