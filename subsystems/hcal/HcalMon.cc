@@ -267,8 +267,8 @@ int HcalMon::process_event(Event* e /* evt */)
 
       }  // channel loop
 
-      delete p;
     }  // if packet good
+    delete p;
   } // packet loop
 
   // sector loop
