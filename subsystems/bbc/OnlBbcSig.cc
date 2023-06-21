@@ -127,14 +127,19 @@ void  OnlBbcSig::SetTemplateSize(const Int_t nptsx, const Int_t nptsy, const Dou
 
 OnlBbcSig::~OnlBbcSig()
 {
-  /*
   delete hRawPulse;
   delete hSubPulse;
   delete gRawPulse;
   delete gSubPulse;
-  delete ped0stats;
-  */
+  //delete ped0stats;
+  delete hPed0;
   //h2Template->Write();
+  delete h2Template;
+  delete h2Residuals;
+  delete hAmpl;
+  delete hTime;
+  delete template_fcn;
+
 }
 
 void  OnlBbcSig::SetTemplateMinMaxGoodADC(const Double_t min, const Double_t max)

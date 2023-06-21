@@ -26,7 +26,6 @@ protected:
   OnlBbcEvent *bevt { nullptr };
 
   int evtcnt = 0;
-  //int idummy = 0;
   //OnlMonDB *dbvars = nullptr;
 
   TH2 *bbc_adc = nullptr;

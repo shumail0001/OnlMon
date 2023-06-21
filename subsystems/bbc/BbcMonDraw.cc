@@ -31,6 +31,9 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <chrono>
+
+using sysclock_t = std::chrono::system_clock;
 
 #define DEBUG
 #ifdef DEBUG
@@ -68,6 +71,8 @@ BbcMonDraw::~BbcMonDraw()
 {
   PRINT_DEBUG("In BbcMonDraw::~BbcMonDraw()");
   // ifdelete( bbccalib );
+
+  ifdelete( bbcStyle );
 
   // ------------------------------------------------------
   // Canvas and Histogram
@@ -155,6 +160,7 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete(TextZvtx);
   ifdelete(TextZvtxNorth);
   ifdelete(TextZvtxSouth);
+  ifdelete(TextZVtxStatus[0]);
 
   ifdelete(ArmHit);
   ifdelete(TextArmHit);
@@ -188,6 +194,11 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete( FitZvtx );
   ifdelete( TextZVtxStatus[0] );
   //delete TextZVtxStatus[1];
+
+  for (int icv=0; icv<nCANVAS; icv++)
+  {
+    ifdelete( TC[icv] );
+  }
 
   ifdelete(Prescale_hist);
   ifdelete(tspec);
@@ -1057,7 +1068,10 @@ int BbcMonDraw::Draw(const std::string &what)
   PRINT_DEBUG("Drawing Graphs on Canvas");
 
   // Make TopPave
-  time_t evttime = cl->EventTime("CURRENT");
+  //time_t evttime = cl->EventTime("CURRENT");
+  // temporarily use current time for evt time
+  std::time_t evttime = sysclock_t::to_time_t(sysclock_t::now());
+
   otext.str("");
   otext << "Run #" << cl->RunNumber();
   otext << " Events: " << nhit_total;
@@ -1121,7 +1135,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
     // Draw ZVertex triggerd variable trigger
     Zvtx->SetMaximum(maxEntries * 1.05);
-    Zvtx->SetTitle("Bbc ZVertex (south<-->north)");
+    Zvtx->SetTitle("BBC/MBD ZVertex (south<-->north)");
     // PadZVertex->DrawFrame(-160,0,160,maxEntries*1.05,"Bbc ZVertex (south<-->north)");
     // std::cout << "maxEntries " << maxEntries << std::endl;
     // Zvtx->Draw("hist");
@@ -1228,17 +1242,18 @@ int BbcMonDraw::Draw(const std::string &what)
 
     // Draw Status
     otext.str("");
-    otext << " Z_{All Trigs}^{Fit}= " << ((float) int(FitZvtx->GetParameter(1) * 10)) / 10.0
+    otext << " Z_{All Trigs}^{Fit}= " << ((float) int(FitZvtx->GetParameter(1) * 10)) / 10.0 << " cm" << std::endl
         //	      << " #pm " << ((float)int(FitZvtx->GetParError(1)*10))/10.0
-        << " cm ( #sigma = " << int(FitZvtx->GetParameter(2))
+          <<  "                             #sigma = " << int(FitZvtx->GetParameter(2))
         //	      << " #pm " << ((float)int(FitZvtx->GetParError(2)*10))/10.0
-        << " cm)";
+        << " cm";
 
     text = otext.str();
-    TextZVtxStatus[0]->SetText(0.0, 0.85, text.c_str());
-    //TextZVtxStatus[0]->SetText(0.5, 0.5, text.c_str());
+    //TextZVtxStatus[0]->SetText(0.0, 0.85, text.c_str());
+    TextZVtxStatus[0]->SetText(-250, maxEntries*0.8, text.c_str());
     TextZVtxStatus[0]->SetTextSize(0.12);
     TextZVtxStatus[0]->Draw();
+
     /*
        text = textok;
        TextZVtxStatus[1]->SetText(0.6, 0.85, text.c_str());
@@ -1583,7 +1598,7 @@ int BbcMonDraw::Draw(const std::string &what)
       std::cout << "FrameTdcOver[" << side << "] = " << (unsigned long) FrameTdcOver[side] << std::endl;
       BoxTdcOver[side]->Draw();
 
-      name << bbc_onlmon::SIDE_Str[side] << " BBC TDC Distribution";
+      name << bbc_onlmon::SIDE_Str[side] << " BBC/MBD TDC Distribution";
       FrameTdcOver[side]->SetTitle(name.str().c_str());
       name.str("");
 
@@ -1650,7 +1665,7 @@ int BbcMonDraw::Draw(const std::string &what)
       BoxnHit[0][side]->Draw();
       BoxnHit[1][side]->Draw();
 
-      name << bbc_onlmon::SIDE_Str[side] << " BBC number of Hit per Event";
+      name << bbc_onlmon::SIDE_Str[side] << " BBC/MBD number of Hit per Event";
       FramenHit[side]->SetTitle(name.str().c_str());
       name.str("");
 
@@ -1962,7 +1977,9 @@ int BbcMonDraw::DrawFirst(const std::string & )
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  //time_t evttime = cl->EventTime("CURRENT");
+  // temporarily use current time for evt time
+  std::time_t evttime = sysclock_t::to_time_t(sysclock_t::now());
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
       << ", Time: " << ctime(&evttime);
@@ -2011,7 +2028,10 @@ int BbcMonDraw::DrawSecond(const std::string & )
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  //time_t evttime = cl->EventTime("CURRENT");
+  // temporarily use current time for evt time
+  std::time_t evttime = sysclock_t::to_time_t(sysclock_t::now());
+
   // fill run number and event time into string
   runnostream << ThisName << "_2 Run " << cl->RunNumber()
       << ", Time: " << ctime(&evttime);
