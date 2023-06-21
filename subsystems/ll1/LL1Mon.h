@@ -36,7 +36,7 @@ class LL1Mon : public OnlMon
   TH2* h_nhit_s_corr=nullptr;
   TH1* h_time_diff=nullptr;
   TH2* h_hit_check=nullptr;
-
+  
   float binstart = -0.5;
   float binend = 64.5;
   float binend2 = 32.5;
