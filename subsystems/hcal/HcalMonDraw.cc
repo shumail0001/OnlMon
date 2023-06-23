@@ -452,9 +452,6 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   TH1F* hwaveform_twrAvg_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_waveform_twrAvg");
   TH1F* hwaveform_time_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_waveform_time");
   TH1F* hwaveform_pedestal_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_waveform_pedestal");
-  h_waveform_twrAvg->Add(hwaveform_twrAvg_1);
-  h_waveform_time->Add(hwaveform_time_1);
-  h_waveform_pedestal->Add(hwaveform_pedestal_1);
 
   if (!gROOT->FindObject("HcalMon3"))
   {
@@ -472,6 +469,10 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
     TC[3]->SetEditable(0);
     return -1;
   }
+
+  h_waveform_twrAvg->Add(hwaveform_twrAvg_1);
+  h_waveform_time->Add(hwaveform_time_1);
+  h_waveform_pedestal->Add(hwaveform_pedestal_1);
 
   gStyle->SetTitleFontSize(0.03);
 
@@ -928,18 +929,18 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* /*selected*/)
 
     TH1F* h_rm_tower = (TH1F*) cl->getHisto(HCALMON_0, Form("h_rm_tower_%d_%d", binx, biny));
     TH1F* h_rm_tower_1 = (TH1F*) cl->getHisto(HCALMON_1, Form("h_rm_tower_%d_%d", binx, biny));
-    h_rm_tower->Add(h_rm_tower_1);
-
     if (!gROOT->FindObject("HcalPopUp"))
     {
       MakeCanvas("HcalPopUp");
     }
-    if (!h_rm_tower)
+    if (!h_rm_tower || !h_rm_tower_1)
     {
       DrawDeadServer(transparent[4]);
       TC[4]->SetEditable(0);
       return;
     }
+    h_rm_tower->Add(h_rm_tower_1);
+
     TC[4]->SetEditable(1);
     TC[4]->Clear("D");
     Pad[9]->cd();
