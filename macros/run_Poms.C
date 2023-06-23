@@ -26,13 +26,6 @@ void StartPoms()
   bbc->AddAction(new SubSystemActionDrawPS(bbc));
   pmf->RegisterSubSystem(bbc);
 
-  // SubSystem *bbcll1 = new SubSystem("BBCLL1", "bbcll1");
-  // bbcll1->AddAction("bbcll1Draw(\"FIRST\")", "BBCLL1 1st Monitor");
-  // bbcll1->AddAction("bbcll1Draw(\"SECOND\")", "BBCLL1 2nd Monitor");
-  // bbcll1->AddAction("bbcll1Draw(\"HISTORY\")", "BBCLL1 History Monitor");
-  // bbcll1->AddAction(new SubSystemActionDrawPS(bbcll1));
-  // pmf->RegisterSubSystem(bbcll1);
-
   SubSystem *cemc = new SubSystem("CEMC", "cemc");
   cemc->AddAction("cemcDraw(\"FIRST\")", "Towers");
   cemc->AddAction("cemcDraw(\"SECOND\")", "Packet Health");
@@ -68,6 +61,13 @@ void StartPoms()
   intt->AddAction(new SubSystemActionDrawPS(intt));
   pmf->RegisterSubSystem(intt);
 
+  SubSystem *ll1 = new SubSystem("LL1", "ll1");
+  ll1->AddAction("ll1Draw(\"FIRST\")", "Hits");
+  ll1->AddAction("ll1Draw(\"SECOND\")", "Hits Correlation");
+  ll1->AddAction("ll1Draw(\"THIRD\")", "Hits Lineup");
+  ll1->AddAction(new SubSystemActionDrawPS(ll1));
+  pmf->RegisterSubSystem(ll1);
+  
   SubSystem *mvtx = new SubSystem("MVTX", "mvtx");
   mvtx->AddAction("mvtxDraw(\"GENERAL\")", "General Monitor");
   mvtx->AddAction("mvtxDraw(\"FEE\")", "FEE");
@@ -77,12 +77,13 @@ void StartPoms()
   pmf->RegisterSubSystem(mvtx);
 
   SubSystem *tpc = new SubSystem("TPC", "tpc");
-
   tpc->AddAction("tpcDraw(\"TPCMODULE\")", "TPC SUM[ADC]");
   tpc->AddAction("tpcDraw(\"TPCSAMPLESIZE\")", "TPC Sample Size");
   tpc->AddAction("tpcDraw(\"TPCCHECKSUMERROR\")", "TPC Checksum Error Prob.");
   tpc->AddAction("tpcDraw(\"TPCADCVSSAMPLE\")", "TPC ADC vs. Sample");
   tpc->AddAction("tpcDraw(\"TPCMAXADCMODULE\")", "TPC MAX ADC");
+  tpc->AddAction("tpcDraw(\"TPCRAWADC1D\")", "TPC RAW ADC 1D");
+  tpc->AddAction("tpcDraw(\"TPCMAXADC1D\")", "TPC (WindowMAX-Pedestal) ADC 1D");
   
   tpc->AddAction(new SubSystemActionDrawPS(tpc));
   pmf->RegisterSubSystem(tpc);

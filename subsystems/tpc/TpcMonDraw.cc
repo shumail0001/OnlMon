@@ -152,6 +152,15 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     TC[9]->Divide(4,6);
     TC[9]->SetEditable(false);
   }
+  else if (name == "TPCClusterXY")
+  {
+    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal) in SLIDING WINDOW for NS and SS", 1250, 600);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[10]->Divide(2,1);
+    TC[10]->SetEditable(false);
+  }
+  
   return 0;
 }
 
@@ -202,6 +211,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCMAXADC1D")
   {
     iret += DrawTPCMaxADC1D(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCCLUSTERSXY")
+  {
+    iret += DrawTPCXYclusters(what);
     idraw++;
   }
   if (what == "ALL" || what == "HISTORY")
@@ -316,8 +330,8 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH2 *tpcmon_NSIDEADC[12] = {nullptr};
-  TH2 *tpcmon_SSIDEADC[12] = {nullptr};
+  TH2 *tpcmon_NSIDEADC[24] = {nullptr};
+  TH2 *tpcmon_SSIDEADC[24] = {nullptr};
 
   char TPCMON_STR[100];
   // TPC ADC pie chart
@@ -325,8 +339,8 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    if(i<12){tpcmon_NSIDEADC[i] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC");}
-    else {tpcmon_SSIDEADC[i-12] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC");}
+    tpcmon_NSIDEADC[i] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC");
+    tpcmon_SSIDEADC[i] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC");
   }
 
 
@@ -403,12 +417,13 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   for( int i=0; i<12; i++ )
   {
     if( tpcmon_NSIDEADC[i] ){
+    TC[3]->cd(1);
     gStyle->SetPalette(57); //kBird CVD friendly
     tpcmon_NSIDEADC[i] -> Draw("colpolzsame");
     }
 
   }
-
+  TC[3]->cd(1);
   SS00->Draw("same");
   SS01->Draw("same");
   SS02->Draw("same");
@@ -427,14 +442,15 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
 
   for( int i=0; i<12; i++ )
   {
-    if( tpcmon_SSIDEADC[i] ){
+    if( tpcmon_SSIDEADC[i+12] ){
+    TC[3]->cd(2);
     gStyle->SetPalette(57); //kBird CVD friendly
-    tpcmon_SSIDEADC[i] -> Draw("colpolzsame");
+    tpcmon_SSIDEADC[i+12] -> Draw("colpolzsame");
 
     }
 
   }
-
+  TC[3]->cd(2);
   NS18->Draw("same");
   NS17->Draw("same");
   NS16->Draw("same");
@@ -773,6 +789,119 @@ int TpcMonDraw::DrawTPCMaxADC1D(const std::string & /* what */)
   TC[9]->Show();
   TC[9]->SetEditable(false);
   
+  return 0;
+}
+int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
+  TH1 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
+
+  dummy_his1_XY = new TH2F("dummy_his1", "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800); //dummy histos for titles
+  dummy_his2_XY = new TH2F("dummy_his2", "(ADC-Pedestal) > 20 South Side", 400, -800, 800, 400, -800, 800);
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_NSTPC_clusXY[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1");
+    tpcmon_NSTPC_clusXY[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2");
+    tpcmon_NSTPC_clusXY[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3");
+
+    tpcmon_SSTPC_clusXY[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1");
+    tpcmon_SSTPC_clusXY[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2");
+    tpcmon_SSTPC_clusXY[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3");
+  }
+
+  if (!gROOT->FindObject("TPCClusterXY"))
+  {
+    MakeCanvas("TPCClusterXY");
+  }  
+
+  TC[10]->SetEditable(true);
+  TC[10]->Clear("D");
+
+  TC[10]->cd(1);
+  dummy_his1_XY->Draw("colzsame");
+
+  float NS_max = 0;
+  for( int i=0; i<12; i++ )
+  {
+    for( int j=0; j<3; j++ )
+    {
+      if( tpcmon_NSTPC_clusXY[i][j] )
+      {
+        TC[10]->cd(1);
+        tpcmon_NSTPC_clusXY[i][j] -> Draw("colzsame");
+        if ( tpcmon_NSTPC_clusXY[i][0]->GetBinContent(tpcmon_NSTPC_clusXY[i][j]->GetMaximumBin()) > NS_max)
+        {
+          NS_max = tpcmon_NSTPC_clusXY[i][j]->GetBinContent(tpcmon_NSTPC_clusXY[i][j]->GetMaximumBin());
+          dummy_his1_XY->SetMaximum( NS_max );
+        }
+        gStyle->SetPalette(57); //kBird CVD friendly
+      }
+    }
+
+  }
+
+  TC[10]->cd(2);
+  dummy_his2_XY->Draw("colzsame");
+
+  float SS_max = 0;
+  for( int i=0; i<12; i++ )
+  {
+    for( int j=0; j<3; j++ )
+    {
+      if( tpcmon_SSTPC_clusXY[i][j] )
+      {
+        TC[10]->cd(1);
+        tpcmon_SSTPC_clusXY[i][j] -> Draw("colzsame");
+        if ( tpcmon_NSTPC_clusXY[i][j]->GetBinContent(tpcmon_SSTPC_clusXY[i][j]->GetMaximumBin()) > SS_max)
+        {
+          SS_max = tpcmon_SSTPC_clusXY[i][j]->GetBinContent(tpcmon_SSTPC_clusXY[i][j]->GetMaximumBin());
+          dummy_his2_XY->SetMaximum( SS_max );
+        }
+        gStyle->SetPalette(57); //kBird CVD friendly
+      }
+    }
+
+  }
+
+
+  TC[10]->Update();
+/*
+  //dynamically set heat map color scale to start at the minimum and end at the maximum
+  if( tpcmon_NSTPC_clusXY[0][0] && tpcmon_SSTPC_clusXY[0][0] ) //you were able to draw North and South Side
+  {
+    dummy_his1_XY->SetMaximum(TMath::Max(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMaximumBin()),tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMaximumBin())));
+    dummy_his1_XY->SetMinimum(TMath::Min(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMinimumBin()),tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMinimumBin())));
+
+    dummy_his2_XY->SetMaximum(TMath::Max(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMaximumBin()),tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMaximumBin())));
+    dummy_his2_XY->SetMinimum(TMath::Min(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMinimumBin()),tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMinimumBin())));
+  }
+  else if( tpcmon_NSTPC_clusXY[0][0] ) //only North side
+  {
+    dummy_his1_XY->SetMaximum(tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMaximumBin()));
+    dummy_his1_XY->SetMinimum(tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMinimumBin()));
+
+    dummy_his2_XY->SetMaximum(tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMaximumBin()));
+    dummy_his2_XY->SetMinimum(tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMinimumBin()));
+  }
+  else // South Side Only
+  {
+    dummy_his1_XY->SetMaximum(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMaximumBin()));
+    dummy_his1_XY->SetMinimum(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMinimumBin()));
+
+    dummy_his2_XY->SetMaximum(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMaximumBin()));
+    dummy_his2_XY->SetMinimum(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMinimumBin()));
+  }
+*/
+
+  TC[10]->Show();
+  TC[10]->SetEditable(false);
+
   return 0;
 }
 
