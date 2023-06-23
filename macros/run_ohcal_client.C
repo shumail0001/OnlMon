@@ -7,7 +7,7 @@
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlhcalmon_client.so)
 
-void hcalDrawInit(const int online = 0)
+void ohcalDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
@@ -49,7 +49,7 @@ void hcalDrawInit(const int online = 0)
   cl->registerDrawer(hcalmon);                           // register with client framework
 }
 
-void hcalDraw(const char *what = "ALL")
+void ohcalDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
   char HCALMON_STR[100];
@@ -61,14 +61,14 @@ void hcalDraw(const char *what = "ALL")
   cl->Draw("OHCALMONDRAW", what);  // Draw Histos of registered Drawers
 }
 
-void hcalPS()
+void ohcalPS()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
   cl->MakePS("OHCALMONDRAW");                    // Create PS files
   return;
 }
 
-void hcalHtml()
+void ohcalHtml()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
   cl->MakeHtml("OHCALMONDRAW");                  // Create html output
