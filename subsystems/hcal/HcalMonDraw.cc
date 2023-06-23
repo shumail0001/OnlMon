@@ -12,18 +12,18 @@
 #include <TH2D.h>
 #include <TLine.h>
 #include <TPad.h>
+#include <TQObject.h>
 #include <TROOT.h>
 #include <TStyle.h>
 #include <TSystem.h>
 #include <TText.h>
-#include <TQObject.h>
 
 #include <cstring>  // for memset
 #include <ctime>
 #include <fstream>
 #include <iostream>  // for operator<<, basic_ostream, basic_os...
 #include <sstream>
-#include <vector>  // for vector
+#include <vector>    // for vector
 
 HcalMonDraw::HcalMonDraw(const std::string& name)
   : OnlMonDraw(name)
@@ -32,6 +32,21 @@ HcalMonDraw::HcalMonDraw(const std::string& name)
   TDatime T0(2003, 01, 01, 00, 00, 00);
   TimeOffsetTicks = T0.Convert();
   dbvars = new OnlMonDB(ThisName);
+  // if name start with O prefix = "OHCALMON"
+  // if name start with I prefix = "IHCALMON"
+  if (ThisName[0] == 'O')
+  {
+    prefix = "OHCALMON";
+  }
+  else if (ThisName[0] == 'I')
+  {
+    prefix = "IHCALMON";
+  }
+  else
+  {
+    std::cout << "HcalMonDraw::HcalMonDraw() ERROR: name does not start with O or I " << ThisName << std::endl;
+    exit(1);
+  }
   return;
 }
 
@@ -163,13 +178,22 @@ int HcalMonDraw::Draw(const std::string& what)
   return iret;
 }
 
-
 int HcalMonDraw::DrawFirst(const std::string& /* what */)
 {
   OnlMonClient* cl = OnlMonClient::instance();
-  TH2D* hist1 = (TH2D*) cl->getHisto("HCALMON_0","h2_hcal_rm");
-  TH2D* h2_hcal_mean = (TH2D*) cl->getHisto("HCALMON_0","h2_hcal_mean");
-  TH1F* h_event = (TH1F*) cl->getHisto("HCALMON_0","h_event");
+
+  char HCALMON_0[100];
+  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
+  char HCALMON_1[100];
+  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
+
+  TH2D* hist1 = (TH2D*) cl->getHisto(HCALMON_0, "h2_hcal_rm");
+  TH2D* h2_hcal_mean = (TH2D*) cl->getHisto(HCALMON_0, "h2_hcal_mean");
+  TH1F* h_event = (TH1F*) cl->getHisto(HCALMON_0, "h_event");
+  TH2D* hist1_1 = (TH2D*) cl->getHisto(HCALMON_1, "h2_hcal_rm");
+  TH2D* h2_hcal_mean_1 = (TH2D*) cl->getHisto(HCALMON_1, "h2_hcal_mean");
+  TH1F* h_event_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_event");
+
   if (!gROOT->FindObject("HcalMon1"))
   {
     MakeCanvas("HcalMon1");
@@ -180,10 +204,19 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
     TC[0]->SetEditable(0);
     return -1;
   }
+
   h2_hcal_mean->Scale(1. / h_event->GetEntries());
   hist1->Divide(h2_hcal_mean);
 
+  h2_hcal_mean_1->Scale(1. / h_event_1->GetEntries());
+  hist1_1->Divide(h2_hcal_mean_1);
 
+  hist1->Add(hist1_1);
+  h2_hcal_mean->Add(h2_hcal_mean_1);
+  // h_event->Add(h_event_1);
+
+  // h2_hcal_mean->Scale(1. / h_event->GetEntries());
+  // hist1->Divide(h2_hcal_mean);
 
   TC[0]->SetEditable(1);
   TC[0]->Clear("D");
@@ -299,9 +332,8 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
 
   TC[0]->SetEditable(0);
 
-
-  //TC[0]->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", "TCanvas", TC[0],
-  //          "Paint()");
+  // TC[0]->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", "TCanvas", TC[0],
+  //           "Paint()");
   return 0;
 }
 
@@ -309,12 +341,23 @@ int HcalMonDraw::DrawSecond(const std::string& /* what */)
 {
   const int Nsector = 32;
   OnlMonClient* cl = OnlMonClient::instance();
-  TH1F* h_sectorAvg_total = (TH1F*) cl->getHisto("HCALMON_0","h_sectorAvg_total");
-  TH1F* h_event = (TH1F*) cl->getHisto("HCALMON_0","h_event");
+
+  char HCALMON_0[100];
+  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
+  char HCALMON_1[100];
+  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
+
+  TH1F* h_sectorAvg_total = (TH1F*) cl->getHisto(HCALMON_0, "h_sectorAvg_total");
+  TH1F* h_event = (TH1F*) cl->getHisto(HCALMON_0, "h_event");
+  TH1F* h_sectorAvg_total_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_sectorAvg_total");
+  TH1F* h_event_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_event");
   TH1F* h_rm_sectorAvg[Nsector];
+  TH1F* h_rm_sectorAvg_1[Nsector];
   for (int ih = 0; ih < Nsector; ih++)
   {
-    h_rm_sectorAvg[ih] = (TH1F*) cl->getHisto("HCALMON_0",Form("h_rm_sectorAvg_s%d", ih));
+    h_rm_sectorAvg[ih] = (TH1F*) cl->getHisto(HCALMON_0, Form("h_rm_sectorAvg_s%d", ih));
+    h_rm_sectorAvg_1[ih] = (TH1F*) cl->getHisto(HCALMON_1, Form("h_rm_sectorAvg_s%d", ih));
+    h_rm_sectorAvg[ih]->Add(h_rm_sectorAvg_1[ih]);
   }
 
   if (!gROOT->FindObject("HcalMon2"))
@@ -333,6 +376,8 @@ int HcalMonDraw::DrawSecond(const std::string& /* what */)
   }
 
   h_sectorAvg_total->Scale(1. / h_event->GetEntries());
+  h_sectorAvg_total_1->Scale(1. / h_event_1->GetEntries());
+  h_sectorAvg_total->Add(h_sectorAvg_total_1);
 
   for (int ih = 0; ih < Nsector; ih++)
   {
@@ -396,9 +441,20 @@ int HcalMonDraw::DrawSecond(const std::string& /* what */)
 int HcalMonDraw::DrawThird(const std::string& /* what */)
 {
   OnlMonClient* cl = OnlMonClient::instance();
-  TH1F* h_waveform_twrAvg = (TH1F*) cl->getHisto("HCALMON_0","h_waveform_twrAvg");
-  TH1F* h_waveform_time = (TH1F*) cl->getHisto("HCALMON_0","h_waveform_time");
-  TH1F* h_waveform_pedestal = (TH1F*) cl->getHisto("HCALMON_0","h_waveform_pedestal");
+
+  char HCALMON_0[100];
+  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
+  char HCALMON_1[100];
+  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
+  TH1F* h_waveform_twrAvg = (TH1F*) cl->getHisto(HCALMON_0, "h_waveform_twrAvg");
+  TH1F* h_waveform_time = (TH1F*) cl->getHisto(HCALMON_0, "h_waveform_time");
+  TH1F* h_waveform_pedestal = (TH1F*) cl->getHisto(HCALMON_0, "h_waveform_pedestal");
+  TH1F* hwaveform_twrAvg_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_waveform_twrAvg");
+  TH1F* hwaveform_time_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_waveform_time");
+  TH1F* hwaveform_pedestal_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_waveform_pedestal");
+  h_waveform_twrAvg->Add(hwaveform_twrAvg_1);
+  h_waveform_time->Add(hwaveform_time_1);
+  h_waveform_pedestal->Add(hwaveform_pedestal_1);
 
   if (!gROOT->FindObject("HcalMon3"))
   {
@@ -846,27 +902,33 @@ int HcalMonDraw::DrawHistory(const std::string& /* what */)
   return 0;
 }
 
-//this is the method to idetify which bin you are clicking on and make the pop up window of TH1
-void HcalMonDraw::HandleEvent(int event, int x, int y, TObject *selected)
+// this is the method to idetify which bin you are clicking on and make the pop up window of TH1
+void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* /*selected*/)
 {
-  if (event == 1) {
-    printf("Canvas %s: event=%d, x=%d, y=%d, selected=%s\n", "a",
-           event, x, y, selected->IsA()->GetName());
+  if (event == 1)
+  {
+    char HCALMON_0[100];
+    sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
+    char HCALMON_1[100];
+    sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
+    // printf("Canvas %s: event=%d, x=%d, y=%d, selected=%s\n", "a",
+    //        event, x, y, selected->IsA()->GetName());
 
     double xx = Pad[0]->AbsPixeltoX(x);
-    double xhis  = Pad[0]->PadtoX(xx);
+    double xhis = Pad[0]->PadtoX(xx);
     int binx = (int) xhis;
     double yy = Pad[0]->AbsPixeltoY(y);
-    double yhis  = Pad[0]->PadtoY(yy);
+    double yhis = Pad[0]->PadtoY(yy);
     int biny = (int) yhis;
     printf("ieta=%d, iphi=%d \n", binx, biny);
     if (binx < 0 || binx > 23) return;
     if (biny < 0 || biny > 63) return;
 
-
     OnlMonClient* cl = OnlMonClient::instance();
 
-    TH1F* h_rm_tower = (TH1F*) cl->getHisto("HCALMON_0",Form("h_rm_tower_%d_%d", binx, biny));;
+    TH1F* h_rm_tower = (TH1F*) cl->getHisto(HCALMON_0, Form("h_rm_tower_%d_%d", binx, biny));
+    TH1F* h_rm_tower_1 = (TH1F*) cl->getHisto(HCALMON_1, Form("h_rm_tower_%d_%d", binx, biny));
+    h_rm_tower->Add(h_rm_tower_1);
 
     if (!gROOT->FindObject("HcalPopUp"))
     {
@@ -886,7 +948,5 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject *selected)
     TC[4]->Update();
     TC[4]->Show();
     TC[4]->SetEditable(0);
-
   }
 }
-

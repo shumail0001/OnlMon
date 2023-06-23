@@ -26,13 +26,15 @@ class HcalMon : public OnlMon
   std::vector<float> getSignal(Packet* p, const int channel);
   std::vector<float> anaWaveform(Packet* p, const int channel);
 
+
+
  protected:
   int evtcnt = 0;
   int idummy = 0;
   const int Nsector = 32;
   const int Ntower = 1536;
-  const int packetlow = 8001;
-  const int packethigh = 8008;
+  int packetlow = 8001;
+  int packethigh = 8008;
   // TH1 *hcalhist1 = nullptr;
   // TH2 *hcalhist2 = nullptr;
   TH2* h2_hcal_hits = nullptr;
