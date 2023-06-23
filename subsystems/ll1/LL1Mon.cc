@@ -4,6 +4,7 @@
 // (more info - check the difference in include path search when using "" versus <>)
 
 #include "LL1Mon.h"
+#include "ll1setup.cc"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
@@ -22,7 +23,6 @@
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
 
-#include "ll1setup.cc"
 
 enum
 {
@@ -94,7 +94,7 @@ int LL1Mon::process_event(Event * evt )
 {
   evtcnt++;
   //   int ibd = 0;
-  LL1HEADER* ll1h = new LL1HEADER();
+  LL1HEADER *ll1h = new LL1HEADER();
   ll1setup(evt,ll1h);
 
   int id=8;
@@ -124,6 +124,7 @@ int LL1Mon::process_event(Event * evt )
       h_line_up->Fill(is, 8 - ic, ll1h->triggerwords[ic][is]);
     }
   }
+  delete ll1h;
 
   return 0;
 }
