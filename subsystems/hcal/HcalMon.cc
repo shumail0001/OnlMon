@@ -37,8 +37,8 @@ HcalMon::HcalMon(const std::string& name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new HcalMon()
-  //if name start with O then packetlow = 8001, packethigh = 8008
-  //if name start with I then packetlow = 7001, packethigh = 7008
+  // if name start with O then packetlow = 8001, packethigh = 8008
+  // if name start with I then packetlow = 7001, packethigh = 7008
   if (name[0] == 'O')
   {
     packetlow = 8001;
@@ -90,11 +90,20 @@ int HcalMon::Init()
   h2_hcal_hits = new TH2F("h2_hcal_hits", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_rm = new TH2F("h2_hcal_rm", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_mean = new TH2F("h2_hcal_mean", "", 24, 0, 24, 64, 0, 64);
+  h2_hcal_waveform = new TH2F("h2_hcal_waveform", "", 16, 0.5, 16.5, 1000, 0, 15000);
   h_event = new TH1F("h_event", "", 1, 0, 1);
   h_waveform_twrAvg = new TH1F("h_waveform_twrAvg", "", 16, 0.5, 16.5);
   h_waveform_time = new TH1F("h_waveform_time", "", 16, 0.5, 16.5);
   h_waveform_pedestal = new TH1F("h_waveform_pedestal", "", 5e3, 0, 5e3);
   h_sectorAvg_total = new TH1F("h_sectorAvg_total", "", 32, 0.5, 32.5);
+  // number of towers above threshold per event
+  h_ntower = new TH1F("h_ntower", "", 100, 0, 800);
+  // packet stuff
+  h1_packet_number = new TH1F("h1_packet_number", "", 8, packetlow - 0.5, packethigh + 0.5);
+  h1_packet_length = new TH1F("h1_packet_length", "", 8, packetlow - 0.5, packethigh + 0.5);
+  h1_packet_chans = new TH1F("h1_packet_chans", "", 8, packetlow - 0.5, packethigh + 0.5);
+  h1_packet_event = new TH1F("h1_packet_event", "", 8, packetlow - 0.5, packethigh + 0.5);
+
   for (int ih = 0; ih < Nsector; ih++)
     h_rm_sectorAvg[ih] = new TH1F(Form("h_rm_sectorAvg_s%d", ih), "", historyLength, 0, historyLength);
   for (int ieta = 0; ieta < 24; ieta++)
@@ -119,11 +128,18 @@ int HcalMon::Init()
   se->registerHisto(this, h2_hcal_hits);
   se->registerHisto(this, h2_hcal_rm);
   se->registerHisto(this, h2_hcal_mean);
+  se->registerHisto(this, h2_hcal_waveform);
   se->registerHisto(this, h_event);
   se->registerHisto(this, h_sectorAvg_total);
   se->registerHisto(this, h_waveform_twrAvg);
   se->registerHisto(this, h_waveform_time);
   se->registerHisto(this, h_waveform_pedestal);
+  se->registerHisto(this, h_ntower);
+  se->registerHisto(this, h1_packet_number);
+  se->registerHisto(this, h1_packet_length);
+  se->registerHisto(this, h1_packet_chans);
+  se->registerHisto(this, h1_packet_event);
+
   for (int ih = 0; ih < Nsector; ih++)
     se->registerHisto(this, h_rm_sectorAvg[ih]);
 
@@ -234,9 +250,19 @@ int HcalMon::process_event(Event* e /* evt */)
 
     if (p)
     {
-      for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
+      h1_packet_number->Fill(packet);
+
+      h1_packet_length->SetBinContent(packet - packetlow + 1, h1_packet_length->GetBinContent(packet - packetlow + 1) + p->getLength());
+      h1_packet_event->SetBinContent(packet - packetlow + 1, p->iValue(0, "EVTNR"));
+      int nChannels = p->iValue(0, "CHANNELS");
+      if (nChannels > m_nChannels)
+      {
+        return -1;  // packet is corrupted, reports too many channels
+      }
+      for (int c = 0; c < nChannels; c++)
       {
         towerNumber++;
+        h1_packet_chans->Fill(packet);
 
         // std::vector result =  getSignal(p,c); // simple peak extraction
         std::vector<float> result = anaWaveform(p, c);  // full waveform fitting
@@ -283,6 +309,7 @@ int HcalMon::process_event(Event* e /* evt */)
         for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
         {
           h_waveform_twrAvg->Fill(s, p->iValue(s, c));
+          if (signal > 100) h2_hcal_waveform->Fill(s, (p->iValue(s, c) - pedestal) );
         }
 
       }  // channel loop
