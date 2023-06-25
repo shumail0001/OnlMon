@@ -298,6 +298,8 @@ int BbcMon::process_event(Event *evt)
   Packet *p[2];
   p[0] = evt->getPacket(1001);
   p[1] = evt->getPacket(1002);
+
+  // Check that we have both MBD/BBC packets
   if ( !p[0] || !p[1] )
   {
     se = OnlMonServer::instance();
@@ -305,7 +307,7 @@ int BbcMon::process_event(Event *evt)
     msg << "BBC/MBD packet not found" ;
     se->send_message(this,MSG_SOURCE_BBC,MSG_SEV_WARNING, msg.str(),1);
     msg.str("");
-    bbc_nevent_counter->Fill(3);  // bad event
+    bbc_nevent_counter->Fill(3);  // bad event, missing packets
 
     delete p[0];
     delete p[1];
@@ -313,6 +315,23 @@ int BbcMon::process_event(Event *evt)
     return 0;
   }
 
+  // Check that both MBD/BBC packets have good checksums
+  if ( (p[0]->iValue(0,"EVENCHECKSUMOK") == 0) || (p[0]->iValue(0,"EVENCHECKSUMOK") == 0) ||
+       (p[1]->iValue(0,"EVENCHECKSUMOK") == 0) || (p[1]->iValue(0,"EVENCHECKSUMOK") == 0) )
+  {
+    se = OnlMonServer::instance();
+    std::ostringstream msg;
+    msg << "BBC/MBD packets have bad checksum(s)" ;
+    se->send_message(this,MSG_SOURCE_BBC,MSG_SEV_WARNING, msg.str(),1);
+    msg.str("");
+    bbc_nevent_counter->Fill(4);  // bad event, missing packets
+
+    delete p[0];
+    delete p[1];
+
+    return 0;
+  }
+  
   int f_evt = evt->getEvtSequence();
 
   // calculate BBC
@@ -426,8 +445,6 @@ int BbcMon::Reset()
   bbc_south_chargesum->Reset();
   bbc_time_wave->Reset();
   bbc_charge_wave->Reset();
-
-
 
   return 0;
 }

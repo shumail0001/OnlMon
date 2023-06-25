@@ -91,7 +91,6 @@ OnlBbcEvent::~OnlBbcEvent()
   delete ac;
   delete gaussian;
 
-
 }
 
 ///
