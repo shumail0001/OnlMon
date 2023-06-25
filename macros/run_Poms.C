@@ -53,6 +53,7 @@ void StartPoms()
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
   subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average");
   subsys->AddAction("ihcalDraw(\"THIRD\")", "Wave Form");
+  subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health");
   subsys->AddAction(new SubSystemActionDrawPS(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -60,6 +61,7 @@ void StartPoms()
   subsys->AddAction("ohcalDraw(\"FIRST\")", "Towers");
   subsys->AddAction("ohcalDraw(\"SECOND\")", "Sector Average");
   subsys->AddAction("ohcalDraw(\"THIRD\")", "Wave Form");
+  subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health");
   subsys->AddAction(new SubSystemActionDrawPS(subsys));
   pmf->RegisterSubSystem(subsys);
 
