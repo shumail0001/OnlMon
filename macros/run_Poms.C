@@ -19,20 +19,21 @@ void StartPoms()
 
   // Register SubSystems
   //  pmf->RegisterSubSystem("EXAMPLE", "example");
+  SubSystem *subsys = nullptr;
 
-  SubSystem *bbc = new SubSystem("BBC", "bbc");
-  bbc->AddAction("bbcDraw(\"FIRST\")", "BBC Vertex Monitor");
-  bbc->AddAction("bbcDraw(\"SECOND\")", "BBC Timing Monitor");
-  bbc->AddAction(new SubSystemActionDrawPS(bbc));
-  pmf->RegisterSubSystem(bbc);
+  subsys = new SubSystem("MBD", "bbc");
+  subsys->AddAction("bbcDraw(\"FIRST\")", "MBD Vertex Monitor");
+  subsys->AddAction("bbcDraw(\"SECOND\")", "MBD Timing Monitor");
+  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  pmf->RegisterSubSystem(subsys);
 
-  SubSystem *cemc = new SubSystem("CEMC", "cemc");
-  cemc->AddAction("cemcDraw(\"FIRST\")", "Towers");
-  cemc->AddAction("cemcDraw(\"SECOND\")", "Packet Health");
-  cemc->AddAction("cemcDraw(\"THIRD\")", "Wave Forms");
-  cemc->AddAction("cemcDraw(\"FOURTH\")", "Wave vs Fast Fitting");
-  cemc->AddAction(new SubSystemActionDrawPS(cemc));
-  pmf->RegisterSubSystem(cemc);
+  subsys = new SubSystem("CEMC", "cemc");
+  subsys->AddAction("cemcDraw(\"FIRST\")", "Towers");
+  subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Health");
+  subsys->AddAction("cemcDraw(\"THIRD\")", "Wave Forms");
+  subsys->AddAction("cemcDraw(\"FOURTH\")", "Wave vs Fast Fitting");
+  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  pmf->RegisterSubSystem(subsys);
 
   // SubSystem *daq = new SubSystem("DAQ", "daq");
   // daq->AddAction("daqDraw(\"FIRST\")", "DAQ 1st Monitor");
@@ -48,55 +49,62 @@ void StartPoms()
    // epd->AddAction(new SubSystemActionDrawPS(epd));
    // pmf->RegisterSubSystem(epd);
 
-  SubSystem *hcal = new SubSystem("HCAL", "hcal");
-  hcal->AddAction("hcalDraw(\"FIRST\")", "Towers");
-  hcal->AddAction("hcalDraw(\"SECOND\")", "Sector Average");
-  hcal->AddAction("hcalDraw(\"THIRD\")", "Wave Form");
-  hcal->AddAction(new SubSystemActionDrawPS(hcal));
-  pmf->RegisterSubSystem(hcal);
+  subsys = new SubSystem("Inner HCAL", "ihcal");
+  subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
+  subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average");
+  subsys->AddAction("ihcalDraw(\"THIRD\")", "Wave Form");
+  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  pmf->RegisterSubSystem(subsys);
 
-  SubSystem *intt = new SubSystem("INTT", "intt");
-  intt->AddAction("inttDraw(\"chip_hitmap\")", "INTT Chip Hitmap");
-  intt->AddAction("inttDraw(\"ladder_hitmap\")", "INTT ladder Hitmap");
-  intt->AddAction(new SubSystemActionDrawPS(intt));
-  pmf->RegisterSubSystem(intt);
+  subsys = new SubSystem("Outer HCAL", "ohcal");
+  subsys->AddAction("ohcalDraw(\"FIRST\")", "Towers");
+  subsys->AddAction("ohcalDraw(\"SECOND\")", "Sector Average");
+  subsys->AddAction("ohcalDraw(\"THIRD\")", "Wave Form");
+  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  pmf->RegisterSubSystem(subsys);
 
-  SubSystem *ll1 = new SubSystem("LL1", "ll1");
-  ll1->AddAction("ll1Draw(\"FIRST\")", "Hits");
-  ll1->AddAction("ll1Draw(\"SECOND\")", "Hits Correlation");
-  ll1->AddAction("ll1Draw(\"THIRD\")", "Hits Lineup");
-  ll1->AddAction(new SubSystemActionDrawPS(ll1));
-  pmf->RegisterSubSystem(ll1);
+  subsys = new SubSystem("INTT", "intt");
+  subsys->AddAction("inttDraw(\"chip_hitmap\")", "INTT Chip Hitmap");
+  subsys->AddAction("inttDraw(\"ladder_hitmap\")", "INTT ladder Hitmap");
+  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  pmf->RegisterSubSystem(subsys);
+
+  subsys = new SubSystem("Local Level 1", "ll1");
+  subsys->AddAction("ll1Draw(\"FIRST\")", "Hits");
+  subsys->AddAction("ll1Draw(\"SECOND\")", "Hits Correlation");
+  subsys->AddAction("ll1Draw(\"THIRD\")", "Hits Lineup");
+  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  pmf->RegisterSubSystem(subsys);
   
-  SubSystem *mvtx = new SubSystem("MVTX", "mvtx");
-  mvtx->AddAction("mvtxDraw(\"GENERAL\")", "General Monitor");
-  mvtx->AddAction("mvtxDraw(\"FEE\")", "FEE");
-  mvtx->AddAction("mvtxDraw(\"FHR\")", "FHR");
-  mvtx->AddAction("mvtxDraw(\"OCC\")", "OCC");
-  mvtx->AddAction(new SubSystemActionDrawPS(mvtx));
-  pmf->RegisterSubSystem(mvtx);
+  subsys = new SubSystem("MVTX", "mvtx");
+  subsys->AddAction("mvtxDraw(\"GENERAL\")", "General Monitor");
+  subsys->AddAction("mvtxDraw(\"FEE\")", "FEE");
+  subsys->AddAction("mvtxDraw(\"FHR\")", "FHR");
+  subsys->AddAction("mvtxDraw(\"OCC\")", "OCC");
+  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  pmf->RegisterSubSystem(subsys);
 
-  SubSystem *tpc = new SubSystem("TPC", "tpc");
-  tpc->AddAction("tpcDraw(\"TPCMODULE\")", "TPC SUM[ADC]");
-  tpc->AddAction("tpcDraw(\"TPCSAMPLESIZE\")", "TPC Sample Size");
-  tpc->AddAction("tpcDraw(\"TPCCHECKSUMERROR\")", "TPC Checksum Error Prob.");
-  tpc->AddAction("tpcDraw(\"TPCADCVSSAMPLE\")", "TPC ADC vs. Sample");
-  tpc->AddAction("tpcDraw(\"TPCMAXADCMODULE\")", "TPC MAX ADC");
-  tpc->AddAction("tpcDraw(\"TPCRAWADC1D\")", "TPC RAW ADC 1D");
-  tpc->AddAction("tpcDraw(\"TPCMAXADC1D\")", "TPC (WindowMAX-Pedestal) ADC 1D");
-  
-  tpc->AddAction(new SubSystemActionDrawPS(tpc));
-  pmf->RegisterSubSystem(tpc);
+  subsys = new SubSystem("TPC", "tpc");
+  subsys->AddAction("tpcDraw(\"TPCMODULE\")", "TPC SUM[ADC]");
+  subsys->AddAction("tpcDraw(\"TPCSAMPLESIZE\")", "TPC Sample Size");
+  subsys->AddAction("tpcDraw(\"TPCCHECKSUMERROR\")", "TPC Checksum Error Prob.");
+  subsys->AddAction("tpcDraw(\"TPCADCVSSAMPLE\")", "TPC ADC vs. Sample");
+  subsys->AddAction("tpcDraw(\"TPCMAXADCMODULE\")", "TPC MAX ADC");
+  subsys->AddAction("tpcDraw(\"TPCRAWADC1D\")", "TPC RAW ADC 1D");
+  subsys->AddAction("tpcDraw(\"TPCMAXADC1D\")", "TPC (WindowMAX-Pedestal) ADC 1D");
+  subsys->AddAction("tpcDraw(\"TPCCLUSTERSXY\")","TPC Cluster XY MaxADC");
+  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  pmf->RegisterSubSystem(subsys);
 
-  SubSystem *tpot = new SubSystem("TPOT", "tpot");
-  tpot->AddAction("tpotDraw(\"TPOT_detector_occupancy\")", "Detector Occupancy");
-  tpot->AddAction("tpotDraw(\"TPOT_resist_occupancy\")", "Resist Occupnacy");
-  tpot->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC Sample");
-  tpot->AddAction("tpotDraw(\"TPOT_hit_charge\")", "Hit Charge");
-  tpot->AddAction("tpotDraw(\"TPOT_hit_multiplicity\")", "Hit Multiplicity");
-  tpot->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit Channel");
-  tpot->AddAction(new SubSystemActionDrawPS(tpot));
-  pmf->RegisterSubSystem(tpot);
+  subsys = new SubSystem("TPOT", "tpot");
+  subsys->AddAction("tpotDraw(\"TPOT_detector_occupancy\")", "Detector Occupancy");
+  subsys->AddAction("tpotDraw(\"TPOT_resist_occupancy\")", "Resist Occupnacy");
+  subsys->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC Sample");
+  subsys->AddAction("tpotDraw(\"TPOT_hit_charge\")", "Hit Charge");
+  subsys->AddAction("tpotDraw(\"TPOT_hit_multiplicity\")", "Hit Multiplicity");
+  subsys->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit Channel");
+  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  pmf->RegisterSubSystem(subsys);
 
   pmf->Draw();
 }
