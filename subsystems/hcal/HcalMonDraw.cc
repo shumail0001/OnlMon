@@ -141,7 +141,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     Pad[10] = new TPad("pad10", "packet event check", 0.0, 0.6, 1.0 / 2, 0.95, 0);
     Pad[11] = new TPad("pad11", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
     Pad[12] = new TPad("pad12", "packet channels", 0.0, 0.0, 1.0 / 2, 0.3, 0);
-    Pad[13] = new TPad("pad13", "event number from server 0", 0.5, 0.6, 1.0, 0.95);
+    Pad[13] = new TPad("pad13", "event number offset", 0.5, 0.6, 1.0, 0.95, 0);
     // Pad[14] = new TPad("pad14", "event number from server 1", 0.75, 0.7, 1.0, 0.95);
     Pad[10]->Draw();
     Pad[11]->Draw();
@@ -657,13 +657,13 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
     TC[5]->SetEditable(0);
     return -1;
   }
-  h1_packet_number->Scale(1. / h_event->GetEntries());
-  h1_packet_length->Scale(1. / h_event->GetEntries());
-  h1_packet_chans->Scale(1. / h_event->GetEntries());
+  // h1_packet_number->Scale(1. / h_event->GetEntries());
+  // h1_packet_length->Scale(1. / h_event->GetEntries());
+  // h1_packet_chans->Scale(1. / h_event->GetEntries());
 
-  h1_packet_number_1->Scale(1. / h_event_1->GetEntries());
-  h1_packet_length_1->Scale(1. / h_event_1->GetEntries());
-  h1_packet_chans_1->Scale(1. / h_event_1->GetEntries());
+  // h1_packet_number_1->Scale(1. / h_event_1->GetEntries());
+  // h1_packet_length_1->Scale(1. / h_event_1->GetEntries());
+  // h1_packet_chans_1->Scale(1. / h_event_1->GetEntries());
 
   h1_packet_number->Add(h1_packet_number_1);
   h1_packet_length->Add(h1_packet_length_1);
@@ -729,8 +729,8 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   TLine* goodChans = new TLine(xmin, 192, xmax, 192);
   goodChans->SetLineStyle(7);
 
-  float param = 0.75;
-  // float param = 0.99;
+  // float param = 0.75;
+  float param = 0.95;
 
   TLegend* leg = new TLegend(0.3, 0.16, 0.95, 0.4);
   leg->SetFillStyle(0);
@@ -740,7 +740,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   warnLineOne->SetLineStyle(7);
   warnLineOne->SetLineColor(2);
 
-  leg->AddEntry(warnLineOne, "75% Threshold", "l");
+  leg->AddEntry(warnLineOne, "95% Threshold", "l");
 
   TLine* warnLineSize = new TLine(xmin, param * 5981., xmax, param * 5981.);
   warnLineSize->SetLineStyle(7);
@@ -842,6 +842,122 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   gPad->SetTicky();
   gPad->SetTickx();
 
+  // draw the warning here:
+  warning[1]->cd();
+  std::vector<int> badPackets;
+  std::vector<std::string> whatswrong;
+  for (int i = 1; i <= 8; i++)
+  {
+    bool missing = false;
+    bool badnumber = false;
+    bool badlength = false;
+    bool badchans = false;
+    if (h1_packet_number->GetBinContent(i) == 0)
+    {
+      missing = true;
+    }
+    if (h1_packet_number->GetBinContent(i) < param)
+    {
+      badnumber = true;
+    }
+    if (h1_packet_length->GetBinContent(i) < param * 5981.)
+    {
+      badlength = true;
+    }
+    if (h1_packet_chans->GetBinContent(i) < param * 192.)
+    {
+      badchans = true;
+    }
+    if (badnumber || badlength || badchans || missing)
+    {
+      badPackets.push_back((int) h1_packet_number->GetBinCenter(i));
+      std::string reason = "";
+      if (missing)
+      {
+        reason += "packet lost! ";
+      }
+      else
+      {
+        if (badnumber)
+        {
+          reason += "some events are missing, ";
+        }
+        if (badlength)
+        {
+          reason += "too short, ";
+        }
+        if (badchans)
+        {
+          reason += "too few channels, ";
+        }
+        // remove the last two characters
+        reason = reason.substr(0, reason.size() - 2);
+        reason += ".";
+      }
+      whatswrong.push_back(reason);
+    }
+  }
+  bool westmismatch = false;
+  bool eastmismatch = false;
+  for (int i = 1; i <= h1_packet_event->GetNbinsX(); i++)
+  {
+    if (h1_packet_event->GetBinContent(i) != 0)
+    {
+      if (i < 3 || i > 6)
+      {
+        westmismatch = true;
+      }
+      else
+      {
+        eastmismatch = true;
+      }
+    }
+  }
+  // draw the mismatch warning on the pad
+  TText mismatchWarn;
+  mismatchWarn.SetTextFont(62);
+  mismatchWarn.SetTextSize(0.06);
+  mismatchWarn.SetTextColor(2);
+  mismatchWarn.SetNDC();
+  mismatchWarn.SetTextAlign(23);
+  if (westmismatch)
+  {
+    mismatchWarn.DrawText(0.5, 0.85, "West misaligned!");
+  }
+  if (eastmismatch)
+  {
+    mismatchWarn.DrawText(0.5, 0.8, "East misaligned!");
+  }
+  mismatchWarn.SetTextColor(1);
+  mismatchWarn.SetTextSize(0.05);
+  if (westmismatch || eastmismatch)
+  {
+    mismatchWarn.DrawText(0.5, 0.7, "Restart the run and see if this persists.");
+    // draw a line for seperation
+    TLine* line = new TLine(0., 0.65, 1., 0.65);
+    line->SetLineColor(1);
+    line->SetLineStyle(1);
+    line->SetLineWidth(10);
+    line->Draw("same");
+  }
+
+  // draw the bad packet warning here
+  TText PacketWarn;
+  PacketWarn.SetTextFont(62);
+  PacketWarn.SetTextSize(0.04);
+  PacketWarn.SetTextColor(1);
+  PacketWarn.SetNDC();
+  PacketWarn.SetTextAlign(23);
+  PacketWarn.DrawText(0.5, 0.6, "Bad Packets:");
+  for (int i = 0; i < (int) badPackets.size(); i++)
+  {
+    PacketWarn.DrawText(0.5, 0.55 - 0.05 * i, Form("%i: %s", badPackets[i], whatswrong[i].c_str()));
+  }
+  if ((int) badPackets.size() > 0 && (h_event->GetEntries() > 500 || h_event_1->GetEntries() > 500))
+  {
+    PacketWarn.SetTextSize(0.04);
+    PacketWarn.DrawText(0.5, 0.55 - 0.05 * (int) badPackets.size(), "Check with HCal experts.");
+  }
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.02);
@@ -1240,12 +1356,39 @@ void HcalMonDraw::DrawTowerAvg()
   TC[4]->SetEditable(1);
   TC[4]->Clear("D");
   Pad[9]->cd();
+
+  gPad->SetLogz();
   gStyle->SetOptStat(0);
   gStyle->SetPalette(57);
   h2_hcal_mean->GetXaxis()->SetTitle("eta index");
   h2_hcal_mean->GetYaxis()->SetTitle("phi index");
   h2_hcal_mean->SetTitle("Tower Average Energy[ADC]");
   h2_hcal_mean->Draw("COLZ");
+  // lines
+  TLine* line_sector[32];
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line] = new TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+    line_sector[i_line]->SetLineColor(1);
+    line_sector[i_line]->SetLineWidth(4);
+    line_sector[i_line]->SetLineStyle(1);
+  }
+  TLine* line_board1 = new TLine(8, 0, 8, 64);
+  line_board1->SetLineColor(1);
+  line_board1->SetLineWidth(4);
+  line_board1->SetLineStyle(1);
+  TLine* line_board2 = new TLine(16, 0, 16, 64);
+  line_board2->SetLineColor(1);
+  line_board2->SetLineWidth(4);
+  line_board2->SetLineStyle(1);
+
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line]->Draw();
+  }
+  line_board1->Draw();
+  line_board2->Draw();
+
   TC[4]->Update();
   TC[4]->Show();
   TC[4]->SetEditable(0);
@@ -1282,6 +1425,30 @@ void HcalMonDraw::DrawHitMap()
   h2_hcal_hits->GetYaxis()->SetTitle("phi index");
   h2_hcal_hits->SetTitle("Average Multiplicity");
   h2_hcal_hits->Draw("COLZ");
+  // lines
+  TLine* line_sector[32];
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line] = new TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+    line_sector[i_line]->SetLineColor(1);
+    line_sector[i_line]->SetLineWidth(4);
+    line_sector[i_line]->SetLineStyle(1);
+  }
+  TLine* line_board1 = new TLine(8, 0, 8, 64);
+  line_board1->SetLineColor(1);
+  line_board1->SetLineWidth(4);
+  line_board1->SetLineStyle(1);
+  TLine* line_board2 = new TLine(16, 0, 16, 64);
+  line_board2->SetLineColor(1);
+  line_board2->SetLineWidth(4);
+  line_board2->SetLineStyle(1);
+
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line]->Draw();
+  }
+  line_board1->Draw();
+  line_board2->Draw();
   TC[4]->Update();
   TC[4]->Show();
   TC[4]->SetEditable(0);
