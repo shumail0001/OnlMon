@@ -280,8 +280,20 @@ int BbcMon::BeginRun(const int /* runno */)
 {
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
+  Reset();
+  bevt->InitRun();
+  
+
   return 0;
 }
+
+int BbcMon::EndRun(const int /* runno */)
+{
+  // This does nothing for now, but can put summary info here for debugging
+
+  return 0;
+}
+
 
 int BbcMon::process_event(Event *evt)
 {
@@ -316,8 +328,8 @@ int BbcMon::process_event(Event *evt)
   }
 
   // Check that both MBD/BBC packets have good checksums
-  if ( (p[0]->iValue(0,"EVENCHECKSUMOK") == 0) || (p[0]->iValue(0,"EVENCHECKSUMOK") == 0) ||
-       (p[1]->iValue(0,"EVENCHECKSUMOK") == 0) || (p[1]->iValue(0,"EVENCHECKSUMOK") == 0) )
+  if ( (p[0]->iValue(0,"EVENCHECKSUMOK") == 0) || (p[0]->iValue(0,"ODDCHECKSUMOK") == 0) ||
+       (p[1]->iValue(0,"EVENCHECKSUMOK") == 0) || (p[1]->iValue(0,"ODDCHECKSUMOK") == 0) )
   {
     se = OnlMonServer::instance();
     std::ostringstream msg;
@@ -433,16 +445,16 @@ int BbcMon::Reset()
   bbc_tdc->Reset();
   bbc_tdc_overflow->Reset();
   bbc_tdc_armhittime->Reset();
+  bbc_nevent_counter->Reset();
   bbc_zvertex->Reset();
   bbc_zvertex_bbll1->Reset();
-  bbc_nevent_counter->Reset();
   bbc_tzero_zvtx->Reset();
-  bbc_prescale_hist->Reset();
   bbc_avr_hittime->Reset();
-  bbc_north_hittime->Reset();
   bbc_south_hittime->Reset();
-  bbc_north_chargesum->Reset();
+  bbc_north_hittime->Reset();
   bbc_south_chargesum->Reset();
+  bbc_north_chargesum->Reset();
+  bbc_prescale_hist->Reset();
   bbc_time_wave->Reset();
   bbc_charge_wave->Reset();
 
