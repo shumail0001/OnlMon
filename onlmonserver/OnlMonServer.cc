@@ -88,7 +88,6 @@ OnlMonServer::~OnlMonServer()
      for (auto &histiter : moniiter.second)
     {
       delete histiter.second;
-      (moniiter.second).erase(histiter.first);
     }
   }
   while (MsgSystem.begin() != MsgSystem.end())
