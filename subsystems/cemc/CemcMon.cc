@@ -33,9 +33,12 @@ enum
     FILLMESSAGE = 2
   };
 
+const int depth = 50;
+const int historyLength = 100;
+const float hit_threshold = 100;
+
+
 using namespace std;
-
-
 
 
 CemcMon::CemcMon(const std::string &name)
@@ -47,13 +50,23 @@ CemcMon::CemcMon(const std::string &name)
   return;
 }
 
-const int depth = 50;
-const int historyLength = 100;
-const float hit_threshold = 100;
-
 
 CemcMon::~CemcMon()
 {
+  for (auto iter : rm_vector_sectAvg)
+  {
+    delete iter;
+  }
+  for (auto iter : rm_vector_twr)
+  {
+    delete iter;
+  }
+  for (auto iter : rm_vector)
+  {
+    delete iter;
+  }
+  delete WaveformProcessingFast;
+  delete WaveformProcessingTemp;
   return;
 }
 
