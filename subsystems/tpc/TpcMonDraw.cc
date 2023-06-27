@@ -414,15 +414,22 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   TC[3]->cd(1);
   dummy_his1->Draw("colpolzsame");
  
+  float NS_max = 0;
   for( int i=0; i<12; i++ )
   {
     if( tpcmon_NSIDEADC[i] ){
     TC[3]->cd(1);
     tpcmon_NSIDEADC[i] -> Draw("colpolzsame");
+    if( tpcmon_NSIDEADC[i]->GetBinContent(tpcmon_NSIDEADC[i]->GetMaximumBin()) > NS_max)
+    {
+      NS_max = tpcmon_NSIDEADC[i]->GetBinContent(tpcmon_NSIDEADC[i]->GetMaximumBin());
+      dummy_his1->SetMaximum( NS_max );
+    }
     gStyle->SetPalette(57); //kBird CVD friendly
     }
 
   }
+  TC[3]->Update();
   TC[3]->cd(1);
   SS00->Draw("same");
   SS01->Draw("same");
@@ -440,24 +447,25 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   TC[3]->cd(2);
   dummy_his2->Draw("colpolzsame");
 
-  //float SS_max = 0;
+  float SS_max = 0;
   for( int i=0; i<12; i++ )
   {
     if( tpcmon_SSIDEADC[i+12] ){
     //std::cout<<"tpcmon_SSIDEADC i: "<< i+12 <<std::endl;
     TC[3]->cd(2);
     tpcmon_SSIDEADC[i+12] -> Draw("colpolzsame");
-/*
+
     if ( tpcmon_SSIDEADC[i+12]->GetBinContent(tpcmon_SSIDEADC[i+12]->GetMaximumBin()) > SS_max)
-      {
-        SS_max = tpcmon_SSIDEADC[i+12]->GetBinContent(tpcmon_SSIDEADC[i+12]->GetMaximumBin());
-        tpcmon_SSIDEADC[i+12]->SetMaximum( SS_max );
-      }
-*/
-    gStyle->SetPalette(57); //kBird CVD friendly
+    {
+      SS_max = tpcmon_SSIDEADC[i+12]->GetBinContent(tpcmon_SSIDEADC[i+12]->GetMaximumBin());
+      dummy_his2->SetMaximum( SS_max );
     }
 
+    gStyle->SetPalette(57); //kBird CVD friendly
+    }
   }
+  TC[3]->Update();
+
   TC[3]->cd(2);
   NS18->Draw("same");
   NS17->Draw("same");
@@ -854,6 +862,7 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
     }
 
   }
+  TC[10]->Update();
 
   TC[10]->cd(2);
   dummy_his2_XY->Draw("colzsame");
