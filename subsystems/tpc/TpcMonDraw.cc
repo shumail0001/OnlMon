@@ -412,14 +412,14 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   TC[3]->SetEditable(true);
   TC[3]->Clear("D");
   TC[3]->cd(1);
-  dummy_his1->Draw("");
+  dummy_his1->Draw("colpolzsame");
  
   for( int i=0; i<12; i++ )
   {
     if( tpcmon_NSIDEADC[i] ){
     TC[3]->cd(1);
-    gStyle->SetPalette(57); //kBird CVD friendly
     tpcmon_NSIDEADC[i] -> Draw("colpolzsame");
+    gStyle->SetPalette(57); //kBird CVD friendly
     }
 
   }
@@ -438,15 +438,23 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   SS11->Draw("same");
 
   TC[3]->cd(2);
-  dummy_his2->Draw("");
+  dummy_his2->Draw("colpolzsame");
 
+  //float SS_max = 0;
   for( int i=0; i<12; i++ )
   {
     if( tpcmon_SSIDEADC[i+12] ){
+    //std::cout<<"tpcmon_SSIDEADC i: "<< i+12 <<std::endl;
     TC[3]->cd(2);
-    gStyle->SetPalette(57); //kBird CVD friendly
     tpcmon_SSIDEADC[i+12] -> Draw("colpolzsame");
-
+/*
+    if ( tpcmon_SSIDEADC[i+12]->GetBinContent(tpcmon_SSIDEADC[i+12]->GetMaximumBin()) > SS_max)
+      {
+        SS_max = tpcmon_SSIDEADC[i+12]->GetBinContent(tpcmon_SSIDEADC[i+12]->GetMaximumBin());
+        tpcmon_SSIDEADC[i+12]->SetMaximum( SS_max );
+      }
+*/
+    gStyle->SetPalette(57); //kBird CVD friendly
     }
 
   }
@@ -470,7 +478,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   //turn off stats box
   dummy_his1->SetStats(0);
   dummy_his2->SetStats(0);
-
+/*
   //dynamically set heat map color scale to start at the minimum and end at the maximum
   if( tpcmon_NSIDEADC[0] && tpcmon_SSIDEADC[0] ) //you were able to draw North and South Side
   {
@@ -496,7 +504,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
     dummy_his2->SetMaximum(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMaximumBin()));
     dummy_his2->SetMinimum(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMinimumBin()));
   }
-
+*/
   TC[3]->Show();
   TC[3]->SetEditable(false);
   
@@ -671,7 +679,7 @@ int TpcMonDraw::DrawTPCMaxADCModule(const std::string & /* what */)
 
 int TpcMonDraw::DrawTPCRawADC1D(const std::string & /* what */)
 {
-  std::cout<<"Made it inside DrawTPCRawADC1D"<<std::endl;
+  //std::cout<<"Made it inside DrawTPCRawADC1D"<<std::endl;
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH1 *tpcmon_RAWADC1D[24][3] = {nullptr};
@@ -732,7 +740,7 @@ int TpcMonDraw::DrawTPCRawADC1D(const std::string & /* what */)
 
 int TpcMonDraw::DrawTPCMaxADC1D(const std::string & /* what */)
 {
-  std::cout<<"Made it inside DrawTPCMaxADC1D"<<std::endl;
+  //std::cout<<"Made it inside DrawTPCMaxADC1D"<<std::endl;
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH1 *tpcmon_MAXADC1D[24][3] = {nullptr};
@@ -798,8 +806,8 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   TH1 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
   TH1 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
 
-  dummy_his1_XY = new TH2F("dummy_his1", "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800); //dummy histos for titles
-  dummy_his2_XY = new TH2F("dummy_his2", "(ADC-Pedestal) > 20 South Side", 400, -800, 800, 400, -800, 800);
+  dummy_his1_XY = new TH2F("dummy_his1_XY", "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800); //dummy histos for titles
+  dummy_his2_XY = new TH2F("dummy_his2_XY", "(ADC-Pedestal) > 20 South Side", 400, -800, 800, 400, -800, 800);
 
   char TPCMON_STR[100];
   for( int i=0; i<24; i++ ) 
@@ -835,6 +843,7 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
       {
         TC[10]->cd(1);
         tpcmon_NSTPC_clusXY[i][j] -> Draw("colzsame");
+        //gStyle->SetLogz(kTRUE);
         if ( tpcmon_NSTPC_clusXY[i][0]->GetBinContent(tpcmon_NSTPC_clusXY[i][j]->GetMaximumBin()) > NS_max)
         {
           NS_max = tpcmon_NSTPC_clusXY[i][j]->GetBinContent(tpcmon_NSTPC_clusXY[i][j]->GetMaximumBin());
@@ -854,13 +863,15 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   {
     for( int j=0; j<3; j++ )
     {
-      if( tpcmon_SSTPC_clusXY[i][j] )
+      if( tpcmon_SSTPC_clusXY[i+12][j] )
       {
-        TC[10]->cd(1);
-        tpcmon_SSTPC_clusXY[i][j] -> Draw("colzsame");
-        if ( tpcmon_NSTPC_clusXY[i][j]->GetBinContent(tpcmon_SSTPC_clusXY[i][j]->GetMaximumBin()) > SS_max)
+        //std::cout<<"South Side Custer XY i: "<< i+12 <<", j: "<<j<<std::endl;
+        TC[10]->cd(2);
+        tpcmon_SSTPC_clusXY[i+12][j] -> Draw("colzsame");
+        //gStyle->SetLogz(kTRUE);
+        if ( tpcmon_SSTPC_clusXY[i+12][j]->GetBinContent(tpcmon_SSTPC_clusXY[i+12][j]->GetMaximumBin()) > SS_max)
         {
-          SS_max = tpcmon_SSTPC_clusXY[i][j]->GetBinContent(tpcmon_SSTPC_clusXY[i][j]->GetMaximumBin());
+          SS_max = tpcmon_SSTPC_clusXY[i+12][j]->GetBinContent(tpcmon_SSTPC_clusXY[i+12][j]->GetMaximumBin());
           dummy_his2_XY->SetMaximum( SS_max );
         }
         gStyle->SetPalette(57); //kBird CVD friendly
