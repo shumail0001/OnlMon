@@ -679,12 +679,12 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
       h1_packet_event->SetBinContent(i, h1_packet_event->GetBinContent(i) - maxy);
     }
   }
-  maxy = h1_packet_event_1->GetMaximum();
+  int maxy1 = h1_packet_event_1->GetMaximum();
   for (int i = 1; i <= h1_packet_event_1->GetNbinsX(); i++)
   {
     if (h1_packet_event_1->GetBinContent(i) != 0)
     {
-      h1_packet_event_1->SetBinContent(i, h1_packet_event_1->GetBinContent(i) - maxy);
+      h1_packet_event_1->SetBinContent(i, h1_packet_event_1->GetBinContent(i) - maxy1);
     }
   }
 
@@ -824,20 +824,21 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   Pad[13]->cd();
   h1_packet_event->Draw("hist");
   double ymax = h1_packet_event->GetMaximum();
+  double ymin = h1_packet_event->GetMinimum();
 
-  h1_packet_event->GetYaxis()->SetRangeUser(ymax - 5, ymax + 5);
+  h1_packet_event->GetYaxis()->SetRangeUser(ymin - 0.3* (ymax - ymin + 30), ymax + 0.3* (ymax - ymin + 30));
   h1_packet_event->GetXaxis()->SetTitle("Packet #");
-  h1_packet_event->GetYaxis()->SetTitle("Event number offset");
+  h1_packet_event->GetYaxis()->SetTitle("clock offset");
   h1_packet_event->GetXaxis()->SetLabelSize(tsize - .01);
   h1_packet_event->GetYaxis()->SetLabelSize(tsize);
   h1_packet_event->GetXaxis()->SetTitleSize(tsize - .01);
   h1_packet_event->GetYaxis()->SetTitleSize(tsize);
   h1_packet_event->GetXaxis()->SetTitleOffset(0.8);
-  h1_packet_event->GetYaxis()->SetTitleOffset(0.8);
+  h1_packet_event->GetYaxis()->SetTitleOffset(1.2);
   gPad->SetBottomMargin(0.16);
-  gPad->SetLeftMargin(0.16);
+  gPad->SetLeftMargin(0.2);
   gPad->SetRightMargin(0.05);
-  gPad->SetLeftMargin(0.15);
+  gPad->SetLeftMargin(0.2);
   gStyle->SetOptStat(0);
   gPad->SetTicky();
   gPad->SetTickx();
@@ -932,13 +933,13 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   mismatchWarn.SetTextSize(0.05);
   if (westmismatch || eastmismatch)
   {
-    mismatchWarn.DrawText(0.5, 0.7, "Restart the run and see if this persists.");
+    //mismatchWarn.DrawText(0.5, 0.7, "Restart the run and see if this persists.");
     // draw a line for seperation
     TLine* line = new TLine(0., 0.65, 1., 0.65);
     line->SetLineColor(1);
     line->SetLineStyle(1);
     line->SetLineWidth(10);
-    //line->Draw("same");
+    line->Draw("same");
   }
 
   // draw the bad packet warning here
