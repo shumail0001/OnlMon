@@ -63,7 +63,7 @@ HcalMon::~HcalMon()
   return;
 }
 
-const int depth = 500;
+const int depth = 1000;
 const int packet_depth = 1000;
 const int historyLength = 100;
 const int n_channel = 48;
@@ -265,6 +265,7 @@ int HcalMon::process_event(Event* e /* evt */)
   }
   evtcnt++;
   h_waveform_twrAvg->Reset();  // only record the latest event waveform
+  h1_packet_event->Reset();
   unsigned int towerNumber = 0;
   float sectorAvg[Nsector] = {0};
 

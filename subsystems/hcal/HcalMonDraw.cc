@@ -938,7 +938,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
     line->SetLineColor(1);
     line->SetLineStyle(1);
     line->SetLineWidth(10);
-    line->Draw("same");
+    //line->Draw("same");
   }
 
   // draw the bad packet warning here
@@ -953,7 +953,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   {
     PacketWarn.DrawText(0.5, 0.55 - 0.05 * i, Form("%i: %s", badPackets[i], whatswrong[i].c_str()));
   }
-  if ((int) badPackets.size() > 0 && (h_event->GetEntries() > 500 || h_event_1->GetEntries() > 500))
+  if ((int) badPackets.size() > 0 && (h_event->GetEntries() > 1000 || h_event_1->GetEntries() > 1000))
   {
     PacketWarn.SetTextSize(0.04);
     PacketWarn.DrawText(0.5, 0.55 - 0.05 * (int) badPackets.size(), "Check with HCal experts.");
