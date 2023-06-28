@@ -68,6 +68,7 @@ const int packet_depth = 1000;
 const int historyLength = 100;
 const int n_channel = 48;
 const float hit_threshold = 100;
+const int n_samples_show = 31;
 
 int HcalMon::Init()
 {
@@ -91,10 +92,10 @@ int HcalMon::Init()
   h2_hcal_hits = new TH2F("h2_hcal_hits", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_rm = new TH2F("h2_hcal_rm", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_mean = new TH2F("h2_hcal_mean", "", 24, 0, 24, 64, 0, 64);
-  h2_hcal_waveform = new TH2F("h2_hcal_waveform", "", 16, 0.5, 16.5, 1000, 0, 15000);
+  h2_hcal_waveform = new TH2F("h2_hcal_waveform", "", n_samples_show, 0.5, n_samples_show + 0.5, 1000, 0, 15000);
   h_event = new TH1F("h_event", "", 1, 0, 1);
-  h_waveform_twrAvg = new TH1F("h_waveform_twrAvg", "", 16, 0.5, 16.5);
-  h_waveform_time = new TH1F("h_waveform_time", "", 16, 0.5, 16.5);
+  h_waveform_twrAvg = new TH1F("h_waveform_twrAvg", "", n_samples_show, 0.5, n_samples_show + 0.5);
+  h_waveform_time = new TH1F("h_waveform_time", "", n_samples_show, 0.5, n_samples_show + 0.5);
   h_waveform_pedestal = new TH1F("h_waveform_pedestal", "", 5e3, 0, 5e3);
   h_sectorAvg_total = new TH1F("h_sectorAvg_total", "", 32, 0.5, 32.5);
   // number of towers above threshold per event
