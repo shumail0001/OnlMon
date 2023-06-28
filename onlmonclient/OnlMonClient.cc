@@ -675,12 +675,12 @@ int OnlMonClient::requestHistoByName(const std::string &subsys, const std::strin
   return 0;
 }
 
-int OnlMonClient::requestHisto(const char *what, const std::string &hostname, const int moniport)
+int OnlMonClient::requestHisto(const std::string &what, const std::string &hostname, const int moniport)
 {
   // Open connection to server
   TSocket sock(hostname.c_str(), moniport);
   TMessage *mess;
-  sock.Send(what);
+  sock.Send(what.c_str());
   while (true)
   {
     sock.Recv(mess);
@@ -1223,6 +1223,43 @@ time_t OnlMonClient::EventTime(const char *which)
     std::cout << " OnlMonClient: No of Ticks " << tret
               << " too small (evb timestamp off or data taken by dcm crate controller, current host ticks used for time" << std::endl;
     tret = time(nullptr);
+  }
+  if (verbosity > 0)
+  {
+    std::cout << "Time is " << ctime(&tret) << std::endl;
+  }
+  return (tret);
+}
+
+time_t OnlMonClient::EventTime(const std::string &servername, const std::string &which)
+{
+  time_t tret = 0;
+  int ibin = 0;
+  if (which == "BOR")
+  {
+    ibin = BORTIMEBIN;
+  }
+  else if (which == "CURRENT")
+  {
+    ibin = CURRENTTIMEBIN;
+  }
+  else if (which == "EOR")
+  {
+    ibin = EORTIMEBIN;
+  }
+  else
+  {
+    std::cout << "Bad Option for Time: " << which
+              << ", implemented are BOR EOR CURRENT" << std::endl;
+  }
+  TH1 *frameworkvars = getHisto(servername,"FrameWorkVars");
+  if (frameworkvars == nullptr)
+  {
+    tret = 0;
+  }
+  else
+  {
+    tret = (time_t)frameworkvars->GetBinContent(ibin);
   }
   if (verbosity > 0)
   {
