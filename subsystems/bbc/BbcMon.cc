@@ -276,13 +276,13 @@ int BbcMon::Init()
   return 0;
 }
 
-int BbcMon::BeginRun(const int /* runno */)
+int BbcMon::BeginRun(const int runno)
 {
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
+  std::cout << "BbcMon::BeginRun(), run " << runno << std::endl;
   Reset();
   bevt->InitRun();
-  
 
   return 0;
 }
