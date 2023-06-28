@@ -38,7 +38,7 @@ class OnlMonServer : public OnlMonBase
   TH1 *getCommonHisto(const std::string &hname) const;
   TH1 *getHisto(const unsigned int ihisto) const;
   const std::string getHistoName(const unsigned int ihisto) const;
-  unsigned int nHistos() const { return Histo.size(); }
+  unsigned int nHistos() const { return CommonHistoMap.size(); }
   int RunNumber() const { return runnumber; }
   void RunNumber(const int irun);
   int EventNumber() const { return eventnumber; }
@@ -123,7 +123,7 @@ class OnlMonServer : public OnlMonBase
   TH1 *serverrunning = nullptr;
   OnlMonStatusDB *statusDB = nullptr;
   OnlMonStatusDB *RunStatusDB = nullptr;
-  std::map<const std::string, TH1 *> Histo;
+  std::map<const std::string, TH1 *> CommonHistoMap;
   std::vector<OnlMon *> MonitorList;
   std::set<unsigned int> activepackets;
   std::map<std::string, MessageSystem *> MsgSystem;

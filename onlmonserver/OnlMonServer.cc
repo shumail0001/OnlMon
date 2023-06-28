@@ -86,7 +86,7 @@ OnlMonServer::~OnlMonServer()
   {
     while(MonitorHistoSet.begin()->second.begin() != MonitorHistoSet.begin()->second.end())
     {
-      if (Histo.find(MonitorHistoSet.begin()->second.begin()->second->GetName()) == Histo.end())
+      if (CommonHistoMap.find(MonitorHistoSet.begin()->second.begin()->second->GetName()) == CommonHistoMap.end())
       {
       delete MonitorHistoSet.begin()->second.begin()->second;
       }
@@ -101,10 +101,10 @@ OnlMonServer::~OnlMonServer()
     }
     MonitorHistoSet.erase(MonitorHistoSet.begin());
   }
-  while(Histo.begin() != Histo.end())
+  while(CommonHistoMap.begin() != CommonHistoMap.end())
   {
-    delete Histo.begin()->second;
-    Histo.erase(Histo.begin());
+    delete CommonHistoMap.begin()->second;
+    CommonHistoMap.erase(CommonHistoMap.begin());
   }
   while (MsgSystem.begin() != MsgSystem.end())
   {
@@ -146,7 +146,7 @@ void OnlMonServer::dumpHistos(const std::string &filename)
 
 void OnlMonServer::registerCommonHisto(TH1 *h1d)
 {
-  Histo.insert(std::make_pair(h1d->GetName(), h1d));
+  CommonHistoMap.insert(std::make_pair(h1d->GetName(), h1d));
   return;
 }
 
@@ -201,11 +201,11 @@ void OnlMonServer::registerHisto(const std::string &hname, TH1 *h1d, const int r
     exit(1);
   }
   const std::string &tmpstr = hname;
-  std::map<const std::string, TH1 *>::const_iterator histoiter = Histo.find(tmpstr);
+  std::map<const std::string, TH1 *>::const_iterator histoiter = CommonHistoMap.find(tmpstr);
   std::ostringstream msg;
   int histoexist;
   TH1 *delhis;
-  if (histoiter != Histo.end())
+  if (histoiter != CommonHistoMap.end())
   {
     delhis = histoiter->second;
     histoexist = 1;
@@ -235,7 +235,7 @@ void OnlMonServer::registerHisto(const std::string &hname, TH1 *h1d, const int r
         send_message(MSG_SEV_INFORMATIONAL, msg.str(), 3);
       }
     }
-    Histo[tmpstr] = h1d;
+    CommonHistoMap[tmpstr] = h1d;
     if (delhis)
     {
       delete delhis;
@@ -283,8 +283,8 @@ void OnlMonServer::registerMonitor(OnlMon *Monitor)
 
 TH1 *OnlMonServer::getHisto(const unsigned int ihisto) const
 {
-  std::map<const std::string, TH1 *>::const_iterator histoiter = Histo.begin();
-  unsigned int size = Histo.size();
+  std::map<const std::string, TH1 *>::const_iterator histoiter = CommonHistoMap.begin();
+  unsigned int size = CommonHistoMap.size();
   if (Verbosity() > 3)
   {
     std::ostringstream msg;
@@ -313,8 +313,8 @@ TH1 *OnlMonServer::getHisto(const unsigned int ihisto) const
 const std::string
 OnlMonServer::getHistoName(const unsigned int ihisto) const
 {
-  std::map<const std::string, TH1 *>::const_iterator histoiter = Histo.begin();
-  unsigned int size = Histo.size();
+  std::map<const std::string, TH1 *>::const_iterator histoiter = CommonHistoMap.begin();
+  unsigned int size = CommonHistoMap.size();
   if (verbosity > 3)
   {
     std::ostringstream msg;
@@ -365,8 +365,8 @@ TH1 *OnlMonServer::getHisto(const std::string &subsys, const std::string &hname)
 
 TH1 *OnlMonServer::getCommonHisto(const std::string &hname) const
 {
-  std::map<const std::string, TH1 *>::const_iterator histoiter = Histo.find(hname);
-  if (histoiter != Histo.end())
+  std::map<const std::string, TH1 *>::const_iterator histoiter = CommonHistoMap.find(hname);
+  if (histoiter != CommonHistoMap.end())
   {
     return histoiter->second;
   }
@@ -427,7 +427,7 @@ int OnlMonServer::Reset()
     }
   }
 
-  for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
+  for (hiter = CommonHistoMap.begin(); hiter != CommonHistoMap.end(); ++hiter)
   {
     hiter->second->Reset();
   }
@@ -498,7 +498,7 @@ void OnlMonServer::Print(const std::string &what, std::ostream& os) const
     // loop over the map and print out the content (name and location in memory)
     os << std::endl << "--------------------------------------" << std::endl << std::endl;
     os << "List of Common Histograms in OnlMonServer"  << std::endl;
-    for (auto &hiter : Histo)
+    for (auto &hiter : CommonHistoMap)
     {
       os << hiter.first << std::endl;
     }
