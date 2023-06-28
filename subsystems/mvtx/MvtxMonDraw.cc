@@ -1155,7 +1155,7 @@ void MvtxMonDraw::PublishStatistics(TCanvas *c,OnlMonClient *cl){
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  time_t evttime = getTime();
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -1293,5 +1293,16 @@ void MvtxMonDraw::DrawPave(std::vector<MvtxMonDraw::Quality> status, int positio
 
 }
 
-
-
+time_t MvtxMonDraw::getTime()
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  time_t currtime = 0;
+  int i = 0;
+  while (currtime == 0 && i <= 5)
+  {
+    std::string servername = "MVTXMON_" + std::to_string(i);
+    currtime = cl->EventTime(servername,"CURRENT");
+    i++;
+  }
+  return currtime;
+}
