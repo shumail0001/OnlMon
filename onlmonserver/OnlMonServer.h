@@ -8,6 +8,7 @@
 
 #include <pthread.h>
 #include <ctime>
+#include <iostream>
 #include <map>
 #include <set>
 #include <string>
@@ -44,7 +45,8 @@ class OnlMonServer : public OnlMonBase
   void EventNumber(const int iev) { eventnumber = iev; }
   int PortNumber() const { return portnumber; }
   void PortNumber(const int i) { portnumber = i; }
-  void Print(const std::string &what = "ALL") const;
+  void Print(const std::string &what = "ALL", std::ostream& os = std::cout) const;
+  void PrintFile(const std::string &fname) const;
 
   void InitAll();
 
@@ -126,7 +128,6 @@ class OnlMonServer : public OnlMonBase
   std::set<unsigned int> activepackets;
   std::map<std::string, MessageSystem *> MsgSystem;
   std::map<std::string, std::map<std::string, TH1 *>> MonitorHistoSet;
-  std::set<std::string> CommonHistoSet;
   pthread_mutex_t mutex;
   pthread_t serverthreadid = 0;
 };
