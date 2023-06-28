@@ -530,7 +530,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h2_hcal_waveform->Draw("colz");
 
   float tsize = 0.06;
-  h2_hcal_waveform->GetXaxis()->SetNdivisions(16);
+  h2_hcal_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
   h2_hcal_waveform->GetXaxis()->SetTitle("Sample #");
   h2_hcal_waveform->GetYaxis()->SetTitle("Waveform [ADC]");
   h2_hcal_waveform->GetXaxis()->SetLabelSize(tsize);
@@ -570,7 +570,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
 
   float tsize2 = 0.08;
   h_waveform_time->Draw("hist");
-  h_waveform_time->GetXaxis()->SetNdivisions(16);
+  h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
   h_waveform_time->GetYaxis()->SetTitle("Towers");
   h_waveform_time->GetXaxis()->SetLabelSize(tsize2);
@@ -592,7 +592,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   gStyle->SetTitleFontSize(0.06);
 
   h_waveform_pedestal->Draw("hist");
-  h_waveform_pedestal->GetXaxis()->SetNdivisions(16);
+  h_waveform_pedestal->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedistal");
   h_waveform_pedestal->GetYaxis()->SetTitle("Towers");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize2);
