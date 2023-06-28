@@ -1,11 +1,9 @@
 #include "CemcMonDraw.h"
 
 #include <onlmon/OnlMonClient.h>
-#include <onlmon/OnlMonDB.h>
 
 #include <TAxis.h>  // for TAxis
 #include <TCanvas.h>
-#include <TDatime.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TH2.h>
@@ -29,10 +27,6 @@
 CemcMonDraw::CemcMonDraw(const std::string &name)
 : OnlMonDraw(name)
 {
-  // this TimeOffsetTicks is neccessary to get the time axis right
-  TDatime T0(2003, 01, 01, 00, 00, 00);
-  TimeOffsetTicks = T0.Convert();
-  dbvars = new OnlMonDB(ThisName);
   return;
 }
 
@@ -190,10 +184,11 @@ int CemcMonDraw::Draw(const std::string &what)
 int CemcMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2D* hist1 = (TH2D*)cl->getHisto("CEMCMON_0","h2_cemc_rm");
-  TH2D* h2_cemc_mean = (TH2D*)cl->getHisto("CEMCMON_0","h2_cemc_mean");
-  TH1F* h_event = (TH1F*)cl->getHisto("CEMCMON_0","h1_event");
-  TH1F* adcCount = (TH1F*)cl->getHisto("CEMCMON_0","h1_cemc_adc");
+  TH2* hist1 = (TH2*)cl->getHisto("CEMCMON_0","h2_cemc_rm");
+  TH2* h2_cemc_mean = (TH2*)cl->getHisto("CEMCMON_0","h2_cemc_mean");
+  TH1* h_event = cl->getHisto("CEMCMON_0","h1_event");
+  TH1* adcCount = cl->getHisto("CEMCMON_0","h1_cemc_adc");
+  time_t evttime = getTime(); // get from the first of our servers
   
   if (!gROOT->FindObject("CemcMon1"))
     {
@@ -258,7 +253,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
     {
       line_sector[i_line] = new TLine(0,(i_line+1)*8,96,(i_line+1)*8);
       line_sector[i_line]->SetLineColor(1);
-      line_sector[i_line]->SetLineWidth(1.2);
+      line_sector[i_line]->SetLineWidth(1); // width is a short int
       line_sector[i_line]->SetLineStyle(1);
     }
 
@@ -269,7 +264,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   for(int il=1; il<numVertDiv; il++){
     l_board[il-1] = new TLine(dEI*il,0,dEI*il,256);
     l_board[il-1]->SetLineColor(1);
-    l_board[il-1]->SetLineWidth(1.2);
+    l_board[il-1]->SetLineWidth(1); // width is a host int
     l_board[il-1]->SetLineStyle(1);
     if(il==6) l_board[il-1]->SetLineWidth(2);
   }
@@ -303,7 +298,6 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream  << "Running mean of Tower Hits Normalized by All Towers " ;
   runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
@@ -326,10 +320,11 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 {
   
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1F* h1_packet_number = (TH1F*) cl->getHisto("CEMCMON_0","h1_packet_number");
-  TH1F* h1_packet_length = (TH1F*) cl->getHisto("CEMCMON_0","h1_packet_length");
-  TH1F* h1_packet_chans = (TH1F*) cl->getHisto("CEMCMON_0","h1_packet_chans");
-  TH1F* h_event = (TH1F*) cl->getHisto("CEMCMON_0","h1_event");
+  TH1* h1_packet_number = cl->getHisto("CEMCMON_0","h1_packet_number");
+  TH1* h1_packet_length = cl->getHisto("CEMCMON_0","h1_packet_length");
+  TH1* h1_packet_chans = cl->getHisto("CEMCMON_0","h1_packet_chans");
+  TH1* h_event = cl->getHisto("CEMCMON_0","h1_event");
+  time_t evttime = getTime(); // get from the first of our servers
   
   h1_packet_number -> Scale(1./h_event -> GetEntries());
   h1_packet_length -> Scale(1./h_event -> GetEntries());
@@ -522,7 +517,6 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   std::ostringstream runnostream2;
-  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   
   runnostream << "Packet Information";
@@ -546,9 +540,10 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 int CemcMonDraw::DrawThird(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1F* h1_waveform_twrAvg = (TH1F*) cl->getHisto("CEMCMON_0","h1_waveform_twrAvg");
-  TH1F* h1_waveform_time = (TH1F*) cl->getHisto("CEMCMON_0","h1_waveform_time");
-  TH1F* h1_waveform_pedestal = (TH1F*) cl->getHisto("CEMCMON_0","h1_waveform_pedestal");
+  TH1* h1_waveform_twrAvg = cl->getHisto("CEMCMON_0","h1_waveform_twrAvg");
+  TH1* h1_waveform_time = cl->getHisto("CEMCMON_0","h1_waveform_time");
+  TH1* h1_waveform_pedestal = cl->getHisto("CEMCMON_0","h1_waveform_pedestal");
+  time_t evttime = getTime(); // get from the first of our servers
 
   if (!gROOT->FindObject("CemcMon3"))
     {
@@ -596,7 +591,6 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << "Waveform fitting";
   runnostream2 <<"Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
@@ -669,9 +663,10 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
 
   OnlMonClient *cl = OnlMonClient::instance();
   
-  TH1F *h_waveform_sigDiff = (TH1F*)cl -> getHisto("CEMCMON_0","h1_fitting_sigDiff");
-  TH1F *h_waveform_pedDiff = (TH1F*)cl -> getHisto("CEMCMON_0","h1_fitting_pedDiff");
-  TH1F *h_waveform_timeDiff = (TH1F*)cl -> getHisto("CEMCMON_0","h1_fitting_timeDiff");
+  TH1 *h_waveform_sigDiff = cl -> getHisto("CEMCMON_0","h1_fitting_sigDiff");
+  TH1 *h_waveform_pedDiff = cl -> getHisto("CEMCMON_0","h1_fitting_pedDiff");
+  TH1 *h_waveform_timeDiff = cl -> getHisto("CEMCMON_0","h1_fitting_timeDiff");
+  time_t evttime =  getTime(); // get from the first of our servers
 
   if(!gROOT -> FindObject("CemcMon4"))
     {
@@ -698,7 +693,6 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << "Waveform Template vs. Fast Fitting";
   runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
@@ -790,7 +784,7 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
 }
 
 
-int CemcMonDraw::FindHotTower(TPad *warningpad,TH2D* hhit){
+int CemcMonDraw::FindHotTower(TPad *warningpad,TH2* hhit){
   float nhott = 0;
   float ndeadt = 0;
   float hot_threshold  = 1.25;
@@ -901,120 +895,6 @@ int CemcMonDraw::MakeHtml(const std::string &what)
   return 0;
 }
 
-
-int CemcMonDraw::DrawHistory(const std::string & /* what */)
-{
-  int iret = 0;
-  // you need to provide the following vectors
-  // which are filled from the db
-  std::vector<float> var;
-  std::vector<float> varerr;
-  std::vector<time_t> timestamp;
-  std::vector<int> runnumber;
-  std::string varname = "cemcmondummy";
-  // this sets the time range from whihc values should be returned
-  time_t begin = 0;            // begin of time (1.1.1970)
-  time_t end = time(nullptr);  // current time (right NOW)
-  iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
-  if (iret)
-    {
-      std::cout << __PRETTY_FUNCTION__ << " Error in db access" << std::endl;
-      return iret;
-    }
-  if (!gROOT->FindObject("CemcMon3"))
-    {
-      MakeCanvas("CemcMon3");
-    }
-  // timestamps come sorted in ascending order
-  float *x = new float[var.size()];
-  float *y = new float[var.size()];
-  float *ex = new float[var.size()];
-  float *ey = new float[var.size()];
-  int n = var.size();
-  for (unsigned int i = 0; i < var.size(); i++)
-    {
-      //       std::cout << "timestamp: " << ctime(&timestamp[i])
-      // 	   << ", run: " << runnumber[i]
-      // 	   << ", var: " << var[i]
-      // 	   << ", varerr: " << varerr[i]
-      // 	   << std::endl;
-      x[i] = timestamp[i] - TimeOffsetTicks;
-      y[i] = var[i];
-      ex[i] = 0;
-      ey[i] = varerr[i];
-    }
-  Pad[4]->cd();
-  if (gr[0])
-    {
-      delete gr[0];
-    }
-  gr[0] = new TGraphErrors(n, x, y, ex, ey);
-  gr[0]->SetMarkerColor(4);
-  gr[0]->SetMarkerStyle(21);
-  gr[0]->Draw("ALP");
-  gr[0]->GetXaxis()->SetTimeDisplay(1);
-  gr[0]->GetXaxis()->SetLabelSize(0.03);
-  // the x axis labeling looks like crap
-  // please help me with this, the SetNdivisions
-  // don't do the trick
-  gr[0]->GetXaxis()->SetNdivisions(-1006);
-  gr[0]->GetXaxis()->SetTimeOffset(TimeOffsetTicks);
-  gr[0]->GetXaxis()->SetTimeFormat("%Y/%m/%d %H:%M");
-  delete[] x;
-  delete[] y;
-  delete[] ex;
-  delete[] ey;
-
-  varname = "cemcmoncount";
-  iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
-  if (iret)
-    {
-      std::cout << __PRETTY_FUNCTION__ << " Error in db access" << std::endl;
-      return iret;
-    }
-  x = new float[var.size()];
-  y = new float[var.size()];
-  ex = new float[var.size()];
-  ey = new float[var.size()];
-  n = var.size();
-  for (unsigned int i = 0; i < var.size(); i++)
-    {
-      //       std::cout << "timestamp: " << ctime(&timestamp[i])
-      // 	   << ", run: " << runnumber[i]
-      // 	   << ", var: " << var[i]
-      // 	   << ", varerr: " << varerr[i]
-      // 	   << std::endl;
-      x[i] = timestamp[i] - TimeOffsetTicks;
-      y[i] = var[i];
-      ex[i] = 0;
-      ey[i] = varerr[i];
-    }
-  Pad[5]->cd();
-  if (gr[1])
-    {
-      delete gr[1];
-    }
-  gr[1] = new TGraphErrors(n, x, y, ex, ey);
-  gr[1]->SetMarkerColor(4);
-  gr[1]->SetMarkerStyle(21);
-  gr[1]->Draw("ALP");
-  gr[1]->GetXaxis()->SetTimeDisplay(1);
-  // TC[2]->Update();
-  //    h1->GetXaxis()->SetTimeDisplay(1);
-  //    h1->GetXaxis()->SetLabelSize(0.03);
-  gr[1]->GetXaxis()->SetLabelSize(0.03);
-  gr[1]->GetXaxis()->SetTimeOffset(TimeOffsetTicks);
-  gr[1]->GetXaxis()->SetTimeFormat("%Y/%m/%d %H:%M");
-  //    h1->Draw();
-  delete[] x;
-  delete[] y;
-  delete[] ex;
-  delete[] ey;
-
-  TC[2]->Update();
-  return 0;
-}
-
 std::vector<int> CemcMonDraw::getBadPackets(TH1 *hist, int what, float cutoff)
 {
   float params[3] = {1., 5981., 192.};
@@ -1030,4 +910,18 @@ std::vector<int> CemcMonDraw::getBadPackets(TH1 *hist, int what, float cutoff)
     }
   
   return badpacks;
+}
+
+time_t CemcMonDraw::getTime()
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  time_t currtime = 0;
+  int i = 0;
+  while (currtime == 0 && i <= 7)
+  {
+    std::string servername = "CEMCMON_" + std::to_string(i);
+    currtime = cl->EventTime(servername,"CURRENT");
+    i++;
+  }
+  return currtime;
 }
