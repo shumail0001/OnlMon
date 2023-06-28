@@ -161,7 +161,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalPopUp")
   {
-    TC[4] = new TCanvas(name.c_str(), "pop up window", 2 * xsize / 3, 0.05, xsize / 2, 2 * ysize / 3);
+    TC[4] = new TCanvas(name.c_str(), "!!!DO NOT CLOSE!!! OR THE CODE WILL CRASH!!!!", 2 * xsize / 3, 0.05, xsize / 2, 2 * ysize / 3);
     gSystem->ProcessEvents();
     Pad[9] = new TPad("hcalpad9", "for single tower running mean", 0.0, 0.0, 1, 0.92, 0);
     Pad[9]->Draw();
@@ -1420,6 +1420,7 @@ void HcalMonDraw::DrawHitMap()
   TC[4]->SetEditable(1);
   TC[4]->Clear("D");
   Pad[9]->cd();
+  gPad->SetLogz(0);
   gStyle->SetOptStat(0);
   gStyle->SetPalette(57);
   h2_hcal_hits->GetXaxis()->SetTitle("eta index");
@@ -1497,6 +1498,7 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
     {
       MakeCanvas("HcalPopUp");
     }
+
     if (!h_rm_tower || !h_rm_tower_1)
     {
       DrawDeadServer(transparent[4]);
