@@ -282,7 +282,7 @@ int HcalMon::process_event(Event* e /* evt */)
 
       h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet - packetlow]->getMean(0));
 
-      h1_packet_event->SetBinContent(packet - packetlow + 1, p->iValue(0, "EVTNR"));
+      h1_packet_event->SetBinContent(packet - packetlow + 1, p->iValue(0, "CLOCK"));
       int nChannels = p->iValue(0, "CHANNELS");
       if (nChannels > m_nChannels)
       {

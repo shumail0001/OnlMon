@@ -49,27 +49,6 @@ BbcMon::BbcMon(const std::string &name)
 BbcMon::~BbcMon()
 {
   delete bevt;
-  delete bbc_tdc;
-  delete bbc_tdc_overflow;
-  for (int ipmt = 0; ipmt < nPMT_BBC; ipmt++)
-  {
-    delete bbc_tdc_overflow_each[ipmt];
-  }
-  delete bbc_adc;
-  delete bbc_tdc_armhittime;
-  delete bbc_zvertex;
-  delete bbc_zvertex_bbll1;
-  delete bbc_nevent_counter;
-  delete bbc_tzero_zvtx;
-  delete bbc_avr_hittime;
-  delete bbc_south_hittime;
-  delete bbc_north_hittime;
-  delete bbc_south_chargesum;
-  delete bbc_north_chargesum;
-  delete bbc_prescale_hist;
-  delete bbc_time_wave;
-  delete bbc_charge_wave;
-
   return;
 }
 
@@ -343,7 +322,7 @@ int BbcMon::process_event(Event *evt)
 
     return 0;
   }
-  
+
   int f_evt = evt->getEvtSequence();
 
   // calculate BBC
@@ -353,6 +332,8 @@ int BbcMon::process_event(Event *evt)
 
   if ( bevt->calib_is_done() == 0 ) 
   {
+    delete p[0];
+    delete p[1];
     return 0;
   }
 
