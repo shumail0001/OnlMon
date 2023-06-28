@@ -60,6 +60,27 @@ HcalMon::HcalMon(const std::string& name)
 HcalMon::~HcalMon()
 {
   // you can delete NULL pointers it results in a NOOP (No Operation)
+  delete WaveformProcessing;
+  for (auto iter : rm_vector_sectAvg)
+  {
+    delete iter;
+  }
+  for (auto iter : rm_vector_twr)
+  {
+    delete iter;
+  }
+  for (auto iter : rm_packet_number)
+  {
+    delete iter;
+  }
+  for (auto iter : rm_packet_length)
+  {
+    delete iter;
+  }
+  for (auto iter : rm_packet_chans)
+  {
+    delete iter;
+  }
   return;
 }
 
