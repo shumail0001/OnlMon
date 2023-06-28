@@ -29,7 +29,7 @@ class OnlMonClient : public OnlMonBase
   int requestMonitorList(const std::string &hostname, const int moniport);
   TH1 *getHisto(const std::string &monitor, const std::string &hname);
   OnlMonDraw *getDrawer(const std::string &name);
-  int requestHisto(const char *what = "ALL", const std::string &hostname = "localhost", const int moniport = OnlMonDefs::MONIPORT);
+  int requestHisto(const std::string &what = "ALL", const std::string &hostname = "localhost", const int moniport = OnlMonDefs::MONIPORT);
   int requestHistoList(const std::string &subsys, const std::string &hostname, const int moniport, std::list<std::string> &histolist);
   int requestHistoByName(const std::string &subsystem, const std::string &what = "ALL");
   int requestHistoBySubSystem(const std::string &subsystem, int getall = 0);
@@ -57,7 +57,7 @@ class OnlMonClient : public OnlMonBase
 
   int LocateHistogram(const std::string &hname, const std::string &subsys);
   int RunNumber();
-  time_t EventTime(const char *which = "CURRENT");
+  time_t EventTime(const std::string &servername, const std::string &which);
   int SendCommand(const char *hostname, const int port, const char *cmd);
 
   void SetDisplaySizeX(int xsize) { display_sizex = xsize; }

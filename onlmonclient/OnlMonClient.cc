@@ -675,12 +675,12 @@ int OnlMonClient::requestHistoByName(const std::string &subsys, const std::strin
   return 0;
 }
 
-int OnlMonClient::requestHisto(const char *what, const std::string &hostname, const int moniport)
+int OnlMonClient::requestHisto(const std::string &what, const std::string &hostname, const int moniport)
 {
   // Open connection to server
   TSocket sock(hostname.c_str(), moniport);
   TMessage *mess;
-  sock.Send(what);
+  sock.Send(what.c_str());
   while (true)
   {
     sock.Recv(mess);
@@ -1160,20 +1160,19 @@ int OnlMonClient::RunNumber()
   return (runno);
 }
 
-time_t OnlMonClient::EventTime(const char *which)
+time_t OnlMonClient::EventTime(const std::string &servername, const std::string &which)
 {
-  return 0;
   time_t tret = 0;
   int ibin = 0;
-  if (!strcmp(which, "BOR"))
+  if (which == "BOR")
   {
     ibin = BORTIMEBIN;
   }
-  else if (!strcmp(which, "CURRENT"))
+  else if (which == "CURRENT")
   {
     ibin = CURRENTTIMEBIN;
   }
-  else if (!strcmp(which, "EOR"))
+  else if (which == "EOR")
   {
     ibin = EORTIMEBIN;
   }
@@ -1182,47 +1181,14 @@ time_t OnlMonClient::EventTime(const char *which)
     std::cout << "Bad Option for Time: " << which
               << ", implemented are BOR EOR CURRENT" << std::endl;
   }
-  std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
-  histoiter = Histo.find("FrameWorkVars");
-  if (histoiter != Histo.end())
+  TH1 *frameworkvars = getHisto(servername,"FrameWorkVars");
+  if (frameworkvars == nullptr)
   {
-    // I had an empty histogram from some root file with name FrameWorkVar
-    // so check if this histo exists before getting the bincontent
-    // this only happens at startup when the servers are not running
-    // during normal operations this histo is fetched from the
-    // server which provides the requested histograms
-    if (!histoiter->second->Histo())
-    {
-      tret = 0;
-    }
-    else
-    {
-      tret = (time_t) histoiter->second->Histo()->GetBinContent(ibin);
-    }
+    tret = 0;
   }
   else
   {
-    if (requestHistoByName("FrameWorkVars"))
-    {
-      std::cout << "Histogram FrameWorkVars cannot be located, current host ticks used for time" << std::endl;
-      return time(nullptr);
-    }
-    histoiter = Histo.find("FrameWorkVars");
-    if (histoiter != Histo.end())
-    {
-      tret = (time_t) histoiter->second->Histo()->GetBinContent(ibin);
-    }
-    else
-    {
-      std::cout << "Histogram FrameWorkVars cannot be located, current host ticks used for time" << std::endl;
-      return time(nullptr);
-    }
-  }
-  if (tret < 1000000)
-  {
-    std::cout << " OnlMonClient: No of Ticks " << tret
-              << " too small (evb timestamp off or data taken by dcm crate controller, current host ticks used for time" << std::endl;
-    tret = time(nullptr);
+    tret = (time_t)frameworkvars->GetBinContent(ibin);
   }
   if (verbosity > 0)
   {
