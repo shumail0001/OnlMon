@@ -38,8 +38,8 @@ class TpcMonDraw : public OnlMonDraw
   time_t getTime();
   
   TCanvas *TC[11] = {nullptr};
-  TPad *transparent[3] = {nullptr};
-  TPad *Pad[6] = {nullptr};
+  TPad *transparent[10] = {nullptr};
+  TPad *Pad[8] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module
   TH2 *dummy_his1 = nullptr;
