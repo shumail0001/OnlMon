@@ -344,7 +344,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   for(int il=1; il<numVertDiv; il++){
     l_board[il-1] = new TLine(dEI*il,0,dEI*il,256);
     l_board[il-1]->SetLineColor(1);
-    l_board[il-1]->SetLineWidth(1.2);
+    l_board[il-1]->SetLineWidth(1);
     l_board[il-1]->SetLineStyle(1);
     if(il==6) l_board[il-1]->SetLineWidth(2);
   }
