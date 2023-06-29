@@ -236,7 +236,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
 	    }
 	}
     }
-  h_event[start[2]] -> Scale(1./divisor);
+  if(start[2])h_event[start[2]] -> Scale(1./divisor);
   TH1* adcCount[nSEBs];
   start[3] = -1;
   for(int i = 0; i < nSEBs; i++)
@@ -419,7 +419,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 	}
     }
   
-  h_event[start[0]] -> Scale(1./divisor);
+  if(start[0]) h_event[start[0]] -> Scale(1./divisor);
   
   TH1* h1_packet_number[nSEBs];
   start[1] = -1;
