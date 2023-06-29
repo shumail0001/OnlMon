@@ -95,64 +95,90 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCModules")
   {
-    TC[3] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1250, 600);
+    TC[3] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1350, 700);
     gSystem->ProcessEvents();
-    //gStyle->SetPalette(57); //kBird CVD friendly
     TC[3]->Divide(2,1);
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    // this one is used to plot the run number on the canvas
+    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
     TC[3]->SetEditable(false);
   }
   else if (name == "TPCSampleSize")
   {
-    TC[4] = new TCanvas(name.c_str(), "TPC Sample Size Distribution in Events", -xsize / 2, 0, xsize / 2, ysize );
+    TC[4] = new TCanvas(name.c_str(), "TPC Sample Size Distribution in Events", -1, 0, xsize , ysize );
     gSystem->ProcessEvents();
-    TC[4]->Divide(4,6);
+    TC[4]->Divide(4,7);
+    transparent[3] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
+    transparent[3]->SetFillStyle(4000);
+    transparent[3]->Draw();
     TC[4]->SetEditable(false);
   }
   else if (name == "TPCCheckSumError")
   {
-    TC[5] = new TCanvas(name.c_str(), "TPC CheckSumError Probability in Events", 625, 600);
+    TC[5] = new TCanvas(name.c_str(), "TPC CheckSumError Probability in Events",-1, 0, xsize , ysize );
     gSystem->ProcessEvents();
-    TC[5]->Divide(4,6);
+    TC[5]->Divide(4,7);
+    transparent[4] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
+    transparent[4]->SetFillStyle(4000);
+    transparent[4]->Draw();
     TC[5]->SetEditable(false);
   }
   else if (name == "TPCADCSample")
   {
-    TC[6] = new TCanvas(name.c_str(), "TPC ADC vs Sample in Whole Sector", 1000, 1200);
+    TC[6] = new TCanvas(name.c_str(), "TPC ADC vs Sample in Whole Sector",-1, 0, xsize , ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[6]->Divide(4,6);
+    TC[6]->Divide(4,7);
+    transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
+    transparent[5]->SetFillStyle(4000);
+    transparent[5]->Draw();
     TC[6]->SetEditable(false);
   }
   else if (name == "TPCMaxADCModule")
   {
-    TC[7] = new TCanvas(name.c_str(), "(MAX ADC - pedestal) in SLIDING WINDOW for each Module in Sector", 1000, 1200);
+    TC[7] = new TCanvas(name.c_str(), "(MAX ADC - pedestal) in SLIDING WINDOW for each Module in Sector", -1, 0, xsize , ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[7]->Divide(4,6);
+    TC[7]->Divide(4,7);
+    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
     TC[7]->SetEditable(false);
   }
   else if (name == "TPCRawADC1D")
   {
-    TC[8] = new TCanvas(name.c_str(), "TPC RAW ADC 1D distribution", 1000, 1200);
+    TC[8] = new TCanvas(name.c_str(), "TPC RAW ADC 1D distribution", -1, 0, xsize , ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[8]->Divide(4,6);
+    TC[8]->Divide(4,7);
+    transparent[7] = new TPad("transparent7", "this does not show", 0, 0, 1, 1);
+    transparent[7]->SetFillStyle(4000);
+    transparent[7]->Draw();
     TC[8]->SetEditable(false);
   }
   else if (name == "TPCMaxADC1D")
   {
-    TC[9] = new TCanvas(name.c_str(), "(MAX ADC - pedestal) in SLIDING WINDOW 1D distribution", 1000, 1200);
+    TC[9] = new TCanvas(name.c_str(), "(MAX ADC - pedestal) in SLIDING WINDOW 1D distribution",-1, 0, xsize , ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[9]->Divide(4,6);
+    TC[9]->Divide(4,7);
+    transparent[8] = new TPad("transparent8", "this does not show", 0, 0, 1, 1);
+    transparent[8]->SetFillStyle(4000);
+    transparent[8]->Draw();
     TC[9]->SetEditable(false);
   }
   else if (name == "TPCClusterXY")
   {
-    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal) in SLIDING WINDOW for NS and SS", 1250, 600);
+    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>20 for NS and SS", 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[10]->Divide(2,1);
+    // this one is used to plot the run number on the canvas
+    transparent[9] = new TPad("transparent9", "this does not show", 0, 0, 1, 1);
+    transparent[9]->SetFillStyle(4000);
+    transparent[9]->Draw();
     TC[10]->SetEditable(false);
   }
   
@@ -398,10 +424,11 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   SS10->SetFillColor(0);
   SS11->SetFillColor(0);
 
-
   TC[3]->SetEditable(true);
   TC[3]->Clear("D");
   TC[3]->cd(1);
+  gPad->SetTopMargin(0.15);
+  gStyle->SetOptStat(0);
   dummy_his1->Draw("colpolzsame");
  
   float NS_max = 0;
@@ -409,7 +436,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   {
     if( tpcmon_NSIDEADC[i] ){
     TC[3]->cd(1);
-    tpcmon_NSIDEADC[i] -> Draw("colpolzsame");
+    tpcmon_NSIDEADC[i] -> DrawCopy("colpolzsame");
     if( tpcmon_NSIDEADC[i]->GetBinContent(tpcmon_NSIDEADC[i]->GetMaximumBin()) > NS_max)
     {
       NS_max = tpcmon_NSIDEADC[i]->GetBinContent(tpcmon_NSIDEADC[i]->GetMaximumBin());
@@ -435,6 +462,8 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   SS11->Draw("same");
 
   TC[3]->cd(2);
+  gPad->SetTopMargin(0.15);
+  gStyle->SetOptStat(0);
   dummy_his2->Draw("colpolzsame");
 
   float SS_max = 0;
@@ -443,7 +472,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
     if( tpcmon_SSIDEADC[i+12] ){
     //std::cout<<"tpcmon_SSIDEADC i: "<< i+12 <<std::endl;
     TC[3]->cd(2);
-    tpcmon_SSIDEADC[i+12] -> Draw("colpolzsame");
+    tpcmon_SSIDEADC[i+12] -> DrawCopy("colpolzsame");
 
     if ( tpcmon_SSIDEADC[i+12]->GetBinContent(tpcmon_SSIDEADC[i+12]->GetMaximumBin()) > SS_max)
     {
@@ -470,39 +499,30 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   NS20->Draw("same");
   NS19->Draw("same");
 
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  // fill run number and event time into string
+  runnostream << ThisName << "_SUMADC Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[2]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  //turn off stats box
+  //dummy_his1->SetStats(0);
+  //dummy_his2->SetStats(0);
   
   TC[3]->Update();
 
-  //turn off stats box
-  dummy_his1->SetStats(0);
-  dummy_his2->SetStats(0);
-/*
-  //dynamically set heat map color scale to start at the minimum and end at the maximum
-  if( tpcmon_NSIDEADC[0] && tpcmon_SSIDEADC[0] ) //you were able to draw North and South Side
-  {
-    dummy_his1->SetMaximum(TMath::Max(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMaximumBin()),tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMaximumBin())));
-    dummy_his1->SetMinimum(TMath::Min(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMinimumBin()),tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMinimumBin())));
 
-    dummy_his2->SetMaximum(TMath::Max(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMaximumBin()),tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMaximumBin())));
-    dummy_his2->SetMinimum(TMath::Min(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMinimumBin()),tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMinimumBin())));
-  }
-  else if( tpcmon_NSIDEADC[0] ) //only North side
-  {
-    dummy_his1->SetMaximum(tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMaximumBin()));
-    dummy_his1->SetMinimum(tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMinimumBin()));
 
-    dummy_his2->SetMaximum(tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMaximumBin()));
-    dummy_his2->SetMinimum(tpcmon_NSIDEADC[0]->GetBinContent(tpcmon_NSIDEADC[0]->GetMinimumBin()));
-  }
-  else // South Side Only
-  {
-    dummy_his1->SetMaximum(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMaximumBin()));
-    dummy_his1->SetMinimum(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMinimumBin()));
-
-    dummy_his2->SetMaximum(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMaximumBin()));
-    dummy_his2->SetMinimum(tpcmon_SSIDEADC[0]->GetBinContent(tpcmon_SSIDEADC[0]->GetMinimumBin()));
-  }
-*/
   TC[3]->Show();
   TC[3]->SetEditable(false);
   
@@ -534,11 +554,27 @@ int TpcMonDraw::DrawTPCSampleSize(const std::string & /* what */)
   {
     if( tpcmon_samplesizedist[i] )
     {
-      TC[4]->cd(i+1);
+      TC[4]->cd(i+5);
       tpcmon_samplesizedist[i]->DrawCopy("");
       gPad->SetLogx(kTRUE);
     }
   }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  // fill run number and event time into string
+  runnostream << ThisName << "_SampleSize Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[3]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
   TC[4]->Update();
   TC[4]->SetLogx();
   TC[4]->Show();
@@ -576,13 +612,28 @@ int TpcMonDraw::DrawTPCCheckSum(const std::string & /* what */)
   {
     if( tpcmon_checksumerror[i] && tpcmon_checksums[i] )
     {
-      TC[5]->cd(i+1);
+      TC[5]->cd(i+5);
 
       tpcmon_checksumerror[i]->Divide(tpcmon_checksums[i]);
       tpcmon_checksumerror[i]->GetYaxis()->SetRangeUser(0.0001,1);
       tpcmon_checksumerror[i]->DrawCopy("HIST");
     }
   }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  // fill run number and event time into string
+  runnostream << ThisName << "_CheckSumError Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[4]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
 
   TC[5]->Update();
   //TC[5]->SetLogy();
@@ -620,12 +671,28 @@ int TpcMonDraw::DrawTPCADCSample(const std::string & /* what */)
   {
     if( tpcmon_ADCSAMPLE[i] )
     {
-      TC[6]->cd(i+1);
+      TC[6]->cd(i+5);
       gStyle->SetPalette(57); //kBird CVD friendly
       gPad->SetLogz(kTRUE);
       tpcmon_ADCSAMPLE[i] -> DrawCopy("colz");
     }
   }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  // fill run number and event time into string
+  runnostream << ThisName << "_ADC_vs_SAMPLE Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[5]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
 
   TC[6]->Update();
   TC[6]->Show();
@@ -661,12 +728,29 @@ int TpcMonDraw::DrawTPCMaxADCModule(const std::string & /* what */)
   {
     if( tpcmon_MAXADC_MODULE[i] )
     {
-      TC[7]->cd(i+1);
+      TC[7]->cd(i+5);
       gStyle->SetPalette(57); //kBird CVD friendly
       gPad->SetLogz(kTRUE);
       tpcmon_MAXADC_MODULE[i] -> DrawCopy("colz");
     }
   }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  // fill run number and event time into string
+  runnostream << ThisName << "_MAXADC2D Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[6]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+
 
   TC[7]->Update();
   TC[7]->Show();
@@ -706,7 +790,7 @@ int TpcMonDraw::DrawTPCRawADC1D(const std::string & /* what */)
 
   for( int i=0; i<24; i++ )
   {
-    TC[8]->cd(i+1);
+    TC[8]->cd(i+5);
     for( int j = 2; j>-1; j-- )
     {
       if( tpcmon_RAWADC1D[i][j] )
@@ -723,11 +807,26 @@ int TpcMonDraw::DrawTPCRawADC1D(const std::string & /* what */)
       legend->AddEntry(tpcmon_RAWADC1D[i][0], "R1");
       legend->AddEntry(tpcmon_RAWADC1D[i][1], "R2");
       legend->AddEntry(tpcmon_RAWADC1D[i][2], "R3");
-      TC[8]->cd(i+1);
+      TC[8]->cd(i+5);
       legend->Draw();
       draw_leg = 1; //don't draw it again
     }
   }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  // fill run number and event time into string
+  runnostream << ThisName << "_RAWADC Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[7]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
 
   TC[8]->Update();
   TC[8]->Show();
@@ -767,7 +866,7 @@ int TpcMonDraw::DrawTPCMaxADC1D(const std::string & /* what */)
 
   for( int i=0; i<24; i++ )
   {
-    TC[9]->cd(i+1);
+    TC[9]->cd(i+5);
     for( int j = 2; j>-1; j-- )
     {
       if( tpcmon_MAXADC1D[i][j] )
@@ -781,7 +880,7 @@ int TpcMonDraw::DrawTPCMaxADC1D(const std::string & /* what */)
      
     if(draw_leg == 0 && tpcmon_MAXADC1D[i][0] && tpcmon_MAXADC1D[i][1] && tpcmon_MAXADC1D[i][2]) //if you have not drawn the legend yet, draw it BUT ONLY ONCE
     {
-      TC[9]->cd(i+1);
+      TC[9]->cd(i+5);
       legend->AddEntry(tpcmon_MAXADC1D[i][0], "R1");
       legend->AddEntry(tpcmon_MAXADC1D[i][1], "R2");
       legend->AddEntry(tpcmon_MAXADC1D[i][2], "R3");
@@ -789,6 +888,21 @@ int TpcMonDraw::DrawTPCMaxADC1D(const std::string & /* what */)
       draw_leg = 1; //don't draw it again
     }
   }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  // fill run number and event time into string
+  runnostream << ThisName << "_LOCALMAXADC-PEDESTAL Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[8]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
 
 
   TC[9]->Update();
@@ -829,7 +943,23 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   TC[10]->SetEditable(true);
   TC[10]->Clear("D");
 
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  // fill run number and event time into string
+  runnostream << ThisName << "_ADC-Pedestal>20 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[9]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
   TC[10]->cd(1);
+  gPad->SetTopMargin(0.15);
   dummy_his1_XY->Draw("colzsame");
 
   float NS_max = 0;
@@ -855,6 +985,7 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   TC[10]->Update();
 
   TC[10]->cd(2);
+  gPad->SetTopMargin(0.15);
   dummy_his2_XY->Draw("colzsame");
 
   float SS_max = 0;
@@ -881,34 +1012,6 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
 
 
   TC[10]->Update();
-/*
-  //dynamically set heat map color scale to start at the minimum and end at the maximum
-  if( tpcmon_NSTPC_clusXY[0][0] && tpcmon_SSTPC_clusXY[0][0] ) //you were able to draw North and South Side
-  {
-    dummy_his1_XY->SetMaximum(TMath::Max(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMaximumBin()),tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMaximumBin())));
-    dummy_his1_XY->SetMinimum(TMath::Min(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMinimumBin()),tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMinimumBin())));
-
-    dummy_his2_XY->SetMaximum(TMath::Max(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMaximumBin()),tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMaximumBin())));
-    dummy_his2_XY->SetMinimum(TMath::Min(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMinimumBin()),tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMinimumBin())));
-  }
-  else if( tpcmon_NSTPC_clusXY[0][0] ) //only North side
-  {
-    dummy_his1_XY->SetMaximum(tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMaximumBin()));
-    dummy_his1_XY->SetMinimum(tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMinimumBin()));
-
-    dummy_his2_XY->SetMaximum(tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMaximumBin()));
-    dummy_his2_XY->SetMinimum(tpcmon_NSTPC_clusXY[0][0]->GetBinContent(tpcmon_NSTPC_clusXY[0][0]->GetMinimumBin()));
-  }
-  else // South Side Only
-  {
-    dummy_his1_XY->SetMaximum(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMaximumBin()));
-    dummy_his1_XY->SetMinimum(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMinimumBin()));
-
-    dummy_his2_XY->SetMaximum(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMaximumBin()));
-    dummy_his2_XY->SetMinimum(tpcmon_SSTPC_clusXY[0][0]->GetBinContent(tpcmon_SSTPC_clusXY[0][0]->GetMinimumBin()));
-  }
-*/
-
   TC[10]->Show();
   TC[10]->SetEditable(false);
 
