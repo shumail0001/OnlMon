@@ -37,7 +37,7 @@ class OnlMonClient : public OnlMonBase
 
   void AddServerHost(const std::string &hostname);
   void registerDrawer(OnlMonDraw *Drawer);
-  int ReadHistogramsFromFile(const char *filename);
+  int ReadHistogramsFromFile(const std::string &filename);
   int Draw(const char *who = "ALL", const char *what = "ALL");
   int MakePS(const char *who = "ALL", const char *what = "ALL");
   int MakeHtml(const char *who = "ALL", const char *what = "ALL");
@@ -77,6 +77,7 @@ class OnlMonClient : public OnlMonBase
   void FindAllMonitors();
   int FindMonitor(const std::string &name);
   int IsMonitorRunning(const std::string &name);
+  std::string ExtractSubsystem(const std::string &filename);
 
  private:
   OnlMonClient(const std::string &name = "ONLMONCLIENT");
