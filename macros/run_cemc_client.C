@@ -36,10 +36,10 @@ void cemcDrawInit(const int online = 0)
   //  get my histos from server, the second parameter = 1
   //  says I know they are all on the same node
   //cl->requestHistoBySubSystem(Form("CEMCMON_%d",serverid), 1);
-  // for(int i = 0; i <= 7; i++)
-  //   {
-  //     cl->requestHistoBySubSystem(Form("CEMCMON_%d",i), 1);
-  //   }
+  for(int i = 0; i <= 7; i++)
+     {
+       cl->requestHistoBySubSystem(Form("CEMCMON_%d",i), 1);
+     }
   CemcMonDraw *cemcmon = new CemcMonDraw("CEMCMONDRAW");  // create Drawing Object
   cemcmon -> setSave(0);
   cl->registerDrawer(cemcmon);              // register with client framework
