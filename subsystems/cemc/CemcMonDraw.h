@@ -45,6 +45,7 @@ class CemcMonDraw : public OnlMonDraw
   TPad *warning[18] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   TStyle* cemcStyle = nullptr;
+  const int nSEBs = 8;
 };
 
 #endif /* CEMC_CEMCMONDRAW_H */
