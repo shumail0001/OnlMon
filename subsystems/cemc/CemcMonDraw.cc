@@ -236,7 +236,16 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
 	    }
 	}
     }
-  if(start[2])h_event[start[2]] -> Scale(1./divisor);
+  
+  if (start[0] < 0)
+    {
+      DrawDeadServer(transparent[0]);
+      TC[0]->SetEditable(0);
+      return -1;
+    }
+
+    h_event[start[2]] -> Scale(1./divisor);
+  
   TH1* adcCount[nSEBs];
   start[3] = -1;
   for(int i = 0; i < nSEBs; i++)
@@ -255,12 +264,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
     {
       MakeCanvas("CemcMon1");
     }
-  if (start[0] < 0)
-    {
-      DrawDeadServer(transparent[0]);
-      TC[0]->SetEditable(0);
-      return -1;
-    }
+
  
   if(h_event[start[2]] -> GetEntries() > 0)
     {
@@ -418,9 +422,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 	    }
 	}
     }
-  
-  if(start[0]) h_event[start[0]] -> Scale(1./divisor);
-  
+
   TH1* h1_packet_number[nSEBs];
   start[1] = -1;
   for(int i = 0; i < nSEBs; i++)
@@ -461,6 +463,15 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 	}
     }
   
+    if (start[0] < 0  || start[1] < 0 || start[2] < 0)
+    {
+      DrawDeadServer(transparent[1]);
+      TC[1]->SetEditable(0);
+      return -1;
+    }
+  
+  h_event[start[0]] -> Scale(1./divisor);
+  
   if(h_event[start[0]]->GetEntries() > 0)
     {
       h1_packet_number[start[1]] -> Scale(1./h_event[start[0]] -> GetBinContent(1));
@@ -475,12 +486,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   
   TC[1]->SetEditable(1);
   TC[1]->Clear("D");
-  if (start[0] < 0  || start[1] < 0 || start[2] < 0)
-    {
-      DrawDeadServer(transparent[1]);
-      TC[1]->SetEditable(0);
-      return -1;
-    }
+  
   TLine *one = new TLine(6000.5,1,6128.5,1);
   one -> SetLineStyle(7);
   
