@@ -13,7 +13,6 @@
 class ClientHistoList;
 class OnlMonDraw;
 class OnlMonHtml;
-class OnlMonTrigger;
 class TCanvas;
 class TH1;
 class TStyle;
@@ -68,8 +67,6 @@ class OnlMonClient : public OnlMonBase
   int HistoToPng(TH1 *histo, std::string const &pngfilename, const char *drawopt = "", const int statopt = 11);
 
   int SaveLogFile(const OnlMonDraw &drawer);
-  // interface to OnlMonTrigger class methods
-  OnlMonTrigger *OnlTrig();
   using OnlMonBase::Verbosity;
   void Verbosity(const int i) override;
   int SetStyleToDefault();
@@ -88,7 +85,6 @@ class OnlMonClient : public OnlMonBase
 
   static OnlMonClient *__instance;
   OnlMonHtml *fHtml = nullptr;
-  OnlMonTrigger *onltrig = nullptr;
   TH1 *clientrunning = nullptr;
   TStyle *defaultStyle = nullptr;
 

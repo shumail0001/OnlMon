@@ -6,7 +6,6 @@
 #include <onlmon/HistoBinDefs.h>
 #include <onlmon/OnlMonBase.h>  // for OnlMonBase
 #include <onlmon/OnlMonDefs.h>
-#include <onlmon/OnlMonTrigger.h>
 
 #include <MessageTypes.h>  // for kMESS_STRING, kMESS_OBJECT
 #include <TCanvas.h>
@@ -67,7 +66,6 @@ OnlMonClient::OnlMonClient(const std::string &name)
 {
   defaultStyle = new TStyle();
   SetStyleToDefault();
-  onltrig = new OnlMonTrigger();
   InitAll();
 }
 
@@ -143,7 +141,6 @@ OnlMonClient::~OnlMonClient()
   }
   delete clientrunning;
   delete fHtml;
-  delete onltrig;
   delete defaultStyle;
   // this deletes all open canvases
   TSeqCollection *allCanvases = gROOT->GetListOfCanvases();
@@ -408,7 +405,6 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
     }
   }
   m_LastMonitorFetched = subsys;
-  onltrig->RunNumber(RunNumber());
   return iret;
 }
 
@@ -1232,7 +1228,6 @@ int OnlMonClient::ReadHistogramsFromFile(const char *filename)
   }
   delete histofile;
   delete titer;
-  onltrig->RunNumber(RunNumber());
   return 0;
 }
 
@@ -1384,15 +1379,6 @@ int OnlMonClient::HistoToPng(TH1 *histo, std::string const &pngfilename, const c
   return 0;
 }
 
-OnlMonTrigger *
-OnlMonClient::OnlTrig()
-{
-  if (!onltrig)
-  {
-    onltrig = new OnlMonTrigger();
-  }
-  return onltrig;
-}
 
 int OnlMonClient::SaveLogFile(const OnlMonDraw &drawer)
 {
