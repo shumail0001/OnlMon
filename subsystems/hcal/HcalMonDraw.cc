@@ -142,19 +142,23 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     Pad[11] = new TPad("pad11", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
     Pad[12] = new TPad("pad12", "packet channels", 0.0, 0.0, 1.0 / 2, 0.3, 0);
     Pad[13] = new TPad("pad13", "event number offset", 0.5, 0.6, 1.0, 0.95, 0);
-    // Pad[14] = new TPad("pad14", "event number from server 1", 0.75, 0.7, 1.0, 0.95);
+    // pad 14 and 15 side by side from left to right for correlation
+    Pad[14] = new TPad("pad14", "correlation0", 0.5, 0.3, 0.75, 0.6, 0);
+    Pad[15] = new TPad("pad15", "correlation1", 0.75, 0.3, 1.0, 0.6, 0);
+
     Pad[10]->Draw();
     Pad[11]->Draw();
     Pad[12]->Draw();
     Pad[13]->Draw();
-    // Pad[14]->Draw();
+    Pad[14]->Draw();
+    Pad[15]->Draw();
     //  this one is used to plot the run number on the canvas
     transparent[5] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
     transparent[5]->SetFillStyle(4000);
     transparent[5]->Draw();
 
     // packet warnings
-    warning[1] = new TPad("warning1", "packet warnings", 0.5, 0, 1, 0.7);
+    warning[1] = new TPad("warning1", "packet warnings", 0.5, 0, 1, 0.2);
     warning[1]->SetFillStyle(4000);
     warning[1]->Draw();
     TC[5]->SetEditable(0);
@@ -629,11 +633,13 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   TH1F* h1_packet_chans = (TH1F*) cl->getHisto(HCALMON_0, "h1_packet_chans");
   TH1F* h1_packet_event = (TH1F*) cl->getHisto(HCALMON_0, "h1_packet_event");
   TH1F* h_event = (TH1F*) cl->getHisto(HCALMON_0, "h_event");
+  TH2F* h2_hcal_correlation = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_correlation");
 
   TH1F* h1_packet_number_1 = (TH1F*) cl->getHisto(HCALMON_1, "h1_packet_number");
   TH1F* h1_packet_length_1 = (TH1F*) cl->getHisto(HCALMON_1, "h1_packet_length");
   TH1F* h1_packet_chans_1 = (TH1F*) cl->getHisto(HCALMON_1, "h1_packet_chans");
   TH1F* h1_packet_event_1 = (TH1F*) cl->getHisto(HCALMON_1, "h1_packet_event");
+  TH2F* h2_hcal_correlation_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_correlation");
   TH1F* h_event_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_event");
 
   if (!gROOT->FindObject("HcalMon4"))
@@ -644,7 +650,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   TC[5]->SetEditable(1);
   TC[5]->Clear("D");
 
-  if (!h1_packet_number || !h1_packet_length || !h1_packet_chans || !h_event || !h1_packet_event)
+  if (!h1_packet_number || !h1_packet_length || !h1_packet_chans || !h_event || !h1_packet_event || !h2_hcal_correlation)
   {
     // print out which is not found
     if (!h1_packet_number) std::cout << "h1_packet_number not found" << std::endl;
@@ -652,6 +658,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
     if (!h1_packet_chans) std::cout << "h1_packet_chans not found" << std::endl;
     if (!h_event) std::cout << "h_event not found" << std::endl;
     if (!h1_packet_event) std::cout << "h1_packet_event not found" << std::endl;
+    if (!h2_hcal_correlation) std::cout << "h2_hcal_correlation not found" << std::endl;
 
     DrawDeadServer(transparent[5]);
     TC[5]->SetEditable(0);
@@ -826,7 +833,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   double ymax = h1_packet_event->GetMaximum();
   double ymin = h1_packet_event->GetMinimum();
 
-  h1_packet_event->GetYaxis()->SetRangeUser(ymin - 0.3* (ymax - ymin + 30), ymax + 0.3* (ymax - ymin + 30));
+  h1_packet_event->GetYaxis()->SetRangeUser(ymin - 0.3 * (ymax - ymin + 30), ymax + 0.3 * (ymax - ymin + 30));
   h1_packet_event->GetXaxis()->SetTitle("Packet #");
   h1_packet_event->GetYaxis()->SetTitle("clock offset");
   h1_packet_event->GetXaxis()->SetLabelSize(tsize - .01);
@@ -842,6 +849,55 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   gStyle->SetOptStat(0);
   gPad->SetTicky();
   gPad->SetTickx();
+
+  Pad[14]->cd();
+  h2_hcal_correlation->Draw("colz");  
+  ymax = h2_hcal_correlation->ProfileX()->GetMaximum();
+  xmax = h2_hcal_correlation->ProfileY()->GetMaximum();
+  h2_hcal_correlation->GetYaxis()->SetRangeUser(0, ymax * 1.2);
+  h2_hcal_correlation->GetXaxis()->SetRangeUser(0, xmax * 1.2);
+  h2_hcal_correlation->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_correlation->GetYaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_correlation->GetXaxis()->SetTitle("Total West OHCal Energy[a.u.]");
+  h2_hcal_correlation->GetYaxis()->SetTitle("Total West IHCal Energy[a.u.]");
+  h2_hcal_correlation->GetXaxis()->SetLabelSize(0);
+  h2_hcal_correlation->GetYaxis()->SetLabelSize(0);
+  h2_hcal_correlation->GetXaxis()->SetTitleSize(tsize - .02);
+  h2_hcal_correlation->GetYaxis()->SetTitleSize(tsize - .02);
+  h2_hcal_correlation->GetXaxis()->SetTitleOffset(0.8);
+  h2_hcal_correlation->GetYaxis()->SetTitleOffset(0.8);
+  gPad->SetBottomMargin(0.16);
+  gPad->SetLeftMargin(0.2);
+  gPad->SetRightMargin(0.03);
+  gPad->SetLeftMargin(0.2);
+  gStyle->SetOptStat(0);
+  gPad->SetTicky();
+  gPad->SetTickx();
+
+  Pad[15]->cd();
+  h2_hcal_correlation_1->Draw("colz");
+  ymax = h2_hcal_correlation_1->ProfileX()->GetMaximum();
+  xmax = h2_hcal_correlation_1->ProfileY()->GetMaximum();
+  h2_hcal_correlation_1->GetYaxis()->SetRangeUser(0, ymax * 1.2);
+  h2_hcal_correlation_1->GetXaxis()->SetRangeUser(0, xmax * 1.2);
+  h2_hcal_correlation_1->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_correlation_1->GetYaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_correlation_1->GetXaxis()->SetTitle("Total East OHCal Energy[a.u.]");
+  h2_hcal_correlation_1->GetYaxis()->SetTitle("Total East IHCal Energy[a.u.]");
+  h2_hcal_correlation_1->GetXaxis()->SetLabelSize(0);
+  h2_hcal_correlation_1->GetYaxis()->SetLabelSize(0);
+  h2_hcal_correlation_1->GetXaxis()->SetTitleSize(tsize - .02);
+  h2_hcal_correlation_1->GetYaxis()->SetTitleSize(tsize - .02);
+  h2_hcal_correlation_1->GetXaxis()->SetTitleOffset(0.8);
+  h2_hcal_correlation_1->GetYaxis()->SetTitleOffset(0.8);
+  gPad->SetBottomMargin(0.16);
+  gPad->SetLeftMargin(0.2);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.2);
+  gStyle->SetOptStat(0);
+  gPad->SetTicky();
+  gPad->SetTickx();
+
 
   // draw the warning here:
   warning[1]->cd();
@@ -923,19 +979,19 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   mismatchWarn.SetTextAlign(23);
   if (westmismatch)
   {
-    mismatchWarn.DrawText(0.5, 0.85, "West misaligned!");
+    mismatchWarn.DrawText(0.5, 0.95, "West misaligned!");
   }
   if (eastmismatch)
   {
-    mismatchWarn.DrawText(0.5, 0.8, "East misaligned!");
+    mismatchWarn.DrawText(0.5, 0.9, "East misaligned!");
   }
   mismatchWarn.SetTextColor(1);
   mismatchWarn.SetTextSize(0.05);
   if (westmismatch || eastmismatch)
   {
-    //mismatchWarn.DrawText(0.5, 0.7, "Restart the run and see if this persists.");
-    // draw a line for seperation
-    TLine* line = new TLine(0., 0.65, 1., 0.65);
+    // mismatchWarn.DrawText(0.5, 0.7, "Restart the run and see if this persists.");
+    //  draw a line for seperation
+    TLine* line = new TLine(0., 0.8, 1., 0.8);
     line->SetLineColor(1);
     line->SetLineStyle(1);
     line->SetLineWidth(10);
@@ -949,15 +1005,15 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   PacketWarn.SetTextColor(1);
   PacketWarn.SetNDC();
   PacketWarn.SetTextAlign(23);
-  PacketWarn.DrawText(0.5, 0.6, "Bad Packets:");
+  PacketWarn.DrawText(0.5, 0.75, "Bad Packets:");
   for (int i = 0; i < (int) badPackets.size(); i++)
   {
-    PacketWarn.DrawText(0.5, 0.55 - 0.05 * i, Form("%i: %s", badPackets[i], whatswrong[i].c_str()));
+    PacketWarn.DrawText(0.5, 0.7 - 0.05 * i, Form("%i: %s", badPackets[i], whatswrong[i].c_str()));
   }
   if ((int) badPackets.size() > 0 && (h_event->GetEntries() > 1000 || h_event_1->GetEntries() > 1000))
   {
     PacketWarn.SetTextSize(0.04);
-    PacketWarn.DrawText(0.5, 0.55 - 0.05 * (int) badPackets.size(), "Check with HCal experts.");
+    PacketWarn.DrawText(0.5, 0.7 - 0.05 * (int) badPackets.size(), "Check with HCal experts.");
   }
   TText PrintRun;
   PrintRun.SetTextFont(62);
