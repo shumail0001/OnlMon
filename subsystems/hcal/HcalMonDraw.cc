@@ -649,7 +649,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
 
     DrawDeadServer(transparent[5]);
     TC[5]->SetEditable(0);
-    return 0;
+    return -1;
   }
   // h1_packet_number->Scale(1. / h_event->GetEntries());
   // h1_packet_length->Scale(1. / h_event->GetEntries());
