@@ -268,11 +268,11 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
  
   if(h_event[start[2]] -> GetEntries() > 0)
     {
-      h2_cemc_mean[start[1]]->Scale(1./h_event[start[2]]->GetBinContent(1));
+       if(h_event[start[2]]->GetBinContent(1))h2_cemc_mean[start[1]]->Scale(1./h_event[start[2]]->GetBinContent(1));
   
-      h2_cemc_mean[start[1]]->Scale(1./adcCount[start[3]]->GetMean());
+      if(adcCount[start[3]]->GetMean())h2_cemc_mean[start[1]]->Scale(1./adcCount[start[3]]->GetMean());
   
-      hist1[start[0]] -> Scale(1./adcCount[start[3]]->GetMean());
+      if(adcCount[start[3]]->GetMean())hist1[start[0]] -> Scale(1./adcCount[start[3]]->GetMean());
   
       for(int i = 0; i < nTowersEta; i++)
 	{
