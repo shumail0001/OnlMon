@@ -2077,24 +2077,18 @@ int BbcMonDraw::MakeHtml(const std::string &what)
 
   OnlMonClient *cl = OnlMonClient::instance();
 
-  std::vector<std::string> path;
-
-  path.emplace_back("TDC Overflow and number of hit for each PMT");
-  path.emplace_back("Timing Monitor");
-  path.emplace_back("EXPERT/raw TDC&ADC ,charge sum and raw vertex");
-  path.emplace_back("Vertex monitor");
-
-  for (size_t i = 0; i < 4; ++i)
+  int icnt = 0;
+  for (TCanvas *canvas : TC)
   {
-      if (TC[i])
-      {
-          std::ostringstream name;
-          name << i;
-          std::string pngfile = cl->htmlRegisterPage(*this, path[i], name.str(), "png");
-          cl->CanvasToPng(TC[i], pngfile);
-      }
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    icnt++;
+    // Register the canvas png file to the menu and produces the png file.
+    std::string pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), std::to_string(icnt), "png");
+    cl->CanvasToPng(canvas, pngfile);
   }
-
   // Register the 1st canvas png file to the menu and produces the png file.
   // std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
   // cl->CanvasToPng(TC[0], pngfile);
