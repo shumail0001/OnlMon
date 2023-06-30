@@ -1402,7 +1402,7 @@ time_t HcalMonDraw::getTime()
   int i = 0;
   while (currtime == 0 && i <= 2)
   {
-    std::string servername =  prefix + std::to_string(i);
+    std::string servername =  prefix + "_" + std::to_string(i);
     currtime = cl->EventTime(servername,"CURRENT");
     i++;
   }
