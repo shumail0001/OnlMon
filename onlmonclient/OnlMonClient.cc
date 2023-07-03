@@ -433,9 +433,9 @@ int OnlMonClient::Draw(const char *who, const char *what)
   return iret;
 }
 
-int OnlMonClient::SavePlot(const std::string &who, const std::string &what, const std::string &type)
+int OnlMonClient::SavePlot(const std::string &who, const std::string &what)
 {
-  int iret = DoSomething(who, what, type);
+  int iret = DoSomething(who, what, "SAVEPLOT");
   //  gSystem->ProcessEvents();
   return iret;
 }
@@ -490,6 +490,10 @@ int OnlMonClient::DoSomething(const std::string &who, const std::string &what, c
       {
         iter->second->MakePS(what);
       }
+      else if (opt == "SAVEPLOT")
+      {
+        iter->second->SavePlot(what,"png");
+      }
       else if (opt == "HTML")
       {
         if (verbosity > 0)
@@ -503,6 +507,11 @@ int OnlMonClient::DoSomething(const std::string &who, const std::string &what, c
                     << " not in root file, skipping" << std::endl;
         }
       }
+      else
+	{
+	  std::cout << "option " << opt << " not implemented" << std::endl;
+	  return 0;
+	}
       SetStyleToDefault();
       return 0;
     }

@@ -41,7 +41,7 @@ class OnlMonClient : public OnlMonBase
   int Draw(const char *who = "ALL", const char *what = "ALL");
   int MakePS(const char *who = "ALL", const char *what = "ALL");
   int MakeHtml(const char *who = "ALL", const char *what = "ALL");
-  int SavePlot(const std::string &who = "ALL", const std::string &what = "ALL", const std::string &type = "png");
+  int SavePlot(const std::string &who = "ALL", const std::string &what = "ALL");
 
   std::string htmlRegisterPage(const OnlMonDraw &drawer,
                                const std::string &path,

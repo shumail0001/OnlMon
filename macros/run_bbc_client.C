@@ -45,10 +45,10 @@ void bbcDraw(const char *what = "ALL")
   cl->Draw("BBCMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 
-void bbcSavePlot(const std::string &type = "png")
+void bbcSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->SavePlot("BBCMONDRAW", type);                         // Create PS files
+  cl->SavePlot("BBCMONDRAW");                         // Create PS files
   return;
 }
 

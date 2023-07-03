@@ -24,7 +24,7 @@ void StartPoms()
   subsys = new SubSystem("MBD", "bbc");
   subsys->AddAction("bbcDraw(\"FIRST\")", "MBD Vertex Monitor");
   subsys->AddAction("bbcDraw(\"SECOND\")", "MBD Timing Monitor");
-  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  subsys->AddAction(new SubSystemActionDrawSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("CEMC", "cemc");
@@ -32,7 +32,7 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Health");
   subsys->AddAction("cemcDraw(\"THIRD\")", "Wave Forms");
   subsys->AddAction("cemcDraw(\"FOURTH\")", "Wave vs Fast Fitting");
-  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  subsys->AddAction(new SubSystemActionDrawSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
   // SubSystem *daq = new SubSystem("DAQ", "daq");
