@@ -65,6 +65,12 @@ TpotMon::TpotMon(const std::string &name)
 int TpotMon::Init()
 {
   
+  if( Verbosity() )
+  {
+    std::cout << "TpotMon::Init - m_calibration_filename: " << m_calibration_filename << std::endl;
+    std::cout << "TpotMon::Init - m_max_sample: " << m_max_sample << std::endl;
+  }
+  
   // setup calibrations
   m_calibration_data.read( m_calibration_filename );
   
@@ -137,17 +143,27 @@ int TpotMon::Init()
 
     detector_histograms_t detector_histograms;
 
-    // adc vs sample
-    static constexpr int max_sample = 32;
-    auto h = detector_histograms.m_adc_vs_sample = new TH2I(
-      Form( "m_adc_sample_%s", detector_name.c_str() ),
-      Form( "adc count vs sample (%s);sample;adc", detector_name.c_str() ),
-      max_sample, 0, max_sample,
-      1024, 0, 1024 );
-    h->GetXaxis()->SetTitleOffset(1.);
-    h->GetYaxis()->SetTitleOffset(1.65);
-    se->registerHisto(this, detector_histograms.m_adc_vs_sample);
+    {
+      auto h = detector_histograms.m_counts_sample = new TH1I(
+        Form( "m_counts_sample_%s", detector_name.c_str() ),
+        Form( "hit count vs sample (%s);sample;counts", detector_name.c_str() ),
+        m_max_sample, 0, m_max_sample );
+      h->GetXaxis()->SetTitleOffset(1.);
+      h->GetYaxis()->SetTitleOffset(1.65);
+      se->registerHisto(this, detector_histograms.m_counts_sample);
+    }
 
+    {
+      auto h = detector_histograms.m_adc_sample = new TH2I(
+        Form( "m_adc_sample_%s", detector_name.c_str() ),
+        Form( "adc count vs sample (%s);sample;adc", detector_name.c_str() ),
+        m_max_sample, 0, m_max_sample,
+        1024, 0, 1024 );
+      h->GetXaxis()->SetTitleOffset(1.);
+      h->GetYaxis()->SetTitleOffset(1.65);
+      se->registerHisto(this, detector_histograms.m_adc_sample);
+    }
+    
     // hit charge
     static constexpr double max_hit_charge = 1024;
     detector_histograms.m_hit_charge = new TH1I(
@@ -232,6 +248,10 @@ int TpotMon::process_event(Event* event)
       int fee_id = packet->iValue(i, "FEE" );
       int samples = packet->iValue( i, "SAMPLES" );
       
+      // get channel rms and pedestal from calibration data
+      const double pedestal = m_calibration_data.get_pedestal( fee_id, channel );
+      const double rms = m_calibration_data.get_rms( fee_id, channel );
+      
       // get detector index from fee id
       const auto iter = m_detector_histograms.find( fee_id );
       if( iter == m_detector_histograms.end() )
@@ -259,7 +279,9 @@ int TpotMon::process_event(Event* event)
       for( int is = 0; is < samples; ++is )
       {
         const auto adc =  packet->iValue( i, is );
-        detector_histograms.m_adc_vs_sample->Fill( is, adc );
+        const bool is_signal = (adc > pedestal + m_n_sigma*rms);
+        if( is_signal ) detector_histograms.m_counts_sample->Fill( is );
+        detector_histograms.m_adc_sample->Fill( is, adc );
         detector_histograms.m_hit_charge->Fill( adc );
       }
       

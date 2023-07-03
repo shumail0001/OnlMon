@@ -156,6 +156,21 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     m_canvas.push_back( cv );
     return cv;
 
+  } else if (name == "TPOT_counts_vs_sample") {
+
+    auto cv = new TCanvas(name.c_str(), "TpotMon counts vs sample", -1, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name)->Draw();
+    for( int i = 0; i < 16; ++i )
+    {
+      cv->GetPad(i+1)->SetLeftMargin(0.15);
+      cv->GetPad(i+1)->SetRightMargin(0.02);
+    }
+    cv->SetEditable(false);
+    m_canvas.push_back( cv );
+    return cv;
+
   } else if (name == "TPOT_hit_charge") {
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
@@ -226,6 +241,12 @@ int TpotMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPOT_adc_vs_sample")
   {
     iret += draw_array("TPOT_adc_vs_sample", get_histograms( "m_adc_sample" ), "col" );
+    ++idraw;
+  }
+
+  if (what == "ALL" || what == "TPOT_counts_vs_sample")
+  {
+    iret += draw_array("TPOT_counts_vs_sample", get_histograms( "m_counts_sample" ) );
     ++idraw;
   }
 

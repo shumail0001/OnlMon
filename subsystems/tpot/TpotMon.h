@@ -27,10 +27,17 @@ class TpotMon : public OnlMon
   int BeginRun(const int runno) override;
   int Reset() override;
 
-  /// calibration file
+  //! calibration file
   void set_calibration_file( const std::string& value ) 
   { m_calibration_filename = value; }
 
+  //! max sample
+  void set_max_sample( int value ) 
+  { m_max_sample = value; }
+  
+  /// set number of RMS sigma used to defined static threshold on a given channel
+  void set_n_sigma( double value ) { m_n_sigma = value; }
+  
   private:
     
   //! setup bins in a TH2Poly. One bin per detector
@@ -54,6 +61,12 @@ class TpotMon : public OnlMon
   //! calibration data
   MicromegasCalibrationData m_calibration_data;
 
+  //! max sample
+  int m_max_sample = 100;
+
+  //! number of RMS sigma used to define threshold
+  double m_n_sigma = 5;
+  
   //! counter
   TH1* m_counters = nullptr;
    
@@ -79,8 +92,11 @@ class TpotMon : public OnlMon
   {
     public:
 
+    /// counts avoce threshold vs sample id in each detector
+    TH1* m_counts_sample = nullptr;
+
     /// adc counts vs sample id in each detector
-    TH2* m_adc_vs_sample = nullptr;
+    TH2* m_adc_sample = nullptr;
     
     /// total charge per hit in each detector
     TH1* m_hit_charge = nullptr;
