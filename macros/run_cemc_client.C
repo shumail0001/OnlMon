@@ -55,6 +55,13 @@ void cemcDraw(const char *what = "ALL")
   cl->Draw("CEMCMONDRAW", what);  // Draw Histos of registered Drawers
 }
 
+void cemcSavePlot(const std::string &type = "png")
+{
+  OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
+  cl->SavePlot("CEMCMONDRAW", type);                         // Create PS files
+  return;
+}
+
 void cemcPS()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk

@@ -433,6 +433,13 @@ int OnlMonClient::Draw(const char *who, const char *what)
   return iret;
 }
 
+int OnlMonClient::SavePlot(const std::string &who, const std::string &what, const std::string &type)
+{
+  int iret = DoSomething(who, what, type);
+  //  gSystem->ProcessEvents();
+  return iret;
+}
+
 int OnlMonClient::MakePS(const char *who, const char *what)
 {
   int iret = DoSomething(who, what, "PS");
@@ -467,23 +474,23 @@ int OnlMonClient::MakeHtml(const char *who, const char *what)
   return iret;
 }
 
-int OnlMonClient::DoSomething(const char *who, const char *what, const char *opt)
+int OnlMonClient::DoSomething(const std::string &who, const std::string &what, const std::string &opt)
 {
   std::map<const std::string, OnlMonDraw *>::iterator iter;
-  if (strcmp(who, "ALL"))  // is drawer was specified (!All)
+  if (who != "ALL")  // is drawer was specified (!All)
   {
     iter = DrawerList.find(who);
     if (iter != DrawerList.end())
     {
-      if (!strcmp(opt, "DRAW"))
+      if (opt == "DRAW")
       {
         iter->second->Draw(what);
       }
-      else if (!strcmp(opt, "PS"))
+      else if (opt == "PS")
       {
         iter->second->MakePS(what);
       }
-      else if (!strcmp(opt, "HTML"))
+      else if (opt == "HTML")
       {
         if (verbosity > 0)
         {
@@ -510,15 +517,15 @@ int OnlMonClient::DoSomething(const char *who, const char *what, const char *opt
   {
     for (iter = DrawerList.begin(); iter != DrawerList.end(); ++iter)
     {
-      if (!strcmp(opt, "DRAW"))
+      if (opt == "DRAW")
       {
         iter->second->Draw(what);
       }
-      else if (!strcmp(opt, "PS"))
+      else if (opt == "PS")
       {
         iter->second->MakePS(what);
       }
-      else if (!strcmp(opt, "HTML"))
+      else if (opt == "HTML")
       {
         if (verbosity > 0)
         {

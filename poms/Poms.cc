@@ -711,6 +711,26 @@ int SubSystemActionDraw::Execute()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+//    SubSystemActionDrawSavePlot  Implementation                                //
+/////////////////////////////////////////////////////////////////////////////
+
+SubSystemActionDrawSavePlot::SubSystemActionDrawSavePlot(SubSystem* parent)
+  : SubSystemAction(parent, "Save Plots")
+{
+}
+
+int SubSystemActionDrawSavePlot::Execute()
+{
+  if (_running)
+    return 0;
+
+  _running = true;
+  gROOT->ProcessLine((_parent->GetPrefix() + "SavePlot()").c_str());
+  _running = false;
+  return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
 //    SubSystemActionDrawPS  Implementation                                //
 /////////////////////////////////////////////////////////////////////////////
 
