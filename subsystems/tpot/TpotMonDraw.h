@@ -34,6 +34,11 @@ class TpotMonDraw : public OnlMonDraw
   // get detector names
   std::vector<std::string> get_detnames_sphenix() const
   { return m_detnames_sphenix; }
+
+  // define signal sample window
+  using sample_window_t = std::pair<unsigned short, unsigned short>;
+  void set_sample_window_signal( const sample_window_t& value ) 
+  { m_sample_window_signal = value; }
   
   private:
 
@@ -69,6 +74,9 @@ class TpotMonDraw : public OnlMonDraw
   
   // draw run and time in a given pad
   void draw_time( TPad*);
+  
+  // sample window
+  sample_window_t m_sample_window_signal = {20, 40};
   
   // canvases
   std::vector<TCanvas*> m_canvas;

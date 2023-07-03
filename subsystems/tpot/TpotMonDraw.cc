@@ -9,6 +9,7 @@
 #include <TDatime.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
+#include <TLine.h>
 #include <TPad.h>
 #include <TROOT.h>
 #include <TSystem.h>
@@ -31,6 +32,7 @@ namespace
     { if( m_cv ) m_cv->SetEditable(true); }
 
     ~CanvasEditor()
+    // {}
     { if( m_cv ) m_cv->SetEditable(false); }
 
     private:
@@ -56,7 +58,37 @@ namespace
     return out;
 
   }
-
+ 
+  // draw an vertical line that extends automatically from both sides of a canvas
+  [[maybe_unused]] TLine* vertical_line( TVirtualPad* pad, Double_t x )
+  {
+    Double_t yMin = pad->GetUymin();
+    Double_t yMax = pad->GetUymax();
+    
+    if( pad->GetLogy() )
+    {
+      yMin = std::pow( 10, yMin );
+      yMax = std::pow( 10, yMax );
+    }
+    
+    return new TLine( x, yMin, x, yMax );
+  }
+  
+  // draw an horizontal line that extends automatically from both sides of a canvas
+  [[maybe_unused]] TLine* horizontal_line( TVirtualPad* pad, Double_t y )
+  {
+    Double_t xMin = pad->GetUxmin();
+    Double_t xMax = pad->GetUxmax();
+    
+    if( pad->GetLogx() )
+    {
+      xMin = std::pow( 10, xMin );
+      xMax = std::pow( 10, xMax );
+    }
+    
+    return new TLine( xMin, y, xMax, y );    
+  }
+  
   // divide canvas, adjusting canvas positions to leave room for a banner at the top
   void divide_canvas( TCanvas* cv, int ncol, int nrow )
   {
@@ -164,9 +196,11 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     create_transparent_pad(name)->Draw();
     for( int i = 0; i < 16; ++i )
     {
-      cv->GetPad(i+1)->SetLeftMargin(0.15);
-      cv->GetPad(i+1)->SetRightMargin(0.02);
+      auto&& pad = cv->GetPad(i+1);
+      pad->SetLeftMargin(0.15);
+      pad->SetRightMargin(0.02);    
     }
+        
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -241,12 +275,52 @@ int TpotMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPOT_adc_vs_sample")
   {
     iret += draw_array("TPOT_adc_vs_sample", get_histograms( "m_adc_sample" ), "col" );
+    auto cv = get_canvas("TPOT_adc_vs_sample");
+    if( cv )
+    {
+      std::cout << "TpotMonDraw::Draw - draw vertical lines" << std::endl;
+      CanvasEditor cv_edit(cv);
+      cv->Update();
+      for( int i = 0; i < 16; ++i )
+      {
+        // draw vertical lines that match sample window
+        auto&& pad = cv->GetPad(i+1);
+        pad->cd();
+        for( const auto line:{vertical_line( pad, m_sample_window_signal.first ), vertical_line( pad, m_sample_window_signal.second ) } )
+        {
+          line->SetLineStyle(2);
+          line->SetLineColor(2);
+          line->SetLineWidth(2);
+          line->Draw();
+        }
+      }
+    }
     ++idraw;
   }
 
   if (what == "ALL" || what == "TPOT_counts_vs_sample")
   {
     iret += draw_array("TPOT_counts_vs_sample", get_histograms( "m_counts_sample" ) );
+    auto cv = get_canvas("TPOT_counts_vs_sample");
+    if( cv )
+    {
+      std::cout << "TpotMonDraw::Draw - draw vertical lines" << std::endl;
+      CanvasEditor cv_edit(cv);
+      cv->Update();
+      for( int i = 0; i < 16; ++i )
+      {
+        // draw vertical lines that match sample window
+        auto&& pad = cv->GetPad(i+1);
+        pad->cd();
+        for( const auto line:{vertical_line( pad, m_sample_window_signal.first ), vertical_line( pad, m_sample_window_signal.second ) } )
+        {
+          line->SetLineStyle(2);
+          line->SetLineColor(2);
+          line->SetLineWidth(2);
+          line->Draw();
+        }
+      }
+    }
     ++idraw;
   }
 
