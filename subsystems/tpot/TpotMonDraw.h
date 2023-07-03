@@ -68,7 +68,7 @@ class TpotMonDraw : public OnlMonDraw
   
   /// draw detector names in current canvas
   /** only works if canvas contains one of the properly formated TH2Poly histograms */
-  void draw_detnames_sphenix();
+  void draw_detnames_sphenix( const std::string& suffix = std::string());
     
   /// mapping
   MicromegasMapping m_mapping;

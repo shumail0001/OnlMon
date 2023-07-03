@@ -470,13 +470,13 @@ int TpotMonDraw::draw_detector_occupancy()
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
     m_detector_occupancy_z->DrawCopy( "colz" );
-    draw_detnames_sphenix();
+    draw_detnames_sphenix( "Z" );
 
     cv->cd(2);
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
     m_detector_occupancy_phi->DrawCopy( "colz" );
-    draw_detnames_sphenix();
+    draw_detnames_sphenix( "P" );
 
     if( transparent ) draw_time(transparent);
     return 0;
@@ -516,13 +516,13 @@ int TpotMonDraw::draw_resist_occupancy()
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
     m_resist_occupancy_z->DrawCopy( "colz" );
-    draw_detnames_sphenix();
+    draw_detnames_sphenix( "Z" );
 
     cv->cd(2);
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
     m_resist_occupancy_phi->DrawCopy( "colz" );
-    draw_detnames_sphenix();
+    draw_detnames_sphenix( "P" );
 
     if( transparent ) draw_time(transparent);
     return 0;
@@ -536,12 +536,12 @@ int TpotMonDraw::draw_resist_occupancy()
 }
 
 //__________________________________________________________________________________
-void TpotMonDraw::draw_detnames_sphenix()
+void TpotMonDraw::draw_detnames_sphenix( const std::string& suffix)
 {
   gPad->Update();
   for( size_t i = 0; i < m_geometry.get_ntiles(); ++i )
   {
-    const auto name = m_geometry.get_detname_sphenix(i);
+    const auto name = m_geometry.get_detname_sphenix(i)+suffix;
     const auto [x,y] = m_geometry.get_tile_center(i);
     auto text = new TText();
     // text->SetNDC( true );
