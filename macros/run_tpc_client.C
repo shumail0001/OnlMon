@@ -86,7 +86,7 @@ void tpcDraw(const char *what = "ALL")
 void tpcSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeSavePlot("TPCMONDRAW");                         // Save Plots
+  cl->SavePlot("TPCMONDRAW");                         // Save Plots
   return;
 }
 
