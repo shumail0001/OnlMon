@@ -37,7 +37,12 @@ class TpotMon : public OnlMon
   
   /// set number of RMS sigma used to defined static threshold on a given channel
   void set_n_sigma( double value ) { m_n_sigma = value; }
-  
+
+  // define signal sample window
+  using sample_window_t = std::pair<int, int>;
+  void set_sample_window_signal( const sample_window_t& value ) 
+  { m_sample_window_signal = value; }
+
   private:
     
   //! setup bins in a TH2Poly. One bin per detector
@@ -63,6 +68,9 @@ class TpotMon : public OnlMon
 
   //! max sample
   int m_max_sample = 100;
+
+  // sample window
+  sample_window_t m_sample_window_signal = {20, 40};
 
   //! number of RMS sigma used to define threshold
   double m_n_sigma = 5;

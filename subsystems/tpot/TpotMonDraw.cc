@@ -274,7 +274,7 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_adc_vs_sample")
   {
-    iret += draw_array("TPOT_adc_vs_sample", get_histograms( "m_adc_sample" ), "col" );
+    iret += draw_array("TPOT_adc_vs_sample", get_histograms( "m_adc_sample" ), DrawOptions::Colz );
     auto cv = get_canvas("TPOT_adc_vs_sample");
     if( cv )
     {
@@ -326,13 +326,14 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_hit_charge")
   {
-    iret += draw_array("TPOT_hit_charge", get_histograms( "m_hit_charge" ) );
+    iret += draw_array("TPOT_hit_charge", get_histograms( "m_hit_charge" ), DrawOptions::Logy );
     ++idraw;
   }
 
   if (what == "ALL" || what == "TPOT_hit_multiplicity")
   {
-    iret += draw_array("TPOT_hit_multiplicity", get_histograms( "m_hit_multiplicity" ) );
+    iret += draw_array("TPOT_hit_multiplicity", get_histograms( "m_hit_multiplicity" ), DrawOptions::Logy );
+        
     ++idraw;
   }
 
@@ -569,7 +570,7 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& n
 }
 
 //__________________________________________________________________________________
-int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogram_array_t& histograms, const std::string& option )
+int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogram_array_t& histograms, unsigned int options )
 {
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_array - name: " << name << std::endl;
 
@@ -584,8 +585,12 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
     if( histograms[i] )
     {
       cv->cd(i+1);
-      histograms[i]->DrawCopy( option.c_str() );
+      if( options&DrawOptions::Colz ) histograms[i]->DrawCopy( "col" );
+      else histograms[i]->DrawCopy();
       gPad->SetBottomMargin(0.12);
+      if( options&DrawOptions::Logx ) gPad->SetLogx( true );
+      if( options&DrawOptions::Logy && histograms[i]->GetEntries() > 0 ) gPad->SetLogy( true );
+      if( options&DrawOptions::Logz ) gPad->SetLogz( true );
       drawn = true;
     }
   }
