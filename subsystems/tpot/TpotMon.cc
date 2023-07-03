@@ -95,11 +95,11 @@ int TpotMon::Init()
 
   // global occupancy
   m_detector_multiplicity_phi = new TH2Poly( "m_detector_multiplicity_phi", "multiplicity (#phi); z (cm); x (cm)", -120, 120, -60, 60 );
-  m_detector_occupancy_phi = new TH2Poly( "m_detector_occupancy_phi", "occupancy (#phi); z (cm); x (cm)", -120, 120, -60, 60 );
+  m_detector_occupancy_phi = new TH2Poly( "m_detector_occupancy_phi", "occupancy (#phi); z (cm); x (cm);occupancy (%)", -120, 120, -60, 60 );
   se->registerHisto(this, m_detector_occupancy_phi);
 
   m_detector_multiplicity_z = new TH2Poly( "m_detector_multiplicity_z", "multiplicity (z); z (cm); x (cm)", -120, 120, -60, 60 );
-  m_detector_occupancy_z = new TH2Poly( "m_detector_occupancy_z", "occupancy (z); z (cm); x(cm)", -120, 120, -60, 60 );
+  m_detector_occupancy_z = new TH2Poly( "m_detector_occupancy_z", "occupancy (z); z (cm); x(cm);occupancy (%)", -120, 120, -60, 60 );
   se->registerHisto(this, m_detector_occupancy_z);
 
   // setup bins
@@ -113,11 +113,11 @@ int TpotMon::Init()
 
   // resist region occupancy
   m_resist_multiplicity_phi = new TH2Poly( "m_resist_multiplicity_phi", "multiplicity (#phi); z (cm); x (cm)", -120, 120, -60, 60 );
-  m_resist_occupancy_phi = new TH2Poly( "m_resist_occupancy_phi", "occupancy (#phi); z (cm); x (cm)", -120, 120, -60, 60 );
+  m_resist_occupancy_phi = new TH2Poly( "m_resist_occupancy_phi", "occupancy (#phi); z (cm); x (cm);occupancy (%)", -120, 120, -60, 60 );
   se->registerHisto(this, m_resist_occupancy_phi);
 
   m_resist_multiplicity_z = new TH2Poly( "m_resist_multiplicity_z", "multiplicity (z); z (cm); x (cm)", -120, 120, -60, 60 );
-  m_resist_occupancy_z = new TH2Poly( "m_resist_occupancy_z", "occupancy (z); z (cm); x(cm)", -120, 120, -60, 60 );
+  m_resist_occupancy_z = new TH2Poly( "m_resist_occupancy_z", "occupancy (z); z (cm); x(cm);occupancy (%)", -120, 120, -60, 60 );
   se->registerHisto(this, m_resist_occupancy_z);
 
   // setup bins
@@ -348,10 +348,10 @@ int TpotMon::process_event(Event* event)
     { destination->SetBinContent( bin+1, source->GetBinContent( bin+1 )*scale ); }
   };
 
-  copy_content( m_detector_multiplicity_z, m_detector_occupancy_z, 1./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
-  copy_content( m_detector_multiplicity_phi, m_detector_occupancy_phi, 1./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
-  copy_content( m_resist_multiplicity_z, m_resist_occupancy_z, 4./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
-  copy_content( m_resist_multiplicity_phi, m_resist_occupancy_phi, 4./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_detector_multiplicity_z, m_detector_occupancy_z, 100./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_detector_multiplicity_phi, m_detector_occupancy_phi, 100./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_resist_multiplicity_z, m_resist_occupancy_z, 400./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_resist_multiplicity_phi, m_resist_occupancy_phi, 400./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
 
   return 0;
 }
