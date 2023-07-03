@@ -43,7 +43,7 @@ void exampleDraw(const char *what = "ALL")
 void exampleSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeSavePlot("MYMONDRAW");                          // Save Plots
+  cl->SavePlot("MYMONDRAW");                          // Save Plots
   return;
 }
 

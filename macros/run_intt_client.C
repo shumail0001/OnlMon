@@ -45,7 +45,7 @@ void inttDraw(const char *what="ALL")
 void inttSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeSavePlot("INTTMONDRAW");                          // Save Plots
+  cl->SavePlot("INTTMONDRAW");                          // Save Plots
   return;
 }
 

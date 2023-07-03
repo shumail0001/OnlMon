@@ -32,7 +32,7 @@ void daqDraw(const char *what = "ALL")
 void daqSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeSavePlot("DAQMONDRAW");                         // Save Plots
+  cl->SavePlot("DAQMONDRAW");                         // Save Plots
   return;
 }
 

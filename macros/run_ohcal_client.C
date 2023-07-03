@@ -72,7 +72,7 @@ void ohcalDraw(const char *what = "ALL")
 void ohcalSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeSavePlot("OHCALMONDRAW");                    // Save Plots
+  cl->SavePlot("OHCALMONDRAW");                    // Save Plots
   return;
 }
 

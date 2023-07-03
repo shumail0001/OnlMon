@@ -107,7 +107,7 @@ void mvtxDraw(const char *what = "ALL")
 void mvtxSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeSavePlot("MVTXMONDRAW");                        // Save Plots
+  cl->SavePlot("MVTXMONDRAW");                        // Save Plots
   return;
 }
 

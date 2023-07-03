@@ -41,7 +41,7 @@ void sepdDraw(const char *what = "ALL")
 void sepdSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeSavePlot("SEPDMONDRAW");                         // Save Plots
+  cl->SavePlot("SEPDMONDRAW");                         // Save Plots
   return;
 }
 

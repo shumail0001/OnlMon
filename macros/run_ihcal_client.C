@@ -72,7 +72,7 @@ void ihcalDraw(const char *what = "ALL")
 void ihcalSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeSavePlot("IHCALMONDRAW");                    // Save Plots
+  cl->SavePlot("IHCALMONDRAW");                    // Save Plots
   return;
 }
 
