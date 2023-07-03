@@ -217,11 +217,11 @@ class SubSystemActionDraw : public SubSystemAction
   int Execute();
 };
 
-class SubSystemActionDrawSavePlot : public SubSystemAction
+class SubSystemActionSavePlot : public SubSystemAction
 {
  public:
-  SubSystemActionDrawSavePlot(SubSystem* parent);
-  virtual ~SubSystemActionDrawSavePlot(){};
+  SubSystemActionSavePlot(SubSystem* parent);
+  virtual ~SubSystemActionSavePlot(){};
   int Execute();
 };
 

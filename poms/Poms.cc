@@ -711,15 +711,15 @@ int SubSystemActionDraw::Execute()
 }
 
 /////////////////////////////////////////////////////////////////////////////
-//    SubSystemActionDrawSavePlot  Implementation                                //
+//    SubSystemActionSavePlot  Implementation                                //
 /////////////////////////////////////////////////////////////////////////////
 
-SubSystemActionDrawSavePlot::SubSystemActionDrawSavePlot(SubSystem* parent)
+SubSystemActionSavePlot::SubSystemActionSavePlot(SubSystem* parent)
   : SubSystemAction(parent, "Save Plots")
 {
 }
 
-int SubSystemActionDrawSavePlot::Execute()
+int SubSystemActionSavePlot::Execute()
 {
   if (_running)
     return 0;
