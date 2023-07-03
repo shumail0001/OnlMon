@@ -58,7 +58,7 @@ TpotMon::TpotMon(const std::string &name)
     exit(1);
   }
 
-  m_calibration_filename = std::string(tpotcalib) + "/" + "TPOT_Pedestal_000.root";
+  m_calibration_filename = std::string(tpotcalib) + "/" + "TPOT_Pedestal-000.root";
 }
 
 //__________________________________________________
