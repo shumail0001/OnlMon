@@ -48,14 +48,7 @@ void bbcDraw(const char *what = "ALL")
 void bbcSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->SavePlot("BBCMONDRAW");                         // Create PS files
-  return;
-}
-
-void bbcPS()
-{
-  OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("BBCMONDRAW");                         // Create PS files
+  cl->SavePlot("BBCMONDRAW");                         // Save Plots
   return;
 }
 

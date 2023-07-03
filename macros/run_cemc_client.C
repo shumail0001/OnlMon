@@ -58,14 +58,7 @@ void cemcDraw(const char *what = "ALL")
 void cemcSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->SavePlot("CEMCMONDRAW");                         // Create PS files
-  return;
-}
-
-void cemcPS()
-{
-  OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("CEMCMONDRAW");                        // Create PS files
+  cl->SavePlot("CEMCMONDRAW");                         // Save Plots
   return;
 }
 
