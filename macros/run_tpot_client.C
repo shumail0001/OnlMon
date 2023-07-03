@@ -44,8 +44,8 @@ void tpotDraw(const char *what = "ALL")
   cl->Draw("TPOT", what);
 }
 
-void tpotPS()
-{ OnlMonClient::instance()->MakePS("TPOT"); }
+void tpotSavePlot()
+{ OnlMonClient::instance()->SavePlot("TPOT"); }
 
 void tpotHtml()
 { OnlMonClient::instance()->MakeHtml("TPOT"); }

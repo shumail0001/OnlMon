@@ -104,10 +104,10 @@ void mvtxDraw(const char *what = "ALL")
   cl->Draw("MVTXMONDRAW", what);                    // Draw Histos of registered Drawers
 }
 
-void mvtxPS()
+void mvtxSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("MVTXMONDRAW");                        // Create PS files
+  cl->MakeSavePlot("MVTXMONDRAW");                        // Save Plots
   return;
 }
 

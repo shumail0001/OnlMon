@@ -367,7 +367,7 @@ int TpotMonDraw::Draw(const std::string &what)
 }
 
 //_______________________________________________________________________________
-int TpotMonDraw::MakePS(const std::string &what)
+int TpotMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
   auto cl = OnlMonClient::instance();
   const int iret = Draw(what);
@@ -378,9 +378,9 @@ int TpotMonDraw::MakePS(const std::string &what)
     const auto& cv = m_canvas[i];
     if( cv )
     {
-      std::ostringstream filename;
-      filename << ThisName << "_" << i+1 << "_" << cl->RunNumber() << ".ps";
-      cv->Print( filename.str().c_str() );
+    std::string filename = ThisName + "_" + std::to_string(i+1) + "_" +
+      std::to_string(cl->RunNumber()) + "." + type;
+     cl->CanvasToPng(cv, filename);
     }
   }
 
