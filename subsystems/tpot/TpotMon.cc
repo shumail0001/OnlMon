@@ -48,23 +48,27 @@ namespace
 //__________________________________________________
 TpotMon::TpotMon(const std::string &name)
   : OnlMon(name)
-{}
+{
+  // setup default calibration filename
+  // note: this can be overriden by calling set_calibration_filename from the parent macro
+  const auto tpotcalib = getenv("TPOTCALIB");
+  if (!tpotcalib)
+  {
+    std::cout << "TpotMon::TpotMon - TPOTCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+
+  m_calibration_filename = std::string(tpotcalib) + "/" + "TPOT_Pedestal_000.root";  
+}
 
 //__________________________________________________
 int TpotMon::Init()
 {
-  // read our calibrations from TpotMonData.dat
-  {
-  const char *tpotcalib = getenv("TPOTCALIB");
-  if (!tpotcalib)
-  {
-    std::cout << "TPOTCALIB environment variable not set" << std::endl;
-    exit(1);
-  }
-    std::string fullfile = std::string(tpotcalib) + "/" + "TpotMonData.dat";
-    std::ifstream calib(fullfile);
-    calib.close();
-  }
+  
+  // setup calibrations
+  m_calibration_data.read( m_calibration_filename );
+  
+  // server instance
   auto se = OnlMonServer::instance();
 
   // map tile centers to fee id

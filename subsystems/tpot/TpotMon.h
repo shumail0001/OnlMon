@@ -5,6 +5,7 @@
 
 #include <micromegas/MicromegasDefs.h>
 #include <micromegas/MicromegasMapping.h>
+#include <micromegas/MicromegasCalibrationData.h>
 #include <onlmon/OnlMon.h>
 
 #include <array>
@@ -26,6 +27,10 @@ class TpotMon : public OnlMon
   int BeginRun(const int runno) override;
   int Reset() override;
 
+  /// calibration file
+  void set_calibration_file( const std::string& value ) 
+  { m_calibration_filename = value; }
+
   private:
     
   //! setup bins in a TH2Poly. One bin per detector
@@ -42,7 +47,13 @@ class TpotMon : public OnlMon
     
   //! geometry
   MicromegasGeometry m_geometry;
-  
+
+  //! calibration filename
+  std::string m_calibration_filename;
+
+  //! calibration data
+  MicromegasCalibrationData m_calibration_data;
+
   //! counter
   TH1* m_counters = nullptr;
    
