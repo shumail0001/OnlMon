@@ -58,22 +58,34 @@ TpotMon::TpotMon(const std::string &name)
     exit(1);
   }
 
-  m_calibration_filename = std::string(tpotcalib) + "/" + "TPOT_Pedestal_000.root";  
+  m_calibration_filename = std::string(tpotcalib) + "/" + "TPOT_Pedestal_000.root";
 }
 
 //__________________________________________________
 int TpotMon::Init()
 {
-  
+
   if( Verbosity() )
   {
     std::cout << "TpotMon::Init - m_calibration_filename: " << m_calibration_filename << std::endl;
     std::cout << "TpotMon::Init - m_max_sample: " << m_max_sample << std::endl;
   }
-  
+
   // setup calibrations
-  m_calibration_data.read( m_calibration_filename );
-  
+  if( std::ifstream( m_calibration_filename.c_str() ).good() )
+  {
+
+    m_calibration_data.read( m_calibration_filename );
+
+  } else {
+
+    std::cout << "TpotMon::Init -"
+      << " file " << m_calibration_filename << " cannot be opened."
+      << " No calibration loaded"
+      << std::endl;
+
+  }
+
   // server instance
   auto se = OnlMonServer::instance();
 
@@ -164,7 +176,7 @@ int TpotMon::Init()
       h->GetYaxis()->SetTitleOffset(1.65);
       se->registerHisto(this, detector_histograms.m_adc_sample);
     }
-    
+
     // hit charge
     static constexpr double max_hit_charge = 1024;
     detector_histograms.m_hit_charge = new TH1I(
@@ -224,7 +236,7 @@ int TpotMon::process_event(Event* event)
   ++m_evtcnt;
 
   increment( m_counters, TpotMonDefs::kValidEventCounter );
-  
+
   // hit multiplicity vs fee id
   std::map<int, int> multiplicity;
 
@@ -239,17 +251,17 @@ int TpotMon::process_event(Event* event)
       std::cout << "TpotMon::process_event -packet " << packet_id << " not found" << std::endl;
       continue;
     }
-    
+
     // get number of datasets (also call waveforms)
     const auto n_waveforms = packet->iValue(0, "NR_WF" );
-    
+
     // add contribution to full event
-    /* 
-     * we assume a full event must have m_nchannels_total waveforms 
+    /*
+     * we assume a full event must have m_nchannels_total waveforms
      * this will break when zero suppression is implemented
      */
     fullevent_weight += double(n_waveforms)/MicromegasDefs::m_nchannels_total;
-    
+
     if( Verbosity() )
     { std::cout << "TpotMon::process_event - n_waveforms: " << n_waveforms << std::endl; }
     for( int i=0; i<n_waveforms; ++i )
@@ -257,11 +269,11 @@ int TpotMon::process_event(Event* event)
       auto channel = packet->iValue( i, "CHANNEL" );
       int fee_id = packet->iValue(i, "FEE" );
       int samples = packet->iValue( i, "SAMPLES" );
-      
+
       // get channel rms and pedestal from calibration data
       const double pedestal = m_calibration_data.get_pedestal( fee_id, channel );
       const double rms = m_calibration_data.get_rms( fee_id, channel );
-      
+
       // get detector index from fee id
       const auto iter = m_detector_histograms.find( fee_id );
       if( iter == m_detector_histograms.end() )
@@ -270,11 +282,11 @@ int TpotMon::process_event(Event* event)
         continue;
       }
       const auto& detector_histograms = iter->second;
-      
+
       // get tile center, segmentation
       const auto& [tile_x, tile_y]  = m_tile_centers.at(fee_id);
       const auto segmentation = MicromegasDefs::getSegmentationType( m_mapping.get_hitsetkey(fee_id));
-      
+
       if( Verbosity()>1 )
       {
         std::cout
@@ -285,7 +297,7 @@ int TpotMon::process_event(Event* event)
           << " samples: " << samples
           << std::endl;
       }
-      
+
       for( int is = 0; is < samples; ++is )
       {
         const auto adc =  packet->iValue( i, is );
@@ -294,28 +306,28 @@ int TpotMon::process_event(Event* event)
         detector_histograms.m_adc_sample->Fill( is, adc );
         detector_histograms.m_hit_charge->Fill( adc );
       }
-      
+
       // define if hit is signal
       bool is_signal = false;
       for( int is = std::max<int>(0,m_sample_window_signal.first); is < std::min<int>(samples,m_sample_window_signal.second); ++is )
-      { 
+      {
         const auto adc =  packet->iValue( i, is );
-        if( adc > pedestal + m_n_sigma*rms) 
+        if( adc > pedestal + m_n_sigma*rms)
         {
           is_signal = true;
           break;
         }
       }
-      
+
       // fill hit profile for this channel
       if( is_signal )
       {
         const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
         detector_histograms.m_hit_vs_channel->Fill( strip_index );
-      
+
         // update multiplicity for this detector
         ++multiplicity[fee_id];
-      
+
         // fill detector multiplicity
         switch( segmentation )
         {
@@ -323,7 +335,7 @@ int TpotMon::process_event(Event* event)
           m_detector_multiplicity_z->Fill( tile_x, tile_y );
           m_resist_multiplicity_z->Fill( tile_x + MicromegasGeometry::m_tile_length*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5), tile_y );
           break;
-          
+
           case MicromegasDefs::SegmentationType::SEGMENTATION_PHI:
           m_detector_multiplicity_phi->Fill( tile_x, tile_y );
           m_resist_multiplicity_phi->Fill( tile_x, tile_y + MicromegasGeometry::m_tile_width*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5) );
@@ -362,21 +374,21 @@ int TpotMon::Reset()
   // reset our internal counters
   m_evtcnt = 0;
   m_fullevtcnt = 0;
-  
+
   // reset all histograms
   for( TH1* h:{
-    m_detector_multiplicity_z, m_detector_multiplicity_phi, 
+    m_detector_multiplicity_z, m_detector_multiplicity_phi,
     m_detector_occupancy_z, m_detector_occupancy_phi,
     m_resist_multiplicity_z, m_resist_multiplicity_phi,
     m_resist_occupancy_z, m_resist_occupancy_phi } )
   { h->Reset(); }
-  
+
   for( const auto& [fee_id,hlist]:m_detector_histograms )
   {
     for( TH1* h:std::initializer_list<TH1*>{hlist.m_counts_sample, hlist.m_adc_sample, hlist.m_hit_charge,  hlist.m_hit_multiplicity,   hlist.m_hit_vs_channel } )
     { h->Reset(); }
-  }  
-  
+  }
+
   return 0;
 }
 
