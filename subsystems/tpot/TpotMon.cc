@@ -87,9 +87,10 @@ int TpotMon::Init()
 
   // counters
   /* arbitrary counters. First bin is number of events */
-  m_counters = new TH1I( "m_counters", "counters", 10, 0, 10 );
+  m_counters = new TH1F( "m_counters", "counters", 10, 0, 10 );
   m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kEventCounter, "events" );
   m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kValidEventCounter, "valid events" );
+  m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kFullEventCounter, "full events" );
   se->registerHisto(this, m_counters);
 
   // global occupancy
@@ -208,9 +209,9 @@ int TpotMon::BeginRun(const int /* runno */)
 int TpotMon::process_event(Event* event)
 {
 
-  // increment by one a given bin number
-  auto increment = []( TH1* h, int bin )
-  { h->SetBinContent(bin, h->GetBinContent(bin)+1 ); };
+  // increment a given bin number by weight
+  auto increment = []( TH1* h, int bin, double weight = 1.0 )
+  { h->SetBinContent(bin, h->GetBinContent(bin)+weight ); };
 
   // increment total number of event
   increment( m_counters, TpotMonDefs::kEventCounter );
@@ -220,7 +221,7 @@ int TpotMon::process_event(Event* event)
   if(event->getEvtType() >= 8) { return 0; }
 
   // increment total number of valid events
-  ++evtcnt;
+  ++m_evtcnt;
 
   increment( m_counters, TpotMonDefs::kValidEventCounter );
   
@@ -334,10 +335,10 @@ int TpotMon::process_event(Event* event)
     { destination->SetBinContent( bin+1, source->GetBinContent( bin+1 )*scale ); }
   };
 
-  copy_content( m_detector_multiplicity_z, m_detector_occupancy_z, 1./(evtcnt*MicromegasDefs::m_nchannels_fee) );
-  copy_content( m_detector_multiplicity_phi, m_detector_occupancy_phi, 1./(evtcnt*MicromegasDefs::m_nchannels_fee) );
-  copy_content( m_resist_multiplicity_z, m_resist_occupancy_z, 4./(evtcnt*MicromegasDefs::m_nchannels_fee) );
-  copy_content( m_resist_multiplicity_phi, m_resist_occupancy_phi, 4./(evtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_detector_multiplicity_z, m_detector_occupancy_z, 1./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_detector_multiplicity_phi, m_detector_occupancy_phi, 1./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_resist_multiplicity_z, m_resist_occupancy_z, 4./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_resist_multiplicity_phi, m_resist_occupancy_phi, 4./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
 
   return 0;
 }
@@ -346,8 +347,23 @@ int TpotMon::process_event(Event* event)
 int TpotMon::Reset()
 {
   // reset our internal counters
-  evtcnt = 0;
-  idummy = 0;
+  m_evtcnt = 0;
+  m_fullevtcnt = 0;
+  
+  // reset all histograms
+  for( TH1* h:{
+    m_detector_multiplicity_z, m_detector_multiplicity_phi, 
+    m_detector_occupancy_z, m_detector_occupancy_phi,
+    m_resist_multiplicity_z, m_resist_multiplicity_phi,
+    m_resist_occupancy_z, m_resist_occupancy_phi } )
+  { h->Reset(); }
+  
+  for( const auto& [fee_id,hlist]:m_detector_histograms )
+  {
+    for( TH1* h:std::initializer_list<TH1*>{hlist.m_counts_sample, hlist.m_adc_sample, hlist.m_hit_charge,  hlist.m_hit_multiplicity,   hlist.m_hit_vs_channel } )
+    { h->Reset(); }
+  }  
+  
   return 0;
 }
 

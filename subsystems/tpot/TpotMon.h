@@ -51,8 +51,15 @@ class TpotMon : public OnlMon
   //! setup bins in TH2Poly, one bin per Resist sector
   void setup_resist_bins( TH2Poly*, MicromegasDefs::SegmentationType );
   
-  int evtcnt = 0;
-  int idummy = 0;
+  //! keep track of number of events
+  int m_evtcnt = 0;
+  
+  //! keep track of number of 'full' triggers
+  /* 
+   * it is estimated by summing the number of recorded waveforms/max_waveform/trigger
+   * this will break when zero suppression is implemented
+   */
+  double m_fullevtcnt = 0;
   
   //! mapping
   MicromegasMapping m_mapping;
