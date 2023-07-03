@@ -45,6 +45,7 @@ class TpotMonDraw : public OnlMonDraw
   TCanvas* get_canvas(const std::string& name, bool clear = true );
   TCanvas* create_canvas(const std::string &name);
   
+  int draw_counters();
   int draw_detector_occupancy();
   int draw_resist_occupancy();
   

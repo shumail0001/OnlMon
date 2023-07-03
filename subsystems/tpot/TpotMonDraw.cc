@@ -150,8 +150,17 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
 
-  if (name == "TPOT_detector_occupancy")
+  if (name == "TPOT_counters")
   {
+
+    // xpos (-1) negative: do not draw menu bar
+    auto cv = new TCanvas(name.c_str(), "TPOT event counters", -1, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    create_transparent_pad(name)->Draw();
+    cv->SetEditable(false);
+    m_canvas.push_back( cv );
+    return cv;
+  } else if (name == "TPOT_detector_occupancy") {
 
     // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT detector occupancy", -1, 0, xsize / 2, ysize);
@@ -258,6 +267,12 @@ int TpotMonDraw::Draw(const std::string &what)
       const int valid_events = m_counters->GetBinContent( TpotMonDefs::kValidEventCounter );
       std::cout << "TpotMonDraw::Draw - events: " << events << " valid events: " << valid_events << std::endl;
     }
+  }
+
+  if( what == "ALL" || what == "TPOT_counters" )
+  {
+    iret += draw_counters();
+    ++idraw;
   }
 
   if( what == "ALL" || what == "TPOT_detector_occupancy" )
@@ -441,6 +456,39 @@ void TpotMonDraw::draw_time( TPad* pad )
 
   pad->cd();
   PrintRun.DrawText(0.5, 0.98, runnostream.str().c_str());
+}
+
+//__________________________________________________________________________________
+int TpotMonDraw::draw_counters()
+{
+
+  if( Verbosity() ) std::cout << "TpotMonDraw::draw_counters" << std::endl;
+
+  // get histograms
+  auto cl = OnlMonClient::instance();
+  auto m_counters =  cl->getHisto("TPOTMON_0","m_counters");
+
+  auto cv = get_canvas("TPOT_counters");
+  auto transparent = get_transparent_pad( cv, "TPOT_counters");
+  if( !cv )
+  {
+    if( Verbosity() ) std::cout << "TpotMonDraw::draw_counters - no canvas" << std::endl;
+    return -1;
+  }
+
+  CanvasEditor cv_edit(cv);
+
+  if( m_counters )
+  {
+    cv->SetLeftMargin( 0.07 );
+    cv->SetRightMargin( 0.15 );
+    m_counters->DrawCopy();
+    if( transparent ) draw_time(transparent);
+    return 0;
+  } else {
+    if( transparent ) DrawDeadServer(transparent);
+    return -1;
+  }
 }
 
 //__________________________________________________________________________________

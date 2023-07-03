@@ -229,6 +229,7 @@ int TpotMon::process_event(Event* event)
   std::map<int, int> multiplicity;
 
   // read the data
+  double fullevent_weight = 0;
   for( const auto& packet_id:MicromegasDefs::m_packet_ids )
   {
     std::unique_ptr<Packet> packet(event->getPacket(packet_id));
@@ -241,6 +242,14 @@ int TpotMon::process_event(Event* event)
     
     // get number of datasets (also call waveforms)
     const auto n_waveforms = packet->iValue(0, "NR_WF" );
+    
+    // add contribution to full event
+    /* 
+     * we assume a full event must have m_nchannels_total waveforms 
+     * this will break when zero suppression is implemented
+     */
+    fullevent_weight += double(n_waveforms)/MicromegasDefs::m_nchannels_total;
+    
     if( Verbosity() )
     { std::cout << "TpotMon::process_event - n_waveforms: " << n_waveforms << std::endl; }
     for( int i=0; i<n_waveforms; ++i )
@@ -323,6 +332,10 @@ int TpotMon::process_event(Event* event)
       }
     }
   }
+
+  // increment full event counter and counters histogram
+  m_fullevtcnt += fullevent_weight;
+  increment( m_counters, TpotMonDefs::kFullEventCounter, fullevent_weight );
 
   // fill hit multiplicities
   for( auto&& [fee_id, detector_histograms]:m_detector_histograms )
