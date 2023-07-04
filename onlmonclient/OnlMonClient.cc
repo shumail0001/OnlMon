@@ -436,6 +436,16 @@ int OnlMonClient::Draw(const char *who, const char *what)
 int OnlMonClient::SavePlot(const std::string &who, const std::string &what)
 {
   int iret = DoSomething(who, what, "SAVEPLOT");
+  TSeqCollection *allCanvases = gROOT->GetListOfCanvases();
+  TCanvas *canvas = nullptr;
+  while ((canvas = static_cast<TCanvas *>(allCanvases->First())))
+  {
+    if (verbosity > 0)
+    {
+      std::cout << "Deleting Canvas " << canvas->GetName() << std::endl;
+    }
+    delete canvas;
+  }
   //  gSystem->ProcessEvents();
   return iret;
 }
