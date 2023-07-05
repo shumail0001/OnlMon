@@ -1056,6 +1056,7 @@ int OnlMonClient::UpdateServerHistoMap(const std::string &hname, const std::stri
   int foundit = 0;
   do
   {
+    std::cout << "Connecting to " << hostname << ", if it is frozen here - this is the one you need to restart" << std::endl;
     TSocket sock(hostname.c_str(), MoniPort);
     TMessage *mess;
     if (verbosity > 0)
