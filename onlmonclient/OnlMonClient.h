@@ -7,6 +7,7 @@
 #include <ctime>
 #include <list>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -41,6 +42,7 @@ class OnlMonClient : public OnlMonBase
   int Draw(const char *who = "ALL", const char *what = "ALL");
   int MakePS(const char *who = "ALL", const char *what = "ALL");
   int MakeHtml(const char *who = "ALL", const char *what = "ALL");
+  int SavePlot(const std::string &who = "ALL", const std::string &what = "ALL");
 
   std::string htmlRegisterPage(const OnlMonDraw &drawer,
                                const std::string &path,
@@ -81,7 +83,7 @@ class OnlMonClient : public OnlMonBase
 
  private:
   OnlMonClient(const std::string &name = "ONLMONCLIENT");
-  int DoSomething(const char *who, const char *what, const char *opt);
+  int DoSomething(const std::string &who, const std::string &what, const std::string &opt);
   void InitAll();
 
   static OnlMonClient *__instance;
@@ -96,7 +98,7 @@ class OnlMonClient : public OnlMonBase
   int cachedrun = 0;
 
   std::string runtype = "UNKNOWN";
-  std::string m_LastMonitorFetched;
+  std::set<std::string> m_MonitorFetchedSet;
   std::map<std::string, std::map<const std::string, ClientHistoList *>> SubsysHisto;
   std::map<std::string, std::pair<std::string, unsigned int>> MonitorHostPorts;
   std::map<const std::string, ClientHistoList *> Histo;

@@ -42,7 +42,8 @@ using namespace std;
 
 
 CemcMon::CemcMon(const std::string &name)
-  : OnlMon(name)
+  : OnlMon(name),
+    eventCounter(0)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new CemcMon()
@@ -328,10 +329,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 	      float timeFast = resultFast.at(1);
 	      float pedestalFast = resultFast.at(2);
 	
-	      std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
-	      float signalTemp = resultTemp.at(0);
-	      float timeTemp  = resultTemp.at(1);
-	      float pedestalTemp = resultTemp.at(2);
+	      
 	
 	
 	      // channel mapping
@@ -356,10 +354,16 @@ int CemcMon::process_event(Event *e  /* evt */)
 
 	      h1_cemc_adc ->Fill(signalFast);
 	      
-	      h1_cemc_fitting_sigDiff -> Fill(signalFast/signalTemp);
-	      h1_cemc_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
-	      h1_cemc_fitting_timeDiff -> Fill(timeFast - timeTemp - 6);
-
+	      if(!((eventCounter -2)% 5000))
+		{
+		  std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
+		  float signalTemp = resultTemp.at(0);
+		  float timeTemp  = resultTemp.at(1);
+		  float pedestalTemp = resultTemp.at(2);
+		  h1_cemc_fitting_sigDiff -> Fill(signalFast/signalTemp);
+		  h1_cemc_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
+		  h1_cemc_fitting_timeDiff -> Fill(timeFast - timeTemp - 6);
+		}
 	      if (signalFast > hit_threshold)
 		{
 		  h2_cemc_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);

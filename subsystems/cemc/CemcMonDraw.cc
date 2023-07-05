@@ -165,13 +165,6 @@ int CemcMonDraw::Draw(const std::string &what)
       iret += DrawFourth(what);
       idraw++;
     }
-  /*
-    if (what == "ALL" || what == "HISTORY")
-    {
-    iret += DrawHistory(what);
-    idraw++;
-    }
-  */
   if (!idraw)
     {
       std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -1035,7 +1028,7 @@ int CemcMonDraw::FindHotTower(TPad *warningpad,TH2* hhit){
   TPaveText *dead = new TPaveText(0.01,0.7,0.33,1);
   dead -> SetFillColor(kGray+2);
   dead -> SetTextColor(kWhite);
-  dead -> AddText(Form("Dead towers: %.3g%%",100*ndeadt/nTowerTotal));
+  dead -> AddText(Form("Cold towers: %.3g%%",100*ndeadt/nTowerTotal));
   // if(100*ndeadt/nTowerTotal > 2.5)
   //   {
   //     dead -> AddText("");
@@ -1068,20 +1061,26 @@ int CemcMonDraw::FindHotTower(TPad *warningpad,TH2* hhit){
 
 
 
-int CemcMonDraw::MakePS(const std::string &what)
+int CemcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  std::ostringstream filename;
   int iret = Draw(what);
-  if (iret)  // on error no ps files please
-    {
+  if (iret)  // on error no png files please
+  {
       return iret;
+  }
+  int icnt = 0;
+  for (TCanvas *canvas : TC)
+  {
+    if (canvas == nullptr)
+    {
+      continue;
     }
-  filename << ThisName << "_1_" << cl->RunNumber() << ".ps";
-  TC[0]->Print(filename.str().c_str());
-  filename.str("");
-  filename << ThisName << "_2_" << cl->RunNumber() << ".ps";
-  TC[1]->Print(filename.str().c_str());
+    icnt++;
+    std::string filename = ThisName + "_" + std::to_string(icnt) + "_" +
+      std::to_string(cl->RunNumber()) + "." + type;
+    cl->CanvasToPng(canvas, filename);
+  }
   return 0;
 }
 
@@ -1089,35 +1088,40 @@ int CemcMonDraw::MakeHtml(const std::string &what)
 {
   int iret = Draw(what);
   if (iret)  // on error no html output please
-    {
-      return iret;
-    }
+  {
+    return iret;
+  }
 
   OnlMonClient *cl = OnlMonClient::instance();
 
-  // Register the 1st canvas png file to the menu and produces the png file.
-  std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
-  cl->CanvasToPng(TC[0], pngfile);
-
-  // idem for 2nd canvas.
-  pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
-  cl->CanvasToPng(TC[1], pngfile);
+  int icnt = 0;
+  for (TCanvas *canvas : TC)
+  {
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    icnt++;
+    // Register the canvas png file to the menu and produces the png file.
+    std::string pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), std::to_string(icnt), "png");
+    cl->CanvasToPng(canvas, pngfile);
+  }
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
-  std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream out(logfile.c_str());
-  out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << std::endl;
-  out << "<P>Some log file output would go here." << std::endl;
-  out.close();
+  // std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+  // std::ofstream out(logfile.c_str());
+  // out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
+  //     << "</TITLE></HEAD>" << std::endl;
+  // out << "<P>Some log file output would go here." << std::endl;
+  // out.close();
 
-  std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
-  std::ofstream out2(status.c_str());
-  out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
-       << "</TITLE></HEAD>" << std::endl;
-  out2 << "<P>Some status output would go here." << std::endl;
-  out2.close();
-  cl->SaveLogFile(*this);
+  // std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
+  // std::ofstream out2(status.c_str());
+  // out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
+  //      << "</TITLE></HEAD>" << std::endl;
+  // out2 << "<P>Some status output would go here." << std::endl;
+  // out2.close();
+  // cl->SaveLogFile(*this);
   return 0;
 }
 
