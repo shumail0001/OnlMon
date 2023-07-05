@@ -405,7 +405,7 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
                 << subsys << " registered" << std::endl;
     }
   }
-  m_LastMonitorFetched = subsys;
+  m_MonitorFetchedSet.insert(subsys);
   return iret;
 }
 
@@ -1180,16 +1180,14 @@ int OnlMonClient::LocateHistogram(const std::string &hname, const std::string &s
 int OnlMonClient::RunNumber()
 {
   int runno = -9999;
-  TH1 *frameworkvars = getHisto(m_LastMonitorFetched,"FrameWorkVars");
-  if (frameworkvars)
-  {
-    runno = frameworkvars->GetBinContent(RUNNUMBERBIN);
-  }
-  else
-  {
-    std::cout << __PRETTY_FUNCTION__ << " could not fetch FrameWorkVars from "
-	      << m_LastMonitorFetched << " returning " << runno << std::endl;
-  }
+  for (auto frwrkiter : m_MonitorFetchedSet)
+    {
+      TH1 *frameworkvars = getHisto(frwrkiter,"FrameWorkVars");
+      if (frameworkvars)
+	{
+	  runno = std::max(runno,(int)frameworkvars->GetBinContent(RUNNUMBERBIN));
+	}
+    }
   return (runno);
 }
 
@@ -1666,6 +1664,6 @@ std::string OnlMonClient::ExtractSubsystem(const std::string &fullfilename)
   std::string subsys = std::filesystem::path(fullfilename).filename();
   subsys = subsys.substr(subsys.find('-')+1);
   subsys = subsys.substr(0,subsys.find(".root"));
-  m_LastMonitorFetched = subsys;
+  m_MonitorFetchedSet.insert(subsys);
   return subsys;
 }
