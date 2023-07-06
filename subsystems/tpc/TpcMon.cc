@@ -413,7 +413,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         std::pair<float, float> result = calculateMeanAndStdDev(mean_and_stdev_vec);
         int pedestal = result.first; //average/pedestal
-        int noise = result.second; //stdev/noise
+        //int noise = result.second; //stdev/noise
 
         int wf_max = 0;
 
