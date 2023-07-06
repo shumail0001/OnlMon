@@ -413,7 +413,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         std::pair<float, float> result = calculateMeanAndStdDev(mean_and_stdev_vec);
         int pedestal = result.first; //average/pedestal
-        int noise = result.second; //stdev/noise
+        //int noise = result.second; //stdev/noise
 
         int wf_max = 0;
 
@@ -468,13 +468,13 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         //for complicated XY stuff ____________________________________________________
         //20 = 3-5 * sigma - hard-coded
-        if( serverid < 12 && (wf_max - pedestal) > 7*noise)
+        if( serverid < 12 && (wf_max - pedestal) > 20)
         {
           if(Module_ID(fee)==0){NorthSideADC_clusterXY_R1->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);NorthSideADC_clusterXY_R1_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R1
           else if(Module_ID(fee)==1){NorthSideADC_clusterXY_R2->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);NorthSideADC_clusterXY_R2_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
           else if(Module_ID(fee)==2){NorthSideADC_clusterXY_R3->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);NorthSideADC_clusterXY_R3_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
         }
-        else if( serverid >=12 && (wf_max - pedestal) > 7*noise)
+        else if( serverid >=12 && (wf_max - pedestal) > 20)
         {
           if(Module_ID(fee)==0){SouthSideADC_clusterXY_R1->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);SouthSideADC_clusterXY_R1_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R1
           else if(Module_ID(fee)==1){SouthSideADC_clusterXY_R2->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);SouthSideADC_clusterXY_R2_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2

@@ -172,7 +172,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCClusterXY")
   {
-    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>7#sigma for NS and SS, WEIGHTED", 1350, 700);
+    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> 20 ADC for NS and SS, WEIGHTED", 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[10]->Divide(2,1);
@@ -184,7 +184,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCClusterXY_unw")
   {
-    TC[11] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>7#sigma for NS and SS, UNWEIGHTED", 1350, 700);
+    TC[11] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> 20 ADC for NS and SS, UNWEIGHTED", 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[11]->Divide(2,1);
@@ -937,8 +937,8 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   TH1 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
   TH1 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
 
-  dummy_his1_XY = new TH2F("dummy_his1_XY", "(ADC-Pedestal) > 7#sigma North Side, WEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
-  dummy_his2_XY = new TH2F("dummy_his2_XY", "(ADC-Pedestal) > 7#sigma South Side, WEIGHTED", 400, -800, 800, 400, -800, 800);
+  dummy_his1_XY = new TH2F("dummy_his1_XY", "(ADC-Pedestal) > 20 ADC North Side, WEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
+  dummy_his2_XY = new TH2F("dummy_his2_XY", "(ADC-Pedestal) > 20 ADC South Side, WEIGHTED", 400, -800, 800, 400, -800, 800);
 
   char TPCMON_STR[100];
   for( int i=0; i<24; i++ ) 
@@ -971,7 +971,7 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   std::string runstring;
   time_t evttime = getTime();// cl->EventTime("CURRENT"); 
   // fill run number and event time into string
-  runnostream << ThisName << "_ADC-Pedestal>7*sigma Run, WEIGHTED " << cl->RunNumber()
+  runnostream << ThisName << "_ADC-Pedestal>20 ADC Run, WEIGHTED " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[9]->cd();
@@ -1046,8 +1046,8 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
   TH1 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
   TH1 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
 
-  dummy_his1_XY_unw = new TH2F("dummy_his1_XY_unw", "(ADC-Pedestal) > 7#sigma North Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
-  dummy_his2_XY_unw = new TH2F("dummy_his2_XY_unw", "(ADC-Pedestal) > 7#sigma South Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800);
+  dummy_his1_XY_unw = new TH2F("dummy_his1_XY_unw", "(ADC-Pedestal) > 20 ADC North Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
+  dummy_his2_XY_unw = new TH2F("dummy_his2_XY_unw", "(ADC-Pedestal) > 20 ADC South Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800);
 
   char TPCMON_STR[100];
   for( int i=0; i<24; i++ ) 
@@ -1080,7 +1080,7 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
   std::string runstring;
   time_t evttime = getTime();// cl->EventTime("CURRENT"); 
   // fill run number and event time into string
-  runnostream << ThisName << "_ADC-Pedestal>7*sigma Run, UNWEIGHTED " << cl->RunNumber()
+  runnostream << ThisName << "_ADC-Pedestal>20 ADC Run, UNWEIGHTED " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[10]->cd();
