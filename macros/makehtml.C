@@ -89,7 +89,6 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
     gSystem->Exit(1);
   }
   cl->Verbosity(1);
-  cl->Draw();
   cl->MakeHtml();
   delete cl;
   gSystem->Exit(0);
