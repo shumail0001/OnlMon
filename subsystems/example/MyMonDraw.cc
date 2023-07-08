@@ -152,7 +152,7 @@ int MyMonDraw::DrawFirst(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  time_t evttime = cl->EventTime("MYMON_0","CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -199,7 +199,7 @@ int MyMonDraw::DrawSecond(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  time_t evttime = cl->EventTime("MYMON_0","CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_2 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -212,20 +212,27 @@ int MyMonDraw::DrawSecond(const std::string & /* what */)
   return 0;
 }
 
-int MyMonDraw::MakePS(const std::string &what)
+int MyMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
+
   OnlMonClient *cl = OnlMonClient::instance();
-  std::ostringstream filename;
   int iret = Draw(what);
-  if (iret)  // on error no ps files please
+  if (iret)  // on error no png files please
   {
-    return iret;
+      return iret;
   }
-  filename << ThisName << "_1_" << cl->RunNumber() << ".ps";
-  TC[0]->Print(filename.str().c_str());
-  filename.str("");
-  filename << ThisName << "_2_" << cl->RunNumber() << ".ps";
-  TC[1]->Print(filename.str().c_str());
+  int icnt = 0;
+  for (TCanvas *canvas : TC)
+  {
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    icnt++;
+    std::string filename = ThisName + "_" + std::to_string(icnt) + "_" +
+      std::to_string(cl->RunNumber()) + "." + type;
+    cl->CanvasToPng(canvas, filename);
+  }
   return 0;
 }
 
@@ -239,13 +246,19 @@ int MyMonDraw::MakeHtml(const std::string &what)
 
   OnlMonClient *cl = OnlMonClient::instance();
 
-  // Register the 1st canvas png file to the menu and produces the png file.
-  std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
-  cl->CanvasToPng(TC[0], pngfile);
+  int icnt = 0;
+  for (TCanvas *canvas : TC)
+  {
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    icnt++;
+    // Register the canvas png file to the menu and produces the png file.
+    std::string pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), std::to_string(icnt), "png");
+    cl->CanvasToPng(canvas, pngfile);
+  }
 
-  // idem for 2nd canvas.
-  pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
-  cl->CanvasToPng(TC[1], pngfile);
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
   std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");

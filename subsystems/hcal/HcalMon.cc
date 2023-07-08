@@ -60,14 +60,37 @@ HcalMon::HcalMon(const std::string& name)
 HcalMon::~HcalMon()
 {
   // you can delete NULL pointers it results in a NOOP (No Operation)
+  delete WaveformProcessing;
+  for (auto iter : rm_vector_sectAvg)
+  {
+    delete iter;
+  }
+  for (auto iter : rm_vector_twr)
+  {
+    delete iter;
+  }
+  for (auto iter : rm_packet_number)
+  {
+    delete iter;
+  }
+  for (auto iter : rm_packet_length)
+  {
+    delete iter;
+  }
+  for (auto iter : rm_packet_chans)
+  {
+    delete iter;
+  }
   return;
 }
 
-const int depth = 1000;
+const int depth = 10000;
 const int packet_depth = 1000;
 const int historyLength = 100;
+const int historyScaleDown = 100;
 const int n_channel = 48;
 const float hit_threshold = 100;
+const int n_samples_show = 31;
 
 int HcalMon::Init()
 {
@@ -91,10 +114,11 @@ int HcalMon::Init()
   h2_hcal_hits = new TH2F("h2_hcal_hits", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_rm = new TH2F("h2_hcal_rm", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_mean = new TH2F("h2_hcal_mean", "", 24, 0, 24, 64, 0, 64);
-  h2_hcal_waveform = new TH2F("h2_hcal_waveform", "", 16, 0.5, 16.5, 1000, 0, 15000);
+  h2_hcal_waveform = new TH2F("h2_hcal_waveform", "", n_samples_show, 0.5, n_samples_show + 0.5, 1000, 0, 15000);
+  h2_hcal_correlation = new TH2F("h2_hcal_correlation", "", 200, 0, 100000, 200, 0, 150000);
   h_event = new TH1F("h_event", "", 1, 0, 1);
-  h_waveform_twrAvg = new TH1F("h_waveform_twrAvg", "", 16, 0.5, 16.5);
-  h_waveform_time = new TH1F("h_waveform_time", "", 16, 0.5, 16.5);
+  h_waveform_twrAvg = new TH1F("h_waveform_twrAvg", "", n_samples_show, 0.5, n_samples_show + 0.5);
+  h_waveform_time = new TH1F("h_waveform_time", "", n_samples_show, 0.5, n_samples_show + 0.5);
   h_waveform_pedestal = new TH1F("h_waveform_pedestal", "", 5e3, 0, 5e3);
   h_sectorAvg_total = new TH1F("h_sectorAvg_total", "", 32, 0.5, 32.5);
   // number of towers above threshold per event
@@ -106,12 +130,12 @@ int HcalMon::Init()
   h1_packet_event = new TH1F("h1_packet_event", "", 8, packetlow - 0.5, packethigh + 0.5);
 
   for (int ih = 0; ih < Nsector; ih++)
-    h_rm_sectorAvg[ih] = new TH1F(Form("h_rm_sectorAvg_s%d", ih), "", historyLength, 0, historyLength);
+    h_rm_sectorAvg[ih] = new TH1F(Form("h_rm_sectorAvg_s%d", ih), "", historyLength, 0, historyLength * historyScaleDown);
   for (int ieta = 0; ieta < 24; ieta++)
   {
     for (int iphi = 0; iphi < 64; iphi++)
     {
-      h_rm_tower[ieta][iphi] = new TH1F(Form("h_rm_tower_%d_%d", ieta, iphi), Form("running mean of tower ieta=%d, iphi=%d", ieta, iphi), historyLength, 0, historyLength);
+      h_rm_tower[ieta][iphi] = new TH1F(Form("h_rm_tower_%d_%d", ieta, iphi), Form("running mean of tower ieta=%d, iphi=%d", ieta, iphi), historyLength, 0, historyLength * historyScaleDown);
     }
   }
   // make the per-packet running mean objects
@@ -147,6 +171,7 @@ int HcalMon::Init()
   se->registerHisto(this, h1_packet_length);
   se->registerHisto(this, h1_packet_chans);
   se->registerHisto(this, h1_packet_event);
+  se->registerHisto(this, h2_hcal_correlation);
 
   for (int ih = 0; ih < Nsector; ih++)
     se->registerHisto(this, h_rm_sectorAvg[ih]);
@@ -268,6 +293,10 @@ int HcalMon::process_event(Event* e /* evt */)
   h1_packet_event->Reset();
   unsigned int towerNumber = 0;
   float sectorAvg[Nsector] = {0};
+  int npacket1 = 0;
+  int npacket2 = 0;
+  float energy1 = 0;
+  float energy2 = 0;
 
   for (int packet = packetlow; packet <= packethigh; packet++)
   {
@@ -290,6 +319,7 @@ int HcalMon::process_event(Event* e /* evt */)
       }
       else
       {
+        npacket1++;
         rm_packet_chans[packet - packetlow]->Add(&nChannels);
         h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet - packetlow]->getMean(0));
       }
@@ -302,6 +332,7 @@ int HcalMon::process_event(Event* e /* evt */)
         float signal = result.at(0);
         float time = result.at(1);
         float pedestal = result.at(2);
+        if (signal > 15 && signal< 15000) energy1 += signal;
 
         // channel mapping
         unsigned int key = TowerInfoDefs::encode_hcal(towerNumber - 1);
@@ -320,17 +351,26 @@ int HcalMon::process_event(Event* e /* evt */)
         h2_hcal_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
 
         // fill tower_rm here
-        if (evtcnt <= historyLength)
+        if (evtcnt <= historyLength * historyScaleDown)
         {
-          h_rm_tower[eta_bin][phi_bin]->SetBinContent(evtcnt, rm_vector_twr[towerNumber - 1]->getMean(0));
+          //only fill every scaledown event
+          if (evtcnt % historyScaleDown == 0)
+          {
+            h_rm_tower[eta_bin][phi_bin]->SetBinContent(evtcnt / historyScaleDown, rm_vector_twr[towerNumber - 1]->getMean(0));
+          }
         }
         else
         {
-          for (int ib = 1; ib < historyLength; ib++)
+          //only fill every scaledown event
+          if (evtcnt % historyScaleDown == 0)
           {
-            h_rm_tower[eta_bin][phi_bin]->SetBinContent(ib, h_rm_tower[eta_bin][phi_bin]->GetBinContent(ib + 1));
+            for (int ib = 1; ib < historyLength; ib++)
+            {
+              h_rm_tower[eta_bin][phi_bin]->SetBinContent(ib, h_rm_tower[eta_bin][phi_bin]->GetBinContent(ib + 1));
+            }
+            h_rm_tower[eta_bin][phi_bin]->SetBinContent(historyLength, rm_vector_twr[towerNumber - 1]->getMean(0));
           }
-          h_rm_tower[eta_bin][phi_bin]->SetBinContent(historyLength, rm_vector_twr[towerNumber - 1]->getMean(0));
+       
         }
 
         if (signal > hit_threshold)
@@ -342,7 +382,7 @@ int HcalMon::process_event(Event* e /* evt */)
         for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
         {
           h_waveform_twrAvg->Fill(s, p->iValue(s, c));
-          if (signal > 100) h2_hcal_waveform->Fill(s, (p->iValue(s, c) - pedestal));
+          if (signal > hit_threshold) h2_hcal_waveform->Fill(s, (p->iValue(s, c) - pedestal));
         }
 
       }  // channel loop
@@ -357,24 +397,69 @@ int HcalMon::process_event(Event* e /* evt */)
     h1_packet_number->SetBinContent(packet_bin, rm_packet_number[packet - packetlow]->getMean(0));
     delete p;
   }  // packet loop
+  // if packetlow == 8001, then packetlowdiff = 7001, if packetlow == 7001, then packetlowdiff = 8001
+  int packetlowdiff = 15002 - packetlow;
+  int packethighdiff = 15016 - packethigh;
 
+  if (npacket1 == 4)
+  {
+    for (int i = packetlowdiff; i <= packethighdiff; i++)
+    {
+      Packet* p = e->getPacket(i);
+      if (p)
+      {
+        int nChannels = p->iValue(0, "CHANNELS");
+        if (nChannels > m_nChannels)
+        {
+          return -1;  // packet is corrupted, reports too many channels
+        }
+        else
+        {
+          npacket2++;
+        }
+        for (int c = 0; c < nChannels; c++)
+        {
+          // std::vector result =  getSignal(p,c); // simple peak extraction
+          std::vector<float> result = anaWaveform(p, c);  // full waveform fitting
+          float signal = result.at(0);
+          if (signal > 15 && signal<15000) energy2 += signal;
+        }
+      }
+      delete p;
+    }
+  }
+  if (npacket1 == 4 && npacket2 == 4)
+  {
+    if (packetlow == 8001)
+      h2_hcal_correlation->Fill(energy1, energy2);
+    else
+      h2_hcal_correlation->Fill(energy2, energy1);
+  }
   // sector loop
   for (int isec = 0; isec < Nsector; isec++)
   {
     sectorAvg[isec] /= 48;
     h_sectorAvg_total->Fill(isec + 1, sectorAvg[isec]);
     rm_vector_sectAvg[isec]->Add(&sectorAvg[isec]);
-    if (evtcnt <= historyLength)
+    if (evtcnt <= historyLength * historyScaleDown)
     {
-      h_rm_sectorAvg[isec]->SetBinContent(evtcnt, rm_vector_sectAvg[isec]->getMean(0));
+      //only fill every scaledown event
+      if (evtcnt % historyScaleDown == 0)
+      {
+        h_rm_sectorAvg[isec]->SetBinContent(evtcnt / historyScaleDown, rm_vector_sectAvg[isec]->getMean(0));
+      }
     }
     else
     {
-      for (int ib = 1; ib < historyLength; ib++)
+      //only fill every scaledown event
+      if (evtcnt % historyScaleDown == 0)
       {
-        h_rm_sectorAvg[isec]->SetBinContent(ib, h_rm_sectorAvg[isec]->GetBinContent(ib + 1));
+        for (int ib = 1; ib < historyLength; ib++)
+        {
+          h_rm_sectorAvg[isec]->SetBinContent(ib, h_rm_sectorAvg[isec]->GetBinContent(ib + 1));
+        }
+        h_rm_sectorAvg[isec]->SetBinContent(historyLength, rm_vector_sectAvg[isec]->getMean(0));
       }
-      h_rm_sectorAvg[isec]->SetBinContent(historyLength, rm_vector_sectAvg[isec]->getMean(0));
     }
 
   }  // sector loop

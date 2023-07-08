@@ -5,7 +5,6 @@
 
 #include <string>  // for allocator, string
 
-class OnlMonDB;
 class TCanvas;
 class TGraphErrors;
 class TPad;
@@ -21,14 +20,13 @@ class TpcMonDraw : public OnlMonDraw
 
   int Init() override;
   int Draw(const std::string &what = "ALL") override;
-  int MakePS(const std::string &what = "ALL") override;
   int MakeHtml(const std::string &what = "ALL") override;
+  int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
 
  protected:
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
-  int DrawHistory(const std::string &what = "ALL");
   int DrawTPCModules(const std::string &what = "ALL");
   int DrawTPCSampleSize(const std::string &what = "ALL");
   int DrawTPCCheckSum(const std::string &what = "ALL");
@@ -37,12 +35,12 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCRawADC1D(const std::string &what = "ALL");
   int DrawTPCMaxADC1D(const std::string &what = "ALL");
   int DrawTPCXYclusters(const std::string &what = "ALL");
-
+  int DrawTPCXYclusters_unweighted(const std::string &what = "ALL");
+  time_t getTime();
   
-  int TimeOffsetTicks = -1;
-  TCanvas *TC[11] = {nullptr};
-  TPad *transparent[3] = {nullptr};
-  TPad *Pad[6] = {nullptr};
+  TCanvas *TC[12] = {nullptr};
+  TPad *transparent[11] = {nullptr};
+  TPad *Pad[8] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module
   TH2 *dummy_his1 = nullptr;
@@ -51,6 +49,9 @@ class TpcMonDraw : public OnlMonDraw
   //TPC Module
   TH2 *dummy_his1_XY = nullptr;
   TH2 *dummy_his2_XY = nullptr;
+
+  TH2 *dummy_his1_XY_unw = nullptr;
+  TH2 *dummy_his2_XY_unw = nullptr;
 
   TPaveLabel* NS18 = nullptr; //North Side labels
   TPaveLabel* NS17 = nullptr;
@@ -77,8 +78,6 @@ class TpcMonDraw : public OnlMonDraw
   TPaveLabel* SS09 = nullptr;
   TPaveLabel* SS10 = nullptr;
   TPaveLabel* SS11 = nullptr;
-  //
-  OnlMonDB *dbvars = nullptr;
 };
 
 #endif /* TPC_TPCMONDRAW_H */

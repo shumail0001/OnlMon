@@ -19,6 +19,7 @@ void ohcalDrawInit(const int online = 0)
     cl->registerHisto("h2_hcal_rm", HCALMON_STR);
     cl->registerHisto("h2_hcal_mean", HCALMON_STR);
     cl->registerHisto("h2_hcal_waveform", HCALMON_STR);
+    cl->registerHisto("h2_hcal_correlation", HCALMON_STR);
     cl->registerHisto("h_event", HCALMON_STR);
     cl->registerHisto("h_sectorAvg_total", HCALMON_STR);
     cl->registerHisto("h_waveform_twrAvg", HCALMON_STR);
@@ -68,10 +69,10 @@ void ohcalDraw(const char *what = "ALL")
   cl->Draw("OHCALMONDRAW", what);  // Draw Histos of registered Drawers
 }
 
-void ohcalPS()
+void ohcalSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("OHCALMONDRAW");                    // Create PS files
+  cl->SavePlot("OHCALMONDRAW");                    // Save Plots
   return;
 }
 

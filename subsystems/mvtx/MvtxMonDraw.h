@@ -25,8 +25,8 @@ class MvtxMonDraw : public OnlMonDraw
 
   int Init() override;
   int Draw(const std::string &what = "ALL") override;
-  int MakePS(const std::string &what = "ALL") override;
   int MakeHtml(const std::string &what = "ALL") override;
+  int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
 
      const static int NSTAVE = 48;
   const static int NCHIP = 9;
@@ -55,7 +55,6 @@ static const int NFlx = 6;
   static constexpr int NPixels = NRows * NCols;
   const int chipmapoffset[3] = { 0, 12, 28};
 
- protected:
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
@@ -65,6 +64,7 @@ static const int NFlx = 6;
   int DrawOCC(const std::string &what = "ALL");
   int DrawFHR(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
+  time_t getTime();
   int TimeOffsetTicks = -1;
   TCanvas *TC[6] = {nullptr};
   TPad *transparent[1] = {nullptr};
