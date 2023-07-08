@@ -94,7 +94,8 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCMAXADCMODULE\")", "TPC MAX ADC");
   subsys->AddAction("tpcDraw(\"TPCRAWADC1D\")", "TPC RAW ADC 1D");
   subsys->AddAction("tpcDraw(\"TPCMAXADC1D\")", "TPC (WindowMAX-Pedestal) ADC 1D");
-  subsys->AddAction("tpcDraw(\"TPCCLUSTERSXY\")","TPC Cluster XY MaxADC");
+  subsys->AddAction("tpcDraw(\"TPCCLUSTERSXYWEIGTHED\")","TPC Cluster XY MaxADC-Pedestal,w");
+  subsys->AddAction("tpcDraw(\"TPCCLUSTERSXYUNWEIGTHED\")","TPC Cluster XY MaxADC-Pedestal,u");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
