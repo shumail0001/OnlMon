@@ -263,7 +263,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   if(maxEvent > 0)
     {
       
-      if(maxEvent < templateDepth)h2_cemc_mean[start[1]]->Scale(1./templateDepth);
+      if(maxEvent > templateDepth)h2_cemc_mean[start[1]]->Scale(1./templateDepth);
       else h2_cemc_mean[start[1]]->Scale(1./maxEvent);
       
 	
