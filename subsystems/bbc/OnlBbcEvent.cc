@@ -90,11 +90,6 @@ OnlBbcEvent::OnlBbcEvent(void) :
   
   Clear();
 
-  if ( verbose )
-  {
-    ac = new TCanvas("ac","ac",550*1.5,425*1.5);
-    ac->Divide(2,1);
-  }
 }
 
 ///
@@ -379,7 +374,16 @@ int OnlBbcEvent::calculate()
     gaussian->SetParameter(2,hevt_bbct[iarm]->GetRMS());
     gaussian->SetRange(hevt_bbct[iarm]->GetMean()-5,hevt_bbct[iarm]->GetMean()+5);
 
-    if ( ac && verbose ) ac->cd(iarm+1);
+    if ( verbose ) 
+    {
+      if ( ac == nullptr )
+      {
+        ac = new TCanvas("ac","ac",550*1.5,425*1.5);
+        ac->Divide(2,1);
+      }
+      ac->cd(iarm+1);
+    }
+
     hevt_bbct[iarm]->Fit(gaussian, "BNQLR");
     if ( verbose ) hevt_bbct[iarm]->Draw();
 
