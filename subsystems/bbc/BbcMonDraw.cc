@@ -1257,13 +1257,14 @@ int BbcMonDraw::Draw(const std::string &what)
     text = otext.str();
     //TextZvtxStatus[0]->SetText(0.0, 0.85, text.c_str());
     TextZvtxStatus[0]->SetText(-230., maxEntries*0.8, text.c_str());
-    TextZvtxStatus[0]->SetTextSize(0.12);
+    TextZvtxStatus[0]->SetTextSize(0.10);
     TextZvtxStatus[0]->Draw();
 
     otext.str("");
     otext << "#sigma = " << int(FitZvtx->GetParameter(2)) << " cm";
+    text = otext.str();
     TextZvtxStatus[1]->SetText(100., maxEntries*0.8, text.c_str());
-    TextZvtxStatus[1]->SetTextSize(0.12);
+    TextZvtxStatus[1]->SetTextSize(0.10);
     TextZvtxStatus[1]->Draw();
 
     //chiu TextBbcSummaryTrigRate->Draw();
