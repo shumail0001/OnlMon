@@ -66,8 +66,9 @@ void StartPoms()
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("INTT", "intt");
-  subsys->AddAction("inttDraw(\"chip_hitmap\")", "INTT Chip Hitmap");
-  subsys->AddAction("inttDraw(\"ladder_hitmap\")", "INTT ladder Hitmap");
+  subsys->AddAction("inttDraw(\"chip_hitmap\")", "Chip Hitmap");
+  subsys->AddAction("inttDraw(\"ladder_hitmap\")", "Ladder Hitmap");
+  subsys->AddAction("inttDraw(\"chip_nll\")", "Chip NLL");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
