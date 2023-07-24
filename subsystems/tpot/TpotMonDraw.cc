@@ -54,7 +54,7 @@ namespace
     auto out = dynamic_cast<TPad*>( parent->FindObject( transparent_name.c_str() ) );
 
     if( !out ) std::cout << "get_transparent_pad - " << transparent_name << " not found" << std::endl;
-    if( clear ) out->Clear("D");
+    if( out && clear ) out->Clear("D");
     return out;
 
   }
@@ -115,6 +115,19 @@ namespace
 TpotMonDraw::TpotMonDraw(const std::string &name)
   : OnlMonDraw(name)
 {
+  // setup default filename for reference histograms
+  const auto tpotcalibref = getenv("TPOTCALIBREF");
+  if( tpotcalibref )
+  {
+    m_ref_histograms_filename = std::string(tpotcalibref) + "/" + "Run_00000-TPOTMON_0.root";
+    std::cout << "TpotMon::TpotMon - reading reference histograms from: " << m_ref_histograms_filename << std::endl;
+    m_ref_histograms_tfile.reset( TFile::Open( m_ref_histograms_filename.c_str(), "READ" ) );
+  } else {
+    m_ref_histograms_filename = "Run_00000-TPOTMON_0.root";
+    std::cout << "TpotMon::TpotMon - TPOTCALIBREF environment variable not set. Reading reference histograms from: " << m_ref_histograms_filename << std::endl;
+    m_ref_histograms_tfile.reset( TFile::Open( m_ref_histograms_filename.c_str(), "READ" ) );
+  }
+  
   // this TimeOffsetTicks is neccessary to get the time axis right
   TDatime T0(2003, 01, 01, 00, 00, 00);
   TimeOffsetTicks = T0.Convert();
@@ -129,6 +142,48 @@ TpotMonDraw::TpotMonDraw(const std::string &name)
 //__________________________________________________________________________________
 int TpotMonDraw::Init()
 { return 0; }
+
+//__________________________________________________________________________________
+int TpotMonDraw::DrawDeadServer( TPad* pad )
+{
+  if( !pad ) 
+  {
+    if( Verbosity() ) std::cout << "TpotMonDraw::DrawDeadServer - invalid pad" << std::endl;
+    return 0;
+  } else {  
+    pad->SetPad(0,0,1,1);
+    return OnlMonDraw::DrawDeadServer( pad );
+  }
+}
+
+//__________________________________________________________________________________
+void TpotMonDraw::draw_time( TPad* pad )
+{
+  if( !pad ) 
+  {
+    if( Verbosity() ) std::cout << "TpotMonDraw::draw_time - invalid pad" << std::endl;
+    return;
+  }
+  
+  pad->SetPad( 0, 0.94, 1, 1 );
+  pad->Clear();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.6);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+
+  std::ostringstream runnostream;
+  auto cl = OnlMonClient::instance();
+  time_t evttime = cl->EventTime("TPOTMON_0", "CURRENT");
+
+  runnostream
+    << ThisName << " Run " << cl->RunNumber()
+    << ", Time: " << ctime(&evttime);
+
+  pad->cd();
+  PrintRun.DrawText(0.5, 0.5, runnostream.str().c_str());
+}
 
 //__________________________________________________________________________________
 TCanvas* TpotMonDraw::get_canvas(const std::string& name, bool clear )
@@ -156,9 +211,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT event counters", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 1, 1 );
+    create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -167,9 +221,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT detector occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 1, 2 );
+    create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -179,9 +232,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT resist occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 1, 2 );
+    create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -190,9 +242,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name);
     for( int i = 0; i < 16; ++i )
     {
       cv->GetPad(i+1)->SetLeftMargin(0.15);
@@ -206,9 +257,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon counts vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name);
     for( int i = 0; i < 16; ++i )
     {
       auto&& pad = cv->GetPad(i+1);
@@ -224,9 +274,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -235,9 +284,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit multiplicity", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -246,9 +294,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name)->Draw();
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -268,8 +315,7 @@ int TpotMonDraw::Draw(const std::string &what)
 
   {
     // get counters
-    const auto cl = OnlMonClient::instance();
-    const auto m_counters = cl->getHisto("TPOTMON_0","m_counters");
+    const auto m_counters = get_histogram( "m_counters");
     if( m_counters && Verbosity() )
     {
       const int events = m_counters->GetBinContent( TpotMonDefs::kEventCounter );
@@ -323,7 +369,7 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_counts_vs_sample")
   {
-    iret += draw_array("TPOT_counts_vs_sample", get_histograms( "m_counts_sample" ) );
+    iret += draw_array("TPOT_counts_vs_sample", get_histograms( "m_counts_sample" ), get_ref_histograms_scaled( "m_counts_sample" ) );
     auto cv = get_canvas("TPOT_counts_vs_sample");
     if( cv )
     {
@@ -349,20 +395,19 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_hit_charge")
   {
-    iret += draw_array("TPOT_hit_charge", get_histograms( "m_hit_charge" ), DrawOptions::Logy );
+    iret += draw_array("TPOT_hit_charge", get_histograms( "m_hit_charge" ), get_ref_histograms_scaled( "m_hit_charge" ), DrawOptions::Logy );
     ++idraw;
   }
 
   if (what == "ALL" || what == "TPOT_hit_multiplicity")
   {
-    iret += draw_array("TPOT_hit_multiplicity", get_histograms( "m_hit_multiplicity" ), DrawOptions::Logy );
-        
+    iret += draw_array("TPOT_hit_multiplicity", get_histograms( "m_hit_multiplicity" ), get_ref_histograms_scaled( "m_hit_multiplicity" ), DrawOptions::Logy );
     ++idraw;
   }
 
   if (what == "ALL" || what == "TPOT_hit_vs_channel")
   {
-    iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ) );
+    iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ), get_ref_histograms_scaled( "m_hit_vs_channel" ) );
     auto cv = get_canvas("TPOT_hit_vs_channel");
     if( cv )
     {
@@ -465,36 +510,14 @@ int TpotMonDraw::MakeHtml(const std::string &what)
 }
 
 //__________________________________________________________________________________
-void TpotMonDraw::draw_time( TPad* pad )
-{
-  pad->Clear();
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-
-  std::ostringstream runnostream;
-  auto cl = OnlMonClient::instance();
-  time_t evttime = cl->EventTime("TPOTMON_0", "CURRENT");
-
-  runnostream
-    << ThisName << " Run " << cl->RunNumber()
-    << ", Time: " << ctime(&evttime);
-
-  pad->cd();
-  PrintRun.DrawText(0.5, 0.98, runnostream.str().c_str());
-}
-
-//__________________________________________________________________________________
 int TpotMonDraw::draw_counters()
 {
 
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_counters" << std::endl;
 
   // get histograms
-  auto cl = OnlMonClient::instance();
-  auto m_counters =  cl->getHisto("TPOTMON_0","m_counters");
+  auto m_counters =  get_histogram( "m_counters");  
+  std::unique_ptr<TH1> m_counters_ref( normalize( get_ref_histogram( "m_counters" ), get_ref_scale_factor() ) );
 
   auto cv = get_canvas("TPOT_counters");
   auto transparent = get_transparent_pad( cv, "TPOT_counters");
@@ -512,10 +535,18 @@ int TpotMonDraw::draw_counters()
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
     m_counters->DrawCopy();
-    if( transparent ) draw_time(transparent);
+    
+    if( m_counters_ref ) 
+    {
+      m_counters_ref->SetLineColor(2);
+      m_counters_ref->DrawCopy( "hist same" );
+    }
+    
+    draw_time(transparent);
     return 0;
   } else {
-    if( transparent ) DrawDeadServer(transparent);
+    
+    DrawDeadServer(transparent);
     return -1;
   }
 }
@@ -527,12 +558,12 @@ int TpotMonDraw::draw_detector_occupancy()
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_detector_occupancy" << std::endl;
 
   // get histograms
-  auto cl = OnlMonClient::instance();
-  auto m_detector_occupancy_phi =  cl->getHisto("TPOTMON_0","m_detector_occupancy_phi");
-  auto m_detector_occupancy_z =  cl->getHisto("TPOTMON_0","m_detector_occupancy_z");
+  auto m_detector_occupancy_phi =  get_histogram( "m_detector_occupancy_phi");
+  auto m_detector_occupancy_z =  get_histogram( "m_detector_occupancy_z");
 
+  // turn off stat panel
   for( const auto& h:{m_detector_occupancy_phi,m_detector_occupancy_z} )
-  { h->SetStats(0); }
+  { if(h) h->SetStats(0); }
   
   auto cv = get_canvas("TPOT_detector_occupancy");
   auto transparent = get_transparent_pad( cv, "TPOT_detector_occupancy");
@@ -558,12 +589,12 @@ int TpotMonDraw::draw_detector_occupancy()
     m_detector_occupancy_phi->DrawCopy( "colz" );
     draw_detnames_sphenix( "P" );
 
-    if( transparent ) draw_time(transparent);
+    draw_time(transparent);
     return 0;
 
   } else {
 
-    if( transparent ) DrawDeadServer(transparent);
+    DrawDeadServer(transparent);
     return -1;
 
   }
@@ -576,12 +607,13 @@ int TpotMonDraw::draw_resist_occupancy()
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_resist_occupancy" << std::endl;
 
   // get histograms
-  auto cl = OnlMonClient::instance();
-  auto m_resist_occupancy_phi =  cl->getHisto("TPOTMON_0","m_resist_occupancy_phi");
-  auto m_resist_occupancy_z =  cl->getHisto("TPOTMON_0","m_resist_occupancy_z");
-  for( const auto& h:{m_resist_occupancy_phi,m_resist_occupancy_z} )
-  { h->SetStats(0); }
+  auto m_resist_occupancy_phi =  get_histogram( "m_resist_occupancy_phi");
+  auto m_resist_occupancy_z =  get_histogram( "m_resist_occupancy_z");
 
+  // turn off stat panel
+  for( const auto& h:{m_resist_occupancy_phi,m_resist_occupancy_z} )
+  { if(h) h->SetStats(0); }
+    
   auto cv = get_canvas("TPOT_resist_occupancy");
   auto transparent = get_transparent_pad( cv, "TPOT_resist_occupancy");
   if( !cv )
@@ -606,14 +638,12 @@ int TpotMonDraw::draw_resist_occupancy()
     m_resist_occupancy_phi->DrawCopy( "colz" );
     draw_detnames_sphenix( "P" );
 
-    if( transparent ) draw_time(transparent);
+    draw_time(transparent);
     return 0;
 
   } else {
-
-    if( transparent ) DrawDeadServer(transparent);
+    DrawDeadServer(transparent);
     return -1;
-
   }
 }
 
@@ -626,7 +656,6 @@ void TpotMonDraw::draw_detnames_sphenix( const std::string& suffix)
     const auto name = m_geometry.get_detname_sphenix(i)+suffix;
     const auto [x,y] = m_geometry.get_tile_center(i);
     auto text = new TText();
-    // text->SetNDC( true );
     text->DrawText( x-0.8*m_geometry.m_tile_length/2, y-0.8*m_geometry.m_tile_width/2, name.c_str() );
     text->Draw();
   }
@@ -634,16 +663,21 @@ void TpotMonDraw::draw_detnames_sphenix( const std::string& suffix)
 }
 
 //__________________________________________________________________________________
-TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& name )
+TH1* TpotMonDraw::get_histogram( const std::string& name ) const
+{
+  auto cl = OnlMonClient::instance();
+  return cl->getHisto("TPOTMON_0", name );
+}
+
+//__________________________________________________________________________________
+TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& name ) const
 {
   histogram_array_t out{{nullptr}};
-
-  auto cl = OnlMonClient::instance();
   for( size_t i=0; i<m_detnames_sphenix.size(); ++i)
   {
     const auto& detector_name=m_detnames_sphenix[i];
     const auto hname = name + "_" + detector_name;
-    out[i] =  cl->getHisto("TPOTMON_0", hname );
+    out[i] =  get_histogram(  hname );
     if( Verbosity() )
     { std::cout << "TpotMonDraw::get_histograms - " << hname << (out[i]?" found":" not found" ) << std::endl; }
   }
@@ -652,7 +686,63 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& n
 }
 
 //__________________________________________________________________________________
-int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogram_array_t& histograms, unsigned int options )
+TH1* TpotMonDraw::get_ref_histogram( const std::string& name ) const
+{ return m_ref_histograms_tfile ? static_cast<TH1*>( m_ref_histograms_tfile->Get( name.c_str() ) ):nullptr; }
+
+//__________________________________________________________________________________
+TpotMonDraw::histogram_array_t TpotMonDraw::get_ref_histograms( const std::string& name ) const
+{
+  histogram_array_t out{{nullptr}};
+  for( size_t i=0; i<m_detnames_sphenix.size(); ++i)
+  {
+    const auto& detector_name=m_detnames_sphenix[i];
+    const auto hname = name + "_" + detector_name;
+    out[i] =  get_ref_histogram(  hname );
+    if( Verbosity() )
+    { std::cout << "TpotMonDraw::get_ref_histograms - " << hname << (out[i]?" found":" not found" ) << std::endl; }
+  }
+
+  return out;
+}
+
+//__________________________________________________________________________________
+TpotMonDraw::histogram_array_t TpotMonDraw::get_ref_histograms_scaled( const std::string& name ) const
+{
+  histogram_array_t source( get_ref_histograms( name ) );
+  histogram_array_t out{{nullptr}};
+  
+  const double scale = get_ref_scale_factor();
+  for( size_t i=0; i<source.size(); ++i)
+  { if( source[i] ) out[i]=normalize( source[i], scale ); } 
+
+  return out;
+}
+
+//__________________________________________________________________________________
+double TpotMonDraw::get_ref_scale_factor() const
+{
+  if( !m_ref_histograms_tfile ) return 0;
+  const auto m_counters = get_histogram( "m_counters");
+  const auto m_counters_ref = get_ref_histogram( "m_counters");
+  if( !( m_counters && m_counters_ref ) ) return 0;
+  
+  const double full_events = m_counters->GetBinContent( TpotMonDefs::kFullEventCounter );
+  const double full_events_ref = m_counters_ref->GetBinContent( TpotMonDefs::kFullEventCounter );
+  return full_events_ref > 0 ? full_events/full_events_ref : 0;
+}
+
+//__________________________________________________________________________________
+TH1* TpotMonDraw::normalize( TH1* source, double scale ) const
+{
+  if( !source ) return nullptr;
+  auto destination = static_cast<TH1*>( source->Clone() );
+  destination->SetName( TString( source->GetName() )+"_scaled" );
+  destination->Scale( scale );
+  return destination;
+}
+
+//__________________________________________________________________________________
+int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogram_array_t& histograms, const TpotMonDraw::histogram_array_t& ref_histograms, unsigned int options )
 {
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_array - name: " << name << std::endl;
 
@@ -669,6 +759,14 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
       cv->cd(i+1);
       if( options&DrawOptions::Colz ) histograms[i]->DrawCopy( "col" );
       else histograms[i]->DrawCopy();
+
+      // also draw reference
+      if( ref_histograms[i] )
+      {
+        ref_histograms[i]->SetLineColor(2);
+        ref_histograms[i]->Draw("hist same" );
+      }
+      
       gPad->SetBottomMargin(0.12);
       if( options&DrawOptions::Logx ) gPad->SetLogx( true );
       if( options&DrawOptions::Logy && histograms[i]->GetEntries() > 0 ) gPad->SetLogy( true );
@@ -679,10 +777,14 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
 
   if( drawn )
   {
-    if( transparent ) draw_time(transparent);
+    draw_time(transparent);
     return 0;
   } else {
-    if( transparent ) DrawDeadServer(transparent);
+    DrawDeadServer(transparent);
     return -1;
   }
+  
+  // need to delete reference histograms to avoid leak
+  for( auto h:ref_histograms ) { delete h; }
+  
 }
