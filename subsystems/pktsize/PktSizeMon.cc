@@ -18,8 +18,6 @@
 const char *histoname = "pktsize_hist";
 const int NUPDATE = 1000;
 
-using namespace std;
-
 PktSizeMon::PktSizeMon(const std::string &name)
   : OnlMon(name)
   , nevnts(0)
@@ -79,7 +77,7 @@ int PktSizeMon::process_event(Event *e)
   int nw = e->getPacketList(plist, 10000);
   if (nw >= 10000)
   {
-    ostringstream errmsg;
+    std::ostringstream errmsg;
     errmsg << "Packet array too small, need at least " << nw << " entries";
     OnlMonServer *se = OnlMonServer::instance();
     se->send_message(this, MSG_SOURCE_DAQMON, MSG_SEV_ERROR, errmsg.str(), 1);
@@ -87,13 +85,13 @@ int PktSizeMon::process_event(Event *e)
   }
   int packetid;
   unsigned int size;
-  map<unsigned int, unsigned int>::iterator mapiter;
+  std::map<unsigned int, unsigned int>::iterator mapiter;
   for (int i = 0; i < nw; i++)
   {
     packetid = plist[i]->getIdentifier();
     size = (plist[i]->getLength());
     packetsize[packetid] += size;
-    //      string dcmgrp = dcmgroups[packetid];
+    //      std::string dcmgrp = dcmgroups[packetid];
     //      dcmgroupsize[dcmgrp] += size;
     //       mapiter = packetsize.find(packetid);
     //       if (mapiter != packetsize.end())
@@ -111,7 +109,7 @@ int PktSizeMon::process_event(Event *e)
   {
     if (verbosity > 0)
     {
-      cout << "putting map into histos" << endl;
+      std::cout << "putting map into histos" << std::endl;
     }
     putmapinhisto();
   }
@@ -134,7 +132,7 @@ int PktSizeMon::putmapinhisto()
     se->registerHisto(this->Name(), histoname, newhist, 1);
     sizehist = newhist;
   }
-  map<unsigned int, unsigned int>::const_iterator mapiter;
+  std::map<unsigned int, unsigned int>::const_iterator mapiter;
   int nbin = 1;
   double aversize;
   sizehist->SetBinContent(0, nevnts);  // fill number of evts into 0th bin
@@ -148,86 +146,86 @@ int PktSizeMon::putmapinhisto()
   return 0;
 }
 
-void PktSizeMon::Print(const string &what)
+void PktSizeMon::Print(const std::string &what)
 {
   if (what == "ALL")
   {
-    map<unsigned int, unsigned int>::const_iterator mapiter;
+    std::map<unsigned int, unsigned int>::const_iterator mapiter;
     for (mapiter = packetsize.begin(); mapiter != packetsize.end(); ++mapiter)
     {
-      cout << "Packet " << mapiter->first
+      std::cout << "Packet " << mapiter->first
            << ", SumBytes " << mapiter->second
            << ", Average " << (float) (mapiter->second) / (float) (nevnts)
-           << endl;
+           << std::endl;
       if (dcmgroups.find(mapiter->first) == dcmgroups.end())
       {
-        cout << "could not find dcm group for packet " << mapiter->first << endl;
+        std::cout << "could not find dcm group for packet " << mapiter->first << std::endl;
       }
       else
       {
-        string dcmgrp = dcmgroups[mapiter->first];
+        std::string dcmgrp = dcmgroups[mapiter->first];
         dcmgroupsize[dcmgrp] += mapiter->second;
-        string fibergrp = fibergroups[mapiter->first];
+        std::string fibergrp = fibergroups[mapiter->first];
         fibergroupsize[fibergrp] += mapiter->second;
       }
     }
 
-    map<string, unsigned int>::const_iterator iter;
+    std::map<std::string, unsigned int>::const_iterator iter;
     for (iter = dcmgroupsize.begin(); iter != dcmgroupsize.end(); ++iter)
     {
-      cout << "DCM group " << iter->first
+      std::cout << "DCM group " << iter->first
            << ", SumBytes " << iter->second
            << ", Average " << (float) (iter->second) / (float) (nevnts)
-           << endl;
+           << std::endl;
     }
 
     for (iter = fibergroupsize.begin(); iter != fibergroupsize.end(); ++iter)
     {
-      cout << "Fiber group " << iter->first
+      std::cout << "Fiber group " << iter->first
            << ", SumBytes " << iter->second
            << ", Average " << (float) (iter->second) / (float) (nevnts)
-           << endl;
+           << std::endl;
     }
   }
   if (what == "GRANULES")
   {
-    map<string, pair<unsigned int, unsigned int> >::const_iterator mapiter;
+    std::map<std::string, std::pair<unsigned int, unsigned int> >::const_iterator mapiter;
     for (mapiter = granulepacketlimits.begin(); mapiter != granulepacketlimits.end(); ++mapiter)
     {
-      cout << "Granule " << mapiter->first
+      std::cout << "Granule " << mapiter->first
            << ", Min Packet " << mapiter->second.first
            << ", Max Packet " << mapiter->second.second
-           << endl;
+           << std::endl;
     }
   }
   if (what == "SORT")
   {
-    multimap<double, int> sortlist;
-    map<unsigned int, unsigned int>::const_iterator mapiter;
+    std::multimap<double, int> sortlist;
+    std::map<unsigned int, unsigned int>::const_iterator mapiter;
     for (mapiter = packetsize.begin(); mapiter != packetsize.end(); ++mapiter)
     {
       double aversize = (double) (mapiter->second) / (double) (nevnts);
-      sortlist.insert(pair<double, int>(aversize, mapiter->first));
+      sortlist.insert(std::pair<double, int>(aversize, mapiter->first));
     }
-    multimap<double, int>::const_iterator mmapiter;
+    std::multimap<double, int>::const_iterator mmapiter;
     for (mmapiter = sortlist.begin(); mmapiter != sortlist.end(); ++mmapiter)
     {
-      cout << "Packet " << mmapiter->second
+      std::cout << "Packet " << mmapiter->second
            << " Size: " << mmapiter->first
            << " Bytes "
-           << endl;
+           << std::endl;
     }
   }
   if (what == "DCMGROUP")
   {
-    map<string, set<unsigned int> > dcms;
-    map<unsigned int, string>::const_iterator iter;
+    std::map<std::string, std::set<unsigned int> > dcms;
+    std::map<unsigned int, std::string>::const_iterator iter;
     for (iter = dcmgroups.begin(); iter != dcmgroups.end(); ++iter)
     {
-      map<string, set<unsigned int> >::iterator iter2 = dcms.find(iter->second);
+      std::map<std::string, std::set<unsigned int> >::iterator iter2 = dcms.find(iter->second);
       if (iter2 == dcms.end())
       {
-        set<unsigned int> newset;
+        std::set<unsigned int> newset;
         newset.insert(iter->first);
         dcms[iter->second] = newset;
       }
@@ -236,16 +234,16 @@ void PktSizeMon::Print(const string &what)
         (iter2->second).insert(iter->first);
       }
     }
-    map<string, set<unsigned int> >::const_iterator iter3;
-    set<unsigned int>::const_iterator iter4;
+    std::map<std::string, std::set<unsigned int> >::const_iterator iter3;
+    std::set<unsigned int>::const_iterator iter4;
     for (iter3 = dcms.begin(); iter3 != dcms.end(); ++iter3)
     {
-      cout << "dcm group " << iter3->first << " packets: " << endl;
+      std::cout << "dcm group " << iter3->first << " packets: " << std::endl;
       for (iter4 = (iter3->second).begin(); iter4 != (iter3->second).end(); ++iter4)
       {
-        cout << *iter4 << " ";
+        std::cout << *iter4 << " ";
       }
-      cout << endl;
+      std::cout << std::endl;
     }
   }
   return;
@@ -253,11 +251,11 @@ void PktSizeMon::Print(const string &what)
 
 int PktSizeMon::UpdateDB(const int runno)
 {
-  map<string, pair<unsigned int, unsigned int> >::const_iterator graniter;
-  string name;
+  std::map<std::string, std::pair<unsigned int, unsigned int> >::const_iterator graniter;
+  std::string name;
   unsigned int lolim, hilim;
-  map<unsigned int, unsigned int> granpackets;
-  map<unsigned int, unsigned int>::iterator piter0, piter1, piter2;
+  std::map<unsigned int, unsigned int> granpackets;
+  std::map<unsigned int, unsigned int>::iterator piter0, piter1, piter2;
   for (graniter = granulepacketlimits.begin(); graniter != granulepacketlimits.end(); ++graniter)
   {
     name = graniter->first;
@@ -270,15 +268,15 @@ int PktSizeMon::UpdateDB(const int runno)
       {
         piter2 = packetsize.upper_bound(hilim);
         --piter2;
-        cout << "Name: " << name << " first packet: " << piter1->first
-             << " last packet: " << piter2->first << endl;
+        std::cout << "Name: " << name << " first packet: " << piter1->first
+             << " last packet: " << piter2->first << std::endl;
       }
     }
     else
     {
       if (verbosity > 0)
       {
-        cout << "Name: " << name << " No packet found" << endl;
+        std::cout << "Name: " << name << " No packet found" << std::endl;
       }
       continue;
     }
@@ -292,12 +290,12 @@ int PktSizeMon::UpdateDB(const int runno)
   }
   if (packetsize.size() > 0)
   {
-    cout << "Non assigned packets found" << endl;
+    std::cout << "Non assigned packets found" << std::endl;
     for (piter0 = packetsize.begin(); piter0 != packetsize.end(); ++piter0)
     {
-      cout << "Packet ID: " << piter0->first << endl;
+      std::cout << "Packet ID: " << piter0->first << std::endl;
     }
-    ostringstream errmsg;
+    std::ostringstream errmsg;
     errmsg << "PktSizeMon::UpdateDB() unassigned packets found:";
     for (piter0 = packetsize.begin(); piter0 != packetsize.end(); ++piter0)
     {

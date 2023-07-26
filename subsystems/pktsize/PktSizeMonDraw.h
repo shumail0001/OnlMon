@@ -17,7 +17,7 @@ class TText;
 class PktSizeMonDraw : public OnlMonDraw
 {
  public:
-  PktSizeMonDraw(const char *name = "PKTSIZEMON");
+  PktSizeMonDraw(const std::string &name = "PKTSIZEMON");
   virtual ~PktSizeMonDraw();
 
   int Init();

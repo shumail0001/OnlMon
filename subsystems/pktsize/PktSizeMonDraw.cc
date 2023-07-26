@@ -25,8 +25,6 @@
 #include <iomanip>
 #include <sstream>
 
-using namespace std;
-
 // make history for currently noisy packets, not packets whose size has
 // changed significantly with respect to previous runs
 #define CURRENTNOISY
@@ -36,7 +34,7 @@ static float MAXSIZEDISP = 1000.;
 static float MAXPKTDISP = 26000.;
 static float GRANTXTOFFSET = 20.;
 
-PktSizeMonDraw::PktSizeMonDraw(const char *name)
+PktSizeMonDraw::PktSizeMonDraw(const std::string &name)
   : OnlMonDraw(name)
 {
   memset(transparent, 0, sizeof(transparent));
@@ -114,7 +112,7 @@ int PktSizeMonDraw::Draw(const std::string &what)
   }
   if (!idraw)
   {
-    cout << PHWHERE << " Unimplemented Drawing option: " << what << endl;
+    std::cout << PHWHERE << " Unimplemented Drawing option: " << what << std::endl;
     iret = -1;
   }
   return iret;
@@ -142,7 +140,7 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
   PrintRun.SetTextSize(0.03);
   PrintRun.SetNDC();          // set to normalized coordinates
   PrintRun.SetTextAlign(23);  // center/top alignment
-  ostringstream runnostream;
+  std::ostringstream runnostream;
   time_t evttime = cl->EventTime("PKTSIZE_MON_0", "CURRENT");
   // fill run number and event time into string
   int runnumber = cl->RunNumber();
@@ -176,8 +174,8 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
 
   ta.SetLineColor(2);
   ta.SetLineStyle(1);
-  map<int, map<unsigned int, float> >::const_iterator iter;
-  map<unsigned int, float>::const_iterator piter;
+  std::map<int, std::map<unsigned int, float> >::const_iterator iter;
+  std::map<unsigned int, float>::const_iterator piter;
   iter = packetmap.find(runnumber);
   float ypos = MAXSIZEDISP - 100.;
   int foundnoisypacket = 0;
@@ -194,8 +192,8 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
         {
           float linetopend = 9;
           marker.DrawMarker((double) (piter->first), piter->second);
-          ostringstream pktid;
-          pktid << setprecision(3) << piter->first << "(" << piter->second << " w)";
+          std::ostringstream pktid;
+          pktid << std::setprecision(3) << piter->first << "(" << piter->second << " w)";
           int xpos = ((piter->first) / 1000) * 1000;
           if (xpos == 21000)
           {
@@ -244,7 +242,7 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
   TText granlabel;
   granlabel.SetTextAlign(12);
   granlabel.SetTextAngle(90);
-  map<string, pair<unsigned int, unsigned int> >::const_iterator graniter;
+  std::map<std::string, std::pair<unsigned int, unsigned int> >::const_iterator graniter;
   for (graniter = granulepacketlimits.begin(); graniter != granulepacketlimits.end(); ++graniter)
   {
     granlabel.SetTextSize(0.03);
@@ -304,7 +302,7 @@ int PktSizeMonDraw::FillPacketMap(const TH1 *pktsize_hist)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   int runnumber = cl->RunNumber();
-  map<int, map<unsigned int, float> >::iterator iter;
+  std::map<int, std::map<unsigned int, float> >::iterator iter;
   iter = packetmap.find(runnumber);
   if (iter != packetmap.end())
   {
@@ -312,7 +310,7 @@ int PktSizeMonDraw::FillPacketMap(const TH1 *pktsize_hist)
   }
   else
   {
-    map<unsigned int, float> newmap;
+    std::map<unsigned int, float> newmap;
     packetmap[runnumber] = newmap;
     iter = packetmap.find(runnumber);
   }
@@ -391,7 +389,7 @@ int PktSizeMonDraw::MakeHtml(const std::string &what)
   OnlMonClient *cl = OnlMonClient::instance();
 
   // Register the 1st canvas png file to the menu and produces the png file.
-  string pngfile = cl->htmlRegisterPage(*this, "PktSize", "1", "png");
+  std::string pngfile = cl->htmlRegisterPage(*this, "PktSize", "1", "png");
   cl->CanvasToPng(TC[0], pngfile);
   pngfile = cl->htmlRegisterPage(*this, "History", "2", "png");
   cl->CanvasToPng(TC[1], pngfile);
@@ -458,7 +456,7 @@ int PktSizeMonDraw::DrawHistory(const std::string & /* what */)
   PrintRun.SetNDC();          // set to normalized coordinates
   PrintRun.SetTextAlign(23);  // center/top alignment
   int runnumber = cl->RunNumber();
-  ostringstream runnostream;
+  std::ostringstream runnostream;
   time_t evttime = cl->EventTime("PKTSIZEMON_0", "CURRENT");
   runnostream << "Packet Size History Run " << runnumber
               << ", Time: " << ctime(&evttime);
@@ -475,7 +473,7 @@ int PktSizeMonDraw::DrawHistory(const std::string & /* what */)
   TGraph gr;
   TMarker tr;
   TText tx;
-  set<unsigned int>::const_iterator iter;
+  std::set<unsigned int>::const_iterator iter;
   int icnt = 0;
   for (iter = noisypackets.begin(); iter != noisypackets.end(); ++iter)
   {
@@ -491,12 +489,12 @@ int PktSizeMonDraw::DrawHistory(const std::string & /* what */)
 
 int PktSizeMonDraw::loadpreviousruns(const int nruns)
 {
-  set<int>::const_iterator iter;
+  std::set<int>::const_iterator iter;
   rd->GetRunNumbers(runlist, "PHYSICS", nruns, lastrun);
 
   for (iter = runlist.begin(); iter != runlist.end(); ++iter)
   {
-    map<unsigned int, float> pkts;
+    std::map<unsigned int, float> pkts;
     FillRunPacketList(pkts, *iter);
     packetmap[*iter] = pkts;
   }
@@ -511,7 +509,7 @@ int PktSizeMonDraw::AddKnownBig(const unsigned int packetid, const float maxsize
 
 int PktSizeMonDraw::IsKnownBig(const unsigned int packetid, const float size)
 {
-  map<unsigned int, float>::const_iterator iter = knownbig.find(packetid);
+  std::map<unsigned int, float>::const_iterator iter = knownbig.find(packetid);
   if (iter != knownbig.end())
   {
     if (iter->second > size)
@@ -524,15 +522,15 @@ int PktSizeMonDraw::IsKnownBig(const unsigned int packetid, const float size)
 
 int PktSizeMonDraw::ReplaceRunFromDB(const int runno)
 {
-  map<unsigned int, float> pkts;
+  std::map<unsigned int, float> pkts;
   FillRunPacketList(pkts, runno);
   packetmap[runno] = pkts;
   return 0;
 }
 
-int PktSizeMonDraw::FillRunPacketList(map<unsigned int, float> &pkts, const int runnumber)
+int PktSizeMonDraw::FillRunPacketList(std::map<unsigned int, float> &pkts, const int runnumber)
 {
-  map<string, std::pair<unsigned int, unsigned int> >::const_iterator graniter;
+  std::map<std::string, std::pair<unsigned int, unsigned int> >::const_iterator graniter;
   for (graniter = granulepacketlimits.begin(); graniter != granulepacketlimits.end(); ++graniter)
   {
     db->GetPacketContent(pkts, runnumber, graniter->first);
@@ -544,7 +542,7 @@ int PktSizeMonDraw::CleanOldRuns(const unsigned int maxrun)
 {
   if (verbosity > 0)
   {
-    cout << "Size before cleanup: " << packetmap.size() << endl;
+    std::cout << "Size before cleanup: " << packetmap.size() << std::endl;
   }
   while (packetmap.size() > maxrun + 1)  // current run is in this map -> maxrun+1
   {
@@ -554,14 +552,14 @@ int PktSizeMonDraw::CleanOldRuns(const unsigned int maxrun)
   }
   if (verbosity > 0)
   {
-    cout << "Size after cleanup: " << packetmap.size() << endl;
+    std::cout << "Size after cleanup: " << packetmap.size() << std::endl;
   }
   return 0;
 }
 
 int PktSizeMonDraw::RemoveRun(const int runno)
 {
-  map<int, map<unsigned int, float> >::iterator iter;
+  std::map<int, std::map<unsigned int, float> >::iterator iter;
   iter = packetmap.find(runno);
   if (iter != packetmap.end())
   {
@@ -570,43 +568,43 @@ int PktSizeMonDraw::RemoveRun(const int runno)
   }
   else
   {
-    cout << "Could not find run " << runno << " in list of runs" << endl;
+    std::cout << "Could not find run " << runno << " in list of runs" << std::endl;
   }
   return 0;
 }
 
-void PktSizeMonDraw::Print(const string &what) const
+void PktSizeMonDraw::Print(const std::string &what) const
 {
   if (what == "PACKETS" || what == "ALL")
   {
-    map<int, map<unsigned int, float> >::const_iterator iter;
-    map<unsigned int, float>::const_iterator piter;
+    std::map<int, std::map<unsigned int, float> >::const_iterator iter;
+    std::map<unsigned int, float>::const_iterator piter;
     for (iter = packetmap.begin(); iter != packetmap.end(); ++iter)
     {
       for (piter = iter->second.begin(); piter != iter->second.end(); ++piter)
       {
-        cout << "Run " << iter->first
+        std::cout << "Run " << iter->first
              << ", packetid: " << piter->first
              << ", size: " << piter->second
-             << endl;
+             << std::endl;
       }
     }
   }
   if (what == "RUNS" || what == "ALL")
   {
-    set<int>::const_iterator riter;
-    cout << "List of runs in Run set: " << endl;
+    std::set<int>::const_iterator riter;
+    std::cout << "List of runs in Run set: " << std::endl;
     for (riter = runlist.begin(); riter != runlist.end(); ++riter)
     {
-      cout << "Run " << *riter << endl;
+      std::cout << "Run " << *riter << std::endl;
     }
   }
   return;
 }
 
-int PktSizeMonDraw::ExtractActivePackets(const map<unsigned int, float> &packetsize)
+int PktSizeMonDraw::ExtractActivePackets(const std::map<unsigned int, float> &packetsize)
 {
-  map<unsigned int, float>::const_iterator piter;
+  std::map<unsigned int, float>::const_iterator piter;
   for (piter = packetsize.begin(); piter != packetsize.end(); ++piter)
   {
     activepackets.insert(piter->first);
@@ -620,8 +618,8 @@ int PktSizeMonDraw::MakeNoisyCandidates()
 #ifdef CURRENTNOISY
   OnlMonClient *cl = OnlMonClient::instance();
   int runnumber = cl->RunNumber();
-  map<int, map<unsigned int, float> >::const_iterator iter;
-  map<unsigned int, float>::const_iterator piter;
+  std::map<int, std::map<unsigned int, float> >::const_iterator iter;
+  std::map<unsigned int, float>::const_iterator piter;
   iter = packetmap.find(runnumber);
   if (iter != packetmap.end())
   {
@@ -638,9 +636,9 @@ int PktSizeMonDraw::MakeNoisyCandidates()
   }
 
 #else
-  set<unsigned int>::const_iterator piter;
-  map<int, map<unsigned int, float> >::const_iterator siter;
-  map<unsigned int, float>::const_iterator psizeiter;
+  std::set<unsigned int>::const_iterator piter;
+  std::map<int, std::map<unsigned int, float> >::const_iterator siter;
+  std::map<unsigned int, float>::const_iterator psizeiter;
   for (piter = activepackets.begin(); piter != activepackets.end(); ++piter)
   {
     float size = -1;
@@ -659,11 +657,11 @@ int PktSizeMonDraw::MakeNoisyCandidates()
           {
             if (verbosity > 0)
             {
-              cout << "Adding noisy packet " << *piter
+              std::cout << "Adding noisy packet " << *piter
                    << " old size " << size
                    << " current size " << psizeiter->second
                    << " current Run " << siter->first
-                   << endl;
+                   << std::endl;
             }
             noisypackets.insert(*piter);
           }
@@ -680,9 +678,9 @@ int PktSizeMonDraw::PlotNoisy(TGraph &gr, TMarker &tr, TText &tx, const unsigned
 {
   int imarker = 20;
   int icol = 1;
-  map<int, map<unsigned int, float> >::const_iterator siter;
-  map<unsigned int, float>::const_iterator psizeiter;
-  vector<double> runno, meansize;
+  std::map<int, std::map<unsigned int, float> >::const_iterator siter;
+  std::map<unsigned int, float>::const_iterator psizeiter;
+  std::vector<double> runno, meansize;
 
   for (siter = packetmap.begin(); siter != packetmap.end(); ++siter)
   {
@@ -711,7 +709,7 @@ int PktSizeMonDraw::PlotNoisy(TGraph &gr, TMarker &tr, TText &tx, const unsigned
   tr.SetMarkerStyle(imarker);
   tr.SetMarkerColor(icol);
   tr.DrawMarker(x[0], (MAXSIZEDISP - 100) - 20 * icnt);
-  ostringstream pktstring;
+  std::ostringstream pktstring;
   pktstring << ipkt;
   tx.SetTextColor(icol);
   tx.SetTextSize(0.03);

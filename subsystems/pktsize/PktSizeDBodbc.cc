@@ -19,12 +19,9 @@
 #include <set>
 #include <sstream>
 
-using namespace odbc;
-using namespace std;
+static odbc::Connection* con = nullptr;
 
-static Connection* con = nullptr;
-
-PktSizeDBodbc::PktSizeDBodbc(const string& name)
+PktSizeDBodbc::PktSizeDBodbc(const std::string& name)
   : OnlMonBase(name)
   , tableprefix(name)
 {
@@ -36,7 +33,7 @@ PktSizeDBodbc::~PktSizeDBodbc()
   con = nullptr;
 }
 
-int PktSizeDBodbc::CheckAndCreateTable(const string& name, const map<unsigned int, unsigned int>& packetsize)
+int PktSizeDBodbc::CheckAndCreateTable(const std::string& name, const std::map<unsigned int, unsigned int>& packetsize)
 {
   if (GetConnection())
   {
@@ -44,29 +41,29 @@ int PktSizeDBodbc::CheckAndCreateTable(const string& name, const map<unsigned in
   }
 
   // Postgres version
-  // cout << con->getMetaData()-> getDatabaseProductVersion() << endl;
-  Statement* stmt = con->createStatement();
-  ostringstream cmd;
+  // std::cout << con->getMetaData()-> getDatabaseProductVersion() << std::endl;
+  odbc::Statement* stmt = con->createStatement();
+  std::ostringstream cmd;
   //  cmd << "SELECT COUNT(*) FROM " << name << " WHERE 1 = 2" ;
   // cmd << "select " << name << " from pg_tables where schemaname='public";
-  string lowname = name;
+  std::string lowname = name;
   // The bizarre cast here is needed for newer gccs
   transform(lowname.begin(), lowname.end(), lowname.begin(), (int (*)(int)) tolower);
   cmd << "select * from pg_tables where tablename = '" << lowname << "'";
   //  cmd << "SELECT * FROM " << name << " LIMIT 1" ;
   if (verbosity > 0)
   {
-    cout << "cmd: " << cmd.str() << endl;
+    std::cout << "cmd: " << cmd.str() << std::endl;
   }
 
-  ResultSet* rs = nullptr;
+  odbc::ResultSet* rs = nullptr;
   try
   {
     rs = stmt->executeQuery(cmd.str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << name << " does not exist, creating it" << endl;
+    std::cout << name << " does not exist, creating it" << std::endl;
   }
   int iret = 0;
 
@@ -76,7 +73,7 @@ int PktSizeDBodbc::CheckAndCreateTable(const string& name, const map<unsigned in
     delete rs;
     rs = nullptr;
     cmd << "CREATE TABLE " << name << "(runnumber int NOT NULL, events int NOT NULL";
-    map<unsigned int, unsigned int>::const_iterator iter;
+    std::map<unsigned int, unsigned int>::const_iterator iter;
     for (iter = packetsize.begin(); iter != packetsize.end(); ++iter)
     {
       cmd << ", p_" << iter->first << " float DEFAULT 0";
@@ -84,48 +81,48 @@ int PktSizeDBodbc::CheckAndCreateTable(const string& name, const map<unsigned in
     cmd << ", primary key(runnumber))";
     if (verbosity > 0)
     {
-      cout << "Executing " << cmd.str() << endl;
+      std::cout << "Executing " << cmd.str() << std::endl;
     }
     try
     {
       iret = stmt->executeUpdate(cmd.str());
     }
-    catch (SQLException& e)
+    catch (odbc::SQLException& e)
     {
-      cout << "Exception caught, Message: " << e.getMessage() << endl;
+      std::cout << "Exception caught, Message: " << e.getMessage() << std::endl;
     }
   }
   delete stmt;
   return iret;
 }
 
-int PktSizeDBodbc::AddRow(const string& granulename, const int runnumber, const int nevnts, const map<unsigned int, unsigned int>& packetsize)
+int PktSizeDBodbc::AddRow(const std::string& granulename, const int runnumber, const int nevnts, const std::map<unsigned int, unsigned int>& packetsize)
 {
-  string table = tableprefix + granulename;
+  std::string table = tableprefix + granulename;
 
   CheckAndCreateTable(table, packetsize);
 
   int iret = 0;
-  ostringstream cmd;
+  std::ostringstream cmd;
 
   if (GetConnection())
   {
     return -1;
   }
 
-  Statement* stmt = con->createStatement();
+  odbc::Statement* stmt = con->createStatement();
 
   // check if an entry for this run exists already
   cmd << "SELECT events FROM " << table << " where runnumber = "
       << runnumber;
-  ResultSet* rs;
+  odbc::ResultSet* rs;
   try
   {
     rs = stmt->executeQuery(cmd.str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << "Exception caught, Message: " << e.getMessage() << endl;
+    std::cout << "Exception caught, Message: " << e.getMessage() << std::endl;
     return -1;
   }
   if (rs->next())
@@ -133,11 +130,11 @@ int PktSizeDBodbc::AddRow(const string& granulename, const int runnumber, const 
     int events = rs->getInt("events");
     if (nevnts <= events)
     {
-      cout << "Run " << runnumber << " already in table "
+      std::cout << "Run " << runnumber << " already in table "
            << table << " extracted from " << events << " Events"
-           << endl;
-      cout << "Run more events than " << events
-           << " if you want to overwrite this entry" << endl;
+           << std::endl;
+      std::cout << "Run more events than " << events
+           << " if you want to overwrite this entry" << std::endl;
       delete rs;
       return 0;
     }
@@ -145,7 +142,7 @@ int PktSizeDBodbc::AddRow(const string& granulename, const int runnumber, const 
     {
       cmd.str("");
       cmd << "DELETE FROM " << table << " WHERE runnumber = " << runnumber;
-      Statement* stmt2 = con->createStatement();
+      odbc::Statement* stmt2 = con->createStatement();
       stmt2->executeUpdate(cmd.str());
     }
   }
@@ -154,9 +151,9 @@ int PktSizeDBodbc::AddRow(const string& granulename, const int runnumber, const 
   CheckAndAddColumns(table, packetsize);
 
   // now add the content
-  map<unsigned int, unsigned int>::const_iterator iter;
+  std::map<unsigned int, unsigned int>::const_iterator iter;
   cmd.str("");
-  ostringstream cmd1, cmd2;
+  std::ostringstream cmd1, cmd2;
   cmd1 << "INSERT INTO " << table
        << " (runnumber, events";
   cmd2 << " VALUES(" << runnumber << ", " << nevnts;
@@ -175,45 +172,45 @@ int PktSizeDBodbc::AddRow(const string& granulename, const int runnumber, const 
   {
     stmt->executeUpdate(cmd.str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << "Exception caught, Message: " << e.getMessage() << endl;
+    std::cout << "Exception caught, Message: " << e.getMessage() << std::endl;
   }
 
   return iret;
 }
 
-int PktSizeDBodbc::GetPacketContent(map<unsigned int, float>& packetsize, const int runnumber, const string& granulename)
+int PktSizeDBodbc::GetPacketContent(std::map<unsigned int, float>& packetsize, const int runnumber, const std::string& granulename)
 {
   if (GetConnection())
   {
     return -1;
   }
   int iret = 0;
-  string table = tableprefix + granulename;
+  std::string table = tableprefix + granulename;
 
-  Statement* query = con->createStatement();
-  ostringstream cmd;
+  odbc::Statement* query = con->createStatement();
+  std::ostringstream cmd;
   cmd << "SELECT * FROM " << table << " WHERE runnumber = " << runnumber;
 
   if (verbosity > 0)
   {
-    cout << "command: " << cmd.str() << endl;
+    std::cout << "command: " << cmd.str() << std::endl;
   }
 
-  ResultSet* rs;
+  odbc::ResultSet* rs;
   try
   {
     rs = query->executeQuery(cmd.str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    const string& errmsg = e.getMessage();
-    if (errmsg.find("does not exist") == string::npos)
+    const std::string& errmsg = e.getMessage();
+    if (errmsg.find("does not exist") == std::string::npos)
     {
-      cout << "Exception caught, when accessing table "
-           << table << endl;
-      cout << "Message: " << e.getMessage() << endl;
+      std::cout << "Exception caught, when accessing table "
+           << table << std::endl;
+      std::cout << "Message: " << e.getMessage() << std::endl;
     }
     return -1;
   }
@@ -221,13 +218,13 @@ int PktSizeDBodbc::GetPacketContent(map<unsigned int, float>& packetsize, const 
   {
     for (int i = 1; i <= rs->getMetaData()->getColumnCount(); i++)
     {
-      string colname = rs->getMetaData()->getColumnName(i);
+      std::string colname = rs->getMetaData()->getColumnName(i);
       if (colname == "runnumber" || colname == "events")
       {
         continue;
       }
-      string packet = colname.substr(colname.find_last_of('_') + 1);
-      istringstream istr(packet);
+      std::string packet = colname.substr(colname.find_last_of('_') + 1);
+      std::istringstream istr(packet);
       unsigned int ipkt;
       istr >> ipkt;
       float size = rs->getFloat(colname);
@@ -250,13 +247,13 @@ int PktSizeDBodbc::GetConnection()
   }
   try
   {
-    con = DriverManager::getConnection(dbname.c_str(), dbowner.c_str(), dbpasswd.c_str());
+    con = odbc::DriverManager::getConnection(dbname.c_str(), dbowner.c_str(), dbpasswd.c_str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << PHWHERE
-         << " Exception caught during DriverManager::getConnection" << endl;
-    cout << "Message: " << e.getMessage() << endl;
+    std::cout << PHWHERE
+         << " Exception caught during DriverManager::getConnection" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
     if (con)
     {
       delete con;
@@ -268,49 +265,49 @@ int PktSizeDBodbc::GetConnection()
   return 0;
 }
 
-int PktSizeDBodbc::CheckAndAddColumns(const string& table, const map<unsigned int, unsigned int>& packetsize)
+int PktSizeDBodbc::CheckAndAddColumns(const std::string& table, const std::map<unsigned int, unsigned int>& packetsize)
 {
   if (GetConnection())
   {
     return -1;
   }
-  Statement* stmt = con->createStatement();
-  ostringstream cmd;
+  odbc::Statement* stmt = con->createStatement();
+  std::ostringstream cmd;
   cmd << "SELECT * FROM " << table << " limit 1 ";
-  ResultSet* rs;
+  odbc::ResultSet* rs;
   try
   {
     rs = stmt->executeQuery(cmd.str());
   }
-  catch (SQLException& e)
+  catch (odbc::SQLException& e)
   {
-    cout << "Exception caught, Message: " << e.getMessage() << endl;
+    std::cout << "Exception caught, Message: " << e.getMessage() << std::endl;
     return -1;
   }
-  map<unsigned int, unsigned int>::const_iterator iter;
-  set<unsigned int> packetids;
+  std::map<unsigned int, unsigned int>::const_iterator iter;
+  std::set<unsigned int> packetids;
   for (iter = packetsize.begin(); iter != packetsize.end(); ++iter)
   {
     packetids.insert(iter->first);
   }
   for (int i = 1; i <= rs->getMetaData()->getColumnCount(); i++)
   {
-    string colname = rs->getMetaData()->getColumnName(i);
+    std::string colname = rs->getMetaData()->getColumnName(i);
     if (colname == "runnumber" || colname == "events")
     {
       continue;
     }
-    string packet = colname.substr(colname.find_last_of('_') + 1);
-    istringstream istr(packet);
+    std::string packet = colname.substr(colname.find_last_of('_') + 1);
+    std::istringstream istr(packet);
     unsigned int ipkt;
     istr >> ipkt;
     packetids.erase(ipkt);
   }
   delete rs;
-  set<unsigned int>::const_iterator siter;
+  std::set<unsigned int>::const_iterator siter;
   for (siter = packetids.begin(); siter != packetids.end(); ++siter)
   {
-    ostringstream newcol;
+    std::ostringstream newcol;
     newcol.str("");
     newcol << "p_" << *siter;
     cmd.str("");
@@ -320,9 +317,9 @@ int PktSizeDBodbc::CheckAndAddColumns(const string& table, const map<unsigned in
     {
       stmt->executeUpdate(cmd.str());
     }
-    catch (SQLException& e)
+    catch (odbc::SQLException& e)
     {
-      cout << "Exception caught, Message: " << e.getMessage() << endl;
+      std::cout << "Exception caught, Message: " << e.getMessage() << std::endl;
     }
   }
   return 0;
