@@ -190,7 +190,7 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
       marker.SetMarkerStyle(22);
       marker.SetMarkerSize(2);
       marker.SetMarkerColor(2);
-      for (piter = iter->second.begin(); piter != iter->second.end(); piter++)
+      for (piter = iter->second.begin(); piter != iter->second.end(); ++piter)
         {
           if (piter->second > bytelimit)
             {
@@ -249,7 +249,7 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
   granlabel.SetTextAlign(12);
   granlabel.SetTextAngle(90);
   map<string, pair<unsigned int, unsigned int> >::const_iterator graniter;
-  for (graniter = granulepacketlimits.begin(); graniter != granulepacketlimits.end(); graniter++)
+  for (graniter = granulepacketlimits.begin(); graniter != granulepacketlimits.end(); ++graniter)
     {
       granlabel.SetTextSize(0.03);
       int xpos = ((graniter->second.first) / 1000) * 1000;
@@ -486,7 +486,7 @@ PktSizeMonDraw::DrawHistory(const std::string & /* what */)
   TText tx;
   set<unsigned int>::const_iterator iter;
   int icnt = 0;
-  for (iter = noisypackets.begin(); iter != noisypackets.end(); iter++)
+  for (iter = noisypackets.begin(); iter != noisypackets.end(); ++iter)
     {
       PlotNoisy(gr, tr, tx, *iter, icnt);
       icnt++;
@@ -504,7 +504,7 @@ PktSizeMonDraw::loadpreviousruns(const int nruns)
   set<int>::const_iterator iter;
   rd->GetRunNumbers(runlist, "PHYSICS", nruns, lastrun);
 
-  for (iter = runlist.begin(); iter != runlist.end(); iter++)
+  for (iter = runlist.begin(); iter != runlist.end(); ++iter)
     {
       map<unsigned int, float> pkts;
       FillRunPacketList(pkts, *iter);
@@ -548,7 +548,7 @@ int
 PktSizeMonDraw::FillRunPacketList(map<unsigned int, float> &pkts, const int runnumber)
 {
   map<string, std::pair<unsigned int, unsigned int> >::const_iterator graniter;
-  for (graniter = granulepacketlimits.begin(); graniter != granulepacketlimits.end(); graniter++)
+  for (graniter = granulepacketlimits.begin(); graniter != granulepacketlimits.end(); ++graniter)
     {
       db->GetPacketContent(pkts, runnumber, graniter->first);
     }
@@ -600,9 +600,9 @@ PktSizeMonDraw::Print(const string &what) const
     {
       map<int, map<unsigned int, float> >::const_iterator iter;
       map<unsigned int, float>::const_iterator piter;
-      for (iter = packetmap.begin(); iter != packetmap.end(); iter++)
+      for (iter = packetmap.begin(); iter != packetmap.end(); ++iter)
 	{
-	  for (piter = iter->second.begin(); piter != iter->second.end(); piter++)
+	  for (piter = iter->second.begin(); piter != iter->second.end(); ++piter)
 	    {
 	      cout << "Run " << iter->first
 		   << ", packetid: " << piter->first
@@ -615,7 +615,7 @@ PktSizeMonDraw::Print(const string &what) const
     {
       set<int>::const_iterator riter;
       cout << "List of runs in Run set: " << endl;
-      for (riter = runlist.begin(); riter != runlist.end(); riter++)
+      for (riter = runlist.begin(); riter != runlist.end(); ++riter)
 	{
 	  cout << "Run " << *riter << endl;
 	}
@@ -627,7 +627,7 @@ int
 PktSizeMonDraw::ExtractActivePackets(const map<unsigned int, float> &packetsize)
 {
   map<unsigned int, float>::const_iterator piter;
-  for (piter = packetsize.begin(); piter != packetsize.end(); piter++)
+  for (piter = packetsize.begin(); piter != packetsize.end(); ++piter)
     {
       activepackets.insert(piter->first);
     }
@@ -646,7 +646,7 @@ PktSizeMonDraw::MakeNoisyCandidates()
   iter = packetmap.find(runnumber);
   if (iter != packetmap.end())
     {
-      for (piter = iter->second.begin(); piter != iter->second.end(); piter++)
+      for (piter = iter->second.begin(); piter != iter->second.end(); ++piter)
         {
           if (piter->second > bytelimit)
             {
@@ -662,10 +662,10 @@ PktSizeMonDraw::MakeNoisyCandidates()
   set<unsigned int>::const_iterator piter;
   map<int, map<unsigned int, float> >::const_iterator siter;
   map<unsigned int, float>::const_iterator psizeiter;
-  for (piter = activepackets.begin(); piter != activepackets.end(); piter++)
+  for (piter = activepackets.begin(); piter != activepackets.end(); ++piter)
     {
       float size = -1;
-      for (siter = packetmap.begin(); siter != packetmap.end(); siter++)
+      for (siter = packetmap.begin(); siter != packetmap.end(); ++siter)
         {
           psizeiter = siter->second.find(*piter);
           if (psizeiter != siter->second.end())
@@ -707,7 +707,7 @@ PktSizeMonDraw::PlotNoisy(TGraph &gr, TMarker &tr, TText &tx, const unsigned int
   map<unsigned int, float>::const_iterator psizeiter;
   vector<double> runno, meansize;
 
-  for (siter = packetmap.begin(); siter != packetmap.end(); siter++)
+  for (siter = packetmap.begin(); siter != packetmap.end(); ++siter)
     {
       psizeiter = siter->second.find(ipkt);
       if (psizeiter != siter->second.end())

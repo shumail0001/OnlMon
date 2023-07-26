@@ -80,7 +80,7 @@ PktSizeDBodbc::CheckAndCreateTable(const string &name, const map<unsigned int, u
       rs = 0;
       cmd << "CREATE TABLE " << name << "(runnumber int NOT NULL, events int NOT NULL";
       map<unsigned int, unsigned int>::const_iterator iter;
-      for (iter = packetsize.begin(); iter != packetsize.end(); iter++)
+      for (iter = packetsize.begin(); iter != packetsize.end(); ++iter)
         {
           cmd << ", p_" << iter->first << " float DEFAULT 0";
         }
@@ -168,7 +168,7 @@ PktSizeDBodbc::AddRow(const string &granulename, const int runnumber, const int 
        << " (runnumber, events";
   cmd2 << " VALUES(" << runnumber << ", " << nevnts;
   float size_in_bytes;
-  for (iter = packetsize.begin(); iter != packetsize.end(); iter++)
+  for (iter = packetsize.begin(); iter != packetsize.end(); ++iter)
     {
       cmd1 << ", p_" << iter->first;
       size_in_bytes = (float) (iter->second) / (float) (nevnts);
@@ -301,7 +301,7 @@ PktSizeDBodbc::CheckAndAddColumns(const string &table, const map<unsigned int, u
   map<unsigned int, unsigned int>::const_iterator iter;
   set
     <unsigned int> packetids;
-  for (iter = packetsize.begin(); iter != packetsize.end(); iter++)
+  for (iter = packetsize.begin(); iter != packetsize.end(); ++iter)
     {
       packetids.insert(iter->first);
     }
@@ -322,7 +322,7 @@ PktSizeDBodbc::CheckAndAddColumns(const string &table, const map<unsigned int, u
   delete rs;
   set
     <unsigned int>::const_iterator siter;
-  for (siter = packetids.begin(); siter != packetids.end(); siter++)
+  for (siter = packetids.begin(); siter != packetids.end(); ++siter)
     {
       ostringstream newcol;
       newcol.str("");

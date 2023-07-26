@@ -117,7 +117,7 @@ PktSizeCommon::filldcmgroups(map<unsigned int, string> &dcmgroupmap)
   set<string> pcffiles;
 //  se->parse_granuleDef(pcffiles);
   set<string>::const_iterator piter;
-  for (piter = pcffiles.begin(); piter != pcffiles.end(); piter++)
+  for (piter = pcffiles.begin(); piter != pcffiles.end(); ++piter)
     {
       ostringstream filenam;
       if (getenv("ONLINE_CONFIGURATION"))
@@ -197,7 +197,7 @@ PktSizeCommon::fillfibergroups(map<unsigned int, string> &fibergroupmap)
   set<string> pcffiles;
 //  se->parse_granuleDef(pcffiles);
   set<string>::const_iterator piter;
-  for (piter = pcffiles.begin(); piter != pcffiles.end(); piter++)
+  for (piter = pcffiles.begin(); piter != pcffiles.end(); ++piter)
     {
       ostringstream filenam;
       if (getenv("ONLINE_CONFIGURATION"))
