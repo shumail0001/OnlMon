@@ -14,10 +14,9 @@ class TMarker;
 class TPad;
 class TText;
 
-class PktSizeMonDraw: public OnlMonDraw
+class PktSizeMonDraw : public OnlMonDraw
 {
-
- public: 
+ public:
   PktSizeMonDraw(const char *name = "PKTSIZEMON");
   virtual ~PktSizeMonDraw();
 
@@ -25,7 +24,7 @@ class PktSizeMonDraw: public OnlMonDraw
   int Draw(const std::string &what = "ALL");
   int MakeHtml(const std::string &what = "ALL");
   int SavePlot(const std::string &what = "ALL", const std::string &type = "png");
-  int loadpreviousruns(const int nruns=5);
+  int loadpreviousruns(const int nruns = 5);
   int AddKnownBig(const unsigned int packetid, const float maxsize);
   void Print(const std::string &what = "ALL") const;
   int CleanOldRuns(const unsigned int maxrun);
@@ -43,9 +42,9 @@ class PktSizeMonDraw: public OnlMonDraw
   int PlotNoisy(TGraph &gr, TMarker &tr, TText &tx, const unsigned int ipkt, const unsigned int icnt);
   int ReplaceRunFromDB(const int runno);
 
-  TCanvas *TC[2];
-  TPad *transparent[2];
-  TPad *Pad[2];
+  TCanvas *TC[2]{};
+  TPad *transparent[2]{};
+  TPad *Pad[2]{};
   PktSizeDBodbc *db;
   int lastrun;
   RunDBodbc *rd;

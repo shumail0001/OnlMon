@@ -1,7 +1,6 @@
 #ifndef __PKTSIZEMON_H__
 #define __PKTSIZEMON_H__
 
-
 #include <onlmon/OnlMon.h>
 
 #include <map>
@@ -12,10 +11,10 @@ class Packet;
 class TH1;
 class PktSizeDBodbc;
 
-class PktSizeMon: public OnlMon
+class PktSizeMon : public OnlMon
 {
  public:
-  PktSizeMon (const char *name = "PKTSIZEMON");
+  PktSizeMon(const std::string &name = "PKTSIZEMON");
   virtual ~PktSizeMon();
 
   int Init();
@@ -24,10 +23,9 @@ class PktSizeMon: public OnlMon
   int EndRun(const int runno);
   void Print(const std::string &what = "ALL");
   int UpdateDB(const int runno = 0);
-//  virtual void Verbosity(const int i);
+  //  virtual void Verbosity(const int i);
 
  protected:
-
   int putmapinhisto();
   int nevnts;
   TH1 *sizehist = nullptr;
