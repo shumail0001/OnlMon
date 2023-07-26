@@ -24,12 +24,10 @@ using namespace std;
 
 static Connection *con = NULL;
 
-PktSizeDBodbc::PktSizeDBodbc(const string &name): OnlMonBase(name)
+PktSizeDBodbc::PktSizeDBodbc(const string &name): 
+OnlMonBase(name)
+, tableprefix(name)
 {
-  dbname = "OnlMonDB";
-  dbowner = "phnxrc";
-  tableprefix = name;
-  dbpasswd = "";
 }
 
 PktSizeDBodbc::~PktSizeDBodbc()

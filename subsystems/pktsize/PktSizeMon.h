@@ -30,8 +30,8 @@ class PktSizeMon: public OnlMon
 
   int putmapinhisto();
   int nevnts;
-  TH1 *sizehist;
-  Packet *plist[10000];
+  TH1 *sizehist = nullptr;
+  Packet *plist[10000]{};
   PktSizeDBodbc *db;
   std::map<unsigned int, unsigned int> packetsize;
   std::map<std::string, std::pair<unsigned int, unsigned int> > granulepacketlimits;
