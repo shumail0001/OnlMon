@@ -19,6 +19,7 @@ libonlsepdmon_server_la_LIBADD = \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
   -lonlmondb \
+  -lonlmonutils \
   -lcalo_io \
   -lcalo_reco
 
