@@ -11,14 +11,13 @@ void pktsizeDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
-  cl->registerHisto("pktsizemon_hist1", "PKTSIZEMON_0");
-  cl->registerHisto("pktsizemon_hist2", "PKTSIZEMON_0");
+  cl->registerHisto("pktsize_hist", "PKTSIZEMON_0");
   cl->AddServerHost("localhost");  // check local host first
-  CreateHostList(online);
+//  CreateHostList(online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
   cl->requestHistoBySubSystem("PKTSIZEMON_0", 1);
-  OnlMonDraw *pktsizemon = new PktsizeMonDraw("PKTSIZEMONDRAW");  // create Drawing Object
+  OnlMonDraw *pktsizemon = new PktSizeMonDraw("PKTSIZEMONDRAW");  // create Drawing Object
   cl->registerDrawer(pktsizemon);             // register with client framework
 }
 
