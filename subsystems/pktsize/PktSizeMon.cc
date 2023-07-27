@@ -102,6 +102,8 @@ int PktSizeMon::process_event(Event *e)
     //         {
     //           packetsize[packetid] = size;
     //         }
+    std::cout << "Packet " << packetid << " size: " << size << " sum size: "
+	      << packetsize[packetid] << std::endl;
     delete plist[i];
   }
   nevnts++;
