@@ -73,13 +73,13 @@ int PktSizeMonDraw::MakeCanvas(const char *name)
   {
     // xpos (-1) negative: do not draw menu bar
     TC[0] = new TCanvas(name, "Packet Size Monitor", -1, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-    Pad[0] = new TPad("pktpad1", "who needs this?", 0.1, 0.05, 0.9, 0.9, 0);
-    Pad[0]->Draw();
-    // this one is used to plot the run number on the canvas
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
+    // gSystem->ProcessEvents();
+    // Pad[0] = new TPad("pktpad1", "who needs this?", 0.1, 0.05, 0.9, 0.9, 0);
+    // Pad[0]->Draw();
+    // // this one is used to plot the run number on the canvas
+    // transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    // transparent[0]->SetFillStyle(4000);
+    // transparent[0]->Draw();
   }
   else if (!strcmp(name, "PktSizeMon1"))
   {
@@ -105,7 +105,7 @@ int PktSizeMonDraw::Draw(const std::string &what)
     iret += DrawFirst(what);
     idraw++;
   }
-  if (what == "ALL" || what == "HISTORY")
+  if ( what == "HISTORY")
   {
     iret += DrawHistory(what);
     idraw++;
@@ -125,16 +125,15 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
   {
     MakeCanvas("PktSizeMon0");
   }
-  TC[0]->Clear("D");
+//  TC[0]->Clear("D");
   TH1 *pktsize_hist = cl->getHisto("PKTSIZEMON_0", "pktsize_hist");
   if (!pktsize_hist)
   {
     DrawDeadServer(transparent[0]);
     TC[0]->Update();
-    ;
     return -1;
   }
-  FillPacketMap(pktsize_hist);
+//  FillPacketMap(pktsize_hist);
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.03);
@@ -146,11 +145,14 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
   int runnumber = cl->RunNumber();
   runnostream << "Packet Size Display Run " << runnumber
               << ", Time: " << ctime(&evttime);
-  transparent[0]->cd();
+//  transparent[0]->cd();
   PrintRun.DrawText(0.5, 0.98, runnostream.str().c_str());
   runnostream.str("");
   runnostream << "Based on " << pktsize_hist->GetBinContent(0) << " Events";
   PrintRun.DrawText(0.5, 0.94, runnostream.str().c_str());
+  pktsize_hist->DrawClone();
+  return 0;
+
   Pad[0]->cd();
   TH2 *htmp = new TH2F("pktsize", "", 2, 0, MAXPKTDISP, 2, 0, MAXSIZEDISP);
   htmp->SetStats(kFALSE);
