@@ -8,9 +8,8 @@
 #include <string>
 #include <vector>
 
-class PktSizeDBodbc: public OnlMonBase
+class PktSizeDBodbc : public OnlMonBase
 {
-
  public:
   PktSizeDBodbc(const std::string &name);
   virtual ~PktSizeDBodbc();
@@ -18,6 +17,7 @@ class PktSizeDBodbc: public OnlMonBase
   int CheckAndAddColumns(const std::string &table, const std::map<unsigned int, unsigned int> &packetsize);
   int AddRow(const std::string &granulename, const int runnumber, const int nevnts, const std::map<unsigned int, unsigned int> &packetsize);
   int GetPacketContent(std::map<unsigned int, float> &packetsize, const int runnumber, const std::string &table);
+
  private:
   int GetConnection();
   std::string dbname;
