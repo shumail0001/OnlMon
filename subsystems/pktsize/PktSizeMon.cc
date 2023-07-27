@@ -132,6 +132,7 @@ int PktSizeMon::putmapinhisto()
   {
     TH1 *newhist = new TH1F("pktsize_tmp", "packet size storage facility", packetsize.size(), 0, packetsize.size());
     se->registerHisto(this->Name(), histoname, newhist, 1);
+    newhist->SetName(histoname);
     sizehist = newhist;
   }
   std::map<unsigned int, unsigned int>::const_iterator mapiter;
