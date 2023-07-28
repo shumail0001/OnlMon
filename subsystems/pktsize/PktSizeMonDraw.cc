@@ -105,7 +105,7 @@ int PktSizeMonDraw::Draw(const std::string &what)
     iret += DrawFirst(what);
     idraw++;
   }
-  if ( what == "HISTORY")
+  if (what == "HISTORY")
   {
     iret += DrawHistory(what);
     idraw++;
@@ -126,7 +126,7 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
   {
     MakeCanvas("PktSizeMon0");
   }
-//  TC[0]->Clear("D");
+  //  TC[0]->Clear("D");
   TH1 *pktsize_hist = cl->getHisto("PKTSIZEMON_0", "pktsize_hist");
   if (!pktsize_hist)
   {
@@ -134,13 +134,13 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
     TC[0]->Update();
     return -1;
   }
-  h2frame = new TH2F("h2","Average Packet Sizes",2,6000,6031,2,0,10000);
+  h2frame = new TH2F("h2", "Average Packet Sizes", 2, 6000, 6031, 2, 0, 10000);
   h2frame->DrawClone();
   tm->SetMarkerStyle(20);
   tm->SetMarkerColor(2);
   for (int i = 1; i <= pktsize_hist->GetNbinsX(); i++)
   {
-    tm->DrawMarker(pktsize_hist->GetBinError(i),pktsize_hist->GetBinContent(i));
+    tm->DrawMarker(pktsize_hist->GetBinError(i), pktsize_hist->GetBinContent(i));
   }
   return 0;
 }
@@ -172,7 +172,7 @@ int PktSizeMonDraw::DrawOldFirst(const std::string & /*what*/)
   int runnumber = cl->RunNumber();
   runnostream << "Packet Size Display Run " << runnumber
               << ", Time: " << ctime(&evttime);
-//  transparent[0]->cd();
+  //  transparent[0]->cd();
   PrintRun.DrawText(0.5, 0.98, runnostream.str().c_str());
   runnostream.str("");
   runnostream << "Based on " << pktsize_hist->GetBinContent(0) << " Events";
@@ -610,9 +610,9 @@ void PktSizeMonDraw::Print(const std::string &what) const
       for (piter = iter->second.begin(); piter != iter->second.end(); ++piter)
       {
         std::cout << "Run " << iter->first
-             << ", packetid: " << piter->first
-             << ", size: " << piter->second
-             << std::endl;
+                  << ", packetid: " << piter->first
+                  << ", size: " << piter->second
+                  << std::endl;
       }
     }
   }
@@ -684,10 +684,10 @@ int PktSizeMonDraw::MakeNoisyCandidates()
             if (verbosity > 0)
             {
               std::cout << "Adding noisy packet " << *piter
-                   << " old size " << size
-                   << " current size " << psizeiter->second
-                   << " current Run " << siter->first
-                   << std::endl;
+                        << " old size " << size
+                        << " current size " << psizeiter->second
+                        << " current Run " << siter->first
+                        << std::endl;
             }
             noisypackets.insert(*piter);
           }
