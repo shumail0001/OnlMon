@@ -10,6 +10,7 @@ class PktSizeDBodbc;
 class TCanvas;
 class TGraph;
 class TH1;
+class TH2;
 class TMarker;
 class TPad;
 class TText;
@@ -33,6 +34,7 @@ class PktSizeMonDraw : public OnlMonDraw
  protected:
   int MakeCanvas(const char *name);
   int DrawFirst(const std::string &what = "ALL");
+  int DrawOldFirst(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
   int FillPacketMap(const TH1 *histo);
   int FillRunPacketList(std::map<unsigned int, float> &pkts, const int runnumber);
@@ -45,9 +47,11 @@ class PktSizeMonDraw : public OnlMonDraw
   TCanvas *TC[2]{};
   TPad *transparent[2]{};
   TPad *Pad[2]{};
-  PktSizeDBodbc *db;
+  PktSizeDBodbc *db = nullptr;
+  RunDBodbc *rd = nullptr;
+  TH2 *h2frame = nullptr;
+  TMarker *tm = nullptr;
   int lastrun;
-  RunDBodbc *rd;
   std::map<int, std::map<unsigned int, float> > packetmap;
   std::map<std::string, std::pair<unsigned int, unsigned int> > granulepacketlimits;
   std::map<unsigned int, float> knownbig;

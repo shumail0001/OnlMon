@@ -40,8 +40,7 @@ PktSizeMonDraw::PktSizeMonDraw(const std::string &name)
   memset(transparent, 0, sizeof(transparent));
   memset(TC, 0, sizeof(TC));
   memset(Pad, 0, sizeof(Pad));
-  db = nullptr;
-  rd = nullptr;
+  tm = new TMarker();
   lastrun = 0;
   return;
 }
@@ -53,6 +52,7 @@ PktSizeMonDraw::~PktSizeMonDraw()
   activepackets.clear();
   delete rd;
   delete db;
+  delete h2frame;
   return;
 }
 
@@ -120,6 +120,7 @@ int PktSizeMonDraw::Draw(const std::string &what)
 
 int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
 {
+  delete h2frame;
   OnlMonClient *cl = OnlMonClient::instance();
   if (!gROOT->FindObject("PktSizeMon0"))
   {
@@ -133,7 +134,33 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
     TC[0]->Update();
     return -1;
   }
-//  FillPacketMap(pktsize_hist);
+  h2frame = new TH2F("h2","Average Packet Sizes",2,6000,6031,2,0,10000);
+  h2frame->DrawClone();
+  tm->SetMarkerStyle(20);
+  tm->SetMarkerColor(2);
+  for (int i = 1; i <= pktsize_hist->GetNbinsX(); i++)
+  {
+    tm->DrawMarker(pktsize_hist->GetBinError(i),pktsize_hist->GetBinContent(i));
+  }
+  return 0;
+}
+
+int PktSizeMonDraw::DrawOldFirst(const std::string & /*what*/)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("PktSizeMon0"))
+  {
+    MakeCanvas("PktSizeMon0");
+  }
+  TC[0]->Clear("D");
+  TH1 *pktsize_hist = cl->getHisto("PKTSIZEMON_0", "pktsize_hist");
+  if (!pktsize_hist)
+  {
+    DrawDeadServer(transparent[0]);
+    TC[0]->Update();
+    return -1;
+  }
+  FillPacketMap(pktsize_hist);
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.03);
@@ -150,9 +177,6 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
   runnostream.str("");
   runnostream << "Based on " << pktsize_hist->GetBinContent(0) << " Events";
   PrintRun.DrawText(0.5, 0.94, runnostream.str().c_str());
-  pktsize_hist->DrawClone();
-  return 0;
-
   Pad[0]->cd();
   TH2 *htmp = new TH2F("pktsize", "", 2, 0, MAXPKTDISP, 2, 0, MAXSIZEDISP);
   htmp->SetStats(kFALSE);
