@@ -7,7 +7,7 @@
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlpktsizemon_server.so)
 
-void run_pktsize_server(const std::string &name = "PKTSIZEMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/emcal/beam/beam_seb07-00023725-0000.prdf")
+void run_pktsize_server(const std::string &name = "PKTSIZEMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/aligned/beam-00022982-0000.prdf")
 {
   OnlMon *m = new PktSizeMon("PKTSIZEMON");                     // create subsystem Monitor object
   m->SetMonitorServerId(serverid);
