@@ -52,7 +52,10 @@ PktSizeMonDraw::~PktSizeMonDraw()
   activepackets.clear();
   delete rd;
   delete db;
-  delete h2frame;
+  delete frame1;
+  delete frame2; 
+  delete frame3;
+  delete frame4;
   return;
 }
 
@@ -120,7 +123,10 @@ int PktSizeMonDraw::Draw(const std::string &what)
 
 int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
 {
-  delete h2frame;
+  delete frame1;
+  delete frame2;
+  delete frame3;
+  delete frame4;
   OnlMonClient *cl = OnlMonClient::instance();
   if (!gROOT->FindObject("PktSizeMon0"))
   {
@@ -134,13 +140,82 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
     TC[0]->Update();
     return -1;
   }
-  h2frame = new TH2F("h2", "Average Packet Sizes", 2, 6000, 6031, 2, 0, 10000);
-  h2frame->DrawClone();
-  tm->SetMarkerStyle(20);
-  tm->SetMarkerColor(2);
+  TPad* Pad1 = new TPad("", "", 0, 0.5, 0.5, 1, 0);
+  Pad1->Draw();
+  TPad* Pad2 = new TPad("", "", 0.5, 0.5, 1, 1, 0); 
+  Pad2->Draw();
+  TPad* Pad3 = new TPad("", "", 0, 0, 0.5, 0.5, 0);
+  Pad3->Draw();
+  TPad* Pad4 = new TPad("", "", 0.5, 0, 1, 0.5, 0); 
+  Pad4->Draw();
+
+
+  Pad1->cd();
+  frame1 = new TH2F("h2", "Average Packet Sizes", 2, 6000, 6200, 2, 0, 10000);   
+  frame1->GetXaxis()->SetTitle("Packet ID");
+  frame1->GetXaxis()->CenterTitle(true);
+  frame1->GetYaxis()->SetTitle("Packet size (bytes)");
+  frame1->GetYaxis()->CenterTitle(true); 
+  frame1->DrawClone();
+  
+  Pad2->cd();
+  frame2 = new TH2F("h2", "Average Packet Sizes", 2, 7000, 7100, 2, 0, 10000);   
+  frame2->GetXaxis()->SetTitle("Packet ID");
+  frame2->GetXaxis()->CenterTitle(true);
+  frame2->GetYaxis()->SetTitle("Packet size (bytes)");
+  frame2->GetYaxis()->CenterTitle(true); 
+  frame2->DrawClone();
+
+ Pad3->cd();
+  frame3 = new TH2F("h2", "Average Packet Sizes", 2, 8000, 8100, 2, 0, 10000);   
+  frame3->GetXaxis()->SetTitle("Packet ID");
+  frame3->GetXaxis()->CenterTitle(true);
+  frame3->GetYaxis()->SetTitle("Packet size (bytes)");
+  frame3->GetYaxis()->CenterTitle(true); 
+  frame3->DrawClone();
+  
+  Pad4->cd();
+  frame4 = new TH2F("h2", "Average Packet Sizes", 2, 9000, 9100, 2, 0, 10000);   
+  frame4->GetXaxis()->SetTitle("Packet ID");
+  frame4->GetXaxis()->CenterTitle(true);
+  frame4->GetYaxis()->SetTitle("Packet size (bytes)");
+  frame4->GetYaxis()->CenterTitle(true); 
+  frame4->DrawClone();
+
+  
   for (int i = 1; i <= pktsize_hist->GetNbinsX(); i++)
   {
-    tm->DrawMarker(pktsize_hist->GetBinError(i), pktsize_hist->GetBinContent(i));
+  int a = pktsize_hist->GetBinError(i);
+  double b = pktsize_hist->GetBinContent(i);
+  std::map <int, double> packet = {{a, b}};
+  if (a > 5999 && a < 6201)
+  {
+  Pad1-> cd();  
+  tm->SetMarkerStyle(20);
+  tm->SetMarkerColor(2);
+  tm->DrawMarker(a,b);
+  }
+  if (a > 6999 && a < 7101)
+  {
+  Pad2-> cd();
+  tm->SetMarkerStyle(20);
+  tm->SetMarkerColor(2);
+  tm->DrawMarker(a,b);
+  }
+  if (a > 7999 && a <8101)
+  {
+  Pad3-> cd();  
+  tm->SetMarkerStyle(20);
+  tm->SetMarkerColor(2);
+  tm->DrawMarker(a,b);
+  }
+  if (a > 8999 && a < 9101)
+  {
+  Pad4-> cd();
+  tm->SetMarkerStyle(20);
+  tm->SetMarkerColor(2);
+  tm->DrawMarker(a,b);
+  }
   }
   return 0;
 }
