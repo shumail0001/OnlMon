@@ -47,9 +47,9 @@ class PktSizeMonDraw : public OnlMonDraw
   TCanvas *TC[2]{};
   TPad *transparent[2]{};
   TPad *Pad[2]{};
+  TH2* Frames[12]{};
   PktSizeDBodbc *db = nullptr;
   RunDBodbc *rd = nullptr;
-  TH2 *h2frame = nullptr;
   TMarker *tm = nullptr;
   int lastrun;
   std::map<int, std::map<unsigned int, float> > packetmap;
