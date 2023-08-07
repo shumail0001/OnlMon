@@ -59,6 +59,7 @@ class OnlMonClient : public OnlMonBase
   int LocateHistogram(const std::string &hname, const std::string &subsys);
   int RunNumber();
   time_t EventTime(const std::string &servername, const std::string &which);
+  time_t EventTime(const std::string &which);
   int SendCommand(const char *hostname, const int port, const char *cmd);
 
   void SetDisplaySizeX(int xsize) { display_sizex = xsize; }

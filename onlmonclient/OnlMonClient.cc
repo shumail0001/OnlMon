@@ -1201,6 +1201,21 @@ int OnlMonClient::RunNumber()
   return (runno);
 }
 
+time_t OnlMonClient::EventTime(const std::string &which)
+{
+  time_t tret = 0;
+  for (auto frwrkiter : m_MonitorFetchedSet)
+  {
+    tret = std::max(tret, EventTime(frwrkiter,which));
+  }
+
+  if (verbosity > 0)
+  {
+    std::cout << "Time is " << ctime(&tret) << std::endl;
+  }
+  return (tret);
+}
+
 time_t OnlMonClient::EventTime(const std::string &servername, const std::string &which)
 {
   time_t tret = 0;
@@ -1221,6 +1236,7 @@ time_t OnlMonClient::EventTime(const std::string &servername, const std::string 
   {
     std::cout << "Bad Option for Time: " << which
               << ", implemented are BOR EOR CURRENT" << std::endl;
+    ibin = CURRENTTIMEBIN;
   }
   TH1 *frameworkvars = getHisto(servername, "FrameWorkVars");
   if (frameworkvars == nullptr)
