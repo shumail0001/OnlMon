@@ -325,7 +325,7 @@ int PktSizeMonDraw::DrawOldFirst(const std::string & /*what*/)
   PrintRun.SetNDC();          // set to normalized coordinates
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
-  time_t evttime = cl->EventTime("PKTSIZE_MON_0", "CURRENT");
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   int runnumber = cl->RunNumber();
   runnostream << "Packet Size Display Run " << runnumber
@@ -641,7 +641,7 @@ int PktSizeMonDraw::DrawHistory(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   int runnumber = cl->RunNumber();
   std::ostringstream runnostream;
-  time_t evttime = cl->EventTime("PKTSIZEMON_0", "CURRENT");
+  time_t evttime = cl->EventTime("CURRENT");
   runnostream << "Packet Size History Run " << runnumber
               << ", Time: " << ctime(&evttime);
   transparent[1]->cd();
