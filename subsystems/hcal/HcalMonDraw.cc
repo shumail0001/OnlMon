@@ -1466,13 +1466,6 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
 time_t HcalMonDraw::getTime()
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  time_t currtime = 0;
-  int i = 0;
-  while (currtime == 0 && i <= 2)
-  {
-    std::string servername =  prefix + "_" + std::to_string(i);
-    currtime = cl->EventTime(servername,"CURRENT");
-    i++;
-  }
+  time_t currtime = cl->EventTime("CURRENT");
   return currtime;
 }

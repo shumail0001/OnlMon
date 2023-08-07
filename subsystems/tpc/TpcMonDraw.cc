@@ -317,7 +317,7 @@ int TpcMonDraw::DrawFirst(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -364,7 +364,7 @@ int TpcMonDraw::DrawSecond(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_2 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -542,7 +542,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_SUMADC Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -603,7 +603,7 @@ int TpcMonDraw::DrawTPCSampleSize(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_SampleSize Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -663,7 +663,7 @@ int TpcMonDraw::DrawTPCCheckSum(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_CheckSumError Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -721,7 +721,7 @@ int TpcMonDraw::DrawTPCADCSample(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_ADC_vs_SAMPLE Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -778,7 +778,7 @@ int TpcMonDraw::DrawTPCMaxADCModule(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_MAXADC2D Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -856,7 +856,7 @@ int TpcMonDraw::DrawTPCRawADC1D(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_RAWADC Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -932,7 +932,7 @@ int TpcMonDraw::DrawTPCMaxADC1D(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_LOCALMAXADC-PEDESTAL Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -986,7 +986,7 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_ADC-Pedestal>20 ADC Run, WEIGHTED " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -1095,7 +1095,7 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_ADC-Pedestal>20, UNWEIGHTED " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -1206,7 +1206,7 @@ int TpcMonDraw::DrawTPCADCSampleLarge(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_ADC_vs_SAMPLE_large Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);

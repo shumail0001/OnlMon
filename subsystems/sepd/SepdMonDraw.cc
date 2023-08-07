@@ -183,7 +183,7 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   TH2 *h_hits0_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits0_n");
   TH2 *h_hits_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_s");
   TH2 *h_hits_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_n");
-  time_t evttime = cl->EventTime("SEPDMON_0", "CURRENT");
+  time_t evttime = cl->EventTime("CURRENT");
 
   if (!gROOT->FindObject("SepdMon1"))
   {
@@ -265,7 +265,7 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   TH2 *h_hits_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_n");
 
   TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
-  time_t evttime = cl->EventTime("SEPDMON_0", "CURRENT");
+  time_t evttime = cl->EventTime("CURRENT");
 
   if (!gROOT->FindObject("SepdMon2"))
   {
@@ -315,7 +315,7 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
   TH2 *h_ADC_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC_corr");
   TH2 *h_hits_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_corr");
-  time_t evttime = cl->EventTime("SEPDMON_0", "CURRENT");
+  time_t evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("SepdMon3"))
   {
     MakeCanvas("SepdMon3");
@@ -823,6 +823,6 @@ time_t SepdMonDraw::getTime()
   OnlMonClient *cl = OnlMonClient::instance();
   time_t currtime = 0;
 
-  currtime = cl->EventTime("SEPDMON_0", "CURRENT");
+  currtime = cl->EventTime("CURRENT");
   return currtime;
 }

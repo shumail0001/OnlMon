@@ -1077,7 +1077,7 @@ int BbcMonDraw::Draw(const std::string &what)
   PRINT_DEBUG("Drawing Graphs on Canvas");
 
   // Make TopPave
-  time_t evttime = cl->EventTime("BBCMON_0","CURRENT");
+  time_t evttime = cl->EventTime("CURRENT");
 
   otext.str("");
   otext << "Run #" << cl->RunNumber();
@@ -2001,7 +2001,7 @@ int BbcMonDraw::DrawFirst(const std::string & )
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("BBCMON_0", "CURRENT");
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
       << ", Time: " << ctime(&evttime);
@@ -2050,7 +2050,7 @@ int BbcMonDraw::DrawSecond(const std::string & )
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("BBCMON_0", "CURRENT");
+  time_t evttime = cl->EventTime("CURRENT");
 
   // fill run number and event time into string
   runnostream << ThisName << "_2 Run " << cl->RunNumber()

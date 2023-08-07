@@ -118,7 +118,7 @@ int LL1MonDraw::DrawFirst(const std::string & /* what */)
   TH1 *h_nhit_n2 = cl->getHisto("LL1MON_0","h_nhit_n2");
   TH1 *h_nhit_s1 = cl->getHisto("LL1MON_0","h_nhit_s1");
   TH1 *h_nhit_s2 = cl->getHisto("LL1MON_0","h_nhit_s2");
-  time_t evttime = cl->EventTime("LL1MON_0","CURRENT");
+  time_t evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon1"))
   {
     MakeCanvas("LL1Mon1");
@@ -168,7 +168,7 @@ int LL1MonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   TH2 *h_nhit_corr= (TH2D*) cl->getHisto("LL1MON_0","h_nhit_corr");
-  time_t evttime = cl->EventTime("LL1MON_0","CURRENT");
+  time_t evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon2"))
   {
     MakeCanvas("LL1Mon2");
@@ -209,7 +209,7 @@ int LL1MonDraw::DrawThird(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   TH2 *h_line_up= (TH2*) cl->getHisto("LL1MON_0","h_line_up");
-  time_t evttime = cl->EventTime("LL1MON_0","CURRENT");
+  time_t evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon3"))
   {
     MakeCanvas("LL1Mon3");

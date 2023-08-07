@@ -380,7 +380,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
   std::string runstring;
-  time_t evttime = getTime();
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream  << "Running mean of Tower Hits Normalized by All Towers " ;
   runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
@@ -673,7 +673,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   std::ostringstream runnostream2;
-  time_t evttime = getTime();
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   
   runnostream << "Packet Information";
@@ -794,7 +794,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
   std::string runstring;
-  time_t evttime = getTime();
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << "Waveform fitting";
   runnostream2 <<"Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
@@ -936,7 +936,7 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
   std::string runstring;
-  time_t evttime = getTime();
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << "Waveform Template vs. Fast Fitting";
   runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
@@ -1172,15 +1172,6 @@ std::vector<int> CemcMonDraw::getBadPackets(TH1 *hist, int what, float cutoff)
 time_t CemcMonDraw::getTime()
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  time_t currtime = 0;
-  
-  int i = 0; 
-  while(currtime == 0 && i < 7)
-    {
-      std::string servername = "CEMCMON_" + std::to_string(i);
-      currtime = cl -> EventTime(servername,"CURRENT");
-      i++;
-    }
-  
+  time_t currtime = cl->EventTime("CURRENT");
   return currtime;
 }
