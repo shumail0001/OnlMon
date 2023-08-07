@@ -41,6 +41,8 @@ PktSizeMonDraw::PktSizeMonDraw(const std::string &name)
   memset(TC, 0, sizeof(TC));
   memset(Pad, 0, sizeof(Pad));
   tm = new TMarker();
+  tm->SetMarkerStyle(8);
+  tm->SetMarkerColor(1); 
   lastrun = 0;
   return;
 }
@@ -52,10 +54,10 @@ PktSizeMonDraw::~PktSizeMonDraw()
   activepackets.clear();
   delete rd;
   delete db;
-  delete frame1;
-  delete frame2; 
-  delete frame3;
-  delete frame4;
+  for ( int q = 0; q < 12; q++)
+  {
+  delete Frames[q];
+  }
   return;
 }
 
@@ -123,10 +125,10 @@ int PktSizeMonDraw::Draw(const std::string &what)
 
 int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
 {
-  delete frame1;
-  delete frame2;
-  delete frame3;
-  delete frame4;
+  for ( int w = 0; w < 12; w++)
+  {
+  delete Frames[w];
+  }
   OnlMonClient *cl = OnlMonClient::instance();
   if (!gROOT->FindObject("PktSizeMon0"))
   {
@@ -140,82 +142,163 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
     TC[0]->Update();
     return -1;
   }
-  TPad* Pad1 = new TPad("", "", 0, 0.5, 0.5, 1, 0);
-  Pad1->Draw();
-  TPad* Pad2 = new TPad("", "", 0.5, 0.5, 1, 1, 0); 
-  Pad2->Draw();
-  TPad* Pad3 = new TPad("", "", 0, 0, 0.5, 0.5, 0);
-  Pad3->Draw();
-  TPad* Pad4 = new TPad("", "", 0.5, 0, 1, 0.5, 0); 
-  Pad4->Draw();
-
-
-  Pad1->cd();
-  frame1 = new TH2F("h2", "Average Packet Sizes", 2, 6000, 6200, 2, 0, 10000);   
-  frame1->GetXaxis()->SetTitle("Packet ID");
-  frame1->GetXaxis()->CenterTitle(true);
-  frame1->GetYaxis()->SetTitle("Packet size (bytes)");
-  frame1->GetYaxis()->CenterTitle(true); 
-  frame1->DrawClone();
+  TPad* Pads[12];
+  Pads[0] = new TPad("", "", 0, 0.66, 0.25, 1, 0);
+  Pads[1] = new TPad("", "", 0.25, 0.66, 0.5, 1, 0);   
+  Pads[2] = new TPad("", "", 0.5, 0.66, 0.75, 1, 0);  
+  Pads[3] = new TPad("", "", 0.75, 0.66, 1, 1, 0);   
+  Pads[4] = new TPad("", "", 0, 0.33, 0.25, 0.66, 0);  
+  Pads[5] = new TPad("", "", 0.25, 0.33, 0.5, 0.66, 0);   
+  Pads[6] = new TPad("", "", 0.5, 0.33, 0.75, 0.66, 0);   
+  Pads[7] = new TPad("", "", 0.75, 0.33, 1, 0.66, 0);   
+  Pads[8] = new TPad("", "", 0, 0, .25, 0.33, 0);   
+  Pads[9] = new TPad("", "", 0.25, 0, 0.5, 0.33, 0);   
+  Pads[10] = new TPad("", "", 0.5, 0, 0.75, 0.33, 0);   
+  Pads[11] = new TPad("", "", 0.75, 0, 1, 0.33, 0);
   
-  Pad2->cd();
-  frame2 = new TH2F("h2", "Average Packet Sizes", 2, 7000, 7100, 2, 0, 10000);   
-  frame2->GetXaxis()->SetTitle("Packet ID");
-  frame2->GetXaxis()->CenterTitle(true);
-  frame2->GetYaxis()->SetTitle("Packet size (bytes)");
-  frame2->GetYaxis()->CenterTitle(true); 
-  frame2->DrawClone();
+  Frames[0] = new TH2F("h2", "MBD", 2, 1000, 1003, 2, 0, 10000);
+  Frames[1] = new TH2F("h2", "MVTX", 2, 2000, 2200, 2, 0, 10000);
+  Frames[2] = new TH2F("h2", "INTT", 2, 3000, 3200, 2, 0, 10000);
+  Frames[3] = new TH2F("h2", "TPC", 2, 4230, 4232, 2, 0, 10000);
+  Frames[4] = new TH2F("h2", "TPOT", 2, 5000, 5200, 2, 0, 10000);
+  Frames[5] = new TH2F("h2", "CEMC", 2, 6000, 6126, 2, 0, 10000);
+  Frames[6] = new TH2F("h2", "IHCAL", 2, 7000, 7008, 2, 0, 10000);
+  Frames[7] = new TH2F("h2", "OHCAL", 2, 8000, 8008, 2, 0, 10000);
+  Frames[8] = new TH2F("h2", "SEPD", 2, 9000, 9002, 2, 0, 10000);
+  Frames[9] = new TH2F("h2", "ZDC", 2, 12000, 12002, 2, 0, 10000);
+  Frames[10] = new TH2F("h2", "Local lvl.1", 2, 13999, 14001, 2, 0, 10000);
+  Frames[11] = new TH2F("h2", "Global lvl.1", 2, 14000, 14002, 2, 0, 10000);
 
- Pad3->cd();
-  frame3 = new TH2F("h2", "Average Packet Sizes", 2, 8000, 8100, 2, 0, 10000);   
-  frame3->GetXaxis()->SetTitle("Packet ID");
-  frame3->GetXaxis()->CenterTitle(true);
-  frame3->GetYaxis()->SetTitle("Packet size (bytes)");
-  frame3->GetYaxis()->CenterTitle(true); 
-  frame3->DrawClone();
-  
-  Pad4->cd();
-  frame4 = new TH2F("h2", "Average Packet Sizes", 2, 9000, 9100, 2, 0, 10000);   
-  frame4->GetXaxis()->SetTitle("Packet ID");
-  frame4->GetXaxis()->CenterTitle(true);
-  frame4->GetYaxis()->SetTitle("Packet size (bytes)");
-  frame4->GetYaxis()->CenterTitle(true); 
-  frame4->DrawClone();
-
-  
+  int n = 0;
+  while (n < 12)
+  {
+  Pads[n]->SetLeftMargin(.125);
+  Pads[n]->Draw();
+  n = n+1;
+  }
+  int x = 0;
+  while (x < 12)
+  {
+  Pads[x]->cd();
+  Frames[x]->GetXaxis()->SetTitle("Packet ID");
+  Frames[x]->GetXaxis()->CenterTitle(true);
+  Frames[x]->GetYaxis()->SetTitle("Packet size (bytes)");
+  Frames[x]->GetYaxis()->CenterTitle(true); 
+  Frames[x]->SetStats(0);
+  Frames[x]->DrawClone();
+  x = x+1;
+  }
+ 
+  std::map <int, double> packet;
   for (int i = 1; i <= pktsize_hist->GetNbinsX(); i++)
   {
   int a = pktsize_hist->GetBinError(i);
   double b = pktsize_hist->GetBinContent(i);
-  std::map <int, double> packet = {{a, b}};
-  if (a > 5999 && a < 6201)
+  packet[a] = b;  
+  if (a > 999 && a < 1003)
   {
-  Pad1-> cd();  
-  tm->SetMarkerStyle(20);
-  tm->SetMarkerColor(2);
-  tm->DrawMarker(a,b);
+  Pads[0]-> cd();
+  tm->DrawMarker(a, packet[a]); 
   }
-  if (a > 6999 && a < 7101)
+  else if (a < 1000 || (a > 1002 && a < 2000))
+    {
+    std::cout<< "unknown packet id: " << (a) << '\n';
+    }
+  if (a > 1999 && a < 2201)
   {
-  Pad2-> cd();
-  tm->SetMarkerStyle(20);
-  tm->SetMarkerColor(2);
-  tm->DrawMarker(a,b);
-  }
-  if (a > 7999 && a <8101)
+  Pads[1]-> cd();
+  tm->DrawMarker(a, packet[a]);
+  } 
+  else if (a > 2200 && a < 3000)
+    {
+    std::cout<< "unknown packet id: " << (a) << '\n';
+    }
+  if (a > 2999 && a < 3201)
   {
-  Pad3-> cd();  
-  tm->SetMarkerStyle(20);
-  tm->SetMarkerColor(2);
-  tm->DrawMarker(a,b);
+  Pads[2]-> cd();  
+  tm->DrawMarker(a, packet[a]);
   }
-  if (a > 8999 && a < 9101)
+  else if (a > 3200 && a < 4231)
+    {
+    std::cout<< "unknown packet id: " << (a) << '\n';
+    }
+  if (a == 4231)
   {
-  Pad4-> cd();
-  tm->SetMarkerStyle(20);
-  tm->SetMarkerColor(2);
-  tm->DrawMarker(a,b);
+  Pads[3]-> cd();
+  tm->DrawMarker(a, packet[a]);
+  } 
+  else if (a > 4231 && a < 5000)
+    {
+    std::cout<< "unknown packet id: " << (a) << '\n';
+    }
+  if (a > 4999 && a < 5201)
+  {
+  Pads[4]-> cd();
+  tm->DrawMarker(a, packet[a]);
+  } 
+  else if (a > 5200 && a < 6000)
+    {
+    std::cout<< "unknown packet id: " << (a) << '\n';
+    } 
+  if (a > 5999 && a < 6127)
+  {
+  Pads[5]-> cd();
+  tm->DrawMarker(a, packet[a]);
+  } 
+  else if (a > 6126 && a < 7000)
+    {
+    std::cout<< "unknown packet id: " << (a) << '\n';
+    }  
+  if (a > 6999 && a < 7009)
+  {
+  Pads[6]-> cd(); 
+  tm->DrawMarker(a, packet[a]); 
   }
+  else if ( a > 7008 && a < 8000)
+    {
+    std::cout<< "unknown packet id: " << (a) << '\n';
+    }
+  if (a > 7999 && a < 8009)
+  {
+  Pads[7]-> cd();
+  tm->DrawMarker(a, packet[a]);
+  } 
+  else if (a > 8008 && a < 9001)
+    {
+    std::cout<< "unknown packet id: " << (a) << '\n';
+    }
+  if (a == 9001)
+  {
+  Pads[8]-> cd();  
+  tm->DrawMarker(a, packet[a]);
+  }
+  else if (a > 9001 && a < 12001)
+    {
+    std::cout<< "unknown packet id: " << (a) << '\n';
+    }
+  if (a == 12001)
+  {
+  Pads[9]-> cd();
+  tm->DrawMarker(a, packet[a]);
+  }   
+  else if (a > 12001 && a < 14000)
+    {
+    std::cout<< "unknown packet id: " << (a) << '\n';
+    }
+  if (a == 14000)
+  {
+  Pads[10]-> cd();
+  tm->DrawMarker(a, packet[a]);
+  } 
+  if (a == 14001)
+  {
+  Pads[11]-> cd();
+  tm->DrawMarker(a, packet[a]);
+  } 
+  else if (a > 14001)
+    {
+    std::cout<< "unknown packet id: " << (a) << '\n';
+    }
   }
   return 0;
 }
