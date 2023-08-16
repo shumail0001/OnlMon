@@ -79,13 +79,13 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
   
-  subsys = new SubSystem("MVTX", "mvtx");
-  subsys->AddAction("mvtxDraw(\"GENERAL\")", "General Monitor");
-  subsys->AddAction("mvtxDraw(\"FEE\")", "FEE");
-  subsys->AddAction("mvtxDraw(\"FHR\")", "FHR");
-  subsys->AddAction("mvtxDraw(\"OCC\")", "OCC");
-  subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  pmf->RegisterSubSystem(subsys);
+  // subsys = new SubSystem("MVTX", "mvtx");
+  // subsys->AddAction("mvtxDraw(\"GENERAL\")", "General Monitor");
+  // subsys->AddAction("mvtxDraw(\"FEE\")", "FEE");
+  // subsys->AddAction("mvtxDraw(\"FHR\")", "FHR");
+  // subsys->AddAction("mvtxDraw(\"OCC\")", "OCC");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
 
   // subsys = new SubSystem("SEPD", "sepd");
   // subsys->AddAction("sepdDraw(\"FIRST\")", "Towers");
