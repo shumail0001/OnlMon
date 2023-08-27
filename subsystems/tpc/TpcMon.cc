@@ -11,6 +11,7 @@
 
 #include <Event/Event.h>
 #include <Event/msg_profile.h>
+#include <Event/oncsSubConstants.h>
 
 #include <tpc/TpcMap.h> 
 
@@ -339,7 +340,22 @@ int TpcMon::process_event(Event *evt/* evt */)
   std::vector<int> store_ten; 
   std::vector<int> mean_and_stdev_vec;
 
-  for( int packet = 4000; packet < 4232; packet++) //packet 4000 or 4001 = Sec 00, packet 4230 or 4231 = Sec 23
+
+  // we check if we have legacy data and start with packet 4000
+  // the range for the TPC is really 4001...4032
+  // we assume we start properly at 4001, but check if not
+  
+  int firstpacket=4001;
+  if (evt->existPacket(4000))
+    {
+      Packet *p = evt->getPacket(4000);
+      if (p->getIdentifier() == IDTPCFEEV3 ) firstpacket = 4000;
+      delete p;
+    }
+  int lastpacket = firstpacket+232;
+
+  
+  for( int packet = firstpacket; packet < lastpacket; packet++) //packet 4001 or 4002 = Sec 00, packet 4231 or 4232 = Sec 23
   {
     Packet* p = evt->getPacket(packet);
     if (!p)
