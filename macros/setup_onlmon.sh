@@ -99,7 +99,7 @@ then
   source ${OPT_SPHENIX}/bin/setup_local.sh ${ONLMON_MAIN}
 else
   ROOT_INCLUDE_PATH=./
-  for local_incdir in `find $ONLINE_MAIN/include -maxdepth 1 -type d -print`
+  for local_incdir in $ONLINE_MAIN/include/*
     do
     if [ -d $local_incdir ]
     then
