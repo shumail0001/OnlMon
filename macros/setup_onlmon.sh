@@ -98,12 +98,12 @@ if [ -f ${OPT_SPHENIX}/bin/setup_local.sh ]
 then
   source ${OPT_SPHENIX}/bin/setup_local.sh ${ONLMON_MAIN}
 else
-  ROOT_INCLUDE_PATH=./
+  ROOT_INCLUDE_PATH=./:$ONLINE_MAIN/include
   for local_incdir in $ONLINE_MAIN/include/*
     do
     if [ -d $local_incdir ]
     then
-      ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$local_incdir:./
+	ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$local_incdir
     fi
   done
   export ROOT_INCLUDE_PATH=${ONLMON_MAIN}/include:${ROOT_INCLUDE_PATH}
