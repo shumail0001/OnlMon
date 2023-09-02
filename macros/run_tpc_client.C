@@ -55,6 +55,12 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("MAXADC_1D_R2",TPCMON_STR);
     cl->registerHisto("RAWADC_1D_R3",TPCMON_STR);
     cl->registerHisto("MAXADC_1D_R3",TPCMON_STR);
+
+    cl->registerHisto("NorthSideADC_clusterZY", TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterZY", TPCMON_STR);
+
+    cl->registerHisto("NorthSideADC_clusterZY_unw",TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterZY_unw",TPCMON_STR);
   } //
 
 

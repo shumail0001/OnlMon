@@ -205,7 +205,33 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[11]->Draw();
     TC[12]->SetEditable(false);
   }
-  
+
+  else if (name == "TPCClusterZY")
+  {
+    TC[13] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> 20 ADC for NS and SS, WEIGHTED", 1350, 700);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[13]->Divide(1,1);
+    // this one is used to plot the run number on the canvas
+    transparent[12] = new TPad("transparent12", "this does not show", 0, 0, 1, 1);
+    transparent[12]->SetFillStyle(4000);
+    transparent[12]->Draw();
+    TC[13]->SetEditable(false);
+  }
+
+  else if (name == "TPCClusterZY_unw")
+  {
+    TC[14] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> 20 ADC for NS and SS, UNWEIGHTED", 1350, 700);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[14]->Divide(1,1);
+    // this one is used to plot the run number on the canvas
+    transparent[13] = new TPad("transparent13", "this does not show", 0, 0, 1, 1);
+    transparent[13]->SetFillStyle(4000);
+    transparent[13]->Draw();
+    TC[14]->SetEditable(false);
+  }
+ 
   
   return 0;
 }
@@ -272,6 +298,16 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCADCVSSAMPLELARGE")
   {
     iret += DrawTPCADCSampleLarge(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCCLUSTERSZYWEIGTHED")
+  {
+    iret += DrawTPCZYclusters(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCCLUSTERSZYUNWEIGTHED")
+  {
+    iret += DrawTPCZYclusters_unweighted(what);
     idraw++;
   }
   if (!idraw)
@@ -951,8 +987,8 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
-  TH1 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
+  TH2 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
+  TH2 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
 
   dummy_his1_XY = new TH2F("dummy_his1_XY", "(ADC-Pedestal) > 20 ADC North Side, WEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
   dummy_his2_XY = new TH2F("dummy_his2_XY", "(ADC-Pedestal) > 20 ADC South Side, WEIGHTED", 400, -800, 800, 400, -800, 800);
@@ -962,13 +998,13 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_NSTPC_clusXY[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1");
-    tpcmon_NSTPC_clusXY[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2");
-    tpcmon_NSTPC_clusXY[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3");
+    tpcmon_NSTPC_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1");
+    tpcmon_NSTPC_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2");
+    tpcmon_NSTPC_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3");
 
-    tpcmon_SSTPC_clusXY[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1");
-    tpcmon_SSTPC_clusXY[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2");
-    tpcmon_SSTPC_clusXY[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3");
+    tpcmon_SSTPC_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1");
+    tpcmon_SSTPC_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2");
+    tpcmon_SSTPC_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3");
   }
 
   if (!gROOT->FindObject("TPCClusterXY"))
@@ -988,13 +1024,14 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << "_ADC-Pedestal>20 ADC Run, WEIGHTED " << cl->RunNumber()
+  runnostream << ThisName << "_ADC-Pedestal>20 ADC WEIGHTED, Run" << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[9]->cd();
   PrintRun.DrawText(0.5, 0.91, runstring.c_str());
 
   TC[10]->cd(1);
+  gStyle->SetOptStat(kFALSE);
   gPad->SetTopMargin(0.15);
   gPad->SetLogz(kTRUE);
   dummy_his1_XY->Draw("colzsame");
@@ -1022,6 +1059,7 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   TC[10]->Update();
 
   TC[10]->cd(2);
+  gStyle->SetOptStat(kFALSE);
   gPad->SetTopMargin(0.15);
   gPad->SetLogz(kTRUE);
   dummy_his2_XY->Draw("colzsame");
@@ -1060,8 +1098,8 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
-  TH1 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
+  TH2 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
+  TH2 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
 
   dummy_his1_XY_unw = new TH2F("dummy_his1_XY_unw", "(ADC-Pedestal) > 20 ADC North Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
   dummy_his2_XY_unw = new TH2F("dummy_his2_XY_unw", "(ADC-Pedestal) > 20 ADC South Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800);
@@ -1071,13 +1109,13 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_NSTPC_clusXY[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1_unw");
-    tpcmon_NSTPC_clusXY[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2_unw");
-    tpcmon_NSTPC_clusXY[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3_unw");
+    tpcmon_NSTPC_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1_unw");
+    tpcmon_NSTPC_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2_unw");
+    tpcmon_NSTPC_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3_unw");
 
-    tpcmon_SSTPC_clusXY[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1_unw");
-    tpcmon_SSTPC_clusXY[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2_unw");
-    tpcmon_SSTPC_clusXY[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3_unw");
+    tpcmon_SSTPC_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1_unw");
+    tpcmon_SSTPC_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2_unw");
+    tpcmon_SSTPC_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3_unw");
   }
 
   if (!gROOT->FindObject("TPCClusterXY_unw"))
@@ -1097,13 +1135,14 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << "_ADC-Pedestal>20, UNWEIGHTED " << cl->RunNumber()
+  runnostream << ThisName << "_ADC-Pedestal>20, UNWEIGHTED, Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[10]->cd();
   PrintRun.DrawText(0.5, 0.91, runstring.c_str());
 
   TC[11]->cd(1);
+  gStyle->SetOptStat(kFALSE);
   gPad->SetTopMargin(0.15);
   //gPad->SetLogz(kTRUE);
   dummy_his1_XY_unw->Draw("colzsame");
@@ -1131,6 +1170,7 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
   TC[11]->Update();
 
   TC[11]->cd(2);
+  gStyle->SetOptStat(kFALSE);
   gPad->SetTopMargin(0.15);
   dummy_his2_XY_unw->Draw("colzsame");
   //gPad->SetLogz(kTRUE);
@@ -1221,6 +1261,179 @@ int TpcMonDraw::DrawTPCADCSampleLarge(const std::string & /* what */)
 
   return 0;
 }
+
+
+
+int TpcMonDraw::DrawTPCZYclusters(const std::string & /* what */)
+{
+
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *tpcmon_NSTPC_clusZY[24] = {nullptr};
+  TH2 *tpcmon_SSTPC_clusZY[24] = {nullptr};
+
+  dummy_his1_ZY = new TH2F("dummy_his1_ZY", "(ADC-Pedestal) > 20 ADC, WEIGHTED", 3350, -1030, 1030, 400, -800, 800); //dummy histos for titles
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_NSTPC_clusZY[i] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterZY");
+
+    tpcmon_SSTPC_clusZY[i] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterZY");
+  }
+
+  if (!gROOT->FindObject("TPCClusterZY"))
+  {
+    MakeCanvas("TPCClusterZY");
+  }  
+
+  TC[13]->SetEditable(true);
+  TC[13]->Clear("D");
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_ADC-Pedestal>20 ADC, WEIGHTED, Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[12]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  TC[13]->cd(1);
+  gStyle->SetOptStat(kFALSE);
+  gPad->SetTopMargin(0.15);
+  gPad->SetLogz(kTRUE);
+  dummy_his1_ZY->Draw("colzsame");
+
+  for( int i=0; i<12; i++ )
+  {
+    if( tpcmon_NSTPC_clusZY[i] )
+    {
+      std::cout<<"NS Histo Exist, EBDC" <<i<<std::endl;
+      TC[13]->cd(1);
+      tpcmon_NSTPC_clusZY[i] -> Draw("colzsame");
+      //gStyle->SetLogz(kTRUE);
+      gStyle->SetPalette(57); //kBird CVD friendly
+    }
+
+  }
+  TC[13]->Update();
+
+  for( int i=0; i<12; i++ )
+  {
+    if( tpcmon_SSTPC_clusZY[i+12] )
+    {
+      std::cout<<"SS Histo Exist, EBDC" <<i+12<<std::endl;
+      TC[13]->cd(1);
+      tpcmon_SSTPC_clusZY[i+12] -> Draw("colzsame");
+      //gStyle->SetLogz(kTRUE);
+      gStyle->SetPalette(57); //kBird CVD friendly
+    }
+
+  }
+
+  TC[13]->Update();
+  TC[13]->Show();
+  TC[13]->SetEditable(false);
+
+
+
+  return 0;
+}
+
+
+int TpcMonDraw::DrawTPCZYclusters_unweighted(const std::string & /* what */)
+{
+
+
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *tpcmon_NSTPC_clusZY_unw[24] = {nullptr};
+  TH2 *tpcmon_SSTPC_clusZY_unw[24] = {nullptr};
+
+  dummy_his1_ZY_unw = new TH2F("dummy_his1_ZY_unw", "(ADC-Pedestal) > 20 ADC, UNWEIGHTED", 3350, -1030, 1030, 400, -800, 800); //dummy histos for titles
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_NSTPC_clusZY_unw[i] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterZY_unw");
+
+    tpcmon_SSTPC_clusZY_unw[i] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterZY_unw");
+  }
+
+  if (!gROOT->FindObject("TPCClusterZY_unw"))
+  {
+    MakeCanvas("TPCClusterZY_unw");
+  }  
+
+  TC[14]->SetEditable(true);
+  TC[14]->Clear("D");
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_ADC-Pedestal>20 ADC, UNWEIGHTED, Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[13]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  TC[14]->cd(1);
+  gStyle->SetOptStat(kFALSE);
+  gPad->SetTopMargin(0.15);
+  gPad->SetLogz(kTRUE);
+  dummy_his1_ZY_unw->Draw("colzsame");
+
+  for( int i=0; i<12; i++ )
+  {
+    if( tpcmon_SSTPC_clusZY_unw[i] )
+    {
+      TC[14]->cd(1);
+      tpcmon_NSTPC_clusZY_unw[i] -> Draw("colzsame");
+      //gStyle->SetLogz(kTRUE);
+      gStyle->SetPalette(57); //kBird CVD friendly
+    }
+
+  }
+  TC[14]->Update();
+
+  for( int i=0; i<12; i++ )
+  {
+    if( tpcmon_SSTPC_clusZY_unw[i] )
+    {
+      TC[14]->cd(1);
+      tpcmon_SSTPC_clusZY_unw[i] -> Draw("colzsame");
+      //gStyle->SetLogz(kTRUE);
+      gStyle->SetPalette(57); //kBird CVD friendly
+    }
+
+  }
+  TC[14]->Update();
+
+  TC[14]->Show();
+  TC[14]->SetEditable(false);
+
+
+
+  return 0;
+}
+
 
 int TpcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {

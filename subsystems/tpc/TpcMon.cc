@@ -82,33 +82,33 @@ int TpcMon::Init()
 
   //TPC "cluster" XY heat maps WEIGHTED
   //NorthSideADC_clusterXY_R1 = new TH2F("NorthSideADC_clusterXY_R1" , "ADC Peaks North Side", N_phi_binx_XY_R1, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  NorthSideADC_clusterXY_R1 = new TH2F("NorthSideADC_clusterXY_R1" , "(ADC-Pedestal) > 10#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R1 = new TH2F("NorthSideADC_clusterXY_R1" , "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800);
   NorthSideADC_clusterXY_R1->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R1->SetYTitle("Y [mm]");
 
   //NorthSideADC_clusterXY_R2 = new TH2F("NorthSideADC_clusterXY_R2" , "ADC Peaks North Side", N_phi_binx_XY_R2, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  NorthSideADC_clusterXY_R2 = new TH2F("NorthSideADC_clusterXY_R2" , "(ADC-Pedestal) > 10#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R2 = new TH2F("NorthSideADC_clusterXY_R2" , "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800);
   NorthSideADC_clusterXY_R2->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R2->SetYTitle("Y [mm]");
 
   //NorthSideADC_clusterXY_R3 = new TH2F("NorthSideADC_clusterXY_R3" , "ADC Peaks North Side", N_phi_binx_XY_R3, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  NorthSideADC_clusterXY_R3 = new TH2F("NorthSideADC_clusterXY_R3" , "(ADC-Pedestal) > 10#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R3 = new TH2F("NorthSideADC_clusterXY_R3" , "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800);
   NorthSideADC_clusterXY_R3->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R3->SetYTitle("Y [mm]");
 
 
   //SouthSideADC_clusterXY_R1 = new TH2F("SouthSideADC_clusterXY_R1" , "ADC Peaks South Side", N_phi_binx_XY_R1, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  SouthSideADC_clusterXY_R1 = new TH2F("SouthSideADC_clusterXY_R1" , "(ADC-Pedestal) >10#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R1 = new TH2F("SouthSideADC_clusterXY_R1" , "(ADC-Pedestal) >20 South Side", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R1->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R1->SetYTitle("Y [mm]");
 
   //SouthSideADC_clusterXY_R2 = new TH2F("SouthSideADC_clusterXY_R2" , "ADC Peaks South Side", N_phi_binx_XY_R2, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  SouthSideADC_clusterXY_R2 = new TH2F("SouthSideADC_clusterXY_R2" , "(ADC-Pedestal) > 10#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R2 = new TH2F("SouthSideADC_clusterXY_R2" , "(ADC-Pedestal) > 20 South Side", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R2->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R2->SetYTitle("Y [mm]");
 
   //SouthSideADC_clusterXY_R3 = new TH2F("SouthSideADC_clusterXY_R3" , "ADC Peaks South Side", N_phi_binx_XY_R3, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);  
-  SouthSideADC_clusterXY_R3 = new TH2F("SouthSideADC_clusterXY_R3" , "(ADC-Pedestal) > 10#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R3 = new TH2F("SouthSideADC_clusterXY_R3" , "(ADC-Pedestal) > 20 South Side", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R3->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R3->SetYTitle("Y [mm]");
 
@@ -116,35 +116,49 @@ int TpcMon::Init()
 
   //TPC "cluster" XY heat maps UNWEIGHTED
   //NorthSideADC_clusterXY_R1 = new TH2F("NorthSideADC_clusterXY_R1" , "ADC Peaks North Side", N_phi_binx_XY_R1, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  NorthSideADC_clusterXY_R1_unw = new TH2F("NorthSideADC_clusterXY_R1_unw" , "(ADC-Pedestal) > 10#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R1_unw = new TH2F("NorthSideADC_clusterXY_R1_unw" , "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800);
   NorthSideADC_clusterXY_R1_unw->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R1_unw->SetYTitle("Y [mm]");
 
   //NorthSideADC_clusterXY_R2 = new TH2F("NorthSideADC_clusterXY_R2" , "ADC Peaks North Side", N_phi_binx_XY_R2, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  NorthSideADC_clusterXY_R2_unw = new TH2F("NorthSideADC_clusterXY_R2_unw" , "(ADC-Pedestal) > 10#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R2_unw = new TH2F("NorthSideADC_clusterXY_R2_unw" , "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800);
   NorthSideADC_clusterXY_R2_unw->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R2_unw->SetYTitle("Y [mm]");
 
   //NorthSideADC_clusterXY_R3 = new TH2F("NorthSideADC_clusterXY_R3" , "ADC Peaks North Side", N_phi_binx_XY_R3, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  NorthSideADC_clusterXY_R3_unw = new TH2F("NorthSideADC_clusterXY_R3_unw" , "(ADC-Pedestal) > 10#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R3_unw = new TH2F("NorthSideADC_clusterXY_R3_unw" , "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800);
   NorthSideADC_clusterXY_R3_unw->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R3_unw->SetYTitle("Y [mm]");
 
 
   //SouthSideADC_clusterXY_R1 = new TH2F("SouthSideADC_clusterXY_R1" , "ADC Peaks South Side", N_phi_binx_XY_R1, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  SouthSideADC_clusterXY_R1_unw = new TH2F("SouthSideADC_clusterXY_R1_unw" , "(ADC-Pedestal) >10#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R1_unw = new TH2F("SouthSideADC_clusterXY_R1_unw" , "(ADC-Pedestal) >20 South Side", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R1_unw->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R1_unw->SetYTitle("Y [mm]");
 
   //SouthSideADC_clusterXY_R2 = new TH2F("SouthSideADC_clusterXY_R2" , "ADC Peaks South Side", N_phi_binx_XY_R2, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  SouthSideADC_clusterXY_R2_unw = new TH2F("SouthSideADC_clusterXY_R2_unw" , "(ADC-Pedestal) > 10#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R2_unw = new TH2F("SouthSideADC_clusterXY_R2_unw" , "(ADC-Pedestal) > 20 South Side", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R2_unw->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R2_unw->SetYTitle("Y [mm]");
 
   //SouthSideADC_clusterXY_R3 = new TH2F("SouthSideADC_clusterXY_R3" , "ADC Peaks South Side", N_phi_binx_XY_R3, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);  
-  SouthSideADC_clusterXY_R3_unw = new TH2F("SouthSideADC_clusterXY_R3_unw" , "(ADC-Pedestal) > 10#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R3_unw = new TH2F("SouthSideADC_clusterXY_R3_unw" , "(ADC-Pedestal) > 20 South Side", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R3_unw->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R3_unw->SetYTitle("Y [mm]");
+
+  //____________________________________________________________________//
+
+  //TPC "cluster" ZY heat maps WEIGHTED
+   NorthSideADC_clusterZY = new TH2F("NorthSideADC_clusterZY" , "(ADC-Pedestal) > 20 North Side", N_z_bins, -1030, 1030, 400, -800, 800);
+   SouthSideADC_clusterZY = new TH2F("SouthSideADC_clusterZY" , "(ADC-Pedestal) > 20 North Side", N_z_bins, -1030, 1030, 400, -800, 800);
+
+  //____________________________________________________________________//
+
+  //TPC "cluster" ZY heat maps UNWEIGHTED
+   NorthSideADC_clusterZY_unw = new TH2F("NorthSideADC_clusterZY_unw" , "(ADC-Pedestal) > 20 South Side", N_z_bins, -1030, 1030, 400, -800, 800);
+   SouthSideADC_clusterZY_unw = new TH2F("SouthSideADC_clusterZY_unw" , "(ADC-Pedestal) > 20 South Side", N_z_bins, -1030, 1030, 400, -800, 800);
+
+  //____________________________________________________________________//
 
   //
 
@@ -298,6 +312,13 @@ int TpcMon::Init()
   se->registerHisto(this, SouthSideADC_clusterXY_R1_unw);
   se->registerHisto(this, SouthSideADC_clusterXY_R2_unw);
   se->registerHisto(this, SouthSideADC_clusterXY_R3_unw);
+
+  se->registerHisto(this, NorthSideADC_clusterZY);
+  se->registerHisto(this, SouthSideADC_clusterZY);
+
+  se->registerHisto(this, NorthSideADC_clusterZY_unw);
+  se->registerHisto(this, SouthSideADC_clusterZY_unw);
+
 
   Reset();
   return 0;
@@ -460,6 +481,7 @@ int TpcMon::process_event(Event *evt/* evt */)
         //int noise = result.second; //stdev/noise
 
         int wf_max = 0;
+        int t_max = 0;
 
         for( int s =0; s < nr_Samples ; s++ )
         {
@@ -468,7 +490,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           int adc = p->iValue(wf,s);       
 
-          if( adc > wf_max){ wf_max = adc; }
+          if( adc > wf_max){ wf_max = adc; t_max = s; }
 
           if( s >= 10 && s <= 19) // get first 10-19
           {
@@ -514,17 +536,24 @@ int TpcMon::process_event(Event *evt/* evt */)
         //for complicated XY stuff ____________________________________________________
         //20 = 3-5 * sigma - hard-coded
         // OR 10*noise = 10 sigma
+
+        float z = 0; //mm
+
         if( (serverid < 12 && (wf_max - pedestal) > 20) && layer != 0 )
         {
           if(Module_ID(fee)==0){NorthSideADC_clusterXY_R1->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);NorthSideADC_clusterXY_R1_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R1
           else if(Module_ID(fee)==1){NorthSideADC_clusterXY_R2->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);NorthSideADC_clusterXY_R2_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
           else if(Module_ID(fee)==2){NorthSideADC_clusterXY_R3->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);NorthSideADC_clusterXY_R3_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
+
+          if( t_max >= 10 && t_max <=255 ){z = 1030 - (t_max - 10)*(50 * 0.084);NorthSideADC_clusterZY->Fill(z,R*sin(phi),wf_max - pedestal);NorthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
         }
         else if( (serverid >=12 && (wf_max - pedestal) > 20) && layer != 0)
         {
           if(Module_ID(fee)==0){SouthSideADC_clusterXY_R1->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);SouthSideADC_clusterXY_R1_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R1
           else if(Module_ID(fee)==1){SouthSideADC_clusterXY_R2->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);SouthSideADC_clusterXY_R2_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
           else if(Module_ID(fee)==2){SouthSideADC_clusterXY_R3->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);SouthSideADC_clusterXY_R3_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
+
+          if( t_max >= 10 && t_max <=255 ){z = -1030 + (t_max - 10)*(50 * 0.084);SouthSideADC_clusterZY->Fill(z,R*sin(phi),wf_max - pedestal);SouthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
         }
         //________________________________________________________________________________
 
