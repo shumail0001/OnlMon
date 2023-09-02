@@ -993,6 +993,14 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   dummy_his1_XY = new TH2F("dummy_his1_XY", "(ADC-Pedestal) > 20 ADC North Side, WEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
   dummy_his2_XY = new TH2F("dummy_his2_XY", "(ADC-Pedestal) > 20 ADC South Side, WEIGHTED", 400, -800, 800, 400, -800, 800);
 
+  dummy_his1_XY->SetXTitle("X [mm]");
+  dummy_his1_XY->SetYTitle("Y [mm]");
+  dummy_his1_XY->GetYaxis()->SetTitleSize(0.02);
+
+  dummy_his2_XY->SetXTitle("-X [mm]"); //SS x is flipped from global coordinates
+  dummy_his2_XY->SetYTitle("Y [mm]");
+  dummy_his2_XY->GetYaxis()->SetTitleSize(0.02);
+
   char TPCMON_STR[100];
   for( int i=0; i<24; i++ ) 
   {
@@ -1053,8 +1061,8 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
         }
         gStyle->SetPalette(57); //kBird CVD friendly
       }
-    }
 
+    }
   }
   TC[10]->Update();
 
@@ -1103,6 +1111,14 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
 
   dummy_his1_XY_unw = new TH2F("dummy_his1_XY_unw", "(ADC-Pedestal) > 20 ADC North Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
   dummy_his2_XY_unw = new TH2F("dummy_his2_XY_unw", "(ADC-Pedestal) > 20 ADC South Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800);
+
+  dummy_his1_XY_unw->SetXTitle("X [mm]");
+  dummy_his1_XY_unw->SetYTitle("Y [mm]");
+  dummy_his1_XY_unw->GetYaxis()->SetTitleSize(0.02);
+
+  dummy_his2_XY_unw->SetXTitle("-X [mm]"); //SS x is flipped from global coordinates
+  dummy_his2_XY_unw->SetYTitle("Y [mm]");
+  dummy_his2_XY_unw->GetYaxis()->SetTitleSize(0.02);
 
   char TPCMON_STR[100];
   for( int i=0; i<24; i++ ) 
@@ -1272,7 +1288,9 @@ int TpcMonDraw::DrawTPCZYclusters(const std::string & /* what */)
   TH2 *tpcmon_NSTPC_clusZY[24] = {nullptr};
   TH2 *tpcmon_SSTPC_clusZY[24] = {nullptr};
 
-  dummy_his1_ZY = new TH2F("dummy_his1_ZY", "(ADC-Pedestal) > 20 ADC, WEIGHTED", 3350, -1030, 1030, 400, -800, 800); //dummy histos for titles
+  dummy_his1_ZY = new TH2F("dummy_his1_ZY", "(ADC-Pedestal) > 20 ADC, WEIGHTED", 515, -1030, 1030, 400, -800, 800); //dummy histos for titles
+  dummy_his1_ZY->SetXTitle("Z [mm]");
+  dummy_his1_ZY->SetYTitle("Y [mm]");
 
   char TPCMON_STR[100];
   for( int i=0; i<24; i++ ) 
@@ -1317,7 +1335,6 @@ int TpcMonDraw::DrawTPCZYclusters(const std::string & /* what */)
   {
     if( tpcmon_NSTPC_clusZY[i] )
     {
-      std::cout<<"NS Histo Exist, EBDC" <<i<<std::endl;
       TC[13]->cd(1);
       tpcmon_NSTPC_clusZY[i] -> Draw("colzsame");
       //gStyle->SetLogz(kTRUE);
@@ -1331,7 +1348,6 @@ int TpcMonDraw::DrawTPCZYclusters(const std::string & /* what */)
   {
     if( tpcmon_SSTPC_clusZY[i+12] )
     {
-      std::cout<<"SS Histo Exist, EBDC" <<i+12<<std::endl;
       TC[13]->cd(1);
       tpcmon_SSTPC_clusZY[i+12] -> Draw("colzsame");
       //gStyle->SetLogz(kTRUE);
@@ -1359,7 +1375,9 @@ int TpcMonDraw::DrawTPCZYclusters_unweighted(const std::string & /* what */)
   TH2 *tpcmon_NSTPC_clusZY_unw[24] = {nullptr};
   TH2 *tpcmon_SSTPC_clusZY_unw[24] = {nullptr};
 
-  dummy_his1_ZY_unw = new TH2F("dummy_his1_ZY_unw", "(ADC-Pedestal) > 20 ADC, UNWEIGHTED", 3350, -1030, 1030, 400, -800, 800); //dummy histos for titles
+  dummy_his1_ZY_unw = new TH2F("dummy_his1_ZY_unw", "(ADC-Pedestal) > 20 ADC, UNWEIGHTED", 515, -1030, 1030, 400, -800, 800); //dummy histos for titles
+  dummy_his1_ZY_unw->SetXTitle("Z [mm]");
+  dummy_his1_ZY_unw->SetYTitle("Y [mm]");
 
   char TPCMON_STR[100];
   for( int i=0; i<24; i++ ) 
