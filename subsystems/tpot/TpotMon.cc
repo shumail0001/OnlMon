@@ -298,7 +298,7 @@ int TpotMon::process_event(Event* event)
       for( int is = 0; is < samples; ++is )
       {
         const auto adc =  packet->iValue( i, is );
-        const bool is_signal = rms>0 && (adc> pedestal+m_n_sigma*rms);
+        const bool is_signal = rms>0 && (adc > m_min_adc) && (adc> pedestal+m_n_sigma*rms);
         if( is_signal ) detector_histograms.m_counts_sample->Fill( is );
         detector_histograms.m_adc_sample->Fill( is, adc );
         detector_histograms.m_hit_charge->Fill( adc );
@@ -309,7 +309,7 @@ int TpotMon::process_event(Event* event)
       for( int is = std::max<int>(0,m_sample_window_signal.first); is < std::min<int>(samples,m_sample_window_signal.second); ++is )
       {
         const auto adc =  packet->iValue( i, is );
-        if( rms>0 && adc>pedestal + m_n_sigma*rms)
+        if( rms>0 && (adc > m_min_adc) && (adc>pedestal + m_n_sigma*rms) )
         {
           is_signal = true;
           break;
