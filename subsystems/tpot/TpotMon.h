@@ -38,6 +38,9 @@ class TpotMon : public OnlMon
   /// set number of RMS sigma used to defined static threshold on a given channel
   void set_n_sigma( double value ) { m_n_sigma = value; }
 
+  /// set minimum ADC value, disregarding pedestal and RMS. This removes channels for which calibration has failed
+  void set_min_adc( double value ) { m_min_adc = value; }
+  
   // define signal sample window
   using sample_window_t = std::pair<int, int>;
   void set_sample_window_signal( const sample_window_t& value ) 
@@ -81,6 +84,9 @@ class TpotMon : public OnlMon
 
   //! number of RMS sigma used to define threshold
   double m_n_sigma = 5;
+
+  //! minimum ADC value, disregarding pedestal and RMS. This removes channels for which calibration has failed
+  double m_min_adc = 50;
   
   //! counter
   TH1* m_counters = nullptr;
