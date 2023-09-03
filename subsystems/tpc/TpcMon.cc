@@ -149,14 +149,14 @@ int TpcMon::Init()
   //____________________________________________________________________//
 
   //TPC "cluster" ZY heat maps WEIGHTED
-   NorthSideADC_clusterZY = new TH2F("NorthSideADC_clusterZY" , "(ADC-Pedestal) > 20 North Side", 515, -1030, 1030, 400, -800, 800);
-   SouthSideADC_clusterZY = new TH2F("SouthSideADC_clusterZY" , "(ADC-Pedestal) > 20 North Side", 515, -1030, 1030, 400, -800, 800);
+   NorthSideADC_clusterZY = new TH2F("NorthSideADC_clusterZY" , "(ADC-Pedestal) > 20 North Side", 206, -1030, 1030, 400, -800, 800);
+   SouthSideADC_clusterZY = new TH2F("SouthSideADC_clusterZY" , "(ADC-Pedestal) > 20 North Side", 206, -1030, 1030, 400, -800, 800);
 
   //____________________________________________________________________//
 
   //TPC "cluster" ZY heat maps UNWEIGHTED
-   NorthSideADC_clusterZY_unw = new TH2F("NorthSideADC_clusterZY_unw" , "(ADC-Pedestal) > 20 South Side", 515, -1030, 1030, 400, -800, 800);
-   SouthSideADC_clusterZY_unw = new TH2F("SouthSideADC_clusterZY_unw" , "(ADC-Pedestal) > 20 South Side", 515, -1030, 1030, 400, -800, 800);
+   NorthSideADC_clusterZY_unw = new TH2F("NorthSideADC_clusterZY_unw" , "(ADC-Pedestal) > 20 South Side", 206, -1030, 1030, 400, -800, 800);
+   SouthSideADC_clusterZY_unw = new TH2F("SouthSideADC_clusterZY_unw" , "(ADC-Pedestal) > 20 South Side", 206, -1030, 1030, 400, -800, 800);
 
   //____________________________________________________________________//
 
