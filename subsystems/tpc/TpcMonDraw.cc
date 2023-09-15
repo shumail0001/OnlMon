@@ -1054,7 +1054,7 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
         TC[10]->cd(1);
         tpcmon_NSTPC_clusXY[i][j] -> Draw("colzsame");
         //gStyle->SetLogz(kTRUE);
-        if ( tpcmon_NSTPC_clusXY[i][0]->GetBinContent(tpcmon_NSTPC_clusXY[i][j]->GetMaximumBin()) > NS_max)
+        if ( tpcmon_NSTPC_clusXY[i][j]->GetBinContent(tpcmon_NSTPC_clusXY[i][j]->GetMaximumBin()) > NS_max)
         {
           NS_max = tpcmon_NSTPC_clusXY[i][j]->GetBinContent(tpcmon_NSTPC_clusXY[i][j]->GetMaximumBin());
           dummy_his1_XY->SetMaximum( NS_max );
@@ -1173,7 +1173,7 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
         TC[11]->cd(1);
         tpcmon_NSTPC_clusXY[i][j] -> Draw("colzsame");
         //gStyle->SetLogz(kTRUE);
-        if ( tpcmon_NSTPC_clusXY[i][0]->GetBinContent(tpcmon_NSTPC_clusXY[i][j]->GetMaximumBin()) > NS_max)
+        if ( tpcmon_NSTPC_clusXY[i][j]->GetBinContent(tpcmon_NSTPC_clusXY[i][j]->GetMaximumBin()) > NS_max)
         {
           NS_max = tpcmon_NSTPC_clusXY[i][j]->GetBinContent(tpcmon_NSTPC_clusXY[i][j]->GetMaximumBin());
           dummy_his1_XY_unw->SetMaximum( NS_max );
@@ -1331,13 +1331,19 @@ int TpcMonDraw::DrawTPCZYclusters(const std::string & /* what */)
   gPad->SetLogz(kTRUE);
   dummy_his1_ZY->Draw("colzsame");
 
+
+  float max = 0;
   for( int i=0; i<12; i++ )
   {
     if( tpcmon_NSTPC_clusZY[i] )
     {
       TC[13]->cd(1);
       tpcmon_NSTPC_clusZY[i] -> Draw("colzsame");
-      //gStyle->SetLogz(kTRUE);
+      if ( tpcmon_NSTPC_clusZY[i]->GetBinContent(tpcmon_NSTPC_clusZY[i]->GetMaximumBin()) > max ) 
+      {
+        max = tpcmon_NSTPC_clusZY[i]->GetBinContent(tpcmon_NSTPC_clusZY[i]->GetMaximumBin());
+        dummy_his1_ZY->SetMaximum( max );
+      }
       gStyle->SetPalette(57); //kBird CVD friendly
     }
 
@@ -1350,6 +1356,11 @@ int TpcMonDraw::DrawTPCZYclusters(const std::string & /* what */)
     {
       TC[13]->cd(1);
       tpcmon_SSTPC_clusZY[i+12] -> Draw("colzsame");
+      if ( tpcmon_SSTPC_clusZY[i+12]->GetBinContent(tpcmon_SSTPC_clusZY[i+12]->GetMaximumBin()) > max ) 
+      {
+        max = tpcmon_SSTPC_clusZY[i+12]->GetBinContent(tpcmon_SSTPC_clusZY[i+12]->GetMaximumBin());
+        dummy_his1_ZY->SetMaximum( max );
+      }
       //gStyle->SetLogz(kTRUE);
       gStyle->SetPalette(57); //kBird CVD friendly
     }
@@ -1418,12 +1429,18 @@ int TpcMonDraw::DrawTPCZYclusters_unweighted(const std::string & /* what */)
   gPad->SetLogz(kTRUE);
   dummy_his1_ZY_unw->Draw("colzsame");
 
+  float max = 0;
   for( int i=0; i<12; i++ )
   {
-    if( tpcmon_SSTPC_clusZY_unw[i] )
+    if( tpcmon_NSTPC_clusZY_unw[i] )
     {
       TC[14]->cd(1);
       tpcmon_NSTPC_clusZY_unw[i] -> Draw("colzsame");
+      if ( tpcmon_NSTPC_clusZY_unw[i]->GetBinContent(tpcmon_NSTPC_clusZY_unw[i]->GetMaximumBin()) > max ) 
+      {
+        max = tpcmon_NSTPC_clusZY_unw[i]->GetBinContent(tpcmon_NSTPC_clusZY_unw[i]->GetMaximumBin());
+        dummy_his1_ZY->SetMaximum( max );
+      }
       //gStyle->SetLogz(kTRUE);
       gStyle->SetPalette(57); //kBird CVD friendly
     }
@@ -1433,10 +1450,15 @@ int TpcMonDraw::DrawTPCZYclusters_unweighted(const std::string & /* what */)
 
   for( int i=0; i<12; i++ )
   {
-    if( tpcmon_SSTPC_clusZY_unw[i] )
+    if( tpcmon_SSTPC_clusZY_unw[i+12] )
     {
       TC[14]->cd(1);
-      tpcmon_SSTPC_clusZY_unw[i] -> Draw("colzsame");
+      tpcmon_SSTPC_clusZY_unw[i+12] -> Draw("colzsame");
+      if ( tpcmon_SSTPC_clusZY_unw[i+12]->GetBinContent(tpcmon_SSTPC_clusZY_unw[i+12]->GetMaximumBin()) > max ) 
+      {
+        max = tpcmon_SSTPC_clusZY_unw[i+12]->GetBinContent(tpcmon_SSTPC_clusZY_unw[i+12]->GetMaximumBin());
+        dummy_his1_ZY->SetMaximum( max );
+      }
       //gStyle->SetLogz(kTRUE);
       gStyle->SetPalette(57); //kBird CVD friendly
     }
