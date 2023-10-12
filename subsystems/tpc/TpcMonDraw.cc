@@ -18,6 +18,8 @@
 #include <TString.h>
 #include <TLegend.h>
 #include <TLatex.h>
+#include <TLine.h>
+#include <TEllipse.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -1001,6 +1003,28 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   dummy_his2_XY->SetYTitle("Y [mm]");
   dummy_his2_XY->GetYaxis()->SetTitleSize(0.02);
 
+  //the lines are for the sector boundaries
+  Double_t sec_gap_inner = (2*M_PI - 0.5024*12.0)/12.0;
+
+  Double_t sec_gap_outer = (2*M_PI - 0.5097*12.0)/12.0;
+
+  Double_t sec_gap = (sec_gap_inner + sec_gap_outer)/2.0;
+
+  Double_t sec_phi = (0.5024 + 0.5097)/2.0;
+
+  TLine *lines[12];
+
+  for(int ln=0;ln<12;ln++)
+  {
+    lines[ln] = new TLine(311.05*cos((sec_phi+sec_gap)/2.0+ln*(sec_phi+sec_gap)),311.05*sin((sec_phi+sec_gap)/2.0+ln*(sec_phi+sec_gap)),759.11*cos((sec_phi+sec_gap)/2.0+ln*(sec_phi+sec_gap)),759.11*sin((sec_phi+sec_gap)/2.0+ln*(sec_phi+sec_gap)));
+  }
+
+  TEllipse *e1 = new TEllipse(0.0,0.0,311.05,311.05);
+  TEllipse *e2 = new TEllipse(0.0,0.0,(402.49+411.53)/2.0,(402.49+411.53)/2.0);
+  TEllipse *e3 = new TEllipse(0.0,0.0,(583.67+574.75)/2.0,(583.67+574.75)/2.0);
+  TEllipse *e4 = new TEllipse(0.0,0.0,759.11,759.11);
+  //__________________
+
   char TPCMON_STR[100];
   for( int i=0; i<24; i++ ) 
   {
@@ -1064,6 +1088,20 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
 
     }
   }
+  TC[10]->cd(1);
+  e1->SetFillStyle(0);
+  e2->SetFillStyle(0);
+  e3->SetFillStyle(0);
+  e4->SetFillStyle(0);
+
+  e1->Draw("same");
+  e2->Draw("same");
+  e3->Draw("same");
+  e4->Draw("same");
+  for(int ln2=0;ln2<12;ln2++)
+  {
+    lines[ln2]->Draw("same"); 
+  }
   TC[10]->Update();
 
   TC[10]->cd(2);
@@ -1093,7 +1131,20 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
     }
 
   }
+  TC[10]->cd(2);
+  e1->SetFillStyle(0);
+  e2->SetFillStyle(0);
+  e3->SetFillStyle(0);
+  e4->SetFillStyle(0);
 
+  e1->Draw("same");
+  e2->Draw("same");
+  e3->Draw("same");
+  e4->Draw("same");
+  for(int ln2=0;ln2<12;ln2++)
+  {
+    lines[ln2]->Draw("same"); 
+  }
 
   TC[10]->Update();
   TC[10]->Show();
@@ -1119,6 +1170,28 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
   dummy_his2_XY_unw->SetXTitle("-X [mm]"); //SS x is flipped from global coordinates
   dummy_his2_XY_unw->SetYTitle("Y [mm]");
   dummy_his2_XY_unw->GetYaxis()->SetTitleSize(0.02);
+
+  //the lines are for the sector boundaries
+  Double_t sec_gap_inner = (2*M_PI - 0.5024*12.0)/12.0;
+
+  Double_t sec_gap_outer = (2*M_PI - 0.5097*12.0)/12.0;
+
+  Double_t sec_gap = (sec_gap_inner + sec_gap_outer)/2.0;
+
+  Double_t sec_phi = (0.5024 + 0.5097)/2.0;
+
+  TLine *lines[12];
+
+  for(int ln=0;ln<12;ln++)
+  {
+    lines[ln] = new TLine(311.05*cos((sec_phi+sec_gap)/2.0+ln*(sec_phi+sec_gap)),311.05*sin((sec_phi+sec_gap)/2.0+ln*(sec_phi+sec_gap)),759.11*cos((sec_phi+sec_gap)/2.0+ln*(sec_phi+sec_gap)),759.11*sin((sec_phi+sec_gap)/2.0+ln*(sec_phi+sec_gap)));
+  }
+
+  TEllipse *e1 = new TEllipse(0.0,0.0,311.05,311.05);
+  TEllipse *e2 = new TEllipse(0.0,0.0,(402.49+411.53)/2.0,(402.49+411.53)/2.0);
+  TEllipse *e3 = new TEllipse(0.0,0.0,(583.67+574.75)/2.0,(583.67+574.75)/2.0);
+  TEllipse *e4 = new TEllipse(0.0,0.0,759.11,759.11);
+  //__________________
 
   char TPCMON_STR[100];
   for( int i=0; i<24; i++ ) 
@@ -1183,6 +1256,20 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
     }
 
   }
+  TC[11]->cd(1);
+  e1->SetFillStyle(0);
+  e2->SetFillStyle(0);
+  e3->SetFillStyle(0);
+  e4->SetFillStyle(0);
+
+  e1->Draw("same");
+  e2->Draw("same");
+  e3->Draw("same");
+  e4->Draw("same");
+  for(int ln2=0;ln2<12;ln2++)
+  {
+    lines[ln2]->Draw("same"); 
+  }
   TC[11]->Update();
 
   TC[11]->cd(2);
@@ -1212,9 +1299,22 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
     }
 
   }
+  TC[11]->cd(2);
+  e1->SetFillStyle(0);
+  e2->SetFillStyle(0);
+  e3->SetFillStyle(0);
+  e4->SetFillStyle(0);
 
-
+  e1->Draw("same");
+  e2->Draw("same");
+  e3->Draw("same");
+  e4->Draw("same");
+  for(int ln2=0;ln2<12;ln2++)
+  {
+    lines[ln2]->Draw("same"); 
+  }
   TC[11]->Update();
+
   TC[11]->Show();
   TC[11]->SetEditable(false);
 
