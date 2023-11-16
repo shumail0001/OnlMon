@@ -29,6 +29,9 @@ void mvtxDrawInit(const int online = 0)
     cl->registerHisto("MVTXMON_LaneStatus_laneStatusOverviewFlagERROR", instanceName);
     cl->registerHisto("MVTXMON_LaneStatus_laneStatusOverviewFlagFAULT", instanceName);
 
+    cl->registerHisto("hChipStrobes", instanceName);
+    cl->registerHisto("hChipL1", instanceName);
+
     //FEE
     cl->registerHisto("MVTXMON_FEE_TriggerVsFeeid", instanceName);
     cl->registerHisto("MVTXMON_FEE_TriggerFlag", instanceName);
@@ -51,8 +54,8 @@ void mvtxDrawInit(const int online = 0)
 
     for (int aLayer = 0; aLayer < 3; aLayer++) {
       cl->registerHisto(Form("MVTXMON_Occupancy_Layer%dOccupancy", aLayer), instanceName);
-      cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dEtaPhi", aLayer, aLayer), instanceName);
       cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dChipStave", aLayer, aLayer), instanceName);
+      cl->registerHisto(Form("MVTXMON_Noisy_Layer%d_ChipStave", aLayer), instanceName);
     }
 
 
@@ -60,6 +63,7 @@ void mvtxDrawInit(const int online = 0)
     cl->registerHisto("MVTXMON_General_ErrorVsFeeid", instanceName);
     //cl->registerHisto("MVTXMON_General_Occupancy", instanceName);
     cl->registerHisto("MVTXMON_General_Noisy_Pixel", instanceName);
+    cl->registerHisto("RCDAQ_evt", instanceName);
 
     for (int mLayer = 0; mLayer < 3; mLayer++) {
       cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dDeadChipPos", mLayer, mLayer), instanceName);
