@@ -18,7 +18,7 @@ libonlmvtxmon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
-  -lonlmondb
+  -lonlmondb 
 
 libonlmvtxmon_client_la_LIBADD = \
   -L$(libdir) \
