@@ -425,12 +425,12 @@ int MvtxMon::process_event(Event *evt)
               std::cout << ", n_hits: " << num_hits << std::endl;
 	      }
             }
-            hChipStrobes->Fill((StaveBoundary[link.layer]+link.stave)*9 + 3 * link.gbtid + 0); //same for chip id 0 1 and 2
-	    hChipStrobes->Fill((StaveBoundary[link.layer]+link.stave)*9 + 3 * link.gbtid + 1);
-	    hChipStrobes->Fill((StaveBoundary[link.layer]+link.stave)*9 + 3 * link.gbtid + 2);
-	    nChipStrobes[(StaveBoundary[link.layer]+link.stave)*9 + 3 * link.gbtid + 0]++;
-	    nChipStrobes[(StaveBoundary[link.layer]+link.stave)*9 + 3 * link.gbtid + 1]++;
-            nChipStrobes[(StaveBoundary[link.layer]+link.stave)*9 + 3 * link.gbtid + 2]++;
+            hChipStrobes->Fill((StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 0); //same for chip id 0 1 and 2
+	    hChipStrobes->Fill((StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 1);
+	    hChipStrobes->Fill((StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 2);
+	    nChipStrobes[(StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 0]++;
+	    nChipStrobes[(StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 1]++;
+            nChipStrobes[(StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 2]++;
 
            
             
@@ -442,10 +442,10 @@ int MvtxMon::process_event(Event *evt)
               auto chip_row = plist[i]->iValue(feeId, i_strb, i_hit, "HIT_ROW");
               auto chip_col = plist[i]->iValue(feeId, i_strb, i_hit, "HIT_COL");
 
-              mHitPerChip[link.layer][link.stave][3 * link.gbtid + chip_id]++;
-              hChipHitmap->Fill(chip_col,chip_row,(StaveBoundary[link.layer]+link.stave)*9 + 3 * link.gbtid + chip_id);
-              hChipStaveOccupancy[link.layer]->Fill(3 * link.gbtid + chip_id, link.stave);
-	      hChipHitmap_evt->Fill(chip_col,chip_row,(StaveBoundary[link.layer]+link.stave)*9 + 3 * link.gbtid + chip_id);
+              mHitPerChip[link.layer][link.stave%20][3 * link.gbtid + chip_id]++;
+              hChipHitmap->Fill(chip_col,chip_row,(StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + chip_id);
+              hChipStaveOccupancy[link.layer]->Fill(3 * link.gbtid + chip_id, link.stave%20);
+	      hChipHitmap_evt->Fill(chip_col,chip_row,(StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + chip_id);
 
             }
 
