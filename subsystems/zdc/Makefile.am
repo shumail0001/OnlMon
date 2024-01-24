@@ -18,6 +18,9 @@ libonlzdcmon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
+  -lonlmonutils \
+  -lcalo_io \
+  -lcalo_reco \
   -lonlmondb
 
 libonlzdcmon_client_la_LIBADD = \
