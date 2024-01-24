@@ -98,8 +98,8 @@ int ZdcMonDraw::Draw(const std::string &what)
 int ZdcMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *zdcmon_hist1 = cl->getHisto("ZDCMON_0","zdcmon_hist1");
-  TH1 *zdcmon_hist2 = cl->getHisto("ZDCMON_0","zdcmon_hist1");
+  TH1 *zdc_adc_south = cl->getHisto("ZDCMON_0","zdc_adc_south");
+  TH1 *zdc_adc_north = cl->getHisto("ZDCMON_0","zdc_adc_north");
   if (!gROOT->FindObject("ZdcMon1"))
   {
     MakeCanvas("ZdcMon1");
@@ -107,9 +107,9 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   Pad[0]->cd();
-  if (zdcmon_hist1)
+  if (zdc_adc_south)
   {
-    zdcmon_hist1->DrawCopy();
+      zdc_adc_south->DrawCopy();
   }
   else
   {
@@ -118,9 +118,9 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
     return -1;
   }
   Pad[1]->cd();
-  if (zdcmon_hist2)
+  if (zdc_adc_north)
   {
-    zdcmon_hist2->DrawCopy();
+      zdc_adc_north->DrawCopy();
   }
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -145,8 +145,8 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
 int ZdcMonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *zdcmon_hist1 = cl->getHisto("ZDCMON_0","zdcmon_hist2");
-  TH1 *zdcmon_hist2 = cl->getHisto("ZDCMON_0","zdcmon_hist2");
+  TH1 *zdc_adc_south = cl->getHisto("ZDCMON_0","zdc_adc_south");
+  TH1 *zdc_adc_north = cl->getHisto("ZDCMON_0","zdc_adc_north");
   if (!gROOT->FindObject("ZdcMon2"))
   {
     MakeCanvas("ZdcMon2");
@@ -154,9 +154,9 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
   Pad[2]->cd();
-  if (zdcmon_hist1)
+  if (zdc_adc_south)
   {
-    zdcmon_hist1->DrawCopy();
+    zdc_adc_south->DrawCopy();
   }
   else
   {
@@ -165,9 +165,9 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
     return -1;
   }
   Pad[3]->cd();
-  if (zdcmon_hist2)
+  if (zdc_adc_north)
   {
-    zdcmon_hist2->DrawCopy();
+     zdc_adc_north->DrawCopy();
   }
   TText PrintRun;
   PrintRun.SetTextFont(62);

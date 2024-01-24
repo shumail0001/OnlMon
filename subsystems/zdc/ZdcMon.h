@@ -3,9 +3,16 @@
 
 #include <onlmon/OnlMon.h>
 
+#include <onlmon/OnlMon.h>
+#include <cmath>
+#include <vector>
+
+class CaloWaveformFitting;
+class TowerInfoContainer;
 class Event;
 class TH1;
 class TH2;
+class Packet;
 
 class ZdcMon : public OnlMon
 {
@@ -19,10 +26,14 @@ class ZdcMon : public OnlMon
   int Reset();
 
  protected:
+  std::vector<float> anaWaveformFast(Packet *p, const int channel);
+  CaloWaveformFitting *WaveformProcessingFast = nullptr;
+
   int evtcnt = 0;
   int idummy = 0;
-  TH1 *zdchist1 = nullptr;
-  TH2 *zdchist2 = nullptr;
+  TH1 *zdc_adc_north = nullptr;
+  TH1 *zdc_adc_south = nullptr;
+
 };
 
 #endif /* ZDC_ZDCMON_H */
