@@ -107,8 +107,11 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   Pad[0]->cd();
+  gPad->SetLogy();
+  gPad->SetLogx();
   if (zdc_adc_south)
   {
+      zdc_adc_south->Scale(1/zdc_adc_south->Integral(), "width");
       zdc_adc_south->DrawCopy();
   }
   else
@@ -118,8 +121,11 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
     return -1;
   }
   Pad[1]->cd();
+  gPad->SetLogy();
+  gPad->SetLogx();
   if (zdc_adc_north)
   {
+      zdc_adc_north->Scale(1/zdc_adc_north->Integral(), "width");
       zdc_adc_north->DrawCopy();
   }
   TText PrintRun;
