@@ -51,10 +51,11 @@ ZdcMon::~ZdcMon()
 
 int ZdcMon::Init()
 {
-  const float MAX_ENERGY1 = 6500.;
-  const float MAX_ENERGY2 = 6500.;
-  const int BIN_NUMBER = 300;
+  const float MAX_ENERGY1 = 15000.;
+  const float MAX_ENERGY2 = 15000.;
+  const int BIN_NUMBER = 1500;
     
+//  gRandom->SetSeed(rand());
   // read our calibrations from ZdcMonData.dat
   const char *zdccalib = getenv("ZDCCALIB");
   if (!zdccalib)
@@ -78,7 +79,7 @@ int ZdcMon::Init()
   se->registerHisto(this, zdc_adc_south );
     
   WaveformProcessingFast = new CaloWaveformFitting();
-  
+
   Reset();
   return 0;
 }
@@ -105,48 +106,56 @@ std::vector<float> ZdcMon::anaWaveformFast(Packet *p, const int channel)
 
   std::vector<float> result;
   result = fitresults_zdc.at(0);
-
   return result;
+    
 }
 
 
 int ZdcMon::process_event(Event *e /* evt */)
 {
-  evtcnt++;
- 
+    evtcnt++;
+
+    float totalzdcsouthsignal = 0.;
+    float totalzdcnorthsignal = 0.;
     int packet = 12001;
+
     Packet *p = e->getPacket(packet);
     if (p)
     {
     
       for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
       {
-      
         std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
         float signalFast = resultFast.at(0);
         float signal = signalFast;
           
         unsigned int towerkey = TowerInfoDefs::decode_zdc(c);
         int zdc_side = TowerInfoDefs::get_zdc_side(towerkey);
-        if(c < 16)
+          
+        int mod = c%2;
+        if (mod != 0) continue;
+        if((c < 16) && ((c != 6) && (c != 14)))
         {
          if (zdc_side == 0)
          {
-            zdc_adc_south->Fill(signal);
+             totalzdcsouthsignal+= signal;
          }
          else if (zdc_side == 1)
          {
-            zdc_adc_north->Fill(signal);
+             totalzdcnorthsignal+= signal;
          }
          else
          {
            std::cout << "arm bin not assigned ... " << std::endl;
            return -1;
          }
-        }  //select zdc channels only
+        }  //select zdc high gain channels only
        }  // channel loop end
-     }   //  if packet good
+     }    // if packet good
 
+    zdc_adc_south->Fill(totalzdcsouthsignal);
+    zdc_adc_north->Fill(totalzdcnorthsignal);
+    
     delete p;
 
   return 0;
