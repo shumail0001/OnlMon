@@ -157,6 +157,22 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     warning[1]->Draw();
     TC[5]->SetEditable(0);
   }
+  else if (name == "HcalMon5")
+  {
+    TC[6] = new TCanvas(name.c_str(), "HcalMon5 Trigger Info", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    gSystem->ProcessEvents();
+    Pad[16] = new TPad("hcalpad16", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
+    Pad[17] = new TPad("hcalpad17", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
+    Pad[18] = new TPad("hcalpad18", "who needs this?", 0.0, 0.0, 1.0, 0.3, 0);
+    Pad[16]->Draw();
+    Pad[17]->Draw();
+    Pad[18]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
+    TC[6]->SetEditable(0);
+  }
   else if (name == "HcalPopUp")
   {
     TC[4] = new TCanvas(name.c_str(), "!!!DO NOT CLOSE!!! OR THE CODE WILL CRASH!!!!", 2 * xsize / 3, 0.05, xsize / 2, 2 * ysize / 3);
@@ -193,6 +209,11 @@ int HcalMonDraw::Draw(const std::string& what)
   if (what == "ALL" || what == "FOURTH")
   {
     iret += DrawFourth(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "FIFTH")
+  {
+    iret += DrawFifth(what);
     idraw++;
   }
   if (!idraw)
@@ -1462,6 +1483,130 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
     TC[4]->SetEditable(0);
   }
 }
+
+
+int HcalMonDraw::DrawFifth(const std::string& /* what */)
+{
+  OnlMonClient* cl = OnlMonClient::instance();
+
+  char HCALMON_0[100];
+  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
+  char HCALMON_1[100];
+  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
+  TH2F* h2_hcal_hits_trig = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits_trig");
+  TH2F* h2_hcal_hits = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
+  TH1F* h_hcal_trig = (TH1F*) cl->getHisto(HCALMON_0, "h_hcal_trig");
+
+
+  if (!gROOT->FindObject("HcalMon5"))
+  {
+    MakeCanvas("HcalMon5");
+  }
+
+  TC[6]->SetEditable(1);
+  TC[6]->Clear("D");
+  Pad[16]->cd();
+  if (!h2_hcal_hits_trig || !h2_hcal_hits || !h_hcal_trig)
+  {
+    DrawDeadServer(transparent[6]);
+    TC[6]->SetEditable(0);
+    return -1;
+  }
+
+
+  Pad[16]->cd();
+  gStyle->SetTitleFontSize(0.03);
+
+  h2_hcal_hits_trig->Draw("colz");
+
+  float tsize = 0.06;
+  h2_hcal_hits_trig->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_hits_trig->GetXaxis()->SetTitle("ieta");
+  h2_hcal_hits_trig->GetYaxis()->SetTitle("iphi");
+  h2_hcal_hits_trig->GetXaxis()->SetLabelSize(tsize);
+  h2_hcal_hits_trig->GetYaxis()->SetLabelSize(tsize);
+  h2_hcal_hits_trig->GetXaxis()->SetTitleSize(tsize);
+  h2_hcal_hits_trig->GetYaxis()->SetTitleSize(tsize);
+  h2_hcal_hits_trig->GetXaxis()->SetTitleOffset(1.2);
+  h2_hcal_hits_trig->GetYaxis()->SetTitleOffset(0.75);
+  gPad->SetLogz();
+  gPad->SetBottomMargin(0.16);
+  gPad->SetLeftMargin(0.2);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.15);
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57);
+  gPad->SetTicky();
+  gPad->SetTickx();
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.03);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();
+  // fill run number and event time into string
+  runnostream << ThisName << ": Pulse fitting, Run" << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[3]->cd();
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+
+  Pad[17]->cd();
+
+  gStyle->SetTitleFontSize(0.06);
+
+  float tsize2 = 0.08;
+  h2_hcal_hits_trig->Draw("colz");
+  h2_hcal_hits_trig->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_hits_trig->GetXaxis()->SetTitle("ieta");
+  h2_hcal_hits_trig->GetYaxis()->SetTitle("iphi");
+  h2_hcal_hits_trig->GetXaxis()->SetLabelSize(tsize2);
+  h2_hcal_hits_trig->GetYaxis()->SetLabelSize(tsize2);
+  h2_hcal_hits_trig->GetXaxis()->SetTitleSize(tsize2);
+  h2_hcal_hits_trig->GetYaxis()->SetTitleSize(tsize2);
+  h2_hcal_hits_trig->GetXaxis()->SetTitleOffset(1.0);
+  h2_hcal_hits_trig->GetYaxis()->SetTitleOffset(0.85);
+  gPad->SetTopMargin(0.06);
+  gPad->SetBottomMargin(0.18);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.2);
+  gStyle->SetOptStat(0);
+  gPad->SetTicky();
+  gPad->SetTickx();
+
+  Pad[18]->cd();
+
+  gStyle->SetTitleFontSize(0.06);
+
+  h_hcal_trig->Draw("hist");
+  h_hcal_trig->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_hcal_trig->GetXaxis()->SetTitle("events");
+  h_hcal_trig->GetYaxis()->SetTitle("trigger index");
+  h_hcal_trig->GetXaxis()->SetLabelSize(tsize2);
+  h_hcal_trig->GetYaxis()->SetLabelSize(tsize2);
+  h_hcal_trig->GetXaxis()->SetTitleSize(tsize2);
+  h_hcal_trig->GetYaxis()->SetTitleSize(tsize2);
+  h_hcal_trig->GetXaxis()->SetTitleOffset(0.9);
+  h_hcal_trig->GetYaxis()->SetTitleOffset(0.85);
+  gPad->SetTopMargin(0.06);
+  gPad->SetBottomMargin(0.18);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.2);
+  gStyle->SetOptStat(0);
+  gPad->SetTicky();
+  gPad->SetTickx();
+
+  TC[6]->Update();
+  TC[6]->Show();
+  TC[6]->SetEditable(0);
+
+  return 0;
+}
+
+
 
 time_t HcalMonDraw::getTime()
 {

@@ -21,7 +21,9 @@ libonlhcalmon_server_la_LIBADD = \
   -lonlmondb \
   -lonlmonutils \
   -lcalo_io \
-  -lcalo_reco 
+  -lcalo_reco \
+  -lNoRootEvent 
+
 
 libonlhcalmon_client_la_LIBADD = \
   -L$(libdir) \
@@ -58,7 +60,8 @@ testexternals_client_SOURCES = \
   testexternals.cc
 
 testexternals_server_LDADD = \
-  libonlhcalmon_server.la
+  libonlhcalmon_server.la \
+  -lNoRootEvent 
 
 testexternals_client_LDADD = \
   libonlhcalmon_client.la
