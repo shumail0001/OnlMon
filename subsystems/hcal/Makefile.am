@@ -60,8 +60,7 @@ testexternals_client_SOURCES = \
   testexternals.cc
 
 testexternals_server_LDADD = \
-  libonlhcalmon_server.la \
-  -lNoRootEvent 
+  libonlhcalmon_server.la
 
 testexternals_client_LDADD = \
   libonlhcalmon_client.la
