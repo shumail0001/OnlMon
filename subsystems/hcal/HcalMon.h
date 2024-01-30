@@ -12,6 +12,7 @@ class TH1;
 class TH2;
 class Packet;
 class runningMean;
+class eventReceiverClient;
 
 class HcalMon : public OnlMon
 {
@@ -37,6 +38,7 @@ class HcalMon : public OnlMon
   // TH1 *hcalhist1 = nullptr;
   // TH2 *hcalhist2 = nullptr;
   TH2* h2_hcal_hits = nullptr;
+  TH2* h2_hcal_hits_trig = nullptr;
   TH1* h_waveform_twrAvg = nullptr;
   TH1* h_waveform_time = nullptr;
   TH1* h_waveform_pedestal = nullptr;
@@ -53,6 +55,10 @@ class HcalMon : public OnlMon
   TH1* h1_packet_event = nullptr;
   TH1* h_rm_sectorAvg[32] = {nullptr};
   TH1* h_rm_tower[24][64] = {nullptr};
+  TH1* h_hcal_trig = {nullptr};
+
+  eventReceiverClient *erc = {nullptr};
+  bool anaGL1 = false;
 
   CaloWaveformFitting* WaveformProcessing = nullptr;
 
