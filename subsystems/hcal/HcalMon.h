@@ -58,7 +58,7 @@ class HcalMon : public OnlMon
   TH1* h_hcal_trig = {nullptr};
 
   eventReceiverClient *erc = {nullptr};
-  bool anaGL1 = true;
+  bool anaGL1 = false;
 
   CaloWaveformFitting* WaveformProcessing = nullptr;
 

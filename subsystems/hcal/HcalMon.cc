@@ -209,8 +209,9 @@ int HcalMon::Init()
   hcaltemplate += std::string("/testbeam_ohcal_template.root");
   WaveformProcessing->initialize_processing(hcaltemplate);
 
-  erc = new eventReceiverClient("gl1daq");
-
+  if (anaGL1){
+    erc = new eventReceiverClient("gl1daq");
+  }
 
   return 0;
 }
@@ -365,7 +366,7 @@ int HcalMon::process_event(Event* e /* evt */)
         float time = result.at(1);
         float pedestal = result.at(2);
         if (signal > 15 && signal< 15000) energy1 += signal;
-
+        
         // channel mapping
         unsigned int key = TowerInfoDefs::encode_hcal(towerNumber - 1);
         unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);

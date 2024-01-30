@@ -159,10 +159,10 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalMon5")
   {
-    TC[6] = new TCanvas(name.c_str(), "HcalMon5 Trigger Info", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[6] = new TCanvas(name.c_str(), "HcalMon5 Trigger Info", xsize / 2, 0, xsize / 2, ysize * 0.9);
     gSystem->ProcessEvents();
-    Pad[16] = new TPad("hcalpad16", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
-    Pad[17] = new TPad("hcalpad17", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
+    Pad[16] = new TPad("hcalpad16", "who needs this?", 0.0, 0.3, 0.5, 0.95, 0);
+    Pad[17] = new TPad("hcalpad17", "who needs this?", 0.5, 0.3, 1.0, 0.90, 0);
     Pad[18] = new TPad("hcalpad18", "who needs this?", 0.0, 0.0, 1.0, 0.3, 0);
     Pad[16]->Draw();
     Pad[17]->Draw();
@@ -1517,18 +1517,18 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   Pad[16]->cd();
   gStyle->SetTitleFontSize(0.03);
 
-  h2_hcal_hits_trig->Draw("colz");
+  h2_hcal_hits->Draw("colz");
 
   float tsize = 0.06;
-  h2_hcal_hits_trig->GetXaxis()->SetNdivisions(510, kTRUE);
-  h2_hcal_hits_trig->GetXaxis()->SetTitle("ieta");
-  h2_hcal_hits_trig->GetYaxis()->SetTitle("iphi");
-  h2_hcal_hits_trig->GetXaxis()->SetLabelSize(tsize);
-  h2_hcal_hits_trig->GetYaxis()->SetLabelSize(tsize);
-  h2_hcal_hits_trig->GetXaxis()->SetTitleSize(tsize);
-  h2_hcal_hits_trig->GetYaxis()->SetTitleSize(tsize);
-  h2_hcal_hits_trig->GetXaxis()->SetTitleOffset(1.2);
-  h2_hcal_hits_trig->GetYaxis()->SetTitleOffset(0.75);
+  h2_hcal_hits->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_hits->GetXaxis()->SetTitle("No trigger req  ieta");
+  h2_hcal_hits->GetYaxis()->SetTitle("iphi");
+  h2_hcal_hits->GetXaxis()->SetLabelSize(tsize);
+  h2_hcal_hits->GetYaxis()->SetLabelSize(tsize);
+  h2_hcal_hits->GetXaxis()->SetTitleSize(tsize);
+  h2_hcal_hits->GetYaxis()->SetTitleSize(tsize);
+  h2_hcal_hits->GetXaxis()->SetTitleOffset(1.2);
+  h2_hcal_hits->GetYaxis()->SetTitleOffset(0.75);
   gPad->SetLogz();
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.2);
@@ -1561,7 +1561,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   float tsize2 = 0.08;
   h2_hcal_hits_trig->Draw("colz");
   h2_hcal_hits_trig->GetXaxis()->SetNdivisions(510, kTRUE);
-  h2_hcal_hits_trig->GetXaxis()->SetTitle("ieta");
+  h2_hcal_hits_trig->GetXaxis()->SetTitle("trigger req  ieta");
   h2_hcal_hits_trig->GetYaxis()->SetTitle("iphi");
   h2_hcal_hits_trig->GetXaxis()->SetLabelSize(tsize2);
   h2_hcal_hits_trig->GetYaxis()->SetLabelSize(tsize2);
@@ -1583,8 +1583,8 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
 
   h_hcal_trig->Draw("hist");
   h_hcal_trig->GetXaxis()->SetNdivisions(510, kTRUE);
-  h_hcal_trig->GetXaxis()->SetTitle("events");
-  h_hcal_trig->GetYaxis()->SetTitle("trigger index");
+  h_hcal_trig->GetXaxis()->SetTitle("trigger index");
+  h_hcal_trig->GetYaxis()->SetTitle("events");
   h_hcal_trig->GetXaxis()->SetLabelSize(tsize2);
   h_hcal_trig->GetYaxis()->SetLabelSize(tsize2);
   h_hcal_trig->GetXaxis()->SetTitleSize(tsize2);
