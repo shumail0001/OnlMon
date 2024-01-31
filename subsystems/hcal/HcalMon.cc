@@ -134,6 +134,7 @@ int HcalMon::Init()
   h1_packet_length = new TH1F("h1_packet_length", "", 8, packetlow - 0.5, packethigh + 0.5);
   h1_packet_chans = new TH1F("h1_packet_chans", "", 8, packetlow - 0.5, packethigh + 0.5);
   h1_packet_event = new TH1F("h1_packet_event", "", 8, packetlow - 0.5, packethigh + 0.5);
+  h_caloPack_gl1_clock_diff = new TH2F("h_caloPack_gl1_clock_diff","", 8, packetlow - 0.5, packethigh + 0.5,65536,0,65536);
 
   for (int ih = 0; ih < Nsector; ih++)
     h_rm_sectorAvg[ih] = new TH1F(Form("h_rm_sectorAvg_s%d", ih), "", historyLength, 0, historyLength * historyScaleDown);
@@ -166,6 +167,7 @@ int HcalMon::Init()
   se->registerHisto(this, h2_hcal_hits);
   se->registerHisto(this, h2_hcal_hits_trig);
   se->registerHisto(this, h_hcal_trig);
+  se->registerHisto(this, h_caloPack_gl1_clock_diff);
   se->registerHisto(this, h2_hcal_rm);
   se->registerHisto(this, h2_hcal_mean);
   se->registerHisto(this, h2_hcal_waveform);
@@ -313,12 +315,14 @@ int HcalMon::process_event(Event* e /* evt */)
 
   bool trig_fire = false;
   std::vector<bool> trig_bools;
+  long long int gl1_clock = 0;
   if (anaGL1){
     int evtnr = e->getEvtSequence();
     Event *gl1Event = erc->getEvent(evtnr);
     if (gl1Event){
       Packet* p = e->getPacket(14001);
       if (p){
+        gl1_clock = p->lValue(0,"BCO");
         int triggervec = p->lValue(0,"TriggerVector");
         for (int i = 0; i < 64; i++ ) {
           bool trig_decision = (bool) triggervec & 1;
@@ -345,6 +349,9 @@ int HcalMon::process_event(Event* e /* evt */)
       h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet - packetlow]->getMean(0));
 
       h1_packet_event->SetBinContent(packet - packetlow + 1, p->iValue(0, "CLOCK"));
+      long long int p_clock = p->iValue(0,"CLOCK"); 
+      long long int diff = (p_clock - gl1_clock) % 65536;
+      h_caloPack_gl1_clock_diff->Fill(packet,diff);
       int nChannels = p->iValue(0, "CHANNELS");
       if (nChannels > m_nChannels)
       {

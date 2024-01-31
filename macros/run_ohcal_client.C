@@ -16,6 +16,9 @@ void ohcalDrawInit(const int online = 0)
   {
     sprintf(HCALMON_STR, "OHCALMON_%i", i);
     cl->registerHisto("h2_hcal_hits", HCALMON_STR);
+    cl->registerHisto("h2_hcal_hits_trig", HCALMON_STR);
+    cl->registerHisto("h_hcal_trig", HCALMON_STR);
+    cl->registerHisto("h_caloPack_gl1_clock_diff", HCALMON_STR);
     cl->registerHisto("h2_hcal_rm", HCALMON_STR);
     cl->registerHisto("h2_hcal_mean", HCALMON_STR);
     cl->registerHisto("h2_hcal_waveform", HCALMON_STR);
