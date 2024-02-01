@@ -56,6 +56,7 @@ class HcalMon : public OnlMon
   TH1* h_rm_sectorAvg[32] = {nullptr};
   TH1* h_rm_tower[24][64] = {nullptr};
   TH1* h_hcal_trig = {nullptr};
+  TH2* h_caloPack_gl1_clock_diff = {nullptr};
 
   eventReceiverClient *erc = {nullptr};
   bool anaGL1 = false;

@@ -1496,6 +1496,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TH2F* h2_hcal_hits_trig = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits_trig");
   TH2F* h2_hcal_hits = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
   TH1F* h_hcal_trig = (TH1F*) cl->getHisto(HCALMON_0, "h_hcal_trig");
+  TH2F* h_caloPack_gl1_clock_diff = (TH2F*) cl->getHisto(HCALMON_0, "h_caloPack_gl1_clock_diff");
 
 
   if (!gROOT->FindObject("HcalMon5"))
@@ -1506,7 +1507,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TC[6]->SetEditable(1);
   TC[6]->Clear("D");
   Pad[16]->cd();
-  if (!h2_hcal_hits_trig || !h2_hcal_hits || !h_hcal_trig)
+  if (!h2_hcal_hits_trig || !h2_hcal_hits || !h_hcal_trig  || !h_caloPack_gl1_clock_diff)
   {
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(0);
