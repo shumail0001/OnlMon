@@ -29,6 +29,7 @@ libonlmonserver_la_LDFLAGS = \
   -L$(OPT_SPHENIX)/lib \
   `root-config --libs` \
   -lmessage \
+  -lNoRootEvent \
   -lodbc++ \
   -lz
 
