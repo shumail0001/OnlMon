@@ -370,7 +370,7 @@ int TpcMon::process_event(Event *evt/* evt */)
   if (evt->existPacket(4000))
     {
       Packet *p = evt->getPacket(4000);
-      if (p->getIdentifier() == IDTPCFEEV3 ) firstpacket = 4000;
+      if (p->getHitFormat() == IDTPCFEEV3 ) firstpacket = 4000;
       delete p;
     }
   int lastpacket = firstpacket+232;
