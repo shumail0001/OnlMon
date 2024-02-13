@@ -99,8 +99,6 @@ class TpcMon : public OnlMon
   TH2 *Layer_ChannelPhi_ADC_weighted = nullptr;
 
   TpcMap M; //declare Martin's map
-  
-  TH1 *histnum = nullptr;
 
   int starting_BCO;
   int rollover_value;

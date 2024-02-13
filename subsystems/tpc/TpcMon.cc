@@ -288,8 +288,6 @@ int TpcMon::Init()
   Layer_ChannelPhi_ADC_weighted->SetXTitle("Channel # (#phi bin)");
   Layer_ChannelPhi_ADC_weighted->SetYTitle("Layer");  
 
-  histnum = new TH1F("histnum","WORTH PLOTTING",360,-0.5,359.5);
-
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, tpchist1);  // uses the TH1->GetName() as key
