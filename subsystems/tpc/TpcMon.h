@@ -30,6 +30,7 @@ class TpcMon : public OnlMon
  protected:
   int evtcnt = 0;
   int idummy = 0;
+  int weird_counter = 0;
 
   static const int N_rBins = 4; //(one inner bin not filled, 2nd bin is R1, 3rd bin is R2, 4th bin is R3)
   const int N_thBins = 12; //(12 theta bins of uniform angle (360/12 = 30 degrees = TMath::Pi()/6 ~= 0.523 rad)
@@ -95,7 +96,11 @@ class TpcMon : public OnlMon
   TH1 *RAWADC_1D_R3= nullptr;
   TH1 *MAXADC_1D_R3 = nullptr;
 
+  TH2 *Layer_ChannelPhi_ADC_weighted = nullptr;
+
   TpcMap M; //declare Martin's map
+  
+  TH1 *histnum = nullptr;
 
   int starting_BCO;
   int rollover_value;
@@ -108,7 +113,7 @@ class TpcMon : public OnlMon
   int Module_ID(int fee_id);
   int Max_Nine(int one, int two, int three, int four, int five, int six, int seven, int eight, int nine);
   bool side(int server_id);
-  std::pair<float, float> calculateMeanAndStdDev(const std::vector<int>& values);
+  std::pair<float, float> calculateMedianAndStdDev(const std::vector<int>& values);
 };
 
 #endif /* TPC_TPCMON_H */

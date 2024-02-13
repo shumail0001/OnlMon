@@ -21,7 +21,9 @@
 #include <TTree.h>
 #include <TLatex.h>
 
+#include <vector>
 #include <cmath>
+#include <algorithm>
 #include <vector>
 #include <cstdio>  // for printf
 #include <fstream>
@@ -82,33 +84,33 @@ int TpcMon::Init()
 
   //TPC "cluster" XY heat maps WEIGHTED
   //NorthSideADC_clusterXY_R1 = new TH2F("NorthSideADC_clusterXY_R1" , "ADC Peaks North Side", N_phi_binx_XY_R1, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  NorthSideADC_clusterXY_R1 = new TH2F("NorthSideADC_clusterXY_R1" , "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R1 = new TH2F("NorthSideADC_clusterXY_R1" , "(ADC-Pedestal) > 5#sigma North Side", 400, -800, 800, 400, -800, 800);
   NorthSideADC_clusterXY_R1->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R1->SetYTitle("Y [mm]");
 
   //NorthSideADC_clusterXY_R2 = new TH2F("NorthSideADC_clusterXY_R2" , "ADC Peaks North Side", N_phi_binx_XY_R2, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  NorthSideADC_clusterXY_R2 = new TH2F("NorthSideADC_clusterXY_R2" , "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R2 = new TH2F("NorthSideADC_clusterXY_R2" , "(ADC-Pedestal) > 5#sigma North Side", 400, -800, 800, 400, -800, 800);
   NorthSideADC_clusterXY_R2->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R2->SetYTitle("Y [mm]");
 
   //NorthSideADC_clusterXY_R3 = new TH2F("NorthSideADC_clusterXY_R3" , "ADC Peaks North Side", N_phi_binx_XY_R3, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  NorthSideADC_clusterXY_R3 = new TH2F("NorthSideADC_clusterXY_R3" , "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R3 = new TH2F("NorthSideADC_clusterXY_R3" , "(ADC-Pedestal) > 5#sigma North Side", 400, -800, 800, 400, -800, 800);
   NorthSideADC_clusterXY_R3->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R3->SetYTitle("Y [mm]");
 
 
   //SouthSideADC_clusterXY_R1 = new TH2F("SouthSideADC_clusterXY_R1" , "ADC Peaks South Side", N_phi_binx_XY_R1, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  SouthSideADC_clusterXY_R1 = new TH2F("SouthSideADC_clusterXY_R1" , "(ADC-Pedestal) >20 South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R1 = new TH2F("SouthSideADC_clusterXY_R1" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R1->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R1->SetYTitle("Y [mm]");
 
   //SouthSideADC_clusterXY_R2 = new TH2F("SouthSideADC_clusterXY_R2" , "ADC Peaks South Side", N_phi_binx_XY_R2, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  SouthSideADC_clusterXY_R2 = new TH2F("SouthSideADC_clusterXY_R2" , "(ADC-Pedestal) > 20 South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R2 = new TH2F("SouthSideADC_clusterXY_R2" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R2->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R2->SetYTitle("Y [mm]");
 
   //SouthSideADC_clusterXY_R3 = new TH2F("SouthSideADC_clusterXY_R3" , "ADC Peaks South Side", N_phi_binx_XY_R3, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);  
-  SouthSideADC_clusterXY_R3 = new TH2F("SouthSideADC_clusterXY_R3" , "(ADC-Pedestal) > 20 South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R3 = new TH2F("SouthSideADC_clusterXY_R3" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R3->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R3->SetYTitle("Y [mm]");
 
@@ -116,47 +118,47 @@ int TpcMon::Init()
 
   //TPC "cluster" XY heat maps UNWEIGHTED
   //NorthSideADC_clusterXY_R1 = new TH2F("NorthSideADC_clusterXY_R1" , "ADC Peaks North Side", N_phi_binx_XY_R1, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  NorthSideADC_clusterXY_R1_unw = new TH2F("NorthSideADC_clusterXY_R1_unw" , "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R1_unw = new TH2F("NorthSideADC_clusterXY_R1_unw" , "(ADC-Pedestal) > 5#sigma North Side", 400, -800, 800, 400, -800, 800);
   NorthSideADC_clusterXY_R1_unw->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R1_unw->SetYTitle("Y [mm]");
 
   //NorthSideADC_clusterXY_R2 = new TH2F("NorthSideADC_clusterXY_R2" , "ADC Peaks North Side", N_phi_binx_XY_R2, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  NorthSideADC_clusterXY_R2_unw = new TH2F("NorthSideADC_clusterXY_R2_unw" , "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R2_unw = new TH2F("NorthSideADC_clusterXY_R2_unw" , "(ADC-Pedestal) > 5#sigma Side", 400, -800, 800, 400, -800, 800);
   NorthSideADC_clusterXY_R2_unw->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R2_unw->SetYTitle("Y [mm]");
 
   //NorthSideADC_clusterXY_R3 = new TH2F("NorthSideADC_clusterXY_R3" , "ADC Peaks North Side", N_phi_binx_XY_R3, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  NorthSideADC_clusterXY_R3_unw = new TH2F("NorthSideADC_clusterXY_R3_unw" , "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R3_unw = new TH2F("NorthSideADC_clusterXY_R3_unw" , "(ADC-Pedestal) > 5#sigma Side", 400, -800, 800, 400, -800, 800);
   NorthSideADC_clusterXY_R3_unw->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R3_unw->SetYTitle("Y [mm]");
 
 
   //SouthSideADC_clusterXY_R1 = new TH2F("SouthSideADC_clusterXY_R1" , "ADC Peaks South Side", N_phi_binx_XY_R1, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  SouthSideADC_clusterXY_R1_unw = new TH2F("SouthSideADC_clusterXY_R1_unw" , "(ADC-Pedestal) >20 South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R1_unw = new TH2F("SouthSideADC_clusterXY_R1_unw" , "(ADC-Pedestal) > 5#sigma", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R1_unw->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R1_unw->SetYTitle("Y [mm]");
 
   //SouthSideADC_clusterXY_R2 = new TH2F("SouthSideADC_clusterXY_R2" , "ADC Peaks South Side", N_phi_binx_XY_R2, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
-  SouthSideADC_clusterXY_R2_unw = new TH2F("SouthSideADC_clusterXY_R2_unw" , "(ADC-Pedestal) > 20 South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R2_unw = new TH2F("SouthSideADC_clusterXY_R2_unw" , "(ADC-Pedestal) > 5#sigma", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R2_unw->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R2_unw->SetYTitle("Y [mm]");
 
   //SouthSideADC_clusterXY_R3 = new TH2F("SouthSideADC_clusterXY_R3" , "ADC Peaks South Side", N_phi_binx_XY_R3, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);  
-  SouthSideADC_clusterXY_R3_unw = new TH2F("SouthSideADC_clusterXY_R3_unw" , "(ADC-Pedestal) > 20 South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R3_unw = new TH2F("SouthSideADC_clusterXY_R3_unw" , "(ADC-Pedestal) > 5#sigma", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R3_unw->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R3_unw->SetYTitle("Y [mm]");
 
   //____________________________________________________________________//
 
   //TPC "cluster" ZY heat maps WEIGHTED
-   NorthSideADC_clusterZY = new TH2F("NorthSideADC_clusterZY" , "(ADC-Pedestal) > 20 North Side", 206, -1030, 1030, 400, -800, 800);
-   SouthSideADC_clusterZY = new TH2F("SouthSideADC_clusterZY" , "(ADC-Pedestal) > 20 North Side", 206, -1030, 1030, 400, -800, 800);
+   NorthSideADC_clusterZY = new TH2F("NorthSideADC_clusterZY" , "(ADC-Pedestal) > 5#sigma North Side", 206, -1030, 1030, 400, -800, 800);
+   SouthSideADC_clusterZY = new TH2F("SouthSideADC_clusterZY" , "(ADC-Pedestal) > 5#sigma South Side", 206, -1030, 1030, 400, -800, 800);
 
   //____________________________________________________________________//
 
   //TPC "cluster" ZY heat maps UNWEIGHTED
-   NorthSideADC_clusterZY_unw = new TH2F("NorthSideADC_clusterZY_unw" , "(ADC-Pedestal) > 20 South Side", 206, -1030, 1030, 400, -800, 800);
-   SouthSideADC_clusterZY_unw = new TH2F("SouthSideADC_clusterZY_unw" , "(ADC-Pedestal) > 20 South Side", 206, -1030, 1030, 400, -800, 800);
+   NorthSideADC_clusterZY_unw = new TH2F("NorthSideADC_clusterZY_unw" , "(ADC-Pedestal) > 5#sigma North Side", 206, -1030, 1030, 400, -800, 800);
+   SouthSideADC_clusterZY_unw = new TH2F("SouthSideADC_clusterZY_unw" , "(ADC-Pedestal) > 5#sigma South Side", 206, -1030, 1030, 400, -800, 800);
 
   //____________________________________________________________________//
 
@@ -278,6 +280,16 @@ int TpcMon::Init()
   MAXADC_1D_R3->SetLineColor(4);
   RAWADC_1D_R3->SetLineColor(4);
 
+  
+  char Layer_ChannelPhi_ADC_weighted_title_str[256];
+  sprintf(Layer_ChannelPhi_ADC_weighted_title_str,"Layer vs Channel Phi");  
+  // x-axis is channel phi, y-axis is channel layer, z axis is ADC weithing
+  Layer_ChannelPhi_ADC_weighted = new TH2F("Layer_ChannelPhi_ADC_weighted",Layer_ChannelPhi_ADC_weighted_title_str,4610,-2305.5,2304.5,61,-0.5,59.5);
+  Layer_ChannelPhi_ADC_weighted->SetXTitle("Channel # (#phi bin)");
+  Layer_ChannelPhi_ADC_weighted->SetYTitle("Layer");  
+
+  histnum = new TH1F("histnum","WORTH PLOTTING",360,-0.5,359.5);
+
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, tpchist1);  // uses the TH1->GetName() as key
@@ -319,6 +331,7 @@ int TpcMon::Init()
   se->registerHisto(this, NorthSideADC_clusterZY_unw);
   se->registerHisto(this, SouthSideADC_clusterZY_unw);
 
+  se->registerHisto(this, Layer_ChannelPhi_ADC_weighted); 
 
   Reset();
   return 0;
@@ -359,7 +372,7 @@ int TpcMon::process_event(Event *evt/* evt */)
   float South_Side_Arr[36] = {0};
 
   std::vector<int> store_ten; 
-  std::vector<int> mean_and_stdev_vec;
+  std::vector<int> median_and_stdev_vec;
 
 
   // we check if we have legacy data and start with packet 4000
@@ -445,7 +458,18 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         // getting R and Phi coordinates
         double R = M.getR(feeM, channel);
-        int layer = M.getLayer(feeM, channel);
+        double padphi = 0;
+
+        if( side(serverid) == 0 ) //NS
+        {
+          padphi =  M.getPad(feeM, channel) + (serverid ) * (2304./12.); 
+        }
+        else if( side(serverid) == 1 ) //SS
+        {
+          padphi = -M.getPad(feeM, channel) - (serverid-12) * (2304./12) ; 
+        }
+
+        int layer = M.getLayer(feeM, channel) + (serverid);
         double phi = 0;
 
         //double phi = M.getPhi(feeM, channel) + (serverid - 12*side(serverid)) * M_PI / 6 ;
@@ -459,7 +483,6 @@ int TpcMon::process_event(Event *evt/* evt */)
           phi = M.getPhi(feeM, channel) + (18 - serverid ) * M_PI / 6 ; 
         }
 
-
         //std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<std::endl;
 
         int mid = floor(nr_Samples/2); //get median sample
@@ -470,18 +493,21 @@ int TpcMon::process_event(Event *evt/* evt */)
           {
             is_channel_stuck = 1;
           }
-          for( int si=0;si < 10; si++ ) //get pedestal and noise before hand
+          for( int si=0;si < nr_Samples; si++ ) //get pedestal and noise before hand
           {
-            mean_and_stdev_vec.push_back(p->iValue(wf,si));
+            median_and_stdev_vec.push_back(p->iValue(wf,si));
           }
         } //Compare 5 values to determine stuck !!
 
-        std::pair<float, float> result = calculateMeanAndStdDev(mean_and_stdev_vec);
-        int pedestal = result.first; //average/pedestal
-        //int noise = result.second; //stdev/noise
+        std::pair<float, float> result = calculateMedianAndStdDev(median_and_stdev_vec);
+	//std::cout<<"pedestal = "<<result.first<<", RMS = "<<result.second<<", ADC, channel: "<<channel<<", layer: "<<layer<<", phi: "<<phi<<std::endl;
+        float pedestal = result.first; //average/pedestal -- based on MEDIAN OF ALL ENTRIES NOW, NOT MEAN OF FIRST 10 (02/12/24)
+        float noise = result.second; //stdev - BASED ON REASONABLE SIGMA OF ENTRIES THAT ARE +/- 15 ADC WITHIN PEDESTAL
 
         int wf_max = 0;
         int t_max = 0;
+
+        float pedest_sub_wf_max = 0.;
 
         for( int s =0; s < nr_Samples ; s++ )
         {
@@ -490,7 +516,9 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           int adc = p->iValue(wf,s);       
 
-          if( adc > wf_max){ wf_max = adc; t_max = s; }
+          Layer_ChannelPhi_ADC_weighted->Fill(padphi,layer,adc-pedestal);
+
+          if( adc > wf_max){ wf_max = adc; t_max = s; pedest_sub_wf_max = adc - pedestal;}
 
           if( s >= 10 && s <= 19) // get first 10-19
           {
@@ -539,21 +567,21 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         float z = 0; //mm
 
-        if( (serverid < 12 && (wf_max - pedestal) > 20) && layer != 0 )
+        if( ((serverid < 12 && (pedest_sub_wf_max) > 5.0*noise)) && layer != 0 )
         {
-          if(Module_ID(fee)==0){NorthSideADC_clusterXY_R1->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);NorthSideADC_clusterXY_R1_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R1
-          else if(Module_ID(fee)==1){NorthSideADC_clusterXY_R2->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);NorthSideADC_clusterXY_R2_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
-          else if(Module_ID(fee)==2){NorthSideADC_clusterXY_R3->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);NorthSideADC_clusterXY_R3_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
+          if(Module_ID(fee)==0){NorthSideADC_clusterXY_R1->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterXY_R1_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R1
+          else if(Module_ID(fee)==1){NorthSideADC_clusterXY_R2->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterXY_R2_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
+          else if(Module_ID(fee)==2){NorthSideADC_clusterXY_R3->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterXY_R3_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
 
-          if( t_max >= 10 && t_max <=255 ){z = 1030 - (t_max - 10)*(50 * 0.084);NorthSideADC_clusterZY->Fill(z,R*sin(phi),wf_max - pedestal);NorthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
+          if( t_max >= 10 && t_max <=255 ){z = 1030 - (t_max - 10)*(50 * 0.084);NorthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
         }
-        else if( (serverid >=12 && (wf_max - pedestal) > 20) && layer != 0)
+        else if( (serverid >=12 && (pedest_sub_wf_max) > 5.0*noise) && layer != 0)
         {
-          if(Module_ID(fee)==0){SouthSideADC_clusterXY_R1->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);SouthSideADC_clusterXY_R1_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R1
-          else if(Module_ID(fee)==1){SouthSideADC_clusterXY_R2->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);SouthSideADC_clusterXY_R2_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
-          else if(Module_ID(fee)==2){SouthSideADC_clusterXY_R3->Fill(R*cos(phi),R*sin(phi),wf_max - pedestal);SouthSideADC_clusterXY_R3_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
+          if(Module_ID(fee)==0){SouthSideADC_clusterXY_R1->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterXY_R1_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R1
+          else if(Module_ID(fee)==1){SouthSideADC_clusterXY_R2->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterXY_R2_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
+          else if(Module_ID(fee)==2){SouthSideADC_clusterXY_R3->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterXY_R3_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
 
-          if( t_max >= 10 && t_max <=255 ){z = -1030 + (t_max - 10)*(50 * 0.084);SouthSideADC_clusterZY->Fill(z,R*sin(phi),wf_max - pedestal);SouthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
+          if( t_max >= 10 && t_max <=255 ){z = -1030 + (t_max - 10)*(50 * 0.084);SouthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
         }
         //________________________________________________________________________________
 
@@ -561,7 +589,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         store_ten.clear(); //clear this after every waveform
         
-        mean_and_stdev_vec.clear(); //clear this after every waveform
+        median_and_stdev_vec.clear(); //clear this after every waveform
 
 
       } //nr waveforms
@@ -681,24 +709,55 @@ bool TpcMon::side(int server_id)
   return side_id;
 }
 
-std::pair<float, float> TpcMon::calculateMeanAndStdDev(const std::vector<int>& values) {
-    // Calculate the mean
+std::pair<float, float> TpcMon::calculateMedianAndStdDev(const std::vector<int>& values) {
+
+    // Calculate the median
+    // first, sort
+    std::vector<int> sortedValues = values;
+    std::sort(sortedValues.begin(), sortedValues.end());    
+    size_t size = sortedValues.size();
+
+    float median;
+    if (size % 2 == 0) 
+    {
+      median = (sortedValues[size / 2 - 1] + sortedValues[size / 2]) / 2.0;
+    } 
+    else 
+    {
+      median = sortedValues[size / 2];
+    }
+
+    std::vector<int> selectedValues;
+
+    // Select values within the range of median +/- 50
+    for (int value : values) {
+      if (value >= median - 50 && value <= median + 50)
+      {
+        selectedValues.push_back(value);
+      }
+    }    
+
+    //Calculate Mean of selected values
     float sum = 0.0;
-    for (const auto& value : values) {
-        sum += value;
+    for (int value : selectedValues) 
+    {
+      sum += value;
     }
-    float mean = sum / values.size();
+    float mean = sum / selectedValues.size();
 
-    // Calculate the standard deviation
-    float squaredSum = 0.0;
-    for (const auto& value : values) {
-        double diff = value - mean;
-        squaredSum += diff * diff;
+    // Calculate RMS of selected values
+    float sumSquares = 0.0;
+
+    // Calculate the standard deviation of selected values only
+    for (int value : selectedValues)
+    {
+      float diff = value - mean;
+      sumSquares += std::pow(diff, 2);
     }
-    float variance = squaredSum / values.size();
+    float variance = sumSquares / selectedValues.size();
     float stdDev = std::sqrt(variance);
-
-    return std::make_pair(mean, stdDev);
+    
+    return std::make_pair(median, stdDev);
 }
 
 
