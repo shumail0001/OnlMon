@@ -210,7 +210,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
 
   else if (name == "TPCClusterZY")
   {
-    TC[13] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> 20 ADC for NS and SS, WEIGHTED", 1350, 700);
+    TC[13] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> 5#sigma for NS and SS, WEIGHTED", 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[13]->Divide(1,1);
@@ -223,7 +223,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
 
   else if (name == "TPCClusterZY_unw")
   {
-    TC[14] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> 20 ADC for NS and SS, UNWEIGHTED", 1350, 700);
+    TC[14] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  5#sigma for NS and SS, UNWEIGHTED", 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[14]->Divide(1,1);
@@ -233,7 +233,19 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[13]->Draw();
     TC[14]->SetEditable(false);
   }
- 
+
+  else if (name == "TPCLayerPhi")
+  {
+    TC[15] = new TCanvas(name.c_str(), "Layer vs Channel Phi for NS and SS, WEIGHTED by Sum(ADC-pedestal)",1350,700);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[15]->Divide(1,1);
+    // this one is used to plot the run number on the canvas
+    transparent[14] = new TPad("transparent14", "this does not show", 0, 0, 1, 1);
+    transparent[14]->SetFillStyle(4000);
+    transparent[14]->Draw();
+    TC[15]->SetEditable(false);
+  } 
   
   return 0;
 }
@@ -310,6 +322,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCCLUSTERSZYUNWEIGTHED")
   {
     iret += DrawTPCZYclusters_unweighted(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCCHANNELPHI_LAYER_WEIGHTED")
+  {
+    iret += DrawTPCchannelphi_layer_weighted(what);
     idraw++;
   }
   if (!idraw)
@@ -1570,6 +1587,79 @@ int TpcMonDraw::DrawTPCZYclusters_unweighted(const std::string & /* what */)
   TC[14]->SetEditable(false);
 
 
+
+  return 0;
+}
+int TpcMonDraw::DrawTPCchannelphi_layer_weighted(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *tpcmonth2channelphi_layer[24] = {nullptr};
+
+  char TPCMON_STR[100];
+
+  dummy_his1_channelphi_layer_w = new TH2F("dummy_his1_channelphi_layer_", "(ADC-Pedestal) > 20 ADC, UNWEIGHTED", 515, -1030, 1030, 400, -800, 800); //dummy histos for titles
+  dummy_his1_channelphi_layer_w->SetXTitle("#phi chan. #");
+  dummy_his1_channelphi_layer_w->SetYTitle("layer ");
+  dummy_his1_channelphi_layer_w->SetZTitle("#Sigma(ADC-ped.)");
+
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmonth2channelphi_layer[i] = (TH2*) cl->getHisto(TPCMON_STR,"Layer_ChannelPhi_ADC_weighted");
+  }
+
+  if (!gROOT->FindObject("TPCLayerPhi"))
+  {
+    MakeCanvas("TPCLayerPhi");
+  }  
+
+  TC[15]->SetEditable(true);
+  TC[15]->Clear("D");
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_ChannelPhi_vs_Layer_ADC_weighted " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[14]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  TC[15]->cd(1);
+  gStyle->SetOptStat(kFALSE);
+  gPad->SetTopMargin(0.15);
+  gPad->SetLogz(kTRUE);
+  dummy_his1_channelphi_layer_w->Draw("lego2zsame");
+
+  float max = 0;
+  for( int i=0; i<24; i++ )
+  {
+    if(  tpcmonth2channelphi_layer[i] )
+    {
+      TC[15]->cd(1);
+       tpcmonth2channelphi_layer[i] -> Draw("lego2zsame");
+      if (   tpcmonth2channelphi_layer[i]->GetBinContent(  tpcmonth2channelphi_layer[i]->GetMaximumBin()) > max ) 
+      {
+        max =  tpcmonth2channelphi_layer[i]->GetBinContent( tpcmonth2channelphi_layer[i]->GetMaximumBin());
+        dummy_his1_channelphi_layer_w->SetMaximum( max );
+      }
+      //gStyle->SetLogz(kTRUE);
+      gStyle->SetPalette(57); //kBird CVD friendly
+    }
+
+  }
+  TC[15]->Update();
+
+  TC[15]->Show();
+  TC[15]->SetEditable(false);
 
   return 0;
 }

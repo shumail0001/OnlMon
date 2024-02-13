@@ -39,11 +39,12 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCXYclusters_unweighted(const std::string &what = "ALL");
   int DrawTPCZYclusters(const std::string &what = "ALL");
   int DrawTPCZYclusters_unweighted(const std::string &what = "ALL");
+  int DrawTPCchannelphi_layer_weighted(const std::string &what = "ALL");
   time_t getTime();
   
-  TCanvas *TC[15] = {nullptr};
-  TPad *transparent[14] = {nullptr};
-  TPad *Pad[10] = {nullptr};
+  TCanvas *TC[16] = {nullptr};
+  TPad *transparent[15] = {nullptr};
+  TPad *Pad[11] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module
   TH2 *dummy_his1 = nullptr;
@@ -59,6 +60,8 @@ class TpcMonDraw : public OnlMonDraw
   TH2 *dummy_his2_XY_unw = nullptr;
 
   TH2 *dummy_his1_ZY_unw = nullptr;
+
+  TH2 *dummy_his1_channelphi_layer_w = nullptr;
 
   TPaveLabel* NS18 = nullptr; //North Side labels
   TPaveLabel* NS17 = nullptr;
