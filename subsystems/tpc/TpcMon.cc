@@ -727,9 +727,9 @@ std::pair<float, float> TpcMon::calculateMedianAndStdDev(const std::vector<int>&
 
     std::vector<int> selectedValues;
 
-    // Select values within the range of median +/- 50
+    // Select values within the range of median +/- 25
     for (int value : values) {
-      if (value >= median - 50 && value <= median + 50)
+      if (value >= median - 25 && value <= median + 25)
       {
         selectedValues.push_back(value);
       }
