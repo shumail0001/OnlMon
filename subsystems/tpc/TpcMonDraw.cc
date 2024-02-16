@@ -1693,9 +1693,9 @@ int TpcMonDraw::DrawTPCPedestSubADC1D(const std::string & /* what */)
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_PEDESTSUBADC1D[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_1D_R1");
-    tpcmon_PEDESTSUBADC1D[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_1D_R2");
-    tpcmon_PEDESTSUBADC1D[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_1D_R3");
+    tpcmon_PEDESTSUBADC1D[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_1D_R1");
+    tpcmon_PEDESTSUBADC1D[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_1D_R2");
+    tpcmon_PEDESTSUBADC1D[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_1D_R3");
   }
 
 
