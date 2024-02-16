@@ -35,6 +35,7 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCMaxADCModule(const std::string &what = "ALL");
   int DrawTPCRawADC1D(const std::string &what = "ALL");
   int DrawTPCMaxADC1D(const std::string &what = "ALL");
+  int DrawTPCPedestSubADC1D(const std::string &what = "ALL");
   int DrawTPCXYclusters(const std::string &what = "ALL");
   int DrawTPCXYclusters_unweighted(const std::string &what = "ALL");
   int DrawTPCZYclusters(const std::string &what = "ALL");
@@ -42,8 +43,8 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCchannelphi_layer_weighted(const std::string &what = "ALL");
   time_t getTime();
   
-  TCanvas *TC[16] = {nullptr};
-  TPad *transparent[15] = {nullptr};
+  TCanvas *TC[17] = {nullptr};
+  TPad *transparent[16] = {nullptr};
   TPad *Pad[11] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module
