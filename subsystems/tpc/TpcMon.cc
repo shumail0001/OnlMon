@@ -225,12 +225,15 @@ int TpcMon::Init()
   //________For 1D ADC spectra - Doing this the hard way because I'm not sure if I can have a TH1 array
   char RAWADC_1D_titlestr[100];
   char MAXADC_1D_titlestr[100];
+  char SUBADC_1D_titlestr[100];
 
   sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R1",MonitorServerId());
   sprintf(MAXADC_1D_titlestr,"MAX ADC in SLIDING WINDOW for Sector %i R1",MonitorServerId());
+  sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R1",MonitorServerId()); 
 
   RAWADC_1D_R1 = new TH1F("RAWADC_1D_R1",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R1 = new TH1F("MAXADC_1D_R1",MAXADC_1D_titlestr,1025,-0.5,1024.5);
+  PEDEST_SUB_1D_R1 = new TH1F("PEDEST_SUB_1D_R1",SUBADC_1D_titlestr,1125,-100.5,1024.5);
 
   RAWADC_1D_R1->SetYTitle("Entries");
   RAWADC_1D_R1->SetXTitle("ADC [ADU]");
@@ -238,17 +241,24 @@ int TpcMon::Init()
   MAXADC_1D_R1->SetYTitle("Entries");
   MAXADC_1D_R1->SetXTitle("(MAXADC-pedestal) [ADU]");
 
+  PEDEST_SUB_1D_R1->SetYTitle("Entries");
+  PEDEST_SUB_1D_R1->SetXTitle("(ADC-pedestal) [ADU]");
+
   MAXADC_1D_R1->Sumw2(kFALSE);
   RAWADC_1D_R1->Sumw2(kFALSE);
+  PEDEST_SUB_1D_R1->Sumw2(kFALSE);
 
   MAXADC_1D_R1->SetLineColor(2);
   RAWADC_1D_R1->SetLineColor(2);
+  PEDEST_SUB_1D_R1->SetLineColor(2);
 
   sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R2",MonitorServerId());
   sprintf(MAXADC_1D_titlestr,"MAX ADC for Sector %i R2",MonitorServerId());
+  sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R2`",MonitorServerId()); 
 
   RAWADC_1D_R2 = new TH1F("RAWADC_1D_R2",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R2 = new TH1F("MAXADC_1D_R2",MAXADC_1D_titlestr,1025,-0.5,1024.5);
+  PEDEST_SUB_1D_R2 = new TH1F("PEDEST_SUB_1D_R2",SUBADC_1D_titlestr,1125,-100.5,1024.5);
 
   RAWADC_1D_R2->SetYTitle("Entries");
   RAWADC_1D_R2->SetXTitle("ADC [ADU]");
@@ -256,17 +266,24 @@ int TpcMon::Init()
   MAXADC_1D_R2->SetYTitle("Entries");
   MAXADC_1D_R2->SetXTitle("(MAXADC-pedestal) [ADU]");
 
+  PEDEST_SUB_1D_R2->SetYTitle("Entries");
+  PEDEST_SUB_1D_R2->SetXTitle("(ADC-pedestal) [ADU]");
+
   MAXADC_1D_R2->Sumw2(kFALSE);
   RAWADC_1D_R2->Sumw2(kFALSE);
+  PEDEST_SUB_1D_R2->Sumw2(kFALSE);
 
   MAXADC_1D_R2->SetLineColor(3);
   RAWADC_1D_R2->SetLineColor(3);
+  PEDEST_SUB_1D_R2->SetLineColor(3);
 
   sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R3",MonitorServerId());
   sprintf(MAXADC_1D_titlestr,"MAX ADC for Sector %i R3",MonitorServerId());
+  sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R3",MonitorServerId()); 
 
   RAWADC_1D_R3 = new TH1F("RAWADC_1D_R3",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R3 = new TH1F("MAXADC_1D_R3",MAXADC_1D_titlestr,1025,-0.5,1024.5);
+  PEDEST_SUB_1D_R3 = new TH1F("PEDEST_SUB_1D_R3",SUBADC_1D_titlestr,1125,-100.5,1024.5);
 
   RAWADC_1D_R3->SetYTitle("Entries");
   RAWADC_1D_R3->SetXTitle("ADC [ADU]");
@@ -274,11 +291,16 @@ int TpcMon::Init()
   MAXADC_1D_R3->SetYTitle("Entries");
   MAXADC_1D_R3->SetXTitle("(MAXADC-pedestal) [ADU]");
 
+  PEDEST_SUB_1D_R3->SetYTitle("Entries");
+  PEDEST_SUB_1D_R3->SetXTitle("(ADC-pedestal) [ADU]");
+
   MAXADC_1D_R3->Sumw2(kFALSE);  // ADC vs Sample (small)
   RAWADC_1D_R3->Sumw2(kFALSE);
+  PEDEST_SUB_1D_R3->Sumw2(kFALSE);
 
   MAXADC_1D_R3->SetLineColor(4);
   RAWADC_1D_R3->SetLineColor(4);
+  PEDEST_SUB_1D_R3->SetLineColor(4);
 
   
   char Layer_ChannelPhi_ADC_weighted_title_str[256];
@@ -302,10 +324,13 @@ int TpcMon::Init()
   se->registerHisto(this, MAXADC);
   se->registerHisto(this, RAWADC_1D_R1);
   se->registerHisto(this, MAXADC_1D_R1);
+  se->registerHisto(this, PEDEST_SUB_1D_R1);
   se->registerHisto(this, RAWADC_1D_R2);
   se->registerHisto(this, MAXADC_1D_R2);
+  se->registerHisto(this, PEDEST_SUB_1D_R2);
   se->registerHisto(this, RAWADC_1D_R3);
   se->registerHisto(this, MAXADC_1D_R3);
+  se->registerHisto(this, PEDEST_SUB_1D_R3);
 
   se->registerHisto(this, NorthSideADC_clusterXY_R1);
   se->registerHisto(this, NorthSideADC_clusterXY_R2);
@@ -548,9 +573,9 @@ int TpcMon::process_event(Event *evt/* evt */)
             ADC_vs_SAMPLE -> Fill(s, adc);
             ADC_vs_SAMPLE_large -> Fill(s, adc);
 
-            if(Module_ID(fee)==0){RAWADC_1D_R1->Fill(adc);} //Raw 1D for R1
-            else if(Module_ID(fee)==1){RAWADC_1D_R2->Fill(adc);} //Raw 1D for R2
-            else if(Module_ID(fee)==2){RAWADC_1D_R3->Fill(adc);} //Raw 1D for R3
+            if(Module_ID(fee)==0){RAWADC_1D_R1->Fill(adc);PEDEST_SUB_1D_R1->Fill(adc-pedestal);} //Raw/pedest_sub 1D for R1
+            else if(Module_ID(fee)==1){RAWADC_1D_R2->Fill(adc);PEDEST_SUB_1D_R2->Fill(adc-pedestal);} //Raw/pedest_sub 1D for R2
+            else if(Module_ID(fee)==2){RAWADC_1D_R3->Fill(adc);PEDEST_SUB_1D_R3->Fill(adc-pedestal);} //Raw/pedest_sub 1D for R3
           }
 
           //increment 

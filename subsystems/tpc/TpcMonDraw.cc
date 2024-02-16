@@ -245,6 +245,17 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[14]->SetFillStyle(4000);
     transparent[14]->Draw();
     TC[15]->SetEditable(false);
+  }
+  else if (name == "TPCPedestSubADC1D")
+  {
+    TC[16] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC 1D distribution", -1, 0, xsize , ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[16]->Divide(4,7);
+    transparent[15] = new TPad("transparent15", "this does not show", 0, 0, 1, 1);
+    transparent[15]->SetFillStyle(4000);
+    transparent[15]->Draw();
+    TC[16]->SetEditable(false);
   } 
   
   return 0;
@@ -329,6 +340,12 @@ int TpcMonDraw::Draw(const std::string &what)
     iret += DrawTPCchannelphi_layer_weighted(what);
     idraw++;
   }
+  if (what == "ALL" || what == "TPCPEDESTSUBADC1D")
+  {
+    iret += DrawTPCPedestSubADC1D(what);
+    idraw++;
+  }
+ 
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -1660,6 +1677,82 @@ int TpcMonDraw::DrawTPCchannelphi_layer_weighted(const std::string & /* what */)
 
   TC[15]->Show();
   TC[15]->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCPedestSubADC1D(const std::string & /* what */)
+{
+  //std::cout<<"Made it inside DrawTPCRawADC1D"<<std::endl;
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_PEDESTSUBADC1D[24][3] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_PEDESTSUBADC1D[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_1D_R1");
+    tpcmon_PEDESTSUBADC1D[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_1D_R2");
+    tpcmon_PEDESTSUBADC1D[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_1D_R3");
+  }
+
+
+  if (!gROOT->FindObject("TPCPedestSubADC1D"))
+  {
+    MakeCanvas("TPCPedestSubADC1D");
+  }  
+
+  TC[16]->SetEditable(true);
+  TC[16]->Clear("D");
+
+  auto legend = new TLegend(0.7,0.65,0.98,0.95);
+  bool draw_leg = 0;
+
+  for( int i=0; i<24; i++ )
+  {
+    TC[16]->cd(i+5);
+    for( int j = 2; j>-1; j-- )
+    {
+      if( tpcmon_PEDESTSUBADC1D[i][j] )
+      {
+        if(j == 2){tpcmon_PEDESTSUBADC1D[i][j] -> DrawCopy("HIST");}
+        else      {tpcmon_PEDESTSUBADC1D[i][j] -> DrawCopy("HISTsame");} //assumes that R3 will always exist and is most entries
+      }
+    }
+    gPad->Update();
+    gPad->SetLogy(kTRUE);  
+
+    if(draw_leg == 0 && tpcmon_PEDESTSUBADC1D[i][0] && tpcmon_PEDESTSUBADC1D[i][1] && tpcmon_PEDESTSUBADC1D[i][2]) //if you have not drawn the legend yet, draw it BUT ONLY ONCE
+    {
+      legend->AddEntry(tpcmon_PEDESTSUBADC1D[i][0], "R1");
+      legend->AddEntry(tpcmon_PEDESTSUBADC1D[i][1], "R2");
+      legend->AddEntry(tpcmon_PEDESTSUBADC1D[i][2], "R3");
+      TC[16]->cd(i+5);
+      legend->Draw();
+      draw_leg = 1; //don't draw it again
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_PEDESTSUBADC Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[15]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  TC[16]->Update();
+  TC[16]->Show();
+  TC[16]->SetEditable(false);
 
   return 0;
 }
