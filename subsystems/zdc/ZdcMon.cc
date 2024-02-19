@@ -183,8 +183,8 @@ void ZDCMon::CompSmdAdc() //substacting pedestals and multiplying with gains
     {
       // multiply SMD channels with their gain factors
       // to get the absolute ADC values in the same units
-      smd_adc[i] = smd_adc[i] * smd_south_rgain[i];
-      smd_adc[i + 16] = smd_adc[i + 16] * smd_north_rgain[i];
+      smd_adc[i] = smd_adc[i] * smd_north_rgain[i]; // sout -> north for PHENIX -> sPHENIX
+      smd_adc[i + 16] = smd_adc[i + 16] * smd_south_rgain[i]; // north -> south for PHENIX-> sPHENIX
     }
 }
 
