@@ -29,6 +29,9 @@
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
 
+#include <gsl/gsl_const.h>
+#include <gsl/gsl_math.h>
+
 enum
 {
   TRGMESSAGE = 1,
@@ -70,6 +73,7 @@ int ZdcMon::Init()
   // system (all couts are redirected)
   printf("doing the Init\n");
 
+  // Create hitograms
   zdc_adc_north = new TH1F("zdc_adc_north", "ZDC ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
   zdc_adc_south = new TH1F("zdc_adc_south", "ZDC ADC south", BIN_NUMBER, 0, MAX_ENERGY2);
 
@@ -136,22 +140,29 @@ int ZdcMon::process_event(Event *e /* evt */)
         if (mod != 0) continue;
         if((c < 16) && ((c != 6) && (c != 14)))
         {
-         if (zdc_side == 0)
-         {
-             totalzdcsouthsignal+= signal;
-         }
-         else if (zdc_side == 1)
-         {
-             totalzdcnorthsignal+= signal;
-         }
-         else
-         {
-           std::cout << "arm bin not assigned ... " << std::endl;
-           return -1;
-         }
+          if (zdc_side == 0)
+          {
+            totalzdcsouthsignal+= signal;
+          }
+          else if (zdc_side == 1)
+          {
+            totalzdcnorthsignal+= signal;
+          }
+          else
+          {
+            std::cout << "arm bin not assigned ... " << std::endl;
+            return -1;
+          }
         }  //select zdc high gain channels only
-       }  // channel loop end
-     }    // if packet good
+      }  // channel loop end
+
+    // get ped_zdc for north and south inverted from PHENIX to sPHENIX
+    bool ped_zdc_north = (zdc_adc[0] > 70.); //60 in 200GeV Cu or Au runs
+    bool ped_zdc_south = (zdc_adc[4] > 70.); //70 in 200GeV Cu or Au runs
+
+
+
+    }    // if packet good
 
     zdc_adc_south->Fill(totalzdcsouthsignal);
     zdc_adc_north->Fill(totalzdcnorthsignal);
@@ -183,6 +194,7 @@ void ZDCMon::CompSmdAdc() //substacting pedestals and multiplying with gains
     {
       // multiply SMD channels with their gain factors
       // to get the absolute ADC values in the same units
+      //rgains come from CompSmdAdc()
       smd_adc[i] = smd_adc[i] * smd_north_rgain[i]; // sout -> north for PHENIX -> sPHENIX
       smd_adc[i + 16] = smd_adc[i + 16] * smd_south_rgain[i]; // north -> south for PHENIX-> sPHENIX
     }
