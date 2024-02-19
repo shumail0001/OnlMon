@@ -34,6 +34,10 @@ class ZdcMon : public OnlMon
   TH1 *zdc_adc_north = nullptr;
   TH1 *zdc_adc_south = nullptr;
 
+  void CompSmdAdc();
+  void CompSmdPos();
+  void CompSumSmd();
+
 };
 
 #endif /* ZDC_ZDCMON_H */
