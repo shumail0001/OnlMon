@@ -1026,8 +1026,8 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   TH2 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
   TH2 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
 
-  dummy_his1_XY = new TH2F("dummy_his1_XY", "(ADC-Pedestal) > 20 ADC North Side, WEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
-  dummy_his2_XY = new TH2F("dummy_his2_XY", "(ADC-Pedestal) > 20 ADC South Side, WEIGHTED", 400, -800, 800, 400, -800, 800);
+  dummy_his1_XY = new TH2F("dummy_his1_XY", "(ADC-Pedestal) > 5#sigma North Side, WEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
+  dummy_his2_XY = new TH2F("dummy_his2_XY", "(ADC-Pedestal) > 5#sigma South Side, WEIGHTED", 400, -800, 800, 400, -800, 800);
 
   dummy_his1_XY->SetXTitle("X [mm]");
   dummy_his1_XY->SetYTitle("Y [mm]");
@@ -1090,7 +1090,7 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << "_ADC-Pedestal>20 ADC WEIGHTED, Run" << cl->RunNumber()
+  runnostream << ThisName << "_ADC-Pedestal>5sigma WEIGHTED, Run" << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[9]->cd();
@@ -1194,8 +1194,8 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
   TH2 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
   TH2 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
 
-  dummy_his1_XY_unw = new TH2F("dummy_his1_XY_unw", "(ADC-Pedestal) > 20 ADC North Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
-  dummy_his2_XY_unw = new TH2F("dummy_his2_XY_unw", "(ADC-Pedestal) > 20 ADC South Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800);
+  dummy_his1_XY_unw = new TH2F("dummy_his1_XY_unw", "(ADC-Pedestal) > 5#sigma North Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
+  dummy_his2_XY_unw = new TH2F("dummy_his2_XY_unw", "(ADC-Pedestal) > 5#sigma South Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800);
 
   dummy_his1_XY_unw->SetXTitle("X [mm]");
   dummy_his1_XY_unw->SetYTitle("Y [mm]");
@@ -1258,7 +1258,7 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << "_ADC-Pedestal>20, UNWEIGHTED, Run " << cl->RunNumber()
+  runnostream << ThisName << "_ADC-Pedestal>5 sigma, UNWEIGHTED, Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[10]->cd();
@@ -1422,7 +1422,7 @@ int TpcMonDraw::DrawTPCZYclusters(const std::string & /* what */)
   TH2 *tpcmon_NSTPC_clusZY[24] = {nullptr};
   TH2 *tpcmon_SSTPC_clusZY[24] = {nullptr};
 
-  dummy_his1_ZY = new TH2F("dummy_his1_ZY", "(ADC-Pedestal) > 20 ADC, WEIGHTED", 515, -1030, 1030, 400, -800, 800); //dummy histos for titles
+  dummy_his1_ZY = new TH2F("dummy_his1_ZY", "(ADC-Pedestal) > 5#sigma, WEIGHTED", 515, -1030, 1030, 400, -800, 800); //dummy histos for titles
   dummy_his1_ZY->SetXTitle("Z [mm]");
   dummy_his1_ZY->SetYTitle("Y [mm]");
 
@@ -1453,7 +1453,7 @@ int TpcMonDraw::DrawTPCZYclusters(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << "_ADC-Pedestal>20 ADC, WEIGHTED, Run " << cl->RunNumber()
+  runnostream << ThisName << "_ADC-Pedestal>5 sigma, WEIGHTED, Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[12]->cd();
@@ -1520,7 +1520,7 @@ int TpcMonDraw::DrawTPCZYclusters_unweighted(const std::string & /* what */)
   TH2 *tpcmon_NSTPC_clusZY_unw[24] = {nullptr};
   TH2 *tpcmon_SSTPC_clusZY_unw[24] = {nullptr};
 
-  dummy_his1_ZY_unw = new TH2F("dummy_his1_ZY_unw", "(ADC-Pedestal) > 20 ADC, UNWEIGHTED", 515, -1030, 1030, 400, -800, 800); //dummy histos for titles
+  dummy_his1_ZY_unw = new TH2F("dummy_his1_ZY_unw", "(ADC-Pedestal) > 5#sigma, UNWEIGHTED", 515, -1030, 1030, 400, -800, 800); //dummy histos for titles
   dummy_his1_ZY_unw->SetXTitle("Z [mm]");
   dummy_his1_ZY_unw->SetYTitle("Y [mm]");
 
@@ -1551,7 +1551,7 @@ int TpcMonDraw::DrawTPCZYclusters_unweighted(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << "_ADC-Pedestal>20 ADC, UNWEIGHTED, Run " << cl->RunNumber()
+  runnostream << ThisName << "_ADC-Pedestal>5 sigma, UNWEIGHTED, Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[13]->cd();
