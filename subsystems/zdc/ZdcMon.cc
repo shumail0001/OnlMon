@@ -188,5 +188,89 @@ void ZDCMon::CompSmdAdc() //substacting pedestals and multiplying with gains
     }
 }
 
+void ZDCMon::CompSmdPos() //computing position with weighted averages
+{
+  float w_ave[4]; // 1 -> north hor; 2 -> noth vert; 3 -> south hor; 4 -> south vert.
+  float weights[4] = {0};
+  memset(weights, 0, sizeof(weights)); // memset float works only for 0
+  float w_sum[4];
+  memset(w_sum, 0, sizeof(w_sum));
+
+  // these constants convert the SMD channel number into real dimensions (cm's)
+  const float hor_scale = 2.0 * 11.0 / 10.5 * sin(M_PI_4); // from gsl_math.h
+  const float ver_scale = 1.5 * 11.0 / 10.5;
+  float hor_offset = (hor_scale * 8 / 2.0) * (7.0 / 8.0);
+  float ver_offset = (ver_scale * 7 / 2.0) * (6.0 / 7.0);
+
+  for (int i = 0; i < 8; i++)
+    {
+      weights[0] += smd_adc[i]; //summing weights
+      weights[2] += smd_adc[i + 16];
+      w_sum[0] += (float)i * smd_adc[i]; //summing for the average
+      w_sum[2] += ((float)i + 16.) * smd_adc[i + 16];
+    }
+  for (int i = 0; i < 7; i++)
+    {
+      weights[1] += smd_adc[i + 8];
+      weights[3] += smd_adc[i + 24];
+      w_sum[1] += ((float)i + 8.) * smd_adc[i + 8];
+      w_sum[3] += ((float)i + 24.) * smd_adc[i + 24];
+    }
+
+  if ( weights[0] > 0.0 )
+    {
+      w_ave[0] = w_sum[0] / weights[0]; //average = sum / sumn of weights...
+      smd_pos[0] = hor_scale * w_ave[0] - hor_offset;
+    }
+  else
+    {
+      smd_pos[0] = 0;
+    }
+  if ( weights[1] > 0.0 )
+    {
+      w_ave[1] = w_sum[1] / weights[1];
+      smd_pos[1] = ver_scale * (w_ave[1] - 8.0) - ver_offset;
+    }
+  else
+    {
+      smd_pos[1] = 0;
+    }
+
+  if ( weights[2] > 0.0 )
+    {
+      w_ave[2] = w_sum[2] / weights[2];
+      smd_pos[2] = hor_scale * (w_ave[2] - 16.0) - hor_offset;
+    }
+  else
+    {
+      smd_pos[2] = 0;
+    }
+
+  if ( weights[3] > 0.0 )
+    {
+      w_ave[3] = w_sum[3] / weights[3];
+      smd_pos[3] = ver_scale * (w_ave[3] - 24.0) - ver_offset;
+    }
+  else
+    {
+      smd_pos[3] = 0;
+    }
+}
+
+void ZDCMon::CompSumSmd() //compute 'digital' sum
+{
+  memset(smd_sum, 0, sizeof(smd_sum));
+
+  for (int i = 0; i < 8; i++)
+    {
+      smd_sum[0] += smd_adc[i];
+      smd_sum[2] += smd_adc[i + 16];
+    }
+  for (int i = 0; i < 7; i++)
+    {
+      smd_sum[1] += smd_adc[i + 8];
+      smd_sum[3] += smd_adc[i + 24];
+    }
+}
 
 
