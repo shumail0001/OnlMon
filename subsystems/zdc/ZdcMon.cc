@@ -169,3 +169,24 @@ int ZdcMon::Reset()
   return 0;
 }
 
+void ZDCMon::CompSmdAdc() //substacting pedestals and multiplying with gains
+{
+  for (int i = 16; i < 48; i++) // 8->16
+    {
+      float temp = p->iValue(i) - smd_ped[i - 16]; // 8->16
+      //if (temp < 0.0 )
+      //  temp = 0.0;
+      smd_adc[i - 16] = temp; // 8-> 16
+    }
+
+  for (int i = 0; i < 15; i++) // last one is reserved for analogue sum
+    {
+      // multiply SMD channels with their gain factors
+      // to get the absolute ADC values in the same units
+      smd_adc[i] = smd_adc[i] * smd_south_rgain[i];
+      smd_adc[i + 16] = smd_adc[i + 16] * smd_north_rgain[i];
+    }
+}
+
+
+
