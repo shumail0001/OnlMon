@@ -73,14 +73,47 @@ int ZdcMon::Init()
   // system (all couts are redirected)
   printf("doing the Init\n");
 
+
   // Create hitograms
   zdc_adc_north = new TH1F("zdc_adc_north", "ZDC ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
   zdc_adc_south = new TH1F("zdc_adc_south", "ZDC ADC south", BIN_NUMBER, 0, MAX_ENERGY2);
+  
+  // smd
+  // north smd
+  smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
+  smd_ver_north = new TH1F("smd_ver_north", "Beam centroid distribution, SMD North x", 220, -5.5, 5.5);
+  smd_sum_hor_north = new TH1F ("smd_sum_hor_north", "SMD North y", 512, 0, 2048);
+  smd_sum_ver_north = new TH1F ("smd_sum_ver_north", "SMD North x", 512, 0, 2048);
+  // south smd 
+  smd_hor_south = new TH1F("smd_hor_south", "Beam centroid distribution, SMD South y", 296, -5.92, 5.92);
+  smd_ver_south = new TH1F("smd_ver_south", "Beam centroid distribution, SMD South x", 220, -5.5, 5.5);
+  smd_sum_hor_south = new TH1F ("smd_sum_hor_south", "SMD South y", 640, 0, 2560);
+  smd_sum_ver_south = new TH1F ("smd_sum_ver_south", "SMD South x", 640, 0, 2560);
+  // smd values
+  smd_value = new TH2F("smd_value", "SMD channel# vs value", 1024, 0, 4096, 32, 0, 32);
+  smd_value_good = new TH2F("smd_value_good", "SMD channel# vs value", 1024, 0, 4096, 16, 0, 16);
+  smd_value_small = new TH2F("smd_value_small", "SMD channel# vs value", 1024, 0, 4096, 16, 0, 16);
 
   OnlMonServer *se = OnlMonServer::instance();
   //register histograms with server otherwise client won't get them
   se->registerHisto(this, zdc_adc_north );
   se->registerHisto(this, zdc_adc_south );
+  // smd
+  // north smd
+  se->registerHisto(this, smd_hor_north);
+  se->registerHisto(this, smd_ver_north);
+  se->registerHisto(this, smd_sum_hor_north);
+  se->registerHisto(this, smd_sum_ver_north);
+  // south smd
+  se->registerHisto(this, smd_hor_south);
+  se->registerHisto(this, smd_ver_south);
+  se->registerHisto(this, smd_sum_hor_south);
+  se->registerHisto(this, smd_sum_ver_south);
+  // smd values
+  se->registerHisto(this, smd_value)
+  se->registerHisto(this, smd_value_good);
+  se->registerHisto(this, smd_value_small);
+
     
   WaveformProcessingFast = new CaloWaveformFitting();
 
@@ -127,6 +160,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     if (p)
     {
     
+      // zdc_adc
       for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
       {
         std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
@@ -159,6 +193,10 @@ int ZdcMon::process_event(Event *e /* evt */)
     // get ped_zdc for north and south inverted from PHENIX to sPHENIX
     bool ped_zdc_north = (zdc_adc[0] > 70.); //60 in 200GeV Cu or Au runs
     bool ped_zdc_south = (zdc_adc[4] > 70.); //70 in 200GeV Cu or Au runs
+
+    // Declare booleans that will be used later. They are determined in ZDCMon::CompTrigFire(Event *evt)
+    bool did_laser_fire = false;
+    bool did_BbcLvl1_fire = true;
 
 
 
