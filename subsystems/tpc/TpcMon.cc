@@ -590,7 +590,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         float z = 0; //mm
 
-        if( ((serverid < 12 && (pedest_sub_wf_max) > 5.0*noise)) && layer != 0 )
+        if( (serverid < 12 && (pedest_sub_wf_max) > std::max(5.0*noise,20.)) && layer != 0 )
         {
           if(Module_ID(fee)==0){NorthSideADC_clusterXY_R1->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterXY_R1_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R1
           else if(Module_ID(fee)==1){NorthSideADC_clusterXY_R2->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterXY_R2_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
@@ -598,7 +598,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           if( t_max >= 10 && t_max <=255 ){z = 1030 - (t_max - 10)*(50 * 0.084);NorthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
         }
-        else if( (serverid >=12 && (pedest_sub_wf_max) > 5.0*noise) && layer != 0)
+        else if( (serverid >=12 && (pedest_sub_wf_max) > std::max(5.0*noise,20.)) && layer != 0)
         {
           if(Module_ID(fee)==0){SouthSideADC_clusterXY_R1->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterXY_R1_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R1
           else if(Module_ID(fee)==1){SouthSideADC_clusterXY_R2->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterXY_R2_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
