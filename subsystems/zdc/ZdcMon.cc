@@ -194,9 +194,12 @@ int ZdcMon::process_event(Event *e /* evt */)
     bool ped_zdc_north = (zdc_adc[0] > 70.); //60 in 200GeV Cu or Au runs
     bool ped_zdc_south = (zdc_adc[4] > 70.); //70 in 200GeV Cu or Au runs
 
-    // Declare booleans that will be used later. They are determined in ZDCMon::CompTrigFire(Event *evt)
-    bool did_laser_fire = false;
-    bool did_BbcLvl1_fire = true;
+
+    // call the functions
+    GetCalConst();
+    CompSmdAdc();
+    CompSmdPos();
+    CompSumSmd();
 
 
 
@@ -216,6 +219,125 @@ int ZdcMon::Reset()
   evtcnt = 0;
   idummy = 0;
   return 0;
+}
+
+void ZDCMon::GetCalConst()
+{
+  ostringstream pedfile, gainfile, ovf0file, ovf1file, calibdir;
+  //getting directory where the calibration files are
+  calibdir.str("");
+  if (getenv("ZDCCALIBDIR"))
+    {
+      calibdir << getenv("ZDCCALIBDIR");
+    }
+  else
+    {
+      calibdir << getenv("ONLMON_MAIN") << "/share";
+    }
+  //getting pedestals
+  pedfile.str("");
+  pedfile << calibdir.str().c_str() << "/ZdcCalib.pedestal";
+  ifstream ped_infile(pedfile.str().c_str(), ios::in);
+  if (!ped_infile)
+    {
+      ostringstream msg;
+      msg << pedfile << " could not be opened." ;
+      OnlMonServer *se = OnlMonServer::instance();
+      se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
+      exit(1);
+    }
+  float col1, col2, col3;
+  for (int i = 0; i < 40; i++)
+    {
+      ped_infile >> col1 >> col2 >> col3;
+      pedestal[i] = col1;
+    }
+  //writing pedestals in two different arrays
+  for (int i = 0; i < 8; i++)
+    {
+      zdc_ped[i] = pedestal[i];
+    }
+  for (int i = 8; i < 40; i++)
+    {
+      smd_ped[i - 8] = pedestal[i];
+    }
+  //getting gains
+  gainfile.str("");
+  gainfile << calibdir.str().c_str() << "/ZdcCalib.pmtgain";
+  ifstream gain_infile(gainfile.str().c_str(), ios::in);
+  if (!gain_infile)
+    {
+      ostringstream msg;
+      msg << gainfile << " could not be opened." ;
+      OnlMonServer *se = OnlMonServer::instance();
+      se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
+      exit(1);
+    }
+
+  for (int i = 0; i < 32; i++)
+    {
+      gain_infile >> col1 >> col2 >> col3;
+      gain[i] = col1;
+    }
+
+  for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
+    {
+      smd_south_rgain[i] = gain[i];  // 0-7: y channels, 8-14: x channels, 15: analog sum
+    }
+
+  for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
+    {
+      smd_north_rgain[i] = gain[i + 16];  // 0-7: y channels, 8-14: x channels, 15: analog sum
+    }
+
+  for (int i = 0; i < 8; i++)
+    {
+      // relative gain of the y strips to the x strips at SMD north
+      smd_north_rgain[i] = smd_north_rgain[i] * 1.610;
+      // relative gain of the y strips to the x strips at SMD south
+      smd_south_rgain[i] = smd_south_rgain[i] * 1.715;
+    }
+  // relative gain of the strips at SMD south  to the strips at SMD north
+  for (int i = 0; i < 16; i++)
+    {
+      //      smd_south_rgain[i] = smd_south_rgain[i] * 1.012;
+      smd_south_rgain[i] = smd_south_rgain[i] * 1.5; // From RUN9
+    }
+  //getting overflows
+  // ovf0file.str("");
+  // ovf0file << calibdir.str().c_str() << "/ZdcCalib.overflow0";
+  // ifstream ovf0_infile(ovf0file.str().c_str(), ios::in);
+  // if (!ovf0_infile)
+  //   {
+  //     ostringstream msg;
+  //     msg << ovf0file << " could not be opened." ;
+  //     OnlMonServer *se = OnlMonServer::instance();
+  //     se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
+  //     exit(1);
+  //   }
+  // float col5, col6, col7;
+  // for (int i = 0; i < 40; i++)
+  //   {
+  //     ovf0_infile >> col5 >> col6 >> col7;
+  //     overflow0[i] = 3800; //for now using 3800 instead of the values in the file
+  //   }
+  // ovf1file.str("");
+  // ovf1file << calibdir.str().c_str() << "/ZdcCalib.overflow1";
+  // ifstream ovf1_infile(ovf1file.str().c_str(), ios::in);
+  // if (!ovf1_infile)
+  //   {
+  //     ostringstream msg;
+  //     msg << ovf1file << " could not be opened." ;
+  //     OnlMonServer *se = OnlMonServer::instance();
+  //     se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
+  //     exit(1);
+  //   }
+  // float col8, col9, col10;
+  // for (int i = 0; i < 40; i++)
+  //   {
+  //     ovf1_infile >> col8 >> col9 >> col10;
+  //     overflow1[i] = 3800; //for now using 3800 instead of the values in the file
+  //   }
 }
 
 void ZDCMon::CompSmdAdc() //substacting pedestals and multiplying with gains
