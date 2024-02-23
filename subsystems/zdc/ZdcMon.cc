@@ -212,6 +212,23 @@ int ZdcMon::process_event(Event *e /* evt */)
     bool ped_zdc_north = (zdc_adc[0] > 70.); //60 in 200GeV Cu or Au runs
     bool ped_zdc_south = (zdc_adc[4] > 70.); //70 in 200GeV Cu or Au runs
 
+    int s_ver_north = 0;
+    int s_hor_north = 0;
+
+    for ( int i = 0; i < 8; i++)
+    {
+      if ( smd_adc[i] > 8 ) {s_hor_north++;}
+    }
+
+    for ( int i = 0; i < 7; i++)
+    {
+      if ( smd_adc[i + 16] > 5 ) {s_ver_north++;}
+    }
+
+
+    bool fired_smd_hor_s = (s_hor_north > 1);
+    bool fired_smd_ver_s = (s_ver_north > 1);
+
 
     // call the functions
     GetCalConst();
@@ -220,8 +237,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     CompSumSmd();
 
 
-    if ( ped_zdc_south && fired_smd_hor_s && 
-    fired_smd_ver_s && ovfbool[0] && ovfbool[4] && !smd_ovld_south)
+    if ( ped_zdc_south && fired_smd_hor_s && fired_smd_ver_s)
     {
       fill_hor_south = true;
       fill_ver_south = true;
@@ -403,21 +419,21 @@ void ZDCMon::GetCalConst()
 void ZDCMon::CompSmdAdc() //substacting pedestals and multiplying with gains
 {
   for (int i = 16; i < 48; i++) // 8->16
-    {
-      float temp = p->iValue(i) - smd_ped[i - 16]; // 8->16
-      //if (temp < 0.0 )
-      //  temp = 0.0;
-      smd_adc[i - 16] = temp; // 8-> 16
-    }
+  {
+    float temp = p->iValue(i) - smd_ped[i - 16]; // 8->16
+    //if (temp < 0.0 )
+    //  temp = 0.0;
+    smd_adc[i - 16] = temp; // 8-> 16
+  }
 
   for (int i = 0; i < 15; i++) // last one is reserved for analogue sum
-    {
-      // multiply SMD channels with their gain factors
-      // to get the absolute ADC values in the same units
-      //rgains come from CompSmdAdc()
-      smd_adc[i] = smd_adc[i] * smd_north_rgain[i]; // sout -> north for PHENIX -> sPHENIX
-      smd_adc[i + 16] = smd_adc[i + 16] * smd_south_rgain[i]; // north -> south for PHENIX-> sPHENIX
-    }
+  {
+    // multiply SMD channels with their gain factors
+    // to get the absolute ADC values in the same units
+    //rgains come from CompSmdAdc()
+    smd_adc[i] = smd_adc[i] * smd_north_rgain[i]; // sout -> north for PHENIX -> sPHENIX
+    smd_adc[i + 16] = smd_adc[i + 16] * smd_south_rgain[i]; // north -> south for PHENIX-> sPHENIX
+  }
 }
 
 void ZDCMon::CompSmdPos() //computing position with weighted averages
@@ -435,58 +451,58 @@ void ZDCMon::CompSmdPos() //computing position with weighted averages
   float ver_offset = (ver_scale * 7 / 2.0) * (6.0 / 7.0);
 
   for (int i = 0; i < 8; i++)
-    {
-      weights[0] += smd_adc[i]; //summing weights
-      weights[2] += smd_adc[i + 16];
-      w_sum[0] += (float)i * smd_adc[i]; //summing for the average
-      w_sum[2] += ((float)i + 16.) * smd_adc[i + 16];
-    }
+  {
+    weights[0] += smd_adc[i]; //summing weights
+    weights[2] += smd_adc[i + 16];
+    w_sum[0] += (float)i * smd_adc[i]; //summing for the average
+    w_sum[2] += ((float)i + 16.) * smd_adc[i + 16];
+  }
   for (int i = 0; i < 7; i++)
-    {
-      weights[1] += smd_adc[i + 8];
-      weights[3] += smd_adc[i + 24];
-      w_sum[1] += ((float)i + 8.) * smd_adc[i + 8];
-      w_sum[3] += ((float)i + 24.) * smd_adc[i + 24];
-    }
+  {
+    weights[1] += smd_adc[i + 8];
+    weights[3] += smd_adc[i + 24];
+    w_sum[1] += ((float)i + 8.) * smd_adc[i + 8];
+    w_sum[3] += ((float)i + 24.) * smd_adc[i + 24];
+  }
 
   if ( weights[0] > 0.0 )
-    {
-      w_ave[0] = w_sum[0] / weights[0]; //average = sum / sumn of weights...
-      smd_pos[0] = hor_scale * w_ave[0] - hor_offset;
-    }
+  {
+    w_ave[0] = w_sum[0] / weights[0]; //average = sum / sumn of weights...
+    smd_pos[0] = hor_scale * w_ave[0] - hor_offset;
+  }
   else
-    {
-      smd_pos[0] = 0;
-    }
+  {
+    smd_pos[0] = 0;
+  }
   if ( weights[1] > 0.0 )
-    {
-      w_ave[1] = w_sum[1] / weights[1];
-      smd_pos[1] = ver_scale * (w_ave[1] - 8.0) - ver_offset;
-    }
+  {
+    w_ave[1] = w_sum[1] / weights[1];
+    smd_pos[1] = ver_scale * (w_ave[1] - 8.0) - ver_offset;
+  }
   else
-    {
-      smd_pos[1] = 0;
-    }
+  {
+    smd_pos[1] = 0;
+  }
 
   if ( weights[2] > 0.0 )
-    {
-      w_ave[2] = w_sum[2] / weights[2];
-      smd_pos[2] = hor_scale * (w_ave[2] - 16.0) - hor_offset;
-    }
+  {
+    w_ave[2] = w_sum[2] / weights[2];
+    smd_pos[2] = hor_scale * (w_ave[2] - 16.0) - hor_offset;
+  }
   else
-    {
-      smd_pos[2] = 0;
-    }
+  {
+    smd_pos[2] = 0;
+  }
 
   if ( weights[3] > 0.0 )
-    {
-      w_ave[3] = w_sum[3] / weights[3];
-      smd_pos[3] = ver_scale * (w_ave[3] - 24.0) - ver_offset;
-    }
+  {
+    w_ave[3] = w_sum[3] / weights[3];
+    smd_pos[3] = ver_scale * (w_ave[3] - 24.0) - ver_offset;
+  }
   else
-    {
-      smd_pos[3] = 0;
-    }
+  {
+    smd_pos[3] = 0;
+  }
 }
 
 void ZDCMon::CompSumSmd() //compute 'digital' sum
