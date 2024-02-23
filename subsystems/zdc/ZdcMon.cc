@@ -229,6 +229,9 @@ int ZdcMon::process_event(Event *e /* evt */)
     bool fired_smd_hor_s = (s_hor_north > 1);
     bool fired_smd_ver_s = (s_ver_north > 1);
 
+    bool fired_smd_hor = (n_hor_north > 1);
+    bool fired_smd_ver = (n_ver_north > 1);
+
 
     // call the functions
     GetCalConst();
@@ -236,7 +239,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     CompSmdPos();
     CompSumSmd();
 
-
+    // PHENIX code also had: ped_smd_hnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_hor && !did_laser_fire)
     if ( ped_zdc_south && fired_smd_hor_s && fired_smd_ver_s)
     {
       fill_hor_south = true;
@@ -266,6 +269,61 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
     }
 
+    if (ped_zdc_north && fired_smd_ver)
+    {
+      fill_ver_north = true;
+      smd_ver_north->Fill( smd_pos[3] );
+      zdc_ver_north->Fill( zdc_adc[4] / ADC_to_GeV_north, smd_pos[3] );
+      for (int i = 0; i < 8; i++)
+      {
+        smd_value->Fill(smd_adc[i + 24], float(i) + 24);
+      }
+      if ((zdc_adc[4] > 200.))
+      {
+        smd_ver_north_good->Fill( smd_pos[3] );
+        for (int i = 0; i < 8; i++)
+        {
+          smd_value_good->Fill(smd_adc[i + 24], float(i) + 24.);
+        }
+      }
+      if ((zdc_adc[4] <= 200.))
+      {
+        smd_ver_north_small->Fill( smd_pos[3] );
+        for (int i = 0; i < 8; i++)
+        {
+          smd_value_small->Fill(smd_adc[i + 24], float(i) + 24.);
+        }
+      }
+    }
+
+    if ( ped_zdc_south && fired_smd_hor_s && fired_smd_ver_s)
+    {
+      fill_hor_south = true;
+      fill_ver_south = true;
+      smd_hor_south->Fill( smd_pos[0] );
+      smd_ver_south->Fill( smd_pos[1] );
+      for (int i = 0 ; i < 8; i++)
+      {
+        smd_value->Fill(smd_adc[i], float(i) );
+        smd_value->Fill(smd_adc[i + 8], float(i) + 8. );
+      }
+      if ((zdc_adc[0] > 200.))
+      {
+        for (int i = 0; i < 8; i++)
+        {
+          smd_value_good->Fill(smd_adc[i], float(i));
+          smd_value_good->Fill(smd_adc[i + 8], float(i) + 8);
+        }
+      }
+      if ((zdc_adc[0] <= 200.))
+      {
+        for (int i = 0; i < 8; i++)
+        {
+          smd_value_small->Fill(smd_adc[i], float(i));
+          smd_value_small->Fill(smd_adc[i + 8], float(i) + 8);
+        }
+      }
+    }
 
 
   }    // if packet good
