@@ -118,20 +118,20 @@ int ZdcMon::Init()
   WaveformProcessingFast = new CaloWaveformFitting();
 
   int n_ver_north = 0;
-      int n_hor_north = 0;
+  int n_hor_north = 0;
 
-      for ( int i = 0; i < 8; i++)
-        if ( smd_adc[i + 16] > 8 )
-          n_hor_north++;
+  for ( int i = 0; i < 8; i++)
+  {
+    if ( smd_adc[i + 16] > 8 ) {n_hor_north++;}
+  }
 
-      for ( int i = 0; i < 7; i++)
-        if ( smd_adc[i + 24] > 5 )
-          n_ver_north++;
+  for ( int i = 0; i < 7; i++)
+  {
+    if ( smd_adc[i + 24] > 5 ) {n_ver_north++;}
+  }
 
-      bool fired_smd_hor = (n_hor_north > 1);
-      bool fired_smd_ver = (n_ver_north > 1);
-
-
+  bool fired_smd_hor = (n_hor_north > 1);
+  bool fired_smd_ver = (n_ver_north > 1);
 
 
 
@@ -168,45 +168,45 @@ std::vector<float> ZdcMon::anaWaveformFast(Packet *p, const int channel)
 
 int ZdcMon::process_event(Event *e /* evt */)
 {
-    evtcnt++;
+  evtcnt++;
 
-    float totalzdcsouthsignal = 0.;
-    float totalzdcnorthsignal = 0.;
-    int packet = 12001;
+  float totalzdcsouthsignal = 0.;
+  float totalzdcnorthsignal = 0.;
+  int packet = 12001;
 
-    Packet *p = e->getPacket(packet);
-    if (p)
+  Packet *p = e->getPacket(packet);
+  if (p)
+  {
+  
+    // zdc_adc
+    for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
     {
-    
-      // zdc_adc
-      for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
+      std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
+      float signalFast = resultFast.at(0);
+      float signal = signalFast;
+        
+      unsigned int towerkey = TowerInfoDefs::decode_zdc(c);
+      int zdc_side = TowerInfoDefs::get_zdc_side(towerkey);
+        
+      int mod = c%2;
+      if (mod != 0) continue;
+      if((c < 16) && ((c != 6) && (c != 14)))
       {
-        std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
-        float signalFast = resultFast.at(0);
-        float signal = signalFast;
-          
-        unsigned int towerkey = TowerInfoDefs::decode_zdc(c);
-        int zdc_side = TowerInfoDefs::get_zdc_side(towerkey);
-          
-        int mod = c%2;
-        if (mod != 0) continue;
-        if((c < 16) && ((c != 6) && (c != 14)))
+        if (zdc_side == 0)
         {
-          if (zdc_side == 0)
-          {
-            totalzdcsouthsignal+= signal;
-          }
-          else if (zdc_side == 1)
-          {
-            totalzdcnorthsignal+= signal;
-          }
-          else
-          {
-            std::cout << "arm bin not assigned ... " << std::endl;
-            return -1;
-          }
-        }  //select zdc high gain channels only
-      }  // channel loop end
+          totalzdcsouthsignal+= signal;
+        }
+        else if (zdc_side == 1)
+        {
+          totalzdcnorthsignal+= signal;
+        }
+        else
+        {
+          std::cout << "arm bin not assigned ... " << std::endl;
+          return -1;
+        }
+      }  //select zdc high gain channels only
+    }  // channel loop end
 
     // get ped_zdc for north and south inverted from PHENIX to sPHENIX
     bool ped_zdc_north = (zdc_adc[0] > 70.); //60 in 200GeV Cu or Au runs
@@ -221,14 +221,14 @@ int ZdcMon::process_event(Event *e /* evt */)
 
 
 
-    }    // if packet good
+  }    // if packet good
 
-    zdc_adc_south->Fill(totalzdcsouthsignal);
-    zdc_adc_north->Fill(totalzdcnorthsignal);
-    
-    delete p;
+  zdc_adc_south->Fill(totalzdcsouthsignal);
+  zdc_adc_north->Fill(totalzdcnorthsignal);
+  
+  delete p;
 
-  return 0;
+return 0;
 }
 
 int ZdcMon::Reset()
