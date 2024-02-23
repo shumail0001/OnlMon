@@ -220,6 +220,37 @@ int ZdcMon::process_event(Event *e /* evt */)
     CompSumSmd();
 
 
+    if ( ped_zdc_south && fired_smd_hor_s && 
+    fired_smd_ver_s && ovfbool[0] && ovfbool[4] && !smd_ovld_south)
+    {
+      fill_hor_south = true;
+      fill_ver_south = true;
+      smd_hor_south->Fill( smd_pos[0] );
+      smd_ver_south->Fill( smd_pos[1] );
+      for (int i = 0 ; i < 8; i++)
+      {
+        smd_value->Fill(smd_adc[i], float(i) );
+        smd_value->Fill(smd_adc[i + 8], float(i) + 8. );
+      }
+      if ((zdc_adc[0] > 200.))
+      {
+        for (int i = 0; i < 8; i++)
+        {
+          smd_value_good->Fill(smd_adc[i], float(i));
+          smd_value_good->Fill(smd_adc[i + 8], float(i) + 8);
+        }
+      }
+      if ((zdc_adc[0] <= 200.))
+      {
+        for (int i = 0; i < 8; i++)
+        {
+          smd_value_small->Fill(smd_adc[i], float(i));
+          smd_value_small->Fill(smd_adc[i + 8], float(i) + 8);
+        }
+      }
+    }
+
+
 
   }    // if packet good
 
