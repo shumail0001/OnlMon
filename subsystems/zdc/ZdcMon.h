@@ -53,6 +53,7 @@ class ZdcMon : public OnlMon
   void CompSmdAdc();
   void CompSmdPos();
   void CompSumSmd();
+  void CompZdcAdc();
 
 
 
