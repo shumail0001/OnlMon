@@ -58,7 +58,7 @@ int ZdcMon::Init()
   const float MAX_ENERGY2 = 15000.;
   const int BIN_NUMBER = 1500;
     
-//  gRandom->SetSeed(rand());
+  //  gRandom->SetSeed(rand());
   // read our calibrations from ZdcMonData.dat
   const char *zdccalib = getenv("ZDCCALIB");
   if (!zdccalib)
@@ -116,6 +116,24 @@ int ZdcMon::Init()
 
     
   WaveformProcessingFast = new CaloWaveformFitting();
+
+  int n_ver_north = 0;
+      int n_hor_north = 0;
+
+      for ( int i = 0; i < 8; i++)
+        if ( smd_adc[i + 16] > 8 )
+          n_hor_north++;
+
+      for ( int i = 0; i < 7; i++)
+        if ( smd_adc[i + 24] > 5 )
+          n_ver_north++;
+
+      bool fired_smd_hor = (n_hor_north > 1);
+      bool fired_smd_ver = (n_ver_north > 1);
+
+
+
+
 
   Reset();
   return 0;
@@ -219,6 +237,17 @@ int ZdcMon::Reset()
   evtcnt = 0;
   idummy = 0;
   return 0;
+}
+
+void ZDCMon::CompZdcAdc() //substracting pedestals
+{
+  for (int i = 0; i < 8; i++)
+    {
+      float temp = p->iValue(i) - zdc_ped[i];
+      //if(temp < 0.0 )
+      //  temp = 0.0;
+      zdc_adc[i] = temp;
+    }
 }
 
 void ZDCMon::GetCalConst()
