@@ -325,7 +325,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     }
 
     // PHENIX had: if (ped_zdc_north && ped_smd_vnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_ver && !did_laser_fire)
-    if (ped_zdc_north && fired_smd_ver && ped_smd_vnorth)
+    if (ped_zdc_north && fired_smd_ver && ped_smd_vnorth && !smd_ovld_north)
     {
       fill_ver_north = true;
       smd_ver_north->Fill( smd_pos[3] );
