@@ -248,6 +248,16 @@ int ZdcMon::process_event(Event *e /* evt */)
     bool fill_ver_north = false;
 
 
+    //compute, if smd is overloaded
+    bool smd_ovld_north = false;
+    bool smd_ovld_south = false;
+    //smd_ovld_south = (zdc_adc[0] > 1000);
+    //smd_ovld_north = (zdc_adc[4] > 1000);
+
+    bool ped_smd_hnorth = true; //in 200GeV, it was: (smd_sum[2] > 800.);
+    bool ped_smd_vnorth = true; //in 200GeV, it was: (smd_sum[3] > 700.);
+
+
     // call the functions
     GetCalConst();
     CompSmdAdc();
@@ -257,7 +267,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     // FILLING OUT THE HISTOGRAMS
 
     // PHENIX had: if ( ped_zdc_south && !did_laser_fire && fired_smd_hor_s && fired_smd_ver_s && ovfbool[0] && ovfbool[4] && !smd_ovld_south)
-    if ( ped_zdc_south && fired_smd_hor_s && fired_smd_ver_s)
+    if ( ped_zdc_south && fired_smd_hor_s && fired_smd_ver_s && !smd_ovld_south)
     {
       fill_hor_south = true;
       fill_ver_south = true;
@@ -287,7 +297,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     }
 
     // PHENIX had: if (ped_zdc_north && ped_smd_hnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_hor && !did_laser_fire)
-    if (ped_zdc_north && fired_smd_hor)
+    if (ped_zdc_north && fired_smd_hor && ped_smd_hnorth && !smd_ovld_north)
     {
       fill_hor_north = true;
       smd_hor_north->Fill( smd_pos[2] );
@@ -315,7 +325,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     }
 
     // PHENIX had: if (ped_zdc_north && ped_smd_vnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_ver && !did_laser_fire)
-    if (ped_zdc_north && fired_smd_ver)
+    if (ped_zdc_north && fired_smd_ver && ped_smd_vnorth)
     {
       fill_ver_north = true;
       smd_ver_north->Fill( smd_pos[3] );
