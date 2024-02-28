@@ -207,6 +207,8 @@ int ZdcMon::process_event(Event *e /* evt */)
       }  //select zdc high gain channels only
     }  // channel loop end
 
+    // BOOLEANS, INTs AND OTHER DEFINITIONS
+
     // get ped_zdc for north and south inverted from PHENIX to sPHENIX
     bool ped_zdc_north = (zdc_adc[0] > 70.); //60 in 200GeV Cu or Au runs
     bool ped_zdc_south = (zdc_adc[4] > 70.); //70 in 200GeV Cu or Au runs
@@ -231,6 +233,12 @@ int ZdcMon::process_event(Event *e /* evt */)
     bool fired_smd_hor = (n_hor_north > 1);
     bool fired_smd_ver = (n_ver_north > 1);
 
+    bool fill_hor_south = false;
+    bool fill_ver_south = false;
+
+    bool fill_hor_north = false;
+    bool fill_ver_north = false;
+
 
     // call the functions
     GetCalConst();
@@ -240,7 +248,7 @@ int ZdcMon::process_event(Event *e /* evt */)
 
     // FILLING OUT THE HISTOGRAMS
 
-    // PHENIX code also had: ped_smd_hnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_hor && !did_laser_fire)
+    // PHENIX had: if ( ped_zdc_south && !did_laser_fire && fired_smd_hor_s && fired_smd_ver_s && ovfbool[0] && ovfbool[4] && !smd_ovld_south)
     if ( ped_zdc_south && fired_smd_hor_s && fired_smd_ver_s)
     {
       fill_hor_south = true;
@@ -270,7 +278,8 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
     }
 
-    if (ped_zdc_north && fired_smd_hor &&)
+    // PHENIX had: if (ped_zdc_north && ped_smd_hnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_hor && !did_laser_fire)
+    if (ped_zdc_north && fired_smd_hor)
     {
       fill_hor_north = true;
       smd_hor_north->Fill( smd_pos[2] );
@@ -297,6 +306,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
     }
 
+    // PHENIX had: if (ped_zdc_north && ped_smd_vnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_ver && !did_laser_fire)
     if (ped_zdc_north && fired_smd_ver)
     {
       fill_ver_north = true;
