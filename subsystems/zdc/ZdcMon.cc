@@ -84,6 +84,10 @@ int ZdcMon::Init()
   smd_ver_north = new TH1F("smd_ver_north", "Beam centroid distribution, SMD North x", 220, -5.5, 5.5);
   smd_sum_hor_north = new TH1F ("smd_sum_hor_north", "SMD North y", 512, 0, 2048);
   smd_sum_ver_north = new TH1F ("smd_sum_ver_north", "SMD North x", 512, 0, 2048);
+  smd_hor_north_small = new TH1F ("smd_hor_north_small", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
+  smd_ver_north_small = new TH1F ("smd_ver_north_small", "Beam centroid distribution, SMD North x", 220, -5.5, 5.5);
+  smd_hor_north_good = new TH1F ("smd_hor_north_good", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
+  smd_ver_north_good = new TH1F ("smd_ver_north_good", "Beam centroid distribution, SMD North x", 220, -5.5, 5.5);
   // south smd 
   smd_hor_south = new TH1F("smd_hor_south", "Beam centroid distribution, SMD South y", 296, -5.92, 5.92);
   smd_ver_south = new TH1F("smd_ver_south", "Beam centroid distribution, SMD South x", 220, -5.5, 5.5);
@@ -104,6 +108,10 @@ int ZdcMon::Init()
   se->registerHisto(this, smd_ver_north);
   se->registerHisto(this, smd_sum_hor_north);
   se->registerHisto(this, smd_sum_ver_north);
+  se->registerHisto(this, smd_hor_north_small);
+  se->registerHisto(this, smd_ver_north_small);
+  se->registerHisto(this, smd_hor_north_good);
+  se->registerHisto(this, smd_ver_north_good);
   // south smd
   se->registerHisto(this, smd_hor_south);
   se->registerHisto(this, smd_ver_south);
