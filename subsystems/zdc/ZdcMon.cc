@@ -125,21 +125,7 @@ int ZdcMon::Init()
     
   WaveformProcessingFast = new CaloWaveformFitting();
 
-  int n_ver_north = 0;
-  int n_hor_north = 0;
-
-  for ( int i = 0; i < 8; i++)
-  {
-    if ( smd_adc[i + 16] > 8 ) {n_hor_north++;}
-  }
-
-  for ( int i = 0; i < 7; i++)
-  {
-    if ( smd_adc[i + 24] > 5 ) {n_ver_north++;}
-  }
-
-  bool fired_smd_hor = (n_hor_north > 1);
-  bool fired_smd_ver = (n_ver_north > 1);
+  
 
 
   Reset();
@@ -196,7 +182,16 @@ int ZdcMon::process_event(Event *e /* evt */)
       int zdc_side = TowerInfoDefs::get_zdc_side(towerkey);
         
       int mod = c%2;
+
+      // put code to assign smd_adc[i]
+
+      if (c < 16) {zdc_adc[i] = signal;}
+      else {smd_adc[i - 16] = signal;}
+      
+
+
       if (mod != 0) continue;
+      
       if((c < 16) && ((c != 6) && (c != 14)))
       {
         if (zdc_side == 0)
@@ -213,33 +208,53 @@ int ZdcMon::process_event(Event *e /* evt */)
           return -1;
         }
       }  //select zdc high gain channels only
+
+    
+
+
+
     }  // channel loop end
+
+    // call the functions
+    GetCalConst();
+    CompSmdAdc();
+    CompSmdPos();
+    CompSumSmd();
+    
 
     // BOOLEANS, INTs AND OTHER DEFINITIONS
 
-    // get ped_zdc for north and south inverted from PHENIX to sPHENIX
-    bool ped_zdc_north = (zdc_adc[0] > 70.); //60 in 200GeV Cu or Au runs
-    bool ped_zdc_south = (zdc_adc[4] > 70.); //70 in 200GeV Cu or Au runs
+    
 
-    int s_ver_north = 0;
-    int s_hor_north = 0;
+    int s_ver = 0;
+    int s_hor = 0;
+
+    int n_ver  = 0;
+    int n_hor  = 0;
 
     for ( int i = 0; i < 8; i++)
     {
-      if ( smd_adc[i] > 8 ) {s_hor_north++;}
+      if ( smd_adc[i] > 8 ) {n_hor ++;}
     }
-
     for ( int i = 0; i < 7; i++)
     {
-      if ( smd_adc[i + 16] > 5 ) {s_ver_north++;}
+      if ( smd_adc[i + 8] > 5 ) {n_ver ++;}
     }
 
+    for ( int i = 0; i < 8; i++)
+    {
+      if ( smd_adc[i + 16] > 8 ) {s_hor++;}
+    }
+    for ( int i = 0; i < 7; i++)
+    {
+      if ( smd_adc[i + 24] > 5 ) {s_ver++;}
+    }
 
-    bool fired_smd_hor_s = (s_hor_north > 1);
-    bool fired_smd_ver_s = (s_ver_north > 1);
+    bool fired_smd_hor_n = (n_hor  > 1);
+    bool fired_smd_ver_n = (n_ver  > 1);
 
-    bool fired_smd_hor = (n_hor_north > 1);
-    bool fired_smd_ver = (n_ver_north > 1);
+    bool fired_smd_hor_s = (s_hor > 1);
+    bool fired_smd_ver_s = (s_ver > 1);
 
     bool fill_hor_south = false;
     bool fill_ver_south = false;
@@ -258,16 +273,10 @@ int ZdcMon::process_event(Event *e /* evt */)
     bool ped_smd_vnorth = true; //in 200GeV, it was: (smd_sum[3] > 700.);
 
 
-    // call the functions
-    GetCalConst();
-    CompSmdAdc();
-    CompSmdPos();
-    CompSumSmd();
-
     // FILLING OUT THE HISTOGRAMS
 
     // PHENIX had: if ( ped_zdc_south && !did_laser_fire && fired_smd_hor_s && fired_smd_ver_s && ovfbool[0] && ovfbool[4] && !smd_ovld_south)
-    if ( ped_zdc_south && fired_smd_hor_s && fired_smd_ver_s && !smd_ovld_south)
+    if (fired_smd_hor_s && fired_smd_ver_s && !smd_ovld_south)
     {
       fill_hor_south = true;
       fill_ver_south = true;
@@ -278,26 +287,26 @@ int ZdcMon::process_event(Event *e /* evt */)
         smd_value->Fill(smd_adc[i], float(i) );
         smd_value->Fill(smd_adc[i + 8], float(i) + 8. );
       }
-      if ((zdc_adc[0] > 200.))
-      {
+      // if ((zdc_adc[0] > 200.))
+      // {
         for (int i = 0; i < 8; i++)
         {
           smd_value_good->Fill(smd_adc[i], float(i));
           smd_value_good->Fill(smd_adc[i + 8], float(i) + 8);
         }
-      }
-      if ((zdc_adc[0] <= 200.))
-      {
+      // }
+      // if ((zdc_adc[0] <= 200.))
+      // {
         for (int i = 0; i < 8; i++)
         {
           smd_value_small->Fill(smd_adc[i], float(i));
           smd_value_small->Fill(smd_adc[i + 8], float(i) + 8);
         }
-      }
+      // }
     }
 
-    // PHENIX had: if (ped_zdc_north && ped_smd_hnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_hor && !did_laser_fire)
-    if (ped_zdc_north && fired_smd_hor && ped_smd_hnorth && !smd_ovld_north)
+    // PHENIX had: if (ped_zdc_north && ped_smd_hnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north &&  fired_smd_hor_n && !did_laser_fire)
+    if ( fired_smd_hor_n && ped_smd_hnorth && !smd_ovld_north)
     {
       fill_hor_north = true;
       smd_hor_north->Fill( smd_pos[2] );
@@ -325,7 +334,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     }
 
     // PHENIX had: if (ped_zdc_north && ped_smd_vnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_ver && !did_laser_fire)
-    if (ped_zdc_north && fired_smd_ver && ped_smd_vnorth && !smd_ovld_north)
+    if (fired_smd_ver && ped_smd_vnorth && !smd_ovld_north)
     {
       fill_ver_north = true;
       smd_ver_north->Fill( smd_pos[3] );
@@ -394,16 +403,6 @@ int ZdcMon::Reset()
   return 0;
 }
 
-void ZDCMon::CompZdcAdc() //substracting pedestals
-{
-  for (int i = 0; i < 8; i++)
-    {
-      float temp = p->iValue(i) - zdc_ped[i];
-      //if(temp < 0.0 )
-      //  temp = 0.0;
-      zdc_adc[i] = temp;
-    }
-}
 
 void ZDCMon::GetCalConst()
 {
@@ -411,130 +410,46 @@ void ZDCMon::GetCalConst()
   //getting directory where the calibration files are
   calibdir.str("");
   if (getenv("ZDCCALIBDIR"))
-    {
-      calibdir << getenv("ZDCCALIBDIR");
-    }
+  {
+    calibdir << getenv("ZDCCALIBDIR");
+  }
   else
-    {
-      calibdir << getenv("ONLMON_MAIN") << "/share";
-    }
-  //getting pedestals
-  pedfile.str("");
-  pedfile << calibdir.str().c_str() << "/ZdcCalib.pedestal";
-  ifstream ped_infile(pedfile.str().c_str(), ios::in);
-  if (!ped_infile)
-    {
-      ostringstream msg;
-      msg << pedfile << " could not be opened." ;
-      OnlMonServer *se = OnlMonServer::instance();
-      se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
-      exit(1);
-    }
-  float col1, col2, col3;
-  for (int i = 0; i < 40; i++)
-    {
-      ped_infile >> col1 >> col2 >> col3;
-      pedestal[i] = col1;
-    }
-  //writing pedestals in two different arrays
-  for (int i = 0; i < 8; i++)
-    {
-      zdc_ped[i] = pedestal[i];
-    }
-  for (int i = 8; i < 40; i++)
-    {
-      smd_ped[i - 8] = pedestal[i];
-    }
+  {
+    calibdir << getenv("ONLMON_MAIN") << "/share";
+  }
   //getting gains
   gainfile.str("");
   gainfile << calibdir.str().c_str() << "/ZdcCalib.pmtgain";
   ifstream gain_infile(gainfile.str().c_str(), ios::in);
   if (!gain_infile)
-    {
-      ostringstream msg;
-      msg << gainfile << " could not be opened." ;
-      OnlMonServer *se = OnlMonServer::instance();
-      se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
-      exit(1);
-    }
-
-  for (int i = 0; i < 32; i++)
-    {
-      gain_infile >> col1 >> col2 >> col3;
-      gain[i] = col1;
-    }
-
-  for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
-    {
-      smd_south_rgain[i] = gain[i];  // 0-7: y channels, 8-14: x channels, 15: analog sum
-    }
-
-  for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
-    {
-      smd_north_rgain[i] = gain[i + 16];  // 0-7: y channels, 8-14: x channels, 15: analog sum
-    }
-
-  for (int i = 0; i < 8; i++)
-    {
-      // relative gain of the y strips to the x strips at SMD north
-      smd_north_rgain[i] = smd_north_rgain[i] * 1.610;
-      // relative gain of the y strips to the x strips at SMD south
-      smd_south_rgain[i] = smd_south_rgain[i] * 1.715;
-    }
-  // relative gain of the strips at SMD south  to the strips at SMD north
-  for (int i = 0; i < 16; i++)
-    {
-      //      smd_south_rgain[i] = smd_south_rgain[i] * 1.012;
-      smd_south_rgain[i] = smd_south_rgain[i] * 1.5; // From RUN9
-    }
-
-  //getting overflows
-  // ovf0file.str("");
-  // ovf0file << calibdir.str().c_str() << "/ZdcCalib.overflow0";
-  // ifstream ovf0_infile(ovf0file.str().c_str(), ios::in);
-  // if (!ovf0_infile)
-  //   {
-  //     ostringstream msg;
-  //     msg << ovf0file << " could not be opened." ;
-  //     OnlMonServer *se = OnlMonServer::instance();
-  //     se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
-  //     exit(1);
-  //   }
-  // float col5, col6, col7;
-  // for (int i = 0; i < 40; i++)
-  //   {
-  //     ovf0_infile >> col5 >> col6 >> col7;
-  //     overflow0[i] = 3800; //for now using 3800 instead of the values in the file
-  //   }
-  // ovf1file.str("");
-  // ovf1file << calibdir.str().c_str() << "/ZdcCalib.overflow1";
-  // ifstream ovf1_infile(ovf1file.str().c_str(), ios::in);
-  // if (!ovf1_infile)
-  //   {
-  //     ostringstream msg;
-  //     msg << ovf1file << " could not be opened." ;
-  //     OnlMonServer *se = OnlMonServer::instance();
-  //     se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
-  //     exit(1);
-  //   }
-  // float col8, col9, col10;
-  // for (int i = 0; i < 40; i++)
-  //   {
-  //     ovf1_infile >> col8 >> col9 >> col10;
-  //     overflow1[i] = 3800; //for now using 3800 instead of the values in the file
-  //   }
-}
-
-void ZDCMon::CompSmdAdc() //substacting pedestals and multiplying with gains
-{
-  for (int i = 16; i < 48; i++) // 8->16
   {
-    float temp = p->iValue(i) - smd_ped[i - 16]; // 8->16
-    //if (temp < 0.0 )
-    //  temp = 0.0;
-    smd_adc[i - 16] = temp; // 8-> 16
+    ostringstream msg;
+    msg << gainfile << " could not be opened." ;
+    OnlMonServer *se = OnlMonServer::instance();
+    se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
+    exit(1);
   }
 
+  for (int i = 0; i < 32; i++)
+  {
+    gain_infile >> col1 >> col2 >> col3;
+    gain[i] = col1;
+  }
+
+  for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
+  {
+    smd_south_rgain[i] = gain[i];  // 0-7: y channels, 8-14: x channels, 15: analog sum
+  }
+
+  for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
+  {
+    smd_north_rgain[i] = gain[i + 16];  // 0-7: y channels, 8-14: x channels, 15: analog sum
+  }
+
+}
+
+void ZDCMon::CompSmdAdc() // mulitplying by relative gains
+{
   for (int i = 0; i < 15; i++) // last one is reserved for analogue sum
   {
     // multiply SMD channels with their gain factors
@@ -547,7 +462,7 @@ void ZDCMon::CompSmdAdc() //substacting pedestals and multiplying with gains
 
 void ZDCMon::CompSmdPos() //computing position with weighted averages
 {
-  float w_ave[4]; // 1 -> north hor; 2 -> noth vert; 3 -> south hor; 4 -> south vert.
+  float w_ave[4]; // 0 -> north hor; 1 -> noth vert; 2 -> south hor; 3 -> south vert.
   float weights[4] = {0};
   memset(weights, 0, sizeof(weights)); // memset float works only for 0
   float w_sum[4];
@@ -620,13 +535,13 @@ void ZDCMon::CompSumSmd() //compute 'digital' sum
 
   for (int i = 0; i < 8; i++)
     {
-      smd_sum[0] += smd_adc[i];
-      smd_sum[2] += smd_adc[i + 16];
+      smd_sum[0] += smd_adc[i]; // north horizontal
+      smd_sum[2] += smd_adc[i + 16]; // south horizontal
     }
   for (int i = 0; i < 7; i++)
     {
-      smd_sum[1] += smd_adc[i + 8];
-      smd_sum[3] += smd_adc[i + 24];
+      smd_sum[1] += smd_adc[i + 8]; // north vertical
+      smd_sum[3] += smd_adc[i + 24]; // south vertical
     }
 }
 
