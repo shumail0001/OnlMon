@@ -274,7 +274,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     {
       fill_hor_north = true;
       smd_hor_north->Fill( smd_pos[2] );
-      zdc_hor_north->Fill( zdc_adc[4] / ADC_to_GeV_north, smd_pos[2] );
+      // zdc_hor_north->Fill( zdc_adc[4] / ADC_to_GeV_north, smd_pos[2] );
       for (int i = 0; i < 8; i++)
       {
         smd_value->Fill(smd_adc[i + 16], float(i) + 16);
@@ -301,7 +301,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     {
       fill_ver_north = true;
       smd_ver_north->Fill( smd_pos[3] );
-      zdc_ver_north->Fill( zdc_adc[4] / ADC_to_GeV_north, smd_pos[3] );
+      // zdc_ver_north->Fill( zdc_adc[4] / ADC_to_GeV_north, smd_pos[3] );
       for (int i = 0; i < 8; i++)
       {
         smd_value->Fill(smd_adc[i + 24], float(i) + 24);
