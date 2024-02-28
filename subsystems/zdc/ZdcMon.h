@@ -40,7 +40,7 @@ class ZdcMon : public OnlMon
   TH1 *smd_sum_hor_north = nullptr;
   TH1 *smd_sum_ver_north = nullptr;
   // south smd 
-  TH1 *smd_hor_south
+  TH1 *smd_hor_south;
   TH1 *smd_ver_south = nullptr;
   TH1 *smd_sum_hor_south = nullptr;
   TH1 *smd_sum_ver_south = nullptr;
