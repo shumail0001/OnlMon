@@ -324,6 +324,27 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
     }
 
+    // CompOvfBool();
+    
+    // if ((did_laser_fire == false))
+    // {
+    //   if (ovfbool[0] && ovfbool[4])
+    //   {
+    //     smd_sum_hor_south->Fill(smd_sum[0] / 8.);
+    //   }
+    //   if (ovfbool[0] && ovfbool[4])
+    //   {
+    //     smd_sum_ver_south->Fill(smd_sum[1] / 7.);
+    //   }
+    //   if (ovfbool[0] && ovfbool[4])
+    //   {
+    //     smd_sum_hor_north->Fill(smd_sum[2] / 8.);
+    //   }
+    //   if (ovfbool[0] && ovfbool[4])
+    //   {
+    //     smd_sum_ver_north->Fill(smd_sum[3] / 7.);
+    //   }
+    // }
 
 
 
@@ -438,6 +459,7 @@ void ZDCMon::GetCalConst()
       //      smd_south_rgain[i] = smd_south_rgain[i] * 1.012;
       smd_south_rgain[i] = smd_south_rgain[i] * 1.5; // From RUN9
     }
+
   //getting overflows
   // ovf0file.str("");
   // ovf0file << calibdir.str().c_str() << "/ZdcCalib.overflow0";
