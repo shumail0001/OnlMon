@@ -77,13 +77,13 @@ int ZdcMon::Init()
   std::ifstream gain_infile(gainfile);
   std::ifstream msg(gainfile);
   
-  if (!gain_infile)
-  {
-    msg << gainfile << " could not be opened." ;
-    OnlMonServer *se = OnlMonServer::instance();
-    se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
-    exit(1);
-  }
+  // if (!gain_infile)
+  // {
+  //   msg << gainfile << " could not be opened." ;
+  //   OnlMonServer *se = OnlMonServer::instance();
+  //   se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
+  //   exit(1);
+  // }
 
   for (int i = 0; i < 32; i++)
   {
