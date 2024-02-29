@@ -290,12 +290,6 @@ int ZdcMon::process_event(Event *e /* evt */)
     bool fired_smd_hor_s = (s_hor > 1);
     bool fired_smd_ver_s = (s_ver > 1);
 
-    // bool fill_hor_south = false;
-    // bool fill_ver_south = false;
-
-    // bool fill_hor_north = false;
-    // bool fill_ver_north = false;
-
 
     //compute, if smd is overloaded
     bool smd_ovld_north = false;
@@ -312,8 +306,6 @@ int ZdcMon::process_event(Event *e /* evt */)
     // PHENIX had: if ( ped_zdc_south && !did_laser_fire && fired_smd_hor_s && fired_smd_ver_s && ovfbool[0] && ovfbool[4] && !smd_ovld_south)
     if (fired_smd_hor_s && fired_smd_ver_s && !smd_ovld_south)
     {
-      // fill_hor_south = true;
-      // fill_ver_south = true;
       smd_hor_south->Fill( smd_pos[0] );
       smd_ver_south->Fill( smd_pos[1] );
       for (int i = 0 ; i < 8; i++)
@@ -416,50 +408,6 @@ int ZdcMon::Reset()
   return 0;
 }
 
-
-// void ZdcMon::GetCalConst()
-// {
-//   ostringstream pedfile, gainfile, ovf0file, ovf1file, calibdir;
-//   //getting directory where the calibration files are
-//   calibdir.str("");
-//   if (getenv("ZDCCALIBDIR"))
-//   {
-//     calibdir << getenv("ZDCCALIBDIR");
-//   }
-//   else
-//   {
-//     calibdir << getenv("ONLMON_MAIN") << "/share";
-//   }
-//   //getting gains
-//   gainfile.str("");
-//   gainfile << calibdir.str().c_str() << "/ZdcCalib.pmtgain";
-//   ifstream gain_infile(gainfile.str().c_str(), ios::in);
-//   if (!gain_infile)
-//   {
-//     ostringstream msg;
-//     msg << gainfile << " could not be opened." ;
-//     OnlMonServer *se = OnlMonServer::instance();
-//     se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
-//     exit(1);
-//   }
-
-//   for (int i = 0; i < 32; i++)
-//   {
-//     gain_infile >> col1 >> col2 >> col3;
-//     gain[i] = col1;
-//   }
-
-//   for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
-//   {
-//     smd_south_rgain[i] = gain[i];  // 0-7: y channels, 8-14: x channels, 15: analog sum
-//   }
-
-//   for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
-//   {
-//     smd_north_rgain[i] = gain[i + 16];  // 0-7: y channels, 8-14: x channels, 15: analog sum
-//   }
-
-// }
 
 void ZdcMon::CompSmdAdc() // mulitplying by relative gains
 {
