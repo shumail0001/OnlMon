@@ -257,11 +257,11 @@ int ZdcMon::process_event(Event *e /* evt */)
     bool fired_smd_hor_s = (s_hor > 1);
     bool fired_smd_ver_s = (s_ver > 1);
 
-    bool fill_hor_south = false;
-    bool fill_ver_south = false;
+    // bool fill_hor_south = false;
+    // bool fill_ver_south = false;
 
-    bool fill_hor_north = false;
-    bool fill_ver_north = false;
+    // bool fill_hor_north = false;
+    // bool fill_ver_north = false;
 
 
     //compute, if smd is overloaded
