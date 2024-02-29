@@ -29,8 +29,6 @@
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
 
-#include <gsl/gsl_const.h>
-#include <gsl/gsl_math.h>
 
 enum
 {
@@ -429,8 +427,9 @@ void ZdcMon::CompSmdPos() //computing position with weighted averages
   float w_sum[4];
   memset(w_sum, 0, sizeof(w_sum));
 
+  
   // these constants convert the SMD channel number into real dimensions (cm's)
-  const float hor_scale = 2.0 * 11.0 / 10.5 * sin(M_PI_4); // from gsl_math.h
+  const float hor_scale = 2.0 * 11.0 / 10.5 * sin(PI/4); // from gsl_math.h
   const float ver_scale = 1.5 * 11.0 / 10.5;
   float hor_offset = (hor_scale * 8 / 2.0) * (7.0 / 8.0);
   float ver_offset = (ver_scale * 7 / 2.0) * (6.0 / 7.0);

@@ -24,11 +24,13 @@ class ZdcMon : public OnlMon
   int Init();
   int BeginRun(const int runno);
   int Reset();
+  
 
  protected:
   std::vector<float> anaWaveformFast(Packet *p, const int channel);
   CaloWaveformFitting *WaveformProcessingFast = nullptr;
 
+  double PI = 3.14159;
   int evtcnt = 0;
   int idummy = 0;
   TH1 *zdc_adc_north = nullptr;
@@ -44,7 +46,7 @@ class ZdcMon : public OnlMon
   TH1 *smd_hor_north_good = nullptr;
   TH1 *smd_ver_north_good = nullptr;
   // south smd 
-  TH1 *smd_hor_south;
+  TH1 *smd_hor_south = nullptr;
   TH1 *smd_ver_south = nullptr;
   TH1 *smd_sum_hor_south = nullptr;
   TH1 *smd_sum_ver_south = nullptr;
