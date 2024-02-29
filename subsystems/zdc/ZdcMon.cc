@@ -72,8 +72,10 @@ int ZdcMon::Init()
   calib.close();
 
   //getting gains
+  float col1, col2, col3;
   std::string gainfile = std::string(zdccalib) + "/" + "/ZdcCalib.pmtgain";
   std::ifstream gain_infile(gainfile);
+  std::ifstream msg(gainfile);
   
   if (!gain_infile)
   {
@@ -100,7 +102,7 @@ int ZdcMon::Init()
     smd_north_rgain[i] = gain[i + 16];  // 0-7: y channels, 8-14: x channels, 15: analog sum
   }
   
-  gain.close();
+  gain_infile.close();
 
 
   // use printf for stuff which should go the screen but not into the message
