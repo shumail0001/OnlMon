@@ -79,7 +79,6 @@ int ZdcMon::Init()
   
   if (!gain_infile)
   {
-    ostringstream msg;
     msg << gainfile << " could not be opened." ;
     OnlMonServer *se = OnlMonServer::instance();
     se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
