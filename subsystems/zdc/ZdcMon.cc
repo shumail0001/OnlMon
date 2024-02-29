@@ -75,13 +75,13 @@ int ZdcMon::Init()
   float col1, col2, col3;
   std::string gainfile = std::string(zdccalib) + "/" + "/ZdcCalib.pmtgain";
   std::ifstream gain_infile(gainfile);
-  std::ofstream msg(gainfile);
+  std::ostringstream msg(gainfile);
   
   if (!gain_infile)
   {
     msg << gainfile << " could not be opened." ;
     OnlMonServer *se = OnlMonServer::instance();
-    se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg, 2);
+    se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
     exit(1);
   }
 
