@@ -70,6 +70,39 @@ int ZdcMon::Init()
   std::string fullfile = std::string(zdccalib) + "/" + "ZdcMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
+
+  //getting gains
+  std::string gainfile = std::string(zdccalib) + "/" + "/ZdcCalib.pmtgain";
+  std::ifstream gain_infile(gainfile);
+  
+  if (!gain_infile)
+  {
+    ostringstream msg;
+    msg << gainfile << " could not be opened." ;
+    OnlMonServer *se = OnlMonServer::instance();
+    se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
+    exit(1);
+  }
+
+  for (int i = 0; i < 32; i++)
+  {
+    gain_infile >> col1 >> col2 >> col3;
+    gain[i] = col1;
+  }
+
+  for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
+  {
+    smd_south_rgain[i] = gain[i];  // 0-7: y channels, 8-14: x channels, 15: analog sum
+  }
+
+  for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
+  {
+    smd_north_rgain[i] = gain[i + 16];  // 0-7: y channels, 8-14: x channels, 15: analog sum
+  }
+  
+  gain.close();
+
+
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("doing the Init\n");
@@ -405,49 +438,49 @@ int ZdcMon::Reset()
 }
 
 
-void ZdcMon::GetCalConst()
-{
-  ostringstream pedfile, gainfile, ovf0file, ovf1file, calibdir;
-  //getting directory where the calibration files are
-  calibdir.str("");
-  if (getenv("ZDCCALIBDIR"))
-  {
-    calibdir << getenv("ZDCCALIBDIR");
-  }
-  else
-  {
-    calibdir << getenv("ONLMON_MAIN") << "/share";
-  }
-  //getting gains
-  gainfile.str("");
-  gainfile << calibdir.str().c_str() << "/ZdcCalib.pmtgain";
-  ifstream gain_infile(gainfile.str().c_str(), ios::in);
-  if (!gain_infile)
-  {
-    ostringstream msg;
-    msg << gainfile << " could not be opened." ;
-    OnlMonServer *se = OnlMonServer::instance();
-    se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
-    exit(1);
-  }
+// void ZdcMon::GetCalConst()
+// {
+//   ostringstream pedfile, gainfile, ovf0file, ovf1file, calibdir;
+//   //getting directory where the calibration files are
+//   calibdir.str("");
+//   if (getenv("ZDCCALIBDIR"))
+//   {
+//     calibdir << getenv("ZDCCALIBDIR");
+//   }
+//   else
+//   {
+//     calibdir << getenv("ONLMON_MAIN") << "/share";
+//   }
+//   //getting gains
+//   gainfile.str("");
+//   gainfile << calibdir.str().c_str() << "/ZdcCalib.pmtgain";
+//   ifstream gain_infile(gainfile.str().c_str(), ios::in);
+//   if (!gain_infile)
+//   {
+//     ostringstream msg;
+//     msg << gainfile << " could not be opened." ;
+//     OnlMonServer *se = OnlMonServer::instance();
+//     se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL, msg.str(), 2);
+//     exit(1);
+//   }
 
-  for (int i = 0; i < 32; i++)
-  {
-    gain_infile >> col1 >> col2 >> col3;
-    gain[i] = col1;
-  }
+//   for (int i = 0; i < 32; i++)
+//   {
+//     gain_infile >> col1 >> col2 >> col3;
+//     gain[i] = col1;
+//   }
 
-  for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
-  {
-    smd_south_rgain[i] = gain[i];  // 0-7: y channels, 8-14: x channels, 15: analog sum
-  }
+//   for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
+//   {
+//     smd_south_rgain[i] = gain[i];  // 0-7: y channels, 8-14: x channels, 15: analog sum
+//   }
 
-  for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
-  {
-    smd_north_rgain[i] = gain[i + 16];  // 0-7: y channels, 8-14: x channels, 15: analog sum
-  }
+//   for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
+//   {
+//     smd_north_rgain[i] = gain[i + 16];  // 0-7: y channels, 8-14: x channels, 15: analog sum
+//   }
 
-}
+// }
 
 void ZdcMon::CompSmdAdc() // mulitplying by relative gains
 {
