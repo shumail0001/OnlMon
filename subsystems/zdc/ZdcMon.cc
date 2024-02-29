@@ -252,7 +252,6 @@ int ZdcMon::process_event(Event *e /* evt */)
     }  // channel loop end
 
     // call the functions
-    GetCalConst();
     CompSmdAdc();
     CompSmdPos();
     CompSumSmd();
@@ -314,8 +313,8 @@ int ZdcMon::process_event(Event *e /* evt */)
     // PHENIX had: if ( ped_zdc_south && !did_laser_fire && fired_smd_hor_s && fired_smd_ver_s && ovfbool[0] && ovfbool[4] && !smd_ovld_south)
     if (fired_smd_hor_s && fired_smd_ver_s && !smd_ovld_south)
     {
-      fill_hor_south = true;
-      fill_ver_south = true;
+      // fill_hor_south = true;
+      // fill_ver_south = true;
       smd_hor_south->Fill( smd_pos[0] );
       smd_ver_south->Fill( smd_pos[1] );
       for (int i = 0 ; i < 8; i++)
@@ -344,7 +343,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     // PHENIX had: if (ped_zdc_north && ped_smd_hnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north &&  fired_smd_hor_n && !did_laser_fire)
     if ( fired_smd_hor_n && ped_smd_hnorth && !smd_ovld_north)
     {
-      fill_hor_north = true;
+      // fill_hor_north = true;
       smd_hor_north->Fill( smd_pos[2] );
       // zdc_hor_north->Fill( zdc_adc[4] / ADC_to_GeV_north, smd_pos[2] );
       for (int i = 0; i < 8; i++)
@@ -372,7 +371,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     // PHENIX had: if (ped_zdc_north && ped_smd_vnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_ver && !did_laser_fire)
     if (fired_smd_ver_n && ped_smd_vnorth && !smd_ovld_north)
     {
-      fill_ver_north = true;
+      // fill_ver_north = true;
       smd_ver_north->Fill( smd_pos[3] );
       // zdc_ver_north->Fill( zdc_adc[4] / ADC_to_GeV_north, smd_pos[3] );
       for (int i = 0; i < 8; i++)
@@ -397,27 +396,6 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
     }
 
-    // CompOvfBool();
-    
-    // if ((did_laser_fire == false))
-    // {
-    //   if (ovfbool[0] && ovfbool[4])
-    //   {
-    //     smd_sum_hor_south->Fill(smd_sum[0] / 8.);
-    //   }
-    //   if (ovfbool[0] && ovfbool[4])
-    //   {
-    //     smd_sum_ver_south->Fill(smd_sum[1] / 7.);
-    //   }
-    //   if (ovfbool[0] && ovfbool[4])
-    //   {
-    //     smd_sum_hor_north->Fill(smd_sum[2] / 8.);
-    //   }
-    //   if (ovfbool[0] && ovfbool[4])
-    //   {
-    //     smd_sum_ver_north->Fill(smd_sum[3] / 7.);
-    //   }
-    // }
 
 
 
