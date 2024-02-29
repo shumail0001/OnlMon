@@ -57,6 +57,7 @@ int ZdcMon::Init()
   const float MAX_ENERGY1 = 15000.;
   const float MAX_ENERGY2 = 15000.;
   const int BIN_NUMBER = 1500;
+
     
   //  gRandom->SetSeed(rand());
   // read our calibrations from ZdcMonData.dat
@@ -118,7 +119,7 @@ int ZdcMon::Init()
   se->registerHisto(this, smd_sum_hor_south);
   se->registerHisto(this, smd_sum_ver_south);
   // smd values
-  se->registerHisto(this, smd_value)
+  se->registerHisto(this, smd_value);
   se->registerHisto(this, smd_value_good);
   se->registerHisto(this, smd_value_small);
 
@@ -185,8 +186,8 @@ int ZdcMon::process_event(Event *e /* evt */)
 
       // put code to assign smd_adc[i]
 
-      if (c < 16) {zdc_adc[i] = signal;}
-      else {smd_adc[i - 16] = signal;}
+      if (c < 16) {zdc_adc[c] = signal;}
+      else {smd_adc[c - 16] = signal;}
       
 
 
@@ -334,7 +335,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     }
 
     // PHENIX had: if (ped_zdc_north && ped_smd_vnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_ver && !did_laser_fire)
-    if (fired_smd_ver && ped_smd_vnorth && !smd_ovld_north)
+    if (fired_smd_ver_n && ped_smd_vnorth && !smd_ovld_north)
     {
       fill_ver_north = true;
       smd_ver_north->Fill( smd_pos[3] );
@@ -404,7 +405,7 @@ int ZdcMon::Reset()
 }
 
 
-void ZDCMon::GetCalConst()
+void ZdcMon::GetCalConst()
 {
   ostringstream pedfile, gainfile, ovf0file, ovf1file, calibdir;
   //getting directory where the calibration files are
@@ -448,7 +449,7 @@ void ZDCMon::GetCalConst()
 
 }
 
-void ZDCMon::CompSmdAdc() // mulitplying by relative gains
+void ZdcMon::CompSmdAdc() // mulitplying by relative gains
 {
   for (int i = 0; i < 15; i++) // last one is reserved for analogue sum
   {
@@ -460,7 +461,7 @@ void ZDCMon::CompSmdAdc() // mulitplying by relative gains
   }
 }
 
-void ZDCMon::CompSmdPos() //computing position with weighted averages
+void ZdcMon::CompSmdPos() //computing position with weighted averages
 {
   float w_ave[4]; // 0 -> north hor; 1 -> noth vert; 2 -> south hor; 3 -> south vert.
   float weights[4] = {0};
@@ -529,7 +530,7 @@ void ZDCMon::CompSmdPos() //computing position with weighted averages
   }
 }
 
-void ZDCMon::CompSumSmd() //compute 'digital' sum
+void ZdcMon::CompSumSmd() //compute 'digital' sum
 {
   memset(smd_sum, 0, sizeof(smd_sum));
 
