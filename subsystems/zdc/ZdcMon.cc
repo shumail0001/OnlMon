@@ -43,6 +43,17 @@ ZdcMon::ZdcMon(const std::string &name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new ZdcMon()
+
+  float smd_adc[32];
+  float zdc_adc[16];
+  float smd_sum[4]; 
+  float smd_pos[4];
+
+  float gain[32];
+  float smd_south_rgain[16];
+  float smd_north_rgain[16];
+  float overflow0[40];
+  float overflow1[40];
   return;
 }
 
