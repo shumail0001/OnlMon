@@ -70,7 +70,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
   }
-  // for smd_values, smd_values_good, smd_values_small
+  // for smd_value, smd_value_good, smd_value_small
   else if (name == "SmdValues")
   {
     // xpos negative: do not draw menu bar
@@ -228,9 +228,9 @@ int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
   TC[2]->SetEditable(true);
   TC[2]->Clear("D");
   Pad[4]->cd();
-  if (smd_values)
+  if (smd_value)
   {
-    smd_values->DrawCopy();
+    smd_value->DrawCopy();
   }
   else
   {
