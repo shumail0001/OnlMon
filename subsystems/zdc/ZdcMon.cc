@@ -47,6 +47,26 @@ ZdcMon::ZdcMon(const std::string &name)
     overflow0[i] = 0.0f;
     overflow1[i] = 0.0f;
   }
+  // Initialize rgains and zdc_adc
+  for (int i = 0; i < 16; ++i) 
+  {
+    smd_south_rgain[i] = 0.0f;
+    smd_north_rgain[i] = 0.0f;
+    zdc_adc[i] = 0.0f;
+  }
+  // Initialize gain and smd_adc
+  for (int i = 0; i < 32; ++i) 
+  {
+    smd_adc[i] = 0.0f;
+    gain[i] = 0.0f;
+  }
+  // Initialize smd_sum and smd_pos
+  for (int i = 0; i < 4; ++i) 
+  {
+    smd_sum[i] = 0.0f;
+    smd_pos[i] = 0.0f;
+  }
+
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new ZdcMon()
   return;
