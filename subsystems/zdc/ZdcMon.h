@@ -55,14 +55,6 @@ class ZdcMon : public OnlMon
   TH1 *smd_value_good = nullptr;
   TH1 *smd_value_small = nullptr;
 
-  // void GetCalConst();
-  void CompSmdAdc();
-  void CompSmdPos();
-  void CompSumSmd();
-  void CompZdcAdc();
-
-
-
   float smd_adc[32];
   float zdc_adc[16];
   float smd_sum[4]; 
@@ -73,6 +65,13 @@ class ZdcMon : public OnlMon
   float smd_north_rgain[16];
   float overflow0[40];
   float overflow1[40];
+
+  void CompSmdAdc();
+  void CompSmdPos();
+  void CompSumSmd();
+  void CompZdcAdc();
+
+
 
 };
 
