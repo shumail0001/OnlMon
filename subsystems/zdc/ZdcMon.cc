@@ -41,6 +41,23 @@ enum
 ZdcMon::ZdcMon(const std::string &name)
   : OnlMon(name)
 {
+  // leave ctor fairly empty, its hard to debug if code crashes already
+  // during a new ZdcMon()
+  return;
+}
+
+ZdcMon::~ZdcMon()
+{
+  // you can delete NULL pointers it results in a NOOP (No Operation)
+  return;
+}
+
+int ZdcMon::Init()
+{
+  const float MAX_ENERGY1 = 15000.;
+  const float MAX_ENERGY2 = 15000.;
+  const int BIN_NUMBER = 1500;
+
   // Initialize each element of the overflow0 and overflow1  array
   for (int i = 0; i < 40; ++i) 
   {
@@ -66,23 +83,6 @@ ZdcMon::ZdcMon(const std::string &name)
     smd_sum[i] = 0.0f;
     smd_pos[i] = 0.0f;
   }
-
-  // leave ctor fairly empty, its hard to debug if code crashes already
-  // during a new ZdcMon()
-  return;
-}
-
-ZdcMon::~ZdcMon()
-{
-  // you can delete NULL pointers it results in a NOOP (No Operation)
-  return;
-}
-
-int ZdcMon::Init()
-{
-  const float MAX_ENERGY1 = 15000.;
-  const float MAX_ENERGY2 = 15000.;
-  const int BIN_NUMBER = 1500;
 
     
   //  gRandom->SetSeed(rand());
