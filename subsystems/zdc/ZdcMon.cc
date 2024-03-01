@@ -41,6 +41,12 @@ enum
 ZdcMon::ZdcMon(const std::string &name)
   : OnlMon(name)
 {
+  // Initialize each element of the overflow0 and overflow1  array
+  for (int i = 0; i < 40; ++i) 
+  {
+    overflow0[i] = 0.0f;
+    overflow1[i] = 0.0f;
+  }
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new ZdcMon()
   return;
