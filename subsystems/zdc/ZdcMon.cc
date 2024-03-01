@@ -131,6 +131,8 @@ int ZdcMon::Init()
   smd_value = new TH2F("smd_value", "SMD channel# vs value", 1024, 0, 4096, 32, 0, 32);
   smd_value_good = new TH2F("smd_value_good", "SMD channel# vs value", 1024, 0, 4096, 16, 0, 16);
   smd_value_small = new TH2F("smd_value_small", "SMD channel# vs value", 1024, 0, 4096, 16, 0, 16);
+  smd_xy_north = new TH2F("smd_xy_north", "SMD hit position north", 110, -5.5, 5.5, 119, -5.92, 5.92);
+  smd_xy_south = new TH2F("smd_xy_south", "SMD hit position south", 110, -5.5, 5.5, 119, -5.92, 5.92);
 
   OnlMonServer *se = OnlMonServer::instance();
   //register histograms with server otherwise client won't get them
@@ -155,6 +157,8 @@ int ZdcMon::Init()
   se->registerHisto(this, smd_value);
   se->registerHisto(this, smd_value_good);
   se->registerHisto(this, smd_value_small);
+  se->registerHisto(this, smd_xy_north);
+  se->registerHisto(this, smd_xy_south);
 
     
   WaveformProcessingFast = new CaloWaveformFitting();
@@ -207,7 +211,7 @@ int ZdcMon::process_event(Event *e /* evt */)
   if (p)
   {
   
-    // zdc_adc
+    // in this for loop we get: zdc_adc and smd_adc
     for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
     {
       std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
@@ -223,8 +227,6 @@ int ZdcMon::process_event(Event *e /* evt */)
 
       if (c < 16) {zdc_adc[c] = signal;}
       else {smd_adc[c - 16] = signal;}
-      
-
 
       if (mod != 0) continue;
       
@@ -247,8 +249,6 @@ int ZdcMon::process_event(Event *e /* evt */)
 
     
 
-
-
     }  // channel loop end
 
     // call the functions
@@ -260,6 +260,11 @@ int ZdcMon::process_event(Event *e /* evt */)
     // BOOLEANS, INTs AND OTHER DEFINITIONS
 
     
+    bool fill_hor_south = false;
+    bool fill_ver_south = false;
+
+    bool fill_hor_north = false;
+    bool fill_ver_north = false;
 
     int s_ver = 0;
     int s_hor = 0;
@@ -388,6 +393,8 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
     }
 
+    if (fill_hor_south && fill_ver_south && zdc_adc[0]>40 ) {smd_xy_south->Fill(smd_pos[1], smd_pos[0]);}
+    if (fill_hor_north && fill_ver_north && zdc_adc[4]>40 ){smd_xy_north->Fill( smd_pos[3], smd_pos[2]);}
 
 
 
