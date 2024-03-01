@@ -111,8 +111,8 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   gPad->SetLogx();
   if (zdc_adc_south)
   {
-      zdc_adc_south->Scale(1/zdc_adc_south->Integral(), "width");
-      zdc_adc_south->DrawCopy();
+    zdc_adc_south->Scale(1/zdc_adc_south->Integral(), "width");
+    zdc_adc_south->DrawCopy();
   }
   else
   {
@@ -202,7 +202,7 @@ int ZdcMonDraw::SavePlot(const std::string &what, const std::string &type)
   int iret = Draw(what);
   if (iret)  // on error no png files please
   {
-      return iret;
+    return iret;
   }
   int icnt = 0;
   for (TCanvas *canvas : TC)
