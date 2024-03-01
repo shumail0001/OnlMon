@@ -214,7 +214,7 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   return 0;
 }
 
-void ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
+int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   TH2 *smd_value = cl->getHisto("ZDCMON_0","smd_value");
@@ -329,8 +329,8 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   out2.close();
   cl->SaveLogFile(*this);
 
-  std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream out(logfile.c_str());
+  std::string smdvaluesplots = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+  std::ofstream out3(smdvaluesplots.c_str());
   out3 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
       << "</TITLE></HEAD>" << std::endl;
   out3 << "<P>Some SmdValues-related-output would go here." << std::endl;
