@@ -14,6 +14,25 @@ void zdcDrawInit(const int online = 0)
   // register histos we want with monitor name
   cl->registerHisto("zdc_adc_north","ZDCMON_0");
   cl->registerHisto("zdc_adc_south","ZDCMON_0");
+  // smd
+  // north smd
+  cl->registerHisto("smd_hor_north", "ZDCMON_0");
+  cl->registerHisto("smd_ver_north", "ZDCMON_0");
+  cl->registerHisto("smd_sum_hor_north", "ZDCMON_0");
+  cl->registerHisto("smd_sum_ver_north", "ZDCMON_0");
+  cl->registerHisto("smd_hor_north_small", "ZDCMON_0");
+  cl->registerHisto("smd_ver_north_small", "ZDCMON_0");
+  cl->registerHisto("smd_hor_north_good", "ZDCMON_0");
+  cl->registerHisto("smd_ver_north_good", "ZDCMON_0");
+  // south smd
+  cl->registerHisto("smd_hor_south", "ZDCMON_0");
+  cl->registerHisto("smd_ver_south", "ZDCMON_0");
+  cl->registerHisto("smd_sum_hor_south", "ZDCMON_0");
+  cl->registerHisto("smd_sum_ver_south", "ZDCMON_0");
+  // smd values
+  cl->registerHisto("smd_value", "ZDCMON_0");
+  cl->registerHisto("smd_value_good", "ZDCMON_0");
+  cl->registerHisto("smd_value_small", "ZDCMON_0");
 
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);
