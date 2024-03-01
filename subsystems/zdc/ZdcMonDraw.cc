@@ -8,6 +8,7 @@
 #include <TDatime.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
+#include <TH2.h>
 #include <TPad.h>
 #include <TROOT.h>
 #include <TSystem.h>
@@ -217,9 +218,9 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
 int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *smd_value = cl->getHisto("ZDCMON_0","smd_value");
-  TH2 *smd_value_good = cl->getHisto("ZDCMON_0","smd_value_good");
-  TH2 *smd_value_small = cl->getHisto("ZDCMON_0","smd_value_small");
+  TH2 *smd_value = (TH2*) cl->getHisto("ZDCMON_0","smd_value");
+  TH2 *smd_value_good = (TH2*) cl->getHisto("ZDCMON_0","smd_value_good");
+  TH2 *smd_value_small = (TH2*) cl->getHisto("ZDCMON_0","smd_value_small");
 
   if (!gROOT->FindObject("SmdValues"))
   {
