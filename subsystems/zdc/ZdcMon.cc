@@ -134,10 +134,6 @@ int ZdcMon::Init()
   smd_xy_north = new TH2F("smd_xy_north", "SMD hit position north", 110, -5.5, 5.5, 119, -5.92, 5.92);
   smd_xy_south = new TH2F("smd_xy_south", "SMD hit position south", 110, -5.5, 5.5, 119, -5.92, 5.92);
 
-  smd_yt_south = new TH2F("smd_yt_south", "Time dep. of y in SMD south", 100, 0, 100000, 296, -5.92, 5.92);
-  smd_xt_south = new TH2F("smd_xt_south", "Time dep. of x in SMD south", 100, 0, 100000, 220, -5.5, 5.5);
-  smd_yt_north = new TH2F("smd_yt_north", "Time dep. of y in SMD north", 100, 0, 100000, 296, -5.92, 5.92);
-  smd_xt_north = new TH2F("smd_xt_north", "Time dep. of x in SMD north", 100, 0, 100000, 220, -5.5, 5.5);
 
   OnlMonServer *se = OnlMonServer::instance();
   //register histograms with server otherwise client won't get them
@@ -165,10 +161,6 @@ int ZdcMon::Init()
   se->registerHisto(this, smd_xy_north);
   se->registerHisto(this, smd_xy_south);
 
-  se->registerHisto(this, smd_yt_north);
-  se->registerHisto(this, smd_yt_south);
-  se->registerHisto(this, smd_xt_north);
-  se->registerHisto(this, smd_xt_south);
 
     
   WaveformProcessingFast = new CaloWaveformFitting();
@@ -378,23 +370,6 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
     }
     if (fill_hor_north && fill_ver_north && zdc_adc[4]>40 ){smd_xy_north->Fill( smd_pos[3], smd_pos[2]);}
-
-    if (fill_hor_south)
-    {
-      smd_yt_south->Fill(nevt, smd_pos[0]);
-    }
-    if (fill_ver_south)
-    {
-      smd_xt_south->Fill(nevt, smd_pos[1]);
-    }
-    if (fill_hor_north)
-    {
-      smd_yt_north->Fill(nevt, smd_pos[2]);
-    }
-    if (fill_ver_north)
-    {
-      smd_xt_north->Fill(nevt, smd_pos[3]);
-    }
 
     // PHENIX had: if (ped_zdc_north && ped_smd_vnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_ver && !did_laser_fire)
     if (fired_smd_ver_n && ped_smd_vnorth && !smd_ovld_north)

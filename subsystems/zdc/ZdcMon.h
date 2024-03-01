@@ -55,11 +55,7 @@ class ZdcMon : public OnlMon
   TH2 * smd_xy_north = nullptr;
   TH2 * smd_xy_south = nullptr;
 
-  TH2 * smd_yt_south;
-  TH2 * smd_xt_south;
-  TH2 * smd_yt_north;
-  TH2 * smd_xt_north;
-
+  
   float smd_adc[32] = {0.0f};
   float zdc_adc[16] = {0.0f};
   float smd_sum[4] = {0.0f}; 
