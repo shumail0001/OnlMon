@@ -46,7 +46,8 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("Check_Sum_Error",TPCMON_STR);
     cl->registerHisto("Check_Sums",TPCMON_STR);
     cl->registerHisto("ADC_vs_SAMPLE",TPCMON_STR); 
-    cl->registerHisto("ADC_vs_SAMPLE_large",TPCMON_STR); 
+    cl->registerHisto("ADC_vs_SAMPLE_large",TPCMON_STR);
+    cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE",TPCMON_STR);
     cl->registerHisto("MAXADC",TPCMON_STR);
 
     cl->registerHisto("RAWADC_1D_R1",TPCMON_STR);

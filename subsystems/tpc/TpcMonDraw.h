@@ -32,6 +32,7 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCSampleSize(const std::string &what = "ALL");
   int DrawTPCCheckSum(const std::string &what = "ALL");
   int DrawTPCADCSample(const std::string &what = "ALL");
+  int DrawTPCPedestSubADCSample(const std::string &what = "ALL");
   int DrawTPCADCSampleLarge(const std::string &what = "ALL");
   int DrawTPCMaxADCModule(const std::string &what = "ALL");
   int DrawTPCRawADC1D(const std::string &what = "ALL");
@@ -45,8 +46,8 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCNEventsvsEBDC(const std::string &wht = "ALL");
   time_t getTime();
   
-  TCanvas *TC[18] = {nullptr};
-  TPad *transparent[17] = {nullptr};
+  TCanvas *TC[19] = {nullptr};
+  TPad *transparent[18] = {nullptr};
   TPad *Pad[11] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module
