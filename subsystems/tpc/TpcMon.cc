@@ -173,6 +173,15 @@ int TpcMon::Init()
   ADC_vs_SAMPLE -> SetXTitle(ADC_vs_SAMPLE_xaxis_str);
   ADC_vs_SAMPLE -> SetYTitle("ADC [ADU]");
 
+  // ADC vs Sample (small)
+  char PEDEST_SUB_ADC_vs_SAMPLE_str[100];
+  char PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str[100];
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
+  PEDEST_SUB_ADC_vs_SAMPLE = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE", ADC_vs_SAMPLE_str, 360, 0, 360, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE -> SetXTitle(ADC_vs_SAMPLE_xaxis_str);
+  PEDEST_SUB_ADC_vs_SAMPLE -> SetYTitle("ADC [ADU]");
+
   // ADC vs Sample (large)
   char ADC_vs_SAMPLE_large_str[100];
   char ADC_vs_SAMPLE_xaxis_large_str[100];
@@ -308,7 +317,13 @@ int TpcMon::Init()
   // x-axis is channel phi, y-axis is channel layer, z axis is ADC weithing
   Layer_ChannelPhi_ADC_weighted = new TH2F("Layer_ChannelPhi_ADC_weighted",Layer_ChannelPhi_ADC_weighted_title_str,4610,-2305.5,2304.5,61,-0.5,59.5);
   Layer_ChannelPhi_ADC_weighted->SetXTitle("Channel # (#phi bin)");
-  Layer_ChannelPhi_ADC_weighted->SetYTitle("Layer");  
+  Layer_ChannelPhi_ADC_weighted->SetYTitle("Layer");
+
+  char NEvents_vs_EBDC_title_str[256];
+  sprintf(NEvents_vs_EBDC_title_str,"N_{Events} vs EBDC");
+  NEvents_vs_EBDC = new TH1F("NEvents_vs_EBDC",NEvents_vs_EBDC_title_str,24,-0.5,23.5);
+  NEvents_vs_EBDC->SetXTitle("EBDC #");
+  NEvents_vs_EBDC->SetYTitle("N_{Events}");  
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
@@ -320,6 +335,7 @@ int TpcMon::Init()
   se->registerHisto(this, Check_Sum_Error);
   se->registerHisto(this, Check_Sums);
   se->registerHisto(this, ADC_vs_SAMPLE);
+  se->registerHisto(this, PEDEST_SUB_ADC_vs_SAMPLE);
   se->registerHisto(this, ADC_vs_SAMPLE_large);
   se->registerHisto(this, MAXADC);
   se->registerHisto(this, RAWADC_1D_R1);
@@ -355,6 +371,7 @@ int TpcMon::Init()
   se->registerHisto(this, SouthSideADC_clusterZY_unw);
 
   se->registerHisto(this, Layer_ChannelPhi_ADC_weighted); 
+  se->registerHisto(this, NEvents_vs_EBDC);
 
   Reset();
   return 0;
@@ -411,6 +428,7 @@ int TpcMon::process_event(Event *evt/* evt */)
     }
   int lastpacket = firstpacket+232;
 
+  NEvents_vs_EBDC->Fill(MonitorServerId());
   
   for( int packet = firstpacket; packet < lastpacket; packet++) //packet 4001 or 4002 = Sec 00, packet 4231 or 4232 = Sec 23
   {
@@ -571,6 +589,7 @@ int TpcMon::process_event(Event *evt/* evt */)
           if( checksumError == 0 && is_channel_stuck == 0)
           {
             ADC_vs_SAMPLE -> Fill(s, adc);
+            PEDEST_SUB_ADC_vs_SAMPLE -> Fill(s, adc-pedestal);
             ADC_vs_SAMPLE_large -> Fill(s, adc);
 
             if(Module_ID(fee)==0){RAWADC_1D_R1->Fill(adc);PEDEST_SUB_1D_R1->Fill(adc-pedestal);} //Raw/pedest_sub 1D for R1

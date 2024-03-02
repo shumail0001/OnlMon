@@ -79,6 +79,7 @@ class TpcMon : public OnlMon
   TH2 *SouthSideADC = nullptr;
 
   TH2 *ADC_vs_SAMPLE = nullptr;
+  TH2 *PEDEST_SUB_ADC_vs_SAMPLE = nullptr;
   TH2 *ADC_vs_SAMPLE_large = nullptr;
 
   TH1 *sample_size_hist = nullptr;
@@ -100,6 +101,7 @@ class TpcMon : public OnlMon
   TH1 *PEDEST_SUB_1D_R3 = nullptr;
 
   TH2 *Layer_ChannelPhi_ADC_weighted = nullptr;
+  TH1 *NEvents_vs_EBDC = nullptr;
 
   TpcMap M; //declare Martin's map
 

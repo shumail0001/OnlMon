@@ -9,6 +9,7 @@ class TCanvas;
 class TGraphErrors;
 class TPad;
 class TH2;
+class TH1;
 class TPaveLabel;
 
 class TpcMonDraw : public OnlMonDraw
@@ -31,6 +32,7 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCSampleSize(const std::string &what = "ALL");
   int DrawTPCCheckSum(const std::string &what = "ALL");
   int DrawTPCADCSample(const std::string &what = "ALL");
+  int DrawTPCPedestSubADCSample(const std::string &what = "ALL");
   int DrawTPCADCSampleLarge(const std::string &what = "ALL");
   int DrawTPCMaxADCModule(const std::string &what = "ALL");
   int DrawTPCRawADC1D(const std::string &what = "ALL");
@@ -41,10 +43,11 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCZYclusters(const std::string &what = "ALL");
   int DrawTPCZYclusters_unweighted(const std::string &what = "ALL");
   int DrawTPCchannelphi_layer_weighted(const std::string &what = "ALL");
+  int DrawTPCNEventsvsEBDC(const std::string &wht = "ALL");
   time_t getTime();
   
-  TCanvas *TC[17] = {nullptr};
-  TPad *transparent[16] = {nullptr};
+  TCanvas *TC[19] = {nullptr};
+  TPad *transparent[18] = {nullptr};
   TPad *Pad[11] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module
@@ -63,6 +66,7 @@ class TpcMonDraw : public OnlMonDraw
   TH2 *dummy_his1_ZY_unw = nullptr;
 
   TH2 *dummy_his1_channelphi_layer_w = nullptr;
+  TH1 *dummy_his1_NEvents_EBDC = nullptr;
 
   TPaveLabel* NS18 = nullptr; //North Side labels
   TPaveLabel* NS17 = nullptr;

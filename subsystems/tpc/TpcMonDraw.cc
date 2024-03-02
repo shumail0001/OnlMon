@@ -256,6 +256,29 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[15]->SetFillStyle(4000);
     transparent[15]->Draw();
     TC[16]->SetEditable(false);
+  }
+  else if (name == "TPCNEventsEBDC")
+  {
+    TC[17] = new TCanvas(name.c_str(), "TPC NUMBER EVENTS vs EBDC",1350,700);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[17]->Divide(1,1);
+    // this one is used to plot the run number on the canvas
+    transparent[16] = new TPad("transparent16", "this does not show", 0, 0, 1, 1);
+    transparent[16]->SetFillStyle(4000);
+    transparent[16]->Draw();
+    TC[17]->SetEditable(false);
+  }
+  else if (name == "TPCPedestSubADCSample")
+  {
+    TC[18] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC vs Sample in Whole Sector",-1, 0, xsize , ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[18]->Divide(4,7);
+    transparent[17] = new TPad("transparent17", "this does not show", 0, 0, 1, 1);
+    transparent[17]->SetFillStyle(4000);
+    transparent[17]->Draw();
+    TC[18]->SetEditable(false);
   } 
   
   return 0;
@@ -345,7 +368,16 @@ int TpcMonDraw::Draw(const std::string &what)
     iret += DrawTPCPedestSubADC1D(what);
     idraw++;
   }
- 
+  if (what == "ALL" || what == "TPCNEVENTSEBDC")
+  {
+    iret += DrawTPCNEventsvsEBDC(what);
+    idraw++;
+  } 
+  if (what == "ALL" || what == "TPCPEDESTSUBADCVSSAMPLE")
+  {
+    iret += DrawTPCPedestSubADCSample(what);
+    idraw++;
+  }
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -1756,6 +1788,134 @@ int TpcMonDraw::DrawTPCPedestSubADC1D(const std::string & /* what */)
 
   return 0;
 }
+
+int TpcMonDraw::DrawTPCNEventsvsEBDC(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmoneventsebdc[24] = {nullptr};
+
+  char TPCMON_STR[100];
+
+  dummy_his1_NEvents_EBDC = new TH1F("dummy_his1_Nevents_EBDC", "N_{Events} vs EBDC", 24, -0.5, 23.5); //dummy histos for titles
+  dummy_his1_NEvents_EBDC->SetXTitle("EBDC #");
+  dummy_his1_NEvents_EBDC->SetYTitle("N_{Events}");
+
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmoneventsebdc[i] = (TH1*) cl->getHisto(TPCMON_STR,"NEvents_vs_EBDC");
+  }
+
+  if (!gROOT->FindObject("TPCNEventsEBDC"))
+  {
+    MakeCanvas("TPCNEventsEBDC");
+  }  
+
+  TC[17]->SetEditable(true);
+  TC[17]->Clear("D");
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_N_Events_vs_EBDC " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[16]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  TC[17]->cd(1);
+  gStyle->SetOptStat(kFALSE);
+  gPad->SetTopMargin(0.15);
+  dummy_his1_NEvents_EBDC->Draw("HISTsame");
+
+  float max = 0;
+  for( int i=0; i<24; i++ )
+  {
+    if( tpcmoneventsebdc[i] )
+    {
+      TC[17]->cd(1);
+      tpcmoneventsebdc[i] -> Draw("HISTsame");
+      if( tpcmoneventsebdc[i]->GetBinContent(  tpcmoneventsebdc[i]->GetMaximumBin()) > max ) 
+      {
+        max =  tpcmoneventsebdc[i]->GetBinContent( tpcmoneventsebdc[i]->GetMaximumBin());
+        dummy_his1_NEvents_EBDC->SetMaximum( max*(1.3) );
+      }
+
+    }
+  }
+  TC[17]->Update();
+
+  TC[17]->Show();
+  TC[17]->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCPedestSubADCSample(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *tpcmon_PEDESTSUBADCSAMPLE[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_PEDESTSUBADCSAMPLE[i] = (TH2*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_vs_SAMPLE");
+  }
+
+
+  if (!gROOT->FindObject("TPCPedestSubADCSample"))
+  {
+    MakeCanvas("TPCPedestSubADCSample");
+  }  
+
+  TC[18]->SetEditable(true);
+  TC[18]->Clear("D");
+
+  for( int i=0; i<24; i++ )
+  {
+    if( tpcmon_PEDESTSUBADCSAMPLE[i] )
+    {
+      TC[18]->cd(i+5);
+      gStyle->SetPalette(57); //kBird CVD friendly
+      gPad->SetLogz(kTRUE);
+      tpcmon_PEDESTSUBADCSAMPLE[i] -> DrawCopy("colz");
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_PEDEST_SUB_ADC_vs_SAMPLE Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[17]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+
+  TC[18]->Update();
+  TC[18]->Show();
+  TC[18]->SetEditable(false);
+
+  return 0;
+}
+
 
 
 int TpcMonDraw::SavePlot(const std::string &what, const std::string &type)
