@@ -25,7 +25,8 @@ class ZdcMonDraw : public OnlMonDraw
   int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
 
  protected:
-  int MakeCanvas(const std::string &name);
+  int MakeCanvas1(const std::string &name);
+  int MakeCanvas1(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
   int DrawSmdValues(const std::string &what = "ALL");

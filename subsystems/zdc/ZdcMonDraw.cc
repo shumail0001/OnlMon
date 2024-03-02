@@ -32,7 +32,7 @@ int ZdcMonDraw::Init()
   return 0;
 }
 
-int ZdcMonDraw::MakeCanvas(const std::string &name)
+int ZdcMonDraw::MakeCanvas1(const std::string &name)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
@@ -71,9 +71,18 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
   }
+  return 0;
+  
+}
+
+int ZdcMonDraw::MakeCanvas2(const std::string &name)
+{
   // for smd_value, smd_value_good, smd_value_small
-  else if (name == "SmdValues")
+  if (name == "SmdValues")
   {
+    OnlMonClient *cl = OnlMonClient::instance();
+    int xsize = cl->GetDisplaySizeX();
+    int ysize = cl->GetDisplaySizeY();
     // xpos negative: do not draw menu bar
     TC[2] = new TCanvas(name.c_str(), "ZdcMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
@@ -90,6 +99,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     TC[2]->SetEditable(false);
   }
   return 0;
+
 }
 
 
@@ -122,7 +132,7 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   TH1 *zdc_adc_north = cl->getHisto("ZDCMON_0","zdc_adc_north");
   if (!gROOT->FindObject("ZdcMon1"))
   {
-    MakeCanvas("ZdcMon1");
+    MakeCanvas1("ZdcMon1");
   }
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
@@ -175,7 +185,7 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   TH1 *zdc_adc_north = cl->getHisto("ZDCMON_0","zdc_adc_north");
   if (!gROOT->FindObject("ZdcMon2"))
   {
-    MakeCanvas("ZdcMon2");
+    MakeCanvas1("ZdcMon2");
   }
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
@@ -224,7 +234,7 @@ int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
 
   if (!gROOT->FindObject("SmdValues"))
   {
-    MakeCanvas("SmdValues");
+    MakeCanvas2("SmdValues");
   }
   TC[2]->SetEditable(true);
   TC[2]->Clear("D");
