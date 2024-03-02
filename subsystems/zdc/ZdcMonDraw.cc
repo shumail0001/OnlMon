@@ -324,7 +324,7 @@ int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
   return 0;
 }
 
-int ZdcMonDraw::DrawSmdNorthandSouth()
+int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
