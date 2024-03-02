@@ -100,6 +100,7 @@ class TpcMon : public OnlMon
   TH1 *PEDEST_SUB_1D_R3 = nullptr;
 
   TH2 *Layer_ChannelPhi_ADC_weighted = nullptr;
+  TH1 *NEvents_vs_EBDC = nullptr;
 
   TpcMap M; //declare Martin's map
 

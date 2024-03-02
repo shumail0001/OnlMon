@@ -66,6 +66,7 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("SouthSideADC_clusterZY_unw",TPCMON_STR);
 
     cl->registerHisto("Layer_ChannelPhi_ADC_weighted",TPCMON_STR);
+    cl->registerHisto("NEvents_vs_EBDC",TPCMON_STR);
   } //
 
 
