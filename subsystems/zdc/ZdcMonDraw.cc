@@ -8,6 +8,7 @@
 #include <TDatime.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
+#include <TH2.h>
 #include <TPad.h>
 #include <TROOT.h>
 #include <TSystem.h>
@@ -31,7 +32,7 @@ int ZdcMonDraw::Init()
   return 0;
 }
 
-int ZdcMonDraw::MakeCanvas(const std::string &name)
+int ZdcMonDraw::MakeCanvas1(const std::string &name)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
@@ -71,7 +72,36 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     TC[1]->SetEditable(false);
   }
   return 0;
+  
 }
+
+int ZdcMonDraw::MakeCanvas2(const std::string &name)
+{
+  // for smd_value, smd_value_good, smd_value_small
+  if (name == "SmdValues")
+  {
+    OnlMonClient *cl = OnlMonClient::instance();
+    int xsize = cl->GetDisplaySizeX();
+    int ysize = cl->GetDisplaySizeY();
+    // xpos negative: do not draw menu bar
+    TC[2] = new TCanvas(name.c_str(), "ZdcMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    Pad[4] = new TPad("zdcpad4", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
+    Pad[5] = new TPad("zdcpad5", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
+    Pad[6] = new TPad("zdcpad6", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
+    Pad[4]->Draw();
+    Pad[5]->Draw();
+    Pad[6]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[2] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
+    TC[2]->SetEditable(false);
+  }
+  return 0;
+
+}
+
 
 int ZdcMonDraw::Draw(const std::string &what)
 {
@@ -102,7 +132,7 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   TH1 *zdc_adc_north = cl->getHisto("ZDCMON_0","zdc_adc_north");
   if (!gROOT->FindObject("ZdcMon1"))
   {
-    MakeCanvas("ZdcMon1");
+    MakeCanvas1("ZdcMon1");
   }
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
@@ -155,7 +185,7 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   TH1 *zdc_adc_north = cl->getHisto("ZDCMON_0","zdc_adc_north");
   if (!gROOT->FindObject("ZdcMon2"))
   {
-    MakeCanvas("ZdcMon2");
+    MakeCanvas1("ZdcMon2");
   }
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
@@ -192,6 +222,60 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->Update();
   TC[1]->Show();
   TC[1]->SetEditable(false);
+  return 0;
+}
+
+int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH2 *smd_value = (TH2*) cl->getHisto("ZDCMON_0","smd_value");
+  TH2 *smd_value_good = (TH2*) cl->getHisto("ZDCMON_0","smd_value_good");
+  TH2 *smd_value_small = (TH2*) cl->getHisto("ZDCMON_0","smd_value_small");
+
+  if (!gROOT->FindObject("SmdValues"))
+  {
+    MakeCanvas2("SmdValues");
+  }
+  TC[2]->SetEditable(true);
+  TC[2]->Clear("D");
+  Pad[4]->cd();
+  if (smd_value)
+  {
+    smd_value->DrawCopy();
+  }
+  else
+  {
+    DrawDeadServer(transparent[2]);
+    TC[2]->SetEditable(false);
+    return -1;
+  }
+  Pad[5]->cd();
+  if (smd_value_good)
+  {
+    smd_value_good->DrawCopy();
+  }
+  Pad[6]->cd();
+  if (smd_value_good)
+  {
+    smd_value_small->DrawCopy();
+  }
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[2]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[2]->Update();
+  TC[2]->Show();
+  TC[2]->SetEditable(false);
   return 0;
 }
 
@@ -236,6 +320,9 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   // idem for 2nd canvas.
   pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
   cl->CanvasToPng(TC[1], pngfile);
+  // idem for 3rd canvas.
+  pngfile = cl->htmlRegisterPage(*this, "Third Canvas", "3", "png");
+  cl->CanvasToPng(TC[2], pngfile);
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
   std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
@@ -252,5 +339,12 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   out2 << "<P>Some status output would go here." << std::endl;
   out2.close();
   cl->SaveLogFile(*this);
+
+  std::string smdvaluesplots = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+  std::ofstream out3(smdvaluesplots.c_str());
+  out3 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
+      << "</TITLE></HEAD>" << std::endl;
+  out3 << "<P>Some SmdValues-related-output would go here." << std::endl;
+  out3.close();
   return 0;
 }
