@@ -178,9 +178,36 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
-  PEDEST_SUB_ADC_vs_SAMPLE = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE", ADC_vs_SAMPLE_str, 360, 0, 360, 281, -100, 1024);
-  PEDEST_SUB_ADC_vs_SAMPLE -> SetXTitle(ADC_vs_SAMPLE_xaxis_str);
-  PEDEST_SUB_ADC_vs_SAMPLE -> SetYTitle("ADC [ADU]");
+  PEDEST_SUB_ADC_vs_SAMPLE = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE", PEDEST_SUB_ADC_vs_SAMPLE_str, 360, 0, 360, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str);
+  PEDEST_SUB_ADC_vs_SAMPLE -> SetYTitle("ADC-ped. [ADU]");
+
+  // ADC vs Sample (small)
+  char PEDEST_SUB_ADC_vs_SAMPLE_R1_str[100];
+  char PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str[100];
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_str,"ADC Counts vs Sample: SECTOR %i R1",MonitorServerId());
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str,"Sector %i R1: ADC Time bin [1/20MHz]",MonitorServerId());
+  PEDEST_SUB_ADC_vs_SAMPLE_R1 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R1", PEDEST_SUB_ADC_vs_SAMPLE_R1_str, 360, 0, 360, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE_R1 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str);
+  PEDEST_SUB_ADC_vs_SAMPLE_R1 -> SetYTitle("ADC-ped. [ADU]");
+
+  // ADC vs Sample (small)
+  char PEDEST_SUB_ADC_vs_SAMPLE_R2_str[100];
+  char PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str[100];
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_str,"ADC Counts vs Sample: SECTOR %i R2",MonitorServerId());
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str,"Sector %i R2: ADC Time bin [1/20MHz]",MonitorServerId());
+  PEDEST_SUB_ADC_vs_SAMPLE_R2 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R2", PEDEST_SUB_ADC_vs_SAMPLE_R2_str, 360, 0, 360, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE_R2 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str);
+  PEDEST_SUB_ADC_vs_SAMPLE_R2 -> SetYTitle("ADC-ped. [ADU]");
+
+  // ADC vs Sample (small)
+  char PEDEST_SUB_ADC_vs_SAMPLE_R3_str[100];
+  char PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str[100];
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_str,"ADC Counts vs Sample: SECTOR %i R3",MonitorServerId());
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str,"Sector %i R3: ADC Time bin [1/20MHz]",MonitorServerId());
+  PEDEST_SUB_ADC_vs_SAMPLE_R3 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R3", PEDEST_SUB_ADC_vs_SAMPLE_R3_str, 360, 0, 360, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE_R3 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str);
+  PEDEST_SUB_ADC_vs_SAMPLE_R3 -> SetYTitle("ADC-ped. [ADU]");
 
   // ADC vs Sample (large)
   char ADC_vs_SAMPLE_large_str[100];
@@ -336,6 +363,9 @@ int TpcMon::Init()
   se->registerHisto(this, Check_Sums);
   se->registerHisto(this, ADC_vs_SAMPLE);
   se->registerHisto(this, PEDEST_SUB_ADC_vs_SAMPLE);
+  se->registerHisto(this, PEDEST_SUB_ADC_vs_SAMPLE_R1);
+  se->registerHisto(this, PEDEST_SUB_ADC_vs_SAMPLE_R2);
+  se->registerHisto(this, PEDEST_SUB_ADC_vs_SAMPLE_R3);
   se->registerHisto(this, ADC_vs_SAMPLE_large);
   se->registerHisto(this, MAXADC);
   se->registerHisto(this, RAWADC_1D_R1);
@@ -592,9 +622,9 @@ int TpcMon::process_event(Event *evt/* evt */)
             PEDEST_SUB_ADC_vs_SAMPLE -> Fill(s, adc-pedestal);
             ADC_vs_SAMPLE_large -> Fill(s, adc);
 
-            if(Module_ID(fee)==0){RAWADC_1D_R1->Fill(adc);PEDEST_SUB_1D_R1->Fill(adc-pedestal);} //Raw/pedest_sub 1D for R1
-            else if(Module_ID(fee)==1){RAWADC_1D_R2->Fill(adc);PEDEST_SUB_1D_R2->Fill(adc-pedestal);} //Raw/pedest_sub 1D for R2
-            else if(Module_ID(fee)==2){RAWADC_1D_R3->Fill(adc);PEDEST_SUB_1D_R3->Fill(adc-pedestal);} //Raw/pedest_sub 1D for R3
+            if(Module_ID(fee)==0){RAWADC_1D_R1->Fill(adc);PEDEST_SUB_1D_R1->Fill(adc-pedestal);PEDEST_SUB_ADC_vs_SAMPLE_R1->Fill(s,adc-pedestal);} //Raw/pedest_sub 1D for R1
+            else if(Module_ID(fee)==1){RAWADC_1D_R2->Fill(adc);PEDEST_SUB_1D_R2->Fill(adc-pedestal);PEDEST_SUB_ADC_vs_SAMPLE_R2->Fill(s,adc-pedestal);} //Raw/pedest_sub 1D for R2
+            else if(Module_ID(fee)==2){RAWADC_1D_R3->Fill(adc);PEDEST_SUB_1D_R3->Fill(adc-pedestal);PEDEST_SUB_ADC_vs_SAMPLE_R3->Fill(s,adc-pedestal);} //Raw/pedest_sub 1D for R3
           }
 
           //increment 
