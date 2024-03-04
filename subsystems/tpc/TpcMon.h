@@ -81,6 +81,9 @@ class TpcMon : public OnlMon
   TH2 *ADC_vs_SAMPLE = nullptr;
   TH2 *PEDEST_SUB_ADC_vs_SAMPLE = nullptr;
   TH2 *ADC_vs_SAMPLE_large = nullptr;
+  TH2 *PEDEST_SUB_ADC_vs_SAMPLE_R1 = nullptr;
+  TH2 *PEDEST_SUB_ADC_vs_SAMPLE_R2 = nullptr;
+  TH2 *PEDEST_SUB_ADC_vs_SAMPLE_R3 = nullptr;
 
   TH1 *sample_size_hist = nullptr;
   TH1 *Check_Sum_Error = nullptr;

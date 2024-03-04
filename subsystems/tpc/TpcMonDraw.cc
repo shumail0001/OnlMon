@@ -280,7 +280,39 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[17]->Draw();
     TC[18]->SetEditable(false);
   } 
-  
+  else if (name == "TPCPedestSubADCSample_R1")
+  {
+    TC[19] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC vs Sample in R1 ONLY",-1, 0, xsize , ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[19]->Divide(4,7);
+    transparent[18] = new TPad("transparent18", "this does not show", 0, 0, 1, 1);
+    transparent[18]->SetFillStyle(4000);
+    transparent[18]->Draw();
+    TC[19]->SetEditable(false);
+  }
+  else if (name == "TPCPedestSubADCSample_R2")
+  {
+    TC[20] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC vs Sample in R2 ONLY",-1, 0, xsize , ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[20]->Divide(4,7);
+    transparent[19] = new TPad("transparent19", "this does not show", 0, 0, 1, 1);
+    transparent[19]->SetFillStyle(4000);
+    transparent[19]->Draw();
+    TC[20]->SetEditable(false);
+  }   
+  else if (name == "TPCPedestSubADCSample_R3")
+  {
+    TC[21] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC vs Sample in R3 ONLY",-1, 0, xsize , ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[21]->Divide(4,7);
+    transparent[20] = new TPad("transparent20", "this does not show", 0, 0, 1, 1);
+    transparent[20]->SetFillStyle(4000);
+    transparent[20]->Draw();
+    TC[21]->SetEditable(false);
+  }      
   return 0;
 }
 
@@ -376,6 +408,21 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCPEDESTSUBADCVSSAMPLE")
   {
     iret += DrawTPCPedestSubADCSample(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCPEDESTSUBADCVSSAMPLE_R1" )
+  {
+    iret += DrawTPCPedestSubADCSample_R1(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCPEDESTSUBADCVSSAMPLE_R2" )
+  {
+    iret += DrawTPCPedestSubADCSample_R2(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCPEDESTSUBADCVSSAMPLE_R3" )
+  {
+    iret += DrawTPCPedestSubADCSample_R3(what);
     idraw++;
   }
   if (!idraw)
@@ -1916,7 +1963,176 @@ int TpcMonDraw::DrawTPCPedestSubADCSample(const std::string & /* what */)
   return 0;
 }
 
+int TpcMonDraw::DrawTPCPedestSubADCSample_R1(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
 
+  TH2 *tpcmon_PEDESTSUBADCSAMPLE_R1[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_PEDESTSUBADCSAMPLE_R1[i] = (TH2*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_vs_SAMPLE_R1");
+  }
+
+
+  if (!gROOT->FindObject("TPCPedestSubADCSample_R1"))
+  {
+    MakeCanvas("TPCPedestSubADCSample_R1");
+  }  
+
+  TC[19]->SetEditable(true);
+  TC[19]->Clear("D");
+
+  for( int i=0; i<24; i++ )
+  {
+    if( tpcmon_PEDESTSUBADCSAMPLE_R1[i] )
+    {
+      TC[19]->cd(i+5);
+      gStyle->SetPalette(57); //kBird CVD friendly
+      gPad->SetLogz(kTRUE);
+      tpcmon_PEDESTSUBADCSAMPLE_R1[i] -> DrawCopy("colz");
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_PEDEST_SUB_ADC_vs_SAMPLE R1 ONLY Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[18]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+
+  TC[19]->Update();
+  TC[19]->Show();
+  TC[19]->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCPedestSubADCSample_R2(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *tpcmon_PEDESTSUBADCSAMPLE_R2[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_PEDESTSUBADCSAMPLE_R2[i] = (TH2*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_vs_SAMPLE_R2");
+  }
+
+
+  if (!gROOT->FindObject("TPCPedestSubADCSample_R2"))
+  {
+    MakeCanvas("TPCPedestSubADCSample_R2");
+  }  
+
+  TC[20]->SetEditable(true);
+  TC[20]->Clear("D");
+
+  for( int i=0; i<24; i++ )
+  {
+    if( tpcmon_PEDESTSUBADCSAMPLE_R2[i] )
+    {
+      TC[20]->cd(i+5);
+      gStyle->SetPalette(57); //kBird CVD friendly
+      gPad->SetLogz(kTRUE);
+      tpcmon_PEDESTSUBADCSAMPLE_R2[i] -> DrawCopy("colz");
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_PEDEST_SUB_ADC_vs_SAMPLE R2 ONLY Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[19]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+
+  TC[20]->Update();
+  TC[20]->Show();
+  TC[20]->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCPedestSubADCSample_R3(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *tpcmon_PEDESTSUBADCSAMPLE_R3[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_PEDESTSUBADCSAMPLE_R3[i] = (TH2*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_vs_SAMPLE_R3");
+  }
+
+
+  if (!gROOT->FindObject("TPCPedestSubADCSample_R3"))
+  {
+    MakeCanvas("TPCPedestSubADCSample_R3");
+  }  
+
+  TC[21]->SetEditable(true);
+  TC[21]->Clear("D");
+
+  for( int i=0; i<24; i++ )
+  {
+    if( tpcmon_PEDESTSUBADCSAMPLE_R3[i] )
+    {
+      TC[21]->cd(i+5);
+      gStyle->SetPalette(57); //kBird CVD friendly
+      gPad->SetLogz(kTRUE);
+      tpcmon_PEDESTSUBADCSAMPLE_R3[i] -> DrawCopy("colz");
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_PEDEST_SUB_ADC_vs_SAMPLE R3 ONLY Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[20]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+
+  TC[21]->Update();
+  TC[21]->Show();
+  TC[21]->SetEditable(false);
+
+  return 0;
+}
 
 int TpcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
