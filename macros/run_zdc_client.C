@@ -33,8 +33,8 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("smd_value", "ZDCMON_0");
   cl->registerHisto("smd_value_good", "ZDCMON_0");
   cl->registerHisto("smd_value_small", "ZDCMON_0");
-  cl->registerHisto("smd_xy_north", "ZDCMON_0")
-  cl->registerHisto("smd_xy_south", "ZDCMON_0")
+  cl->registerHisto("smd_xy_north", "ZDCMON_0");
+  cl->registerHisto("smd_xy_south", "ZDCMON_0");
 
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);
