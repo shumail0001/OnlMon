@@ -9,8 +9,8 @@ class OnlMonDB;
 class TCanvas;
 class TGraphErrors;
 class TPad;
-const int NUM_CANV = 2 + 1; // + 1 + 1;
-const int NUM_PAD = 4 + 3; // + 12 + 2;
+const int NUM_CANV = 2 + 1 + 1 // + 1;
+const int NUM_PAD = 4 + 3 + 12; // + 2;
 
 class ZdcMonDraw : public OnlMonDraw
 {
