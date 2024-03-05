@@ -93,9 +93,6 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   // DRAW SMD NORTH AND SOUTH
   else if (name == "SmdNorthandSouth")
   {
-    OnlMonClient *cl = OnlMonClient::instance();
-    int xsize = cl->GetDisplaySizeX();
-    int ysize = cl->GetDisplaySizeY();
     // xpos negative: do not draw menu bar
     TC[3] = new TCanvas(name.c_str(), "Smd North and South", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
     gSystem->ProcessEvents();
