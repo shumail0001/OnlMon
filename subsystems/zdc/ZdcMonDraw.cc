@@ -135,7 +135,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SmdXY")
   {
     // xpos negative: do not draw menu bar
-    TC[4] = new TCanvas(name.c_str(), "ZdcMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
+    TC[4] = new TCanvas(name.c_str(), "smd_xy_north/south", -xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     Pad[19] = new TPad("smd_xy_north", "xy_north", 0.05, 0.5, 0.95, 0.95, 0);
     Pad[20] = new TPad("smd_xy_south", "xy_south", 0.05, 0.05, 0.95, 0.5, 0);
