@@ -73,9 +73,6 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   }
    else if (name == "SmdValues")
   {
-    OnlMonClient *cl = OnlMonClient::instance();
-    int xsize = cl->GetDisplaySizeX();
-    int ysize = cl->GetDisplaySizeY();
     // xpos negative: do not draw menu bar
     TC[2] = new TCanvas(name.c_str(), "Smd Values", -xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
