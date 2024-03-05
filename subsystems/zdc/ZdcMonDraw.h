@@ -9,8 +9,8 @@ class OnlMonDB;
 class TCanvas;
 class TGraphErrors;
 class TPad;
-const int NUM_CANV = 3 +1 + 1;
-const int NUM_PAD = 7 + 12 + 2;
+const int NUM_CANV = 2 + 1 + 1 + 1;
+const int NUM_PAD = 4 + 3 + 12 + 2;
 
 class ZdcMonDraw : public OnlMonDraw
 {
@@ -25,10 +25,7 @@ class ZdcMonDraw : public OnlMonDraw
   int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
 
  protected:
-  int MakeCanvas1(const std::string &name);
-  int MakeCanvas2(const std::string &name);
-  int MakeCanvas3(const std::string &name);
-  int MakeCanvas4(const std::string &name);
+  int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
   int DrawSmdValues(const std::string &what = "ALL");
