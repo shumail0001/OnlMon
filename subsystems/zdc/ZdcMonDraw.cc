@@ -74,11 +74,11 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
    else if (name == "SmdValues")
   {
     // xpos negative: do not draw menu bar
-    TC[2] = new TCanvas(name.c_str(), "Smd Values", 0 , ysize / 2, xsize, ysize);
+    TC[2] = new TCanvas(name.c_str(), "Smd Values", 0 , -ysize / 2, xsize, ysize / 2);
     gSystem->ProcessEvents();
-    Pad[4] = new TPad("Smd Value", "Smd Value", 0.1, 0.5, 0.4, 0.9, 0);
-    Pad[5] = new TPad("Smd Value (good)", "Smd Value (good)", 0.4, 0.5, 0.7, 0.9, 0);
-    Pad[6] = new TPad("Smd Value (small)", "Smd Value (small)", 0.7, 0.5, 0.9, 0.9, 0);
+    Pad[4] = new TPad("Smd Value", "Smd Value", 0.05, 0.5, 0.35, 0.9, 0);
+    Pad[5] = new TPad("Smd Value (good)", "Smd Value (good)", 0.35, 0.5, 0.65, 0.9, 0);
+    Pad[6] = new TPad("Smd Value (small)", "Smd Value (small)", 0.65, 0.5, 0.95, 0.9, 0);
     Pad[4]->Draw();
     Pad[5]->Draw();
     Pad[6]->Draw();
