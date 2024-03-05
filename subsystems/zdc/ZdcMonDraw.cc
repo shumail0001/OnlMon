@@ -543,9 +543,9 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   // idem for 2nd canvas.
   pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
   cl->CanvasToPng(TC[1], pngfile);
-  // idem for 3rd canvas.
-  pngfile = cl->htmlRegisterPage(*this, "Third Canvas", "3", "png");
-  cl->CanvasToPng(TC[2], pngfile);
+  // // idem for 3rd canvas.
+  // pngfile = cl->htmlRegisterPage(*this, "Third Canvas", "3", "png");
+  // cl->CanvasToPng(TC[2], pngfile);
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
   std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
