@@ -29,10 +29,10 @@ void zdcDrawInit(const int online = 0)
   // cl->registerHisto("smd_ver_south", "ZDCMON_0");
   // cl->registerHisto("smd_sum_hor_south", "ZDCMON_0");
   // cl->registerHisto("smd_sum_ver_south", "ZDCMON_0");
-  // // smd values
-  // cl->registerHisto("smd_value", "ZDCMON_0");
-  // cl->registerHisto("smd_value_good", "ZDCMON_0");
-  // cl->registerHisto("smd_value_small", "ZDCMON_0");
+  // smd values
+  cl->registerHisto("smd_value", "ZDCMON_0");
+  cl->registerHisto("smd_value_good", "ZDCMON_0");
+  cl->registerHisto("smd_value_small", "ZDCMON_0");
   // cl->registerHisto("smd_xy_north", "ZDCMON_0")
   // cl->registerHisto("smd_xy_south", "ZDCMON_0")
 
