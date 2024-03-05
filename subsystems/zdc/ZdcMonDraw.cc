@@ -134,9 +134,6 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   // DRAW SMD_XY_NORHT/SOUTH
   else if (name == "SmdValues")
   {
-    OnlMonClient *cl = OnlMonClient::instance();
-    int xsize = cl->GetDisplaySizeX();
-    int ysize = cl->GetDisplaySizeY();
     // xpos negative: do not draw menu bar
     TC[4] = new TCanvas(name.c_str(), "ZdcMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
@@ -471,7 +468,7 @@ int ZdcMonDraw::DrawSmdXY(const std::string & /* what */)
 
   if (!gROOT->FindObject("SmdXY"))
   {
-    MakeCanvas4("SmdXY");
+    MakeCanvas("SmdXY");
   }
   TC[4]->SetEditable(true);
   TC[4]->Clear("D");
