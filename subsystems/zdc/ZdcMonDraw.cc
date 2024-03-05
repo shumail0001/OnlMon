@@ -192,21 +192,21 @@ int ZdcMonDraw::Draw(const std::string &what)
     iret += DrawSecond(what);
     idraw++;
   }
-  if (what == "ALL" || what == "SMDVALUES")
-  {
-    iret += DrawSmdValues(what);
-    idraw++;
-  }
-  if (what == "ALL" || what == "SMDN&S")
-  {
-    iret += DrawSmdNorthandSouth(what);
-    idraw++;
-  }
-  if (what == "ALL" || what == "SMDXY")
-  {
-    iret += DrawSmdXY(what);
-    idraw++;
-  }
+  // if (what == "ALL" || what == "SMDVALUES")
+  // {
+  //   iret += DrawSmdValues(what);
+  //   idraw++;
+  // }
+  // if (what == "ALL" || what == "SMDN&S")
+  // {
+  //   iret += DrawSmdNorthandSouth(what);
+  //   idraw++;
+  // }
+  // if (what == "ALL" || what == "SMDXY")
+  // {
+  //   iret += DrawSmdXY(what);
+  //   idraw++;
+  // }
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
