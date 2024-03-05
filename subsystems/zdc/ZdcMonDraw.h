@@ -9,8 +9,8 @@ class OnlMonDB;
 class TCanvas;
 class TGraphErrors;
 class TPad;
-const int NUM_CANV = 2 + 1 + 1; // + 1;
-const int NUM_PAD = 4 + 3 + 12; // + 2;
+const int NUM_CANV = 2 + 1 + 1 + 1;
+const int NUM_PAD = 4 + 3 + 12 + 2;
 
 class ZdcMonDraw : public OnlMonDraw
 {
@@ -26,14 +26,11 @@ class ZdcMonDraw : public OnlMonDraw
 
  protected:
   int MakeCanvas(const std::string &name);
-  // int MakeCanvas2(const std::string &name);
-  // int MakeCanvas3(const std::string &name);
-  // int MakeCanvas4(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
   int DrawSmdValues(const std::string &what = "ALL");
   int DrawSmdNorthandSouth(const std::string &what = "ALL");
-  // int DrawSmdXY(const std::string &what = "ALL");
+  int DrawSmdXY(const std::string &what = "ALL");
 
   TCanvas *TC[NUM_CANV] = {nullptr};
   TPad *transparent[NUM_CANV] = {nullptr};
