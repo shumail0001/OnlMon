@@ -26,9 +26,9 @@ class ZdcMonDraw : public OnlMonDraw
 
  protected:
   int MakeCanvas1(const std::string &name);
-  int MakeCanvas2(const std::string &name);
-  int MakeCanvas3(const std::string &name);
-  int MakeCanvas4(const std::string &name);
+  // int MakeCanvas2(const std::string &name);
+  // int MakeCanvas3(const std::string &name);
+  // int MakeCanvas4(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
   int DrawSmdValues(const std::string &what = "ALL");
