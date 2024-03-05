@@ -31,7 +31,7 @@ class ZdcMonDraw : public OnlMonDraw
   // int MakeCanvas4(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
-  // int DrawSmdValues(const std::string &what = "ALL");
+  int DrawSmdValues(const std::string &what = "ALL");
   // int DrawSmdNorthandSouth(const std::string &what = "ALL");
   // int DrawSmdXY(const std::string &what = "ALL");
 
