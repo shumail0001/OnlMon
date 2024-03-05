@@ -71,6 +71,27 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
   }
+   else if (name == "SmdValues")
+  {
+    OnlMonClient *cl = OnlMonClient::instance();
+    int xsize = cl->GetDisplaySizeX();
+    int ysize = cl->GetDisplaySizeY();
+    // xpos negative: do not draw menu bar
+    TC[2] = new TCanvas(name.c_str(), "Smd Values", -xsize / 2, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    Pad[4] = new TPad("Smd Value", "Smd Value", 0.1, 0.5, 0.4, 0.9, 0);
+    Pad[5] = new TPad("Smd Value (good)", "Smd Value (good)", 0.4, 0.5, 0.7, 0.9, 0);
+    Pad[6] = new TPad("Smd Value (small)", "Smd Value (small)", 0.7, 0.5, 0.9, 0.9, 0);
+    Pad[4]->Draw();
+    Pad[5]->Draw();
+    Pad[6]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[2] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
+    TC[2]->SetEditable(false);
+  }
+
   return 0;
   
 }
@@ -192,11 +213,11 @@ int ZdcMonDraw::Draw(const std::string &what)
     iret += DrawSecond(what);
     idraw++;
   }
-  // if (what == "ALL" || what == "SMDVALUES")
-  // {
-  //   iret += DrawSmdValues(what);
-  //   idraw++;
-  // }
+  if (what == "ALL" || what == "SMDVALUES")
+  {
+    iret += DrawSmdValues(what);
+    idraw++;
+  }
   // if (what == "ALL" || what == "SMDN&S")
   // {
   //   iret += DrawSmdNorthandSouth(what);
@@ -563,12 +584,12 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   out2.close();
   cl->SaveLogFile(*this);
 
-  // std::string smdvaluesplots = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  // std::ofstream out3(smdvaluesplots.c_str());
-  // out3 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-  //     << "</TITLE></HEAD>" << std::endl;
-  // out3 << "<P>Some SmdValues-related-output would go here." << std::endl;
-  // out3.close();
+  std::string smdvaluesplots = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+  std::ofstream out3(smdvaluesplots.c_str());
+  out3 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
+      << "</TITLE></HEAD>" << std::endl;
+  out3 << "<P>Some SmdValues-related-output would go here." << std::endl;
+  out3.close();
 
   // std::string smdnorthandsouth = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
   // std::ofstream out4(smdnorthandsouth.c_str());
