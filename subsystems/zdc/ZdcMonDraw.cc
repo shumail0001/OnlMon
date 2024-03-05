@@ -149,39 +149,8 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     transparent[4]->Draw();
     TC[4]->SetEditable(false);
   }
-
   return 0;
-  
 }
-
-
-// int ZdcMonDraw::MakeCanvas4(const std::string &name)
-// {
-//   // for smd_value, smd_value_good, smd_value_small
-//   if (name == "SmdValues")
-//   {
-//     OnlMonClient *cl = OnlMonClient::instance();
-//     int xsize = cl->GetDisplaySizeX();
-//     int ysize = cl->GetDisplaySizeY();
-//     // xpos negative: do not draw menu bar
-//     TC[4] = new TCanvas(name.c_str(), "ZdcMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
-//     gSystem->ProcessEvents();
-//     Pad[19] = new TPad("smd_xy_north", "xy_north", 0.1, 0.5, 0.9, 0.9, 0);
-//     Pad[20] = new TPad("smd_xy_south", "xy_south", 0.1, 0.05, 0.9, 0.45, 0);
-
-//     Pad[19]->Draw();
-//     Pad[20]->Draw();
-
-//     // this one is used to plot the run number on the canvas
-//     transparent[4] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
-//     transparent[4]->SetFillStyle(4000);
-//     transparent[4]->Draw();
-//     TC[4]->SetEditable(false);
-//   }
-//   return 0;
-
-// }
-
 
 int ZdcMonDraw::Draw(const std::string &what)
 {
