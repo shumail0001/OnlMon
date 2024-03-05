@@ -132,7 +132,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   }
 
   // DRAW SMD_XY_NORHT/SOUTH
-  else if (name == "SmdValues")
+  else if (name == "SmdXY")
   {
     // xpos negative: do not draw menu bar
     TC[4] = new TCanvas(name.c_str(), "ZdcMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
