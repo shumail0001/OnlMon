@@ -32,7 +32,7 @@ class ZdcMonDraw : public OnlMonDraw
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
   int DrawSmdValues(const std::string &what = "ALL");
-  // int DrawSmdNorthandSouth(const std::string &what = "ALL");
+  int DrawSmdNorthandSouth(const std::string &what = "ALL");
   // int DrawSmdXY(const std::string &what = "ALL");
 
   TCanvas *TC[NUM_CANV] = {nullptr};
