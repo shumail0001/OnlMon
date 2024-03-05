@@ -97,7 +97,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     int xsize = cl->GetDisplaySizeX();
     int ysize = cl->GetDisplaySizeY();
     // xpos negative: do not draw menu bar
-    TC[3] = new TCanvas(name.c_str(), "Smd North and South", 0, 0, xsize*0.85, ysize)*0.85;
+    TC[3] = new TCanvas(name.c_str(), "Smd North and South", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
     gSystem->ProcessEvents();
 
     Pad[7]  = new TPad("Smd Ver North",  "Smd Ver North", 0.1, 0.3, 0.3, 0.5, 0);
@@ -426,7 +426,7 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
 
   if (!gROOT->FindObject("SmdNorthandSouth"))
   {
-    MakeCanvas3("SmdNorthandSouth");
+    MakeCanvas("SmdNorthandSouth");
   }
   TC[3]->SetEditable(true);
   TC[3]->Clear("D");
