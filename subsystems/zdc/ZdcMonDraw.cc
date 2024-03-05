@@ -97,21 +97,20 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     TC[3] = new TCanvas(name.c_str(), "Smd North and South", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
     gSystem->ProcessEvents();
 
-    Pad[7]  = new TPad("Smd Ver North",  "Smd Ver North", 0.1, 0.3, 0.3, 0.5, 0);
-    Pad[8]  = new TPad("Smd Ver North (good)",  "Smd Ver North (good)", 0.3, 0.3, 0.5, 0.5, 0);
-    Pad[9]  = new TPad("Smd Ver North (small)",  "Title 6", 0.5, 0.3, 0.7, 0.5, 0);
-    
-    Pad[10] = new TPad("Smd Hor North", "Smd Hor North", 0.7, 0.3, 0.9, 0.5, 0);
-    Pad[11] = new TPad("Smd Hor North (good)", "Smd Hor North (good)", 0.1, 0.1, 0.3, 0.3, 0);
-    Pad[12] = new TPad("Smd Hor North (small)", "Smd Hor North (small)", 0.3, 0.1, 0.5, 0.3, 0);
-    
-    Pad[13] = new TPad("Smd Ver South", "Smd Ver South", 0.5, 0.1, 0.7, 0.3, 0);
-    Pad[14] = new TPad("Smd Hor South", "Smd Hor South", 0.7, 0.1, 0.9, 0.3, 0);
+    Pad[7]  = new TPad("Smd Ver North",  "Smd Ver North", 0.02, 0.05, 0.26, 0.35, 0);
+    Pad[8]  = new TPad("Smd Ver North (good)",  "Smd Ver North (good)", 0.26, 0.05, 0.5, 0.5, 0);
+    Pad[9]  = new TPad("Smd Ver North (small)",  "Title 6", 0.5, 0.05, 0.74, 0.35, 0);
+    Pad[10] = new TPad("Smd Hor North", "Smd Hor North", 0.74, 0.3, 0.98, 0.5, 0);
 
-    Pad[15] = new TPad("Smd sum Ver North", "Smd sum Ver North", 0.1, 0.0, 0.3, 0.1, 0);
-    Pad[16] = new TPad("Smd sum Hor North", "Smd sum Hor North", 0.3, 0.0, 0.5, 0.1, 0);
-    Pad[17] = new TPad("Smd sum Ver South", "Smd sum Ver South", 0.5, 0.0, 0.7, 0.1, 0);
-    Pad[18] = new TPad("Smd sum Hor South", "Smd sum Hor South", 0.7, 0.0, 0.9, 0.1, 0);  
+    Pad[11] = new TPad("Smd Hor North (good)", "Smd Hor North (good)", 0.02, 0.35, 0.26, 0.65, 0);
+    Pad[12] = new TPad("Smd Hor North (small)", "Smd Hor North (small)", 0.26, 0.35, 0.5, 0.65, 0);
+    Pad[13] = new TPad("Smd Ver South", "Smd Ver South", 0.5, 0.35, 0.74, 0.65, 0);
+    Pad[14] = new TPad("Smd Hor South", "Smd Hor South", 0.74, 0.35, 0.98, 0.65, 0);
+
+    Pad[15] = new TPad("Smd sum Ver North", "Smd sum Ver North", 0.02, 0.65, 0.26, 0.95, 0);
+    Pad[16] = new TPad("Smd sum Hor North", "Smd sum Hor North", 0.26, 0.65, 0.5, 0.95, 0);
+    Pad[17] = new TPad("Smd sum Ver South", "Smd sum Ver South", 0.5, 0.65, 0.74, 0.95, 0);
+    Pad[18] = new TPad("Smd sum Hor South", "Smd sum Hor South", 0.74, 0.65, 0.98, 0.95, 0);  
 
     Pad[7]->Draw();
     Pad[8]->Draw();
