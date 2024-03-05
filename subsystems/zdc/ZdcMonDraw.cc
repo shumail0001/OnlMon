@@ -315,191 +315,191 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   return 0;
 }
 
-int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
-{
-  OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *smd_value = (TH2*) cl->getHisto("ZDCMON_0","smd_value");
-  TH2 *smd_value_good = (TH2*) cl->getHisto("ZDCMON_0","smd_value_good");
-  TH2 *smd_value_small = (TH2*) cl->getHisto("ZDCMON_0","smd_value_small");
+// int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
+// {
+//   OnlMonClient *cl = OnlMonClient::instance();
+//   TH2 *smd_value = (TH2*) cl->getHisto("ZDCMON_0","smd_value");
+//   TH2 *smd_value_good = (TH2*) cl->getHisto("ZDCMON_0","smd_value_good");
+//   TH2 *smd_value_small = (TH2*) cl->getHisto("ZDCMON_0","smd_value_small");
 
-  if (!gROOT->FindObject("SmdValues"))
-  {
-    MakeCanvas2("SmdValues");
-  }
-  TC[2]->SetEditable(true);
-  TC[2]->Clear("D");
-  Pad[4]->cd();
-  if (smd_value)
-  {
-    smd_value->DrawCopy();
-  }
-  else
-  {
-    DrawDeadServer(transparent[2]);
-    TC[2]->SetEditable(false);
-    return -1;
-  }
-  Pad[5]->cd();
-  if (smd_value_good) {smd_value_good->DrawCopy();}
-  Pad[6]->cd();
-  if (smd_value_good) {smd_value_small->DrawCopy();}
+//   if (!gROOT->FindObject("SmdValues"))
+//   {
+//     MakeCanvas2("SmdValues");
+//   }
+//   TC[2]->SetEditable(true);
+//   TC[2]->Clear("D");
+//   Pad[4]->cd();
+//   if (smd_value)
+//   {
+//     smd_value->DrawCopy();
+//   }
+//   else
+//   {
+//     DrawDeadServer(transparent[2]);
+//     TC[2]->SetEditable(false);
+//     return -1;
+//   }
+//   Pad[5]->cd();
+//   if (smd_value_good) {smd_value_good->DrawCopy();}
+//   Pad[6]->cd();
+//   if (smd_value_good) {smd_value_small->DrawCopy();}
 
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
-  // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
-  runstring = runnostream.str();
-  transparent[2]->cd();
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[2]->Update();
-  TC[2]->Show();
-  TC[2]->SetEditable(false);
-  return 0;
-}
+//   TText PrintRun;
+//   PrintRun.SetTextFont(62);
+//   PrintRun.SetTextSize(0.04);
+//   PrintRun.SetNDC();          // set to normalized coordinates
+//   PrintRun.SetTextAlign(23);  // center/top alignment
+//   std::ostringstream runnostream;
+//   std::string runstring;
+//   time_t evttime = cl->EventTime("CURRENT");
+//   // fill run number and event time into string
+//   runnostream << ThisName << "_2 Run " << cl->RunNumber()
+//               << ", Time: " << ctime(&evttime);
+//   runstring = runnostream.str();
+//   transparent[2]->cd();
+//   PrintRun.DrawText(0.5, 1., runstring.c_str());
+//   TC[2]->Update();
+//   TC[2]->Show();
+//   TC[2]->SetEditable(false);
+//   return 0;
+// }
 
-int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
-{
-  OnlMonClient *cl = OnlMonClient::instance();
+// int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
+// {
+//   OnlMonClient *cl = OnlMonClient::instance();
 
-  // get pointer for each histogram
-  TH1 *smd_hor_south = cl->getHisto("ZDCMON_0", "smd_hor_south");
-  TH1 *smd_ver_south = cl->getHisto("ZDCMON_0", "smd_ver_south");
-  TH1 *smd_hor_north = cl->getHisto("ZDCMON_0", "smd_hor_north");
-  TH1 *smd_ver_north = cl->getHisto("ZDCMON_0", "smd_ver_north");
+//   // get pointer for each histogram
+//   TH1 *smd_hor_south = cl->getHisto("ZDCMON_0", "smd_hor_south");
+//   TH1 *smd_ver_south = cl->getHisto("ZDCMON_0", "smd_ver_south");
+//   TH1 *smd_hor_north = cl->getHisto("ZDCMON_0", "smd_hor_north");
+//   TH1 *smd_ver_north = cl->getHisto("ZDCMON_0", "smd_ver_north");
 
-  TH1 *smd_hor_north_small = cl->getHisto("ZDCMON_0", "smd_hor_north_small");
-  TH1 *smd_ver_north_small = cl->getHisto("ZDCMON_0", "smd_ver_north_small");
-  TH1 *smd_hor_north_good = cl->getHisto("ZDCMON_0", "smd_hor_north_good");
-  TH1 *smd_ver_north_good = cl->getHisto("ZDCMON_0", "smd_ver_north_good");
+//   TH1 *smd_hor_north_small = cl->getHisto("ZDCMON_0", "smd_hor_north_small");
+//   TH1 *smd_ver_north_small = cl->getHisto("ZDCMON_0", "smd_ver_north_small");
+//   TH1 *smd_hor_north_good = cl->getHisto("ZDCMON_0", "smd_hor_north_good");
+//   TH1 *smd_ver_north_good = cl->getHisto("ZDCMON_0", "smd_ver_north_good");
   
-  TH1 *smd_sum_hor_south = cl->getHisto("ZDCMON_0", "smd_sum_hor_south");
-  TH1 *smd_sum_ver_south = cl->getHisto("ZDCMON_0", "smd_sum_ver_south");
-  TH1 *smd_sum_hor_north = cl->getHisto("ZDCMON_0", "smd_sum_hor_north");
-  TH1 *smd_sum_ver_north = cl->getHisto("ZDCMON_0", "smd_sum_ver_north");
+//   TH1 *smd_sum_hor_south = cl->getHisto("ZDCMON_0", "smd_sum_hor_south");
+//   TH1 *smd_sum_ver_south = cl->getHisto("ZDCMON_0", "smd_sum_ver_south");
+//   TH1 *smd_sum_hor_north = cl->getHisto("ZDCMON_0", "smd_sum_hor_north");
+//   TH1 *smd_sum_ver_north = cl->getHisto("ZDCMON_0", "smd_sum_ver_north");
 
-  if (!gROOT->FindObject("SmdNorthandSouth"))
-  {
-    MakeCanvas3("SmdNorthandSouth");
-  }
-  TC[3]->SetEditable(true);
-  TC[3]->Clear("D");
-  Pad[7]->cd();
+//   if (!gROOT->FindObject("SmdNorthandSouth"))
+//   {
+//     MakeCanvas3("SmdNorthandSouth");
+//   }
+//   TC[3]->SetEditable(true);
+//   TC[3]->Clear("D");
+//   Pad[7]->cd();
 
-  // VERTICAL NORTH
-  if (smd_ver_north)
-  {
-    smd_ver_north->DrawCopy();
-  }
-  else
-  {
-    DrawDeadServer(transparent[3]);
-    TC[3]->SetEditable(false);
-    return -1;
-  }
-  Pad[8]->cd();
-  if (smd_ver_north_small) {smd_ver_north_small->DrawCopy();}
-  Pad[9]->cd();
-  if (smd_ver_north_good) {smd_ver_north_good->DrawCopy();}
+//   // VERTICAL NORTH
+//   if (smd_ver_north)
+//   {
+//     smd_ver_north->DrawCopy();
+//   }
+//   else
+//   {
+//     DrawDeadServer(transparent[3]);
+//     TC[3]->SetEditable(false);
+//     return -1;
+//   }
+//   Pad[8]->cd();
+//   if (smd_ver_north_small) {smd_ver_north_small->DrawCopy();}
+//   Pad[9]->cd();
+//   if (smd_ver_north_good) {smd_ver_north_good->DrawCopy();}
 
-  // HORIZONTAL NORTH
-  Pad[10]->cd();
-  if (smd_hor_north) {smd_hor_north->DrawCopy();}
-  Pad[11]->cd();
-  if (smd_hor_north_small) {smd_hor_north_small->DrawCopy();}
-  Pad[12]->cd();
-  if (smd_hor_north_good) {smd_hor_north_good->DrawCopy();}
+//   // HORIZONTAL NORTH
+//   Pad[10]->cd();
+//   if (smd_hor_north) {smd_hor_north->DrawCopy();}
+//   Pad[11]->cd();
+//   if (smd_hor_north_small) {smd_hor_north_small->DrawCopy();}
+//   Pad[12]->cd();
+//   if (smd_hor_north_good) {smd_hor_north_good->DrawCopy();}
 
-  // VERTICAL AND HORIZONTAL SOUTH (good and small do not exist for south)
-  Pad[13]->cd();
-  if (smd_ver_south) {smd_ver_south->DrawCopy();}
-  Pad[14]->cd();
-  if (smd_hor_south) {smd_hor_south->DrawCopy();}
+//   // VERTICAL AND HORIZONTAL SOUTH (good and small do not exist for south)
+//   Pad[13]->cd();
+//   if (smd_ver_south) {smd_ver_south->DrawCopy();}
+//   Pad[14]->cd();
+//   if (smd_hor_south) {smd_hor_south->DrawCopy();}
 
-  // SUMS
-  Pad[15]->cd();
-  if (smd_sum_ver_north) {smd_sum_ver_north->DrawCopy();}
-  Pad[16]->cd();
-  if (smd_sum_hor_north) {smd_sum_hor_north->DrawCopy();}
-  Pad[17]->cd();
-  if (smd_sum_ver_south) {smd_sum_ver_south->DrawCopy();}
-  Pad[18]->cd();
-  if (smd_sum_hor_north) {smd_sum_hor_south->DrawCopy();}
+//   // SUMS
+//   Pad[15]->cd();
+//   if (smd_sum_ver_north) {smd_sum_ver_north->DrawCopy();}
+//   Pad[16]->cd();
+//   if (smd_sum_hor_north) {smd_sum_hor_north->DrawCopy();}
+//   Pad[17]->cd();
+//   if (smd_sum_ver_south) {smd_sum_ver_south->DrawCopy();}
+//   Pad[18]->cd();
+//   if (smd_sum_hor_north) {smd_sum_hor_south->DrawCopy();}
  
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
-  // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
-  runstring = runnostream.str();
-  transparent[3]->cd();
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[3]->Update();
-  TC[3]->Show();
-  TC[3]->SetEditable(false);
-  return 0;
+//   TText PrintRun;
+//   PrintRun.SetTextFont(62);
+//   PrintRun.SetTextSize(0.04);
+//   PrintRun.SetNDC();          // set to normalized coordinates
+//   PrintRun.SetTextAlign(23);  // center/top alignment
+//   std::ostringstream runnostream;
+//   std::string runstring;
+//   time_t evttime = cl->EventTime("CURRENT");
+//   // fill run number and event time into string
+//   runnostream << ThisName << "_2 Run " << cl->RunNumber()
+//               << ", Time: " << ctime(&evttime);
+//   runstring = runnostream.str();
+//   transparent[3]->cd();
+//   PrintRun.DrawText(0.5, 1., runstring.c_str());
+//   TC[3]->Update();
+//   TC[3]->Show();
+//   TC[3]->SetEditable(false);
+//   return 0;
 
 
-}
+// }
 
-int ZdcMonDraw::DrawSmdXY(const std::string & /* what */)
-{
+// int ZdcMonDraw::DrawSmdXY(const std::string & /* what */)
+// {
   
-  OnlMonClient *cl = OnlMonClient::instance();    
-  TH2 *smd_xy_north = (TH2*) cl->getHisto("ZDCMON_0","smd_xy_north");
-  TH2 *smd_xy_south = (TH2*) cl->getHisto("ZDCMON_0","smd_xy_south");;
+//   OnlMonClient *cl = OnlMonClient::instance();    
+//   TH2 *smd_xy_north = (TH2*) cl->getHisto("ZDCMON_0","smd_xy_north");
+//   TH2 *smd_xy_south = (TH2*) cl->getHisto("ZDCMON_0","smd_xy_south");;
 
-  if (!gROOT->FindObject("SmdXY"))
-  {
-    MakeCanvas4("SmdXY");
-  }
-  TC[4]->SetEditable(true);
-  TC[4]->Clear("D");
-  Pad[19]->cd();
-  if (smd_xy_north)
-  {
-    smd_xy_north->DrawCopy();
-  }
-  else
-  {
-    DrawDeadServer(transparent[3]);
-    TC[4]->SetEditable(false);
-    return -1;
-  }
-  Pad[20]->cd();
-  if (smd_xy_south) {smd_xy_south->DrawCopy();}
+//   if (!gROOT->FindObject("SmdXY"))
+//   {
+//     MakeCanvas4("SmdXY");
+//   }
+//   TC[4]->SetEditable(true);
+//   TC[4]->Clear("D");
+//   Pad[19]->cd();
+//   if (smd_xy_north)
+//   {
+//     smd_xy_north->DrawCopy();
+//   }
+//   else
+//   {
+//     DrawDeadServer(transparent[3]);
+//     TC[4]->SetEditable(false);
+//     return -1;
+//   }
+//   Pad[20]->cd();
+//   if (smd_xy_south) {smd_xy_south->DrawCopy();}
 
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
-  // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
-  runstring = runnostream.str();
-  transparent[4]->cd();
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[4]->Update();
-  TC[4]->Show();
-  TC[4]->SetEditable(false);
-  return 0;
-}
+//   TText PrintRun;
+//   PrintRun.SetTextFont(62);
+//   PrintRun.SetTextSize(0.04);
+//   PrintRun.SetNDC();          // set to normalized coordinates
+//   PrintRun.SetTextAlign(23);  // center/top alignment
+//   std::ostringstream runnostream;
+//   std::string runstring;
+//   time_t evttime = cl->EventTime("CURRENT");
+//   // fill run number and event time into string
+//   runnostream << ThisName << "_2 Run " << cl->RunNumber()
+//               << ", Time: " << ctime(&evttime);
+//   runstring = runnostream.str();
+//   transparent[4]->cd();
+//   PrintRun.DrawText(0.5, 1., runstring.c_str());
+//   TC[4]->Update();
+//   TC[4]->Show();
+//   TC[4]->SetEditable(false);
+//   return 0;
+// }
 
 
 int ZdcMonDraw::SavePlot(const std::string &what, const std::string &type)
