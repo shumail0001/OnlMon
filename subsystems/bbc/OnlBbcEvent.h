@@ -187,9 +187,9 @@ private:
   Packet *p[2] {nullptr,nullptr} ;
 
   //raw data
-  Float_t f_adc[NCH][NSAMPLES];     // raw waveform
-  Float_t f_samp[NCH][NSAMPLES];    // raw waveform
-  Float_t f_ampl[NCH];              // amplitude
+  Float_t f_adc[NCH][NSAMPLES]{};     // raw waveform
+  Float_t f_samp[NCH][NSAMPLES]{};    // raw waveform
+  Float_t f_ampl[NCH]{};              // amplitude
   //Float_t f_t0[NCH];                // time
 
   std::vector<OnlBbcSig> bbcsig;
@@ -197,25 +197,25 @@ private:
   static const int BBC_N_PMT = 128;
 
   // converted (corrected) data
-  int iHit[BBC_N_PMT];
-  int armHitPmt[BBC_N_PMT];
+  int iHit[BBC_N_PMT]{};
+  int armHitPmt[BBC_N_PMT]{};
 
   // Adc value w/ pedestal subtracted
   //float TrueAdc[BBC_N_PMT];		
 
-  float Charge[BBC_N_PMT];
-  float HitTime0[BBC_N_PMT];
-  float HitTime1[BBC_N_PMT];
+  float Charge[BBC_N_PMT]{};
+  float HitTime0[BBC_N_PMT]{};
+  float HitTime1[BBC_N_PMT]{};
 
   // End product data
-  int nHitPmt[2];
-  float ChargeSum[2];
-  float ArmHitTime[2];
-  float ArmHitTimeError[2];
-  float ZVertex;
-  float ZVertexError;
-  float TimeZero;
-  float TimeZeroError;
+  int nHitPmt[2]{};
+  float ChargeSum[2]{};
+  float ArmHitTime[2]{};
+  float ArmHitTimeError[2]{};
+  float ZVertex{};
+  float ZVertexError{};
+  float TimeZero{};
+  float TimeZeroError{};
 
   Float_t f_pmtq[BBC_N_PMT]{};   // npe in each arm
   Float_t f_pmtt0[BBC_N_PMT]{};  // time in each arm
@@ -232,7 +232,7 @@ private:
 
   TH2 *h2_tmax[2] = {};  // [0 == time ch, 1 == chg ch], max sample in evt vs ch
 
-  float TRIG_SAMP[16];  // [board]
+  float TRIG_SAMP[16]{};  // [board]
 //  float bbc_tq_t0_offsets[BBC_N_PMT] = {};
 
   TCanvas *ac {nullptr};

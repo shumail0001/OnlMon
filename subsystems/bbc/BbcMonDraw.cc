@@ -34,7 +34,7 @@
 
 #define DEBUG
 #ifdef DEBUG
-#define PRINT_DEBUG(x) std::cout<<x<<std::endl
+#define PRINT_DEBUG(x) std::cout<<(x)<<std::endl
 #else
 #define PRINT_DEBUG(x) {};
 #endif
@@ -188,9 +188,9 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete( TextZvtxStatus[0] );
   ifdelete( TextZvtxStatus[1] );
 
-  for (int icv=0; icv<nCANVAS; icv++)
+  for (auto & icv : TC)
   {
-    ifdelete( TC[icv] );
+    ifdelete( icv );
   }
 
   ifdelete(Prescale_hist);
@@ -472,12 +472,18 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     //PadArmHit->SetLogz();
 
     PadTop[1]->Draw();
-    if (PadTimeWave)   PadTimeWave->Draw();
-    if (PadNorthHitTime) PadNorthHitTime->Draw();
-    if (PadSouthHitTime) PadSouthHitTime->Draw();
-    if (PadArmHit) PadArmHit->Draw();
-    if (PadBbcSummary) PadBbcSummary->Draw();
-    if (PadAvrHitTime) PadAvrHitTime->Draw();
+    if (PadTimeWave) {   PadTimeWave->Draw();
+}
+    if (PadNorthHitTime) { PadNorthHitTime->Draw();
+}
+    if (PadSouthHitTime) { PadSouthHitTime->Draw();
+}
+    if (PadArmHit) { PadArmHit->Draw();
+}
+    if (PadBbcSummary) { PadBbcSummary->Draw();
+}
+    if (PadAvrHitTime) { PadAvrHitTime->Draw();
+}
 
     ifnew(TText, TextBbcSummaryHitTime[0]);
     ifnew(TText, TextBbcSummaryHitTime[1]);
@@ -1964,7 +1970,7 @@ int BbcMonDraw::Draw(const std::string &what)
   return iret;
 }
 
-int BbcMonDraw::DrawFirst(const std::string & )
+int BbcMonDraw::DrawFirst(const std::string &  /*unused*/)
 {
   PRINT_DEBUG("In BbcMonDraw::DrawFirst()");
   OnlMonClient *cl = OnlMonClient::instance();
@@ -1975,7 +1981,7 @@ int BbcMonDraw::DrawFirst(const std::string & )
   {
       MakeCanvas("BbcMon1");
   }
-  TC[0]->SetEditable(1);
+  TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   Pad[0]->cd();
   if (bbcmon_hist1)
@@ -1985,7 +1991,7 @@ int BbcMonDraw::DrawFirst(const std::string & )
   else
   {
       DrawDeadServer(transparent[0]);
-      TC[0]->SetEditable(0);
+      TC[0]->SetEditable(false);
       return -1;
   }
 
@@ -2010,11 +2016,11 @@ int BbcMonDraw::DrawFirst(const std::string & )
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[0]->Update();
   TC[0]->Show();
-  TC[0]->SetEditable(0);
+  TC[0]->SetEditable(false);
   return 0;
 }
 
-int BbcMonDraw::DrawSecond(const std::string & )
+int BbcMonDraw::DrawSecond(const std::string &  /*unused*/)
 {
   PRINT_DEBUG("In BbcMonDraw::DrawSecond()");
 
@@ -2025,7 +2031,7 @@ int BbcMonDraw::DrawSecond(const std::string & )
   {
       MakeCanvas("BbcMon2");
   }
-  TC[1]->SetEditable(1);
+  TC[1]->SetEditable(true);
   TC[1]->Clear("D");
   Pad[2]->cd();
   if (bbcmon_hist1)
@@ -2035,7 +2041,7 @@ int BbcMonDraw::DrawSecond(const std::string & )
   else
   {
       DrawDeadServer(transparent[1]);
-      TC[1]->SetEditable(0);
+      TC[1]->SetEditable(false);
       return -1;
   }
   Pad[3]->cd();
@@ -2060,7 +2066,7 @@ int BbcMonDraw::DrawSecond(const std::string & )
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[1]->Update();
   TC[1]->Show();
-  TC[1]->SetEditable(0);
+  TC[1]->SetEditable(false);
   return 0;
 }
 

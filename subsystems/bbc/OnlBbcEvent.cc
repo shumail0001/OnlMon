@@ -17,7 +17,7 @@ using namespace std;
 // light velocity [cm/ns]
 //static const float C = GSL_CONST_CGS_SPEED_OF_LIGHT / 1e9;
 
-OnlBbcEvent::OnlBbcEvent(void) :
+OnlBbcEvent::OnlBbcEvent() :
   verbose(0),
   EventNumber(0),
   calib_done(0),
@@ -32,7 +32,7 @@ OnlBbcEvent::OnlBbcEvent(void) :
   for (int ich=0; ich<nch; ich++)
   {
     //cout << "Creating bbcsig " << ich << endl;
-    bbcsig.push_back( OnlBbcSig(ich,nsamples) );
+    bbcsig.emplace_back(ich,nsamples );
     
     // Do evt-by-evt pedestal using sample range below
     bbcsig[ich].SetEventPed0Range(0,1);
@@ -56,9 +56,9 @@ OnlBbcEvent::OnlBbcEvent(void) :
   h2_tmax[1]->SetXTitle("sample");
   h2_tmax[1]->SetYTitle("ch");
 
-  for (int iboard=0; iboard<16; iboard++)
+  for (float & iboard : TRIG_SAMP)
   {
-    TRIG_SAMP[iboard] = -1;
+    iboard = -1;
   }
 
   gaussian = nullptr;
@@ -90,9 +90,9 @@ OnlBbcEvent::OnlBbcEvent(void) :
 ///
 OnlBbcEvent::~OnlBbcEvent()
 {
-  for (int iarm=0; iarm<2; iarm++)
+  for (auto & iarm : hevt_bbct)
   {
-    delete hevt_bbct[iarm];
+    delete iarm;
   }
 
   delete h2_tmax[0];
@@ -201,13 +201,14 @@ bool OnlBbcEvent::setRawData(Event *event)
   }
 
   // Delete the packets
-  for (int ipkt=0; ipkt<2; ipkt++)
+  for (auto & ipkt : p)
   {
-    if ( p[ipkt]!=0 ) delete p[ipkt];
+    if ( ipkt!=nullptr ) { delete ipkt;
+}
   }
 
   EventNumber++;
-  return 0;
+  return false;
 
 }
 
@@ -380,7 +381,8 @@ int OnlBbcEvent::calculate()
     }
 
     hevt_bbct[iarm]->Fit(gaussian, "BNQLR");
-    if ( verbose ) hevt_bbct[iarm]->Draw();
+    if ( verbose ) { hevt_bbct[iarm]->Draw();
+}
 
     // f_bbct[iarm] = f_bbct[iarm] / f_bbcn[iarm];
     f_bbct[iarm] = gaussian->GetParameter(1);
@@ -393,7 +395,8 @@ int OnlBbcEvent::calculate()
   if (f_bbcn[0] > 0 && f_bbcn[1] > 0)
   {
     // Now calculate zvtx, t0 from best times
-    if ( verbose>10 ) cout << "t0\t" << f_bbct[0] << "\t" << f_bbct[1] << endl;
+    if ( verbose>10 ) { cout << "t0\t" << f_bbct[0] << "\t" << f_bbct[1] << endl;
+}
     f_bbcz = (f_bbct[0] - f_bbct[1]) * TMath::C() * 1e-7 / 2.0;   // in cm
     f_bbct0 = (f_bbct[0] + f_bbct[1]) / 2.0;
 

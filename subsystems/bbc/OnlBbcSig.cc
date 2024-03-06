@@ -41,7 +41,6 @@ OnlBbcSig::OnlBbcSig(const int chnum, const int nsamp) :
   maxped0samp{-9999},
   minped0x{0.},
   maxped0x{0.},
-  time_calib{0},
   h2Template{nullptr},
   h2Residuals{nullptr},
   // range of good amplitudes for templates
@@ -105,8 +104,10 @@ void  OnlBbcSig::SetTemplateSize(const Int_t nptsx, const Int_t nptsy, const Dou
 
   Double_t xbinwid = (template_endtime - template_begintime)/(template_npointsx-1);
   Double_t ybinwid = (1.1+0.1)/template_npointsy;  // yscale... should we vary this?
-  if ( h2Template ) delete h2Template;
-  if ( h2Residuals ) delete h2Residuals;
+  if ( h2Template ) { delete h2Template;
+}
+  if ( h2Residuals ) { delete h2Residuals;
+}
 
   TString name = "h2Template"; name += ch;
   h2Template = new TH2F(name,name,template_npointsx,template_begintime-xbinwid/2.,template_endtime+xbinwid/2,
@@ -354,7 +355,8 @@ void OnlBbcSig::FillPed0(const Double_t begin, const Double_t end)
     }
 
     // quit if we are past the ped region
-    if ( x>end ) break;
+    if ( x>end ) { break;
+}
   }
 
 }
@@ -451,7 +453,8 @@ Double_t OnlBbcSig::LeadingEdge(const Double_t threshold)
       }
     }
   }
-  if ( sample == -1 ) return -9999.;  // no signal above threshold
+  if ( sample == -1 ) { return -9999.;  // no signal above threshold
+}
 
   // Linear Interpolation of start time
   Double_t dx = x[sample] - x[sample-1];
@@ -474,7 +477,8 @@ Double_t OnlBbcSig::dCFD(const Double_t fraction_threshold)
 
   // Get max amplitude
   Double_t ymax = TMath::MaxElement(n,y);
-  if ( f_ampl == -9999. ) f_ampl = ymax;
+  if ( f_ampl == -9999. ) { f_ampl = ymax;
+}
 
   Double_t threshold = fraction_threshold * ymax; // get fraction of amplitude
   //cout << "threshold = " << threshold << "\tymax = " << ymax <<endl;
@@ -491,7 +495,8 @@ Double_t OnlBbcSig::dCFD(const Double_t fraction_threshold)
       }
     }
   }
-  if ( sample == -1 ) return -9999.;  // no signal above threshold
+  if ( sample == -1 ) { return -9999.;  // no signal above threshold
+}
 
   // Linear Interpolation of start time
   Double_t dx = x[sample] - x[sample-1];
@@ -508,7 +513,7 @@ Double_t OnlBbcSig::MBD(const Int_t max_samp)
   // Get the amplitude of the sample number to get time
   Double_t *y = gSubPulse->GetY();
 
-  if ( y==0 ) { 
+  if ( y==nullptr ) { 
       cout << "ERROR y == 0" << endl; 
       return 0;
   }
@@ -519,7 +524,8 @@ Double_t OnlBbcSig::MBD(const Int_t max_samp)
   // Get max amplitude, and set it if it hasn't already been set
   int n = gSubPulse->GetN();
   Double_t ymax = TMath::MaxElement(n,y);
-  if ( f_ampl == -9999. ) f_ampl = ymax;
+  if ( f_ampl == -9999. ) { f_ampl = ymax;
+}
 
   return t0;
 }
@@ -563,8 +569,10 @@ void OnlBbcSig::LocMax(Double_t& x_at_max, Double_t& ymax, Double_t xminrange, D
   for (int i=0; i<n; i++)
   {
     // Skip if out of range
-    if ( x[i] < xminrange ) continue;
-    if ( x[i] > xmaxrange ) break;
+    if ( x[i] < xminrange ) { continue;
+}
+    if ( x[i] > xmaxrange ) { break;
+}
 
     if ( y[i] > ymax )
     {
@@ -594,8 +602,10 @@ void OnlBbcSig::LocMin(Double_t& x_at_max, Double_t& ymin, Double_t xminrange, D
   for (int i=0; i<n; i++)
   {
     // Skip if out of range
-    if ( x[i] < xminrange ) continue;
-    if ( x[i] > xmaxrange ) break;
+    if ( x[i] < xminrange ) { continue;
+}
+    if ( x[i] > xmaxrange ) { break;
+}
 
     if ( y[i] < ymin )
     {
@@ -712,7 +722,8 @@ Double_t OnlBbcSig::TemplateFcn(const Double_t *x, const Double_t *par)
 int OnlBbcSig::FitTemplate()
 {
   //verbose = 100;	// uncomment to see fits
-  if ( verbose>0 ) cout << "Fitting ch " << ch << endl;
+  if ( verbose>0 ) { cout << "Fitting ch " << ch << endl;
+}
  
   /*
   Int_t maxadc = -1;
@@ -759,8 +770,9 @@ int OnlBbcSig::FitTemplate()
 
   //template_fcn->SetParLimits(1,-5.,4.);
   template_fcn->SetRange(template_min_xrange,template_max_xrange);
-  if ( verbose==0 ) gSubPulse->Fit(template_fcn,"RNQ");
-  else              gSubPulse->Fit(template_fcn,"R");
+  if ( verbose==0 ) { gSubPulse->Fit(template_fcn,"RNQ");
+  } else {              gSubPulse->Fit(template_fcn,"R");
+}
 
   // Get fit parameters
   f_ampl = template_fcn->GetParameter(0);
@@ -817,9 +829,11 @@ int OnlBbcSig::FillSplineTemplate()
 
   Double_t max = TMath::MaxElement(gSubPulse->GetN(),gSubPulse->GetY());
 
-  if ( max < template_min_good_amplitude ) return 0;
+  if ( max < template_min_good_amplitude ) { return 0;
+}
 
-  if ( verbose ) gSubPulse->Draw("ap");
+  if ( verbose ) { gSubPulse->Draw("ap");
+}
   TSpline3 s3("s3",gSubPulse);
 
   // First find maximum, to rescale
@@ -836,7 +850,8 @@ int OnlBbcSig::FillSplineTemplate()
   }
 
   //cout << f_ampl << endl;
-  if ( f_ampl<template_min_good_amplitude || f_ampl>template_max_good_amplitude ) return 0; 
+  if ( f_ampl<template_min_good_amplitude || f_ampl>template_max_good_amplitude ) { return 0; 
+}
 
   if ( verbose>0 )
   {
@@ -899,7 +914,8 @@ int OnlBbcSig::FillSplineTemplate()
 void OnlBbcSig::MakeAndWriteTemplate(ostream& out, ostream& oerr)
 {
   //verbose = 100;
-  if ( verbose ) cout << "In  OnlBbcSig::MakeAndWriteTemplate" << endl;
+  if ( verbose ) { cout << "In  OnlBbcSig::MakeAndWriteTemplate" << endl;
+}
 
   //Int_t nbinsy = h2Template->GetNbinsX();
  
@@ -918,7 +934,8 @@ void OnlBbcSig::MakeAndWriteTemplate(ostream& out, ostream& oerr)
   }
 
   TString fitarg = "R";
-  if ( verbose==0 ) fitarg += "NQ";
+  if ( verbose==0 ) { fitarg += "NQ";
+}
 
   for (int ibin=0; ibin<template_npointsx; ibin++)
   {
@@ -946,7 +963,8 @@ void OnlBbcSig::MakeAndWriteTemplate(ostream& out, ostream& oerr)
     //gaus->SetParameters(peak,mean,0.01);
     gaus->SetParameters(peak,mean,rms);
 
-    if ( ncounts>=10 ) hprojy->Fit(gaus,fitarg);
+    if ( ncounts>=10 ) { hprojy->Fit(gaus,fitarg);
+}
 
     // See the fits
     if ( verbose )
@@ -963,7 +981,8 @@ void OnlBbcSig::MakeAndWriteTemplate(ostream& out, ostream& oerr)
     template_y[ibin] = hprojy->GetMean();
     template_yrms[ibin] = hprojy->GetRMS();
 
-    if ( verbose ) cout << "ibin " << ibin << "\t" << template_y[ibin] << "\t" << template_yrms[ibin] << endl;
+    if ( verbose ) { cout << "ibin " << ibin << "\t" << template_y[ibin] << "\t" << template_yrms[ibin] << endl;
+}
     //delete hprojy;
 
   }
@@ -981,11 +1000,13 @@ void OnlBbcSig::MakeAndWriteTemplate(ostream& out, ostream& oerr)
   {
     // Write out the template value for bin i
     out << template_y[ibin] << "\t";
-    if (ibin%10==9) out << endl;
+    if (ibin%10==9) { out << endl;
+}
 
     // Now write out the rms
     oerr << template_yrms[ibin] << "\t";
-    if (ibin%10==9) oerr << endl;
+    if (ibin%10==9) { oerr << endl;
+}
   }
   out << endl;
   oerr << endl;
@@ -1009,10 +1030,12 @@ void OnlBbcSig::FillFcnTemplate()
 
   FitTemplate();
 
-  if ( f_ampl<template_min_good_amplitude || f_ampl>template_max_good_amplitude ) return; 
+  if ( f_ampl<template_min_good_amplitude || f_ampl>template_max_good_amplitude ) { return; 
+}
 
   // Get Time and Max of spline to rescale
-  if ( verbose ) cout << "ampl time " << ch << "\t" << f_ampl << "\t" << f_time << endl;
+  if ( verbose ) { cout << "ampl time " << ch << "\t" << f_ampl << "\t" << f_time << endl;
+}
   hAmpl->Fill( f_ampl );
   hTime->Fill( f_time );
 
@@ -1049,7 +1072,8 @@ int OnlBbcSig::ReadTemplate(ifstream& shapefile, ifstream& sherrfile)
   // Template 
   while ( shapefile >> temp_ch >> temp_nsamples >> temp_begintime >> temp_endtime )
   {
-    if ( verbose ) cout << "shape " << temp_ch << "\t" <<  temp_nsamples << "\t" <<  temp_begintime << "\t" <<  temp_endtime << endl;
+    if ( verbose ) { cout << "shape " << temp_ch << "\t" <<  temp_nsamples << "\t" <<  temp_begintime << "\t" <<  temp_endtime << endl;
+}
     if ( temp_ch != ch )
     {
       cerr << "ERROR in shape: ch is " << temp_ch << "but should be " << ch << endl;
@@ -1064,17 +1088,20 @@ int OnlBbcSig::ReadTemplate(ifstream& shapefile, ifstream& sherrfile)
       if ( verbose )
       {
         cout << template_y[isamp] << " ";
-        if ( isamp%10==9 ) cout << endl;
+        if ( isamp%10==9 ) { cout << endl;
+}
       }
     }
-    if ( verbose ) cout << endl;
+    if ( verbose ) { cout << endl;
+}
     break;
   }
 
   // Now get the errors
   while ( sherrfile >> temp_ch >> temp_nsamples >> temp_begintime >> temp_endtime )
   {
-    if ( verbose ) cout << "sherr " << temp_ch << "\t" <<  temp_nsamples << "\t" <<  temp_begintime << "\t" <<  temp_endtime << endl;
+    if ( verbose ) { cout << "sherr " << temp_ch << "\t" <<  temp_nsamples << "\t" <<  temp_begintime << "\t" <<  temp_endtime << endl;
+}
     if ( temp_ch != ch )
     {
       cerr << "ERROR in sherr: ch is " << temp_ch << " but should be " << ch << endl;
@@ -1089,10 +1116,12 @@ int OnlBbcSig::ReadTemplate(ifstream& shapefile, ifstream& sherrfile)
       if ( verbose )
       {
         cout << template_yrms[isamp] << " ";
-        if ( isamp%10==9 ) cout << endl;
+        if ( isamp%10==9 ) { cout << endl;
+}
       }
     }
-    if ( verbose ) cout << endl;
+    if ( verbose ) { cout << endl;
+}
     break;
   }
 

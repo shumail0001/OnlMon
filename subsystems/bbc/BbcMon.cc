@@ -61,7 +61,7 @@ int BbcMon::Init()
 {
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
-  printf("BbcMon::Init()\n");
+  std::cout << "BbcMon::Init()" << std::endl;
 
   bevt = new OnlBbcEvent();
 
@@ -470,10 +470,11 @@ int BbcMon::process_event(Event *evt)
     if ( q>0.5 )
     {
       float tq = bevt->getTQ(ipmt);
-      if (ipmt<64 )
+      if (ipmt<64 ) {
         bbc_south_hittime->Fill( tq );
-      else
+      } else {
         bbc_north_hittime->Fill( tq );
+}
 
       //std::cout << tq;
     }
