@@ -17,6 +17,7 @@ SUBDIRS = \
   intt \
   mvtx \
   pktsize \
+  spin \
   tpc \
   tpot \
   zdc
