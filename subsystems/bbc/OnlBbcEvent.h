@@ -3,6 +3,8 @@
 
 #include "OnlBbcSig.h"
 
+#include <limits>
+
 class PHCompositeNode;
 class Event;
 class Packet;
@@ -13,7 +15,7 @@ class OnlBbcEvent
 {
 public:
   OnlBbcEvent ();
-  ~OnlBbcEvent ();
+  virtual ~OnlBbcEvent ();
 
   bool setRawData(Event *);
   int calculate();
@@ -222,18 +224,18 @@ private:
   Float_t f_bbcq[2]{};     // total charge (currently npe) in each arm
   Float_t f_bbct[2]{};     // time in arm
   Float_t f_bbcte[2]{};    // earliest hit time in arm
-  Float_t f_bbcz = NAN;    // z-vertex
-  Float_t f_bbct0 = NAN;   // start time
+  Float_t f_bbcz {std::numeric_limits<Float_t>::quiet_NaN()};    // z-vertex
+  Float_t f_bbct0 {std::numeric_limits<Float_t>::quiet_NaN()};   // start time
   TH1 *hevt_bbct[2]{};  // time in each bbc, per event
-  TF1 *gaussian = nullptr;
-  Float_t _tres = NAN;  // time resolution of one channel
+  TF1 *gaussian {nullptr};
+  Float_t _tres {std::numeric_limits<Float_t>::quiet_NaN()};  // time resolution of one channel
 
   TH2 *h2_tmax[2] = {};  // [0 == time ch, 1 == chg ch], max sample in evt vs ch
 
   float TRIG_SAMP[16];  // [board]
-  float bbc_tq_t0_offsets[BBC_N_PMT] = {};
+//  float bbc_tq_t0_offsets[BBC_N_PMT] = {};
 
-  TCanvas *ac;
+  TCanvas *ac {nullptr};
   /*
   int calcEndProduct (void);
   int calcArmProduct (Bbc::ArmType arm);

@@ -1,15 +1,17 @@
 #ifndef __ONLBBCSIG_H__
 #define __ONLBBCSIG_H__
 
-#include <TH1.h>
-//#include <TH2.h>
+#include <Rtypes.h> // for ROOT typedefs
+
 #include <fstream>
 #include <vector>
 
 class TFile;
 class TTree;
+class TF1;
 class TGraphErrors;
 class TH2;
+class TH1;
 //class THnSparse;
 //class RunningStats;
 
@@ -141,7 +143,7 @@ private:
   Double_t maxped0x;          //! max x for event-by-event ped, inclusive
 
   /** for time calibration */
-  Double_t time_calib;
+//  Double_t time_calib;
 
   /** For pulse template extraction */
   TH2     *h2Template;

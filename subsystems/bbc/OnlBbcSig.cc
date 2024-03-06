@@ -4,6 +4,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TF1.h>
+#include <TH1.h>
 #include <TH2.h>
 //#include <THnSparse.h>
 #include <TSpline.h>
