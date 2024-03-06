@@ -14,7 +14,7 @@ namespace bbc_onlmon
   const float min_armhittime = 0;          // Maximum od Tdc-ArmHitTime
   static const double TDC_FIT_MAX = 19.0;  // compatible type with TF::GetParameter(1)
   static const double TDC_FIT_MIN = 1.0;
-  //static const int zvtnbin = 180;
+  // static const int zvtnbin = 180;
   static const int zvtnbin = 600;
   static const float max_zvertex = 300;
   static const float min_zvertex = -300;
@@ -217,7 +217,7 @@ namespace bbc_onlmon
 
   static const unsigned long BBC_BBLL1_COPY_TRIG = 0x1000000;  // new trigger
   // static const int BBC_BBLL1_TRIG    = 0x10;       //0x1000;
-  //static const unsigned long BBC_LASER_TRIG = 0x40000000;  // 0x40000000;
+  // static const unsigned long BBC_LASER_TRIG = 0x40000000;  // 0x40000000;
 
   // the mean of TDC between south and north should be this value.
   // static const int BBC_DEFAULT_OFFSET = 1500;

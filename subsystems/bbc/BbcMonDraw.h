@@ -199,9 +199,8 @@ class BbcMonDraw : public OnlMonDraw
   TH1 *Prescale_hist = nullptr;
   TSpectrum *tspec = nullptr;
 
-private:
+ private:
   int DrawDeadServer(TPad *transparent_pad) override;
-
 };
 
 #endif /* BBC_BBCMONDRAW_H */
