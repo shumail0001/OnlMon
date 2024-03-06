@@ -32,7 +32,7 @@ int ZdcMonDraw::Init()
   return 0;
 }
 
-int ZdcMonDraw::MakeCanvas1(const std::string &name)
+int ZdcMonDraw::MakeCanvas(const std::string &name)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
@@ -71,24 +71,15 @@ int ZdcMonDraw::MakeCanvas1(const std::string &name)
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
   }
-  return 0;
-  
-}
-
-int ZdcMonDraw::MakeCanvas2(const std::string &name)
-{
-  // for smd_value, smd_value_good, smd_value_small
-  if (name == "SmdValues")
+  // DRAW SMD GOOD AND SMALL VALUES
+  else if (name == "SmdValues")
   {
-    OnlMonClient *cl = OnlMonClient::instance();
-    int xsize = cl->GetDisplaySizeX();
-    int ysize = cl->GetDisplaySizeY();
     // xpos negative: do not draw menu bar
-    TC[2] = new TCanvas(name.c_str(), "Smd Values", -xsize / 2, 0, xsize / 2, ysize);
+    TC[2] = new TCanvas(name.c_str(), "Smd Values", 0 , -ysize / 2, xsize, ysize / 2);
     gSystem->ProcessEvents();
-    Pad[4] = new TPad("Smd Value", "Smd Value", 0.1, 0.5, 0.4, 0.9, 0);
-    Pad[5] = new TPad("Smd Value (good)", "Smd Value (good)", 0.4, 0.5, 0.7, 0.9, 0);
-    Pad[6] = new TPad("Smd Value (small)", "Smd Value (small)", 0.7, 0.5, 0.9, 0.9, 0);
+    Pad[4] = new TPad("Smd Value", "Smd Value", 0.05, 0.05, 0.35, 0.9, 0);
+    Pad[5] = new TPad("Smd Value (good)", "Smd Value (good)", 0.35, 0.05, 0.65, 0.9, 0);
+    Pad[6] = new TPad("Smd Value (small)", "Smd Value (small)", 0.65, 0.05, 0.95, 0.9, 0);
     Pad[4]->Draw();
     Pad[5]->Draw();
     Pad[6]->Draw();
@@ -98,37 +89,28 @@ int ZdcMonDraw::MakeCanvas2(const std::string &name)
     transparent[2]->Draw();
     TC[2]->SetEditable(false);
   }
-  return 0;
 
-}
-
-int ZdcMonDraw::MakeCanvas3(const std::string &name)
-{
-  // for smd_value, smd_value_good, smd_value_small
-  if (name == "SmdNorthandSouth")
+  // DRAW SMD NORTH AND SOUTH
+  else if (name == "SmdNorthandSouth")
   {
-    OnlMonClient *cl = OnlMonClient::instance();
-    int xsize = cl->GetDisplaySizeX();
-    int ysize = cl->GetDisplaySizeY();
     // xpos negative: do not draw menu bar
-    TC[3] = new TCanvas(name.c_str(), "Smd North and South", -xsize / 2, 0, xsize / 2, ysize);
+    TC[3] = new TCanvas(name.c_str(), "Smd North and South", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
     gSystem->ProcessEvents();
 
-    Pad[7]  = new TPad("Smd Ver North",  "Smd Ver North", 0.1, 0.3, 0.3, 0.5, 0);
-    Pad[8]  = new TPad("Smd Ver North (good)",  "Smd Ver North (good)", 0.3, 0.3, 0.5, 0.5, 0);
-    Pad[9]  = new TPad("Smd Ver North (small)",  "Title 6", 0.5, 0.3, 0.7, 0.5, 0);
-    
-    Pad[10] = new TPad("Smd Hor North", "Smd Hor North", 0.7, 0.3, 0.9, 0.5, 0);
-    Pad[11] = new TPad("Smd Hor North (good)", "Smd Hor North (good)", 0.1, 0.1, 0.3, 0.3, 0);
-    Pad[12] = new TPad("Smd Hor North (small)", "Smd Hor North (small)", 0.3, 0.1, 0.5, 0.3, 0);
-    
-    Pad[13] = new TPad("Smd Ver South", "Smd Ver South", 0.5, 0.1, 0.7, 0.3, 0);
-    Pad[14] = new TPad("Smd Hor South", "Smd Hor South", 0.7, 0.1, 0.9, 0.3, 0);
+    Pad[7]  = new TPad("Smd Ver North", "Smd Ver North", 0.02, 0.05, 0.26, 0.35, 0);
+    Pad[8]  = new TPad("Smd Ver North (good)",  "Smd Ver North (good)", 0.26, 0.05, 0.5, 0.35, 0);
+    Pad[9]  = new TPad("Smd Ver North (small)",  "Title 6", 0.5, 0.05, 0.74, 0.35, 0);
+    Pad[10] = new TPad("Smd Hor North", "Smd Hor North", 0.74, 0.05, 0.98, 0.35, 0);
 
-    Pad[15] = new TPad("Smd sum Ver North", "Smd sum Ver North", 0.1, 0.0, 0.3, 0.1, 0);
-    Pad[16] = new TPad("Smd sum Hor North", "Smd sum Hor North", 0.3, 0.0, 0.5, 0.1, 0);
-    Pad[17] = new TPad("Smd sum Ver South", "Smd sum Ver South", 0.5, 0.0, 0.7, 0.1, 0);
-    Pad[18] = new TPad("Smd sum Hor South", "Smd sum Hor South", 0.7, 0.0, 0.9, 0.1, 0);  
+    Pad[11] = new TPad("Smd Hor North (good)", "Smd Hor North (good)", 0.02, 0.35, 0.26, 0.65, 0);
+    Pad[12] = new TPad("Smd Hor North (small)", "Smd Hor North (small)", 0.26, 0.35, 0.5, 0.65, 0);
+    Pad[13] = new TPad("Smd Ver South", "Smd Ver South", 0.5, 0.35, 0.74, 0.65, 0);
+    Pad[14] = new TPad("Smd Hor South", "Smd Hor South", 0.74, 0.35, 0.98, 0.65, 0);
+
+    Pad[15] = new TPad("Smd sum Ver North", "Smd sum Ver North", 0.02, 0.65, 0.26, 0.95, 0);
+    Pad[16] = new TPad("Smd sum Hor North", "Smd sum Hor North", 0.26, 0.65, 0.5, 0.95, 0);
+    Pad[17] = new TPad("Smd sum Ver South", "Smd sum Ver South", 0.5, 0.65, 0.74, 0.95, 0);
+    Pad[18] = new TPad("Smd sum Hor South", "Smd sum Hor South", 0.74, 0.65, 0.98, 0.95, 0);  
 
     Pad[7]->Draw();
     Pad[8]->Draw();
@@ -148,23 +130,15 @@ int ZdcMonDraw::MakeCanvas3(const std::string &name)
     transparent[3]->Draw();
     TC[3]->SetEditable(false);
   }
-  return 0;
 
-}
-
-int ZdcMonDraw::MakeCanvas4(const std::string &name)
-{
-  // for smd_value, smd_value_good, smd_value_small
-  if (name == "SmdValues")
+  // DRAW SMD_XY_NORHT/SOUTH
+  else if (name == "SmdXY")
   {
-    OnlMonClient *cl = OnlMonClient::instance();
-    int xsize = cl->GetDisplaySizeX();
-    int ysize = cl->GetDisplaySizeY();
     // xpos negative: do not draw menu bar
-    TC[4] = new TCanvas(name.c_str(), "ZdcMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
+    TC[4] = new TCanvas(name.c_str(), "smd_xy_north/south", -xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    Pad[19] = new TPad("smd_xy_north", "xy_north", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[20] = new TPad("smd_xy_south", "xy_south", 0.1, 0.05, 0.9, 0.45, 0);
+    Pad[19] = new TPad("smd_xy_north", "xy_north", 0.05, 0.5, 0.95, 0.95, 0);
+    Pad[20] = new TPad("smd_xy_south", "xy_south", 0.05, 0.05, 0.95, 0.5, 0);
 
     Pad[19]->Draw();
     Pad[20]->Draw();
@@ -176,9 +150,7 @@ int ZdcMonDraw::MakeCanvas4(const std::string &name)
     TC[4]->SetEditable(false);
   }
   return 0;
-
 }
-
 
 int ZdcMonDraw::Draw(const std::string &what)
 {
@@ -224,7 +196,7 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   TH1 *zdc_adc_north = cl->getHisto("ZDCMON_0","zdc_adc_north");
   if (!gROOT->FindObject("ZdcMon1"))
   {
-    MakeCanvas1("ZdcMon1");
+    MakeCanvas("ZdcMon1");
   }
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
@@ -277,7 +249,7 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   TH1 *zdc_adc_north = cl->getHisto("ZDCMON_0","zdc_adc_north");
   if (!gROOT->FindObject("ZdcMon2"))
   {
-    MakeCanvas1("ZdcMon2");
+    MakeCanvas("ZdcMon2");
   }
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
@@ -326,7 +298,7 @@ int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
 
   if (!gROOT->FindObject("SmdValues"))
   {
-    MakeCanvas2("SmdValues");
+    MakeCanvas("SmdValues");
   }
   TC[2]->SetEditable(true);
   TC[2]->Clear("D");
@@ -388,7 +360,7 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
 
   if (!gROOT->FindObject("SmdNorthandSouth"))
   {
-    MakeCanvas3("SmdNorthandSouth");
+    MakeCanvas("SmdNorthandSouth");
   }
   TC[3]->SetEditable(true);
   TC[3]->Clear("D");
@@ -465,7 +437,7 @@ int ZdcMonDraw::DrawSmdXY(const std::string & /* what */)
 
   if (!gROOT->FindObject("SmdXY"))
   {
-    MakeCanvas4("SmdXY");
+    MakeCanvas("SmdXY");
   }
   TC[4]->SetEditable(true);
   TC[4]->Clear("D");
@@ -545,9 +517,9 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   // idem for 2nd canvas.
   pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
   cl->CanvasToPng(TC[1], pngfile);
-  // idem for 3rd canvas.
-  pngfile = cl->htmlRegisterPage(*this, "Third Canvas", "3", "png");
-  cl->CanvasToPng(TC[2], pngfile);
+  // // idem for 3rd canvas.
+  // pngfile = cl->htmlRegisterPage(*this, "Third Canvas", "3", "png");
+  // cl->CanvasToPng(TC[2], pngfile);
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
   std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
