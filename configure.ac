@@ -30,6 +30,8 @@ onlmonutils/Makefile
 scripts/Makefile
 macros/Makefile
 subsystems/Makefile
+subsystems/bbc/Makefile
+subsystems/bbc/calib/Makefile
 subsystems/ll1/Makefile
 subsystems/ll1/calib/Makefile
 subsystems/cemc/Makefile
