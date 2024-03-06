@@ -125,21 +125,15 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   //gPad->SetLogy();
   //gPad->SetLogx();
 
-  spinpatternBlueUp->SetFillColor(6);
-  spinpatternBlueDown->SetFillColor(7);
-  spinpatternBlueUnpol->SetFillColor(4);
-  spinpatternYellowUp->SetFillColor(2);
-  spinpatternYellowDown->SetFillColor(3);
-  spinpatternYellowUnpol->SetFillColor(5);
-
   if (spinpatternBlueUp)
   {
+    spinpatternBlueUp->SetFillColor(6);
     spinpatternBlueUp->Draw("box");
-    if (spinpatternBlueDown){spinpatternBlueDown->Draw("box,same");}
-    if (spinpatternBlueUnpol){spinpatternBlueUnpol->Draw("box,same");}
-    if (spinpatternYellowUp){spinpatternYellowUp->Draw("box,same");}
-    if (spinpatternYellowDown){spinpatternYellowDown->Draw("box,same");}
-    if (spinpatternYellowUnpol){spinpatternYellowUnpol->Draw("box,same");}
+    if (spinpatternBlueDown){spinpatternBlueDown->SetFillColor(7); spinpatternBlueDown->Draw("box,same");}
+    if (spinpatternBlueUnpol){spinpatternBlueUnpol->SetFillColor(4); spinpatternBlueUnpol->Draw("box,same");}
+    if (spinpatternYellowUp){spinpatternYellowUp->SetFillColor(2); spinpatternYellowUp->Draw("box,same");}
+    if (spinpatternYellowDown){spinpatternYellowDown->SetFillColor(3); spinpatternYellowDown->Draw("box,same");}
+    if (spinpatternYellowUnpol){spinpatternYellowUnpol->SetFillColor(5); spinpatternYellowUnpol->Draw("box,same");}
   }
   else
   {
