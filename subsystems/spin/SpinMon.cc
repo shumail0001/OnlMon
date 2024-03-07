@@ -105,14 +105,16 @@ int SpinMon::process_event(Event *e /* evt */)
       if (int(0.5*i) % 2 == 0){yellow_up = 1;}
       else {yellow_down = 1;}
       // **************************************************************************
+      
+      if (i < 111){
+	if (blue_up){spin_patternBlueUp->Fill(i,2);}
+	if (blue_down){spin_patternBlueDown->Fill(i,2);}
+	if (blue_unpol){spin_patternBlueUnpol->Fill(i,2);}
 
-      if (blue_up){spin_patternBlueUp->Fill(i,2);}
-      if (blue_down){spin_patternBlueDown->Fill(i,2);}
-      if (blue_unpol){spin_patternBlueUnpol->Fill(i,2);}
-
-      if (yellow_up){spin_patternYellowUp->Fill(i,1);}
-      if (yellow_down){spin_patternYellowDown->Fill(i,1);}
-      if (yellow_unpol){spin_patternYellowUnpol->Fill(i,1);}
+	if (yellow_up){spin_patternYellowUp->Fill(i,1);}
+	if (yellow_down){spin_patternYellowDown->Fill(i,1);}
+	if (yellow_unpol){spin_patternYellowUnpol->Fill(i,1);}
+      }
 
     }
   }
@@ -120,9 +122,9 @@ int SpinMon::process_event(Event *e /* evt */)
 
     //******** gl1p scalers *********//
 
-  int evtnr = e->getEvtSequence();
-  Event *gl1Event = erc->getEvent(evtnr);
-  if (gl1Event){
+  //int evtnr = e->getEvtSequence();
+  //Event *gl1Event = erc->getEvent(evtnr);
+  //if (gl1Event){
     Packet* p = e->getPacket(packetid_GL1);
     if (p){
       //int triggervec = p->lValue(0,"TriggerVector");
@@ -132,7 +134,7 @@ int SpinMon::process_event(Event *e /* evt */)
         gl1_counter[i]->Fill(bunchnr,counts);
       }
     }
-  }
+    //}
   
   return 0;
 

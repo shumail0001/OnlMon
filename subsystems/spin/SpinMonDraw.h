@@ -29,7 +29,7 @@ class SpinMonDraw : public OnlMonDraw
   int DrawSecond(const std::string &what = "ALL");
   TCanvas *TC[2] = {nullptr};
   TPad *transparent[2] = {nullptr};
-  TPad *Pad[4] = {nullptr};
+  TPad *Pad[19] = {nullptr};
 };
 
 #endif /* SPIN_SPINMONDRAW_H */

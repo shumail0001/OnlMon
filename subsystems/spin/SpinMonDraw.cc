@@ -10,8 +10,10 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TH2I.h>
+#include <TLegend.h>
 #include <TPad.h>
 #include <TROOT.h>
+#include <TStyle.h>
 #include <TSystem.h>
 #include <TText.h>
 
@@ -47,10 +49,41 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
     // gSystem->ProcessEvents(), otherwise your process will grow and
     // grow and grow but will not show a definitely lost memory leak
     gSystem->ProcessEvents();
-    Pad[0] = new TPad("spinpad1", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[1] = new TPad("spinpad2", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
+    Pad[0] = new TPad("spinpad1", "who needs this?", 0.05, 0.75, 0.95, 0.9, 0);
+    Pad[1] = new TPad("spinpad2", "who needs this?", 0.05, 0.575, 0.275, 0.75, 0);
+    Pad[2] = new TPad("spinpad2", "who needs this?", 0.275, 0.575, 0.5, 0.75, 0);
+    Pad[3] = new TPad("spinpad3", "who needs this?", 0.5, 0.575, 0.725, 0.75, 0);
+    Pad[4] = new TPad("spinpad4", "who needs this?", 0.725, 0.575, 0.95, 0.75, 0);
+    Pad[5] = new TPad("spinpad5", "who needs this?", 0.05, 0.40, 0.275, 0.575, 0);
+    Pad[6] = new TPad("spinpad6", "who needs this?", 0.275, 0.40, 0.5, 0.575, 0);
+    Pad[7] = new TPad("spinpad7", "who needs this?", 0.5, 0.40, 0.725, 0.575, 0);
+    Pad[8] = new TPad("spinpad8", "who needs this?", 0.725, 0.40, 0.95, 0.575, 0);
+    Pad[9] = new TPad("spinpad9", "who needs this?", 0.05, 0.225, 0.275, 0.40, 0);
+    Pad[10] = new TPad("spinpad10", "who needs this?", 0.275, 0.225, 0.5, 0.40, 0);
+    Pad[11] = new TPad("spinpad11", "who needs this?", 0.5, 0.225, 0.725, 0.40, 0);
+    Pad[12] = new TPad("spinpad12", "who needs this?", 0.725, 0.225, 0.95, 0.40, 0);
+    Pad[13] = new TPad("spinpad13", "who needs this?", 0.05, 0.05, 0.275, 0.225, 0);
+    Pad[14] = new TPad("spinpad14", "who needs this?", 0.275, 0.05, 0.5, 0.225, 0);
+    Pad[15] = new TPad("spinpad15", "who needs this?", 0.5, 0.05, 0.725, 0.225, 0);
+    Pad[16] = new TPad("spinpad16", "who needs this?", 0.725, 0.05, 0.95, 0.225, 0);
     Pad[0]->Draw();
     Pad[1]->Draw();
+    Pad[2]->Draw();
+    Pad[3]->Draw();
+    Pad[4]->Draw();
+    Pad[5]->Draw();
+    Pad[6]->Draw();
+    Pad[7]->Draw();
+    Pad[8]->Draw();
+    Pad[9]->Draw();
+    Pad[10]->Draw();
+    Pad[11]->Draw();
+    Pad[12]->Draw();
+    Pad[13]->Draw();
+    Pad[14]->Draw();
+    Pad[15]->Draw();
+    Pad[16]->Draw();
+
     // this one is used to plot the run number on the canvas
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
     transparent[0]->SetFillStyle(4000);
@@ -62,10 +95,10 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
     // xpos negative: do not draw menu bar
     TC[1] = new TCanvas(name.c_str(), "SpinMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    Pad[2] = new TPad("spinpad3", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[3] = new TPad("spinpad4", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[2]->Draw();
-    Pad[3]->Draw();
+    Pad[17] = new TPad("spinpad3", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
+    Pad[18] = new TPad("spinpad4", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
+    Pad[17]->Draw();
+    Pad[18]->Draw();
     // this one is used to plot the run number on the canvas
     transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
     transparent[1]->SetFillStyle(4000);
@@ -121,30 +154,74 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   }
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
+  gStyle->SetOptStat(0);
+  //gStyle->SetLabelSize(0.5,"X");
   Pad[0]->cd();
-  //gPad->SetLogy();
-  //gPad->SetLogx();
-
-  if (spinpatternBlueUp)
-  {
-    spinpatternBlueUp->SetFillColor(6);
-    spinpatternBlueUp->Draw("box");
-    if (spinpatternBlueDown){spinpatternBlueDown->SetFillColor(7); spinpatternBlueDown->Draw("box,same");}
-    if (spinpatternBlueUnpol){spinpatternBlueUnpol->SetFillColor(4); spinpatternBlueUnpol->Draw("box,same");}
-    if (spinpatternYellowUp){spinpatternYellowUp->SetFillColor(2); spinpatternYellowUp->Draw("box,same");}
-    if (spinpatternYellowDown){spinpatternYellowDown->SetFillColor(3); spinpatternYellowDown->Draw("box,same");}
-    if (spinpatternYellowUnpol){spinpatternYellowUnpol->SetFillColor(5); spinpatternYellowUnpol->Draw("box,same");}
-  }
-  else
+  
+  float labelsize = 0.1;
+  if (!spinpatternBlueUp || !spinpatternBlueDown || !spinpatternBlueUnpol || !spinpatternYellowUp || !spinpatternYellowDown || !spinpatternYellowUnpol)
   {
     DrawDeadServer(transparent[0]);
     TC[0]->SetEditable(false);
     return -1;
   }
-  Pad[1]->cd();
-  //gPad->SetLogy();
-  //gPad->SetLogx();
-  gl1_counter[0]->Draw();
+  else
+  {
+    spinpatternBlueUp->SetFillColor(6);
+    spinpatternBlueUp->GetXaxis()->SetLabelSize(labelsize);
+    spinpatternBlueUp->DrawCopy("box");
+    spinpatternBlueDown->SetFillColor(7); 
+    spinpatternBlueDown->GetXaxis()->SetLabelSize(labelsize);
+    spinpatternBlueDown->DrawCopy("box,same");
+    spinpatternBlueUnpol->SetFillColor(4); 
+    spinpatternBlueDown->GetXaxis()->SetLabelSize(labelsize);
+    spinpatternBlueUnpol->DrawCopy("box,same");
+    spinpatternYellowUp->SetFillColor(2); 
+    spinpatternYellowUp->DrawCopy("box,same");
+    spinpatternYellowUp->GetXaxis()->SetLabelSize(labelsize);
+    spinpatternYellowDown->SetFillColor(3); 
+    spinpatternYellowDown->DrawCopy("box,same");
+    spinpatternYellowDown->GetXaxis()->SetLabelSize(labelsize);
+    spinpatternYellowUnpol->SetFillColor(5); 
+    spinpatternYellowUnpol->DrawCopy("box,same");
+    spinpatternYellowUnpol->GetXaxis()->SetLabelSize(labelsize);
+
+    TLegend* leg_blue = new TLegend(0.01, 0.05, 0.075, 0.95);
+    leg_blue->SetFillStyle(0);
+    leg_blue->SetBorderSize(1);
+    leg_blue->AddEntry(spinpatternBlueUp,"Blue Up","F");
+    leg_blue->AddEntry(spinpatternBlueDown,"Blue Down","F");
+    leg_blue->AddEntry(spinpatternBlueUnpol,"Blue Unpol","F");
+
+    TLegend* leg_yellow = new TLegend(0.925, 0.05, 0.99, 0.95);
+    leg_yellow->SetFillStyle(0);
+    leg_yellow->SetBorderSize(1);
+    leg_yellow->AddEntry(spinpatternYellowUp,"Yellow Up","F");
+    leg_yellow->AddEntry(spinpatternYellowDown,"Yellow Down","F");
+    leg_yellow->AddEntry(spinpatternYellowUnpol,"Yellow Unpol","F");
+
+    leg_blue->Draw("same");
+    leg_yellow->Draw("same");
+  }
+
+  labelsize = 0.8;
+  float titlesize = 1.5;
+  for (int i = 0; i < NTRIG; i++){
+    Pad[i+1]->cd();
+    if (gl1_counter[i]){
+      gl1_counter[i]->SetTitleSize(titlesize);
+      gl1_counter[i]->GetXaxis()->SetLabelSize(labelsize);
+      gl1_counter[i]->DrawCopy("HIST");
+    }
+    else{
+      DrawDeadServer(transparent[0]);
+      TC[0]->SetEditable(false);
+      return -1;
+    }
+  }
+
+  
+
   
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -176,9 +253,9 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
-  Pad[2]->cd();
+  Pad[17]->cd();
 
-  Pad[3]->cd();
+  Pad[18]->cd();
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
