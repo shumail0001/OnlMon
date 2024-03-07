@@ -84,9 +84,11 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     Pad[6] = new TPad("Smd Value", "Smd Value", 0.05, 0.05, 0.35, 0.9, 0);
     Pad[7] = new TPad("Smd Value (good)", "Smd Value (good)", 0.35, 0.05, 0.65, 0.9, 0);
     Pad[8] = new TPad("Smd Value (small)", "Smd Value (small)", 0.65, 0.05, 0.95, 0.9, 0);
-    Pad[6]->Draw();
+
+    Pad[6]->Draw();    
     Pad[7]->Draw();
     Pad[8]->Draw();
+
     // this one is used to plot the run number on the canvas
     transparent[2] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
     transparent[2]->SetFillStyle(4000);
@@ -168,11 +170,13 @@ int ZdcMonDraw::Draw(const std::string &what)
     iret += DrawSecond(what);
     idraw++;
   }
+  
   if (what == "ALL" || what == "SMDVALUES")
   {
     iret += DrawSmdValues(what);
     idraw++;
   }
+  
   if (what == "ALL" || what == "SMDN&S")
   {
     iret += DrawSmdNorthandSouth(what);
@@ -225,9 +229,9 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   }
 
   Pad[2]->cd();
-  if (smd_xy_north){smd_xy_north->Draw("colz");}
+  if (smd_xy_north){smd_xy_north->DrawCopy("colz");}
   Pad[3]->cd();
-  if (smd_xy_south){smd_xy_south->Draw("colz");}
+  if (smd_xy_south){smd_xy_south->DrawCopy("colz");}
   
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -246,6 +250,7 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->Update();
   TC[0]->Show();
   TC[0]->SetEditable(false);
+  
   return 0;
 }
 
@@ -294,20 +299,23 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->Update();
   TC[1]->Show();
   TC[1]->SetEditable(false);
+  
   return 0;
+  
 }
 
 int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
 {
+  
   OnlMonClient *cl = OnlMonClient::instance();
   TH2 *smd_value = (TH2*) cl->getHisto("ZDCMON_0","smd_value");
   TH2 *smd_value_good = (TH2*) cl->getHisto("ZDCMON_0","smd_value_good");
   TH2 *smd_value_small = (TH2*) cl->getHisto("ZDCMON_0","smd_value_small");
-
   if (!gROOT->FindObject("SmdValues"))
   {
     MakeCanvas("SmdValues");
   }
+
   TC[2]->SetEditable(true);
   TC[2]->Clear("D");
   Pad[6]->cd();
@@ -321,10 +329,11 @@ int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
     TC[2]->SetEditable(false);
     return -1;
   }
+
   Pad[7]->cd();
   if (smd_value_good) {smd_value_good->DrawCopy();}
   Pad[8]->cd();
-  if (smd_value_good) {smd_value_small->DrawCopy();}
+  if (smd_value_small) {smd_value_small->DrawCopy();}
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -343,6 +352,7 @@ int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
   TC[2]->Update();
   TC[2]->Show();
   TC[2]->SetEditable(false);
+  
   return 0;
 }
 
@@ -436,7 +446,6 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
 
 
 }
-
 
 int ZdcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
