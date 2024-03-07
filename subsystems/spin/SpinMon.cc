@@ -131,7 +131,8 @@ int SpinMon::process_event(Event *e /* evt */)
       int bunchnr = p->lValue(0,"BunchNumber");
       for (int i = 0; i < 16; i++ ) { //16 triggers for gl1p 
         int counts = p->lValue(i,2); //scaled gl1 cnts. (change to cnts. on bunchnr crossng when implemented) 
-        gl1_counter[i]->Fill(bunchnr,counts);
+	//update instead of add
+        gl1_counter[i]->SetBinContent(bunchnr+1,counts); //update bin with new scaler info. instead of adding every evt
       }
     }
     //}
