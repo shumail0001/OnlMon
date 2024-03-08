@@ -49,6 +49,8 @@ subsystems/intt/calib/Makefile
 subsystems/mvtx/Makefile
 subsystems/mvtx/calib/Makefile
 subsystems/pktsize/Makefile
+subsystems/spin/Makefile
+subsystems/spin/calib/Makefile
 subsystems/tpc/Makefile
 subsystems/tpc/calib/Makefile
 subsystems/tpot/Makefile

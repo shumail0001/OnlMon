@@ -116,10 +116,10 @@ int ZdcMon::Init()
   smd_ver_north = new TH1F("smd_ver_north", "Beam centroid distribution, SMD North x", 220, -5.5, 5.5);
   smd_sum_hor_north = new TH1F ("smd_sum_hor_north", "SMD North y", 512, 0, 2048);
   smd_sum_ver_north = new TH1F ("smd_sum_ver_north", "SMD North x", 512, 0, 2048);
-  smd_hor_north_small = new TH1F ("smd_hor_north_small", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
-  smd_ver_north_small = new TH1F ("smd_ver_north_small", "Beam centroid distribution, SMD North x", 220, -5.5, 5.5);
-  smd_hor_north_good = new TH1F ("smd_hor_north_good", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
-  smd_ver_north_good = new TH1F ("smd_ver_north_good", "Beam centroid distribution, SMD North x", 220, -5.5, 5.5);
+  smd_hor_north_small = new TH1F ("smd_hor_north_small", "Beam centroid distribution, SMD North y, zdc <= 200", 296, -5.92, 5.92);
+  smd_ver_north_small = new TH1F ("smd_ver_north_small", "Beam centroid distribution, SMD North x, zdc <= 200", 220, -5.5, 5.5);
+  smd_hor_north_good = new TH1F ("smd_hor_north_good", "Beam centroid distribution, SMD North y, zdc > 200", 296, -5.92, 5.92);
+  smd_ver_north_good = new TH1F ("smd_ver_north_good", "Beam centroid distribution, SMD North x, zdc > 200", 220, -5.5, 5.5);
   // south smd 
   smd_hor_south = new TH1F("smd_hor_south", "Beam centroid distribution, SMD South y", 296, -5.92, 5.92);
   smd_ver_south = new TH1F("smd_ver_south", "Beam centroid distribution, SMD South x", 220, -5.5, 5.5);
@@ -127,8 +127,8 @@ int ZdcMon::Init()
   smd_sum_ver_south = new TH1F ("smd_sum_ver_south", "SMD South x", 640, 0, 2560);
   // smd values
   smd_value = new TH2F("smd_value", "SMD channel# vs value", 1024, 0, 4096, 32, 0, 32);
-  smd_value_good = new TH2F("smd_value_good", "SMD channel# vs value", 1024, 0, 4096, 16, 0, 16);
-  smd_value_small = new TH2F("smd_value_small", "SMD channel# vs value", 1024, 0, 4096, 16, 0, 16);
+  smd_value_good = new TH2F("smd_value_good", "SMD channel# vs value, zdc > 200", 1024, 0, 4096, 16, 0, 16);
+  smd_value_small = new TH2F("smd_value_small", "SMD channel# vs value, zdc <= 200", 1024, 0, 4096, 16, 0, 16);
   smd_xy_north = new TH2F("smd_xy_north", "SMD hit position north", 110, -5.5, 5.5, 119, -5.92, 5.92);
   smd_xy_south = new TH2F("smd_xy_south", "SMD hit position south", 110, -5.5, 5.5, 119, -5.92, 5.92);
 
@@ -210,7 +210,6 @@ int ZdcMon::process_event(Event *e /* evt */)
   Packet *p = e->getPacket(packet);
   if (p)
   {
-  
     // in this for loop we get: zdc_adc and smd_adc
     for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
     {
@@ -222,8 +221,6 @@ int ZdcMon::process_event(Event *e /* evt */)
       int zdc_side = TowerInfoDefs::get_zdc_side(towerkey);
         
       int mod = c%2;
-
-      // put code to assign smd_adc[i]
 
       if (c < 16) {zdc_adc[c] = signal;}
       else {smd_adc[c - 16] = signal;}
@@ -296,6 +293,11 @@ int ZdcMon::process_event(Event *e /* evt */)
     bool fired_smd_hor_s = (s_hor > 1);
     bool fired_smd_ver_s = (s_ver > 1);
 
+    /***** for testing ***********/
+    fired_smd_hor_n = 1;
+    fired_smd_ver_n = 1;
+    fired_smd_hor_s = 1;
+    fired_smd_ver_s = 1;
 
     //compute, if smd is overloaded
     bool smd_ovld_north = false;
@@ -303,8 +305,8 @@ int ZdcMon::process_event(Event *e /* evt */)
     //smd_ovld_south = (zdc_adc[0] > 1000);
     //smd_ovld_north = (zdc_adc[4] > 1000);
 
-    bool ped_smd_hnorth = true; //in 200GeV, it was: (smd_sum[2] > 800.);
-    bool ped_smd_vnorth = true; //in 200GeV, it was: (smd_sum[3] > 700.);
+    //bool ped_smd_hnorth = true; //in 200GeV, it was: (smd_sum[2] > 800.);
+    //bool ped_smd_vnorth = true; //in 200GeV, it was: (smd_sum[3] > 700.);
 
 
     // FILLING OUT THE HISTOGRAMS
@@ -314,37 +316,40 @@ int ZdcMon::process_event(Event *e /* evt */)
     {
       fill_hor_south = true;
       fill_ver_south = true;
-      smd_hor_south->Fill( smd_pos[0] );
-      smd_ver_south->Fill( smd_pos[1] );
-      for (int i = 0 ; i < 8; i++)
-      {
-        smd_value->Fill(smd_adc[i], float(i) );
-        smd_value->Fill(smd_adc[i + 8], float(i) + 8. );
-      }
-      // if ((zdc_adc[0] > 200.))
-      // {
-        for (int i = 0; i < 8; i++)
-        {
-          smd_value_good->Fill(smd_adc[i], float(i));
-          smd_value_good->Fill(smd_adc[i + 8], float(i) + 8);
-        }
-      // }
-      // if ((zdc_adc[0] <= 200.))
-      // {
-        for (int i = 0; i < 8; i++)
-        {
-          smd_value_small->Fill(smd_adc[i], float(i));
-          smd_value_small->Fill(smd_adc[i + 8], float(i) + 8);
-        }
-      // }
+      smd_hor_south->Fill( smd_pos[2] );
+      smd_ver_south->Fill( smd_pos[3] );
     }
-    if (fill_hor_south && fill_ver_south && zdc_adc[0]>40 ) {smd_xy_south->Fill(smd_pos[1], smd_pos[0]);}
+    //if (fill_hor_south && fill_ver_south && zdc_adc[0]>40 ) {smd_xy_south->Fill(smd_pos[1], smd_pos[0]);}
+    //if (fill_hor_south && fill_ver_south && totalzdcsouthsignal > 40) {
+    if (fill_hor_south && fill_ver_south) {
+      smd_sum_ver_south->Fill(smd_sum[3]);
+      smd_sum_hor_south->Fill(smd_sum[2]);
+      smd_xy_south->Fill(smd_pos[3], smd_pos[2]);
+    }
 
+
+    if (fired_smd_hor_n && fired_smd_ver_n && !smd_ovld_north)
+    {
+      fill_hor_north = true;
+      fill_ver_north = true;
+      smd_hor_north->Fill( smd_pos[0] );
+      smd_ver_north->Fill( smd_pos[1] );
+    }
+
+    
+    //if (fill_hor_north && fill_ver_north && totalzdcnorthsignal > 40) {
+    if (fill_hor_north && fill_ver_north) {
+      smd_sum_ver_north->Fill(smd_sum[1]);
+      smd_sum_hor_north->Fill(smd_sum[0]);
+      smd_xy_north->Fill(smd_pos[1], smd_pos[0]);
+    }
+
+    /*
     // PHENIX had: if (ped_zdc_north && ped_smd_hnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north &&  fired_smd_hor_n && !did_laser_fire)
     if ( fired_smd_hor_n && ped_smd_hnorth && !smd_ovld_north)
     {
       fill_hor_north = true;
-      smd_hor_north->Fill( smd_pos[2] );
+      smd_hor_north->Fill( smd_pos[0] );
       // zdc_hor_north->Fill( zdc_adc[4] / ADC_to_GeV_north, smd_pos[2] );
       for (int i = 0; i < 8; i++)
       {
@@ -352,7 +357,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
       if ((zdc_adc[4] > 200.))
       {
-        smd_hor_north_good->Fill( smd_pos[2] );
+        smd_hor_north_good->Fill( smd_pos[0] );
         for (int i = 0; i < 8; i++)
         {
           smd_value_good->Fill(smd_adc[i + 16], float(i) + 16.);
@@ -360,20 +365,21 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
       if ((zdc_adc[4] <= 200.))
       {
-        smd_hor_north_small->Fill( smd_pos[2] );
+        smd_hor_north_small->Fill( smd_pos[0] );
         for (int i = 0; i < 8; i++)
         {
           smd_value_small->Fill(smd_adc[i + 16], float(i) + 16.);
         }
       }
     }
-    if (fill_hor_north && fill_ver_north && zdc_adc[4]>40 ){smd_xy_north->Fill( smd_pos[3], smd_pos[2]);}
+    
 
     // PHENIX had: if (ped_zdc_north && ped_smd_vnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_ver && !did_laser_fire)
     if (fired_smd_ver_n && ped_smd_vnorth && !smd_ovld_north)
     {
-      // fill_ver_north = true;
-      smd_ver_north->Fill( smd_pos[3] );
+      fill_ver_north = true;
+
+      smd_ver_north->Fill( smd_pos[1] );
       // zdc_ver_north->Fill( zdc_adc[4] / ADC_to_GeV_north, smd_pos[3] );
       for (int i = 0; i < 8; i++)
       {
@@ -381,7 +387,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
       if ((zdc_adc[4] > 200.))
       {
-        smd_ver_north_good->Fill( smd_pos[3] );
+        smd_ver_north_good->Fill( smd_pos[1] );
         for (int i = 0; i < 8; i++)
         {
           smd_value_good->Fill(smd_adc[i + 24], float(i) + 24.);
@@ -389,7 +395,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
       if ((zdc_adc[4] <= 200.))
       {
-        smd_ver_north_small->Fill( smd_pos[3] );
+        smd_ver_north_small->Fill( smd_pos[1] );
         for (int i = 0; i < 8; i++)
         {
           smd_value_small->Fill(smd_adc[i + 24], float(i) + 24.);
@@ -397,7 +403,9 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
     }
 
-
+    //if (fill_hor_north && fill_ver_north && zdc_adc[4]>40 ){smd_xy_north->Fill( smd_pos[1], smd_pos[0]);}
+    if (fill_hor_north && fill_ver_north){smd_xy_north->Fill( smd_pos[1], smd_pos[0]);}
+    */
 
   }    // if packet good
 
