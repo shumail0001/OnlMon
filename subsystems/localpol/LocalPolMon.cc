@@ -33,7 +33,7 @@ LocalPolMon::LocalPolMon(const std::string &name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new LocalPolMon()
-  return;
+  return;//test
 }
 
 LocalPolMon::~LocalPolMon()
