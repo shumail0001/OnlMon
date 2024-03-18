@@ -2,6 +2,7 @@
 #define LOCALPOL_LOCALPOLMON_H
 
 #include <onlmon/OnlMon.h>
+#include <map>
 
 class Event;
 class TH1;
@@ -19,15 +20,40 @@ class LocalPolMon : public OnlMon
   int process_event(Event *evt);
   int Init();
   int BeginRun(const int runno);
+  float anaWaveformFast(Packet *p, const int channel);
   int Reset();
 
  protected:
   int evtcnt = 0;
-  int packetid = 12001;
+  const int packetid_gl1 = 14001;
+  const int packetid_smd = 12001;
 
-  TH1 *h_example = nullptr;
-  TH1 *h_example2 = nullptr;
+  const int UP= 1;
+  const int DN=-1;
 
+  const int BLUE=0;
+  const int YELLOW=1;
+
+  const float pitchY= 2.0 /*cm plastic scint.*/ * (11.0 / 10.5) /*(pitch correction for gap and wrapping)*/ * sin(PI/4)/*(correct for the tilt)*/;
+  const float pitchX=1.5 /*cm plastic scint.*/ * (11.0 / 10.5) /*(pitch correction for gap and wrapping)*/;
+
+  const float nchannelsY=8.0;
+  const float nchannelsX=7.0;
+  const float PI=3.14159;
+  
+  map<int, int> SpinPatterns[2];
+  int StartAbortGapPattern;
+  int StartAbortGapData;
+  int CrossingShift;
+
+  float smd_north_rgain[16];
+  float smd_south_rgain[16];
+  
+  float anaWaveformFast(Packet *p, const int channel);
+  CaloWaveformFitting *WaveformProcessingFast = nullptr;
+
+  TH1 **h_Counts         = nullptr;
+  TH1 **h_CountsScramble = nullptr;
   
 };
     

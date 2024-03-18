@@ -107,8 +107,13 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
   
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1D *h_example = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_example");
-  //TH1D *h_example2 = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_example2");
+  TH1D* h_Counts[2];
+  TH1D* h_CountsScramble[2];
+  h_Counts[0] = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_BlueCounts");
+  h_Counts[1] = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_YellCounts");
+
+  h_CountsScramble[0] = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_BlueCountsScramble");
+  h_CountsScramble[1] = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_YellCountsScramble");
 
   if (!gROOT->FindObject("LocalPolMon1"))
   {
