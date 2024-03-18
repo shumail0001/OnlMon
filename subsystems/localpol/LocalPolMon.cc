@@ -10,12 +10,11 @@
 #include <onlmon/OnlMonServer.h>
 
 #include <Event/msg_profile.h>
+#include <caloreco/CaloWaveformFitting.h>
 
 #include <Event/Event.h>
 #include <Event/EventTypes.h>
 #include <Event/msg_profile.h>
-#include <Event/eventReceiverClient.h>
-
 
 #include <TH1.h>
 #include <TH2.h>
@@ -27,6 +26,8 @@
 #include <iostream>
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
+#include <map>
+#include <utility>
 
 LocalPolMon::LocalPolMon(const std::string &name)
   : OnlMon(name)
@@ -60,6 +61,8 @@ int LocalPolMon::Init()
   se->registerHisto(this, h_CountsScramble[0]);
   se->registerHisto(this, h_CountsScramble[1]);
     
+  WaveformProcessingFast = new CaloWaveformFitting();
+
   Reset();
   return 0;
 } 
@@ -95,7 +98,7 @@ float LocalPolMon::anaWaveformFast(Packet *p, const int channel)
   std::vector<float> result;
   result = fitresults_zdc.at(0);
   return result.at(0);
-    
+  //return result;
 }
 
 int LocalPolMon::process_event(Event *e /* evt */)
@@ -104,25 +107,25 @@ int LocalPolMon::process_event(Event *e /* evt */)
   if(e->getEvtType() == 9){ //spin patterns stored in BeginRun event
     bool first=true;
     for(int i = 0; i< 120; i++){
-      SpinPattern[BLUE][i]=0;
-      SpinPattern[YELLOW][i]=0;
+      SpinPatterns[BLUE][i]=0;
+      SpinPatterns[YELLOW][i]=0;
       if(first && (true /*abort gap def from HTML*/)){
 	first=false;
 	StartAbortGapPattern=i;
       }
     }
   }
-  Packet* pgl1 = e->getPacket(packetid_GL1);
+  Packet* pgl1 = e->getPacket(packetid_gl1);
   //Here we do the magic to identify the abort gap
-  map<int, int> gl1_counter[16];
-  vector<int> gap[16];
+  std::map<int, int> gl1_counter[16];
+  std::vector<int> gap[16];
   int begingap[16];
   int endgap[16];
   if(pgl1){
     //taken from SpinMon.cc
-    int bunchnr = p->lValue(0,"BunchNumber");
+    int bunchnr = pgl1->lValue(0,"BunchNumber");
     for (int i = 0; i < 16; i++ ) { //16 triggers for gl1p 
-      int counts = p->lValue(i,2); 
+      int counts = pgl1->lValue(i,2); 
       //update instead of add
       gl1_counter[i][bunchnr]=counts; 
     } 
@@ -132,7 +135,7 @@ int LocalPolMon::process_event(Event *e /* evt */)
   if(evtcnt>120){//Do we need to somehow wait or from the first events the scalers for all bunches would be already filled?
     for(int i=0; i<16; i++){
       for(int emptyfill=0; emptyfill<9; emptyfill++){
-	gap[i].push_back(min_element(gl1_counter[i].begin(),gl1_counter[i].end(),[](const pair<int,int>&lhs, const pair<int,int>& rhs){return lhs.second<rhs.second;})->first);
+	gap[i].push_back(min_element(gl1_counter[i].begin(),gl1_counter[i].end(),[](const std::pair<int,int>&lhs, const std::pair<int,int>& rhs){return lhs.second<rhs.second;})->first);
 	gl1_counter[i].erase(gap[i].back());
       }
       begingap[i]=*min_element(gap[i].begin(), gap[i].end());
@@ -146,10 +149,12 @@ int LocalPolMon::process_event(Event *e /* evt */)
   }
   CrossingShift=StartAbortGapPattern-StartAbortGapData;
   Packet* psmd = e->getPacket(packetid_smd);
+  float smd_adc[32];
   if (psmd && pgl1){
     int bunchnr = pgl1->lValue(0,"BunchNumber");
     for(int ch=16; ch<psmd->iValue(0,"CHANNELS"); ch++){
       //First 16 channels are for the ZDC, the next channels are for the SMD
+      //float signalFast = anaWaveformFast(psmd, ch);  // fast waveform fitting
       float signalFast = anaWaveformFast(psmd, ch);  // fast waveform fitting
       //float signalFast = resultFast.at(0);
 
@@ -169,7 +174,7 @@ int LocalPolMon::process_event(Event *e /* evt */)
       Weights[2]         += smd_adc[ch+16];
       AveragePosition[2] += pitchY*(ch-nchannelsY/2)*smd_adc[ch+16];//South Y direction (Asym in Yellow)
 
-      if(i==7) continue;
+      if(ch==7) continue;
       Weights[1]         += smd_adc[ch+8];
       AveragePosition[1] += pitchX*(ch-nchannelsX/2)*smd_adc[ch+8];//North X direction (Asym in Blue)
       Weights[3]         += smd_adc[ch+24];
@@ -182,21 +187,21 @@ int LocalPolMon::process_event(Event *e /* evt */)
       
       if(AveragePosition[i]<0){
 	// (i/2)=0 for blue beam, =1 for yellow beam
-	if(SpinPattern[i/2].at((120+bunchnr+CrossingShift)%120)>0) h_Counts[i/2]->Fill(3);//Right for pointing up
-	else if(SpinPattern[i/2].at((120+bunchnr+CrossingShift)%120)<0) h_Counts[i/2]->Fill(1);//Left for pointing down
+	if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)>0) h_Counts[i/2]->Fill(3);//Right for pointing up
+	else if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)<0) h_Counts[i/2]->Fill(1);//Left for pointing down
 
 	//we swap the spin pattern to get random orientation and check biased asymmetry
-	if(SpinPattern[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)>0) h_CountsScramble[i/2]->Fill(3);//Right for pointing up
-	else if(SpinPattern[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)<0) h_CountsScramble[i/2]->Fill(1);//Left for pointing down
+	if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)>0) h_CountsScramble[i/2]->Fill(3);//Right for pointing up
+	else if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)<0) h_CountsScramble[i/2]->Fill(1);//Left for pointing down
       }
       else{
 	// (i/2)=0 for blue beam, =1 for yellow beam   
-	if(SpinPattern[i/2].at((120+bunchnr+CrossingShift)%120)>0) h_Counts[i/2]->Fill(0);//Left for pointing up
-	else if(SpinPattern[i/2].at((120+bunchnr+CrossingShift)%120)<0) h_Counts[i/2]->Fill(4);//Right for pointing down
+	if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)>0) h_Counts[i/2]->Fill(0);//Left for pointing up
+	else if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)<0) h_Counts[i/2]->Fill(4);//Right for pointing down
 
 	//we swap the spin pattern to get random orientation and check biased asymmetry
-	if(SpinPattern[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)>0) h_CountsScramble[i/2]->Fill(0);//Left for pointing up
-	else if(SpinPattern[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)<0) h_CountsScramble[i/2]->Fill(4);//Right for pointing down
+	if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)>0) h_CountsScramble[i/2]->Fill(0);//Left for pointing up
+	else if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)<0) h_CountsScramble[i/2]->Fill(4);//Right for pointing down
       }
     }
   }

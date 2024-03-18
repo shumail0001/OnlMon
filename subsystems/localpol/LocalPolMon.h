@@ -3,12 +3,15 @@
 
 #include <onlmon/OnlMon.h>
 #include <map>
+#include <cmath>
+#include <vector>
 
+class CaloWaveformFitting;
 class Event;
-class TH1;
+class TH1D;
 class TH2;
 class Packet;
-class eventReceiverClient;
+
 
 
 class LocalPolMon : public OnlMon
@@ -20,10 +23,12 @@ class LocalPolMon : public OnlMon
   int process_event(Event *evt);
   int Init();
   int BeginRun(const int runno);
-  float anaWaveformFast(Packet *p, const int channel);
   int Reset();
 
  protected:
+  float anaWaveformFast(Packet *p, const int channel);
+  CaloWaveformFitting *WaveformProcessingFast = nullptr;
+
   int evtcnt = 0;
   const int packetid_gl1 = 14001;
   const int packetid_smd = 12001;
@@ -41,7 +46,7 @@ class LocalPolMon : public OnlMon
   const float nchannelsX=7.0;
   const float PI=3.14159;
   
-  map<int, int> SpinPatterns[2];
+  std::map<int, int> SpinPatterns[2];
   int StartAbortGapPattern;
   int StartAbortGapData;
   int CrossingShift;
@@ -49,11 +54,9 @@ class LocalPolMon : public OnlMon
   float smd_north_rgain[16];
   float smd_south_rgain[16];
   
-  float anaWaveformFast(Packet *p, const int channel);
-  CaloWaveformFitting *WaveformProcessingFast = nullptr;
 
-  TH1 **h_Counts         = nullptr;
-  TH1 **h_CountsScramble = nullptr;
+  TH1D **h_Counts         = nullptr;
+  TH1D **h_CountsScramble = nullptr;
   
 };
     

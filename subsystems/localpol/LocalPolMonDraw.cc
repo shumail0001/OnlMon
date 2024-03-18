@@ -125,23 +125,23 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
   //gStyle->SetLabelSize(0.5,"X");
 
   Pad[0]->cd();
-  if (h_example){
-    h_example->DrawCopy();
+  if (h_Counts[0]&&h_Counts[1]){
+    h_Counts[0]->DrawCopy();
   } else{
     DrawDeadServer(transparent[0]);
     TC[0]->SetEditable(false);
     return -1;
   }
   Pad[1]->cd();
-  /*
-  if (h_example2){
-    h_example2->DrawCopy();
+  
+  if (h_CountsScramble[0]&&h_CountsScramble[1]){
+    h_CountsScramble[0]->DrawCopy();
   } else{
     DrawDeadServer(transparent[0]);
     TC[0]->SetEditable(false);
     return -1;
   }
-  */
+  
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
