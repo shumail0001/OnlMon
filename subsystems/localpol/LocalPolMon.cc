@@ -45,22 +45,59 @@ LocalPolMon::~LocalPolMon()
 
 int LocalPolMon::Init()
 {
-
-  h_Counts         = new TH1D*[2];
-  h_CountsScramble = new TH1D*[2];
-  
-  h_Counts[0]         = new TH1D("h_BlueCounts","h_BlueCounts",4,0,4);
-  h_Counts[1]         = new TH1D("h_YellCounts","h_YellCounts",4,0,4);
-  h_CountsScramble[0] = new TH1D("h_BlueCountsScramble","h_BlueCountsScramble",4,0,4);
-  h_CountsScramble[1] = new TH1D("h_YellCountsScramble","h_YellCountsScramble",4,0,4);
-  
+	
   OnlMonServer *se = OnlMonServer::instance();
+  
+  const char* zdccalib=getenv("ZDCCALIB");
+  if(!zdccalib){
+    std::cout<<"ZDCCALIB environment variable not set"<<std:endl;
+    exit(1);
+  }
+  std::string calibfilename=std::string(zdccalib)+"/"+"SMDRelativeGain.dat";
+  std::ifstream calibinput(calibfilename);
+  std::ostringstream msg(calib);
+
+  if(!calibinput){
+    msg<<calibinput<<" could not be openeds.";
+    se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL,msg.str(),2);
+    exit(1);
+  }
+  int NS;
+  int channel;
+  float gain;
+  for(int ch=0; ch<32; ch++){
+    calibinput>>NS>>channel>>gain;
+    
+    if(NS==0 && channel>=0 && channel <16)smd_north_rgain[channel]=gain;
+    else if(NS==1 &&channel>=0 && channel <16) smd_south_rgain[channel]=gain;
+    else {
+      msg<<calibinput<< "could not understand the content, expect int(0/1) int(0-15) float for North or South, channel number and relative gain";
+      se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL,msg.str(),2);
+      exit(1);
+    }
+  }
+  
+  h_Counts         = new TH1D*[4];
+  h_CountsScramble = new TH1D*[4];
+  
+  h_Counts[0]         = new TH1D("h_BlueCountsUD","h_BlueCountsUD",4,0,4);
+  h_Counts[1]         = new TH1D("h_BlueCountsLR","h_BlueCountsLR",4,0,4);
+  h_Counts[2]         = new TH1D("h_YellCountsUD","h_YellCountsUD",4,0,4);
+  h_Counts[3]         = new TH1D("h_YellCountsLR","h_YellCountsLR",4,0,4);
+  h_CountsScramble[0] = new TH1D("h_BlueCountsScrambleUD","h_BlueCountsScrambleUD",4,0,4);
+  h_CountsScramble[1] = new TH1D("h_BlueCountsScrambleLR","h_BlueCountsScrambleLR",4,0,4);
+  h_CountsScramble[2] = new TH1D("h_YellCountsScrambleUD","h_YellCountsScrambleUD",4,0,4);
+  h_CountsScramble[3] = new TH1D("h_YellCountsScrambleLR","h_YellCountsScrambleLR",4,0,4);
 
   se->registerHisto(this, h_Counts        [0]);
   se->registerHisto(this, h_Counts        [1]);
+  se->registerHisto(this, h_Counts        [2]);
+  se->registerHisto(this, h_Counts        [3]);
   se->registerHisto(this, h_CountsScramble[0]);
   se->registerHisto(this, h_CountsScramble[1]);
-    
+  se->registerHisto(this, h_CountsScramble[2]);
+  se->registerHisto(this, h_CountsScramble[3]);
+
   WaveformProcessingFast = new CaloWaveformFitting();
 
   Reset();
@@ -71,13 +108,6 @@ int LocalPolMon::BeginRun(const int /* runno */)
 {
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
-
-  //To be implemented with the right values from calibration files
-  for(int i=0; i<16; i++){
-    smd_north_rgain[i]=1.;
-    smd_south_rgain[i]=1.;
-  }
-  
   return 0;
 }
 
@@ -104,16 +134,22 @@ float LocalPolMon::anaWaveformFast(Packet *p, const int channel)
 int LocalPolMon::process_event(Event *e /* evt */)
 {
   
-  if(e->getEvtType() == 9){ //spin patterns stored in BeginRun event
+  if(e->getEvtType() == BEGRUNEVENT/*9*/){ //spin patterns stored in BeginRun event
     bool first=true;
-    for(int i = 0; i< 120; i++){
-      SpinPatterns[BLUE][i]=0;
-      SpinPatterns[YELLOW][i]=0;
-      if(first && (true /*abort gap def from HTML*/)){
-	first=false;
-	StartAbortGapPattern=i;
+    Packet* bluepacket = e->getPacket(14902);
+    Packet* yellpacket = e->getPacket(14903);
+    if(bluepacket && yellpacket){
+      for(int i = 0; i< 120; i++){
+	SpinPatterns[BLUE][i]=bluepacket->iValue(i);
+	SpinPatterns[YELLOW][i]=yellpacket->iValue(i);
+	if(first && (true /*abort gap def from HTML*/)){
+	  first=false;
+	  StartAbortGapPattern=i;
+	}
       }
     }
+    //delete bluepacket;
+    //delete yellpacket;
   }
   Packet* pgl1 = e->getPacket(packetid_gl1);
   //Here we do the magic to identify the abort gap
@@ -187,21 +223,21 @@ int LocalPolMon::process_event(Event *e /* evt */)
       
       if(AveragePosition[i]<0){
 	// (i/2)=0 for blue beam, =1 for yellow beam
-	if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)>0) h_Counts[i/2]->Fill(3);//Right for pointing up
-	else if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)<0) h_Counts[i/2]->Fill(1);//Left for pointing down
+	if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)>0) h_Counts[i]->Fill(3);//Right for pointing up
+	else if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)<0) h_Counts[i]->Fill(1);//Left for pointing down
 
 	//we swap the spin pattern to get random orientation and check biased asymmetry
-	if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)>0) h_CountsScramble[i/2]->Fill(3);//Right for pointing up
-	else if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)<0) h_CountsScramble[i/2]->Fill(1);//Left for pointing down
+	if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)>0) h_CountsScramble[i]->Fill(3);//Right for pointing up
+	else if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)<0) h_CountsScramble[i]->Fill(1);//Left for pointing down
       }
       else{
 	// (i/2)=0 for blue beam, =1 for yellow beam   
-	if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)>0) h_Counts[i/2]->Fill(0);//Left for pointing up
-	else if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)<0) h_Counts[i/2]->Fill(4);//Right for pointing down
+	if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)>0) h_Counts[i]->Fill(0);//Left for pointing up
+	else if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)<0) h_Counts[i]->Fill(2);//Right for pointing down
 
 	//we swap the spin pattern to get random orientation and check biased asymmetry
-	if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)>0) h_CountsScramble[i/2]->Fill(0);//Left for pointing up
-	else if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)<0) h_CountsScramble[i/2]->Fill(4);//Right for pointing down
+	if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)>0) h_CountsScramble[i]->Fill(0);//Left for pointing up
+	else if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)<0) h_CountsScramble[i]->Fill(2);//Right for pointing down
       }
     }
   }

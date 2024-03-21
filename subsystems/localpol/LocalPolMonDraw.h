@@ -9,6 +9,7 @@
 class OnlMonDB;
 class TCanvas;
 class TGraphErrors;
+class TGraphPolar;
 class TPad;
 
 class LocalPolMonDraw : public OnlMonDraw
@@ -27,9 +28,15 @@ class LocalPolMonDraw : public OnlMonDraw
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
+  double* LocalPolDraw::ComputeAsymmetries(double L_U, double R_D, double L_D, double R_U);
   TCanvas *TC[2] = {nullptr};
   TPad *transparent[2] = {nullptr};
-  TPad *Pad[4] = {nullptr};
+  TPad **Pad[2] = {nullptr};
+  TGraphErrors**** g_Asym          = nullptr;
+  TGraphErrors**** g_AsymScramble  = nullptr;
+  TGraphPolar*** g_Polar          = nullptr;
+  int iPoint;
+  bool NewPoint;
 };
 
 #endif /* LOCALPOL_LOCALPOLMONDRAW_H */

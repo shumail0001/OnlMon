@@ -57,6 +57,7 @@ class LocalPolMon : public OnlMon
 
   TH1D **h_Counts         = nullptr;
   TH1D **h_CountsScramble = nullptr;
+
   
 };
     
