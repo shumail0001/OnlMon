@@ -50,15 +50,15 @@ int LocalPolMon::Init()
   
   const char* zdccalib=getenv("ZDCCALIB");
   if(!zdccalib){
-    std::cout<<"ZDCCALIB environment variable not set"<<std:endl;
+    std::cout<<"ZDCCALIB environment variable not set"<<std::endl;
     exit(1);
   }
   std::string calibfilename=std::string(zdccalib)+"/"+"SMDRelativeGain.dat";
   std::ifstream calibinput(calibfilename);
-  std::ostringstream msg(calib);
+  std::ostringstream msg(calibfilename);
 
   if(!calibinput){
-    msg<<calibinput<<" could not be openeds.";
+    msg<<calibfilename<<" could not be openeds.";
     se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL,msg.str(),2);
     exit(1);
   }
@@ -71,7 +71,7 @@ int LocalPolMon::Init()
     if(NS==0 && channel>=0 && channel <16)smd_north_rgain[channel]=gain;
     else if(NS==1 &&channel>=0 && channel <16) smd_south_rgain[channel]=gain;
     else {
-      msg<<calibinput<< "could not understand the content, expect int(0/1) int(0-15) float for North or South, channel number and relative gain";
+      msg<<calibfilename<< "could not understand the content, expect int(0/1) int(0-15) float for North or South, channel number and relative gain";
       se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL,msg.str(),2);
       exit(1);
     }
@@ -99,7 +99,7 @@ int LocalPolMon::Init()
   se->registerHisto(this, h_CountsScramble[3]);
 
   WaveformProcessingFast = new CaloWaveformFitting();
-
+  myRandomBunch=new TRandom(0);
   Reset();
   return 0;
 } 
@@ -108,6 +108,13 @@ int LocalPolMon::BeginRun(const int /* runno */)
 {
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
+
+  //Initialisation of the map (hopefully this step will not be required when gl1p scalers become available
+  for (int i = 0; i < 16; i++ ) { //16 triggers for gl1p 
+    for(int bunchnr=0; bunchnr<120; bunchnr++) gl1_counter[i][bunchnr]=0;
+    goodtrigger[i]=false; 
+  }
+  goodtrigger[10]=true;//In 2023, it was MBD N&S
   return 0;
 }
 
@@ -148,62 +155,86 @@ int LocalPolMon::process_event(Event *e /* evt */)
 	}
       }
     }
-    //delete bluepacket;
-    //delete yellpacket;
+    else{
+      //******* placeholder until html delivery from C-AD is available ***********
+      for(int i = 0; i< 120; i++){
+	if (i % 2 == 0)SpinPatterns[BLUE][i]=1;
+	else SpinPatterns[BLUE][i]=-1;
+	if (int(0.5*i) % 2 == 0)SpinPatterns[YELLOW][i]=1;
+	else SpinPatterns[YELLOW][i]=-1;
+	if(i>110){
+	  SpinPatterns[BLUE][i]=0;
+	  SpinPatterns[YELLOW][i]=0;
+	  if(first && (true /*abort gap def from HTML*/)){
+	    first=false;
+	    StartAbortGapPattern=i;
+	  }
+	}
+      }
+      // **************************************************************************
+    }
   }
   Packet* pgl1 = e->getPacket(packetid_gl1);
+
   //Here we do the magic to identify the abort gap
-  std::map<int, int> gl1_counter[16];
   std::vector<int> gap[16];
-  int begingap[16];
-  int endgap[16];
+  std::map<int, int> begingap;
+  std::map<int, int> endgap;
+
   if(pgl1){
-    //taken from SpinMon.cc
     int bunchnr = pgl1->lValue(0,"BunchNumber");
     for (int i = 0; i < 16; i++ ) { //16 triggers for gl1p 
-      int counts = pgl1->lValue(i,2); 
-      //update instead of add
-      gl1_counter[i][bunchnr]=counts; 
-    } 
+      //long long counts = pgl1->lValue(i,2); 
+      //gl1_counter[i][bunchnr]=counts; 
+
+      //With prdf pgl1->lValue(i,2); simply returns the current processed event number (which can shaddow the abort gap: the lagging bunch# at some point get back to the position of the others)
+      //So instead, we increment the number of processed events per bunch number, for the various triggers
+      gl1_counter[i][bunchnr]+=1;//(pgl1->lValue(i,2)>0)?1:0; 
+    }
   }
 
   //Here we do the matching to identify the crossing shift
-  if(evtcnt>120){//Do we need to somehow wait or from the first events the scalers for all bunches would be already filled?
+  if(evtcnt>6000){//Do we need to somehow wait or from the first events the scalers for all bunches would be already filled? Apparently at least 6,000 to start to see an abort gap with prdf...
     for(int i=0; i<16; i++){
+      if(!goodtrigger[i]) continue;
+      std::map<int, long long> tmpmap=gl1_counter[i];
       for(int emptyfill=0; emptyfill<9; emptyfill++){
-	gap[i].push_back(min_element(gl1_counter[i].begin(),gl1_counter[i].end(),[](const std::pair<int,int>&lhs, const std::pair<int,int>& rhs){return lhs.second<rhs.second;})->first);
-	gl1_counter[i].erase(gap[i].back());
+	int myminimum=min_element(tmpmap.begin(),tmpmap.end(),[](const std::pair<int,long long>&lhs, const std::pair<int,long long>& rhs){return lhs.second<rhs.second;})->first;
+	if(myminimum<111)gap[i].push_back(120+myminimum);
+	else gap[i].push_back(myminimum);
+	tmpmap.erase(myminimum);
       }
-      begingap[i]=*min_element(gap[i].begin(), gap[i].end());
-      endgap[i]  =*max_element(gap[i].begin(), gap[i].end());
-      if(endgap[i]-begingap[i]>9) std::cout<<" Weird abort gap is larger than 9 bunches "<<std::endl;
+      begingap[i]=(*min_element(gap[i].begin(), gap[i].end()));
+      endgap  [i]=(*max_element(gap[i].begin(), gap[i].end()));
+      if(endgap[i]-begingap[i]>9) std::cout<<" Weird abort gap is larger than 9 bunches "<<endgap[i]<<" - "<<begingap[i]<<" for trigger "<<i<<std::endl;
     }
-    for(int i=1; i<16; i++){
-      if(begingap[0]!=begingap[i]) std::cout<<" Weird abort gap not in the same location between trigger bit 0 and trigger bit "<<i<<std::endl;
+    for(auto ib=begingap.begin(); ib!=begingap.end(); ++ib){
+      if(begingap.begin()->second!=ib->second) std::cout<<" Weird abort gap not in the same location between trigger bit 0 and trigger bit "<<ib->second<<std::endl;
     }
-    StartAbortGapData=begingap[0];
+    StartAbortGapData=(begingap.begin()->second)%120;
   }
+  else StartAbortGapData=117;//default value
   CrossingShift=StartAbortGapPattern-StartAbortGapData;
+
   Packet* psmd = e->getPacket(packetid_smd);
   float smd_adc[32];
-  if (psmd && pgl1){
-    int bunchnr = pgl1->lValue(0,"BunchNumber");
-    for(int ch=16; ch<psmd->iValue(0,"CHANNELS"); ch++){
-      //First 16 channels are for the ZDC, the next channels are for the SMD
-      //float signalFast = anaWaveformFast(psmd, ch);  // fast waveform fitting
+  if (psmd){//&& pgl1){
+    //int bunchnr = pgl1->lValue(0,"BunchNumber");
+    int bunchnr = psmd->lValue(0,"BunchNumber")+15+myRandomBunch->Integer(4);
+
+    //for(int ch=16; ch<psmd->iValue(0,"CHANNELS"); ch++){
+    for(int ch=16; ch<47; ch++){//according to mapping in ZDC logbook entry #85 March 9th 2024 
       float signalFast = anaWaveformFast(psmd, ch);  // fast waveform fitting
-      //float signalFast = resultFast.at(0);
 
       //Scale according to relative gain calibration factor
       if(ch<32) smd_adc[ch-16]=signalFast*smd_north_rgain[ch-16];
       else smd_adc[ch-16]=signalFast*smd_south_rgain[ch-32];
     }
-
     float Weights[4]={0};
     memset(Weights, 0, sizeof(Weights));
     float AveragePosition[4]={0};
     memset(AveragePosition,0,sizeof(AveragePosition));
-
+    
     for(int ch=0; ch<8; ch++){
       Weights[0]         += smd_adc[ch];
       AveragePosition[0] += pitchY*(ch-nchannelsY/2)*smd_adc[ch];//North Y direction (Asym in blue)
@@ -215,12 +246,13 @@ int LocalPolMon::process_event(Event *e /* evt */)
       AveragePosition[1] += pitchX*(ch-nchannelsX/2)*smd_adc[ch+8];//North X direction (Asym in Blue)
       Weights[3]         += smd_adc[ch+24];
       AveragePosition[3] += pitchX*(ch-nchannelsX/2)*smd_adc[ch+24];//South X direction (Asym in Yellow)
-    }
 
+    }
+    
     for(int i=0; i<4; i++){
       if(Weights[i]>0.0) AveragePosition[i]/=Weights[i];
       else AveragePosition[i]=0.;
-      
+
       if(AveragePosition[i]<0){
 	// (i/2)=0 for blue beam, =1 for yellow beam
 	if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)>0) h_Counts[i]->Fill(3);//Right for pointing up
@@ -241,7 +273,12 @@ int LocalPolMon::process_event(Event *e /* evt */)
       }
     }
   }
-
+  //else{
+  //  std::cout<<"Did not retrieve all the information to enter the magic part of the code"<<std::endl;
+  //  std::cout<<"Pointer psmd= "<<psmd<<std::endl;
+  //  std::cout<<"Pointer pgl1= "<<pgl1<<std::endl;
+  //}
+  evtcnt++;
   return 0;
 
 }

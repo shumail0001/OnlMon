@@ -66,13 +66,16 @@ int LocalPolMonDraw::Init()
     g_Polar[beam] = new TGraphPolar*[2];
     for(int method=0; method<2; method++){
       g_Polar[beam][method]=new TGraphPolar();
-      g_Polar[beam][method]->SetName(Form("g_Polar%s%s",BeamName[beam].Data(),MethodName.Data()));
-      g_Asym[beam][method][orient]->SetMarkerStyle(kFullCircle);
-      g_Asym[beam][method][orient]->SetMarkerColor(kRed);
-      g_Asym[beam][method][orient]->SetLineColor(kRed);
+      g_Polar[beam][method]->SetName(Form("g_Polar%s%s",BeamName[beam].Data(),MethodName[method].Data()));
+      g_Polar[beam][method]->SetMarkerStyle(kFullCircle);
+      g_Polar[beam][method]->SetMarkerColor(kRed);
+      g_Polar[beam][method]->SetLineColor(kRed);
       g_Polar[beam][method]->SetPoint(0,0,0);
     }
   }
+  Pad=new TPad**[2];//Who is taking care of the deletion?
+  Pad[0]=new TPad*[16];
+  Pad[1]=new TPad*[4];
   
   NewPoint=false;
   return 0;
@@ -83,9 +86,6 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
-  Pad=new TPad*[2];//Who is taking care of the deletion?
-  Pad[0]=new TPad*[16];
-  Pad[1]=new TPad*[4];
   if (name == "LocalPolMon1")
   {
     // xpos (-1) negative: do not draw menu bar
@@ -190,8 +190,10 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
     TC[0]->SetEditable(false);
     return -1;
   }
-  if(h_Counts[0]->GetEntries()>5e7) NewPoint=true;
-  
+  //if(h_Counts[0]->GetEntries()>5e7) NewPoint=true;
+  if(h_Counts[0]->GetEntries()>5e3) NewPoint=true;
+  else std::cout<<"Currently only "<<h_Counts[0]->GetEntries()<<" hits, no accurate measurement"<<std::endl;
+
   for(int ibeam=0; ibeam<2; ibeam++){
     for(int orient=0; orient<2; orient++){
       
@@ -202,11 +204,11 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
       
       double* asymresult = ComputeAsymmetries(L_U, R_D, L_D, R_U);
       
-      g_Asym[ibeam][0][orient]->SetPoint(ipoint,evttime,asymresult[0]);
-      g_Asym[ibeam][0][orient]->SetPointError(ipoint,0,asymresult[1]);
+      g_Asym[ibeam][0][orient]->SetPoint(iPoint,evttime,asymresult[0]);
+      g_Asym[ibeam][0][orient]->SetPointError(iPoint,0,asymresult[1]);
 	
-      g_Asym[ibeam][1][orient]->SetPoint(ipoint,evttime,asymresult[2]);
-      g_Asym[ibeam][1][orient]->SetPointError(ipoint,0,asymresult[3]);
+      g_Asym[ibeam][1][orient]->SetPoint(iPoint,evttime,asymresult[2]);
+      g_Asym[ibeam][1][orient]->SetPointError(iPoint,0,asymresult[3]);
 
       
       L_U = h_CountsScramble[2*ibeam+orient]->GetBinContent(1);
@@ -216,11 +218,11 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
       
       double* scrambleresult = ComputeAsymmetries(L_U, R_D, L_D, R_U);
 	
-      g_AsymScramble[ibeam][0][orient]->SetPoint(ipoint,evttime,scrambleresult[0]);
-      g_AsymScramble[ibeam][0][orient]->SetPointError(ipoint,0,scrambleresult[1]);
+      g_AsymScramble[ibeam][0][orient]->SetPoint(iPoint,evttime,scrambleresult[0]);
+      g_AsymScramble[ibeam][0][orient]->SetPointError(iPoint,0,scrambleresult[1]);
 	
-      g_AsymScramble[ibeam][1][orient]->SetPoint(ipoint,evttime,scrambleresult[2]);
-      g_AsymScramble[ibeam][1][orient]->SetPointError(ipoint,0,scrambleresult[3]);
+      g_AsymScramble[ibeam][1][orient]->SetPoint(iPoint,evttime,scrambleresult[2]);
+      g_AsymScramble[ibeam][1][orient]->SetPointError(iPoint,0,scrambleresult[3]);
 
       delete asymresult;
       delete scrambleresult;
@@ -239,17 +241,18 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
     for(int orient=0; orient<2; orient++){
       for(int method=0; method<2; method++){
 	Pad[0][8*ibeam+2*method+orient]->cd();
-	gAsym[ibeam][method][orient]->Draw();
-	TH1F* hframe=gAsym[ibeam][method][orient]->GetHistogram();
+	g_Asym[ibeam][method][orient]->Draw("aep");
+	TH1F* hframe=g_Asym[ibeam][method][orient]->GetHistogram();
 	hframe->GetXaxis()->SetTimeDisplay(1);
 	hframe->GetXaxis()->SetTimeFormat("%H:%M%F1970-01-01 00:00:00s0");
-	hframe->GetXaxis()->SetNdivisions(507)
+	hframe->GetXaxis()->SetNdivisions(507);
+
 	Pad[0][8*ibeam+2*method+orient+4]->cd();
-	gAsymScramble[ibeam][method][orient]->Draw();
-	hframe=gAsymScramble[ibeam][method][orient]->GetHistogram();
+	g_AsymScramble[ibeam][method][orient]->Draw("aep");
+	hframe=g_AsymScramble[ibeam][method][orient]->GetHistogram();
 	hframe->GetXaxis()->SetTimeDisplay(1);
 	hframe->GetXaxis()->SetTimeFormat("%H:%M%F1970-01-01 00:00:00s0");
-	hframe->GetXaxis()->SetNdivisions(507)
+	hframe->GetXaxis()->SetNdivisions(507);
       }
     }
   }
@@ -262,7 +265,6 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  //time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -288,20 +290,21 @@ int LocalPolMonDraw::DrawSecond(const std::string & /* what */)
   for(int ibeam=0; ibeam<2; ibeam++){
     for(int method=0; method<2; method++){
       int N=g_Asym[ibeam][method][0]->GetN();
-      for(int i=0; i<N; i++){
-	double x=g_Asym[beam][method][0]->GetY()[i];
-	double y=g_Asym[beam][method][1]->GetY()[i];
-	double ex=g_Asym[beam][method][0]->GetEY()[i];
-	double ey=g_Asym[beam][method][1]->GetY()[i];
-	double theta=atan2(y,x);
-	double radius=sqrt(x*x+y*y);
-	double etheta=sqrt(y*y*ex*ex+x*x*ey*ey)/pow(radius,2);
-	double eradius=sqrt(x*x*ex*ex+y*y*ey*ey)/radius;
-	g_Polar[ibeam][method]->SetPoint(i+1,theta,radius);
-	g_Polar[ibeam][method]->SetPointError(i+1,etheta,eradius);
+         for(int i=0; i<N; i++){
+  	double x=g_Asym[ibeam][method][0]->GetY()[i];
+  	double y=g_Asym[ibeam][method][1]->GetY()[i];
+  	double ex=g_Asym[ibeam][method][0]->GetEY()[i];
+  	double ey=g_Asym[ibeam][method][1]->GetEY()[i];
+  	double theta=atan2(y,x);
+  	double radius=sqrt(x*x+y*y);
+  	double etheta=sqrt(y*y*ex*ex+x*x*ey*ey)/pow(radius,2);
+  	double eradius=sqrt(x*x*ex*ex+y*y*ey*ey)/radius;
+  	g_Polar[ibeam][method]->SetPoint(i+1,theta,radius);
+  	g_Polar[ibeam][method]->SetPointError(i+1,etheta,eradius);
       }
       Pad[1][2*method+ibeam]->cd();
-      g_Polar[ibeam][method]->Draw("ap");
+      g_Polar[ibeam][method]->Draw("ep");
+      Pad[1][2*method+ibeam]->Update();
       g_Polar[ibeam][method]->GetPolargram()->SetToRadian();
       g_Polar[ibeam][method]->GetPolargram()->SetRangeRadial(0.,0.1);
       g_Polar[ibeam][method]->GetPolargram()->SetNdivPolar(216);
@@ -392,7 +395,7 @@ int LocalPolMonDraw::MakeHtml(const std::string &what)
 
 
 
-double* LocalPolDraw::ComputeAsymmetries(double L_U, double R_D, double L_D, double R_U){
+double* LocalPolMonDraw::ComputeAsymmetries(double L_U, double R_D, double L_D, double R_U){
   double* result = new double[4];
       double leftA  = L_U+R_D;
       double rightA = L_D+R_U;
