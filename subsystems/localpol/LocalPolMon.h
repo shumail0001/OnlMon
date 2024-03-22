@@ -18,7 +18,7 @@ class TRandom;
 class LocalPolMon : public OnlMon
 {
  public:
-  LocalPolMon(const std::string &name = "LOCALPOLMON");
+  explicit LocalPolMon(const std::string &name = "LOCALPOLMON");
   virtual ~LocalPolMon();
 
   int process_event(Event *evt);

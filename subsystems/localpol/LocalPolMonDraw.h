@@ -15,7 +15,7 @@ class TPad;
 class LocalPolMonDraw : public OnlMonDraw
 {
  public:
-  LocalPolMonDraw(const std::string &name);
+  explicit LocalPolMonDraw(const std::string &name);
 
   ~LocalPolMonDraw() override {}
 
