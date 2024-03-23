@@ -21,6 +21,8 @@ class SpinMon : public OnlMon
   int BeginRun(const int runno);
   int Reset();
 
+  static const int NBUNCHES = 120;
+
   private:
     const int packet_BLUESPIN = 14902;
     const int packet_YELLSPIN = 14903;
