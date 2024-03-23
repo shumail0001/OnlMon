@@ -21,6 +21,11 @@ class SpinMon : public OnlMon
   int BeginRun(const int runno);
   int Reset();
 
+  private:
+    const int packet_BLUESPIN = 14902;
+    const int packet_YELLSPIN = 14903;
+    // const int packet_GL1 = 14001;
+
  protected:
   int evtcnt = 0;
 
