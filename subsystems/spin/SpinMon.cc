@@ -92,8 +92,8 @@ int SpinMon::process_event(Event *e /* evt */)
   
   if (e->getEvtType() == 9) //spin patterns stored in BeginRun event (9)
   {
-    pBlueSpin = evt->getPacket(packet_BLUESPIN);
-    pYellSpin = evt->getPacket(packet_YELLSPIN);
+    pBlueSpin = e->getPacket(packet_BLUESPIN);
+    pYellSpin = e->getPacket(packet_YELLSPIN);
     for (int i = 0; i < NBUNCHES; i++)
     {
       blueSpinPattern[i] = pBlueSpin->iValue(i);

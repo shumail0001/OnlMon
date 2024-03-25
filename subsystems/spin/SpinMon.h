@@ -25,7 +25,7 @@ class SpinMon : public OnlMon
 
   private:
 
-    Packet *p = nullptr;
+    // Packet *p = nullptr;
     Packet *pBlueSpin = nullptr;
     Packet *pYellSpin = nullptr;
 
