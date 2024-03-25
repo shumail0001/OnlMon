@@ -24,9 +24,18 @@ class SpinMon : public OnlMon
   static const int NBUNCHES = 120;
 
   private:
+
+    Packet *p = nullptr;
+    Packet *pBlueSpin = nullptr;
+    Packet *pYellSpin = nullptr;
+
     const int packet_BLUESPIN = 14902;
     const int packet_YELLSPIN = 14903;
     // const int packet_GL1 = 14001;
+
+
+    int blueSpinPattern[NBUNCHES] = {0};
+    int yellSpinPattern[NBUNCHES] = {0};
 
  protected:
   int evtcnt = 0;
