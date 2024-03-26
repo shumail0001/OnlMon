@@ -10,11 +10,12 @@
 class TCanvas;
 class TGraphErrors;
 class TPad;
+class TProfile;
 
 class CemcMonDraw : public OnlMonDraw
 {
  public:
-  CemcMonDraw(const std::string &name = "CEMCMON"); // same name as server!
+  explicit CemcMonDraw(const std::string &name = "CEMCMON"); // same name as server!
 
   ~CemcMonDraw() override {}
 
@@ -23,6 +24,7 @@ class CemcMonDraw : public OnlMonDraw
   int MakeHtml(const std::string &what = "ALL") override;
   int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
   void setSave(int s) {save = s;}
+  void HandleEvent(int event, int x, int y, TObject* sel);
 
  private:
   int MakeCanvas(const std::string &name);
@@ -30,6 +32,7 @@ class CemcMonDraw : public OnlMonDraw
   int DrawSecond(const std::string &what = "ALL");
   int DrawThird(const std::string &what = "ALL");
   int DrawFourth(const std::string &what = "ALL");
+  int DrawFifth(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
   int FindHotTower(TPad *warn,TH2* );
   time_t getTime();
@@ -41,12 +44,17 @@ class CemcMonDraw : public OnlMonDraw
   const int templateDepth=10000;
   int save = 0;
   TCanvas *TC[9] = {nullptr};
+  TCanvas *PopUpCanvas=nullptr;
   TPad *transparent[9] = {nullptr};
   TPad *Pad[18] = {nullptr};
   TPad *warning[18] = {nullptr};
+  TPad ***PopUpPad=nullptr;
+  TPad *PopUpTransparent=nullptr;
   TGraphErrors *gr[2] = {nullptr};
   TStyle* cemcStyle = nullptr;
-  const int nSEBs = 8;
+  TProfile*** summedProfile=nullptr;
+  TProfile*** AllProfiles=nullptr;
+  const int nSEBs = 1;
 };
 
 #endif /* CEMC_CEMCMONDRAW_H */

@@ -18,6 +18,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TProfile.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -170,10 +171,25 @@ int CemcMon::Init()
   se->registerHisto(this, h1_packet_chans);
   se->registerHisto(this, h1_cemc_adc);
   
+
+  
+
   for (int ih = 0; ih < Nsector; ih++)
     {
       se->registerHisto(this, h1_rm_sectorAvg[ih]);
     }
+
+  h2_waveform=new TProfile**[nPhiIndex];
+  for(int iphi=0; iphi<nPhiIndex; iphi++){
+    h2_waveform[iphi]=new TProfile*[nEtaIndex];
+    for(int ieta=0; ieta<nEtaIndex; ieta++){
+      h2_waveform[iphi][ieta]=new TProfile(Form("h2_waveform_phi%d_eta%d",iphi,ieta),Form("Profiled raw waveform for #phi %d and #eta %d",iphi,ieta),34, -0.5, 16.5, "s");
+      h2_waveform[iphi][ieta]->GetXaxis()->SetTitle("sample #");
+      h2_waveform[iphi][ieta]->GetYaxis()->SetTitle("ADC channel");
+      h2_waveform[iphi][ieta]->SetStats(false);
+      se->registerHisto(this, (TH1*)h2_waveform[iphi][ieta]);
+    }
+  }
 
   // make the per-packet runnumg mean objects
   for ( int i = 0; i < 64; i++)
@@ -327,22 +343,23 @@ int CemcMon::process_event(Event *e  /* evt */)
 	      float timeFast = resultFast.at(1);
 	      float pedestalFast = resultFast.at(2);
 	
-	      for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
-		{
-		  h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
-		}
 	      towerNumber++;
-	      
-	     
-	      
-	
-	
 	      // channel mapping
 	      unsigned int key = TowerInfoDefs::encode_emcal(towerNumber - 1);
 	      unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
 	      unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
 	      //std::cout << "ieta " << eta_bin << "  iphi " << phi_bin<< std::endl;
 	      int sectorNumber = phi_bin / 8 + 1;
+	      for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+		{
+		  h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
+		  h2_waveform[phi_bin][eta_bin]->Fill(s,p->iValue(s,c));//for the moment only for good packet and with signal (potentially also bad packet later, not sure for zero suppressed)
+		}
+	      
+	     
+	      
+	
+	
 	      h1_waveform_time->Fill(timeFast);
 	      h1_waveform_pedestal->Fill(pedestalFast);
 

@@ -11,13 +11,14 @@ class TowerInfoContainer;
 class Event;
 class TH1;
 class TH2;
+class TProfile;
 class Packet;
 class runningMean;
 
 class CemcMon : public OnlMon
 {
  public:
-  CemcMon(const std::string &name);
+  explicit CemcMon(const std::string &name);
   virtual ~CemcMon();
 
   int process_event(Event *evt);
@@ -43,6 +44,8 @@ class CemcMon : public OnlMon
   const int m_nSamples = 16;
   const int m_nChannels = 192;
   const int templateDepth = 10000;
+  const int nPhiIndex=256;
+  const int nEtaIndex=96;
   int eventCounter = 0;
   
   TH1* h1_packet_chans = nullptr;
@@ -60,6 +63,11 @@ class CemcMon : public OnlMon
   TH1* h1_sectorAvg_total = nullptr;
   TH1* h1_event = nullptr;
   TH1* h1_rm_sectorAvg[100] = {nullptr};
+  TProfile*** h2_waveform= {nullptr};
+  //TH2* h2_maximum= {nullptr};
+  //TH2* h2_timeAtMaximum= {nullptr};
+  //TH2* h2_pedestal= {nullptr};
+  //TH2* h2_saturating= {nullptr};
 
   std::vector<runningMean*> rm_vector_twr;
   std::vector<runningMean*> rm_vector_sectAvg;
