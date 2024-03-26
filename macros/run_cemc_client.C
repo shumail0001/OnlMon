@@ -12,7 +12,7 @@ void cemcDrawInit(const int online = 0)
   OnlMonClient *cl = OnlMonClient::instance();
   cl -> Verbosity(0);
   // register histos we want with monitor name
-  for (int serverid = 0; serverid <= 7; serverid++)
+  for (int serverid = 0; serverid <= 0; serverid++)
     {
       cl->registerHisto("h2_cemc_rm", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h2_cemc_mean", Form("CEMCMON_%d",serverid));
@@ -31,12 +31,18 @@ void cemcDrawInit(const int online = 0)
       for (int ih=0; ih<32; ih++){
 	cl->registerHisto(Form("h1_rm_sectorAvg_s%d",ih), Form("CEMCMON_%d",serverid));
       }
+      
+      for(int iphi=0; iphi<256; iphi++){
+	for(int ieta=0; ieta<96; ieta++){
+	  cl->registerHisto(Form("h2_waveform_phi%d_eta%d",iphi,ieta),Form("CEMCMON_%d",serverid));
+	}
+      }
     }
   CreateHostList(online);
   //  get my histos from server, the second parameter = 1
   //  says I know they are all on the same node
   //cl->requestHistoBySubSystem(Form("CEMCMON_%d",serverid), 1);
-  for(int i = 0; i <= 7; i++)
+  for(int i = 0; i <= 0; i++)
      {
        cl->requestHistoBySubSystem(Form("CEMCMON_%d",i), 1);
      }
@@ -48,7 +54,7 @@ void cemcDrawInit(const int online = 0)
 void cemcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  for(int i = 0; i <= 7; i++)
+  for(int i = 0; i <= 0; i++)
     {
       cl->requestHistoBySubSystem(Form("CEMCMON_%d",i), 1);
     }
