@@ -92,8 +92,8 @@ int SpinMon::process_event(Event *e /* evt */)
   //******* Spin patterns from Martin html delivery *******//
   //******* from BeginRun event *************
   
-  // if (e->getEvtType() == 9) //spin patterns stored in BeginRun event (9)
-  // {
+  if (e->getEvtType() == 9) //spin patterns stored in BeginRun event (9)
+  {
   //   pBlueSpin = e->getPacket(packet_BLUESPIN);
   //   pYellSpin = e->getPacket(packet_YELLSPIN);
   //   for (int i = 0; i < NBUNCHES; i++)
