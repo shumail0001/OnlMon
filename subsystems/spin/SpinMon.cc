@@ -130,7 +130,8 @@ int SpinMon::process_event(Event *e /* evt */)
       //int triggervec = p->lValue(0,"TriggerVector");
       int bunchnr = p->lValue(0,"BunchNumber");
       for (int i = 0; i < 16; i++ ) { //16 triggers for gl1p 
-        int counts = p->lValue(i,2); //scaled gl1 cnts. (change to cnts. on bunchnr crossng when implemented) 
+	//2nd arg of lValue: 0 is raw trigger count, 1 is live trigger count, 2 is scaled trigger count
+        int counts = p->lValue(i,1); //live gl1 cnts. (change to gl1p cnts. on bunchnr crossng when implemented) 
 	//update instead of add
         gl1_counter[i]->SetBinContent(bunchnr+1,counts); //update bin with new scaler info. instead of adding every evt
       }
