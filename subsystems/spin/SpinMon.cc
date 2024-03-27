@@ -103,7 +103,7 @@ int SpinMon::process_event(Event *e /* evt */)
     }
     delete pBlueSpin;
     delete pYellSpin;
-  }
+  
 
   
     // for (int i = 0; i < 120; i++)
@@ -135,7 +135,7 @@ int SpinMon::process_event(Event *e /* evt */)
     //   }
 
     // }
-  // }
+  }
 
   
   
