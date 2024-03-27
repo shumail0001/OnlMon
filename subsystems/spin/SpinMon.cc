@@ -94,47 +94,47 @@ int SpinMon::process_event(Event *e /* evt */)
   
   if (e->getEvtType() == 9) //spin patterns stored in BeginRun event (9)
   {
-  //   pBlueSpin = e->getPacket(packet_BLUESPIN);
-  //   pYellSpin = e->getPacket(packet_YELLSPIN);
-  //   for (int i = 0; i < NBUNCHES; i++)
-  //   {
-  //     blueSpinPattern[i] = pBlueSpin->iValue(i);
-  //     yellSpinPattern[i] = pYellSpin->iValue(i);
-  //   }
-  //   delete pBlueSpin;
-  //   delete pYellSpin;
-  // }
+    pBlueSpin = e->getPacket(packet_BLUESPIN);
+    pYellSpin = e->getPacket(packet_YELLSPIN);
+    for (int i = 0; i < NBUNCHES; i++)
+    {
+      blueSpinPattern[i] = pBlueSpin->iValue(i);
+      yellSpinPattern[i] = pYellSpin->iValue(i);
+    }
+    delete pBlueSpin;
+    delete pYellSpin;
+  }
 
   
-    for (int i = 0; i < 120; i++)
-    {
-      //******* placeholder until html delivery from C-AD is available ***********
-      int blue_up = 0;
-      int blue_down = 0;
-      int blue_unpol = 0;
-      int yellow_up = 0;
-      int yellow_down = 0;
-      int yellow_unpol = 0;
+    // for (int i = 0; i < 120; i++)
+    // {
+    //   //******* placeholder until html delivery from C-AD is available ***********
+    //   int blue_up = 0;
+    //   int blue_down = 0;
+    //   int blue_unpol = 0;
+    //   int yellow_up = 0;
+    //   int yellow_down = 0;
+    //   int yellow_unpol = 0;
 
-      if (i % 2 == 0) {blue_up = 1;}
-      else{blue_down = 1;}
+    //   if (i % 2 == 0) {blue_up = 1;}
+    //   else{blue_down = 1;}
       
-      if (int(0.5*i) % 2 == 0) {yellow_up = 1;}
-      else {yellow_down = 1;}
-      // **************************************************************************
+    //   if (int(0.5*i) % 2 == 0) {yellow_up = 1;}
+    //   else {yellow_down = 1;}
+    //   // **************************************************************************
       
-      if (i < 111)
-      {
-	      if (blue_up){spin_patternBlueUp->Fill(i,2);}
-	      if (blue_down){spin_patternBlueDown->Fill(i,2);}
-	      if (blue_unpol){spin_patternBlueUnpol->Fill(i,2);}
+    //   if (i < 111)
+    //   {
+	  //     if (blue_up){spin_patternBlueUp->Fill(i,2);}
+	  //     if (blue_down){spin_patternBlueDown->Fill(i,2);}
+	  //     if (blue_unpol){spin_patternBlueUnpol->Fill(i,2);}
 
-        if (yellow_up){spin_patternYellowUp->Fill(i,1);}
-        if (yellow_down){spin_patternYellowDown->Fill(i,1);}
-        if (yellow_unpol){spin_patternYellowUnpol->Fill(i,1);}
-      }
+    //     if (yellow_up){spin_patternYellowUp->Fill(i,1);}
+    //     if (yellow_down){spin_patternYellowDown->Fill(i,1);}
+    //     if (yellow_unpol){spin_patternYellowUnpol->Fill(i,1);}
+    //   }
 
-    }
+    // }
   }
 
   
