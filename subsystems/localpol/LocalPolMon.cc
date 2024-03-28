@@ -19,6 +19,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TRandom.h>
+#include <TString.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -45,8 +46,66 @@ LocalPolMon::~LocalPolMon()
 
 int LocalPolMon::Init()
 {
-	
   OnlMonServer *se = OnlMonServer::instance();
+  const char* locpolcal=getenv("LOCALPOLCALIB");
+  if(!locpolcal){
+    std::cout<<"LOCALPOLCALIB environment variable not set"<<std::endl;
+    exit(1);
+  }
+  std::string lpconfigfilename=std::string(locpolcal)+"/"+"LocPolConfig.dat";
+  std::ifstream config(lpconfigfilename);
+  std::ostringstream msg_config(lpconfigfilename);
+
+  if(!config){
+    msg_config<<lpconfigfilename<<" could not be openeds.";
+    se->send_message(this, MSG_SOURCE_LOCALPOL, MSG_SEV_FATAL,msg_config.str(),2);
+    exit(1);
+  }
+  int err_counter=0;
+  TString key;
+  int  val;
+  while(!config.eof()){
+    config>>key>>val;
+    if(!config.good())break;
+    key.ToLower();
+    if(key=="trigger"){
+      for(int i=0; i<16; i++){
+	goodtrigger[i]=false;
+	if((val&(1<<i))){
+	  goodtrigger[i]=true;
+	}
+      }
+    }
+    else if(key=="testfake"){
+      if(val==1){
+	fake=true;
+      }
+      else fake=false;
+    }
+    else if(key=="sphenixgap"){
+      if(val>=0 && val<120){
+	ExpectedsPhenixGapPosition=val; 
+      }
+    }
+    else if(key=="threshold"){
+      if(val>0&&val<1e5)EventCountThresholdGap=val;
+    }
+    else if(key=="verbosity"){
+      if(val==1) {
+	std::cout<<"Making it verbose"<<std::endl;
+	verbosity=true;
+      }
+    }
+    else{
+      err_counter++;
+      std::cout<<"Unknown configuration \n Expected: verbosity, threshold, sphenixgap, testfake or trigger key words"<<std::endl;
+    }
+    if(err_counter>3){
+      std::cout<<"More than 3 unknown key words, abort"<<std::endl;
+      exit(1);
+    } 
+  }
+
   
   const char* zdccalib=getenv("ZDCCALIB");
   if(!zdccalib){
@@ -112,9 +171,12 @@ int LocalPolMon::BeginRun(const int /* runno */)
   //Initialisation of the map (hopefully this step will not be required when gl1p scalers become available
   for (int i = 0; i < 16; i++ ) { //16 triggers for gl1p 
     for(int bunchnr=0; bunchnr<120; bunchnr++) gl1_counter[i][bunchnr]=0;
-    goodtrigger[i]=false; 
+    if(verbosity) {
+      std::cout<<goodtrigger[15-i]; 
+    }
   }
-  goodtrigger[10]=true;//In 2023, it was MBD N&S
+  if(verbosity)std::cout<<"\n";
+  //goodtrigger[10]=true;//In 2023, it was MBD N&S
   return 0;
 }
 
@@ -146,10 +208,13 @@ int LocalPolMon::process_event(Event *e /* evt */)
     Packet* bluepacket = e->getPacket(14902);
     Packet* yellpacket = e->getPacket(14903);
     if(bluepacket && yellpacket){
+      if(verbosity){
+	std::cout<<"Initiating spin pattern from CAD\n";
+      }
       for(int i = 0; i< 120; i++){
 	SpinPatterns[BLUE][i]=bluepacket->iValue(i);
 	SpinPatterns[YELLOW][i]=yellpacket->iValue(i);
-	if(first && (true /*abort gap def from HTML*/)){
+	if(first && (true /*abort gap def test*/)){
 	  first=false;
 	  StartAbortGapPattern=i;
 	}
@@ -157,6 +222,9 @@ int LocalPolMon::process_event(Event *e /* evt */)
     }
     else{
       //******* placeholder until html delivery from C-AD is available ***********
+      if(verbosity){
+	std::cout<<"Initiating spin pattern from Dummy\n";
+      }
       for(int i = 0; i< 120; i++){
 	if (i % 2 == 0)SpinPatterns[BLUE][i]=1;
 	else SpinPatterns[BLUE][i]=-1;
@@ -194,7 +262,7 @@ int LocalPolMon::process_event(Event *e /* evt */)
   }
 
   //Here we do the matching to identify the crossing shift
-  if(evtcnt>6000){//Do we need to somehow wait or from the first events the scalers for all bunches would be already filled? Apparently at least 6,000 to start to see an abort gap with prdf...
+  if(evtcnt>EventCountThresholdGap){//Do we need to somehow wait or from the first events the scalers for all bunches would be already filled? Apparently at least 6,000 to start to see an abort gap with prdf...
     for(int i=0; i<16; i++){
       if(!goodtrigger[i]) continue;
       std::map<int, long long> tmpmap=gl1_counter[i];
@@ -213,16 +281,16 @@ int LocalPolMon::process_event(Event *e /* evt */)
     }
     StartAbortGapData=(begingap.begin()->second)%120;
   }
-  else StartAbortGapData=117;//default value
+  else StartAbortGapData=ExpectedsPhenixGapPosition;//default value from config
   CrossingShift=StartAbortGapPattern-StartAbortGapData;
-
+  if(verbosity)std::cout<<"Crossing shift: "<<CrossingShift<<" = ( "<<StartAbortGapPattern<<" - "<<StartAbortGapData<<" )\n";
   Packet* psmd = e->getPacket(packetid_smd);
   float smd_adc[32];
-  if (psmd){//&& pgl1){
-    //int bunchnr = pgl1->lValue(0,"BunchNumber");
-    int bunchnr = psmd->lValue(0,"BunchNumber")+15+myRandomBunch->Integer(4);
+  if (psmd){
 
-    //for(int ch=16; ch<psmd->iValue(0,"CHANNELS"); ch++){
+    int bunchnr = psmd->lValue(0,"BunchNumber");
+    if(fake) bunchnr +=15+myRandomBunch->Integer(4);
+
     for(int ch=16; ch<47; ch++){//according to mapping in ZDC logbook entry #85 March 9th 2024 
       float signalFast = anaWaveformFast(psmd, ch);  // fast waveform fitting
 
@@ -273,11 +341,13 @@ int LocalPolMon::process_event(Event *e /* evt */)
       }
     }
   }
-  //else{
-  //  std::cout<<"Did not retrieve all the information to enter the magic part of the code"<<std::endl;
-  //  std::cout<<"Pointer psmd= "<<psmd<<std::endl;
-  //  std::cout<<"Pointer pgl1= "<<pgl1<<std::endl;
-  //}
+  else{
+    if(verbosity){
+      std::cout<<"Did not retrieve all the information to enter the magic part of the code"<<std::endl;
+      if(!psmd) std::cout<<"Missing ZDC/SMD packet "<<packetid_smd<<std::endl;
+      if(!pgl1) std::cout<<"Missing GL1 packet "<<packetid_gl1<<std::endl;
+    }
+  }
   evtcnt++;
   return 0;
 

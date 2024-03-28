@@ -1,0 +1,5 @@
+trigger 1024
+testfake 1
+sphenixgap 117
+threshold 6000
+verbosity 0
