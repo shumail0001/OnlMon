@@ -496,7 +496,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   // Array that holds pointer to the histogram of each channel
-  TH1* smd_adc_n_hor_ind[8] = {nullptr};
+  TH1 *smd_adc_n_hor_ind[8] = {nullptr};
   for (int i = 0; i < 8; ++i) 
   {
     char histName[256]; // string
@@ -504,7 +504,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
     smd_adc_n_hor_ind[i] = cl->getHisto("ZDCMON_0", histName); // Retrieve histogram pointer using 'histName'
   }
   // Array that holds pointer to the histogram of each channel
-  TH1* smd_adc_n_ver_ind[7] = {nullptr};
+  TH1 *smd_adc_n_ver_ind[7] = {nullptr};
   for (int i = 0; i < 7; ++i) 
   {
     char histName[256]; // string
