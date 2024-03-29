@@ -12,6 +12,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TH2I.h>
+#include <TProfile.h>
 #include <TLegend.h>
 #include <TPad.h>
 #include <TROOT.h>
@@ -38,33 +39,23 @@ LocalPolMonDraw::LocalPolMonDraw(const std::string &name)
 
 int LocalPolMonDraw::Init()
 {
-  iPoint=0;
-
-  //histograms to store the number of counts already taken into account in the graphs
-  h_PreviousCounts         = new TH1D*[4];
-  h_PreviousCountsScramble = new TH1D*[4];
-  
-  h_PreviousCounts[0]         = new TH1D("h_PreviousBlueCountsUD","h_BlueCountsUD",4,0,4);
-  h_PreviousCounts[1]         = new TH1D("h_PreviousBlueCountsLR","h_BlueCountsLR",4,0,4);
-  h_PreviousCounts[2]         = new TH1D("h_PreviousYellCountsUD","h_YellCountsUD",4,0,4);
-  h_PreviousCounts[3]         = new TH1D("h_PreviousYellCountsLR","h_YellCountsLR",4,0,4);
-  h_PreviousCountsScramble[0] = new TH1D("h_PreviousBlueCountsScrambleUD","h_BlueCountsScrambleUD",4,0,4);
-  h_PreviousCountsScramble[1] = new TH1D("h_PreviousBlueCountsScrambleLR","h_BlueCountsScrambleLR",4,0,4);
-  h_PreviousCountsScramble[2] = new TH1D("h_PreviousYellCountsScrambleUD","h_YellCountsScrambleUD",4,0,4);
-  h_PreviousCountsScramble[3] = new TH1D("h_PreviousYellCountsScrambleLR","h_YellCountsScrambleLR",4,0,4);
-
-
   g_Asym         = new TGraphErrors***[2];
   g_AsymScramble = new TGraphErrors***[2];
+  h_Asym         = new TH1D***[2];
+  h_ScrambleAsym = new TH1D***[2];
   TString BeamName[2]={"Blue","Yell"};
   TString MethodName[2]={"Arithmetic","Geometric"};
   TString Orientation[2]={"LR","UD"};
   for(int beam=0; beam<2; beam++){
     g_Asym[beam]         = new TGraphErrors**[2];
     g_AsymScramble[beam] = new TGraphErrors**[2];
+    h_Asym[beam]         = new TH1D**[2];
+    h_ScrambleAsym[beam] = new TH1D**[2];
     for(int method=0; method<2; method++){
       g_Asym[beam][method]        =new TGraphErrors*[2];
       g_AsymScramble[beam][method]=new TGraphErrors*[2];
+      h_Asym[beam][method]        =new TH1D*[2];
+      h_ScrambleAsym[beam][method]=new TH1D*[2];
       for(int orient=0; orient<2; orient++){
 	//Since root badely handle the associated histograms for drawing the frame, ending up in instabilities and crashes
 	//Poor alternative for the moment, to create Fresh TGraph each time we need
@@ -92,9 +83,6 @@ int LocalPolMonDraw::Init()
   Pad[0]=new TPad*[16];
   Pad[1]=new TPad*[4];
 
-  NewPoint=false;
-  OnlMonClient *cl = OnlMonClient::instance();
-  myRun=cl->RunNumber();
   return 0;
 }
 
@@ -174,17 +162,6 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   time_t evttime = cl->EventTime("CURRENT");
-  TH1D* h_Counts[4];
-  TH1D* h_CountsScramble[4];
-  h_Counts[0] = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_BlueCountsUD");
-  h_Counts[1] = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_BlueCountsLR");
-  h_Counts[2] = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_YellCountsUD");
-  h_Counts[3] = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_YellCountsLR");
-
-  h_CountsScramble[0] = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_BlueCountsScrambleUD");
-  h_CountsScramble[1] = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_BlueCountsScrambleLR");
-  h_CountsScramble[2] = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_YellCountsScrambleUD");
-  h_CountsScramble[3] = (TH1D*)cl->getHisto("LOCALPOLMON_0","h_YellCountsScrambleLR");
 
   if (!gROOT->FindObject("LocalPolMon1"))
   {
@@ -193,76 +170,28 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   gStyle->SetOptStat(0);
-  //gStyle->SetLabelSize(0.5,"X");
   bool IsGood=true;
-  for(int i=0; i<4; i++){
-    if (!h_Counts[i]){
-      IsGood=false;
-      std::cout<<"Histogram h_Counts["<<i<<"] is not defined"<<std::endl;
-    }
-    if (!h_CountsScramble[i]){
-      IsGood=false;
-      std::cout<<"Histogram h_CountsScramble["<<i<<"] is not defined"<<std::endl;
+  TString BeamName[2]={"Blue","Yell"};
+  TString MethodName[2]={"Arithmetic","Geometric"};
+  TString Orientation[2]={"LR","UD"};
+  for(int ibeam=0; ibeam<2; ibeam++){
+    for(int method=0; method<2; method++){
+      for(int orient=0; orient<2; orient++){
+	h_Asym[ibeam][method][orient]=(TH1D*)cl->getHisto("LOCALPOLMON_0",Form("h_Asym%s%s%s",BeamName[ibeam].Data(),MethodName[method].Data(),Orientation[orient].Data()));
+	if(!h_Asym[ibeam][method][orient]) IsGood=false;
+	h_ScrambleAsym[ibeam][method][orient]=(TH1D*)cl->getHisto("LOCALPOLMON_0",Form("h_AsymScramble%s%s%s",BeamName[ibeam].Data(),MethodName[method].Data(),Orientation[orient].Data()));
+	if(!h_ScrambleAsym[ibeam][method][orient]) IsGood=false;
+      }
     }
   }
+  TProfile* h_times=(TProfile*)cl->getHisto("LOCALPOLMON_0","h_times");
+  if(!h_times)IsGood=false;
   if(!IsGood){
     DrawDeadServer(transparent[0]);
     TC[0]->SetEditable(false);
     return -1;
   }
-  if(h_Counts[0]->GetEntries()-h_PreviousCounts[0]->GetEntries()>thresholdNewPoint){//To be tuned by config file
-    NewPoint=true;
-  }
-  else if (myRun!=cl->RunNumber()){
-    std::cout<<"New Run or new Files, reset counter"<<std::endl;
-    for(int ihisto=0; ihisto<4; ihisto++){
-      h_PreviousCounts[ihisto]->Reset();
-      h_PreviousCountsScramble[ihisto]->Reset();
-    }
-    myRun=cl->RunNumber();
-  }
-  else{
-    std::cout<<"Currently only "<<h_Counts[0]->GetEntries()-h_PreviousCounts[0]->GetEntries() <<" hits, no accurate measurement "<<std::endl;
-  }
 
-  for(int ibeam=0; ibeam<2; ibeam++){
-    for(int orient=0; orient<2; orient++){
-
-      double L_U = h_Counts[2*ibeam+orient]->GetBinContent(1) - h_PreviousCounts[2*ibeam+orient]->GetBinContent(1);
-      double R_D = h_Counts[2*ibeam+orient]->GetBinContent(2) - h_PreviousCounts[2*ibeam+orient]->GetBinContent(2);
-      double L_D = h_Counts[2*ibeam+orient]->GetBinContent(3) - h_PreviousCounts[2*ibeam+orient]->GetBinContent(3);
-      double R_U = h_Counts[2*ibeam+orient]->GetBinContent(4) - h_PreviousCounts[2*ibeam+orient]->GetBinContent(4);
-      
-      double* asymresult = ComputeAsymmetries(L_U, R_D, L_D, R_U);
-      if(!asymresult[1]) continue;//Most likely only needed for offline use, we have a new point but no additional data=> so let us not add this dummy zero here
-      m_time[iPoint]=evttime;
-      m_asym[ibeam][0][orient][iPoint]=asymresult[0];
-      m_easym[ibeam][0][orient][iPoint]=asymresult[1];
-	
-      m_asym[ibeam][1][orient][iPoint]=asymresult[2];
-      m_easym[ibeam][1][orient][iPoint]=asymresult[3];
-
-      
-      L_U = h_CountsScramble[2*ibeam+orient]->GetBinContent(1) - h_PreviousCountsScramble[2*ibeam+orient]->GetBinContent(1);
-      R_D = h_CountsScramble[2*ibeam+orient]->GetBinContent(2) - h_PreviousCountsScramble[2*ibeam+orient]->GetBinContent(2);
-      L_D = h_CountsScramble[2*ibeam+orient]->GetBinContent(3) - h_PreviousCountsScramble[2*ibeam+orient]->GetBinContent(3);
-      R_U = h_CountsScramble[2*ibeam+orient]->GetBinContent(4) - h_PreviousCountsScramble[2*ibeam+orient]->GetBinContent(4);
-      
-      double* scrambleresult = ComputeAsymmetries(L_U, R_D, L_D, R_U);
-	
-      m_fasym[ibeam][0][orient][iPoint]=scrambleresult[0];
-      m_efasym[ibeam][0][orient][iPoint]=scrambleresult[1];
-	
-      m_fasym[ibeam][1][orient][iPoint]=scrambleresult[2];
-      m_efasym[ibeam][1][orient][iPoint]=scrambleresult[3];
-
-      delete asymresult;
-      delete scrambleresult;
-    }
-  }
-  TString BeamName[2]={"Blue","Yell"};
-  TString MethodName[2]={"Arithmetic","Geometric"};
-  TString Orientation[2]={"LR","UD"};
   for(int ibeam=0; ibeam<2; ibeam++){
     for(int orient=0; orient<2; orient++){
       for(int method=0; method<2; method++){
@@ -287,13 +216,16 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
 	g_AsymScramble[ibeam][method][orient]->SetMarkerColor(kGray);
 	g_AsymScramble[ibeam][method][orient]->SetLineColor(kGray);
 	g_AsymScramble[ibeam][method][orient]->SetTitle(Form("Unpol %s %s %s Asym.",BeamName[ibeam].Data(),Orientation[orient].Data(),MethodName[method].Data()));
-	int N=m_time.size();
+
+	int N=h_times->GetNbinsX();
 	for(int i=0; i<N; i++){
-	  g_Asym[ibeam][method][orient]->SetPoint(i,m_time[i],m_asym[ibeam][method][orient][i]);
-	  g_Asym[ibeam][method][orient]->SetPointError(i,0,m_easym[ibeam][method][orient][i]);
+	  if(h_Asym[ibeam][method][orient]->GetBinError(i+1)==0)break;
+	  g_Asym[ibeam][method][orient]->SetPoint(i,h_times->GetBinContent(i+1),h_Asym[ibeam][method][orient]->GetBinContent(i+1));
+	  g_Asym[ibeam][method][orient]->SetPointError(i,h_times->GetBinError(i+1),h_Asym[ibeam][method][orient]->GetBinError(i+1));
 	  
-	  g_AsymScramble[ibeam][method][orient]->SetPoint(i,m_time[i],m_fasym[ibeam][method][orient][i]);
-	  g_AsymScramble[ibeam][method][orient]->SetPointError(i,0,m_efasym[ibeam][method][orient][i]);
+	  g_AsymScramble[ibeam][method][orient]->SetPoint(i,h_times->GetBinContent(i+1),h_ScrambleAsym[ibeam][method][orient]->GetBinContent(i+1));
+	  g_AsymScramble[ibeam][method][orient]->SetPointError(i,h_times->GetBinError(i+1),h_ScrambleAsym[ibeam][method][orient]->GetBinError(i+1));
+	  m_time[i]=(long int)h_times->GetBinContent(i+1);
 	}
       }
     }
@@ -323,14 +255,6 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
   hscrambleframe=new TH1F("locpolscrambleframe","",100,start,stop);
   hscrambleframe->SetStats(kFALSE);
   
-  if(NewPoint){
-    NewPoint=false;
-    iPoint++;
-    for(int i=0; i<4; i++){
-      h_PreviousCounts[i]->Add(h_Counts[i]);
-      h_PreviousCountsScramble[i]->Add(h_CountsScramble[i]);
-    }
-  }
   gStyle->SetTitleFontSize(0.1);
   gStyle->SetTitleBorderSize(0);
   gStyle->SetTitleFillColor(kWhite);
@@ -446,7 +370,24 @@ int LocalPolMonDraw::DrawSecond(const std::string & /* what */)
     }
   }
 
-
+  bool IsGood=true;
+  for(int ibeam=0; ibeam<2; ibeam++){
+    for(int method=0; method<2; method++){
+      for(int orient=0; orient<2; orient++){
+	h_Asym[ibeam][method][orient]=(TH1D*)cl->getHisto("LOCALPOLMON_0",Form("h_Asym%s%s%s",BeamName[ibeam].Data(),MethodName[method].Data(),Orientation[orient].Data()));
+	if(!h_Asym[ibeam][method][orient]) IsGood=false;
+	h_ScrambleAsym[ibeam][method][orient]=(TH1D*)cl->getHisto("LOCALPOLMON_0",Form("h_AsymScramble%s%s%s",BeamName[ibeam].Data(),MethodName[method].Data(),Orientation[orient].Data()));
+	if(!h_ScrambleAsym[ibeam][method][orient]) IsGood=false;
+      }
+    }
+  }
+  TProfile* h_times=(TProfile*)cl->getHisto("LOCALPOLMON_0","h_times");
+  if(!h_times)IsGood=false;
+  if(!IsGood){
+    DrawDeadServer(transparent[0]);
+    TC[1]->SetEditable(false);
+    return -1;
+  }
   gStyle->SetTitleBorderSize(0);
   gStyle->SetTitleFillColor(kWhite);
   gROOT->ForceStyle();
@@ -457,12 +398,12 @@ int LocalPolMonDraw::DrawSecond(const std::string & /* what */)
   PrintTitle.SetTextAlign(23);  // center/top alignment
   for(int ibeam=0; ibeam<2; ibeam++){
     for(int method=0; method<2; method++){
-      int N=m_asym[ibeam][method][0].size();
+      int N=h_Asym[ibeam][method][0]->GetNbinsX();
       for(int i=0; i<N; i++){
-  	double x=m_asym[ibeam][method][1][i];//left right
-  	double y=m_asym[ibeam][method][0][i];//top-bottom
-  	double ex=m_asym[ibeam][method][1][i];
-  	double ey=m_asym[ibeam][method][0][i];
+  	double x =h_Asym[ibeam][method][1]->GetBinContent(i+1);//left right
+  	double y =h_Asym[ibeam][method][0]->GetBinContent(i+1);//top-bottom
+  	double ex=h_Asym[ibeam][method][1]->GetBinError(i+1);
+  	double ey=h_Asym[ibeam][method][0]->GetBinError(i+1);
   	double theta=atan2(y,x);
   	double radius=sqrt(x*x+y*y);
 	if(radius<1e-7){
@@ -562,34 +503,4 @@ int LocalPolMonDraw::MakeHtml(const std::string &what)
   out2.close();
   cl->SaveLogFile(*this);
   return 0;
-}
-
-
-
-double* LocalPolMonDraw::ComputeAsymmetries(double L_U, double R_D, double L_D, double R_U){
-  double* result = new double[4];
-      double leftA  = L_U+R_D;
-      double rightA = L_D+R_U;
-      double tmpNumA = leftA-rightA;
-      double tmpDenA = leftA+rightA;
-      result[0] = 0;
-      result[1] = 0;
-	
-      if(tmpDenA>0){
-	result[0] = tmpNumA/tmpDenA;
-	result[1] = 2*sqrt(pow(rightA,2)*leftA+pow(leftA,2)*rightA)/pow(tmpDenA,2);      
-      }
-	
-      double leftG = sqrt(L_U*R_D);
-      double rightG= sqrt(L_D*R_U);
-      double tmpNumG = leftG-rightG;
-      double tmpDenG = leftG+rightG;
-      result[2] = 0;
-      result[3] = 0;
-	
-      if(tmpDenG>0){
-	result[2] = tmpNumG/tmpDenG;
-	result[3] = sqrt(pow(rightG,2)*leftA+pow(leftG,2)*rightA)/pow(tmpDenG,2);
-      }
-      return result;
 }

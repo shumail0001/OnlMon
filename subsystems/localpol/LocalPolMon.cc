@@ -18,10 +18,12 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TProfile.h>
 #include <TRandom.h>
 #include <TString.h>
 
 #include <cmath>
+#include <ctime>
 #include <cstdio>  // for printf
 #include <fstream>
 #include <iostream>
@@ -46,6 +48,11 @@ LocalPolMon::~LocalPolMon()
 
 int LocalPolMon::Init()
 {
+  iPoint=0;
+  for (int i = 0; i < 16; i++ ) { //16 triggers for gl1p 
+    goodtrigger[i]=false; 
+  }
+  goodtrigger[10]=true; 
   OnlMonServer *se = OnlMonServer::instance();
   const char* locpolcal=getenv("LOCALPOLCALIB");
   if(!locpolcal){
@@ -63,37 +70,164 @@ int LocalPolMon::Init()
   }
   int err_counter=0;
   TString key;
-  int  val;
+  TString  val;
   while(!config.eof()){
     config>>key>>val;
+    std::cout<<"Config in "<<config.good()<<" state\n";
     if(!config.good())break;
     key.ToLower();
+    std::cout<<"Reading "<<key<<" with value "<<val<<std::endl;
     if(key=="trigger"){
-      for(int i=0; i<16; i++){
-	goodtrigger[i]=false;
-	if((val&(1<<i))){
-	  goodtrigger[i]=true;
+      if(!val.IsDigit()){
+	std::cout<<key<<": expecting an integer (2^(trigger bit number))\n keep only bit 10 as default value.\n";
+	goodtrigger[10]=true;
+      }
+      else {
+	int ival=val.Atoi();
+	if(ival<0||ival>65535){
+	  std::cout<<key<<": value outside expected range [0; 65535]\n Keep only bit 10 as default value.\n";
+	  goodtrigger[10]=true;
+	}
+	else{
+	  for(int i=0; i<16; i++){
+	    goodtrigger[i]=false;
+	    if((ival&(1<<i))){
+	      goodtrigger[i]=true;
+	    }
+	  }
 	}
       }
     }
     else if(key=="testfake"){
-      if(val==1){
-	fake=true;
+      if(!val.IsDigit()){
+	std::cout<<key<<": expecting 0/1 for true or false\n Keep false as default.\n";
+	fake=false;
       }
-      else fake=false;
+      else{
+	int ival=val.Atoi();
+	if(ival!=0 && ival!=1){
+	  std::cout<<key<<": expecting 0/1 for true or false\n Keep false as default.\n";
+	  fake=false;
+	}
+	else{
+	  if(ival==1){
+	    fake=true;
+	  }
+	  else fake=false;
+	}
+      }
     }
     else if(key=="sphenixgap"){
-      if(val>=0 && val<120){
-	ExpectedsPhenixGapPosition=val; 
+      if(!val.IsDigit()){
+	std::cout<<key<<": expecting an integer as the first bunch number of the continuous gap sequence\n Keep 117 as default.\n";
+	ExpectedsPhenixGapPosition=117;
+      }
+      else{
+	int ival=val.Atoi();
+	if(ival>=0 && ival<120){
+	  ExpectedsPhenixGapPosition=ival; 
+	}
+	else{
+	  std::cout<<key<<": value outside expected range [0;119]\n Keep 117 as default value\n";
+	  ExpectedsPhenixGapPosition=117; 
+	}
       }
     }
     else if(key=="threshold"){
-      if(val>0&&val<1e5)EventCountThresholdGap=val;
+      if(!val.IsDigit()){
+	std::cout<<key<<": expecting a positive integer\n Keep 6000 as default value\n";
+	EventCountThresholdGap=6000;
+      }
+      else{
+	int ival=val.Atoi();
+	if(ival>0&&ival<1e5)EventCountThresholdGap=ival;
+	else{
+	  std::cout<<key<<": integer seems too big (>1e5)\n Keep default 6000\n";
+	  EventCountThresholdGap=6000;
+	}
+      }
     }
     else if(key=="verbosity"){
-      if(val==1) {
-	std::cout<<"Making it verbose"<<std::endl;
-	verbosity=true;
+      if(!val.IsDigit()){
+	std::cout<<key<<": expecting 0/1 for false or true\n Keep 0(false) as default\n";
+	verbosity=false;
+      }
+      else{
+	int ival=val.Atoi();
+	if(ival!=0 && ival!=1){
+	  std::cout<<key<<": value should be 0 or 1 for false of true\n Keep 0(false) as default\n";
+	  verbosity=false;
+	}
+	else if(ival==1) {
+	  std::cout<<"Making it verbose"<<std::endl;
+	  verbosity=true;
+	}
+      }
+    }
+    else if(key=="x0north"){
+      if(val.IsFloat()){
+	if(val.Atof()<-3. || val.Atof()>3.){
+	  std::cout<<key<<": value outside the expected range [-3.;3]cm\n keeping 0.0 as default value."<<std::endl;
+	}
+	else{
+	  ZeroPosition[1]=val.Atof();
+	}
+      }
+      else{
+	std::cout<<key<<": value is not a float\n keeping 0.0 as default value"<<std::endl;
+	ZeroPosition[1]=0.;
+      }
+    }
+    else if(key=="y0north"){
+      if(val.IsFloat()){
+	if(val.Atof()<-3. || val.Atof()>3.){
+	  std::cout<<key<<": value outside the expected range [-3.;3]cm\n keeping 0.0 as default value."<<std::endl;
+	}
+	else{
+	  ZeroPosition[0]=val.Atof();
+	}
+      }
+      else{
+	std::cout<<key<<": value is not a float\n keeping 0.0 as default value"<<std::endl;
+	ZeroPosition[0]=0.;
+      }
+      
+    }
+    else if(key=="x0south"){
+      if(val.IsFloat()){
+	if(val.Atof()<-3. || val.Atof()>3.){
+	  std::cout<<key<<": value outside the expected range [-3.;3]cm\n keeping 0.0 as default value."<<std::endl;
+	}
+	else{
+	  ZeroPosition[3]=val.Atof();
+	}
+      }
+      else{
+	std::cout<<key<<": value is not a float\n keeping 0.0 as default value"<<std::endl;
+	ZeroPosition[3]=0.;
+      }      
+    }
+    else if(key=="y0south"){
+      if(val.IsFloat()){
+	if(val.Atof()<-3. || val.Atof()>3.){
+	  std::cout<<key<<": value outside the expected range [-3.;3]cm\n keeping 0.0 as default value."<<std::endl;
+	}
+	else{
+	  ZeroPosition[2]=val.Atof();
+	}
+      }
+      else{
+	std::cout<<key<<": value is not a float\n keeping 0.0 as default value"<<std::endl;
+	ZeroPosition[2]=0.;
+      }      
+    }
+    else if(key=="thresholdasymnewpoint"){
+      if(!val.IsDigit()){
+	std::cout<<key<<": value is expected to be a positive integer\n Keeping default value of 5000 events."<<std::endl;
+      }
+      else{
+	std::cout<<key<<"Changed from "<<EventsAsymmetryNewPoint<<" to "<<val.Atoi()<<std::endl;
+	EventsAsymmetryNewPoint=val.Atoi();
       }
     }
     else{
@@ -148,14 +282,30 @@ int LocalPolMon::Init()
   h_CountsScramble[2] = new TH1D("h_YellCountsScrambleUD","h_YellCountsScrambleUD",4,0,4);
   h_CountsScramble[3] = new TH1D("h_YellCountsScrambleLR","h_YellCountsScrambleLR",4,0,4);
 
-  se->registerHisto(this, h_Counts        [0]);
-  se->registerHisto(this, h_Counts        [1]);
-  se->registerHisto(this, h_Counts        [2]);
-  se->registerHisto(this, h_Counts        [3]);
-  se->registerHisto(this, h_CountsScramble[0]);
-  se->registerHisto(this, h_CountsScramble[1]);
-  se->registerHisto(this, h_CountsScramble[2]);
-  se->registerHisto(this, h_CountsScramble[3]);
+  h_time = new TProfile("h_times","h_time",5000,-0.5,4999.5);
+  se->registerHisto(this, h_time);
+
+
+  TString BeamName[2]={"Blue","Yell"};
+  TString MethodName[2]={"Arithmetic","Geometric"};
+  TString Orientation[2]={"LR","UD"};
+  h_Asym         = new TH1D***[2];
+  h_AsymScramble = new TH1D***[2];
+  for(int beam=0; beam<2; beam++){
+    h_Asym[beam]         = new TH1D**[2];
+    h_AsymScramble[beam] = new TH1D**[2];
+    for(int method=0; method<2; method++){
+      h_Asym[beam][method]        =new TH1D*[2];
+      h_AsymScramble[beam][method]=new TH1D*[2];
+      for(int orient=0; orient<2; orient++){
+	h_Asym[beam][method][orient]         = new TH1D(Form("h_Asym%s%s%s",BeamName[beam].Data(),MethodName[method].Data(),Orientation[orient].Data()),Form("Fwd %s %s %s Asym.",BeamName[beam].Data(),Orientation[orient].Data(),MethodName[method].Data()),5000,-0.5,4999.5);
+	h_AsymScramble[beam][method][orient] = new TH1D(Form("h_AsymScramble%s%s%s",BeamName[beam].Data(),MethodName[method].Data(),Orientation[orient].Data()),Form("Bck %s %s %s Asym.",BeamName[beam].Data(),Orientation[orient].Data(),MethodName[method].Data()),5000,-0.5,4999.5);
+
+	se->registerHisto(this,h_Asym[beam][method][orient]);
+	se->registerHisto(this,h_AsymScramble[beam][method][orient]);
+      }
+    }
+  }
 
   WaveformProcessingFast = new CaloWaveformFitting();
   myRandomBunch=new TRandom(0);
@@ -196,8 +346,8 @@ float LocalPolMon::anaWaveformFast(Packet *p, const int channel)
 
   std::vector<float> result;
   result = fitresults_zdc.at(0);
-  return result.at(0);
-  //return result;
+  return result.at(0)-result.at(1);//check whether it is really - pedestal
+
 }
 
 int LocalPolMon::process_event(Event *e /* evt */)
@@ -261,7 +411,9 @@ int LocalPolMon::process_event(Event *e /* evt */)
     }
   }
 
-  //Here we do the matching to identify the crossing shift
+
+
+  /******Here we do the matching to identify the crossing shift   ******************/
   if(evtcnt>EventCountThresholdGap){//Do we need to somehow wait or from the first events the scalers for all bunches would be already filled? Apparently at least 6,000 to start to see an abort gap with prdf...
     for(int i=0; i<16; i++){
       if(!goodtrigger[i]) continue;
@@ -284,6 +436,10 @@ int LocalPolMon::process_event(Event *e /* evt */)
   else StartAbortGapData=ExpectedsPhenixGapPosition;//default value from config
   CrossingShift=StartAbortGapPattern-StartAbortGapData;
   if(verbosity)std::cout<<"Crossing shift: "<<CrossingShift<<" = ( "<<StartAbortGapPattern<<" - "<<StartAbortGapData<<" )\n";
+  /************* end of crossing shift *********************/
+
+
+
   Packet* psmd = e->getPacket(packetid_smd);
   float smd_adc[32];
   if (psmd){
@@ -305,23 +461,23 @@ int LocalPolMon::process_event(Event *e /* evt */)
     
     for(int ch=0; ch<8; ch++){
       Weights[0]         += smd_adc[ch];
-      AveragePosition[0] += pitchY*(ch-nchannelsY/2)*smd_adc[ch];//North Y direction (Asym in blue)
+      AveragePosition[0] += ConversionSign[0]*pitchY*(ch-nchannelsY/2)*smd_adc[ch];//North Y direction (Asym in blue)
       Weights[2]         += smd_adc[ch+16];
-      AveragePosition[2] += pitchY*(ch-nchannelsY/2)*smd_adc[ch+16];//South Y direction (Asym in Yellow)
+      AveragePosition[2] += ConversionSign[2]*pitchY*(ch-nchannelsY/2)*smd_adc[ch+16];//South Y direction (Asym in Yellow)
 
       if(ch==7) continue;
       Weights[1]         += smd_adc[ch+8];
-      AveragePosition[1] += pitchX*(ch-nchannelsX/2)*smd_adc[ch+8];//North X direction (Asym in Blue)
+      AveragePosition[1] += ConversionSign[1]*pitchX*(ch-nchannelsX/2)*smd_adc[ch+8];//North X direction (Asym in Blue)
       Weights[3]         += smd_adc[ch+24];
-      AveragePosition[3] += pitchX*(ch-nchannelsX/2)*smd_adc[ch+24];//South X direction (Asym in Yellow)
-
+      AveragePosition[3] += ConversionSign[3]*pitchX*(ch-nchannelsX/2)*smd_adc[ch+24];//South X direction (Asym in Yellow)
     }
     
     for(int i=0; i<4; i++){
       if(Weights[i]>0.0) AveragePosition[i]/=Weights[i];
-      else AveragePosition[i]=0.;
+      //else AveragePosition[i]=0.;
+      else continue;//most likely the most appropriate
 
-      if(AveragePosition[i]<0){
+      if(AveragePosition[i]<ZeroPosition[i]){
 	// (i/2)=0 for blue beam, =1 for yellow beam
 	if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)>0) h_Counts[i]->Fill(3);//Right for pointing up
 	else if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)<0) h_Counts[i]->Fill(1);//Left for pointing down
@@ -340,15 +496,59 @@ int LocalPolMon::process_event(Event *e /* evt */)
 	else if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)<0) h_CountsScramble[i]->Fill(2);//Right for pointing down
       }
     }
+    h_time->Fill(iPoint,e->getTime());
   }
   else{
     if(verbosity){
       std::cout<<"Did not retrieve all the information to enter the magic part of the code"<<std::endl;
-      if(!psmd) std::cout<<"Missing ZDC/SMD packet "<<packetid_smd<<std::endl;
+      std::cout<<"Missing ZDC/SMD packet "<<packetid_smd<<std::endl;
       if(!pgl1) std::cout<<"Missing GL1 packet "<<packetid_gl1<<std::endl;
     }
   }
   evtcnt++;
+
+  /**** Compute asymmetries if we have enough events ****************/
+  if(evtcnt%EventsAsymmetryNewPoint==0){
+    
+    for(int ibeam=0; ibeam<2; ibeam++){
+      for(int orient=0; orient<2; orient++){
+	
+	double L_U = h_Counts[2*ibeam+orient]->GetBinContent(1);
+	double R_D = h_Counts[2*ibeam+orient]->GetBinContent(2);
+	double L_D = h_Counts[2*ibeam+orient]->GetBinContent(3);
+	double R_U = h_Counts[2*ibeam+orient]->GetBinContent(4);
+	if(L_U<0){
+	  std::cout<<iPoint<<" "<<evtcnt<<" "<<h_Counts[2*ibeam+orient]->GetEntries()<<" "<<std::endl;
+	}
+	double* asymresult = ComputeAsymmetries(L_U, R_D, L_D, R_U);
+	
+	h_Asym[ibeam][0][orient]->SetBinContent(iPoint+1,asymresult[0]);
+	h_Asym[ibeam][0][orient]->SetBinError(iPoint+1,asymresult[1]);
+	
+	h_Asym[ibeam][1][orient]->SetBinContent(iPoint+1,asymresult[2]);
+	h_Asym[ibeam][1][orient]->SetBinError(iPoint+1,asymresult[3]);
+
+	L_U = h_CountsScramble[2*ibeam+orient]->GetBinContent(1);
+	R_D = h_CountsScramble[2*ibeam+orient]->GetBinContent(2);
+	L_D = h_CountsScramble[2*ibeam+orient]->GetBinContent(3);
+	R_U = h_CountsScramble[2*ibeam+orient]->GetBinContent(4);
+      
+	double* scrambleresult = ComputeAsymmetries(L_U, R_D, L_D, R_U);
+	
+	h_AsymScramble[ibeam][0][orient]->SetBinContent(iPoint+1,scrambleresult[0]);
+	h_AsymScramble[ibeam][0][orient]->SetBinError(iPoint+1,scrambleresult[1]);
+	
+	h_AsymScramble[ibeam][1][orient]->SetBinContent(iPoint+1,scrambleresult[2]);
+	h_AsymScramble[ibeam][1][orient]->SetBinError(iPoint+1,scrambleresult[3]);
+
+	delete asymresult;
+	delete scrambleresult;
+      }
+    }
+    //Now that everything has been calculated, let move to the next point for next event
+    iPoint++;
+  }
+
   return 0;
 
 }
@@ -357,5 +557,39 @@ int LocalPolMon::Reset()
 {
   // reset our internal counters
   evtcnt = 0;
+  iPoint = 0;
+  for(int i=0; i<4; i++){
+    h_Counts[i]->Reset();
+    h_CountsScramble[i]->Reset();
+  }
+  h_time->Reset();
   return 0;
+}
+
+double* LocalPolMon::ComputeAsymmetries(double L_U, double R_D, double L_D, double R_U){
+  double* result = new double[4];
+      double leftA  = L_U+R_D;
+      double rightA = L_D+R_U;
+      double tmpNumA = leftA-rightA;
+      double tmpDenA = leftA+rightA;
+      result[0] = 0;
+      result[1] = 0;
+	
+      if(tmpDenA>0){
+	result[0] = tmpNumA/tmpDenA;
+	result[1] = 2*sqrt(pow(rightA,2)*leftA+pow(leftA,2)*rightA)/pow(tmpDenA,2);      
+      }
+	
+      double leftG = sqrt(L_U*R_D);
+      double rightG= sqrt(L_D*R_U);
+      double tmpNumG = leftG-rightG;
+      double tmpDenG = leftG+rightG;
+      result[2] = 0;
+      result[3] = 0;
+	
+      if(tmpDenG>0){
+	result[2] = tmpNumG/tmpDenG;
+	result[3] = sqrt(pow(rightG,2)*leftA+pow(leftG,2)*rightA)/pow(tmpDenG,2);
+      }
+      return result;
 }
