@@ -112,7 +112,7 @@ int ZdcMon::Init()
   
   // smd
   // Individual SMD_ADC Values
-  for(int i=0;i<8;i++)
+  for(int i=0; i<8; i++)
   {
     char hname[256],htitle[256]; // Strings with plenty of characters for names and titles
     // North Horizongal
@@ -165,18 +165,18 @@ int ZdcMon::Init()
   se->registerHisto(this, zdc_adc_north );
   se->registerHisto(this, zdc_adc_south );
   
-  // SMD
-  // Individual smd_adc channel histos
-  for(int i=0; i<8;i++)
-  {
-    se->registerHisto(this, smd_adc_n_hor_ind[i]);
-    se->registerHisto(this, smd_adc_s_hor_ind[i]);
-  }
-  for(int i=0; i<7;i++)
-  {
-    se->registerHisto(this, smd_adc_n_ver_ind[i]);
-    se->registerHisto(this, smd_adc_s_ver_ind[i]);
-  }
+  // // SMD
+  // // Individual smd_adc channel histos
+  // for(int i = 0; i < 8 ;i++)
+  // {
+  //   se->registerHisto(this, smd_adc_n_hor_ind[i]);
+  //   se->registerHisto(this, smd_adc_s_hor_ind[i]);
+  // }
+  // for(int i = 0; i < 7; i++)
+  // {
+  //   se->registerHisto(this, smd_adc_n_ver_ind[i]);
+  //   se->registerHisto(this, smd_adc_s_ver_ind[i]);
+  // }
 
   // north SMD
   se->registerHisto(this, smd_hor_north);
