@@ -516,7 +516,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   TC[4]->Clear("D");
   Pad[21]->cd();
 
-  // VERTICAL AND HORIZONTAL NORTH (good and small)
+
   if (smd_adc_n_hor_ind[0])
   {
     smd_adc_n_hor_ind[0]->DrawCopy();
@@ -527,15 +527,15 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
     TC[4]->SetEditable(false);
     return -1;
   }
-  for (int i = 0; i < 8; ++i)
+  for (int i = 1; i < 8; ++i)
   {
-    Pad[22 + i]->cd();
+    Pad[21 + i]->cd();
     if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
   }
 
-  for (int i = 0; i <= 8; ++i)
+  for (int i = 0; i < 7; ++i)
   {
-    Pad[30 + i]->cd();
+    Pad[29 + i]->cd();
     if (smd_adc_n_ver_ind[i]) {smd_adc_n_ver_ind[i]->DrawCopy();}
   }
 
