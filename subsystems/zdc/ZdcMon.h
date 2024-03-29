@@ -36,6 +36,12 @@ class ZdcMon : public OnlMon
   TH1 *zdc_adc_north = nullptr;
   TH1 *zdc_adc_south = nullptr;
   // smd
+  // Individual Channels
+  TH1 * smd_adc_n_hor_ind[8];
+  TH1 * smd_adc_s_hor_ind[8];
+  TH1 * smd_adc_n_ver_ind[7];
+  TH1 * smd_adc_s_ver_ind[7];
+
   // north smd
   TH1 *smd_hor_north = nullptr;
   TH1 *smd_ver_north = nullptr;
