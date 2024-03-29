@@ -156,7 +156,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SmdAdcNorthIndividual")
   {
     // xpos negative: do not draw menu bar
-    TC[4] = new TCanvas(name.c_str(), "SMD ADC Individual values", 0 , 0, xsize, ysize);
+    TC[4] = new TCanvas(name.c_str(), "SMD ADC Individual values", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
     gSystem->ProcessEvents();
     //  North Horizontal
 
@@ -218,6 +218,12 @@ int ZdcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SMDN&S")
   {
     iret += DrawSmdNorthandSouth(what);
+    idraw++;
+  }
+
+  if (what == "ALL" || what == "SMD_N_IND")
+  {
+    iret += DrawSmdAdcIndividual(what);
     idraw++;
   }
 
@@ -490,7 +496,6 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   // Array that holds pointer to the histogram of each channel
-  TH1* smd_adc_n_hor_ind[8] = {nullptr};
   for (int i = 0; i < 8; ++i) 
   {
     char histName[256]; // string
@@ -498,7 +503,6 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
     smd_adc_n_hor_ind[i] = cl->getHisto("ZDCMON_0", histName); // Retrieve histogram pointer using 'histName'
   }
   // Array that holds pointer to the histogram of each channel
-  TH1* smd_adc_n_ver_ind[7] = {nullptr};
   for (int i = 0; i < 7; ++i) 
   {
     char histName[256]; // string
@@ -527,6 +531,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
     TC[4]->SetEditable(false);
     return -1;
   }
+
   for (int i = 1; i < 8; ++i)
   {
     Pad[21 + i]->cd();
