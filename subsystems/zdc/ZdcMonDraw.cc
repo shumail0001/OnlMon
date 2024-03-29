@@ -517,9 +517,9 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   Pad[21]->cd();
 
   // VERTICAL AND HORIZONTAL NORTH (good and small)
-  if (smd_adc_n_hor_ind0)
+  if (smd_adc_n_hor_ind[0])
   {
-    smd_adc_n_hor_ind0->DrawCopy();
+    smd_adc_n_hor_ind[0]->DrawCopy();
   }
   else
   {
