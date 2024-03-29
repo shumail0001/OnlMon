@@ -131,11 +131,11 @@ int ZdcMon::Init()
     // North Vertical
     sprintf(htitle,"SMD ADC North (Vertical) %d", (i+8) );
     sprintf(hname,"smd_adc_n_ver_ind_%d", (i+8) );
-    smd_adc_n_hor_ind[i]=new TH1F(hname, htitle, 1000, 0, 5000 );
+    smd_adc_n_ver_ind[i]=new TH1F(hname, htitle, 1000, 0, 5000 );
     // South Vertical
     sprintf(htitle,"SMD ADC South (Vertical) PMT %d", (i+24) );
     sprintf(hname,"smd_adc_s_ver_ind_%d", (i+24) );
-    smd_adc_s_hor_ind[i]=new TH1F(hname, htitle, 1000, 0, 5000 );
+    smd_adc_s_ver_ind[i]=new TH1F(hname, htitle, 1000, 0, 5000 );
   }
 
   // north smd
