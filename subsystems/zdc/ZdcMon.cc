@@ -312,23 +312,23 @@ int ZdcMon::process_event(Event *e /* evt */)
     for ( int i = 0; i < 8; i++)
     {
       if ( smd_adc[i] > 8 ) {n_hor ++;}
-      // smd_adc_n_hor_ind[i]->Fill(smd_adc[i]);
+      smd_adc_n_hor_ind[i]->Fill(smd_adc[i]);
     }
     for ( int i = 0; i < 7; i++)
     {
       if ( smd_adc[i + 8] > 5 ) {n_ver ++;}
-      // smd_adc_n_ver_ind[i]->Fill(smd_adc[i + 8]);
+      smd_adc_n_ver_ind[i]->Fill(smd_adc[i + 8]);
     }
 
     for ( int i = 0; i < 8; i++)
     {
       if ( smd_adc[i + 16] > 8 ) {s_hor++;}
-      // smd_adc_s_hor_ind[i]->Fill(smd_adc[i + 16]);
+      smd_adc_s_hor_ind[i]->Fill(smd_adc[i + 16]);
     }
     for ( int i = 0; i < 7; i++)
     {
       if ( smd_adc[i + 24] > 5 ) {s_ver++;}
-      // smd_adc_s_ver_ind[i]->Fill(smd_adc[i + 24]);
+      smd_adc_s_ver_ind[i]->Fill(smd_adc[i + 24]);
     }
 
     bool fired_smd_hor_n = (n_hor  > 1);
