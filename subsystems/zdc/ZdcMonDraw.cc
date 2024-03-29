@@ -221,11 +221,11 @@ int ZdcMonDraw::Draw(const std::string &what)
     idraw++;
   }
 
-  if (what == "ALL" || what == "SMD_N_IND")
-  {
-    iret += DrawSmdAdcNorthIndividual(what);
-    idraw++;
-  }
+  // if (what == "ALL" || what == "SMD_N_IND")
+  // {
+  //   iret += DrawSmdAdcNorthIndividual(what);
+  //   idraw++;
+  // }
 
   if (!idraw)
   {
