@@ -21,7 +21,7 @@ void zdcDrawInit(const int online = 0)
   {
     char titleNorth[256], titleSouth[256];
     sprintf(titleNorth, "smd_adc_n_hor_ind%d", i);
-    sprintf(titleSouth, "smd_adc_s_hor_ind%d" (i + 16));
+    sprintf(titleSouth, "smd_adc_s_hor_ind%d", (i + 16));
 
     cl->registerHisto(titleNorth, "ZDCMON_0");
     cl->registerHisto(titleSouth, "ZDCMON_0");
@@ -30,7 +30,7 @@ void zdcDrawInit(const int online = 0)
   {
     char titleNorth[256], titleSouth[256];
     sprintf(titleNorth, "smd_adc_n_ver_ind%d", (i + 8));
-    sprintf(titleSouth, "smd_adc_s_ver_ind%d" (i + 24));
+    sprintf(titleSouth, "smd_adc_s_ver_ind%d", (i + 24));
 
     cl->registerHisto(titleNorth, "ZDCMON_0");
     cl->registerHisto(titleSouth, "ZDCMON_0");
