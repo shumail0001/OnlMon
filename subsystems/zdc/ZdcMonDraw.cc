@@ -156,7 +156,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SmdAdcNorthIndividual")
   {
     // xpos negative: do not draw menu bar
-    TC[4] = new TCanvas(name.c_str(), "SMD ADC Individual values", 0 , 0, xsize, ysize / 2);
+    TC[4] = new TCanvas(name.c_str(), "SMD ADC Individual values", 0 , 0, xsize, ysize);
     gSystem->ProcessEvents();
     //  North Horizontal
 
@@ -523,7 +523,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   }
   else
   {
-    DrawDeadServer(transparent[3]);
+    DrawDeadServer(transparent[4]);
     TC[4]->SetEditable(false);
     return -1;
   }
