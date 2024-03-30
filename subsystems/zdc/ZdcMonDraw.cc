@@ -494,10 +494,10 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
 int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  smd_adc_n_hor_ind[0] = cl->getHisto("ZDCMON_0", "smd_adc_n_hor_ind0");
+  
   // Array that holds pointer to the histogram of each channel
   TH1 *smd_adc_n_hor_ind[8] = {nullptr};
-
+  smd_adc_n_hor_ind[0] = cl->getHisto("ZDCMON_0", "smd_adc_n_hor_ind0");
   for (int i = 1; i < 8; ++i) 
   {
     char histName[256]; // string
