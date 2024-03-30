@@ -171,19 +171,19 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     Pad[26] = new TPad("smd_adc_n_hor5", "smd_adc_n_hor5", 0.26, 0.50, 0.50, 0.74, 0);
     Pad[27] = new TPad("smd_adc_n_hor6", "smd_adc_n_hor6", 0.50, 0.50, 0.74, 0.74, 0);
     Pad[28] = new TPad("smd_adc_n_hor7", "smd_adc_n_hor7", 0.74, 0.50, 0.98, 0.74, 0);
-    // // Third Line
-    // Pad[29] = new TPad("smd_adc_n_ver8", "smd_adc_n_ver8", 0.02, 0.26, 0.26, 0.50, 0);
-    // Pad[30] = new TPad("smd_adc_n_ver9", "smd_adc_n_ver9", 0.26, 0.26, 0.50, 0.50, 0);
-    // Pad[31] = new TPad("smd_adc_n_ver10", "smd_adc_n_ver10", 0.50, 0.26, 0.74, 0.50, 0);
-    // Pad[32] = new TPad("smd_adc_n_ver11", "smd_adc_n_ver11", 0.74, 0.26, 0.98, 0.50, 0);
-    // // Fourth Line
-    // Pad[33] = new TPad("smd_adc_n_ver12", "smd_adc_n_ver12", 0.02, 0.02, 0.26, 0.26, 0);
-    // Pad[34] = new TPad("smd_adc_n_ver13", "smd_adc_n_ver13", 0.26, 0.02, 0.50, 0.26, 0);
-    // Pad[35] = new TPad("smd_adc_n_ver14", "smd_adc_n_ver14", 0.50, 0.02, 0.74, 0.26, 0);
+    // Third Line
+    Pad[29] = new TPad("smd_adc_n_ver8", "smd_adc_n_ver8", 0.02, 0.26, 0.26, 0.50, 0);
+    Pad[30] = new TPad("smd_adc_n_ver9", "smd_adc_n_ver9", 0.26, 0.26, 0.50, 0.50, 0);
+    Pad[31] = new TPad("smd_adc_n_ver10", "smd_adc_n_ver10", 0.50, 0.26, 0.74, 0.50, 0);
+    Pad[32] = new TPad("smd_adc_n_ver11", "smd_adc_n_ver11", 0.74, 0.26, 0.98, 0.50, 0);
+    // Fourth Line
+    Pad[33] = new TPad("smd_adc_n_ver12", "smd_adc_n_ver12", 0.02, 0.02, 0.26, 0.26, 0);
+    Pad[34] = new TPad("smd_adc_n_ver13", "smd_adc_n_ver13", 0.26, 0.02, 0.50, 0.26, 0);
+    Pad[35] = new TPad("smd_adc_n_ver14", "smd_adc_n_ver14", 0.50, 0.02, 0.74, 0.26, 0);
     
     Pad[21]->Draw();
 
-    for (int i = 21; i < 29; i++) {Pad[i]->Draw();}
+    for (int i = 21; i < 36; i++) {Pad[i]->Draw();}
 
 
     // this one is used to plot the run number on the canvas
@@ -542,11 +542,11 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
     if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
   }
 
-  // for (int i = 0; i < 7; ++i)
-  // {
-  //   Pad[29 + i]->cd();
-  //   if (smd_adc_n_ver_ind[i]) {smd_adc_n_ver_ind[i]->DrawCopy();}
-  // }
+  for (int i = 0; i < 7; ++i)
+  {
+    Pad[29 + i]->cd();
+    if (smd_adc_n_ver_ind[i]) {smd_adc_n_ver_ind[i]->DrawCopy();}
+  }
 
 
   TText PrintRun;
