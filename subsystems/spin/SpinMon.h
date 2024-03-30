@@ -22,7 +22,7 @@ class SpinMon : public OnlMon
   int BeginRun(const int runno);
   int Reset();
 
-  static const int NTRIG = 16;
+  // static const int NTRIG = 16;
   static const int NBUNCHES = 120; // OG is 120
 
   private:
