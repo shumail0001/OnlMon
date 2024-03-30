@@ -16,7 +16,7 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("zdc_adc_south","ZDCMON_0");
   
 
-  cl->registerHisto(smd_adc_n_hor_ind[0], "smd_adc_n_hor_ind0", "ZDCMON_0");
+  cl->registerHisto("smd_adc_n_hor_ind0", "ZDCMON_0");
   // smd
   // Individual smd_adc channel histos
   
