@@ -507,16 +507,12 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   {
     smd_adc_n_hor_ind[i] = (TH1*)cl->getHisto("ZDCMON_0", Form("smd_adc_n_hor_ind%d", i)); // Retrieve histogram pointer using 'histName'
   }
-  // // Array that holds pointer to the histogram of each channel
-  // TH1 *smd_adc_n_ver_ind[7] = {nullptr};
-  // for (int i = 0; i < 7; ++i) 
-  // {
-  //   char histName[256]; // string
-  //   sprintf(histName, "smd_adc_n_ver_ind%d", (i + 8) ); // Create the histogram name with the loop index 'i'
-  //   smd_adc_n_ver_ind[i] = cl->getHisto("ZDCMON_0", histName); // Retrieve histogram pointer using 'histName'
-  // }
-  
+  for (int i = 0; i < 7; ++i) 
+  {
+    smd_adc_n_ver_ind[i] = (TH1*)cl->getHisto("ZDCMON_0", Form("smd_adc_n_ver_ind%d", i)); // Retrieve histogram pointer using 'histName'
+  }
 
+  
   if (!gROOT->FindObject("SmdAdcNorthIndividual"))
   {
     MakeCanvas("SmdAdcNorthIndividual");
