@@ -315,7 +315,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     for ( int i = 0; i < 8; i++)
     {
       if ( smd_adc[i] > 8 ) {n_hor ++;}
-      smd_adc_n_hor_ind[i]->Fill(smd_adc[i]);
+      smd_adc_n_hor_ind0->Fill(smd_adc[i]);
     }
     for ( int i = 0; i < 7; i++)
     {
