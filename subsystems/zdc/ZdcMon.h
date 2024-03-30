@@ -38,6 +38,7 @@ class ZdcMon : public OnlMon
   
   // smd
   // Individual Channels
+  TH1 * smd_adc_n_hor_ind0 = nullptr;
   TH1 * smd_adc_n_hor_ind[8] = {nullptr};
   TH1 * smd_adc_s_hor_ind[8] = {nullptr};
   TH1 * smd_adc_n_ver_ind[7] = {nullptr};

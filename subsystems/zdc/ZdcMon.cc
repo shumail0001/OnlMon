@@ -110,33 +110,34 @@ int ZdcMon::Init()
   zdc_adc_north = new TH1F("zdc_adc_north", "ZDC ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
   zdc_adc_south = new TH1F("zdc_adc_south", "ZDC ADC south", BIN_NUMBER, 0, MAX_ENERGY2);
   
+  smd_adc_n_hor_ind0 = new TH1F(hname, htitle, 1000, 0, 5000 );
   // smd
   // Individual SMD_ADC Values
-  for(int i=0; i<8; i++)
-  {
-    char hname[256],htitle[256]; // Strings with plenty of characters for names and titles
-    // North Horizongal
-    sprintf(htitle,"SMD ADC North (Horizontal) %d",i);
-    sprintf(hname,"smd_adc_n_hor_ind_%d",i);
-    smd_adc_n_hor_ind[i] = new TH1F(hname, htitle, 1000, 0, 5000 );
-    // South Horizontal
-    sprintf(htitle,"SMD ADC South PMT %d",(i + 16) );
-    sprintf(hname,"smd_adc_s_hor_ind_%d", (i + 16) );
-    smd_adc_s_hor_ind[i] = new TH1F(hname, htitle, 1000, 0, 5000 );
-  }
+  // for(int i=0; i<8; i++)
+  // {
+  //   char hname[256],htitle[256]; // Strings with plenty of characters for names and titles
+  //   // North Horizongal
+  //   sprintf(htitle,"SMD ADC North (Horizontal) %d",i);
+  //   sprintf(hname,"smd_adc_n_hor_ind_%d",i);
+  //   smd_adc_n_hor_ind[i] = new TH1F(hname, htitle, 1000, 0, 5000 );
+  //   // South Horizontal
+  //   sprintf(htitle,"SMD ADC South PMT %d",(i + 16) );
+  //   sprintf(hname,"smd_adc_s_hor_ind_%d", (i + 16) );
+  //   smd_adc_s_hor_ind[i] = new TH1F(hname, htitle, 1000, 0, 5000 );
+  // }
   // Individual SMD_ADC Values
-  for(int i = 0; i < 7; i++)
-  {
-    char hname[256],htitle[256]; // Strings with plenty of characters for names and titles
-    // North Vertical
-    sprintf(htitle,"SMD ADC North (Vertical) %d", (i+8) );
-    sprintf(hname,"smd_adc_n_ver_ind_%d", (i+8) );
-    smd_adc_n_ver_ind[i]=new TH1F(hname, htitle, 1000, 0, 5000 );
-    // South Vertical
-    sprintf(htitle,"SMD ADC South (Vertical) PMT %d", (i+24) );
-    sprintf(hname,"smd_adc_s_ver_ind_%d", (i+24) );
-    smd_adc_s_ver_ind[i]=new TH1F(hname, htitle, 1000, 0, 5000 );
-  }
+  // for(int i = 0; i < 7; i++)
+  // {
+  //   char hname[256],htitle[256]; // Strings with plenty of characters for names and titles
+  //   // North Vertical
+  //   sprintf(htitle,"SMD ADC North (Vertical) %d", (i+8) );
+  //   sprintf(hname,"smd_adc_n_ver_ind_%d", (i+8) );
+  //   smd_adc_n_ver_ind[i]=new TH1F(hname, htitle, 1000, 0, 5000 );
+  //   // South Vertical
+  //   sprintf(htitle,"SMD ADC South (Vertical) PMT %d", (i+24) );
+  //   sprintf(hname,"smd_adc_s_ver_ind_%d", (i+24) );
+  //   smd_adc_s_ver_ind[i]=new TH1F(hname, htitle, 1000, 0, 5000 );
+  // }
 
   // north smd
   smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
@@ -164,19 +165,21 @@ int ZdcMon::Init()
   //register histograms with server otherwise client won't get them
   se->registerHisto(this, zdc_adc_north );
   se->registerHisto(this, zdc_adc_south );
-  
+
+  se->registerHisto(this, smd_adc_n_hor_ind0);
   // SMD
   // Individual smd_adc channel histos
-  for(int i = 0; i < 8 ;i++)
-  {
-    se->registerHisto(this, smd_adc_n_hor_ind[i]);
-    se->registerHisto(this, smd_adc_s_hor_ind[i]);
-  }
-  for(int i = 0; i < 7; i++)
-  {
-    se->registerHisto(this, smd_adc_n_ver_ind[i]);
+
+  // for(int i = 0; i < 8 ;i++)
+  // {
+  //   se->registerHisto(this, smd_adc_n_hor_ind[i]);
+  //   se->registerHisto(this, smd_adc_s_hor_ind[i]);
+  // }
+  // for(int i = 0; i < 7; i++)
+  // {
+  //   se->registerHisto(this, smd_adc_n_ver_ind[i]);
   //   se->registerHisto(this, smd_adc_s_ver_ind[i]);
-  }
+  // }
 
   // north SMD
   se->registerHisto(this, smd_hor_north);
@@ -317,18 +320,18 @@ int ZdcMon::process_event(Event *e /* evt */)
     for ( int i = 0; i < 7; i++)
     {
       if ( smd_adc[i + 8] > 5 ) {n_ver ++;}
-      smd_adc_n_ver_ind[i]->Fill(smd_adc[i + 8]);
+      // smd_adc_n_ver_ind[i]->Fill(smd_adc[i + 8]);
     }
 
     for ( int i = 0; i < 8; i++)
     {
       if ( smd_adc[i + 16] > 8 ) {s_hor++;}
-      smd_adc_s_hor_ind[i]->Fill(smd_adc[i + 16]);
+      // smd_adc_s_hor_ind[i]->Fill(smd_adc[i + 16]);
     }
     for ( int i = 0; i < 7; i++)
     {
       if ( smd_adc[i + 24] > 5 ) {s_ver++;}
-      smd_adc_s_ver_ind[i]->Fill(smd_adc[i + 24]);
+      // smd_adc_s_ver_ind[i]->Fill(smd_adc[i + 24]);
     }
 
     bool fired_smd_hor_n = (n_hor  > 1);
