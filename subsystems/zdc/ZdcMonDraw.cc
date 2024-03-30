@@ -536,11 +536,11 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
     return -1;
   }
 
-  // for (int i = 1; i < 8; ++i)
-  // {
-  //   Pad[21 + i]->cd();
-  //   if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
-  // }
+  for (int i = 1; i < 8; ++i)
+  {
+    Pad[21 + i]->cd();
+    if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
+  }
 
   // for (int i = 0; i < 7; ++i)
   // {
