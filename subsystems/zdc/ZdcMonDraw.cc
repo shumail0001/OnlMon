@@ -639,9 +639,9 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
   Pad[36]->cd();
 
 
-  if (smd_adc_n_hor_ind[0])
+  if (smd_adc_s_hor_ind[0])
   {
-    smd_adc_n_hor_ind[0]->DrawCopy();
+    smd_adc_s_hor_ind[0]->DrawCopy();
   }
   else
   {
@@ -653,13 +653,13 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
   for (int i = 1; i < 8; ++i)
   {
     Pad[36 + i]->cd();
-    if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
+    if (smd_adc_s_hor_ind[i]) {smd_adc_s_hor_ind[i]->DrawCopy();}
   }
 
   for (int i = 0; i < 7; ++i)
   {
     Pad[44 + i]->cd();
-    if (smd_adc_n_ver_ind[i]) {smd_adc_n_ver_ind[i]->DrawCopy();}
+    if (smd_adc_s_ver_ind[i]) {smd_adc_s_ver_ind[i]->DrawCopy();}
   }
 
 
@@ -768,7 +768,7 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   out5 << "<P>Some SmdAdcNorthIndividual-related-output would go here." << std::endl;
   out5.close();
 
-  std::string smdadcnorthindividual = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+  std::string smdadcsouthindividual = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
   std::ofstream out6(smdadcsouthindividual.c_str());
   out6 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
       << "</TITLE></HEAD>" << std::endl;
