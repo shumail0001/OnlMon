@@ -110,7 +110,7 @@ int ZdcMon::Init()
   zdc_adc_north = new TH1F("zdc_adc_north", "ZDC ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
   zdc_adc_south = new TH1F("zdc_adc_south", "ZDC ADC south", BIN_NUMBER, 0, MAX_ENERGY2);
   
-  smd_adc_n_hor_ind0 = new TH1F(hname, htitle, 1000, 0, 5000 );
+  smd_adc_n_hor_ind0 = new TH1F("smd_adc_n_hor_ind0", "smd_adc_n_hor_ind0", 1000, 0, 5000 );
   // smd
   // Individual SMD_ADC Values
   // for(int i=0; i<8; i++)
