@@ -10,7 +10,7 @@ class TCanvas;
 class TGraphErrors;
 class TPad;
 const int NUM_CANV = 2 + 1 + 1 + 1 + 1;
-const int NUM_PAD = 4 + 3 + 12 + 2 + 15;
+const int NUM_PAD = 4 + 3 + 12 + 2 + 15 +15;
 
 class ZdcMonDraw : public OnlMonDraw
 {
@@ -33,6 +33,7 @@ class ZdcMonDraw : public OnlMonDraw
   int DrawSmdNorthandSouth(const std::string &what = "ALL");
   int DrawSmdXY(const std::string &what = "ALL");
   int DrawSmdAdcNorthIndividual(const std::string &what = "ALL");
+  int DrawSmdAdcSouthIndividual(const std::string &what = "ALL");
 
   TCanvas *TC[NUM_CANV] = {nullptr};
   TPad *transparent[NUM_CANV] = {nullptr};

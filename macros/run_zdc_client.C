@@ -23,11 +23,13 @@ void zdcDrawInit(const int online = 0)
   for(int i=0; i<8;i++)
   {
    cl->registerHisto(Form("smd_adc_n_hor_ind%d", i),"ZDCMON_0");
+   cl->registerHisto(Form("smd_adc_s_hor_ind%d", i),"ZDCMON_0");
   }
 
   for(int i=0; i<7;i++)
   {
    cl->registerHisto(Form("smd_adc_n_ver_ind%d", i),"ZDCMON_0");
+   cl->registerHisto(Form("smd_adc_s_ver_ind%d", i),"ZDCMON_0");
   }
   
 
