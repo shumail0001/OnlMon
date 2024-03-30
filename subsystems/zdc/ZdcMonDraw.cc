@@ -508,8 +508,8 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   for (int i = 0; i < 7; ++i) 
   {
     char histName[256]; // string
-    sprintf(histName, "smd_adc_n_hor_ind%d", (i + 8) ); // Create the histogram name with the loop index 'i'
-    smd_adc_n_hor_ind[i] = cl->getHisto("ZDCMON_0", histName); // Retrieve histogram pointer using 'histName'
+    sprintf(histName, "smd_adc_n_ver_ind%d", (i + 8) ); // Create the histogram name with the loop index 'i'
+    smd_adc_n_ver_ind[i] = cl->getHisto("ZDCMON_0", histName); // Retrieve histogram pointer using 'histName'
   }
   
 
