@@ -499,6 +499,8 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   
   // Array that holds pointer to the histogram of each channel
   TH1 *smd_adc_n_hor_ind[8];
+  TH1 *smd_adc_n_ver_ind[7];
+
   // TH1 *smd_adc_n_hor_ind0 = cl->getHisto("ZDCMON_0", "smd_adc_n_hor_ind0");
 
   for (int i = 0; i < 8; ++i) 
