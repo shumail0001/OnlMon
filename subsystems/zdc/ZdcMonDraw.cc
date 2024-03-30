@@ -163,25 +163,27 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     // xmin, ymin, xmax, ymax
     // First Line
     Pad[21] = new TPad("smd_adc_n_hor0", "smd_adc_n_hor0", 0.02, 0.74, 0.26, 0.98, 0);
-    Pad[22] = new TPad("smd_adc_n_hor1", "smd_adc_n_hor1", 0.26, 0.74, 0.50, 0.98, 0);
-    Pad[23] = new TPad("smd_adc_n_hor2", "smd_adc_n_hor2", 0.50, 0.74, 0.74, 0.98, 0);
-    Pad[24] = new TPad("smd_adc_n_hor3", "smd_adc_n_hor3", 0.74, 0.74, 0.98, 0.98, 0);
-    // Second Line
-    Pad[25] = new TPad("smd_adc_n_hor4", "smd_adc_n_hor4", 0.02, 0.50, 0.26, 0.74, 0);
-    Pad[26] = new TPad("smd_adc_n_hor5", "smd_adc_n_hor5", 0.26, 0.50, 0.50, 0.74, 0);
-    Pad[27] = new TPad("smd_adc_n_hor6", "smd_adc_n_hor6", 0.50, 0.50, 0.74, 0.74, 0);
-    Pad[28] = new TPad("smd_adc_n_hor7", "smd_adc_n_hor7", 0.74, 0.50, 0.98, 0.74, 0);
-    // Third Line
-    Pad[29] = new TPad("smd_adc_n_ver8", "smd_adc_n_ver8", 0.02, 0.26, 0.26, 0.50, 0);
-    Pad[30] = new TPad("smd_adc_n_ver9", "smd_adc_n_ver9", 0.26, 0.26, 0.50, 0.50, 0);
-    Pad[31] = new TPad("smd_adc_n_ver10", "smd_adc_n_ver10", 0.50, 0.26, 0.74, 0.50, 0);
-    Pad[32] = new TPad("smd_adc_n_ver11", "smd_adc_n_ver11", 0.74, 0.26, 0.98, 0.50, 0);
-    // Fourth Line
-    Pad[33] = new TPad("smd_adc_n_ver12", "smd_adc_n_ver12", 0.02, 0.02, 0.26, 0.26, 0);
-    Pad[34] = new TPad("smd_adc_n_ver13", "smd_adc_n_ver13", 0.26, 0.02, 0.50, 0.26, 0);
-    Pad[35] = new TPad("smd_adc_n_ver14", "smd_adc_n_ver14", 0.50, 0.02, 0.74, 0.26, 0);
+    // Pad[22] = new TPad("smd_adc_n_hor1", "smd_adc_n_hor1", 0.26, 0.74, 0.50, 0.98, 0);
+    // Pad[23] = new TPad("smd_adc_n_hor2", "smd_adc_n_hor2", 0.50, 0.74, 0.74, 0.98, 0);
+    // Pad[24] = new TPad("smd_adc_n_hor3", "smd_adc_n_hor3", 0.74, 0.74, 0.98, 0.98, 0);
+    // // Second Line
+    // Pad[25] = new TPad("smd_adc_n_hor4", "smd_adc_n_hor4", 0.02, 0.50, 0.26, 0.74, 0);
+    // Pad[26] = new TPad("smd_adc_n_hor5", "smd_adc_n_hor5", 0.26, 0.50, 0.50, 0.74, 0);
+    // Pad[27] = new TPad("smd_adc_n_hor6", "smd_adc_n_hor6", 0.50, 0.50, 0.74, 0.74, 0);
+    // Pad[28] = new TPad("smd_adc_n_hor7", "smd_adc_n_hor7", 0.74, 0.50, 0.98, 0.74, 0);
+    // // Third Line
+    // Pad[29] = new TPad("smd_adc_n_ver8", "smd_adc_n_ver8", 0.02, 0.26, 0.26, 0.50, 0);
+    // Pad[30] = new TPad("smd_adc_n_ver9", "smd_adc_n_ver9", 0.26, 0.26, 0.50, 0.50, 0);
+    // Pad[31] = new TPad("smd_adc_n_ver10", "smd_adc_n_ver10", 0.50, 0.26, 0.74, 0.50, 0);
+    // Pad[32] = new TPad("smd_adc_n_ver11", "smd_adc_n_ver11", 0.74, 0.26, 0.98, 0.50, 0);
+    // // Fourth Line
+    // Pad[33] = new TPad("smd_adc_n_ver12", "smd_adc_n_ver12", 0.02, 0.02, 0.26, 0.26, 0);
+    // Pad[34] = new TPad("smd_adc_n_ver13", "smd_adc_n_ver13", 0.26, 0.02, 0.50, 0.26, 0);
+    // Pad[35] = new TPad("smd_adc_n_ver14", "smd_adc_n_ver14", 0.50, 0.02, 0.74, 0.26, 0);
     
-    for (int i = 21; i < 36; i++) {Pad[i]->Draw();}
+    Pad[21]->Draw();
+
+    // for (int i = 21; i < 36; i++) {Pad[i]->Draw();}
 
 
     // this one is used to plot the run number on the canvas
@@ -496,22 +498,23 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
   
   // Array that holds pointer to the histogram of each channel
-  TH1 *smd_adc_n_hor_ind[8] = {nullptr};
-  smd_adc_n_hor_ind[0] = cl->getHisto("ZDCMON_0", "smd_adc_n_hor_ind0");
-  for (int i = 1; i < 8; ++i) 
-  {
-    char histName[256]; // string
-    sprintf(histName, "smd_adc_n_hor_ind%d", i); // Name of the histogram name with the loop index 'i'
-    smd_adc_n_hor_ind[i] = cl->getHisto("ZDCMON_0", histName); // Retrieve histogram pointer using 'histName'
-  }
-  // Array that holds pointer to the histogram of each channel
-  TH1 *smd_adc_n_ver_ind[7] = {nullptr};
-  for (int i = 0; i < 7; ++i) 
-  {
-    char histName[256]; // string
-    sprintf(histName, "smd_adc_n_ver_ind%d", (i + 8) ); // Create the histogram name with the loop index 'i'
-    smd_adc_n_ver_ind[i] = cl->getHisto("ZDCMON_0", histName); // Retrieve histogram pointer using 'histName'
-  }
+  // TH1 *smd_adc_n_hor_ind[8] = {nullptr};
+  smd_adc_n_hor_ind0 = cl->getHisto("ZDCMON_0", "smd_adc_n_hor_ind0");
+
+  // for (int i = 1; i < 8; ++i) 
+  // {
+  //   char histName[256]; // string
+  //   sprintf(histName, "smd_adc_n_hor_ind%d", i); // Name of the histogram name with the loop index 'i'
+  //   smd_adc_n_hor_ind[i] = cl->getHisto("ZDCMON_0", histName); // Retrieve histogram pointer using 'histName'
+  // }
+  // // Array that holds pointer to the histogram of each channel
+  // TH1 *smd_adc_n_ver_ind[7] = {nullptr};
+  // for (int i = 0; i < 7; ++i) 
+  // {
+  //   char histName[256]; // string
+  //   sprintf(histName, "smd_adc_n_ver_ind%d", (i + 8) ); // Create the histogram name with the loop index 'i'
+  //   smd_adc_n_ver_ind[i] = cl->getHisto("ZDCMON_0", histName); // Retrieve histogram pointer using 'histName'
+  // }
   
 
   if (!gROOT->FindObject("SmdAdcNorthIndividual"))
@@ -524,9 +527,9 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   Pad[21]->cd();
 
 
-  if (smd_adc_n_hor_ind[0])
+  if (smd_adc_n_hor_ind0)
   {
-    smd_adc_n_hor_ind[0]->DrawCopy();
+    smd_adc_n_hor_ind0->DrawCopy();
   }
   else
   {
@@ -535,17 +538,17 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
     return -1;
   }
 
-  for (int i = 1; i < 8; ++i)
-  {
-    Pad[21 + i]->cd();
-    if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
-  }
+  // for (int i = 1; i < 8; ++i)
+  // {
+  //   Pad[21 + i]->cd();
+  //   if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
+  // }
 
-  for (int i = 0; i < 7; ++i)
-  {
-    Pad[29 + i]->cd();
-    if (smd_adc_n_ver_ind[i]) {smd_adc_n_ver_ind[i]->DrawCopy();}
-  }
+  // for (int i = 0; i < 7; ++i)
+  // {
+  //   Pad[29 + i]->cd();
+  //   if (smd_adc_n_ver_ind[i]) {smd_adc_n_ver_ind[i]->DrawCopy();}
+  // }
 
 
   TText PrintRun;
