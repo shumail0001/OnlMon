@@ -115,7 +115,7 @@ int ZdcMon::Init()
   // smd_adc_n_hor_ind0 = new TH1F("smd_adc_n_hor_ind0", "smd_adc_n_hor_ind0", 1000, 0, 5000 );
   
   // Individual SMD_ADC Values
-  for (int i = 0; i < NTRIG; i++)
+  for (int i = 0; i < 8; i++)
   {
     smd_adc_n_hor_ind[i] = new TH1I(Form("smd_adc_n_hor_ind%d",i),Form("smd_adc_n_hor_ind%d",i), 1000, 0, 5000);
   }
