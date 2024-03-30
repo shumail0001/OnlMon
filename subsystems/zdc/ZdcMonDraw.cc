@@ -153,43 +153,43 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     TC[3]->SetEditable(false);
   }
 
-  // else if (name == "SmdAdcNorthIndividual")
-  // {
-  //   // xpos negative: do not draw menu bar
-  //   TC[4] = new TCanvas(name.c_str(), "SMD ADC Individual values", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
-  //   gSystem->ProcessEvents();
-  //   //  North Horizontal
+  else if (name == "SmdAdcNorthIndividual")
+  {
+    // xpos negative: do not draw menu bar
+    TC[4] = new TCanvas(name.c_str(), "SMD ADC Individual values", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
+    gSystem->ProcessEvents();
+    //  North Horizontal
 
-  //   // xmin, ymin, xmax, ymax
-  //   // First Line
-  //   Pad[21] = new TPad("smd_adc_n_hor0", "smd_adc_n_hor0", 0.02, 0.74, 0.26, 0.98, 0);
-  //   Pad[22] = new TPad("smd_adc_n_hor1", "smd_adc_n_hor1", 0.26, 0.74, 0.50, 0.98, 0);
-  //   Pad[23] = new TPad("smd_adc_n_hor2", "smd_adc_n_hor2", 0.50, 0.74, 0.74, 0.98, 0);
-  //   Pad[24] = new TPad("smd_adc_n_hor3", "smd_adc_n_hor3", 0.74, 0.74, 0.98, 0.98, 0);
-  //   // Second Line
-  //   Pad[25] = new TPad("smd_adc_n_hor4", "smd_adc_n_hor4", 0.02, 0.50, 0.26, 0.74, 0);
-  //   Pad[26] = new TPad("smd_adc_n_hor5", "smd_adc_n_hor5", 0.26, 0.50, 0.50, 0.74, 0);
-  //   Pad[27] = new TPad("smd_adc_n_hor6", "smd_adc_n_hor6", 0.50, 0.50, 0.74, 0.74, 0);
-  //   Pad[28] = new TPad("smd_adc_n_hor7", "smd_adc_n_hor7", 0.74, 0.50, 0.98, 0.74, 0);
-  //   // Third Line
-  //   Pad[29] = new TPad("smd_adc_n_ver8", "smd_adc_n_ver8", 0.02, 0.26, 0.26, 0.50, 0);
-  //   Pad[30] = new TPad("smd_adc_n_ver9", "smd_adc_n_ver9", 0.26, 0.26, 0.50, 0.50, 0);
-  //   Pad[31] = new TPad("smd_adc_n_ver10", "smd_adc_n_ver10", 0.50, 0.26, 0.74, 0.50, 0);
-  //   Pad[32] = new TPad("smd_adc_n_ver11", "smd_adc_n_ver11", 0.74, 0.26, 0.98, 0.50, 0);
-  //   // Fourth Line
-  //   Pad[33] = new TPad("smd_adc_n_ver12", "smd_adc_n_ver12", 0.02, 0.02, 0.26, 0.26, 0);
-  //   Pad[34] = new TPad("smd_adc_n_ver13", "smd_adc_n_ver13", 0.26, 0.02, 0.50, 0.26, 0);
-  //   Pad[35] = new TPad("smd_adc_n_ver14", "smd_adc_n_ver14", 0.50, 0.02, 0.74, 0.26, 0);
+    // xmin, ymin, xmax, ymax
+    // First Line
+    Pad[21] = new TPad("smd_adc_n_hor0", "smd_adc_n_hor0", 0.02, 0.74, 0.26, 0.98, 0);
+    Pad[22] = new TPad("smd_adc_n_hor1", "smd_adc_n_hor1", 0.26, 0.74, 0.50, 0.98, 0);
+    Pad[23] = new TPad("smd_adc_n_hor2", "smd_adc_n_hor2", 0.50, 0.74, 0.74, 0.98, 0);
+    Pad[24] = new TPad("smd_adc_n_hor3", "smd_adc_n_hor3", 0.74, 0.74, 0.98, 0.98, 0);
+    // Second Line
+    Pad[25] = new TPad("smd_adc_n_hor4", "smd_adc_n_hor4", 0.02, 0.50, 0.26, 0.74, 0);
+    Pad[26] = new TPad("smd_adc_n_hor5", "smd_adc_n_hor5", 0.26, 0.50, 0.50, 0.74, 0);
+    Pad[27] = new TPad("smd_adc_n_hor6", "smd_adc_n_hor6", 0.50, 0.50, 0.74, 0.74, 0);
+    Pad[28] = new TPad("smd_adc_n_hor7", "smd_adc_n_hor7", 0.74, 0.50, 0.98, 0.74, 0);
+    // Third Line
+    Pad[29] = new TPad("smd_adc_n_ver8", "smd_adc_n_ver8", 0.02, 0.26, 0.26, 0.50, 0);
+    Pad[30] = new TPad("smd_adc_n_ver9", "smd_adc_n_ver9", 0.26, 0.26, 0.50, 0.50, 0);
+    Pad[31] = new TPad("smd_adc_n_ver10", "smd_adc_n_ver10", 0.50, 0.26, 0.74, 0.50, 0);
+    Pad[32] = new TPad("smd_adc_n_ver11", "smd_adc_n_ver11", 0.74, 0.26, 0.98, 0.50, 0);
+    // Fourth Line
+    Pad[33] = new TPad("smd_adc_n_ver12", "smd_adc_n_ver12", 0.02, 0.02, 0.26, 0.26, 0);
+    Pad[34] = new TPad("smd_adc_n_ver13", "smd_adc_n_ver13", 0.26, 0.02, 0.50, 0.26, 0);
+    Pad[35] = new TPad("smd_adc_n_ver14", "smd_adc_n_ver14", 0.50, 0.02, 0.74, 0.26, 0);
     
-  //   for (int i = 21; i < 36; i++) {Pad[i]->Draw();}
+    for (int i = 21; i < 36; i++) {Pad[i]->Draw();}
 
 
-  //   // this one is used to plot the run number on the canvas
-  //   transparent[4] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
-  //   transparent[4]->SetFillStyle(4000);
-  //   transparent[4]->Draw();
-  //   TC[4]->SetEditable(false);
-  // }
+    // this one is used to plot the run number on the canvas
+    transparent[4] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[4]->SetFillStyle(4000);
+    transparent[4]->Draw();
+    TC[4]->SetEditable(false);
+  }
 
   return 0;
 }
@@ -514,58 +514,58 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   }
   
 
-  // if (!gROOT->FindObject("SmdAdcNorthIndividual"))
-  // {
-  //   MakeCanvas("SmdAdcNorthIndividual");
-  // }
+  if (!gROOT->FindObject("SmdAdcNorthIndividual"))
+  {
+    MakeCanvas("SmdAdcNorthIndividual");
+  }
   
-  // TC[4]->SetEditable(true);
-  // TC[4]->Clear("D");
-  // Pad[21]->cd();
+  TC[4]->SetEditable(true);
+  TC[4]->Clear("D");
+  Pad[21]->cd();
 
 
-  // if (smd_adc_n_hor_ind[0])
-  // {
-  //   smd_adc_n_hor_ind[0]->DrawCopy();
-  // }
-  // else
-  // {
-  //   DrawDeadServer(transparent[4]);
-  //   TC[4]->SetEditable(false);
-  //   return -1;
-  // }
+  if (smd_adc_n_hor_ind[0])
+  {
+    smd_adc_n_hor_ind[0]->DrawCopy();
+  }
+  else
+  {
+    DrawDeadServer(transparent[4]);
+    TC[4]->SetEditable(false);
+    return -1;
+  }
 
-  // for (int i = 1; i < 8; ++i)
-  // {
-  //   Pad[21 + i]->cd();
-  //   if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
-  // }
+  for (int i = 1; i < 8; ++i)
+  {
+    Pad[21 + i]->cd();
+    if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
+  }
 
-  // for (int i = 0; i < 7; ++i)
-  // {
-  //   Pad[29 + i]->cd();
-  //   if (smd_adc_n_ver_ind[i]) {smd_adc_n_ver_ind[i]->DrawCopy();}
-  // }
+  for (int i = 0; i < 7; ++i)
+  {
+    Pad[29 + i]->cd();
+    if (smd_adc_n_ver_ind[i]) {smd_adc_n_ver_ind[i]->DrawCopy();}
+  }
 
 
-  // TText PrintRun;
-  // PrintRun.SetTextFont(62);
-  // PrintRun.SetTextSize(0.04);
-  // PrintRun.SetNDC();          // set to normalized coordinates
-  // PrintRun.SetTextAlign(23);  // center/top alignment
-  // std::ostringstream runnostream;
-  // std::string runstring;
-  // time_t evttime = cl->EventTime("CURRENT");
-  // // fill run number and event time into string
-  // runnostream << ThisName << "_2 Run " << cl->RunNumber()
-  //             << ", Time: " << ctime(&evttime);
-  // runstring = runnostream.str();
-  // transparent[4]->cd();
-  // PrintRun.DrawText(0.5, 1., runstring.c_str());
-  // TC[4]->Update();
-  // TC[4]->Show();
-  // TC[4]->SetEditable(false);
-  // return 0;
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[4]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[4]->Update();
+  TC[4]->Show();
+  TC[4]->SetEditable(false);
+  return 0;
 
 
 }
