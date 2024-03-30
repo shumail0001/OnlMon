@@ -16,19 +16,14 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("zdc_adc_south","ZDCMON_0");
   
 
-  cl->registerHisto("smd_adc_n_hor_ind0", "ZDCMON_0");
+  // cl->registerHisto("smd_adc_n_hor_ind0", "ZDCMON_0");
   // smd
   // Individual smd_adc channel histos
   
-  // for(int i=1; i<8;i++)
-  // {
-  //   char titleNorth[256], titleSouth[256];
-  //   sprintf(titleNorth, "smd_adc_n_hor_ind%d", i);
-  //   sprintf(titleSouth, "smd_adc_s_hor_ind%d", (i + 16));
-
-  //   cl->registerHisto(titleNorth, "ZDCMON_0");
-  //   cl->registerHisto(titleSouth, "ZDCMON_0");
-  // }
+  for(int i=1; i<8;i++)
+  {
+   cl->registerHisto(Form("smd_adc_n_hor_ind%d",i),"SPINMON_0");
+  }
   // for(int i=0; i<7;i++)
   // {
   //   char titleNorth[256], titleSouth[256];

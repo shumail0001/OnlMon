@@ -110,21 +110,15 @@ int ZdcMon::Init()
   zdc_adc_north = new TH1F("zdc_adc_north", "ZDC ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
   zdc_adc_south = new TH1F("zdc_adc_south", "ZDC ADC south", BIN_NUMBER, 0, MAX_ENERGY2);
   
-  smd_adc_n_hor_ind0 = new TH1F("smd_adc_n_hor_ind0", "smd_adc_n_hor_ind0", 1000, 0, 5000 );
-  // smd
+  // SMD
+
+  // smd_adc_n_hor_ind0 = new TH1F("smd_adc_n_hor_ind0", "smd_adc_n_hor_ind0", 1000, 0, 5000 );
+  
   // Individual SMD_ADC Values
-  // for(int i=0; i<8; i++)
-  // {
-  //   char hname[256],htitle[256]; // Strings with plenty of characters for names and titles
-  //   // North Horizongal
-  //   sprintf(htitle,"SMD ADC North (Horizontal) %d",i);
-  //   sprintf(hname,"smd_adc_n_hor_ind_%d",i);
-  //   smd_adc_n_hor_ind[i] = new TH1F(hname, htitle, 1000, 0, 5000 );
-  //   // South Horizontal
-  //   sprintf(htitle,"SMD ADC South PMT %d",(i + 16) );
-  //   sprintf(hname,"smd_adc_s_hor_ind_%d", (i + 16) );
-  //   smd_adc_s_hor_ind[i] = new TH1F(hname, htitle, 1000, 0, 5000 );
-  // }
+  for (int i = 0; i < NTRIG; i++)
+  {
+    smd_adc_n_hor_ind[i] = new TH1I(Form("smd_adc_n_hor_ind%d",i),Form("smd_adc_n_hor_ind%d",i), 1000, 0, 5000);
+  }
   // Individual SMD_ADC Values
   // for(int i = 0; i < 7; i++)
   // {
@@ -166,15 +160,15 @@ int ZdcMon::Init()
   se->registerHisto(this, zdc_adc_north );
   se->registerHisto(this, zdc_adc_south );
 
-  se->registerHisto(this, smd_adc_n_hor_ind0);
+  // se->registerHisto(this, smd_adc_n_hor_ind0);
   // SMD
   // Individual smd_adc channel histos
 
-  // for(int i = 0; i < 8 ;i++)
-  // {
-  //   se->registerHisto(this, smd_adc_n_hor_ind[i]);
-  //   se->registerHisto(this, smd_adc_s_hor_ind[i]);
-  // }
+  for(int i = 0; i < 8 ;i++)
+  {
+    se->registerHisto(this, smd_adc_n_hor_ind[i]);
+    // se->registerHisto(this, smd_adc_s_hor_ind[i]);
+  }
   // for(int i = 0; i < 7; i++)
   // {
   //   se->registerHisto(this, smd_adc_n_ver_ind[i]);
@@ -315,7 +309,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     for ( int i = 0; i < 8; i++)
     {
       if ( smd_adc[i] > 8 ) {n_hor ++;}
-      smd_adc_n_hor_ind0->Fill(smd_adc[i]);
+      smd_adc_n_hor_ind[i]->Fill(smd_adc[i]);
     }
     for ( int i = 0; i < 7; i++)
     {
