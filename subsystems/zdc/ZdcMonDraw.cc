@@ -501,7 +501,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   TH1 *smd_adc_n_hor_ind[8];
   // TH1 *smd_adc_n_hor_ind0 = cl->getHisto("ZDCMON_0", "smd_adc_n_hor_ind0");
 
-  for (int i = 1; i < 8; ++i) 
+  for (int i = 0; i < 8; ++i) 
   {
     smd_adc_n_hor_ind[i] = (TH1*)cl->getHisto("ZDCMON_0", Form("smd_adc_n_hor_ind%d", i)); // Retrieve histogram pointer using 'histName'
   }
