@@ -22,7 +22,7 @@ class SpinMon : public OnlMon
   int BeginRun(const int runno);
   int Reset();
 
-  // static const int NTRIG = 16;
+  static const int NTRIG = 16;
   static const int NBUNCHES = 120; // OG is 120
 
   private:
@@ -56,7 +56,7 @@ class SpinMon : public OnlMon
   const int packet_YELLSPIN = 14903;
   const int packetid_GL1 = 14001;
 
-  static const int NTRIG = 16;
+  // static const int NTRIG = 16;
 
   //TH2 *spin_patterns[2] = {nullptr};
 
