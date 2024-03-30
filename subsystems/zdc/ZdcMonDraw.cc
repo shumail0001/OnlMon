@@ -495,80 +495,77 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *smd_hor_north_small = cl->getHisto("ZDCMON_0", "smd_hor_north_small");
+  Array that holds pointer to the histogram of each channel
+  TH1 *smd_adc_n_hor_ind[8] = {nullptr};
 
-
-  // Array that holds pointer to the histogram of each channel
-  // TH1 *smd_adc_n_hor_ind[8] = {nullptr};
-
-  // for (int i = 0; i < 8; ++i) 
-  // {
-  //   char histName[256]; // string
-  //   sprintf(histName, "smd_adc_n_hor_ind%d", i); // Name of the histogram name with the loop index 'i'
-  //   smd_adc_n_hor_ind[i] = cl->getHisto("ZDCMON_0", histName); // Retrieve histogram pointer using 'histName'
-  // }
-  // Array that holds pointer to the histogram of each channel
+  for (int i = 0; i < 8; ++i) 
+  {
+    char histName[256]; // string
+    sprintf(histName, "smd_adc_n_hor_ind%d", i); // Name of the histogram name with the loop index 'i'
+    smd_adc_n_hor_ind[i] = cl->getHisto("ZDCMON_0", histName); // Retrieve histogram pointer using 'histName'
+  }
+  Array that holds pointer to the histogram of each channel
   TH1 *smd_adc_n_ver_ind[7] = {nullptr};
-  // for (int i = 0; i < 7; ++i) 
-  // {
-  //   char histName[256]; // string
-  //   sprintf(histName, "smd_adc_n_ver_ind%d", (i + 8) ); // Create the histogram name with the loop index 'i'
-  //   smd_adc_n_ver_ind[i] = cl->getHisto("ZDCMON_0", histName); // Retrieve histogram pointer using 'histName'
-  // }
+  for (int i = 0; i < 7; ++i) 
+  {
+    char histName[256]; // string
+    sprintf(histName, "smd_adc_n_ver_ind%d", (i + 8) ); // Create the histogram name with the loop index 'i'
+    smd_adc_n_ver_ind[i] = cl->getHisto("ZDCMON_0", histName); // Retrieve histogram pointer using 'histName'
+  }
   
 
-  // if (!gROOT->FindObject("SmdAdcNorthIndividual"))
-  // {
-  //   MakeCanvas("SmdAdcNorthIndividual");
-  // }
+  if (!gROOT->FindObject("SmdAdcNorthIndividual"))
+  {
+    MakeCanvas("SmdAdcNorthIndividual");
+  }
   
-  // TC[4]->SetEditable(true);
-  // TC[4]->Clear("D");
-  // Pad[21]->cd();
+  TC[4]->SetEditable(true);
+  TC[4]->Clear("D");
+  Pad[21]->cd();
 
 
-  // if (smd_adc_n_hor_ind[0])
-  // {
-  //   smd_adc_n_hor_ind[0]->DrawCopy();
-  // }
-  // else
-  // {
-  //   DrawDeadServer(transparent[4]);
-  //   TC[4]->SetEditable(false);
-  //   return -1;
-  // }
+  if (smd_adc_n_hor_ind[0])
+  {
+    smd_adc_n_hor_ind[0]->DrawCopy();
+  }
+  else
+  {
+    DrawDeadServer(transparent[4]);
+    TC[4]->SetEditable(false);
+    return -1;
+  }
 
-  // for (int i = 1; i < 8; ++i)
-  // {
-  //   Pad[21 + i]->cd();
-  //   if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
-  // }
+  for (int i = 1; i < 8; ++i)
+  {
+    Pad[21 + i]->cd();
+    if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
+  }
 
-  // for (int i = 0; i < 7; ++i)
-  // {
-  //   Pad[29 + i]->cd();
-  //   if (smd_adc_n_ver_ind[i]) {smd_adc_n_ver_ind[i]->DrawCopy();}
-  // }
+  for (int i = 0; i < 7; ++i)
+  {
+    Pad[29 + i]->cd();
+    if (smd_adc_n_ver_ind[i]) {smd_adc_n_ver_ind[i]->DrawCopy();}
+  }
 
 
-  // TText PrintRun;
-  // PrintRun.SetTextFont(62);
-  // PrintRun.SetTextSize(0.04);
-  // PrintRun.SetNDC();          // set to normalized coordinates
-  // PrintRun.SetTextAlign(23);  // center/top alignment
-  // std::ostringstream runnostream;
-  // std::string runstring;
-  // time_t evttime = cl->EventTime("CURRENT");
-  // // fill run number and event time into string
-  // runnostream << ThisName << "_2 Run " << cl->RunNumber()
-  //             << ", Time: " << ctime(&evttime);
-  // runstring = runnostream.str();
-  // transparent[4]->cd();
-  // PrintRun.DrawText(0.5, 1., runstring.c_str());
-  // TC[4]->Update();
-  // TC[4]->Show();
-  // TC[4]->SetEditable(false);
-  // return 0;
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[4]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[4]->Update();
+  TC[4]->Show();
+  TC[4]->SetEditable(false);
+  return 0;
 
 
 }

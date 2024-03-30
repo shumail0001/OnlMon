@@ -24,8 +24,6 @@ class ZdcMonDraw : public OnlMonDraw
   int MakeHtml(const std::string &what = "ALL") override;
   int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
 
-  TH1* smd_adc_n_ver_ind[7] = {nullptr};
-  TH1* smd_adc_n_hor_ind[8] = {nullptr};
 
  protected:
   int MakeCanvas(const std::string &name);
