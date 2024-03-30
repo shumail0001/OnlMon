@@ -8,6 +8,7 @@ class TH1;
 class TH2;
 class Packet;
 class eventReceiverClient;
+class XingShiftCal;
 
 
 class SpinMon : public OnlMon
@@ -21,7 +22,8 @@ class SpinMon : public OnlMon
   int BeginRun(const int runno);
   int Reset();
 
-  static const int NBUNCHES = 100; // OG is 120
+  static const int NTRIG = 16;
+  static const int NBUNCHES = 120; // OG is 120
 
   private:
 
@@ -29,9 +31,11 @@ class SpinMon : public OnlMon
     Packet *pBlueSpin = nullptr;
     Packet *pYellSpin = nullptr;
 
-    
+    bool success = 0;
+    // default xingshift
+    int xingshift = 5;
 
-
+    uint64_t scalercounts[NTRIG][NBUNCHES]{};
 
     int blueSpinPattern[NBUNCHES] = {0};
     int yellSpinPattern[NBUNCHES] = {0};

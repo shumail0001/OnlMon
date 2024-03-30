@@ -9,6 +9,8 @@
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
+#include <XingShiftCal.h>
+
 #include <Event/msg_profile.h>
 
 #include <Event/Event.h>
@@ -74,8 +76,10 @@ int SpinMon::Init()
 
   Reset();
 
-  // erc = new eventReceiverClient("gl1daq"); // commented out to be able to do prun(100) in the server
- 
+  erc = new eventReceiverClient("gl1daq"); // commented out to be able to do prun(100) in the server
+  
+  CalculateCrossingShift(xingshift, scalercounts, success);
+
   return 0;
 } 
 
@@ -137,10 +141,6 @@ int SpinMon::process_event(Event *e /* evt */)
     // }
   }
 
-  
-  
-
-
   //******** gl1p scalers *********//
 
   //int evtnr = e->getEvtSequence();
@@ -154,7 +154,7 @@ int SpinMon::process_event(Event *e /* evt */)
     for (int i = 0; i < 16; i++ ) 
     { 
       //16 triggers for gl1p 
-      int counts = p->lValue(i,2); //scaled gl1 cnts. (change to cnts. on bunchnr crossng when implemented) 
+      int counts = p->lValue(i,1); //scaled gl1 cnts. (change to cnts. on bunchnr crossng when implemented)  1->2 when we have GL1p scalers available
       //update instead of add
       gl1_counter[i]->SetBinContent(bunchnr+1,counts); //update bin with new scaler info. instead of adding every evt
     }
