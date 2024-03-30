@@ -183,7 +183,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     
     Pad[21]->Draw();
 
-    // for (int i = 21; i < 36; i++) {Pad[i]->Draw();}
+    for (int i = 21; i < 29; i++) {Pad[i]->Draw();}
 
 
     // this one is used to plot the run number on the canvas
