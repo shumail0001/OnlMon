@@ -267,7 +267,7 @@ int ZdcMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "SMD_S_IND")
   {
-    iret += DrawSmdAdcNorthIndividual(what);
+    iret += DrawSmdAdcSouthIndividual(what);
     idraw++;
   }
 
