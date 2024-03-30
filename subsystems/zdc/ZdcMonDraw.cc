@@ -221,11 +221,11 @@ int ZdcMonDraw::Draw(const std::string &what)
     idraw++;
   }
 
-  // if (what == "ALL" || what == "SMD_N_IND")
-  // {
-  //   iret += DrawSmdAdcNorthIndividual(what);
-  //   idraw++;
-  // }
+  if (what == "ALL" || what == "SMD_N_IND")
+  {
+    iret += DrawSmdAdcNorthIndividual(what);
+    idraw++;
+  }
 
   if (!idraw)
   {
@@ -514,58 +514,58 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   }
   
 
-  if (!gROOT->FindObject("SmdAdcNorthIndividual"))
-  {
-    MakeCanvas("SmdAdcNorthIndividual");
-  }
+  // if (!gROOT->FindObject("SmdAdcNorthIndividual"))
+  // {
+  //   MakeCanvas("SmdAdcNorthIndividual");
+  // }
   
-  TC[4]->SetEditable(true);
-  TC[4]->Clear("D");
-  Pad[21]->cd();
+  // TC[4]->SetEditable(true);
+  // TC[4]->Clear("D");
+  // Pad[21]->cd();
 
 
-  if (smd_adc_n_hor_ind[0])
-  {
-    smd_adc_n_hor_ind[0]->DrawCopy();
-  }
-  else
-  {
-    DrawDeadServer(transparent[4]);
-    TC[4]->SetEditable(false);
-    return -1;
-  }
+  // if (smd_adc_n_hor_ind[0])
+  // {
+  //   smd_adc_n_hor_ind[0]->DrawCopy();
+  // }
+  // else
+  // {
+  //   DrawDeadServer(transparent[4]);
+  //   TC[4]->SetEditable(false);
+  //   return -1;
+  // }
 
-  for (int i = 1; i < 8; ++i)
-  {
-    Pad[21 + i]->cd();
-    if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
-  }
+  // for (int i = 1; i < 8; ++i)
+  // {
+  //   Pad[21 + i]->cd();
+  //   if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
+  // }
 
-  for (int i = 0; i < 7; ++i)
-  {
-    Pad[29 + i]->cd();
-    if (smd_adc_n_ver_ind[i]) {smd_adc_n_ver_ind[i]->DrawCopy();}
-  }
+  // for (int i = 0; i < 7; ++i)
+  // {
+  //   Pad[29 + i]->cd();
+  //   if (smd_adc_n_ver_ind[i]) {smd_adc_n_ver_ind[i]->DrawCopy();}
+  // }
 
 
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
-  // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
-  runstring = runnostream.str();
-  transparent[4]->cd();
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[4]->Update();
-  TC[4]->Show();
-  TC[4]->SetEditable(false);
-  return 0;
+  // TText PrintRun;
+  // PrintRun.SetTextFont(62);
+  // PrintRun.SetTextSize(0.04);
+  // PrintRun.SetNDC();          // set to normalized coordinates
+  // PrintRun.SetTextAlign(23);  // center/top alignment
+  // std::ostringstream runnostream;
+  // std::string runstring;
+  // time_t evttime = cl->EventTime("CURRENT");
+  // // fill run number and event time into string
+  // runnostream << ThisName << "_2 Run " << cl->RunNumber()
+  //             << ", Time: " << ctime(&evttime);
+  // runstring = runnostream.str();
+  // transparent[4]->cd();
+  // PrintRun.DrawText(0.5, 1., runstring.c_str());
+  // TC[4]->Update();
+  // TC[4]->Show();
+  // TC[4]->SetEditable(false);
+  // return 0;
 
 
 }
@@ -646,12 +646,12 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   out4 << "<P>Some SmdNorthandSouth-related-output would go here." << std::endl;
   out4.close();
 
-  // std::string smdadcnorthindividual = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  // std::ofstream out5(smdadcnorthindividual.c_str());
-  // out5 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-  //     << "</TITLE></HEAD>" << std::endl;
-  // out5 << "<P>Some SmdAdcNorthIndividual-related-output would go here." << std::endl;
-  // out5.close();
+  std::string smdadcnorthindividual = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+  std::ofstream out5(smdadcnorthindividual.c_str());
+  out5 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
+      << "</TITLE></HEAD>" << std::endl;
+  out5 << "<P>Some SmdAdcNorthIndividual-related-output would go here." << std::endl;
+  out5.close();
 
 
   return 0;
