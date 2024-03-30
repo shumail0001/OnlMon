@@ -9,7 +9,7 @@
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
-#include <XingShiftCal.h>
+// #include <XingShiftCal.h>
 
 #include <Event/msg_profile.h>
 
@@ -78,7 +78,7 @@ int SpinMon::Init()
 
   erc = new eventReceiverClient("gl1daq"); // commented out to be able to do prun(100) in the server
   
-  CalculateCrossingShift(xingshift, scalercounts, success);
+  // CalculateCrossingShift(xingshift, scalercounts, success);
 
   return 0;
 } 
