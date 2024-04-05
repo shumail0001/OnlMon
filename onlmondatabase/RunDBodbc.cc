@@ -27,18 +27,13 @@ void RunDBodbc::identify() const
 }
 
 std::string
-RunDBodbc::RunType(const int runnoinput) const
+RunDBodbc::RunType(const int runno) const
 {
   std::string runtype = "UNKNOWN";
   odbc::Connection *con = nullptr;
   odbc::Statement *query = nullptr;
   odbc::ResultSet *rs = nullptr;
   std::ostringstream cmd;
-  int runno = 221;
-  if (runnoinput == 221)
-  {
-    runno = runnoinput;
-  }
   try
   {
     con = odbc::DriverManager::getConnection(dbname, dbowner, dbpasswd);
@@ -52,7 +47,7 @@ RunDBodbc::RunType(const int runnoinput) const
   }
 
   query = con->createStatement();
-  cmd << "SELECT runtype,runstate,eventsinrun,brunixtime,erunixtime FROM RUN WHERE RUNNUMBER = "
+  cmd << "SELECT runtype FROM RUN WHERE RUNNUMBER = "
       << runno;
   if (verbosity > 0)
   {
@@ -70,69 +65,69 @@ RunDBodbc::RunType(const int runnoinput) const
   if (rs && rs->next())
   {
     runtype = rs->getString("runtype");
-    if (runtype == "PHYSICS")
-    {
-      std::string runstate = rs->getString("runstate");
-      unsigned int brunixtime = rs->getInt("brunixtime");
-      unsigned int erunixtime = rs->getInt("erunixtime");
-      if (erunixtime - brunixtime < 300 && runstate == "ENDED")  // 5 min limit
-      {
-        runtype = "PREJECTED";
-      }
-      else
-      {
-        int eventsinrun = rs->getInt("eventsinrun");
-        if (eventsinrun <= 100 && runstate != "ENDED")
-        {
-          if (verbosity > 0)
-          {
-            std::cout << "Run not ended and eventsinrun : " << eventsinrun << std::endl;
-          }
-          cmd.str("");
-          cmd << "SELECT sum(scalerupdatescaled) FROM trigger WHERE RUNNUMBER = "
-              << runno;
+    // if (runtype == "PHYSICS")
+    // {
+    //   std::string runstate = rs->getString("runstate");
+    //   unsigned int brunixtime = rs->getInt("brunixtime");
+    //   unsigned int erunixtime = rs->getInt("erunixtime");
+    //   if (erunixtime - brunixtime < 300 && runstate == "ENDED")  // 5 min limit
+    //   {
+    //     runtype = "PREJECTED";
+    //   }
+    //   else
+    //   {
+    //     int eventsinrun = rs->getInt("eventsinrun");
+    //     if (eventsinrun <= 100 && runstate != "ENDED")
+    //     {
+    //       if (verbosity > 0)
+    //       {
+    //         std::cout << "Run not ended and eventsinrun : " << eventsinrun << std::endl;
+    //       }
+    //       cmd.str("");
+    //       cmd << "SELECT sum(scalerupdatescaled) FROM trigger WHERE RUNNUMBER = "
+    //           << runno;
 
-          odbc::ResultSet *rs1 = nullptr;
+    //       odbc::ResultSet *rs1 = nullptr;
 
-          odbc::Statement *query1 = con->createStatement();
-          try
-          {
-            rs1 = query1->executeQuery(cmd.str());
-          }
-          catch (odbc::SQLException &e)
-          {
-            std::cout << "Exception caught" << std::endl;
-            std::cout << "Message: " << e.getMessage() << std::endl;
-          }
-          if (rs1 && rs1->next())
-          {
-            eventsinrun = rs1->getLong(1);
-          }
-          if (verbosity > 0)
-          {
-            std::cout << "Run not ended and eventsinrun < 500000, sum of scaled triggers: "
-                      << eventsinrun << std::endl;
-          }
-        }
-        if (eventsinrun <= 100)
-        {
-          runtype = "PREJECTED";
-        }
-      }
-    }
+    //       odbc::Statement *query1 = con->createStatement();
+    //       try
+    //       {
+    //         rs1 = query1->executeQuery(cmd.str());
+    //       }
+    //       catch (odbc::SQLException &e)
+    //       {
+    //         std::cout << "Exception caught" << std::endl;
+    //         std::cout << "Message: " << e.getMessage() << std::endl;
+    //       }
+    //       if (rs1 && rs1->next())
+    //       {
+    //         eventsinrun = rs1->getLong(1);
+    //       }
+    //       if (verbosity > 0)
+    //       {
+    //         std::cout << "Run not ended and eventsinrun < 500000, sum of scaled triggers: "
+    //                   << eventsinrun << std::endl;
+    //       }
+    //     }
+    //     if (eventsinrun <= 100)
+    //     {
+    //       runtype = "PREJECTED";
+    //     }
+    //   }
+    // }
   }
 noopen:
   delete con;
 
-  // try to get this info from the beginrun sql command saved in $ONLINE_LOG/runinfo
-  if (runtype == "UNKNOWN")
-  {
-    if (verbosity > 0)
-    {
-      std::cout << "Run unknown in DB trying from file" << std::endl;
-    }
-    //    runtype = RunTypeFromFile(runno, runtype);
-  }
+  // // try to get this info from the beginrun sql command saved in $ONLINE_LOG/runinfo
+  // if (runtype == "UNKNOWN")
+  // {
+  //   if (verbosity > 0)
+  //   {
+  //     std::cout << "Run unknown in DB trying from file" << std::endl;
+  //   }
+  //   //    runtype = RunTypeFromFile(runno, runtype);
+  // }
 
   if (verbosity > 0)
   {
