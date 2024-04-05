@@ -1,2 +1,2 @@
-// monitor: zdc
-.x $ONLMON_MACROS/run_zdc_server.C("ZDCMON",0,"seb14");
+// monitor: cemc 14
+.x $ONLMON_MACROS/run_cemc_server.C("CEMCMON",14,"seb14");

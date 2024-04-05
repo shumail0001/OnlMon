@@ -559,16 +559,28 @@ sub select_run {
   print "<table border=\"1\">\n";
   print "<tr valign=\"top\">\n";
 
-  if (-d "eventdata")
+  if (-d "beam")
   {
       print "<td>\n";
-      dirlist("eventdata",$runrange);
+      dirlist("beam",$runrange);
       print "</td>\n";
   }
-  if (-d "calibdata")
+  if (-d "calib")
   {
       print "<td>\n";
-      dirlist("calibdata",$runrange);
+      dirlist("calib",$runrange);
+      print "</td>\n";
+  }
+  if (-d "cosmics")
+  {
+      print "<td>\n";
+      dirlist("cosmics",$runrange);
+      print "</td>\n";
+  }
+  if (-d "pulser")
+  {
+      print "<td>\n";
+      dirlist("pulser",$runrange);
       print "</td>\n";
   }
   if (-d "zerofielddata")
