@@ -48,7 +48,7 @@ void cemcDrawInit(const int online = 0)
 void cemcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  for(int i = 0; i < 16 i++)
+  for(int i = 0; i < 16; i++)
     {
       cl->requestHistoBySubSystem(Form("CEMCMON_%d",i), 1);
     }
