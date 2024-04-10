@@ -97,7 +97,7 @@ int CemcMon::Init()
   h1_event = new TH1F("h1_event", "", 1, 0, 1);
 
   //waveform processing
-  h2_waveform_twrAvg = new TH2F("h2_waveform_twrAvg", "", 16, 0.5, 16.5, 10000,0,15000);
+  h2_waveform_twrAvg = new TH2F("h2_waveform_twrAvg", "", 16, 0.5, 16.5, 10000,0,pow(2,14));
   h1_waveform_time = new TH1F("h1_waveform_time", "", 16, 0.5, 16.5);
   h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 25, 1.3e3, 2.0e3);
   
@@ -308,7 +308,6 @@ int CemcMon::process_event(Event *e  /* evt */)
 	{
 	  
 	  h1_packet_number -> Fill(packet);
-	  
 	  h1_packet_length -> SetBinContent(packet-6000,h1_packet_length->GetBinContent(packet-6000) + p -> getLength());
 	  
 	  int nChannels = p->iValue(0, "CHANNELS");
