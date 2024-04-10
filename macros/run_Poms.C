@@ -42,12 +42,6 @@ void StartPoms()
   // subsys->AddAction(new SubSystemActionSavePlot(subsys));
   // pmf->RegisterSubSystem(subsys);
 
-  // subsys = new SubSystem("EPD", "epd");
-  // subsys->AddAction("epdDraw(\"FIRST\")", "EPD 1st Monitor");
-  // subsys->AddAction("epdDraw(\"SECOND\")", "EPD 2nd Monitor");
-  // subsys->AddAction("epdDraw(\"THIRD\")", "EPD 3rd Monitor");
-  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  // pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
@@ -87,13 +81,13 @@ void StartPoms()
   // subsys->AddAction(new SubSystemActionSavePlot(subsys));
   // pmf->RegisterSubSystem(subsys);
 
-  // subsys = new SubSystem("SEPD", "sepd");
-  // subsys->AddAction("sepdDraw(\"FIRST\")", "Towers");
-  // subsys->AddAction("sepdDraw(\"SECOND\")", "Packet Health");
-  // subsys->AddAction("sepdDraw(\"FOURTH\")", "Wave Forms");
-  // subsys->AddAction("sepdDraw(\"FIFTH\")", "Wave vs Fast Fitting");
-  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  // pmf->RegisterSubSystem(subsys);
+  subsys = new SubSystem("SEPD", "sepd");
+  subsys->AddAction("sepdDraw(\"FIRST\")", "Towers");
+  subsys->AddAction("sepdDraw(\"SECOND\")", "Packet Health");
+  subsys->AddAction("sepdDraw(\"FOURTH\")", "Wave Forms");
+  subsys->AddAction("sepdDraw(\"FIFTH\")", "Wave vs Fast Fitting");
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("TPC", "tpc");
   subsys->AddAction("tpcDraw(\"TPCMODULE\")", "TPC SUM[ADC]");
