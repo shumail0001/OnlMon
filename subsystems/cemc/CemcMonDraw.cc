@@ -518,7 +518,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   warnLineOneS -> SetLineStyle(10);
   warnLineOneS -> SetLineColor(2);
 
-  leg -> AddEntry(warnLineOneS,Form("%g%% Threshold, high Eta, South",100*param),"l");
+  leg -> AddEntry(warnLineOneS,Form("%g%% Threshold, High Eta, South",100*param),"l");
 
   TLine *warnLineSize = new TLine(6000.5,param*5981.,6128.5,param*5981.);
   warnLineSize -> SetLineStyle(7);
