@@ -109,6 +109,12 @@ int ZdcMon::Init()
   // Create hitograms
   zdc_adc_north = new TH1F("zdc_adc_north", "ZDC ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
   zdc_adc_south = new TH1F("zdc_adc_south", "ZDC ADC south", BIN_NUMBER, 0, MAX_ENERGY2);
+  zdc_N1 = new TH1F("zdc_N1", "ZDC1 ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
+  zdc_N2 = new TH1F("zdc_N2", "ZDC2 ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
+  zdc_N3 = new TH1F("zdc_N3", "ZDC3 ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
+  zdc_S1 = new TH1F("zdc_S1", "ZDC1 ADC south", BIN_NUMBER, 0, MAX_ENERGY1);
+  zdc_S2 = new TH1F("zdc_S2", "ZDC2 ADC south", BIN_NUMBER, 0, MAX_ENERGY1);
+  zdc_S3 = new TH1F("zdc_S3", "ZDC3 ADC south", BIN_NUMBER, 0, MAX_ENERGY1);
   
   // smd
   // north smd
@@ -135,8 +141,17 @@ int ZdcMon::Init()
 
   OnlMonServer *se = OnlMonServer::instance();
   //register histograms with server otherwise client won't get them
+  //zdc
   se->registerHisto(this, zdc_adc_north );
   se->registerHisto(this, zdc_adc_south );
+  se->registerHisto(this, zdc_N1 );
+  se->registerHisto(this, zdc_N2 );
+  se->registerHisto(this, zdc_N3 );
+  se->registerHisto(this, zdc_S1 );
+  se->registerHisto(this, zdc_S2 );
+  se->registerHisto(this, zdc_S3 );
+
+
   // smd
   // north smd
   se->registerHisto(this, smd_hor_north);
@@ -160,13 +175,10 @@ int ZdcMon::Init()
   se->registerHisto(this, smd_xy_south);
 
 
-    
   WaveformProcessingFast = new CaloWaveformFitting();
-
   
-
-
   Reset();
+
   return 0;
 }
 
@@ -222,8 +234,14 @@ int ZdcMon::process_event(Event *e /* evt */)
         
       int mod = c%2;
 
-      if (c < 16) {zdc_adc[c] = signal;}
-      else {smd_adc[c - 16] = signal;}
+      if (c < 16) 
+      {
+       zdc_adc[c] = signal;
+      }
+      else 
+      {
+       smd_adc[c - 16] = signal;
+      }
 
       if (mod != 0) continue;
       
@@ -232,10 +250,16 @@ int ZdcMon::process_event(Event *e /* evt */)
         if (zdc_side == 0)
         {
           totalzdcsouthsignal+= signal;
+          if(c == 0) zdc_S1->Fill(signal);
+          if(c == 2) zdc_S2->Fill(signal);
+          if(c == 4) zdc_S3->Fill(signal);
         }
         else if (zdc_side == 1)
         {
           totalzdcnorthsignal+= signal;
+          if(c == 8) zdc_N1->Fill(signal);
+          if(c == 10) zdc_N2->Fill(signal);
+          if(c == 12) zdc_N3->Fill(signal);
         }
         else
         {
