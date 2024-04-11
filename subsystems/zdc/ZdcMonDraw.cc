@@ -40,7 +40,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   if (name == "ZdcMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "ZdcMon Example Monitor", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
+    TC[0] = new TCanvas(name.c_str(), "ZDC-SMD Monitor", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
