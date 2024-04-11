@@ -40,7 +40,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   if (name == "ZdcMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "ZdcMon Example Monitor", -1, 0, xsize / 2, ysize);
+    TC[0] = new TCanvas(name.c_str(), "ZdcMon Example Monitor", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -63,12 +63,24 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "ZdcMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "ZdcMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
+    TC[1] = new TCanvas(name.c_str(), "ZDC North and South Channels", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
     gSystem->ProcessEvents();
-    Pad[4] = new TPad("zdcpad3", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[5] = new TPad("zdcpad4", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
+      
+    Pad[4] = new TPad("zdcpad5", "who needs this?", 0.05, 0.65, 0.35, 0.95, 0);
+    Pad[5] = new TPad("zdcpad6", "who needs this?", 0.35, 0.65, 0.65, 0.95, 0);
+    Pad[6] = new TPad("zdcpad7", "who needs this?", 0.65, 0.65, 0.95, 0.95, 0);
+    Pad[7] = new TPad("zdcpad8", "who needs this?", 0.05, 0.35, 0.35, 0.65, 0);
+    Pad[8] = new TPad("zdcpad9", "who needs this?", 0.35, 0.35, 0.65, 0.65, 0);
+    Pad[9] = new TPad("zdcpad10", "who needs this?", 0.65, 0.35, 0.95, 0.65, 0);
+
     Pad[4]->Draw();
     Pad[5]->Draw();
+    Pad[6]->Draw();
+    Pad[7]->Draw();
+    Pad[8]->Draw();
+    Pad[9]->Draw();
+    
+
     // this one is used to plot the run number on the canvas
     transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
     transparent[1]->SetFillStyle(4000);
@@ -81,13 +93,13 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     // xpos negative: do not draw menu bar
     TC[2] = new TCanvas(name.c_str(), "Smd Values", 0 , -ysize / 2, xsize, ysize / 2);
     gSystem->ProcessEvents();
-    Pad[6] = new TPad("Smd Value", "Smd Value", 0.05, 0.05, 0.35, 0.9, 0);
-    Pad[7] = new TPad("Smd Value (good)", "Smd Value (good)", 0.35, 0.05, 0.65, 0.9, 0);
-    Pad[8] = new TPad("Smd Value (small)", "Smd Value (small)", 0.65, 0.05, 0.95, 0.9, 0);
+    Pad[10] = new TPad("Smd Value", "Smd Value", 0.05, 0.05, 0.35, 0.9, 0);
+    Pad[11] = new TPad("Smd Value (good)", "Smd Value (good)", 0.35, 0.05, 0.65, 0.9, 0);
+    Pad[12] = new TPad("Smd Value (small)", "Smd Value (small)", 0.65, 0.05, 0.95, 0.9, 0);
 
-    Pad[6]->Draw();    
-    Pad[7]->Draw();
-    Pad[8]->Draw();
+    Pad[10]->Draw();    
+    Pad[11]->Draw();
+    Pad[12]->Draw();
 
     // this one is used to plot the run number on the canvas
     transparent[2] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
@@ -119,25 +131,21 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     Pad[18] = new TPad("Smd sum Hor South", "Smd sum Hor South", 0.74, 0.65, 0.98, 0.95, 0);  
     */
 
-    Pad[9]  = new TPad("Smd Ver North (good)",  "Smd Ver North (good)", 0.02, 0.05, 0.26, 0.35, 0);
-    Pad[10]  = new TPad("Smd Hor North (good)", "Smd Hor North (good)", 0.26, 0.05, 0.5, 0.35, 0);
-    Pad[11]  = new TPad("Smd Ver North (small)",  "Smd Ver North (small)", 0.5, 0.05, 0.74, 0.35, 0);
-    Pad[12] = new TPad("Smd Hor North (small)", "Smd Hor North (small)", 0.74, 0.05, 0.98, 0.35, 0);
+    Pad[13]  = new TPad("Smd Ver North (good)",  "Smd Ver North (good)", 0.02, 0.05, 0.26, 0.35, 0);
+    Pad[14]  = new TPad("Smd Hor North (good)", "Smd Hor North (good)", 0.26, 0.05, 0.5, 0.35, 0);
+    Pad[15]  = new TPad("Smd Ver North (small)",  "Smd Ver North (small)", 0.5, 0.05, 0.74, 0.35, 0);
+    Pad[16] = new TPad("Smd Hor North (small)", "Smd Hor North (small)", 0.74, 0.05, 0.98, 0.35, 0);
 
-    Pad[13]  = new TPad("Smd Ver North", "Smd Ver North", 0.02, 0.35, 0.26, 0.65, 0);
-    Pad[14] = new TPad("Smd Hor North", "Smd Hor North", 0.26, 0.35, 0.5, 0.65, 0);
-    Pad[15] = new TPad("Smd Ver South", "Smd Ver South", 0.5, 0.35, 0.74, 0.65, 0);
-    Pad[16] = new TPad("Smd Hor South", "Smd Hor South", 0.74, 0.35, 0.98, 0.65, 0);
+    Pad[17]  = new TPad("Smd Ver North", "Smd Ver North", 0.02, 0.35, 0.26, 0.65, 0);
+    Pad[18] = new TPad("Smd Hor North", "Smd Hor North", 0.26, 0.35, 0.5, 0.65, 0);
+    Pad[19] = new TPad("Smd Ver South", "Smd Ver South", 0.5, 0.35, 0.74, 0.65, 0);
+    Pad[20] = new TPad("Smd Hor South", "Smd Hor South", 0.74, 0.35, 0.98, 0.65, 0);
 
-    Pad[17] = new TPad("Smd sum Ver North", "Smd sum Ver North", 0.02, 0.65, 0.26, 0.95, 0);
-    Pad[18] = new TPad("Smd sum Hor North", "Smd sum Hor North", 0.26, 0.65, 0.5, 0.95, 0);
-    Pad[19] = new TPad("Smd sum Ver South", "Smd sum Ver South", 0.5, 0.65, 0.74, 0.95, 0);
-    Pad[20] = new TPad("Smd sum Hor South", "Smd sum Hor South", 0.74, 0.65, 0.98, 0.95, 0); 
+    Pad[21] = new TPad("Smd sum Ver North", "Smd sum Ver North", 0.02, 0.65, 0.26, 0.95, 0);
+    Pad[22] = new TPad("Smd sum Hor North", "Smd sum Hor North", 0.26, 0.65, 0.5, 0.95, 0);
+    Pad[23] = new TPad("Smd sum Ver South", "Smd sum Ver South", 0.5, 0.65, 0.74, 0.95, 0);
+    Pad[24] = new TPad("Smd sum Hor South", "Smd sum Hor South", 0.74, 0.65, 0.98, 0.95, 0); 
 
-    Pad[9]->Draw();
-    Pad[10]->Draw();
-    Pad[11]->Draw();
-    Pad[12]->Draw();
     Pad[13]->Draw();
     Pad[14]->Draw();
     Pad[15]->Draw();
@@ -146,6 +154,11 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     Pad[18]->Draw();
     Pad[19]->Draw();
     Pad[20]->Draw();
+    Pad[21]->Draw();
+    Pad[22]->Draw();
+    Pad[23]->Draw();
+    Pad[24]->Draw();
+
     // this one is used to plot the run number on the canvas
     transparent[3] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
     transparent[3]->SetFillStyle(4000);
@@ -257,9 +270,13 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
 int ZdcMonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *zdc_adc_south = cl->getHisto("ZDCMON_0","zdc_adc_south");
-  TH1 *zdc_adc_north = cl->getHisto("ZDCMON_0","zdc_adc_north");
-  
+  TH1 *zdc_S1 = cl->getHisto("ZDCMON_0","zdc_S1");
+  TH1 *zdc_S2 = cl->getHisto("ZDCMON_0","zdc_S2");
+  TH1 *zdc_S3 = cl->getHisto("ZDCMON_0","zdc_S3");
+  TH1 *zdc_N1 = cl->getHisto("ZDCMON_0","zdc_N1");
+  TH1 *zdc_N2 = cl->getHisto("ZDCMON_0","zdc_N2");
+  TH1 *zdc_N3 = cl->getHisto("ZDCMON_0","zdc_N3");
+    
   if (!gROOT->FindObject("ZdcMon2"))
   {
     MakeCanvas("ZdcMon2");
@@ -267,9 +284,12 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
   Pad[4]->cd();
-  if (zdc_adc_south)
+  gPad->SetLogy();
+  gPad->SetLogx();
+  if (zdc_S1)
   {
-    zdc_adc_south->DrawCopy();
+      zdc_S1->Scale(1/zdc_S1->Integral(), "width");
+      zdc_S1->DrawCopy();
   }
   else
   {
@@ -277,10 +297,49 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
     TC[1]->SetEditable(false);
     return -1;
   }
+    
   Pad[5]->cd();
-  if (zdc_adc_north)
+  gPad->SetLogy();
+  gPad->SetLogx();
+  if (zdc_S2)
   {
-     zdc_adc_north->DrawCopy();
+    zdc_S2->Scale(1/zdc_S2->Integral(), "width");
+    zdc_S2->DrawCopy();
+  }
+  Pad[6]->cd();
+  gPad->SetLogy();
+  gPad->SetLogx();
+  if (zdc_S3)
+  {
+    zdc_S3->Scale(1/zdc_S3->Integral(), "width");
+    zdc_S3->DrawCopy();
+  }
+    
+  Pad[7]->cd();
+  gPad->SetLogy();
+  gPad->SetLogx();
+  if (zdc_N1)
+  {
+    zdc_N1->Scale(1/zdc_N1->Integral(), "width");
+    zdc_N1->DrawCopy();
+  }
+    
+  Pad[8]->cd();
+  gPad->SetLogy();
+  gPad->SetLogx();
+  if (zdc_N2)
+  {
+    zdc_N2->Scale(1/zdc_N2->Integral(), "width");
+    zdc_N2->DrawCopy();
+  }
+    
+  Pad[9]->cd();
+  gPad->SetLogy();
+  gPad->SetLogx();
+  if (zdc_N3)
+  {
+    zdc_N3->Scale(1/zdc_N3->Integral(), "width");
+    zdc_N3->DrawCopy();
   }
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -318,7 +377,7 @@ int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
 
   TC[2]->SetEditable(true);
   TC[2]->Clear("D");
-  Pad[6]->cd();
+  Pad[10]->cd();
   if (smd_value)
   {
     smd_value->DrawCopy();
@@ -330,9 +389,9 @@ int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
     return -1;
   }
 
-  Pad[7]->cd();
+  Pad[11]->cd();
   if (smd_value_good) {smd_value_good->DrawCopy();}
-  Pad[8]->cd();
+  Pad[12]->cd();
   if (smd_value_small) {smd_value_small->DrawCopy();}
 
   TText PrintRun;
@@ -382,7 +441,7 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   }
   TC[3]->SetEditable(true);
   TC[3]->Clear("D");
-  Pad[9]->cd();
+  Pad[13]->cd();
 
   // VERTICAL AND HORIZONTAL NORTH (good and small)
   if (smd_ver_north_good)
@@ -396,33 +455,33 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
     TC[3]->SetEditable(false);
     return -1;
   }
-  Pad[10]->cd();
+  Pad[14]->cd();
   if (smd_hor_north_good) {smd_hor_north_good->DrawCopy();}
-  Pad[11]->cd();
+  Pad[15]->cd();
   if (smd_ver_north_small) {smd_ver_north_small->DrawCopy();}
-  Pad[12]->cd();
+  Pad[16]->cd();
   if (smd_hor_north_small) {smd_hor_north_small->DrawCopy();}
 
   // VERTICAL AND HORIZONTAL NORTH
-  Pad[13]->cd();
+  Pad[17]->cd();
   if (smd_ver_north){smd_ver_north->DrawCopy();}
-  Pad[14]->cd();
+  Pad[18]->cd();
   if (smd_hor_north){smd_hor_north->DrawCopy();}
 
   // VERTICAL AND HORIZONTAL SOUTH (good and small do not exist for south)
-  Pad[15]->cd();
+  Pad[19]->cd();
   if (smd_ver_south) {smd_ver_south->DrawCopy();}
-  Pad[16]->cd();
+  Pad[20]->cd();
   if (smd_hor_south) {smd_hor_south->DrawCopy();}
 
   // SUMS
-  Pad[17]->cd();
+  Pad[21]->cd();
   if (smd_sum_ver_north) {smd_sum_ver_north->DrawCopy();}
-  Pad[18]->cd();
+  Pad[22]->cd();
   if (smd_sum_hor_north) {smd_sum_hor_north->DrawCopy();}
-  Pad[19]->cd();
+  Pad[23]->cd();
   if (smd_sum_ver_south) {smd_sum_ver_south->DrawCopy();}
-  Pad[20]->cd();
+  Pad[24]->cd();
   if (smd_sum_hor_north) {smd_sum_hor_south->DrawCopy();}
  
   TText PrintRun;
