@@ -42,7 +42,6 @@ void StartPoms()
   // subsys->AddAction(new SubSystemActionSavePlot(subsys));
   // pmf->RegisterSubSystem(subsys);
 
-
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
   subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average");
@@ -72,7 +71,7 @@ void StartPoms()
   subsys->AddAction("ll1Draw(\"THIRD\")", "Hits Lineup");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
-  
+
   // subsys = new SubSystem("MVTX", "mvtx");
   // subsys->AddAction("mvtxDraw(\"GENERAL\")", "General Monitor");
   // subsys->AddAction("mvtxDraw(\"FEE\")", "FEE");
@@ -95,11 +94,20 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCCHECKSUMERROR\")", "TPC Checksum Error Prob.");
   subsys->AddAction("tpcDraw(\"TPCADCVSSAMPLE\")", "TPC ADC vs. Sample");
   subsys->AddAction("tpcDraw(\"TPCADCVSSAMPLELARGE\")", "TPC ADC vs. Large Sample");
-  subsys->AddAction("tpcDraw(\"TPCMAXADCMODULE\")", "TPC MAX ADC");
+  subsys->AddAction("tpcDraw(\"TPCMAXADCMODULE\")", "TPC MAX10ADC-Pedestal 1D");
   subsys->AddAction("tpcDraw(\"TPCRAWADC1D\")", "TPC RAW ADC 1D");
+  subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADC1D\")", "TPC RAWADC-Pedestal 1D");
   subsys->AddAction("tpcDraw(\"TPCMAXADC1D\")", "TPC (WindowMAX-Pedestal) ADC 1D");
-  subsys->AddAction("tpcDraw(\"TPCCLUSTERSXYWEIGTHED\")","TPC Cluster XY MaxADC-Pedestal,w");
-  subsys->AddAction("tpcDraw(\"TPCCLUSTERSXYUNWEIGTHED\")","TPC Cluster XY MaxADC-Pedestal,u");
+  subsys->AddAction("tpcDraw(\"TPCCLUSTERSXYWEIGTHED\")", "TPC Cluster XY MaxADC-Pedestal,w");
+  subsys->AddAction("tpcDraw(\"TPCCLUSTERSXYUNWEIGTHED\")", "TPC Cluster XY MaxADC-Pedestal,u");
+  subsys->AddAction("tpcDraw(\"TPCCLUSTERSZYWEIGTHED\")", "TPC Cluster ZY MaxADC-Pedestal,w");
+  subsys->AddAction("tpcDraw(\"TPCCLUSTERSZYUNWEIGTHED\")", "TPC Cluster ZY MaxADC-Pedestal,u");
+  subsys->AddAction("tpcDraw(\"TPCCHANNELPHI_LAYER_WEIGHTED\")", "TPC ChannelPhi vs Layer vs Pedest Sub. ADC,w");
+  subsys->AddAction("tpcDraw(\"TPCNEVENTSEBDC\")", "TPC NEvents vs EBDC");
+  subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE\")", "TPC Pedest Sub. ADC vs Sample");
+  subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R1\")", "TPC Pedest Sub. ADC vs Sample R1 ONLY");
+  subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R2\")", "TPC Pedest Sub. ADC vs Sample R2 ONLY");
+  subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R3\")", "TPC Pedest Sub. ADC vs Sample R3 ONLY");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -121,7 +129,6 @@ void StartPoms()
   // subsys->AddAction("zdcDraw(\"THIRD\")", "ZDC 3rd Monitor");
   // subsys->AddAction(new SubSystemActionSavePlot(subsys));
   // pmf->RegisterSubSystem(subsys);
-
 
   pmf->Draw();
 }
