@@ -33,8 +33,18 @@ class ZdcMon : public OnlMon
   double PI = 3.14159;
   int evtcnt = 0;
   int idummy = 0;
+
+  //zdc
   TH1 *zdc_adc_north = nullptr;
   TH1 *zdc_adc_south = nullptr;
+  TH1 *zdc_N1 = nullptr;
+  TH1 *zdc_N2 = nullptr;
+  TH1 *zdc_N3 = nullptr;
+  TH1 *zdc_S1 = nullptr;
+  TH1 *zdc_S2 = nullptr;
+  TH1 *zdc_S3 = nullptr;
+
+
   // smd
   // north smd
   TH1 *smd_hor_north = nullptr;
