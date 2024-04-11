@@ -7,8 +7,8 @@ SUBDIRS = calib
 
 AM_CPPFLAGS = \
   -I$(includedir) \
-  -I$(ONLINE_MAIN)/include \
-  -I$(OFFLINE_MAIN)/include \
+  -isystem$(ONLINE_MAIN)/include \
+  -isystem$(OFFLINE_MAIN)/include \
   -isystem$(ROOTSYS)/include
 
 AM_LDFLAGS = \
