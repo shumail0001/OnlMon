@@ -245,7 +245,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SmdMultiplicities")
   {
     // xpos negative: do not draw menu bar
-    TC[6] = new TCanvas(name.c_str(), "Smd Multiplicities", 0 , -ysize / 2, xsize, ysize / 2);
+    TC[6] = new TCanvas(name.c_str(), "Smd Multiplicities", -xsize/2 , -ysize / 2, xsize/2, ysize / 2);
     gSystem->ProcessEvents();
     Pad[51] = new TPad("smd_north_hor_hits", "smd_north_hor_hits", 0.05, 0.5, 0.5, 0.98, 0);
     Pad[52] = new TPad("smd_north_ver_hits", "smd_north_ver_hits", 0.5, 0.5, 0.98, 0.98, 0);
