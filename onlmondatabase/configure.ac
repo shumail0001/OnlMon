@@ -9,7 +9,7 @@ LT_INIT([disable-static])
 dnl   no point in suppressing warnings people should 
 dnl   at least see them, so here we go for gcc: -Wall
 if test $ac_cv_prog_gxx = yes; then
-  CXXFLAGS="$CXXFLAGS -Wno-deprecated-declarations -Wall -Werror -Wextra -Wshadow -Woverloaded-virtual"
+  CXXFLAGS="$CXXFLAGS -Wall -Wextra -Wshadow -Werror"
 fi
 
 AC_OUTPUT(Makefile)

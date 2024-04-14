@@ -12,7 +12,7 @@ dnl   no point in suppressing warnings people should
 dnl   at least see them, so here we go for g++: -Wall
 if test $ac_cv_cxx_compiler_gnu = yes; then
 dnl  CXXFLAGS="$CXXFLAGS -Wall"
-  CXXFLAGS="$CXXFLAGS -Wno-deprecated-declarations -Wall -Werror -Wextra -Wshadow -Woverloaded-virtual"
+  CXXFLAGS="$CXXFLAGS -Wall -Wextra -Wshadow -Werror"
 fi
 
 ROOTLIBS="`$ROOTSYS/bin/root-config --glibs`"
