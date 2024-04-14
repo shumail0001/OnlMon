@@ -166,6 +166,82 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     TC[3]->SetEditable(false);
   }
 
+  else if (name == "SmdAdcNorthIndividual")
+  {
+    // xpos negative: do not draw menu bar
+    TC[4] = new TCanvas(name.c_str(), "SMD ADC North Individual values", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
+    gSystem->ProcessEvents();
+    //  North Horizontal
+
+    // xmin, ymin, xmax, ymax
+    // First Line
+    Pad[21] = new TPad("smd_adc_n_hor0", "smd_adc_n_hor0", 0.02, 0.74, 0.26, 0.98, 0);
+    Pad[22] = new TPad("smd_adc_n_hor1", "smd_adc_n_hor1", 0.26, 0.74, 0.50, 0.98, 0);
+    Pad[23] = new TPad("smd_adc_n_hor2", "smd_adc_n_hor2", 0.50, 0.74, 0.74, 0.98, 0);
+    Pad[24] = new TPad("smd_adc_n_hor3", "smd_adc_n_hor3", 0.74, 0.74, 0.98, 0.98, 0);
+    // Second Line
+    Pad[25] = new TPad("smd_adc_n_hor4", "smd_adc_n_hor4", 0.02, 0.50, 0.26, 0.74, 0);
+    Pad[26] = new TPad("smd_adc_n_hor5", "smd_adc_n_hor5", 0.26, 0.50, 0.50, 0.74, 0);
+    Pad[27] = new TPad("smd_adc_n_hor6", "smd_adc_n_hor6", 0.50, 0.50, 0.74, 0.74, 0);
+    Pad[28] = new TPad("smd_adc_n_hor7", "smd_adc_n_hor7", 0.74, 0.50, 0.98, 0.74, 0);
+    // Third Line
+    Pad[29] = new TPad("smd_adc_n_ver8", "smd_adc_n_ver8", 0.02, 0.26, 0.26, 0.50, 0);
+    Pad[30] = new TPad("smd_adc_n_ver9", "smd_adc_n_ver9", 0.26, 0.26, 0.50, 0.50, 0);
+    Pad[31] = new TPad("smd_adc_n_ver10", "smd_adc_n_ver10", 0.50, 0.26, 0.74, 0.50, 0);
+    Pad[32] = new TPad("smd_adc_n_ver11", "smd_adc_n_ver11", 0.74, 0.26, 0.98, 0.50, 0);
+    // Fourth Line
+    Pad[33] = new TPad("smd_adc_n_ver12", "smd_adc_n_ver12", 0.02, 0.02, 0.26, 0.26, 0);
+    Pad[34] = new TPad("smd_adc_n_ver13", "smd_adc_n_ver13", 0.26, 0.02, 0.50, 0.26, 0);
+    Pad[35] = new TPad("smd_adc_n_ver14", "smd_adc_n_ver14", 0.50, 0.02, 0.74, 0.26, 0);
+
+    for (int i = 21; i < 36; i++) {Pad[i]->Draw();}
+
+
+    // this one is used to plot the run number on the canvas
+    transparent[4] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[4]->SetFillStyle(4000);
+    transparent[4]->Draw();
+    TC[4]->SetEditable(false);
+  }
+
+  else if (name == "SmdAdcSouthIndividual")
+  {
+    // xpos negative: do not draw menu bar
+    TC[5] = new TCanvas(name.c_str(), "SMD ADC South Individual values", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
+    gSystem->ProcessEvents();
+    //  North Horizontal
+
+    // xmin, ymin, xmax, ymax
+    // First Line
+    Pad[36] = new TPad("smd_adc_s_hor16", "smd_adc_s_hor16", 0.02, 0.74, 0.26, 0.98, 0);
+    Pad[37] = new TPad("smd_adc_s_hor17", "smd_adc_s_hor17", 0.26, 0.74, 0.50, 0.98, 0);
+    Pad[38] = new TPad("smd_adc_s_hor18", "smd_adc_s_hor18", 0.50, 0.74, 0.74, 0.98, 0);
+    Pad[39] = new TPad("smd_adc_s_hor19", "smd_adc_s_hor19", 0.74, 0.74, 0.98, 0.98, 0);
+    // Second Line
+    Pad[40] = new TPad("smd_adc_s_hor20", "smd_adc_s_hor20", 0.02, 0.50, 0.26, 0.74, 0);
+    Pad[41] = new TPad("smd_adc_s_hor21", "smd_adc_s_hor21", 0.26, 0.50, 0.50, 0.74, 0);
+    Pad[42] = new TPad("smd_adc_s_hor22", "smd_adc_s_hor22", 0.50, 0.50, 0.74, 0.74, 0);
+    Pad[43] = new TPad("smd_adc_s_hor23", "smd_adc_s_hor23", 0.74, 0.50, 0.98, 0.74, 0);
+    // Third Line
+    Pad[44] = new TPad("smd_adc_s_ver24", "smd_adc_s_ver24", 0.02, 0.26, 0.26, 0.50, 0);
+    Pad[45] = new TPad("smd_adc_s_ver25", "smd_adc_s_ver25", 0.26, 0.26, 0.50, 0.50, 0);
+    Pad[46] = new TPad("smd_adc_s_ver26", "smd_adc_s_ver26", 0.50, 0.26, 0.74, 0.50, 0);
+    Pad[47] = new TPad("smd_adc_s_ver27", "smd_adc_s_ver27", 0.74, 0.26, 0.98, 0.50, 0);
+    // Fourth Line
+    Pad[48] = new TPad("smd_adc_s_ver28", "smd_adc_s_ver28", 0.02, 0.02, 0.26, 0.26, 0);
+    Pad[49] = new TPad("smd_adc_s_ver29", "smd_adc_s_ver29", 0.26, 0.02, 0.50, 0.26, 0);
+    Pad[50] = new TPad("smd_adc_s_ver30", "smd_adc_s_ver30", 0.50, 0.02, 0.74, 0.26, 0);
+
+    for (int i = 36; i < 51; i++) {Pad[i]->Draw();}
+
+
+    // this one is used to plot the run number on the canvas
+    transparent[5] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[5]->SetFillStyle(4000);
+    transparent[5]->Draw();
+    TC[5]->SetEditable(false);
+  }
+
   return 0;
 }
 
@@ -193,6 +269,18 @@ int ZdcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SMDN&S")
   {
     iret += DrawSmdNorthandSouth(what);
+    idraw++;
+  }
+
+  if (what == "ALL" || what == "SMD_N_IND")
+  {
+    iret += DrawSmdAdcNorthIndividual(what);
+    idraw++;
+  }
+
+  if (what == "ALL" || what == "SMD_S_IND")
+  {
+    iret += DrawSmdAdcSouthIndividual(what);
     idraw++;
   }
 
@@ -506,6 +594,156 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
 
 }
 
+int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  
+  // Array that holds pointer to the histogram of each channel
+  TH1 *smd_adc_n_hor_ind[8];
+  TH1 *smd_adc_n_ver_ind[7];
+  // Horizontal
+  for (int i = 0; i < 8; ++i) 
+  {
+    smd_adc_n_hor_ind[i] = (TH1*)cl->getHisto("ZDCMON_0", Form("smd_adc_n_hor_ind%d", i)); // Retrieve histogram pointer using 'histName'
+  }
+  // Vertical
+  for (int i = 0; i < 7; ++i) 
+  {
+    smd_adc_n_ver_ind[i] = (TH1*)cl->getHisto("ZDCMON_0", Form("smd_adc_n_ver_ind%d", i)); // Retrieve histogram pointer using 'histName'
+  }
+
+  
+  if (!gROOT->FindObject("SmdAdcNorthIndividual"))
+  {
+    MakeCanvas("SmdAdcNorthIndividual");
+  }
+  
+  TC[4]->SetEditable(true);
+  TC[4]->Clear("D");
+  Pad[21]->cd();
+
+
+  if (smd_adc_n_hor_ind[0])
+  {
+    smd_adc_n_hor_ind[0]->DrawCopy();
+  }
+  else
+  {
+    DrawDeadServer(transparent[4]);
+    TC[4]->SetEditable(false);
+    return -1;
+  }
+
+  for (int i = 1; i < 8; ++i)
+  {
+    Pad[21 + i]->cd();
+    if (smd_adc_n_hor_ind[i]) {smd_adc_n_hor_ind[i]->DrawCopy();}
+  }
+
+  for (int i = 0; i < 7; ++i)
+  {
+    Pad[29 + i]->cd();
+    if (smd_adc_n_ver_ind[i]) {smd_adc_n_ver_ind[i]->DrawCopy();}
+  }
+
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[4]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[4]->Update();
+  TC[4]->Show();
+  TC[4]->SetEditable(false);
+  return 0;
+
+
+}
+
+int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  
+  // Array that holds pointer to the histogram of each channel
+  TH1 *smd_adc_s_hor_ind[8];
+  TH1 *smd_adc_s_ver_ind[7];
+  // Horizontal
+  for (int i = 0; i < 8; ++i) 
+  {
+    smd_adc_s_hor_ind[i] = (TH1*)cl->getHisto("ZDCMON_0", Form("smd_adc_s_hor_ind%d", i)); // Retrieve histogram pointer using 'histName'
+  }
+  // Vertical
+  for (int i = 0; i < 7; ++i) 
+  {
+    smd_adc_s_ver_ind[i] = (TH1*)cl->getHisto("ZDCMON_0", Form("smd_adc_s_ver_ind%d", i)); // Retrieve histogram pointer using 'histName'
+  }
+
+  
+  if (!gROOT->FindObject("SmdAdcSouthIndividual"))
+  {
+    MakeCanvas("SmdAdcSouthIndividual");
+  }
+  
+  TC[5]->SetEditable(true);
+  TC[5]->Clear("D");
+  Pad[36]->cd();
+
+
+  if (smd_adc_s_hor_ind[0])
+  {
+    smd_adc_s_hor_ind[0]->DrawCopy();
+  }
+  else
+  {
+    DrawDeadServer(transparent[5]);
+    TC[5]->SetEditable(false);
+    return -1;
+  }
+
+  for (int i = 1; i < 8; ++i)
+  {
+    Pad[36 + i]->cd();
+    if (smd_adc_s_hor_ind[i]) {smd_adc_s_hor_ind[i]->DrawCopy();}
+  }
+
+  for (int i = 0; i < 7; ++i)
+  {
+    Pad[44 + i]->cd();
+    if (smd_adc_s_ver_ind[i]) {smd_adc_s_ver_ind[i]->DrawCopy();}
+  }
+
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[5]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[5]->Update();
+  TC[5]->Show();
+  TC[5]->SetEditable(false);
+  return 0;
+
+
+}
+
 
 int ZdcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
@@ -582,6 +820,19 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   out4 << "<P>Some SmdNorthandSouth-related-output would go here." << std::endl;
   out4.close();
 
+  std::string smdadcnorthindividual = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+  std::ofstream out5(smdadcnorthindividual.c_str());
+  out5 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
+      << "</TITLE></HEAD>" << std::endl;
+  out5 << "<P>Some SmdAdcNorthIndividual-related-output would go here." << std::endl;
+  out5.close();
+
+  std::string smdadcsouthindividual = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+  std::ofstream out6(smdadcsouthindividual.c_str());
+  out6 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
+      << "</TITLE></HEAD>" << std::endl;
+  out6 << "<P>Some SmdAdcNorthIndividual-related-output would go here." << std::endl;
+  out6.close();
 
   return 0;
 }

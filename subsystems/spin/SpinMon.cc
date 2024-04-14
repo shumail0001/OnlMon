@@ -9,6 +9,8 @@
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
+// #include <XingShiftCal.h>
+
 #include <Event/msg_profile.h>
 
 #include <Event/Event.h>
@@ -53,7 +55,8 @@ int SpinMon::Init()
   spin_patternYellowDown = new TH2I("h2_spinpatternYellowDown","",120,-0.5,119.5,2,0.5,2.5);
   spin_patternYellowUnpol = new TH2I("h2_spinpatternYellowUnpol","",120,-0.5,119.5,2,0.5,2.5);
 
-  for (int i = 0; i < NTRIG; i++){
+  for (int i = 0; i < NTRIG; i++)
+  {
     gl1_counter[i] = new TH1I(Form("gl1_counter_trig%d",i),Form("gl1_counter_trig%d",i),120,-0.5,119.5);
   }
 
@@ -66,14 +69,17 @@ int SpinMon::Init()
   se->registerHisto(this, spin_patternYellowDown);
   se->registerHisto(this, spin_patternYellowUnpol);
 
-  for (int i = 0; i < NTRIG; i++){
+  for (int i = 0; i < NTRIG; i++)
+  {
     se->registerHisto(this, gl1_counter[i]);
   }
 
   Reset();
 
-  erc = new eventReceiverClient("gl1daq");
- 
+  erc = new eventReceiverClient("gl1daq"); // commented out to be able to do prun(100) in the server
+  
+  // CalculateCrossingShift(xingshift, scalercounts, success);
+
   return 0;
 } 
 
@@ -90,51 +96,92 @@ int SpinMon::process_event(Event *e /* evt */)
   //******* Spin patterns from Martin html delivery *******//
   //******* from BeginRun event *************
   
-  if (e->getEvtType() == 9){ //spin patterns stored in BeginRun event
-    for (int i = 0; i < 120; i++){
-      //******* placeholder until html delivery from C-AD is available ***********
-      int blue_up = 0;
-      int blue_down = 0;
-      int blue_unpol = 0;
-      int yellow_up = 0;
-      int yellow_down = 0;
-      int yellow_unpol = 0;
+  if (e->getEvtType() == 9) //spin patterns stored in BeginRun event (9)
+  {
+    pBlueSpin = e->getPacket(packet_BLUESPIN);
+    pYellSpin = e->getPacket(packet_YELLSPIN);
+    for (int i = 0; i < NBUNCHES; i++)
+    {
+      if (i > 110) 
+      {
+        blueSpinPattern[i] = 0;
+        yellSpinPattern[i] = 0;
+      }
+      else
+      {
+        blueSpinPattern[i] = pBlueSpin->iValue(i);
+        yellSpinPattern[i] = pYellSpin->iValue(i);
 
-      if (i % 2 == 0){blue_up = 1;}
-      else{blue_down = 1;}
-      if (int(0.5*i) % 2 == 0){yellow_up = 1;}
-      else {yellow_down = 1;}
-      // **************************************************************************
-      
-      if (i < 111){
-	if (blue_up){spin_patternBlueUp->Fill(i,2);}
-	if (blue_down){spin_patternBlueDown->Fill(i,2);}
-	if (blue_unpol){spin_patternBlueUnpol->Fill(i,2);}
+        if (blueSpinPattern[i] == 1){spin_patternBlueUp->Fill(i,2);}
+        if (blueSpinPattern[i] == -1){spin_patternBlueDown->Fill(i,2);}
+        if (blueSpinPattern[i] == 0){spin_patternBlueUnpol->Fill(i,2);}
 
-	if (yellow_up){spin_patternYellowUp->Fill(i,1);}
-	if (yellow_down){spin_patternYellowDown->Fill(i,1);}
-	if (yellow_unpol){spin_patternYellowUnpol->Fill(i,1);}
+        if (yellSpinPattern[i] == 1){spin_patternYellowUp->Fill(i,2);}
+        if (yellSpinPattern[i] == -1){spin_patternYellowDown->Fill(i,2);}
+        if (yellSpinPattern[i] == 0){spin_patternYellowUnpol->Fill(i,2);}
       }
 
+      // up = 1
+      // down = -1
+      // 0 for abort gap. bunches 111 -> 120
+
+
+
     }
+    
+  
+    // for (int i = 0; i < 120; i++)
+    // {
+    //   //******* placeholder until html delivery from C-AD is available ***********
+    //   int blue_up = 0;
+    //   int blue_down = 0;
+    //   int blue_unpol = 0;
+    //   int yellow_up = 0;
+    //   int yellow_down = 0;
+    //   int yellow_unpol = 0;
+
+    //   if (i % 2 == 0) {blue_up = 1;}
+    //   else{blue_down = 1;}
+      
+    //   if (int(0.5*i) % 2 == 0) {yellow_up = 1;}
+    //   else {yellow_down = 1;}
+    //   // **************************************************************************
+      
+    //   if (i < 111)
+    //   {
+	  //     if (blue_up){spin_patternBlueUp->Fill(i,2);}
+	  //     if (blue_down){spin_patternBlueDown->Fill(i,2);}
+	  //     if (blue_unpol){spin_patternBlueUnpol->Fill(i,2);}
+
+    //     if (yellow_up){spin_patternYellowUp->Fill(i,1);}
+    //     if (yellow_down){spin_patternYellowDown->Fill(i,1);}
+    //     if (yellow_unpol){spin_patternYellowUnpol->Fill(i,1);}
+    //   }
+
+    // }
+
+    delete pBlueSpin;
+    delete pYellSpin;
   }
 
-
-    //******** gl1p scalers *********//
+  //******** gl1p scalers *********//
 
   //int evtnr = e->getEvtSequence();
   //Event *gl1Event = erc->getEvent(evtnr);
   //if (gl1Event){
-    Packet* p = e->getPacket(packetid_GL1);
-    if (p){
-      //int triggervec = p->lValue(0,"TriggerVector");
-      int bunchnr = p->lValue(0,"BunchNumber");
-      for (int i = 0; i < 16; i++ ) { //16 triggers for gl1p 
-        int counts = p->lValue(i,2); //scaled gl1 cnts. (change to cnts. on bunchnr crossng when implemented) 
-	//update instead of add
-        gl1_counter[i]->SetBinContent(bunchnr+1,counts); //update bin with new scaler info. instead of adding every evt
-      }
+  Packet* p = e->getPacket(packetid_GL1);
+  if (p)
+  {
+    //int triggervec = p->lValue(0,"TriggerVector");
+    int bunchnr = p->lValue(0,"BunchNumber");
+    for (int i = 0; i < 16; i++ ) 
+    { 
+      //16 triggers for gl1p 
+      int counts = p->lValue(i,1); //scaled gl1 cnts. (change to cnts. on bunchnr crossng when implemented)  1->2 when we have GL1p scalers available
+      //update instead of add
+      gl1_counter[i]->SetBinContent(bunchnr+1,counts); //update bin with new scaler info. instead of adding every evt
     }
+  }
     //}
   
   return 0;

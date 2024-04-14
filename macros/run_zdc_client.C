@@ -15,6 +15,9 @@ void zdcDrawInit(const int online = 0)
   //zdc
   cl->registerHisto("zdc_adc_north","ZDCMON_0");
   cl->registerHisto("zdc_adc_south","ZDCMON_0");
+  
+
+  cl->registerHisto("smd_adc_n_hor_ind0", "ZDCMON_0");
   cl->registerHisto("zdc_S1","ZDCMON_0");
   cl->registerHisto("zdc_S2","ZDCMON_0");
   cl->registerHisto("zdc_S3","ZDCMON_0");
@@ -24,6 +27,21 @@ void zdcDrawInit(const int online = 0)
  
 
  // smd
+  // Individual smd_adc channel histos
+  
+  for(int i=0; i<8;i++)
+  {
+   cl->registerHisto(Form("smd_adc_n_hor_ind%d", i),"ZDCMON_0");
+   cl->registerHisto(Form("smd_adc_s_hor_ind%d", i),"ZDCMON_0");
+  }
+
+  for(int i=0; i<7;i++)
+  {
+   cl->registerHisto(Form("smd_adc_n_ver_ind%d", i),"ZDCMON_0");
+   cl->registerHisto(Form("smd_adc_s_ver_ind%d", i),"ZDCMON_0");
+  }
+  
+
   // north smd
   cl->registerHisto("smd_hor_north", "ZDCMON_0");
   cl->registerHisto("smd_ver_north", "ZDCMON_0");
