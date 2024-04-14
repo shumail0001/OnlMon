@@ -197,7 +197,7 @@ int ZdcMon::Init()
   se->registerHisto(this, smd_north_hor_hits);
   se->registerHisto(this, smd_north_ver_hits);
   se->registerHisto(this, smd_south_hor_hits);
-  // se->registerHisto(this, smd_south_ver_hits);
+  se->registerHisto(this, smd_south_ver_hits);
 
   // north SMD
   se->registerHisto(this, smd_hor_north);
