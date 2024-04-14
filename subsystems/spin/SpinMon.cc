@@ -116,9 +116,9 @@ int SpinMon::process_event(Event *e /* evt */)
         if (blueSpinPattern[i] == -1){spin_patternBlueDown->Fill(i,2);}
         if (blueSpinPattern[i] == 0){spin_patternBlueUnpol->Fill(i,2);}
 
-        if (yellSpinPattern[i] == 1){spin_patternYellUp->Fill(i,2);}
-        if (yellSpinPattern[i] == -1){spin_patternYellDown->Fill(i,2);}
-        if (yellSpinPattern[i] == 0){spin_patternYellUnpol->Fill(i,2);}
+        if (yellSpinPattern[i] == 1){spin_patternYellowUp->Fill(i,2);}
+        if (yellSpinPattern[i] == -1){spin_patternYellowDown->Fill(i,2);}
+        if (yellSpinPattern[i] == 0){spin_patternYellowUnpol->Fill(i,2);}
       }
 
       // up = 1
