@@ -136,11 +136,11 @@ int ZdcMon::Init()
     smd_adc_n_ver_ind[i] = new TH1I(Form("smd_adc_n_ver_ind%d", i),Form("smd_adc_n_ver_ind%d", i), 1000, 0, 5000);
     smd_adc_s_ver_ind[i] = new TH1I(Form("smd_adc_s_ver_ind%d", i),Form("smd_adc_s_ver_ind%d", i), 1000, 0, 5000);
   }
-  // SMD Hit Multiplicity
-  smd_north_hor_hits = new TH1I("smd_north_hor_hits", "smd_north_hor_hits", 8, 0, 7);
-  smd_north_ver_hits = new TH1I("smd_north_ver_hits", "smd_north_ver_hits", 7, 8, 14);
-  smd_north_hor_hits = new TH1I("smd_south_hor_hits", "smd_south_hor_hits", 8, 16, 23);
-  smd_north_ver_hits = new TH1I("smd_south_ver_hits", "smd_south_ver_hits", 7, 24, 30);
+  // // SMD Hit Multiplicity
+  // smd_north_hor_hits = new TH1I("smd_north_hor_hits", "smd_north_hor_hits", 8, 0, 7);
+  // smd_north_ver_hits = new TH1I("smd_north_ver_hits", "smd_north_ver_hits", 7, 8, 14);
+  // smd_north_hor_hits = new TH1I("smd_south_hor_hits", "smd_south_hor_hits", 8, 16, 23);
+  // smd_north_ver_hits = new TH1I("smd_south_ver_hits", "smd_south_ver_hits", 7, 24, 30);
 
   // north smd
   smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
@@ -193,11 +193,11 @@ int ZdcMon::Init()
     se->registerHisto(this, smd_adc_s_ver_ind[i]);
   }
 
-  // SMD Hit Multiplicity
-  se->registerHisto(this, smd_north_hor_hits);
-  se->registerHisto(this, smd_north_ver_hits);
-  se->registerHisto(this, smd_south_hor_hits);
-  se->registerHisto(this, smd_south_ver_hits);
+  // // SMD Hit Multiplicity
+  // se->registerHisto(this, smd_north_hor_hits);
+  // se->registerHisto(this, smd_north_ver_hits);
+  // se->registerHisto(this, smd_south_hor_hits);
+  // se->registerHisto(this, smd_south_ver_hits);
 
   // north SMD
   se->registerHisto(this, smd_hor_north);
@@ -343,26 +343,26 @@ int ZdcMon::process_event(Event *e /* evt */)
     {
       if ( smd_adc[i] > 8 ) {n_hor ++;}
       smd_adc_n_hor_ind[i]->Fill(smd_adc[i]);
-      if (smd_adc[i] != 0) {smd_north_hor_hits->Fill(i);}
+      // if (smd_adc[i] != 0) {smd_north_hor_hits->Fill(i);}
     }
     for ( int i = 0; i < 7; i++)
     {
       if ( smd_adc[i + 8] > 5 ) {n_ver ++;}
       smd_adc_n_ver_ind[i]->Fill(smd_adc[i + 8]);
-      if (smd_adc[i + 8] != 0) {smd_north_ver_hits->Fill(i + 8);}
+      // if (smd_adc[i + 8] != 0) {smd_north_ver_hits->Fill(i + 8);}
     }
 
     for ( int i = 0; i < 8; i++)
     {
       if ( smd_adc[i + 16] > 8 ) {s_hor++;}
       smd_adc_s_hor_ind[i]->Fill(smd_adc[i + 16]);
-      if (smd_adc[i + 16] != 0) {smd_south_hor_hits->Fill(i + 16);}
+      // if (smd_adc[i + 16] != 0) {smd_south_hor_hits->Fill(i + 16);}
     }
     for ( int i = 0; i < 7; i++)
     {
       if ( smd_adc[i + 24] > 5 ) {s_ver++;}
       smd_adc_s_ver_ind[i]->Fill(smd_adc[i + 24]);
-      if (smd_adc[i + 24] != 0) {smd_south_ver_hits->Fill(i + 24);}
+      // if (smd_adc[i + 24] != 0) {smd_south_ver_hits->Fill(i + 24);}
     }
 
     bool fired_smd_hor_n = (n_hor  > 1);
