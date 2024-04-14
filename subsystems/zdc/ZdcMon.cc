@@ -137,10 +137,10 @@ int ZdcMon::Init()
     smd_adc_s_ver_ind[i] = new TH1I(Form("smd_adc_s_ver_ind%d", i),Form("smd_adc_s_ver_ind%d", i), 1000, 0, 5000);
   }
   // SMD Hit Multiplicity
-  smd_north_hor_hits = new TH1F("smd_north_hor_hits", "smd_north_hor_hits", 8, 0., 7.);
-  smd_north_ver_hits = new TH1F("smd_north_ver_hits", "smd_north_ver_hits", 7, 8., 14.);
-  smd_north_hor_hits = new TH1F("smd_south_hor_hits", "smd_south_hor_hits", 8, 16., 23.);
-  smd_north_ver_hits = new TH1F("smd_south_ver_hits", "smd_south_ver_hits", 7, 24., 30.);
+  smd_north_hor_hits = new TH1I("smd_north_hor_hits", "smd_north_hor_hits", 8, 0, 7);
+  smd_north_ver_hits = new TH1I("smd_north_ver_hits", "smd_north_ver_hits", 7, 8, 14);
+  smd_north_hor_hits = new TH1I("smd_south_hor_hits", "smd_south_hor_hits", 8, 16, 23);
+  smd_north_ver_hits = new TH1I("smd_south_ver_hits", "smd_south_ver_hits", 7, 24, 30);
 
   // north smd
   smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
