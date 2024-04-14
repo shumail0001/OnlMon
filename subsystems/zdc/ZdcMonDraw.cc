@@ -801,7 +801,7 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
   }
 
   Pad[52]->cd();
-  if (smd_value_good) {smd_north_ver_hits->DrawCopy();}
+  if (smd_north_ver_hits) {smd_north_ver_hits->DrawCopy();}
   Pad[53]->cd();
   if (smd_south_hor_hits) {smd_south_hor_hits->DrawCopy();}
   Pad[54]->cd();
