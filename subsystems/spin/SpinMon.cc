@@ -102,13 +102,33 @@ int SpinMon::process_event(Event *e /* evt */)
     pYellSpin = e->getPacket(packet_YELLSPIN);
     for (int i = 0; i < NBUNCHES; i++)
     {
-      blueSpinPattern[i] = pBlueSpin->iValue(i);
-      yellSpinPattern[i] = pYellSpin->iValue(i);
-    }
-    delete pBlueSpin;
-    delete pYellSpin;
-  
+      if (i > 110) 
+      {
+        blueSpinPattern[i] = 0;
+        yellSpinPattern[i] = 0;
+      }
+      else
+      {
+        blueSpinPattern[i] = pBlueSpin->iValue(i);
+        yellSpinPattern[i] = pYellSpin->iValue(i);
 
+        if (blueSpinPattern[i] == 1){spin_patternBlueUp->Fill(i,2);}
+        if (blueSpinPattern[i] == -1){spin_patternBlueDown->Fill(i,2);}
+        if (blueSpinPattern[i] == 0){spin_patternBlueUnpol->Fill(i,2);}
+
+        if (yellSpinPattern[i] == 1){spin_patternYellUp->Fill(i,2);}
+        if (yellSpinPattern[i] == -1){spin_patternYellDown->Fill(i,2);}
+        if (yellSpinPattern[i] == 0){spin_patternYellUnpol->Fill(i,2);}
+      }
+
+      // up = 1
+      // down = -1
+      // 0 for abort gap. bunches 111 -> 120
+
+
+
+    }
+    
   
     // for (int i = 0; i < 120; i++)
     // {
@@ -139,6 +159,9 @@ int SpinMon::process_event(Event *e /* evt */)
     //   }
 
     // }
+
+    delete pBlueSpin;
+    delete pYellSpin;
   }
 
   //******** gl1p scalers *********//
