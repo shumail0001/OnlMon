@@ -41,11 +41,11 @@ void zdcDrawInit(const int online = 0)
    cl->registerHisto(Form("smd_adc_s_ver_ind%d", i),"ZDCMON_0");
   }
 
-  // // SMD hit Multiplicities
-  // cl->registerHisto("smd_north_hor_hits", "ZDCMON_0");
-  // cl->registerHisto("smd_north_ver_hits", "ZDCMON_0");
-  // cl->registerHisto("smd_south_hor_hits", "ZDCMON_0");
-  // cl->registerHisto("smd_south_ver_hits", "ZDCMON_0");
+  // SMD hit Multiplicities
+  cl->registerHisto("smd_north_hor_hits", "ZDCMON_0");
+  cl->registerHisto("smd_north_ver_hits", "ZDCMON_0");
+  cl->registerHisto("smd_south_hor_hits", "ZDCMON_0");
+  cl->registerHisto("smd_south_ver_hits", "ZDCMON_0");
   
 
   // north smd
