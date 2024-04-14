@@ -242,6 +242,28 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     TC[5]->SetEditable(false);
   }
 
+  else if (name == "SmdMultiplicities")
+  {
+    // xpos negative: do not draw menu bar
+    TC[6] = new TCanvas(name.c_str(), "Smd Multiplicities", 0 , -ysize / 2, xsize, ysize / 2);
+    gSystem->ProcessEvents();
+    Pad[51] = new TPad("smd_north_hor_hits", "smd_north_hor_hits", 0.05, 0.5, 0.5, 0.98, 0);
+    Pad[52] = new TPad("smd_north_ver_hits", "smd_north_ver_hits", 0.5, 0.5, 0.98, 0.98, 0);
+    Pad[53] = new TPad("smd_south_hor_hits", "smd_south_hor_hits", 0.05, 0.05, 0.5, 0.5, 0);
+    Pad[54] = new TPad("smd_south_ver_hits", "smd_south_ver_hits", 0.5, 0.05, 0.95, 0.5, 0);
+
+    Pad[51]->Draw();    
+    Pad[52]->Draw();
+    Pad[53]->Draw();
+    Pad[54]->Draw();
+
+    // this one is used to plot the run number on the canvas
+    transparent[6] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
+    TC[6]->SetEditable(false);
+  }
+
   return 0;
 }
 
@@ -281,6 +303,12 @@ int ZdcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SMD_S_IND")
   {
     iret += DrawSmdAdcSouthIndividual(what);
+    idraw++;
+  }
+
+  if (what == "ALL" || what == "SMD_MULTIPLICITIES")
+  {
+    iret += DrawSmdMultiplicities(what);
     idraw++;
   }
 
@@ -744,6 +772,62 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
 
 }
 
+int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
+{
+  
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH1 *smd_north_hor_hits = (TH1*) cl->getHisto("ZDCMON_0","smd_north_hor_hits");
+  TH1 *smd_north_ver_hits = (TH1*) cl->getHisto("ZDCMON_0","smd_north_ver_hits");
+  TH1 *smd_south_hor_hits = (TH1*) cl->getHisto("ZDCMON_0","smd_south_hor_hits");
+  TH1 *smd_south_ver_hits = (TH1*) cl->getHisto("ZDCMON_0","smd_south_ver_hits");
+  
+  if (!gROOT->FindObject("SmdMultiplicities"))
+  {
+    MakeCanvas("SmdMultiplicities");
+  }
+
+  TC[6]->SetEditable(true);
+  TC[6]->Clear("D");
+  Pad[51]->cd();
+  if (smd_north_hor_hits)
+  {
+    smd_north_hor_hits->DrawCopy();
+  }
+  else
+  {
+    DrawDeadServer(transparent[6]);
+    TC[6]->SetEditable(false);
+    return -1;
+  }
+
+  Pad[52]->cd();
+  if (smd_value_good) {smd_north_ver_hits->DrawCopy();}
+  Pad[53]->cd();
+  if (smd_south_hor_hits) {smd_south_hor_hits->DrawCopy();}
+  Pad[54]->cd();
+  if (smd_south_ver_hits) {smd_south_ver_hits->DrawCopy();}
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[6]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[6]->Update();
+  TC[6]->Show();
+  TC[6]->SetEditable(false);
+  
+  return 0;
+}
+
 
 int ZdcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
@@ -833,6 +917,13 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
       << "</TITLE></HEAD>" << std::endl;
   out6 << "<P>Some SmdAdcNorthIndividual-related-output would go here." << std::endl;
   out6.close();
+
+  std::string smdmultiplicities = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+  std::ofstream out7(smdmultiplicities.c_str());
+  out7 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
+      << "</TITLE></HEAD>" << std::endl;
+  out7 << "<P>Some SmdAdcNorthIndividual-related-output would go here." << std::endl;
+  out7.close();
 
   return 0;
 }
