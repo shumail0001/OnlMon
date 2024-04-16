@@ -26,6 +26,7 @@ class HcalMon : public OnlMon
   int Reset();
   std::vector<float> getSignal(Packet* p, const int channel);
   std::vector<float> anaWaveform(Packet* p, const int channel);
+  void set_anaGL1(bool state){anaGL1=state;return;}
 
  protected:
   int evtcnt = 0;
