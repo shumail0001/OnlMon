@@ -175,7 +175,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalPopUp")
   {
-    TC[4] = new TCanvas(name.c_str(), "!!!DO NOT CLOSE!!! OR THE CODE WILL CRASH!!!!", 2 * xsize / 3, 0.05, xsize / 2, 2 * ysize / 3);
+    TC[4] = new TCanvas(name.c_str(), "!!!DO NOT CLOSE!!! OR THE CODE WILL CRASH!!!!(Maybe not...)", 2 * xsize / 3, 0.05, xsize / 2, 2 * ysize / 3);
     gSystem->ProcessEvents();
     Pad[9] = new TPad("hcalpad9", "for single tower running mean", 0.0, 0.0, 1, 0.92, 0);
     Pad[9]->Draw();
@@ -351,7 +351,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   gROOT->SetStyle("hcalStyle");
   gROOT->ForceStyle();
   gStyle->SetPalette(3, palette);
-  double_t levels[4] = {0, 0.9, 1.1, 2};
+  double_t levels[4] = {0, 0.7, 1.3, 2};
   hist1->SetContour(4, levels);
 
   FindHotTower(warning[0], hist1);
@@ -543,6 +543,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
 
   float tsize = 0.06;
   h2_hcal_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_waveform->GetXaxis()->SetRangeUser(0, 12);
   h2_hcal_waveform->GetXaxis()->SetTitle("Sample #");
   h2_hcal_waveform->GetYaxis()->SetTitle("Waveform [ADC]");
   h2_hcal_waveform->GetXaxis()->SetLabelSize(tsize);
@@ -583,6 +584,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   float tsize2 = 0.08;
   h_waveform_time->Draw("hist");
   h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_waveform_time->GetXaxis()->SetRangeUser(0, 12);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
   h_waveform_time->GetYaxis()->SetTitle("Towers");
   h_waveform_time->GetXaxis()->SetLabelSize(tsize2);
@@ -605,7 +607,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
 
   h_waveform_pedestal->Draw("hist");
   h_waveform_pedestal->GetXaxis()->SetNdivisions(510, kTRUE);
-  h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedistal");
+  h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
   h_waveform_pedestal->GetYaxis()->SetTitle("Towers");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize2);
   h_waveform_pedestal->GetYaxis()->SetLabelSize(tsize2);
@@ -1058,8 +1060,8 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
   // get histogram
   std::ostringstream hottowerlist;
   std::ostringstream deadtowerlist;
-  float hot_threshold = 1.33;
-  float dead_threshold = 0.66;
+  float hot_threshold = 1.3;
+  float dead_threshold = 0.7;
 
   for (int ieta = 0; ieta < 24; ieta++)
   {
@@ -1322,7 +1324,7 @@ void HcalMonDraw::DrawTowerAvg()
   TC[4]->Clear("D");
   Pad[9]->cd();
 
-  gPad->SetLogz();
+  //gPad->SetLogz();
   gStyle->SetOptStat(0);
   gStyle->SetPalette(57);
   h2_hcal_mean->GetXaxis()->SetTitle("eta index");
