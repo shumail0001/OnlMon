@@ -320,7 +320,7 @@ int HcalMon::process_event(Event* e /* evt */)
     int evtnr = e->getEvtSequence();
     Event *gl1Event = erc->getEvent(evtnr);
     if (gl1Event){
-      Packet* p = e->getPacket(14001);
+      Packet* p = gl1Event->getPacket(14001);
       if (p){
         gl1_clock = p->lValue(0,"BCO");
         int triggervec = p->lValue(0,"TriggerVector");
