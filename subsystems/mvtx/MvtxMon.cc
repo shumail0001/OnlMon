@@ -256,7 +256,7 @@ int MvtxMon::Init()
   hChipHitmap->GetXaxis()->SetTitle("Col");
   hChipHitmap->GetYaxis()->SetTitle("Row");
   hChipHitmap->SetStats(0);
-  se->registerHisto(this, hChipHitmap);
+  //se->registerHisto(this, hChipHitmap);
 
   hChipStrobes = new TH1I("hChipStrobes", "Chip Strobes vs Chip*Stave", 8*9*6,-.5,8*9*6-0.5);
   hChipStrobes->GetXaxis()->SetTitle("Chip*Stave");
@@ -416,9 +416,9 @@ int MvtxMon::process_event(Event *evt)
             auto strb_bco = plist[i]->lValue(feeId, i_strb, "TRG_IR_BCO");
             //auto strb_bc  = plist[i]->iValue(feeId, i_strb, "TRG_IR_BC");
             auto num_hits = plist[i]->iValue(feeId, i_strb, "TRG_NR_HITS");
-            if (Verbosity() > 4)
+            if (true/*Verbosity() > 4*/)
             {
- 	      if(link.layer == 0){
+ 	      if(true/*link.layer == 0*/){
               std::cout << "evtno: " << ", Fee: " << feeId;
               std::cout << " Layer: " << link.layer << " Stave: " << link.stave;
               std::cout << " GBT: " << link.gbtid << ", bco: 0x" << std::hex << strb_bco << std::dec;
@@ -490,6 +490,7 @@ int MvtxMon::process_event(Event *evt)
          //if (chipOccupancyNorm > 0) mvtxmon_ChipStave1D->SetBinContent((iLayer==0?iStave:NStaves[iLayer]+iStave)*9+iChip+1,chipOccupancyNorm); //need to remember total number of occ and events and scale here
          if (chipOccupancyNorm > 0)mvtxmon_ChipStave1D->SetBinContent((StaveBoundary[iLayer]+iStave)*9 + iChip +1,chipOccupancyNorm); 
          if (chipOccupancyNorm > 0)mGeneralOccupancy->SetBinContent(mapstave[iLayer][iStave], chipOccupancyNorm);
+if (chipOccupancyNorm > 0) std::cout<< iLayer<<" "<<iStave<<" "<<mapstave[iLayer][iStave]<<std::endl;
         int nTrg = nChipStrobes[(StaveBoundary[iLayer]+iStave)*9+iChip];
         for (int iCol = 0; iCol < NCols; iCol++) {
           for (int iRow = 0; iRow < NRows; iRow++) {

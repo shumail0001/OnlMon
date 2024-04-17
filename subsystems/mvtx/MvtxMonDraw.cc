@@ -206,11 +206,11 @@ int MvtxMonDraw::Draw(const std::string &what)
 {
   int iret = 0;
   int idraw = 0;
-  if (what == "ALL" || what == "L0L"|| what == "L0R"|| what == "L1L"|| what == "L1R"|| what == "L2L"|| what == "L2R")
+  /*if (what == "ALL" || what == "L0L"|| what == "L0R"|| what == "L1L"|| what == "L1R"|| what == "L2L"|| what == "L2R")
   {
     iret += DrawHitMap(what);
     idraw++;
-  }
+  }*/
   if (what == "ALL" || what == "GENERAL")
   {
     iret += DrawGeneral(what);
