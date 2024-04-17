@@ -79,7 +79,7 @@ void mvtxDrawInit(const int online = 0)
     cl->registerHisto("MVTXMON_Occupancy_TotalDeadChipPos", instanceName);
     cl->registerHisto("MVTXMON_Occupancy_TotalAliveChipPos", instanceName);
 
-    cl->registerHisto(Form("MVTXMON_chipHitmapFLX%d", iflx), instanceName);
+     //cl->registerHisto(Form("MVTXMON_chipHitmapFLX%d", iflx), instanceName);
   }
 
   // cl->AddServerHost("localhost");  // check local host first
