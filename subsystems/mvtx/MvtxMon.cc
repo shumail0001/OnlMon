@@ -490,7 +490,6 @@ int MvtxMon::process_event(Event *evt)
          //if (chipOccupancyNorm > 0) mvtxmon_ChipStave1D->SetBinContent((iLayer==0?iStave:NStaves[iLayer]+iStave)*9+iChip+1,chipOccupancyNorm); //need to remember total number of occ and events and scale here
          if (chipOccupancyNorm > 0)mvtxmon_ChipStave1D->SetBinContent((StaveBoundary[iLayer]+iStave)*9 + iChip +1,chipOccupancyNorm); 
          if (chipOccupancyNorm > 0)mGeneralOccupancy->SetBinContent(mapstave[iLayer][iStave], chipOccupancyNorm);
-if (chipOccupancyNorm > 0) std::cout<< iLayer<<" "<<iStave<<" "<<mapstave[iLayer][iStave]<<std::endl;
         int nTrg = nChipStrobes[(StaveBoundary[iLayer]+iStave)*9+iChip];
         for (int iCol = 0; iCol < NCols; iCol++) {
           for (int iRow = 0; iRow < NRows; iRow++) {
