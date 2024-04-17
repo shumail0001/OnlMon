@@ -852,27 +852,7 @@ int BbcMonDraw::Draw(const std::string &what)
       MakeCanvas("BbcMon4");
     }
   }
-  // Histogram
-  TH2 *bbc_adc{nullptr};
-  TH2 *bbc_tdc{nullptr};
-  // TH2 *bbc_tdc_overflow;
-  // TH1 *bbc_tdc_overflow_each[nPMT_BBC];
-  // TH1 *bbc_nhit[nTRIGGER];
-  TH2 *bbc_tdc_armhittime{nullptr};
-  TH1 *bbc_zvertex{nullptr};
-  TH1 *bbc_zvertex_bbll1{nullptr};
-  TH1 *bbc_nevent_counter{nullptr};
-  TH2 *bbc_tzero_zvtx{nullptr};
-  TH1 *bbc_avr_hittime{nullptr};
-  TH1 *bbc_south_hittime{nullptr};
-  TH1 *bbc_north_hittime{nullptr};
-  TH1 *bbc_south_chargesum{nullptr};
-  TH1 *bbc_north_chargesum{nullptr};
-  TH1 *bbc_prescale_hist{nullptr};
-  TH2 *bbc_time_wave{nullptr};
-  TH2 *bbc_charge_wave{nullptr};
-  TH2 *bbc_south_hitmap{nullptr};
-  TH2 *bbc_north_hitmap{nullptr};
+
 
   ClearWarning();
 
@@ -889,8 +869,14 @@ int BbcMonDraw::Draw(const std::string &what)
 
   PRINT_DEBUG("Start Getting Histogram");
 
+  TH1 *bbc_trigs = static_cast<TH1 *>(cl->getHisto("BBCMON_0", "bbc_trigs"));
+  ifdelete(Trigs);
+  Trigs = static_cast<TH1 *>(bbc_trigs->Clone());
+
   name << "bbc_tdc";
-  bbc_tdc = static_cast<TH2 *>(cl->getHisto("BBCMON_0", name.str().c_str()));
+  //TH2 *bbc_tdc = static_cast<TH2 *>(cl->getHisto("BBCMON_0", name.str().c_str()));
+  TH2 *bbc_tdc = static_cast<TH2 *>(cl->getHisto("BBCMON_0", "bbc_tdc"));
+  std::cout << "BBCTDC2 " << (uint64_t)bbc_tdc << std::endl;
   name.str("");
 
   /*
@@ -905,8 +891,29 @@ int BbcMonDraw::Draw(const std::string &what)
     name.str("");
   }
   */
+  // Histogram
+  //TH2 *bbc_adc{nullptr};
+  //TH2 *bbc_tdc{nullptr};
+  // TH2 *bbc_tdc_overflow;
+  // TH1 *bbc_tdc_overflow_each[nPMT_BBC];
+  // TH1 *bbc_nhit[nTRIGGER];
+  TH2 *bbc_tdc_armhittime{nullptr};
+  //TH1 *bbc_zvertex{nullptr};
+  TH1 *bbc_zvertex_bbll1{nullptr};
+  TH1 *bbc_nevent_counter{nullptr};
+  TH2 *bbc_tzero_zvtx{nullptr};
+  TH1 *bbc_avr_hittime{nullptr};
+  TH1 *bbc_south_hittime{nullptr};
+  TH1 *bbc_north_hittime{nullptr};
+  TH1 *bbc_south_chargesum{nullptr};
+  TH1 *bbc_north_chargesum{nullptr};
+  TH1 *bbc_prescale_hist{nullptr};
+  TH2 *bbc_time_wave{nullptr};
+  TH2 *bbc_charge_wave{nullptr};
+  TH2 *bbc_south_hitmap{nullptr};
+  TH2 *bbc_north_hitmap{nullptr};
 
-  bbc_adc = static_cast<TH2 *>(cl->getHisto("BBCMON_0", "bbc_adc"));
+  TH2 *bbc_adc = static_cast<TH2 *>(cl->getHisto("BBCMON_0", "bbc_adc"));
   ifdelete(Adc);
   for (int i = 0; i < nCANVAS; i++)
   {
@@ -941,7 +948,7 @@ int BbcMonDraw::Draw(const std::string &what)
   ifdelete(ArmHit);
   ArmHit = static_cast<TH2 *>(bbc_tdc_armhittime->Clone());
 
-  bbc_zvertex = cl->getHisto("BBCMON_0", "bbc_zvertex");
+  TH1 *bbc_zvertex = cl->getHisto("BBCMON_0", "bbc_zvertex");
   ifdelete(Zvtx);
   Zvtx = static_cast<TH1 *>(bbc_zvertex->Clone());
 
@@ -950,6 +957,8 @@ int BbcMonDraw::Draw(const std::string &what)
   Zvtx_bbll1 = static_cast<TH1 *>(bbc_zvertex_bbll1->Clone());
 
   bbc_nevent_counter = cl->getHisto("BBCMON_0", "bbc_nevent_counter");
+
+  bbc_trigs = cl->getHisto("BBCMON_0", "bbc_trigs");
 
   bbc_tzero_zvtx = static_cast<TH2 *>(cl->getHisto("BBCMON_0", "bbc_tzero_zvtx"));
   ifdelete(TzeroZvtx);
@@ -1004,8 +1013,11 @@ int BbcMonDraw::Draw(const std::string &what)
     ifdelete(HitTime[side]);
 
     name << "FitHitTime" << bbc_onlmon::SIDE_Str[side];
-    HitTime[side] = bbc_tdc->ProjectionY(name.str().c_str(), side * 64, side * 64 + 63);
-    name.str("");
+    if ( bbc_tdc!=nullptr )
+    {
+      HitTime[side] = bbc_tdc->ProjectionY(name.str().c_str(), side * 64, side * 64 + 63);
+      name.str("");
+    }
 
     name << bbc_onlmon::SIDE_Str[side] << " BBC/MBD TDC Distribution";
     // name << bbc_onlmon::SIDE_Str[side] << " BBC/MBD TDC" << tdc << " Distribution(Trigger:BBLL1)" ; // Run14 AuAu 15GeV 2014.02.23
