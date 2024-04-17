@@ -416,9 +416,9 @@ int MvtxMon::process_event(Event *evt)
             auto strb_bco = plist[i]->lValue(feeId, i_strb, "TRG_IR_BCO");
             //auto strb_bc  = plist[i]->iValue(feeId, i_strb, "TRG_IR_BC");
             auto num_hits = plist[i]->iValue(feeId, i_strb, "TRG_NR_HITS");
-            if (true/*Verbosity() > 4*/)
+            if (Verbosity() > 4)
             {
- 	      if(true/*link.layer == 0*/){
+ 	      if(link.layer == 0){
               std::cout << "evtno: " << ", Fee: " << feeId;
               std::cout << " Layer: " << link.layer << " Stave: " << link.stave;
               std::cout << " GBT: " << link.gbtid << ", bco: 0x" << std::hex << strb_bco << std::dec;
