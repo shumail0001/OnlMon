@@ -27,6 +27,8 @@ class HcalMon : public OnlMon
   std::vector<float> getSignal(Packet* p, const int channel);
   std::vector<float> anaWaveform(Packet* p, const int channel);
   void set_anaGL1(bool state){anaGL1=state;return;}
+  void set_trig1(int val){trig1=val;return;}
+  void set_trig2(int val){trig2=val;return;}
 
  protected:
   int evtcnt = 0;
@@ -39,7 +41,8 @@ class HcalMon : public OnlMon
   // TH1 *hcalhist1 = nullptr;
   // TH2 *hcalhist2 = nullptr;
   TH2* h2_hcal_hits = nullptr;
-  TH2* h2_hcal_hits_trig = nullptr;
+  TH2* h2_hcal_hits_trig1 = nullptr;
+  TH2* h2_hcal_hits_trig2 = nullptr;
   TH1* h_waveform_twrAvg = nullptr;
   TH1* h_waveform_time = nullptr;
   TH1* h_waveform_pedestal = nullptr;
@@ -69,6 +72,10 @@ class HcalMon : public OnlMon
   std::vector<runningMean*> rm_packet_number;
   std::vector<runningMean*> rm_packet_length;
   std::vector<runningMean*> rm_packet_chans;
+
+  int trig1 = 1;
+  int trig2 = 3;
+
 };
 
 #endif /* HCAL_HCALMON_H */

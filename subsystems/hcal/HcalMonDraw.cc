@@ -1493,7 +1493,8 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
   char HCALMON_1[100];
   sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
-  TH2F* h2_hcal_hits_trig = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits_trig");
+  TH2F* h2_hcal_hits_trig1 = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits_trig1");
+  TH2F* h2_hcal_hits_trig2 = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits_trig2");
   TH2F* h2_hcal_hits = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
   TH1F* h_hcal_trig = (TH1F*) cl->getHisto(HCALMON_0, "h_hcal_trig");
   TH2F* h_caloPack_gl1_clock_diff = (TH2F*) cl->getHisto(HCALMON_0, "h_caloPack_gl1_clock_diff");
@@ -1507,7 +1508,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TC[6]->SetEditable(1);
   TC[6]->Clear("D");
   Pad[16]->cd();
-  if (!h2_hcal_hits_trig || !h2_hcal_hits || !h_hcal_trig  || !h_caloPack_gl1_clock_diff)
+  if (!h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig  || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2)
   {
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(0);
@@ -1521,15 +1522,15 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   h2_hcal_hits->Draw("colz");
 
   float tsize = 0.06;
-  h2_hcal_hits->GetXaxis()->SetNdivisions(510, kTRUE);
-  h2_hcal_hits->GetXaxis()->SetTitle("No trigger req  ieta");
-  h2_hcal_hits->GetYaxis()->SetTitle("iphi");
-  h2_hcal_hits->GetXaxis()->SetLabelSize(tsize);
-  h2_hcal_hits->GetYaxis()->SetLabelSize(tsize);
-  h2_hcal_hits->GetXaxis()->SetTitleSize(tsize);
-  h2_hcal_hits->GetYaxis()->SetTitleSize(tsize);
-  h2_hcal_hits->GetXaxis()->SetTitleOffset(1.2);
-  h2_hcal_hits->GetYaxis()->SetTitleOffset(0.75);
+  h2_hcal_hits_trig1->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_hits_trig1->GetXaxis()->SetTitle("No trigger req  ieta");
+  h2_hcal_hits_trig1->GetYaxis()->SetTitle("iphi");
+  h2_hcal_hits_trig1->GetXaxis()->SetLabelSize(tsize);
+  h2_hcal_hits_trig1->GetYaxis()->SetLabelSize(tsize);
+  h2_hcal_hits_trig1->GetXaxis()->SetTitleSize(tsize);
+  h2_hcal_hits_trig1->GetYaxis()->SetTitleSize(tsize);
+  h2_hcal_hits_trig1->GetXaxis()->SetTitleOffset(1.2);
+  h2_hcal_hits_trig1->GetYaxis()->SetTitleOffset(0.75);
   gPad->SetLogz();
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.2);
@@ -1560,16 +1561,16 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   gStyle->SetTitleFontSize(0.06);
 
   float tsize2 = 0.08;
-  h2_hcal_hits_trig->Draw("colz");
-  h2_hcal_hits_trig->GetXaxis()->SetNdivisions(510, kTRUE);
-  h2_hcal_hits_trig->GetXaxis()->SetTitle("trigger req  ieta");
-  h2_hcal_hits_trig->GetYaxis()->SetTitle("iphi");
-  h2_hcal_hits_trig->GetXaxis()->SetLabelSize(tsize2);
-  h2_hcal_hits_trig->GetYaxis()->SetLabelSize(tsize2);
-  h2_hcal_hits_trig->GetXaxis()->SetTitleSize(tsize2);
-  h2_hcal_hits_trig->GetYaxis()->SetTitleSize(tsize2);
-  h2_hcal_hits_trig->GetXaxis()->SetTitleOffset(1.0);
-  h2_hcal_hits_trig->GetYaxis()->SetTitleOffset(0.85);
+  h2_hcal_hits_trig2->Draw("colz");
+  h2_hcal_hits_trig2->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_hits_trig2->GetXaxis()->SetTitle("trigger req  ieta");
+  h2_hcal_hits_trig2->GetYaxis()->SetTitle("iphi");
+  h2_hcal_hits_trig2->GetXaxis()->SetLabelSize(tsize2);
+  h2_hcal_hits_trig2->GetYaxis()->SetLabelSize(tsize2);
+  h2_hcal_hits_trig2->GetXaxis()->SetTitleSize(tsize2);
+  h2_hcal_hits_trig2->GetYaxis()->SetTitleSize(tsize2);
+  h2_hcal_hits_trig2->GetXaxis()->SetTitleOffset(1.0);
+  h2_hcal_hits_trig2->GetYaxis()->SetTitleOffset(0.85);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
