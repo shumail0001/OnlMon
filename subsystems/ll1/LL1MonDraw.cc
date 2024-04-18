@@ -40,7 +40,7 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   if (name == "LL1Mon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "ll1Mon Monitor", -1, 0, xsize/2, ysize/2);
+    TC[0] = new TCanvas(name.c_str(), "LL1Mon Monitor - MBD", -1, 0, xsize/2, ysize/2);
     TC[0]->SetTicks(1,1);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
@@ -61,7 +61,7 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   {
     // xpos negative: do not draw menu bar
     gStyle->SetOptStat(0);
-    TC[1] = new TCanvas(name.c_str(), "ll1Mon2 Monitor", -xsize / 2, 0, xsize / 2, ysize/2);
+    TC[1] = new TCanvas(name.c_str(), "ll1Mon2 Monitor - MBD", -xsize / 2, 0, xsize / 2, ysize/2);
     TC[1]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
@@ -72,7 +72,7 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "LL1Mon3")
   {
-    TC[2] = new TCanvas(name.c_str(), "ll1Mon3 Monitor", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[2] = new TCanvas(name.c_str(), "ll1Mon3 Monitor - MBD", xsize / 2, 0, xsize / 2, ysize/2);
     TC[2]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
@@ -81,6 +81,40 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
             transparent[2]->Draw();
           TC[2]->SetEditable(0);
   }
+  else if (name == "LL1Mon4")
+  {
+    TC[2] = new TCanvas(name.c_str(), "ll1Mon4 Monitor - Photon", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[2]->SetTicks(1,1);
+    gSystem->ProcessEvents();
+    // this one is used to plot the run number on the canvas
+    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
+    TC[2]->SetEditable(0);
+  }
+  else if (name == "LL1Mon5")
+  {
+    TC[2] = new TCanvas(name.c_str(), "ll1Mon5 Monitor - HCAL", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[2]->SetTicks(1,1);
+    gSystem->ProcessEvents();
+    // this one is used to plot the run number on the canvas
+    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
+    TC[2]->SetEditable(0);
+  }
+  else if (name == "LL1Mon6")
+  {
+    TC[2] = new TCanvas(name.c_str(), "ll1Mon6 Monitor - Jet", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[2]->SetTicks(1,1);
+    gSystem->ProcessEvents();
+    // this one is used to plot the run number on the canvas
+    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
+    TC[2]->SetEditable(0);
+  }
+
   return 0;
 }
 
@@ -103,6 +137,22 @@ int LL1MonDraw::Draw(const std::string &what)
     iret += DrawThird(what);
     idraw++;
   }
+  if (what == "ALL" || what == "FOURTH")
+  {
+    iret += DrawFourth(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "FIFTH")
+  {
+    iret += DrawFifth(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "SIXTH")
+  {
+    iret += DrawSixth(what);
+    idraw++;
+  }
+
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -220,6 +270,208 @@ int LL1MonDraw::DrawThird(const std::string & /* what */)
   if (h_line_up)
   {
     h_line_up->Draw("colz");
+  }
+  else
+  {
+    DrawDeadServer(transparent[2]);
+    TC[2]->SetEditable(false);
+    return -1;
+  }
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  // fill run number and event time into string
+  runnostream << ThisName << "_3 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[2]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[2]->Update();
+  TC[2]->SetTicks(1,1);
+  TC[2]->Show();
+  TC[2]->SetEditable(false);
+  return 0;
+}
+
+int LL1MonDraw::DrawFourth(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH2 *h_8x8_sum_emcal= (TH2*) cl->getHisto("LL1MON_0","h_8x8_sum_emcal");
+  TH2 *h_8x8_sum_emcal_above_threshold= (TH2*) cl->getHisto("LL1MON_0","h_8x8_sum_emcal_above_threshold_1");
+  TH2 *h_sample_diff_emcal= (TH2*) cl->getHisto("LL1MON_0","h_sample_diff_emcal");
+  time_t evttime = cl->EventTime("CURRENT");
+  if (!gROOT->FindObject("LL1Mon4"))
+  {
+    MakeCanvas("LL1Mon4");
+  }
+  TC[2]->SetEditable(true);
+  TC[2]->Clear("D");
+  gStyle->SetOptStat(0);
+  TPad *top_pad = new TPad("top_pad","", 0, 0.5, 0.6, 1);
+  top_pad->SetTicks(1,1);
+  top_pad->Draw();    
+  top_pad->cd();
+  
+  if (h_8x8_sum_emcal)
+  {
+    h_8x8_sum_emcal->Draw("colz");
+  }
+  else
+  {
+    DrawDeadServer(transparent[2]);
+    TC[2]->SetEditable(false);
+    return -1;
+  }
+
+  TPad *bottom_pad = new TPad("bottom_pad","", 0, 0.0, 0.6, 0.5);
+  bottom_pad->SetTicks(1,1);
+  bottom_pad->Draw();
+  if (h_8x8_sum_emcal_above_threshold)
+  {
+    h_8x8_sum_emcal_above_threshold->Draw("colz");
+  }
+  else
+  {
+    DrawDeadServer(transparent[2]);
+    TC[2]->SetEditable(false);
+    return -1;
+  }
+
+  TPad *right_pad = new TPad("right_pad","", 0.6, 0.0, 1.0, 1.0);
+  right_pad->SetTicks(1,1);
+  right_pad->Draw();
+  if (h_sample_diff_emcal)
+  {
+    h_sample_diff_emcal->Draw("colz");
+  }
+  else
+  {
+    DrawDeadServer(transparent[2]);
+    TC[2]->SetEditable(false);
+    return -1;
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  // fill run number and event time into string
+  runnostream << ThisName << "_3 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[2]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[2]->Update();
+  TC[2]->SetTicks(1,1);
+  TC[2]->Show();
+  TC[2]->SetEditable(false);
+  return 0;
+}
+int LL1MonDraw::DrawFifth(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH2 *h_jet_input= (TH2*) cl->getHisto("LL1MON_0","h_jet_input");
+  TH2 *h_sample_diff_jet_input = (TH2*) cl->getHisto("LL1MON_0","h_sample_diff_jet_input");
+  time_t evttime = cl->EventTime("CURRENT");
+  if (!gROOT->FindObject("LL1Mon5"))
+  {
+    MakeCanvas("LL1Mon5");
+  }
+  TC[2]->SetEditable(true);
+  TC[2]->Clear("D");
+  gStyle->SetOptStat(0);
+  TPad *right_pad = new TPad("right_pad","", 0, 0.0, 0.5, 1);
+  right_pad->SetTicks(1,1);
+  right_pad->Draw();    
+  right_pad->cd();
+  
+  if (h_jet_input)
+  {
+    h_jet_input->Draw("colz");
+  }
+  else
+  {
+    DrawDeadServer(transparent[2]);
+    TC[2]->SetEditable(false);
+    return -1;
+  }
+
+  TPad *left_pad = new TPad("left_pad","", 0.5, 0.0, 1.0, 1.0);
+  left_pad->SetTicks(1,1);
+  left_pad->Draw();
+
+  if (h_sample_diff_jet_input)
+  {
+   h_sample_diff_jet_input->Draw("colz");
+  }
+  else
+  {
+    DrawDeadServer(transparent[2]);
+    TC[2]->SetEditable(false);
+    return -1;
+  }
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  // fill run number and event time into string
+  runnostream << ThisName << "_3 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[2]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[2]->Update();
+  TC[2]->SetTicks(1,1);
+  TC[2]->Show();
+  TC[2]->SetEditable(false);
+  return 0;
+}
+
+int LL1MonDraw::DrawSixth(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH2 *h_jet_output= (TH2*) cl->getHisto("LL1MON_0","h_jet_output");
+  TH2 *h_jet_output_above_threshold= (TH2*) cl->getHisto("LL1MON_0","h_jet_output_above_threshold_1");
+  time_t evttime = cl->EventTime("CURRENT");
+  if (!gROOT->FindObject("LL1Mon6"))
+  {
+    MakeCanvas("LL1Mon6");
+  }
+  TC[2]->SetEditable(true);
+  TC[2]->Clear("D");
+  gStyle->SetOptStat(0);
+  TPad *right_pad = new TPad("right_pad","", 0, 0.0, 0.5, 1);
+  right_pad->SetTicks(1,1);
+  right_pad->Draw();    
+  right_pad->cd();
+  
+  if (h_jet_output)
+  {
+    h_jet_output->Draw("colz");
+  }
+  else
+  {
+    DrawDeadServer(transparent[2]);
+    TC[2]->SetEditable(false);
+    return -1;
+  }
+
+  TPad *left_pad = new TPad("left_pad","", 0.5, 0.0, 1.0, 1.0);
+  left_pad->SetTicks(1,1);
+  left_pad->Draw();
+  if (h_jet_output_above_threshold)
+  {
+   h_jet_output_above_threshold->Draw("colz");
   }
   else
   {

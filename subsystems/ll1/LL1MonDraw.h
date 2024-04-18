@@ -26,6 +26,9 @@ class LL1MonDraw : public OnlMonDraw
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
   int DrawThird(const std::string &what = "ALL");
+  int DrawFourth(const std::string &what = "ALL");
+  int DrawFifth(const std::string &what = "ALL");
+  int DrawSixth(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
   TCanvas *TC[3] = {nullptr};
   TPad *transparent[3] = {nullptr};
@@ -37,6 +40,7 @@ class LL1MonDraw : public OnlMonDraw
   double pady1[4] = {0.5+edgediff, 0.5+edgediff, edgediff, edgediff};
   double padx2[4] = {0.5-edgediff, 1-edgediff, 0.5-edgediff, 1-edgediff};
   double pady2[4] = {1-edgediff,1-edgediff,0.5-edgediff,0.5-edgediff};
+
 };
 
 #endif /* LL1_LL1MONDRAW_H */

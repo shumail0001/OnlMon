@@ -69,6 +69,9 @@ void StartPoms()
   subsys->AddAction("ll1Draw(\"FIRST\")", "Hits");
   subsys->AddAction("ll1Draw(\"SECOND\")", "Hits Correlation");
   subsys->AddAction("ll1Draw(\"THIRD\")", "Hits Lineup");
+  subsys->AddAction("ll1Draw(\"FOURTH\")", "EMCAL LL1 - Photon");
+  subsys->AddAction("ll1Draw(\"FIFTH\")", "Jet Input - HCAL");
+  subsys->AddAction("ll1Draw(\"SIXTH\")", "Jet LL1");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 

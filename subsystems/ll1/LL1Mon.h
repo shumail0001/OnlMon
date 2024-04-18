@@ -36,7 +36,31 @@ class LL1Mon : public OnlMon
   TH2* h_nhit_s_corr=nullptr;
   TH1* h_time_diff=nullptr;
   TH2* h_hit_check=nullptr;
+
+  // EMCAL Trigger Section
+
+  TH2* h_2x2_sum_emcal = nullptr;
+  TH2* h_8x8_sum_emcal = nullptr;
+  TH2* h_8x8_sum_emcal_above_threshold[4] = {nullptr};
+  TH2* h_sample_diff_emcal = nullptr;
   
+  // Jet Trigger Section
+
+  TH2* h_jet_output = nullptr;
+  TH2* h_jet_output_above_threshold[4] = {nullptr};
+  TH2* h_jet_input = nullptr;
+  TH2* h_sample_diff_jet_input= nullptr;
+
+  int nbins_emcal_eta_2x2 = 48;
+  int nbins_emcal_phi_2x2 = 128;
+  int nbins_emcal_eta_8x8 = 12;
+  int nbins_emcal_phi_8x8 = 32;
+  int nbins_jet_input_eta = 12;
+  int nbins_jet_input_phi = 32;
+  int nbins_jet_output_eta = 9;
+  int nbins_jet_output_phi = 32;
+
+
   float binstart = -0.5;
   float binend = 64.5;
   float binend2 = 32.5;
