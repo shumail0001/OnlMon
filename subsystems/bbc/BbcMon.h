@@ -9,7 +9,9 @@ class TH2;
 class TF1;
 class TH2Poly;
 class OnlBbcEvent;
-class BbcGeom;
+class MbdGeom;
+class MbdOut;
+class MbdPmtContainer;
 class eventReceiverClient;
 // class OnlMonDB;
 
@@ -38,7 +40,9 @@ class BbcMon : public OnlMon
   int evtcnt{0};
   // OnlMonDB *dbvars = nullptr;
 
-  BbcGeom *bbcgeom{nullptr};  // contains positions of BBC PMTs
+  MbdGeom *_mbdgeom{nullptr};  // contains positions of BBC PMTs
+  MbdOut *m_mbdout{nullptr};
+  MbdPmtContainer *m_mbdpmts{nullptr};
 
   TH1 *bbc_trigs{nullptr};
   TH2 *bbc_adc{nullptr};

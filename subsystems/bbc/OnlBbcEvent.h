@@ -1,248 +1,156 @@
-#ifndef __ONLBBCEVENT_H__
-#define __ONLBBCEVENT_H__
+#ifndef ONLBBCEVENT_H
+#define ONLBBCEVENT_H
 
-#include "OnlBbcSig.h"
+#include <mbd/MbdDefs.h>
+#include <mbd/MbdSig.h>
 
-#include <limits>
+#include <TFile.h>
+#include <TTree.h>
+//#include <fun4all/Fun4AllBase.h>
+#include <vector>
 
 class PHCompositeNode;
 class Event;
 class Packet;
+class MbdPmtContainer;
+class MbdOut;
+class OnlBbcCalib;
+class MbdGeom;
+//class CDBUtils;
 class TF1;
 class TCanvas;
 
 class OnlBbcEvent
 {
  public:
-  OnlBbcEvent();
+  OnlBbcEvent(const int cal_pass = 0);
   virtual ~OnlBbcEvent();
 
-  bool setRawData(Event *);
-  int calculate();
+  int SetRawData(Event *event, MbdPmtContainer *mbdpmts);
+  int Calculate(MbdPmtContainer *mbdpmts, MbdOut *mbdout);
   int InitRun();
+  int End();
   void Clear();
 
-  int calib_is_done() { return calib_done; }
+  int calib_is_done() { return _calib_done; }
 
-  float get_bbcz() { return f_bbcz; }
-  float get_t0() { return f_bbct0; }
+  void SetSim(const int s) { _simflag = s; }
 
-  int getEventNumber(void) const
-  {
-    return (EventNumber);
-  }
+  float get_bbcz() { return m_bbcz; }
+  float get_bbczerr() { return m_bbczerr; }
+  float get_bbct0() { return m_bbct0; }
+  float get_bbct0err() { return m_bbct0err; }
 
-  int getAdc(int PmtIndx) const
-  {
-    // return (Adc[PmtIndx]);
-    return (f_pmtq[PmtIndx]);
-  }
+  int get_bbcn(const int iarm) { return m_bbcn[iarm]; }
+  float get_bbcq(const int iarm) { return m_bbcq[iarm]; }
+  float get_bbct(const int iarm) { return m_bbct[iarm]; }
+  float get_bbcte(const int iarm) { return m_bbcte[iarm]; }
 
-  int getTdc0(int PmtIndx) const
-  {
-    return (f_pmtt0[PmtIndx]);
-  }
+  int get_pmtq(const int ipmt) { return m_pmtq[ipmt]; }
+  float get_pmttt(const int ipmt) { return m_pmttt[ipmt]; }
+  float get_pmttq(const int ipmt) { return m_pmttq[ipmt]; }
 
-  int getTdc1(int PmtIndx) const
-  {
-    return (f_pmtt1[PmtIndx]);
-  }
+  int get_EventNumber(void) const { return m_evt; }
 
-  float getQ(int PmtIndx) const
-  {
-    // return (Adc[PmtIndx]);
-    return (f_pmtq[PmtIndx]);
-  }
+  void set_debugintt(const int d) { _debugintt = d; }
 
-  // Time from Timing Channel
-  float getTT(int PmtIndx) const
-  {
-    return (f_pmtt0[PmtIndx]);
-  }
+  MbdSig *GetSig(const int ipmt) { return &_mbdsig[ipmt]; }
 
-  // Time from Charge Channel
-  float getTQ(int PmtIndx) const
-  {
-    return (f_pmtt1[PmtIndx]);
-  }
+  int FillSampMaxCalib();
 
-  /*
-  int getCutVal ()
-  {
-    return (calib.getCutVal ());
-  }
-
-  BbcTime_t getEventTime (void) const
-  {
-    return (0);
-  }
-
-  float getTrueAdc (int PmtIndx) const
-  {
-    return (TrueAdc[PmtIndx]);
-  }
-
-  float getCharge (int PmtIndx) const
-  {
-    return (Charge[PmtIndx]);
-  }
-  float getHitTime0 (int PmtIndx) const
-  {
-    return (HitTime0[PmtIndx]);
-  }
-  float getHitTime1 (int PmtIndx) const
-  {
-    return (HitTime1[PmtIndx]);
-  }
-  int isHit (int PmtIndx) const
-  {
-    return (iHit[PmtIndx]);
-  }
-
-  int isArmHitPmt (int PmtIndx) const
-  {
-    return (armHitPmt[PmtIndx]);
-  }
-
-  int getnHitPmt (Bbc::ArmType arm) const
-  {
-    return (nHitPmt[arm]);
-  }
-  */
-
-  float getChargeSum(int arm) const
-  {
-    return (ChargeSum[arm]);
-  }
-  /*
-  float getArmHitTime (Bbc::ArmType arm) const
-  {
-    return (ArmHitTime[arm]);
-  }
-  float getArmHitTimeError (Bbc::ArmType arm) const
-  {
-    return (ArmHitTimeError[arm]);
-  }
-  */
-
-  float getZVertex(void) const
-  {
-    return (ZVertex);
-  }
-  float getZVertexError(void) const
-  {
-    return (ZVertexError);
-  }
-  float getTimeZero(void) const
-  {
-    return (TimeZero);
-  }
-
-  /*
-  float getTimeZeroError (void) const
-  {
-    return (TimeZeroError);
-  }
-
-  void setEventNumber (int givenEventNumber)
-  {
-    EventNumber = givenEventNumber;
-  }
-  void setAdc (int givenAdc, int PmtIndx)
-  {
-    Adc[PmtIndx] = givenAdc;
-  }
-  void setTdc0 (int givenTdc0, int PmtIndx)
-  {
-    Tdc0[PmtIndx] = givenTdc0;
-  }
-  void setTdc1 (int givenTdc1, int PmtIndx)
-  {
-    Tdc1[PmtIndx] = givenTdc1;
-  }
-
-  int printAdcTdc (void) const;
-  int printPmtChTime (void) const;
-
-  float TimeLagOfTransitTime (int PmtIndx, float ZVertex2) const;
-  */
-
-  OnlBbcSig *GetSig(const int ipmt) { return &bbcsig[ipmt]; }
+  int Verbosity() { return _verbose; };
 
  private:
-  int Read_Charge_Calib(const char *calfname);
-  int Read_TQ_T0_Offsets(const char *calfname);
-  float gaincorr[128]{};       // gain corrections
-  float tq_t0_offsets[128]{};  // t0 offsets in charge channels
-  float bz_offset{0.};
-
-  static const int NCH = 256;
-  static const int NSAMPLES = 31;
   static const int NCHPERPKT = 128;
 
-  int verbose;
-  int EventNumber;
-  int calib_done;
+  MbdGeom *_mbdgeom{nullptr};
+  OnlBbcCalib *_mbdcal{nullptr};
+
+  int Read_Charge_Calib(const std::string &calfname);
+  int Read_TQ_T0_Offsets(const std::string &calfname);
+  int Read_TQ_CLK_Offsets(const std::string &calfname);
+  int Read_TT_CLK_Offsets(const std::string &calfname);
+  int DoQuickClockOffsetCalib();
+
+  int _debugintt{0};
+  void ReadSyncFile(const char *fname = "SYNC_INTTMBD.root");
+
+  float gaincorr[MbdDefs::MBD_N_PMT]{};       // gain corrections
+  float tq_t0_offsets[MbdDefs::MBD_N_PMT]{};  // t0 offsets in charge channels
+  float tq_clk_offsets[MbdDefs::MBD_N_PMT]{};
+  float tt_clk_offsets[MbdDefs::MBD_N_PMT]{};
+
+  // float bz_offset{0.};
+
+  int _verbose{0};
+  int _runnum{0};
+  int _simflag{0};
+  int _nsamples{31};
+  int _calib_done{0};
   Packet *p[2]{nullptr, nullptr};
 
+  // alignment data
+  Int_t m_evt{0};
+  Short_t m_clk{0};
+  Short_t m_femclk{0};
+
   // raw data
-  Float_t f_adc[NCH][NSAMPLES]{};   // raw waveform
-  Float_t f_samp[NCH][NSAMPLES]{};  // raw waveform
-  Float_t f_ampl[NCH]{};            // amplitude
-  // Float_t f_t0[NCH];                // time
+  Float_t m_adc[MbdDefs::MBD_N_FEECH][MbdDefs::MAX_SAMPLES]{};   // raw waveform, adc values
+  Float_t m_samp[MbdDefs::MBD_N_FEECH][MbdDefs::MAX_SAMPLES]{};  // raw waveform, sample values
+  Float_t m_ampl[MbdDefs::MBD_N_FEECH]{};                        // raw amplitude
 
-  std::vector<OnlBbcSig> bbcsig;
+  std::vector<MbdSig> _mbdsig;
 
-  static const int BBC_N_PMT = 128;
+  Float_t m_pmtq[MbdDefs::MBD_N_PMT]{};   // npe in each arm
+  Float_t m_pmttt[MbdDefs::MBD_N_PMT]{};  // time in each arm
+  Float_t m_pmttq[MbdDefs::MBD_N_PMT]{};  // time in each arm
 
-  // converted (corrected) data
-  int iHit[BBC_N_PMT]{};
-  int armHitPmt[BBC_N_PMT]{};
+  int do_templatefit{1};
 
-  // Adc value w/ pedestal subtracted
-  // float TrueAdc[BBC_N_PMT];
+  // output data
+  Short_t m_bbcn[2]{};                                            // num hits for each arm (north and south)
+  Float_t m_bbcq[2]{};                                            // total charge (currently npe) in each arm
+  Float_t m_bbct[2]{};                                            // time in arm
+  Float_t m_bbcte[2]{};                                           // earliest hit time in arm
+  Float_t m_bbctl[2]{};                                           // latest hit time in arm
+  Float_t m_bbcz{std::numeric_limits<Float_t>::quiet_NaN()};      // z-vertex
+  Float_t m_bbczerr{std::numeric_limits<Float_t>::quiet_NaN()};   // z-vertex error
+  Float_t m_bbct0{std::numeric_limits<Float_t>::quiet_NaN()};     // start time
+  Float_t m_bbct0err{std::numeric_limits<Float_t>::quiet_NaN()};  // start time error
+  Float_t _tres = std::numeric_limits<Float_t>::quiet_NaN();      // time resolution of one channel
 
-  float Charge[BBC_N_PMT]{};
-  float HitTime0[BBC_N_PMT]{};
-  float HitTime1[BBC_N_PMT]{};
-
-  // End product data
-  int nHitPmt[2]{};
-  float ChargeSum[2]{};
-  float ArmHitTime[2]{};
-  float ArmHitTimeError[2]{};
-  float ZVertex{};
-  float ZVertexError{};
-  float TimeZero{};
-  float TimeZeroError{};
-
-  Float_t f_pmtq[BBC_N_PMT]{};                                 // npe in each arm
-  Float_t f_pmtt0[BBC_N_PMT]{};                                // time in each arm
-  Float_t f_pmtt1[BBC_N_PMT]{};                                // time in each arm
-  Short_t f_bbcn[2]{};                                         // num hits for each arm (north and south)
-  Float_t f_bbcq[2]{};                                         // total charge (currently npe) in each arm
-  Float_t f_bbct[2]{};                                         // time in arm
-  Float_t f_bbcte[2]{};                                        // earliest hit time in arm
-  Float_t f_bbcz{std::numeric_limits<Float_t>::quiet_NaN()};   // z-vertex
-  Float_t f_bbct0{std::numeric_limits<Float_t>::quiet_NaN()};  // start time
-  TH1 *hevt_bbct[2]{};                                         // time in each bbc, per event
-  TF1 *gaussian{nullptr};
-  Float_t _tres{std::numeric_limits<Float_t>::quiet_NaN()};  // time resolution of one channel
-
-  TH2 *h2_tmax[2] = {};  // [0 == time ch, 1 == chg ch], max sample in evt vs ch
+  TH1 *hevt_bbct[2]{};  // time in each bbc, per event
+  TF1 *gausfit[2]{nullptr, nullptr};
 
   float TRIG_SAMP[16]{};  // [board]
-                          //  float bbc_tq_t0_offsets[BBC_N_PMT] = {};
 
-  TCanvas *ac{nullptr};
-  /*
-  int calcEndProduct (void);
-  int calcArmProduct (Bbc::ArmType arm);
-  int calcPmtProduct (int PmtIndx);
+  // Calibration Data
+  int _calpass{0};
+  TString _caldir;
+  //std::string _caldir;
 
-  // must exec after calcArmProduct
-  int calcFlag ();
-  */
+  // sampmax
+  int CalcSampMaxCalib();
+  std::unique_ptr<TFile> _smax_tfile{nullptr};
+  TH1 *h_tmax[256]{};     // [feech], max sample in event
+  TH2 *h2_tmax[2]{};      // [0 == time ch, 1 == chg ch], max sample in evt vs ch
+  TH2 *h2_wave[2]{};      // [0 == time ch, 1 == chg ch], all samples in evt vs ch
+  TH2 *h2_trange_raw{};   // raw tdc at maxsamp vs ch
+  TH2 *h2_trange{};       // subtracted tdc at maxsamp vs ch
+  //TH1 *h_trange[2]{};     // subtracted tdc at maxsamp, [S/N]
+
+  TCanvas *ac{nullptr};  // for plots used during debugging
+
+  // debug stuff
+  std::unique_ptr<TFile> _synctfile{nullptr};
+  TTree *_syncttree{nullptr};
+  int _syncevt{0};
+  std::vector<Int_t> bbevt;
+  std::vector<UShort_t> bbclk;
+  std::vector<Float_t> mybbz;
+  std::vector<Long64_t> bco;
+  std::vector<Double_t> intz;
+  std::vector<Double_t> bbz;
 };
 
-#endif /* __ONLBBCEVENT_H__ */
+#endif /* ONLBBCEVENT_H */

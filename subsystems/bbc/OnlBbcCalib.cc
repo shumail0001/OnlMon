@@ -99,7 +99,7 @@ int OnlBbcCalib::Download_Gains(const std::string& dbase_location)
       infile >> _qfit_integ[pmt] >> _qfit_mpv[pmt] >> _qfit_sigma[pmt] >> _qfit_integerr[pmt] >> _qfit_mpverr[pmt] >> _qfit_sigmaerr[pmt] >> _qfit_chi2ndf[pmt];
       if (Verbosity() > 0)
       {
-        if (pmt < 5 || pmt >= bbc_onlmon::MBD_N_PMT - 5)
+        if (pmt < 5 || pmt >= BbcMonDefs::MBD_N_PMT - 5)
         {
           std::cout << pmt << "\t" << _qfit_integ[pmt] << "\t" << _qfit_mpv[pmt] << "\t" << _qfit_sigma[pmt]
                     << "\t" << _qfit_integerr[pmt] << "\t" << _qfit_mpverr[pmt] << "\t" << _qfit_sigmaerr[pmt]
@@ -144,7 +144,7 @@ int OnlBbcCalib::Download_TQT0(const std::string& dbase_location)
 
       if (Verbosity() > 0)
       {
-        if (pmt < 5 || pmt >= bbc_onlmon::MBD_N_PMT - 5)
+        if (pmt < 5 || pmt >= BbcMonDefs::MBD_N_PMT - 5)
         {
           std::cout << pmt << "\t" << _tqfit_t0mean[pmt] << "\t" << _tqfit_t0meanerr[pmt]
                     << "\t" << _tqfit_t0sigma[pmt] << "\t" << _tqfit_t0sigmaerr[pmt] << std::endl;
@@ -193,7 +193,7 @@ int OnlBbcCalib::Download_TTT0(const std::string& dbase_location)
 
       if (Verbosity() > 0)
       {
-        if (pmt < 5 || pmt >= bbc_onlmon::MBD_N_PMT - 5)
+        if (pmt < 5 || pmt >= BbcMonDefs::MBD_N_PMT - 5)
         {
           std::cout << pmt << "\t" << _ttfit_t0mean[pmt] << "\t" << _ttfit_t0meanerr[pmt]
                     << "\t" << _ttfit_t0sigma[pmt] << "\t" << _ttfit_t0sigmaerr[pmt] << std::endl;
@@ -234,7 +234,7 @@ int OnlBbcCalib::Download_SampMax(const std::string& dbase_location)
       infile >> _sampmax[feech];
       if (Verbosity() > 0)
       {
-        if (feech < 5 || feech >= bbc_onlmon::MBD_N_FEECH - 5)
+        if (feech < 5 || feech >= BbcMonDefs::MBD_N_FEECH - 5)
         {
           std::cout << "sampmax\t" << feech << "\t" << _sampmax[feech] << std::endl;
         }
@@ -474,7 +474,7 @@ int OnlBbcCalib::Download_TimeCorr(const std::string& dbase_location)
   }
 
   // Now we interpolate the timecorr
-  for (size_t ifeech=0; ifeech<bbc_onlmon::MBD_N_FEECH; ifeech++) 
+  for (size_t ifeech=0; ifeech<BbcMonDefs::MBD_N_FEECH; ifeech++) 
   {
     if ( _mbdgeom->get_type(ifeech) == 1 )
     {
@@ -591,7 +591,7 @@ int OnlBbcCalib::Download_SlewCorr(const std::string& dbase_location)
   }
 
   // Now we interpolate the slewcorr
-  for (size_t ifeech=0; ifeech<bbc_onlmon::MBD_N_FEECH; ifeech++) 
+  for (size_t ifeech=0; ifeech<BbcMonDefs::MBD_N_FEECH; ifeech++) 
   {
     if ( _mbdgeom->get_type(ifeech) == 1 )
     {
@@ -644,7 +644,7 @@ int OnlBbcCalib::Write_SampMax(const std::string& dbfile)
 {
   std::ofstream cal_file;
   cal_file.open(dbfile);
-  for (int ifeech = 0; ifeech < bbc_onlmon::MBD_N_FEECH; ifeech++)
+  for (int ifeech = 0; ifeech < BbcMonDefs::MBD_N_FEECH; ifeech++)
   {
     cal_file << ifeech << "\t" << _sampmax[ifeech] << std::endl;
   }
@@ -657,7 +657,7 @@ int OnlBbcCalib::Write_TTT0(const std::string& dbfile)
 {
   std::ofstream cal_t0_file;
   cal_t0_file.open(dbfile);
-  for (int ipmt = 0; ipmt < bbc_onlmon::MBD_N_PMT; ipmt++)
+  for (int ipmt = 0; ipmt < BbcMonDefs::MBD_N_PMT; ipmt++)
   {
     cal_t0_file << ipmt << "\t" << _ttfit_t0mean[ipmt] << "\t" << _ttfit_t0meanerr[ipmt]
       << "\t" << _ttfit_t0sigma[ipmt] << "\t" << _ttfit_t0sigmaerr[ipmt] << std::endl;
@@ -671,7 +671,7 @@ int OnlBbcCalib::Write_TQT0(const std::string& dbfile)
 {
   std::ofstream cal_t0_file;
   cal_t0_file.open(dbfile);
-  for (int ipmt = 0; ipmt < bbc_onlmon::MBD_N_PMT; ipmt++)
+  for (int ipmt = 0; ipmt < BbcMonDefs::MBD_N_PMT; ipmt++)
   {
     cal_t0_file << ipmt << "\t" << _tqfit_t0mean[ipmt] << "\t" << _tqfit_t0meanerr[ipmt]
       << "\t" << _tqfit_t0sigma[ipmt] << "\t" << _tqfit_t0sigmaerr[ipmt] << std::endl;
@@ -684,9 +684,9 @@ int OnlBbcCalib::Write_TQT0(const std::string& dbfile)
 void OnlBbcCalib::Update_TQT0(const float dz)
 {
   // dz is what we need to move the MBD z by
-  const float dt = dz/bbc_onlmon::C;
+  const float dt = dz/BbcMonDefs::C;
 
-  for (int ipmt=0; ipmt<bbc_onlmon::MBD_N_PMT; ipmt++)
+  for (int ipmt=0; ipmt<BbcMonDefs::MBD_N_PMT; ipmt++)
   {
     if ( ipmt<64 )  // south
     {
@@ -702,9 +702,9 @@ void OnlBbcCalib::Update_TQT0(const float dz)
 void OnlBbcCalib::Update_TTT0(const float dz)
 {
   // dz is what we need to move the MBD z by
-  const float dt = dz/bbc_onlmon::C;
+  const float dt = dz/BbcMonDefs::C;
 
-  for (int ipmt=0; ipmt<bbc_onlmon::MBD_N_PMT; ipmt++)
+  for (int ipmt=0; ipmt<BbcMonDefs::MBD_N_PMT; ipmt++)
   {
     if ( ipmt<64 )  // south
     {

@@ -77,54 +77,54 @@ class OnlBbcCalib
   int _verbosity{0};
 
   // Assumes Landau fit
-  std::array<float, bbc_onlmon::MBD_N_PMT> _qfit_integ{};
-  std::array<float, bbc_onlmon::MBD_N_PMT> _qfit_mpv{};
-  std::array<float, bbc_onlmon::MBD_N_PMT> _qfit_sigma{};
-  std::array<float, bbc_onlmon::MBD_N_PMT> _qfit_integerr{};
-  std::array<float, bbc_onlmon::MBD_N_PMT> _qfit_mpverr{};
-  std::array<float, bbc_onlmon::MBD_N_PMT> _qfit_sigmaerr{};
-  std::array<float, bbc_onlmon::MBD_N_PMT> _qfit_chi2ndf{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _qfit_integ{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _qfit_mpv{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _qfit_sigma{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _qfit_integerr{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _qfit_mpverr{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _qfit_sigmaerr{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _qfit_chi2ndf{};
 
   // T0 offsets, time channels
-  std::array<float, bbc_onlmon::MBD_N_PMT> _ttfit_t0mean{};
-  std::array<float, bbc_onlmon::MBD_N_PMT> _ttfit_t0meanerr{};
-  std::array<float, bbc_onlmon::MBD_N_PMT> _ttfit_t0sigma{};
-  std::array<float, bbc_onlmon::MBD_N_PMT> _ttfit_t0sigmaerr{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _ttfit_t0mean{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _ttfit_t0meanerr{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _ttfit_t0sigma{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _ttfit_t0sigmaerr{};
 
   // T0 offsets, charge channels
-  std::array<float, bbc_onlmon::MBD_N_PMT> _tqfit_t0mean{};
-  std::array<float, bbc_onlmon::MBD_N_PMT> _tqfit_t0meanerr{};
-  std::array<float, bbc_onlmon::MBD_N_PMT> _tqfit_t0sigma{};
-  std::array<float, bbc_onlmon::MBD_N_PMT> _tqfit_t0sigmaerr{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _tqfit_t0mean{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _tqfit_t0meanerr{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _tqfit_t0sigma{};
+  std::array<float, BbcMonDefs::MBD_N_PMT> _tqfit_t0sigmaerr{};
 
   // Peak of waveform
-  std::array<int, bbc_onlmon::MBD_N_FEECH> _sampmax{};
+  std::array<int, BbcMonDefs::MBD_N_FEECH> _sampmax{};
 
   // Waveform Template
   int do_templatefit{0};
-  std::array<int, bbc_onlmon::MBD_N_FEECH>   _shape_npts{};      // num points in template
-  std::array<float, bbc_onlmon::MBD_N_FEECH> _shape_minrange{};  // in template units (samples)
-  std::array<float, bbc_onlmon::MBD_N_FEECH> _shape_maxrange{};  // in template units (samples)
-  std::array<std::vector<float>, bbc_onlmon::MBD_N_FEECH> _shape_y{};
+  std::array<int, BbcMonDefs::MBD_N_FEECH>   _shape_npts{};      // num points in template
+  std::array<float, BbcMonDefs::MBD_N_FEECH> _shape_minrange{};  // in template units (samples)
+  std::array<float, BbcMonDefs::MBD_N_FEECH> _shape_maxrange{};  // in template units (samples)
+  std::array<std::vector<float>, BbcMonDefs::MBD_N_FEECH> _shape_y{};
 
-  std::array<int, bbc_onlmon::MBD_N_FEECH>   _sherr_npts{};      // num points in template
-  std::array<float, bbc_onlmon::MBD_N_FEECH> _sherr_minrange{};  // in template units (samples)
-  std::array<float, bbc_onlmon::MBD_N_FEECH> _sherr_maxrange{};  // in template units (samples)
-  std::array<std::vector<float>, bbc_onlmon::MBD_N_FEECH> _sherr_yerr{};
+  std::array<int, BbcMonDefs::MBD_N_FEECH>   _sherr_npts{};      // num points in template
+  std::array<float, BbcMonDefs::MBD_N_FEECH> _sherr_minrange{};  // in template units (samples)
+  std::array<float, BbcMonDefs::MBD_N_FEECH> _sherr_maxrange{};  // in template units (samples)
+  std::array<std::vector<float>, BbcMonDefs::MBD_N_FEECH> _sherr_yerr{};
 
   // Fine Timing Corrections
-  std::array<int, bbc_onlmon::MBD_N_FEECH>   _tcorr_npts{};      // num points in template
-  std::array<float, bbc_onlmon::MBD_N_FEECH> _tcorr_minrange{};  // in template units (delta-TDC)
-  std::array<float, bbc_onlmon::MBD_N_FEECH> _tcorr_maxrange{};  // in template units (detta-TDC)
-  std::array<std::vector<float>, bbc_onlmon::MBD_N_FEECH> _tcorr_y{};
-  std::array<std::vector<float>, bbc_onlmon::MBD_N_FEECH> _tcorr_y_interp{}; // interpolated tcorr
+  std::array<int, BbcMonDefs::MBD_N_FEECH>   _tcorr_npts{};      // num points in template
+  std::array<float, BbcMonDefs::MBD_N_FEECH> _tcorr_minrange{};  // in template units (delta-TDC)
+  std::array<float, BbcMonDefs::MBD_N_FEECH> _tcorr_maxrange{};  // in template units (detta-TDC)
+  std::array<std::vector<float>, BbcMonDefs::MBD_N_FEECH> _tcorr_y{};
+  std::array<std::vector<float>, BbcMonDefs::MBD_N_FEECH> _tcorr_y_interp{}; // interpolated tcorr
 
   // Slew Correction
-  std::array<int, bbc_onlmon::MBD_N_FEECH>   _scorr_npts{};      // num points in template
-  std::array<float, bbc_onlmon::MBD_N_FEECH> _scorr_minrange{};  // in template units (delta-TDC)
-  std::array<float, bbc_onlmon::MBD_N_FEECH> _scorr_maxrange{};  // in template units (detta-TDC)
-  std::array<std::vector<float>, bbc_onlmon::MBD_N_FEECH> _scorr_y{};
-  std::array<std::vector<float>, bbc_onlmon::MBD_N_FEECH> _scorr_y_interp{}; // interpolated tcorr
+  std::array<int, BbcMonDefs::MBD_N_FEECH>   _scorr_npts{};      // num points in template
+  std::array<float, BbcMonDefs::MBD_N_FEECH> _scorr_minrange{};  // in template units (delta-TDC)
+  std::array<float, BbcMonDefs::MBD_N_FEECH> _scorr_maxrange{};  // in template units (detta-TDC)
+  std::array<std::vector<float>, BbcMonDefs::MBD_N_FEECH> _scorr_y{};
+  std::array<std::vector<float>, BbcMonDefs::MBD_N_FEECH> _scorr_y_interp{}; // interpolated tcorr
 
 };
 
