@@ -421,7 +421,7 @@ int BbcMon::process_event(Event *evt)
         triggervec = static_cast<uint64_t>( p_gl1->lValue(0,"TriggerVector") );
         for (int itrig = 0; itrig < 64; itrig++ )
         {
-          uint64_t trigbit = 0x1 << itrig;
+          uint64_t trigbit = 0x1UL << itrig;
           if ( (triggervec&trigbit) != 0 )
           {
             bbc_trigs->Fill( itrig );
