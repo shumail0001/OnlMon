@@ -85,7 +85,6 @@ int BbcMon::Init()
   */
 
   // Book Histograms
-  std::ostringstream name, title;
 
   // Trigger Information ----------------------------------------------------
   if ( useGL1 )
@@ -99,20 +98,14 @@ int BbcMon::Init()
                      nPMT_BBC, -.5, nPMT_BBC - .5,
                      bbc_onlmon::nBIN_TDC, 0, bbc_onlmon::tdc_max_overflow * bbc_onlmon::TDC_CONVERSION_FACTOR);
   std::cout << "BBCTDC " << (uint64_t)bbc_tdc << std::endl;
-  name.str("");
-  title.str("");
 
   // TDC Overflow Deviation ----------------------------------------------
-  name << "bbc_tdc_overflow";
-  title << "BBC/MBD TDC Overflow Deviation";
-  bbc_tdc_overflow = new TH2F(name.str().c_str(), title.str().c_str(),
+  bbc_tdc_overflow = new TH2F("bbc_tdc_overflow", "BBC/MBD TDC Overflow Deviation",
                               nPMT_BBC, -.5, nPMT_BBC - .5,
                               int(bbc_onlmon::VIEW_OVERFLOW_MAX - bbc_onlmon::VIEW_OVERFLOW_MIN + 1),
                               bbc_onlmon::VIEW_OVERFLOW_MIN - .5, bbc_onlmon::VIEW_OVERFLOW_MAX + .5);
-  name.str("");
-  title.str("");
-
   // TDC Overflow Distribution for each PMT ------------------------------
+  std::ostringstream name, title;
   for (int ipmt = 0; ipmt < nPMT_BBC; ipmt++)
   {
     name << "bbc_tdc_overflow_" << std::setw(3) << std::setfill('0') << ipmt;
@@ -121,7 +114,9 @@ int BbcMon::Init()
                                            int(bbc_onlmon::VIEW_OVERFLOW_MAX - bbc_onlmon::VIEW_OVERFLOW_MIN + 1),
                                            bbc_onlmon::VIEW_OVERFLOW_MIN, bbc_onlmon::VIEW_OVERFLOW_MAX);
     name.str("");
+    name.clear();
     title.str("");
+    title.clear();
   }
 
   // ADC Distribution --------------------------------------------------------
