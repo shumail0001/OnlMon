@@ -12,7 +12,7 @@ void cemcDrawInit(const int online = 0)
   OnlMonClient *cl = OnlMonClient::instance();
   cl -> Verbosity(0);
   // register histos we want with monitor name
-  for (int serverid = 0; serverid <= 7; serverid++)
+  for(int serverid = 0; serverid < 16; serverid++)
     {
       cl->registerHisto("h2_cemc_rm", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h2_cemc_mean", Form("CEMCMON_%d",serverid));
@@ -36,7 +36,7 @@ void cemcDrawInit(const int online = 0)
   //  get my histos from server, the second parameter = 1
   //  says I know they are all on the same node
   //cl->requestHistoBySubSystem(Form("CEMCMON_%d",serverid), 1);
-  for(int i = 0; i <= 7; i++)
+  for(int i = 0; i < 16; i++)
      {
        cl->requestHistoBySubSystem(Form("CEMCMON_%d",i), 1);
      }
@@ -48,7 +48,7 @@ void cemcDrawInit(const int online = 0)
 void cemcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  for(int i = 0; i <= 7; i++)
+  for(int i = 0; i < 16; i++)
     {
       cl->requestHistoBySubSystem(Form("CEMCMON_%d",i), 1);
     }

@@ -116,7 +116,8 @@ int HcalMon::Init()
   printf("doing the Init\n");
 
   h2_hcal_hits = new TH2F("h2_hcal_hits", "", 24, 0, 24, 64, 0, 64);
-  h2_hcal_hits_trig = new TH2F("h2_hcal_hits_trig", "", 24, 0, 24, 64, 0, 64);
+  h2_hcal_hits_trig1 = new TH2F("h2_hcal_hits_trig1", "", 24, 0, 24, 64, 0, 64);
+  h2_hcal_hits_trig2 = new TH2F("h2_hcal_hits_trig2", "", 24, 0, 24, 64, 0, 64);
   h_hcal_trig = new TH1F("h_hcal_trig", "", 64, 0, 64);
   h2_hcal_rm = new TH2F("h2_hcal_rm", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_mean = new TH2F("h2_hcal_mean", "", 24, 0, 24, 64, 0, 64);
@@ -165,7 +166,8 @@ int HcalMon::Init()
   OnlMonServer* se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, h2_hcal_hits);
-  se->registerHisto(this, h2_hcal_hits_trig);
+  se->registerHisto(this, h2_hcal_hits_trig1);
+  se->registerHisto(this, h2_hcal_hits_trig2);
   se->registerHisto(this, h_hcal_trig);
   se->registerHisto(this, h_caloPack_gl1_clock_diff);
   se->registerHisto(this, h2_hcal_rm);
@@ -313,14 +315,15 @@ int HcalMon::process_event(Event* e /* evt */)
   float energy2 = 0;
 
 
-  bool trig_fire = false;
+  bool trig1_fire = false;
+  bool trig2_fire = false;
   std::vector<bool> trig_bools;
   long long int gl1_clock = 0;
   if (anaGL1){
     int evtnr = e->getEvtSequence();
     Event *gl1Event = erc->getEvent(evtnr);
     if (gl1Event){
-      Packet* p = e->getPacket(14001);
+      Packet* p = gl1Event->getPacket(14001);
       if (p){
         gl1_clock = p->lValue(0,"BCO");
         int triggervec = p->lValue(0,"TriggerVector");
@@ -330,7 +333,8 @@ int HcalMon::process_event(Event* e /* evt */)
           if (trig_decision) h_hcal_trig->Fill(i);
           triggervec = triggervec >> 1;
         }
-        trig_fire = trig_bools[2]; //trigger of interest is 2
+        trig1_fire = trig_bools[trig1]; //trigger of interest is 2
+        trig2_fire = trig_bools[trig2]; //trigger of interest is 2
       }
     }
   }
@@ -416,8 +420,11 @@ int HcalMon::process_event(Event* e /* evt */)
         if (signal > hit_threshold)
         {
           h2_hcal_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          if (trig_fire){
-            h2_hcal_hits_trig->Fill(eta_bin + 0.5, phi_bin + 0.5);
+          if (trig1_fire){
+            h2_hcal_hits_trig1->Fill(eta_bin + 0.5, phi_bin + 0.5);
+          }
+          if (trig2_fire){
+            h2_hcal_hits_trig2->Fill(eta_bin + 0.5, phi_bin + 0.5);
           }
         }
 

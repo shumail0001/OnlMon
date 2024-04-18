@@ -2,15 +2,9 @@ AUTOMAKE_OPTIONS = foreign
 
 AM_CPPFLAGS = \
   -I$(includedir) \
-  -I$(ONLINE_MAIN)/include \
-  -I$(OPT_SPHENIX)/include \
+  -isystem$(ONLINE_MAIN)/include \
+  -isystem$(OPT_SPHENIX)/include \
   -isystem$(ROOTSYS)/include
-
-RINCLUDES = \
-  -I$(includedir) \
-  -I$(ONLINE_MAIN)/include \
-  -I$(OPT_SPHENIX)/include \
-  -I$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \
   libonlmonserver.la \

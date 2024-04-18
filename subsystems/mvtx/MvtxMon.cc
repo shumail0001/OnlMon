@@ -256,7 +256,7 @@ int MvtxMon::Init()
   hChipHitmap->GetXaxis()->SetTitle("Col");
   hChipHitmap->GetYaxis()->SetTitle("Row");
   hChipHitmap->SetStats(0);
-  se->registerHisto(this, hChipHitmap);
+  //se->registerHisto(this, hChipHitmap);
 
   hChipStrobes = new TH1I("hChipStrobes", "Chip Strobes vs Chip*Stave", 8*9*6,-.5,8*9*6-0.5);
   hChipStrobes->GetXaxis()->SetTitle("Chip*Stave");

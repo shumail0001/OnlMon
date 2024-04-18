@@ -37,7 +37,7 @@ int CemcMonDraw::Init()
   std::cout << "initializing" << std::endl;
 
   cemcStyle = new TStyle("cemcStyle","cemcStyle");
-
+  gStyle->SetOptStat(0);
   Int_t font=42; // Helvetica
   cemcStyle->SetLabelFont(font,"x");
   cemcStyle->SetTitleFont(font,"x");
@@ -495,7 +495,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   TLine *one = new TLine(6000.5,1,6128.5,1);
   one -> SetLineStyle(7);
   
-  TLine *goodSize = new TLine(6000.5,5981,6128.5,5981);
+  TLine *goodSize = new TLine(6000.5,1565,6128.5,1565);
   goodSize -> SetLineStyle(7);
   
   TLine *goodChans = new TLine(6000.5,192,6128.5,192);
@@ -504,7 +504,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   float param = 0.95;
   //float param = 0.99;
   
-  TLegend *leg = new TLegend(0.3,0.70,0.95,0.90);
+  TLegend *leg = new TLegend(0.3,0.20,0.95,0.50);
   leg -> SetFillStyle(0);
   leg -> SetBorderSize(0);
   
@@ -559,10 +559,10 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   h1_packet_number[start[1]] -> DrawCopy("hist");
   one -> Draw("same");
   warnLineOne -> Draw("same");
+  leg -> Draw("same");
 
   Pad[2]->cd();
-  h1_packet_length[start[2]] -> GetYaxis() -> SetRangeUser(0,6500);
-  badPackets.push_back(getBadPackets(h1_packet_length[start[2]],1,param));
+  badPackets.push_back(getBadPackets(h1_packet_length[start[2]],1,0));//Not cutting on packet length anymore because of zero suppression
  
   h1_packet_length[start[2]]->GetXaxis()->SetNdivisions(510,kTRUE);
   h1_packet_length[start[2]]->GetXaxis()->SetTitle("packet #");
@@ -573,7 +573,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   h1_packet_length[start[2]]->GetYaxis()->SetTitleSize(tsize);
   h1_packet_length[start[2]]->GetXaxis()->SetTitleOffset(1);
   h1_packet_length[start[2]]->GetYaxis()->SetTitleOffset(0.9);
-  h1_packet_length[start[2]]->GetYaxis()->SetRangeUser(0,10000);
+  h1_packet_length[start[2]]->GetYaxis()->SetRangeUser(0,4000);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);
   gPad->SetRightMargin(0.05);
@@ -582,9 +582,9 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   gPad->SetTickx();
   h1_packet_length[start[2]] -> DrawCopy("hist");
   goodSize -> Draw("same");
-  warnLineSize -> Draw("same");
-  warnLineSizeS -> Draw("same");
-  leg -> Draw("same");
+  //warnLineSize -> Draw("same");
+  //warnLineSizeS -> Draw("same");
+  
 
  
   Pad[3]->cd();
@@ -662,7 +662,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   desc -> AddText(Form("Currently %.2g%% of packets are reporting a problem",badboys/128.*100));
   desc -> AddText("Packets will be reported bad as above for the following reasons:" );
   desc -> AddText(Form("A packet appears in less than %g %% of events",param*100));
-  desc -> AddText(Form("A packet is less than %g %% of size 5981",param*100));
+  //desc -> AddText(Form("A packet is less than %g %% of size 5981",param*100));
   desc -> AddText(Form("A packet sees fewer than %g %% of 192 channels",param*100));
   desc -> Draw();
   TText PrintRun;
@@ -756,23 +756,23 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
     }
 
   gStyle->SetTitleFontSize(0.03);
-  float ymaxp = h2_waveform_twrAvg[start[0]]->ProfileX()->GetMaximum();
-  h2_waveform_twrAvg[start[0]] -> GetYaxis() -> SetRangeUser(0,ymaxp*10);
+  //float ymaxp = h2_waveform_twrAvg[start[0]]->ProfileX()->GetMaximum();
+  //h2_waveform_twrAvg[start[0]] -> GetYaxis() -> SetRangeUser(0,ymaxp*10);
 
   float tsize = 0.06;
   float tsize2 = 0.08;
 
   h2_waveform_twrAvg[start[0]]->GetXaxis()->SetNdivisions(16);
   h2_waveform_twrAvg[start[0]]->GetXaxis()->SetTitle("sample #");
-  h2_waveform_twrAvg[start[0]]->GetYaxis()->SetTitle("Waveform ADC in latest event [ADC]");
-  h2_waveform_twrAvg[start[0]]->GetXaxis()->SetLabelSize(tsize-.01);
-  h2_waveform_twrAvg[start[0]]->GetYaxis()->SetLabelSize(tsize);
-  h2_waveform_twrAvg[start[0]]->GetXaxis()->SetTitleSize(tsize-.01);
+  h2_waveform_twrAvg[start[0]]->GetYaxis()->SetTitle("Waveform ADC [ADC]");
+  h2_waveform_twrAvg[start[0]]->GetXaxis()->SetLabelSize(tsize2);
+  h2_waveform_twrAvg[start[0]]->GetYaxis()->SetLabelSize(tsize2-.01);
+  h2_waveform_twrAvg[start[0]]->GetXaxis()->SetTitleSize(tsize2);
   h2_waveform_twrAvg[start[0]]->GetYaxis()->SetTitleSize(tsize);
   h2_waveform_twrAvg[start[0]]->GetXaxis()->SetTitleOffset(1.);
-  h2_waveform_twrAvg[start[0]]->GetYaxis()->SetTitleOffset(1.2);
-  TLine *windowLow1 = new TLine(4,0,4,ymaxp*10);
-  TLine *windowHigh1 = new TLine(10,0,10,ymaxp*10);
+  h2_waveform_twrAvg[start[0]]->GetYaxis()->SetTitleOffset(1.25);
+  TLine *windowLow1 = new TLine(4,0,4,pow(2,14));
+  TLine *windowHigh1 = new TLine(10,0,10,pow(2,14));
   gStyle -> SetOptStat(0);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);
@@ -820,10 +820,12 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   h1_waveform_time[start[1]]->GetYaxis()->SetTitleSize(tsize2);
   h1_waveform_time[start[1]]->GetXaxis()->SetTitleOffset(1.0);
   h1_waveform_time[start[1]]->GetYaxis()->SetTitleOffset(.85);
-  
+
   if(h1_waveform_time[start[1]]->GetEntries())h1_waveform_time[start[1]] -> Scale(1./h1_waveform_time[start[1]]->GetEntries());
-  TLine *windowLow2 = new TLine(4,0,4,h1_waveform_time[start[1]]->GetMaximum());
-  TLine *windowHigh2 = new TLine(10,0,10,h1_waveform_time[start[1]]->GetMaximum());
+  h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0,1.);
+  
+  TLine *windowLow2 = new TLine(4,0,4,1);
+  TLine *windowHigh2 = new TLine(10,0,10,1);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -857,12 +859,24 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   gPad->SetLeftMargin(0.15);
   gPad->SetTicky();
   gPad->SetTickx();
-  h1_waveform_pedestal[start[2]]->DrawCopy("hist");
+  gStyle -> SetOptStat(0);
 
-  TC[2]->Update();
+  h1_waveform_pedestal[start[2]]->DrawCopy("hist");
+  h1_waveform_pedestal[start[2]]->SetStats(0);
+  gStyle -> SetOptStat(0);
+
+  TC[2]->Update(); 
+  gStyle -> SetOptStat(0);
+
   TC[2]->Show();
+  gStyle -> SetOptStat(0);
+
   TC[2]->SetEditable(0);
+  gStyle -> SetOptStat(0);
+
   if(save)TC[2] -> SaveAs("plots/waveform.pdf");
+  gStyle -> SetOptStat(0);
+
   return 0;
 }
 
@@ -1033,11 +1047,11 @@ int CemcMonDraw::FindHotTower(TPad *warningpad,TH2* hhit){
   float ndeadt = 0;
   float hot_threshold  = 1.25;
   float dead_threshold = 0.75;
-  float nTowerTotal = 24576.-2048.;//-2048 to account for the non-functioning towers at the edge of the south
+  float nTowerTotal = 24576.-384.;// to account for the non-functioning towers at the edge of the south
   for(int ieta=0; ieta<nTowersEta; ieta++){
     for(int iphi=0; iphi<nTowersPhi; iphi++){
       
-      if(ieta < 8) continue;
+      if(ieta < 8 && ((iphi >= 40) && (iphi <= 87 ))) continue;//uninstrumented
       if(hhit -> GetBinContent(ieta+1, iphi+1) == 0)continue;
       double nhit = hhit->GetBinContent(ieta+1, iphi+1);
 	
@@ -1157,15 +1171,32 @@ std::vector<int> CemcMonDraw::getBadPackets(TH1 *hist, int what, float cutoff)
   float params[3] = {1., 5981., 192.};
   float params2[3] = {1., 3991., 128.};
   //float cutoff = 0.75;
-  std::vector<int> badpacks = {0};
-  
+  std::vector<int> badpacks ={0};
+  std::vector<int> uninPackets = {6022,6026,6030,6034,6038,6042};
+  //6022, 6026, 6030, 6034, 6038, 6042
   for(int i = 1; i < hist -> GetNbinsX(); i++)
     {
-      if((hist -> GetBinContent(i) < params[what]*cutoff ||  hist -> GetBinContent(i) > params[what]) &&  !(((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
+      if(std::count(uninPackets.begin(), uninPackets.end(), i+6000))
+	{
+	  if((hist -> GetBinContent(i) < params2[what]*cutoff ||  hist -> GetBinContent(i) > params2[what])) 
+	    {
+	      badpacks.push_back(i+6000);
+	    }
+	}
+      else
+	{
+	  if((hist -> GetBinContent(i) < params[what]*cutoff ||  hist -> GetBinContent(i) > params[what]))
+	    {
+	      badpacks.push_back(i+6000);
+	    }
+	}
       
-      else if((hist -> GetBinContent(i) < params2[what]*cutoff || hist -> GetBinContent(i) > params2[what]) &&  (((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
     }
   
+  //if((hist -> GetBinContent(i) < params[what]*cutoff ||  hist -> GetBinContent(i) > params[what]) &&  !(((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
+      
+      //else if((hist -> GetBinContent(i) < params2[what]*cutoff || hist -> GetBinContent(i) > params2[what]) &&  (((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
+
   return badpacks;
 }
 
