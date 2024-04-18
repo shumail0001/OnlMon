@@ -31,8 +31,8 @@ class BbcMon : public OnlMon
   OnlBbcEvent *bevt{nullptr};
 
   int useGL1{1};    // whether to use the GL1 data
-  uint64_t triggervec;
-  uint64_t gl1_bco;
+  uint64_t triggervec{0};
+  uint64_t gl1_bco{0};
   eventReceiverClient *erc{nullptr};
 
   int evtcnt{0};
