@@ -320,7 +320,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[22]->Divide(2,1);
     // this one is used to plot the run number on the canvas
-    transparent[21] = new TPad("transparent9", "this does not show", 0, 0, 1, 1);
+    transparent[21] = new TPad("transparent21", "this does not show", 0, 0, 1, 1);
     transparent[21]->SetFillStyle(4000);
     transparent[21]->Draw();
     TC[21]->SetEditable(false);
