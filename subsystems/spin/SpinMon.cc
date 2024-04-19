@@ -125,40 +125,8 @@ int SpinMon::process_event(Event *e /* evt */)
       // down = -1
       // 0 for abort gap. bunches 111 -> 120
 
-
-
     }
     
-  
-    // for (int i = 0; i < 120; i++)
-    // {
-    //   //******* placeholder until html delivery from C-AD is available ***********
-    //   int blue_up = 0;
-    //   int blue_down = 0;
-    //   int blue_unpol = 0;
-    //   int yellow_up = 0;
-    //   int yellow_down = 0;
-    //   int yellow_unpol = 0;
-
-    //   if (i % 2 == 0) {blue_up = 1;}
-    //   else{blue_down = 1;}
-      
-    //   if (int(0.5*i) % 2 == 0) {yellow_up = 1;}
-    //   else {yellow_down = 1;}
-    //   // **************************************************************************
-      
-    //   if (i < 111)
-    //   {
-	  //     if (blue_up){spin_patternBlueUp->Fill(i,2);}
-	  //     if (blue_down){spin_patternBlueDown->Fill(i,2);}
-	  //     if (blue_unpol){spin_patternBlueUnpol->Fill(i,2);}
-
-    //     if (yellow_up){spin_patternYellowUp->Fill(i,1);}
-    //     if (yellow_down){spin_patternYellowDown->Fill(i,1);}
-    //     if (yellow_unpol){spin_patternYellowUnpol->Fill(i,1);}
-    //   }
-
-    // }
 
     delete pBlueSpin;
     delete pYellSpin;
@@ -169,19 +137,20 @@ int SpinMon::process_event(Event *e /* evt */)
   //int evtnr = e->getEvtSequence();
   //Event *gl1Event = erc->getEvent(evtnr);
   //if (gl1Event){
-  Packet* p = e->getPacket(packetid_GL1);
-  if (p)
-  {
-    //int triggervec = p->lValue(0,"TriggerVector");
-    int bunchnr = p->lValue(0,"BunchNumber");
-    for (int i = 0; i < 16; i++ ) 
-    { 
-      //16 triggers for gl1p 
-      int counts = p->lValue(i,1); //scaled gl1 cnts. (change to cnts. on bunchnr crossng when implemented)  1->2 when we have GL1p scalers available
-      //update instead of add
-      gl1_counter[i]->SetBinContent(bunchnr+1,counts); //update bin with new scaler info. instead of adding every evt
-    }
-  }
+    Packet* p = e->getPacket(packetid_GL1);
+    if (p)
+      {
+      //int triggervec = p->lValue(0,"TriggerVector");
+      int bunchnr = p->lValue(0,"BunchNumber");
+      for (int i = 0; i < 16; i++) 
+	{ 
+	//2nd arg of lValue: 0 is raw trigger count, 1 is live trigger count, 2 is scaled trigger count
+        int counts = p->lValue(i,1); //live gl1 cnts. (change to gl1p cnts. on bunchnr crossng when implemented) 
+	//update instead of add
+        gl1_counter[i]->SetBinContent(bunchnr+1,counts); //update bin with new scaler info. instead of adding every evt
+	}
+      }
+  
     //}
   
   return 0;

@@ -15,6 +15,7 @@ SUBDIRS = \
   example \
   hcal \
   intt \
+  localpol \
   mvtx \
   pktsize \
   spin \
