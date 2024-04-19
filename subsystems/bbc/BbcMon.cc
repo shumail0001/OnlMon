@@ -5,7 +5,7 @@
 
 #include "BbcMon.h"
 #include "BbcMonDefs.h"
-#include "OnlBbcEvent.h"
+#include <mbd/MbdEvent.h>
 
 #include <onlmon/OnlMon.h>
 #include <onlmon/OnlMonDB.h>
@@ -66,7 +66,7 @@ int BbcMon::Init()
   // system (all couts are redirected)
   std::cout << "BbcMon::Init()" << std::endl;
 
-  bevt = new OnlBbcEvent();
+  bevt = new MbdEvent();
   _mbdgeom = new MbdGeomV1();
 
   if (useGL1)

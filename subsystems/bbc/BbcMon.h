@@ -8,7 +8,7 @@ class TH1;
 class TH2;
 class TF1;
 class TH2Poly;
-class OnlBbcEvent;
+class MbdEvent;
 class MbdGeom;
 class MbdOut;
 class MbdPmtContainer;
@@ -30,7 +30,7 @@ class BbcMon : public OnlMon
  protected:
   int DBVarInit();
 
-  OnlBbcEvent *bevt{nullptr};
+  MbdEvent *bevt{nullptr};
 
   int useGL1{0};    // whether to use the GL1 data
   uint64_t triggervec{0};
