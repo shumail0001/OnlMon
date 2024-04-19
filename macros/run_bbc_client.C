@@ -11,6 +11,7 @@ void bbcDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
+  cl->registerHisto("bbc_trigs", "BBCMON_0");
   cl->registerHisto("bbc_adc", "BBCMON_0");
   cl->registerHisto("bbc_tdc", "BBCMON_0");
   cl->registerHisto("bbc_tdc_overflow", "BBCMON_0");

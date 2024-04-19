@@ -7,48 +7,42 @@ SUBDIRS = calib
 
 AM_CPPFLAGS = \
   -I$(includedir) \
-  -isystem$(ONLINE_MAIN)/include \
+  -I$(ONLINE_MAIN)/include \
   -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \
-  libonlbbcmon_client.la \
-  libonlbbcmon_server.la
+  libonllocalpolmon_client.la \
+  libonllocalpolmon_server.la
 
-libonlbbcmon_server_la_LIBADD = \
+libonllocalpolmon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
-  -lmbd_io \
-  -lonlmonserver
+  -lonlmonserver \
+  -lonlmonutils \
+  -lonlmondb
 
-libonlbbcmon_client_la_LIBADD = \
+libonllocalpolmon_client_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
-  -L$(ROOTSYS)/lib \
   -lonlmonclient \
-  -lSpectrum
+  -lonlmondb
 
-bbcincludedir=$(pkgincludedir)/bbc
 
-bbcinclude_HEADERS = \
-  BbcMonDefs.h \
-  BbcMon.h \
-  OnlBbcSig.h \
-  OnlBbcEvent.h \
-  OnlBbcCalib.h \
-  BbcMonDraw.h
+localpolincludedir=$(pkgincludedir)/localpol
 
-libonlbbcmon_server_la_SOURCES = \
-  OnlBbcSig.cc \
-  OnlBbcEvent.cc \
-  OnlBbcCalib.cc \
-  BbcMon.cc
+localpolinclude_HEADERS = \
+  LocalPolMon.h \
+  LocalPolMonDraw.h
 
-libonlbbcmon_client_la_SOURCES = \
-  BbcMonDraw.cc
+libonllocalpolmon_server_la_SOURCES = \
+  LocalPolMon.cc
+
+libonllocalpolmon_client_la_SOURCES = \
+  LocalPolMonDraw.cc
 
 bin_SCRIPTS = \
-  BbcMonSetup.csh \
-  BbcMonSetup.sh
+  LocalPolMonSetup.csh \
+  LocalPolMonSetup.sh
 
 noinst_PROGRAMS = \
   testexternals_server \
@@ -62,10 +56,10 @@ testexternals_client_SOURCES = \
   testexternals.cc
 
 testexternals_server_LDADD = \
-  libonlbbcmon_server.la
+  libonllocalpolmon_server.la
 
 testexternals_client_LDADD = \
-  libonlbbcmon_client.la
+  libonllocalpolmon_client.la
 
 testexternals.cc:
 	echo "//*** this is a generated file. Do not commit, do not edit" > $@

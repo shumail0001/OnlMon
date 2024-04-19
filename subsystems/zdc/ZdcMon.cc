@@ -109,9 +109,7 @@ int ZdcMon::Init()
   // Create hitograms
   zdc_adc_north = new TH1F("zdc_adc_north", "ZDC ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
   zdc_adc_south = new TH1F("zdc_adc_south", "ZDC ADC south", BIN_NUMBER, 0, MAX_ENERGY2);
-  // Create hitograms
-  zdc_adc_north = new TH1F("zdc_adc_north", "ZDC ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
-  zdc_adc_south = new TH1F("zdc_adc_south", "ZDC ADC south", BIN_NUMBER, 0, MAX_ENERGY2);
+
   zdc_N1 = new TH1F("zdc_N1", "ZDC1 ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
   zdc_N2 = new TH1F("zdc_N2", "ZDC2 ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
   zdc_N3 = new TH1F("zdc_N3", "ZDC3 ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
@@ -124,13 +122,13 @@ int ZdcMon::Init()
   // smd_adc_n_hor_ind0 = new TH1F("smd_adc_n_hor_ind0", "smd_adc_n_hor_ind0", 1000, 0, 5000 );
   
   // Individual SMD_ADC Values
-  // Horizontal
+  // Horizontal (expert plot)
   for (int i = 0; i < 8; i++)
   {
     smd_adc_n_hor_ind[i] = new TH1I(Form("smd_adc_n_hor_ind%d", i),Form("smd_adc_n_hor_ind%d", i), 1000, 0, 5000);
     smd_adc_s_hor_ind[i] = new TH1I(Form("smd_adc_s_hor_ind%d", i),Form("smd_adc_s_hor_ind%d", i), 1000, 0, 5000);
   }
-  // Vertical
+  // Vertical (expert plot)
   for (int i = 0; i < 7; i++)
   {
     smd_adc_n_ver_ind[i] = new TH1I(Form("smd_adc_n_ver_ind%d", i),Form("smd_adc_n_ver_ind%d", i), 1000, 0, 5000);
@@ -143,7 +141,7 @@ int ZdcMon::Init()
   smd_south_ver_hits = new TH1F("smd_south_ver_hits", "smd_south_ver_hits", 7, 24., 30.);
 
   // north smd
-  smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
+  smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution jjj, SMD North y", 296, -5.92, 5.92);
   smd_ver_north = new TH1F("smd_ver_north", "Beam centroid distribution, SMD North x", 220, -5.5, 5.5);
   smd_sum_hor_north = new TH1F ("smd_sum_hor_north", "SMD North y", 512, 0, 2048);
   smd_sum_ver_north = new TH1F ("smd_sum_ver_north", "SMD North x", 512, 0, 2048);
@@ -156,10 +154,11 @@ int ZdcMon::Init()
   smd_ver_south = new TH1F("smd_ver_south", "Beam centroid distribution, SMD South x", 220, -5.5, 5.5);
   smd_sum_hor_south = new TH1F ("smd_sum_hor_south", "SMD South y", 640, 0, 2560);
   smd_sum_ver_south = new TH1F ("smd_sum_ver_south", "SMD South x", 640, 0, 2560);
-  // smd values
+
+  // smd values (expert plot)
   smd_value = new TH2F("smd_value", "SMD channel# vs value", 1024, 0, 4096, 32, 0, 32);
-  smd_value_good = new TH2F("smd_value_good", "SMD channel# vs value, zdc > 200", 1024, 0, 4096, 16, 0, 16);
-  smd_value_small = new TH2F("smd_value_small", "SMD channel# vs value, zdc <= 200", 1024, 0, 4096, 16, 0, 16);
+  smd_value_good = new TH2F("smd_value_good", "SMD channel# vs value, zdc > 200", 1024, 0, 4096, 32, 0, 32);
+  smd_value_small = new TH2F("smd_value_small", "SMD channel# vs value, zdc <= 200", 1024, 0, 4096, 32, 0, 32);
   smd_xy_north = new TH2F("smd_xy_north", "SMD hit position north", 110, -5.5, 5.5, 119, -5.92, 5.92);
   smd_xy_south = new TH2F("smd_xy_south", "SMD hit position south", 110, -5.5, 5.5, 119, -5.92, 5.92);
 
@@ -176,9 +175,6 @@ int ZdcMon::Init()
   se->registerHisto(this, zdc_S2 );
   se->registerHisto(this, zdc_S3 );
 
-
-
-  // se->registerHisto(this, smd_adc_n_hor_ind0);
   // SMD
   // Individual smd_adc channel histos
 
@@ -341,49 +337,93 @@ int ZdcMon::process_event(Event *e /* evt */)
 
     for ( int i = 0; i < 8; i++)
     {
+      //****smd north horizontal individual channels****
       if ( smd_adc[i] > 8 ) {n_hor ++;}
       smd_adc_n_hor_ind[i]->Fill(smd_adc[i]);
-      
+
+      smd_value->Fill(smd_adc[i], float(i));
+      if (zdc_adc[8] > 200.)
+      {
+	smd_value_good->Fill(smd_adc[i], float(i));
+      }
+      else
+      {
+	smd_value_small->Fill(smd_adc[i], float(i));
+      }
+
       if (smd_adc[i] != 0) 
       {
         double filling = i + 0.0;
         smd_north_hor_hits->Fill(filling);  
       }
-    }
-    for ( int i = 0; i < 7; i++)
-    {
-      if ( smd_adc[i + 8] > 5 ) {n_ver ++;}
-      smd_adc_n_ver_ind[i]->Fill(smd_adc[i + 8]);
-      
-      if (smd_adc[i + 8] != 0) 
-      {
-        double filling = i + 8 + 0.0;
-        smd_north_ver_hits->Fill(filling);  
-      }
-    }
+      //****************************
 
-    for ( int i = 0; i < 8; i++)
-    {
+      //****smd south horizontal individual channels****
       if ( smd_adc[i + 16] > 8 ) {s_hor++;}
       smd_adc_s_hor_ind[i]->Fill(smd_adc[i + 16]);
+
+      smd_value->Fill(smd_adc[i + 16], float(i) + 16);
+      if (zdc_adc[0] > 200.)
+      {
+	smd_value_good->Fill(smd_adc[i + 16], float(i) + 16);
+      }
+      else
+      {
+	smd_value_small->Fill(smd_adc[i + 16], float(i) + 16);
+      }
       
       if (smd_adc[i + 16] != 0) 
       {
         double filling = i + 16 + 0.0;
         smd_south_hor_hits->Fill(filling);  
       }
+      //****************************
     }
 
     for ( int i = 0; i < 7; i++)
     {
+      //****smd north vertical individual channels****
+      if ( smd_adc[i + 8] > 5 ) {n_ver ++;}
+      smd_adc_n_ver_ind[i]->Fill(smd_adc[i + 8]);
+
+      smd_value->Fill(smd_adc[i + 8], float(i) + 8);
+      if (zdc_adc[8] > 200.)
+      {
+	smd_value_good->Fill(smd_adc[i + 8], float(i) + 8);
+      }
+      else
+      {
+	smd_value_small->Fill(smd_adc[i + 8], float(i) + 8);
+      }
+      
+      if (smd_adc[i + 8] != 0) 
+      {
+        double filling = i + 8 + 0.0;
+        smd_north_ver_hits->Fill(filling);  
+      }
+      //****************************
+
+      //****smd south vertical individual channels****
       if ( smd_adc[i + 24] > 5 ) {s_ver++;}
       smd_adc_s_ver_ind[i]->Fill(smd_adc[i + 24]);
 
-      if (smd_adc[i + 24] != 0) 
+      smd_value->Fill(smd_adc[i + 24], float(i) + 24);
+      if (zdc_adc[0] > 200.)
       {
-        double filling = i + 24 + 0.0;
-        smd_south_ver_hits->Fill(filling);  
+	smd_value_good->Fill(smd_adc[i + 24], float(i) + 24);
       }
+      else
+      {
+	smd_value_small->Fill(smd_adc[i + 24], float(i) + 24);
+      }
+
+      if (smd_adc[i + 24] != 0) 
+       {
+         double filling = i + 24 + 0.0;
+         smd_south_ver_hits->Fill(filling);  
+       }
+      //****************************
+
     }
 
     bool fired_smd_hor_n = (n_hor  > 1);
@@ -410,7 +450,6 @@ int ZdcMon::process_event(Event *e /* evt */)
 
     // FILLING OUT THE HISTOGRAMS
 
-    // PHENIX had: if ( ped_zdc_south && !did_laser_fire && fired_smd_hor_s && fired_smd_ver_s && ovfbool[0] && ovfbool[4] && !smd_ovld_south)
     if (fired_smd_hor_s && fired_smd_ver_s && !smd_ovld_south)
     {
       fill_hor_south = true;
@@ -418,7 +457,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       smd_hor_south->Fill( smd_pos[2] );
       smd_ver_south->Fill( smd_pos[3] );
     }
-    //if (fill_hor_south && fill_ver_south && zdc_adc[0]>40 ) {smd_xy_south->Fill(smd_pos[1], smd_pos[0]);}
+    
     //if (fill_hor_south && fill_ver_south && totalzdcsouthsignal > 40) {
     if (fill_hor_south && fill_ver_south) 
     {
@@ -434,6 +473,16 @@ int ZdcMon::process_event(Event *e /* evt */)
       fill_ver_north = true;
       smd_hor_north->Fill( smd_pos[0] );
       smd_ver_north->Fill( smd_pos[1] );
+      if (zdc_adc[4] > 200.)
+      {
+	smd_hor_north_good->Fill( smd_pos[0] );
+	smd_ver_north_good->Fill( smd_pos[1] );
+      } 
+      else 
+      {
+	smd_hor_north_small->Fill( smd_pos[0] );
+	smd_ver_north_small->Fill( smd_pos[1] );
+      }
     }
 
     
@@ -444,69 +493,6 @@ int ZdcMon::process_event(Event *e /* evt */)
       smd_sum_hor_north->Fill(smd_sum[0]);
       smd_xy_north->Fill(smd_pos[1], smd_pos[0]);
     }
-
-    /*
-    // PHENIX had: if (ped_zdc_north && ped_smd_hnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north &&  fired_smd_hor_n && !did_laser_fire)
-    if ( fired_smd_hor_n && ped_smd_hnorth && !smd_ovld_north)
-    {
-      fill_hor_north = true;
-      smd_hor_north->Fill( smd_pos[0] );
-      // zdc_hor_north->Fill( zdc_adc[4] / ADC_to_GeV_north, smd_pos[2] );
-      for (int i = 0; i < 8; i++)
-      {
-        smd_value->Fill(smd_adc[i + 16], float(i) + 16);
-      }
-      if ((zdc_adc[4] > 200.))
-      {
-        smd_hor_north_good->Fill( smd_pos[0] );
-        for (int i = 0; i < 8; i++)
-        {
-          smd_value_good->Fill(smd_adc[i + 16], float(i) + 16.);
-        }
-      }
-      if ((zdc_adc[4] <= 200.))
-      {
-        smd_hor_north_small->Fill( smd_pos[0] );
-        for (int i = 0; i < 8; i++)
-        {
-          smd_value_small->Fill(smd_adc[i + 16], float(i) + 16.);
-        }
-      }
-    }
-    
-
-    // PHENIX had: if (ped_zdc_north && ped_smd_vnorth && ovfbool[0] && ovfbool[4] && !smd_ovld_north && fired_smd_ver && !did_laser_fire)
-    if (fired_smd_ver_n && ped_smd_vnorth && !smd_ovld_north)
-    {
-      fill_ver_north = true;
-
-      smd_ver_north->Fill( smd_pos[1] );
-      // zdc_ver_north->Fill( zdc_adc[4] / ADC_to_GeV_north, smd_pos[3] );
-      for (int i = 0; i < 8; i++)
-      {
-        smd_value->Fill(smd_adc[i + 24], float(i) + 24);
-      }
-      if ((zdc_adc[4] > 200.))
-      {
-        smd_ver_north_good->Fill( smd_pos[1] );
-        for (int i = 0; i < 8; i++)
-        {
-          smd_value_good->Fill(smd_adc[i + 24], float(i) + 24.);
-        }
-      }
-      if ((zdc_adc[4] <= 200.))
-      {
-        smd_ver_north_small->Fill( smd_pos[1] );
-        for (int i = 0; i < 8; i++)
-        {
-          smd_value_small->Fill(smd_adc[i + 24], float(i) + 24.);
-        }
-      }
-    }
-
-    //if (fill_hor_north && fill_ver_north && zdc_adc[4]>40 ){smd_xy_north->Fill( smd_pos[1], smd_pos[0]);}
-    if (fill_hor_north && fill_ver_north){smd_xy_north->Fill( smd_pos[1], smd_pos[0]);}
-    */
 
   }    // if packet good
 
