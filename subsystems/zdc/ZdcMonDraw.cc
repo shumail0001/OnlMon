@@ -114,22 +114,6 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     // xpos negative: do not draw menu bar
     TC[3] = new TCanvas(name.c_str(), "Smd North and South", -xsize*0.9, -ysize*0.9, xsize*0.9, ysize*0.9);
     gSystem->ProcessEvents();
-    /*
-    Pad[7]  = new TPad("Smd Ver North", "Smd Ver North", 0.02, 0.05, 0.26, 0.35, 0);
-    Pad[8]  = new TPad("Smd Ver North (good)",  "Smd Ver North (good)", 0.26, 0.05, 0.5, 0.35, 0);
-    Pad[9]  = new TPad("Smd Ver North (small)",  "Title 6", 0.5, 0.05, 0.74, 0.35, 0);
-    Pad[10] = new TPad("Smd Hor North", "Smd Hor North", 0.74, 0.05, 0.98, 0.35, 0);
-
-    Pad[11] = new TPad("Smd Hor North (good)", "Smd Hor North (good)", 0.02, 0.35, 0.26, 0.65, 0);
-    Pad[12] = new TPad("Smd Hor North (small)", "Smd Hor North (small)", 0.26, 0.35, 0.5, 0.65, 0);
-    Pad[13] = new TPad("Smd Ver South", "Smd Ver South", 0.5, 0.35, 0.74, 0.65, 0);
-    Pad[14] = new TPad("Smd Hor South", "Smd Hor South", 0.74, 0.35, 0.98, 0.65, 0);
-
-    Pad[15] = new TPad("Smd sum Ver North", "Smd sum Ver North", 0.02, 0.65, 0.26, 0.95, 0);
-    Pad[16] = new TPad("Smd sum Hor North", "Smd sum Hor North", 0.26, 0.65, 0.5, 0.95, 0);
-    Pad[17] = new TPad("Smd sum Ver South", "Smd sum Ver South", 0.5, 0.65, 0.74, 0.95, 0);
-    Pad[18] = new TPad("Smd sum Hor South", "Smd sum Hor South", 0.74, 0.65, 0.98, 0.95, 0);  
-    */
 
     Pad[13]  = new TPad("Smd Ver North (good)",  "Smd Ver North (good)", 0.02, 0.05, 0.26, 0.35, 0);
     Pad[14]  = new TPad("Smd Hor North (good)", "Smd Hor North (good)", 0.26, 0.05, 0.5, 0.35, 0);
@@ -242,6 +226,28 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     TC[5]->SetEditable(false);
   }
 
+  else if (name == "SmdMultiplicities")
+  {
+    // xpos negative: do not draw menu bar
+    TC[6] = new TCanvas(name.c_str(), "Smd Multiplicities", -xsize/2 , -ysize / 2, xsize/2, ysize / 2);
+    gSystem->ProcessEvents();
+    Pad[51] = new TPad("smd_north_hor_hits", "smd_north_hor_hits", 0.05, 0.5, 0.5, 0.98, 0);
+    Pad[52] = new TPad("smd_north_ver_hits", "smd_north_ver_hits", 0.5, 0.5, 0.98, 0.98, 0);
+    Pad[53] = new TPad("smd_south_hor_hits", "smd_south_hor_hits", 0.05, 0.05, 0.5, 0.5, 0);
+    Pad[54] = new TPad("smd_south_ver_hits", "smd_south_ver_hits", 0.5, 0.05, 0.95, 0.5, 0);
+
+    Pad[51]->Draw();    
+    Pad[52]->Draw();
+    Pad[53]->Draw();
+    Pad[54]->Draw();
+
+    // this one is used to plot the run number on the canvas
+    transparent[6] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
+    TC[6]->SetEditable(false);
+  }
+
   return 0;
 }
 
@@ -281,6 +287,12 @@ int ZdcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SMD_S_IND")
   {
     iret += DrawSmdAdcSouthIndividual(what);
+    idraw++;
+  }
+
+  if (what == "ALL" || what == "SMD_MULTIPLICITIES")
+  {
+    iret += DrawSmdMultiplicities(what);
     idraw++;
   }
 
@@ -491,7 +503,7 @@ int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+  runnostream << ThisName << "_3 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[2]->cd();
@@ -581,7 +593,7 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+  runnostream << ThisName << "_4 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[3]->cd();
@@ -656,7 +668,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+  runnostream << ThisName << "_5 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[4]->cd();
@@ -731,7 +743,7 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+  runnostream << ThisName << "_6 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[5]->cd();
@@ -742,6 +754,62 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
   return 0;
 
 
+}
+
+int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
+{
+  
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH1 *smd_north_hor_hits = (TH1*) cl->getHisto("ZDCMON_0","smd_north_hor_hits");
+  TH1 *smd_north_ver_hits = (TH1*) cl->getHisto("ZDCMON_0","smd_north_ver_hits");
+  TH1 *smd_south_hor_hits = (TH1*) cl->getHisto("ZDCMON_0","smd_south_hor_hits");
+  TH1 *smd_south_ver_hits = (TH1*) cl->getHisto("ZDCMON_0","smd_south_ver_hits");
+  
+  if (!gROOT->FindObject("SmdMultiplicities"))
+  {
+    MakeCanvas("SmdMultiplicities");
+  }
+
+  TC[6]->SetEditable(true);
+  TC[6]->Clear("D");
+  Pad[51]->cd();
+  if (smd_north_hor_hits)
+  {
+    smd_north_hor_hits->DrawCopy();
+  }
+  else
+  {
+    DrawDeadServer(transparent[6]);
+    TC[6]->SetEditable(false);
+    return -1;
+  }
+
+  Pad[52]->cd();
+  if (smd_north_ver_hits) {smd_north_ver_hits->DrawCopy();}
+  Pad[53]->cd();
+  if (smd_south_hor_hits) {smd_south_hor_hits->DrawCopy();}
+  Pad[54]->cd();
+  if (smd_south_ver_hits) {smd_south_ver_hits->DrawCopy();}
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_7 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[6]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[6]->Update();
+  TC[6]->Show();
+  TC[6]->SetEditable(false);
+  
+  return 0;
 }
 
 
@@ -780,17 +848,37 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   OnlMonClient *cl = OnlMonClient::instance();
 
   // Register the 1st canvas png file to the menu and produces the png file.
-  std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
+  std::string pngfile = cl->htmlRegisterPage(*this, TC[0]->GetTitle(), "1", "png");
   cl->CanvasToPng(TC[0], pngfile);
 
   // idem for 2nd canvas.
-  pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
+  pngfile = cl->htmlRegisterPage(*this, TC[1]->GetTitle(), "2", "png");
   cl->CanvasToPng(TC[1], pngfile);
-  // // idem for 3rd canvas.
-  // pngfile = cl->htmlRegisterPage(*this, "Third Canvas", "3", "png");
-  // cl->CanvasToPng(TC[2], pngfile);
+
+  //SMD North and South vertical/horizontal ADC sums
+  pngfile = cl->htmlRegisterPage(*this, TC[3]->GetTitle(), "3", "png");
+  cl->CanvasToPng(TC[3], pngfile);
+
+  //SMD hit multiplicities
+  pngfile = cl->htmlRegisterPage(*this, TC[6]->GetTitle(), "4", "png");
+  cl->CanvasToPng(TC[6], pngfile);
+
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
+  //SMD North ADC Individual channels
+  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s",TC[2]->GetTitle()), "5", "png");
+  cl->CanvasToPng(TC[2], pngfile);
+
+  //SMD South ADC Individual channels 
+  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s",TC[4]->GetTitle()), "6", "png");
+  cl->CanvasToPng(TC[4], pngfile);
+
+  //2d hist of SMD ADC vs. channel number
+  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s",TC[5]->GetTitle()), "7", "png");
+  cl->CanvasToPng(TC[5], pngfile);
+
+
+  /*
   std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
   std::ofstream out(logfile.c_str());
   out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
@@ -805,34 +893,6 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   out2 << "<P>Some status output would go here." << std::endl;
   out2.close();
   cl->SaveLogFile(*this);
-
-  std::string smdvaluesplots = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream out3(smdvaluesplots.c_str());
-  out3 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << std::endl;
-  out3 << "<P>Some SmdValues-related-output would go here." << std::endl;
-  out3.close();
-
-  std::string smdnorthandsouth = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream out4(smdnorthandsouth.c_str());
-  out4 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << std::endl;
-  out4 << "<P>Some SmdNorthandSouth-related-output would go here." << std::endl;
-  out4.close();
-
-  std::string smdadcnorthindividual = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream out5(smdadcnorthindividual.c_str());
-  out5 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << std::endl;
-  out5 << "<P>Some SmdAdcNorthIndividual-related-output would go here." << std::endl;
-  out5.close();
-
-  std::string smdadcsouthindividual = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream out6(smdadcsouthindividual.c_str());
-  out6 << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << std::endl;
-  out6 << "<P>Some SmdAdcNorthIndividual-related-output would go here." << std::endl;
-  out6.close();
-
+  */
   return 0;
 }
