@@ -338,12 +338,7 @@ int ZdcMon::process_event(Event *e /* evt */)
     for ( int i = 0; i < 8; i++)
     {
       //****smd north horizontal individual channels****
-      if ( smd_adc[i] > 8 ) 
-      {
-        double filling_n = i + 0.0;
-        smd_north_hor_hits->Fill(filling_n); 
-        n_hor ++;
-      }
+      if ( smd_adc[i] > 8 ) {n_hor ++;}
       smd_adc_n_hor_ind[i]->Fill(smd_adc[i]);
 
       smd_value->Fill(smd_adc[i], float(i));
@@ -356,20 +351,15 @@ int ZdcMon::process_event(Event *e /* evt */)
 	      smd_value_small->Fill(smd_adc[i], float(i));
       }
 
-      // if (smd_adc[i] != 0) 
-      // {
-      //   double filling_n = i + 0.0;
-      //   smd_north_hor_hits->Fill(filling_n);  
-      // }
+      if (smd_adc[i] != 0) 
+      {
+        double filling = i + 0.0;
+        smd_north_hor_hits->Fill(filling);  
+      }
       //****************************
 
       //****smd south horizontal individual channels****
-      if ( smd_adc[i + 16] > 8 ) 
-      {
-        double filling_s = i + 16 + 0.0;
-        smd_south_hor_hits->Fill(filling_s);
-        s_hor++;
-      }
+      if ( smd_adc[i + 16] > 8 ) {s_hor++;}
       smd_adc_s_hor_ind[i]->Fill(smd_adc[i + 16]);
 
       smd_value->Fill(smd_adc[i + 16], float(i) + 16);
@@ -382,23 +372,18 @@ int ZdcMon::process_event(Event *e /* evt */)
 	      smd_value_small->Fill(smd_adc[i + 16], float(i) + 16);
       }
       
-      // if (smd_adc[i + 16] != 0) 
-      // {
-      //   double filling_s = i + 16 + 0.0;
-      //   smd_south_hor_hits->Fill(filling_s);  
-      // }
+      if (smd_adc[i + 16] != 0) 
+      {
+        double filling = i + 16 + 0.0;
+        smd_south_hor_hits->Fill(filling);  
+      }
       //****************************
     }
 
     for ( int i = 0; i < 7; i++)
     {
       //****smd north vertical individual channels****
-      if ( smd_adc[i + 8] > 5 ) 
-      {
-        double filling_n = i + 8 + 0.0;
-        smd_north_ver_hits->Fill(filling_n);  
-        n_ver ++;
-      }
+      if ( smd_adc[i + 8] > 5 ) {n_ver ++;}
       smd_adc_n_ver_ind[i]->Fill(smd_adc[i + 8]);
 
       smd_value->Fill(smd_adc[i + 8], float(i) + 8);
@@ -411,20 +396,15 @@ int ZdcMon::process_event(Event *e /* evt */)
 	      smd_value_small->Fill(smd_adc[i + 8], float(i) + 8);
       }
       
-      // if (smd_adc[i + 8] != 0) 
-      // {
-      //   double filling_n = i + 8 + 0.0;
-      //   smd_north_ver_hits->Fill(filling_n);  
-      // }
+      if (smd_adc[i + 8] != 0) 
+      {
+        double filling = i + 8 + 0.0;
+        smd_north_ver_hits->Fill(filling);  
+      }
       //****************************
 
       //****smd south vertical individual channels****
-      if ( smd_adc[i + 24] > 5 ) 
-      {
-        double filling_s = i + 24 + 0.0;
-        smd_south_ver_hits->Fill(filling_s); 
-        s_ver++;
-      }
+      if ( smd_adc[i + 24] > 5 ) {s_ver++;}
       smd_adc_s_ver_ind[i]->Fill(smd_adc[i + 24]);
 
       smd_value->Fill(smd_adc[i + 24], float(i) + 24);
@@ -437,11 +417,11 @@ int ZdcMon::process_event(Event *e /* evt */)
 	      smd_value_small->Fill(smd_adc[i + 24], float(i) + 24);
       }
 
-      // if (smd_adc[i + 24] != 0) 
-      //  {
-      //    double filling_s = i + 24 + 0.0;
-      //    smd_south_ver_hits->Fill(filling_s);  
-      //  }
+      if (smd_adc[i + 24] != 0) 
+       {
+         double filling = i + 24 + 0.0;
+         smd_south_ver_hits->Fill(filling);  
+       }
       //****************************
 
     }
@@ -495,13 +475,13 @@ int ZdcMon::process_event(Event *e /* evt */)
       smd_ver_north->Fill( smd_pos[1] );
       if (zdc_adc[4] > 200.)
       {
-	smd_hor_north_good->Fill( smd_pos[0] );
-	smd_ver_north_good->Fill( smd_pos[1] );
+        smd_hor_north_good->Fill( smd_pos[0] );
+        smd_ver_north_good->Fill( smd_pos[1] );
       } 
       else 
       {
-	smd_hor_north_small->Fill( smd_pos[0] );
-	smd_ver_north_small->Fill( smd_pos[1] );
+        smd_hor_north_small->Fill( smd_pos[0] );
+        smd_ver_north_small->Fill( smd_pos[1] );
       }
     }
 
