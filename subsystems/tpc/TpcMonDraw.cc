@@ -441,7 +441,6 @@ int TpcMonDraw::Draw(const std::string &what)
   {
     iret += DrawTPCXYlaserclusters(what);
     idraw++;
-    std::cout<<"You see the TPCLASERCLUSTERSXYWEIGTHED"<<std::endl; 
   }
   if (!idraw)
   {
