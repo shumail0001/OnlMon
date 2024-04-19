@@ -32,7 +32,7 @@ class DaqMonDraw : public OnlMonDraw
   time_t getTime();
 //  int DrawHistory(const std::string &what = "ALL");
   int TimeOffsetTicks = -1;
-  const int nSEB = 21;
+  const int nSEB = 20;
   TCanvas *TC[3] = {nullptr};
   TPad *transparent[3] = {nullptr};
   TPad *Pad[6] = {nullptr};
