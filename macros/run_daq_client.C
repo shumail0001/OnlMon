@@ -11,7 +11,7 @@ void daqDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  for(int serverid = 0; serverid < 21; serverid++)
+  for(int serverid = 0; serverid < 20; serverid++)
   {
       cl->registerHisto("h_gl1_clock_diff", Form("DAQMON_%d",serverid));
       cl->registerHisto("h_gl1_clock_diff_capture", Form("DAQMON_%d",serverid));
@@ -20,7 +20,7 @@ void daqDrawInit(const int online = 0)
   //cl->AddServerHost("localhost");
   CreateHostList(online);
 
-  for(int serverid = 0; serverid < 21; serverid++)
+  for(int serverid = 0; serverid < 20; serverid++)
   {
       cl->requestHistoBySubSystem(Form("DAQMON_%d",serverid), 1);
   }
@@ -32,7 +32,7 @@ void daqDrawInit(const int online = 0)
 void daqDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  for(int serverid = 0; serverid < 21; serverid++)
+  for(int serverid = 0; serverid < 20; serverid++)
   {
       cl->requestHistoBySubSystem(Form("DAQMON_%d",serverid), 1);
   }
