@@ -35,12 +35,12 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  // subsys = new SubSystem("DAQ", "daq");
-  // subsys->AddAction("daqDraw(\"FIRST\")", "DAQ 1st Monitor");
-  // subsys->AddAction("daqDraw(\"SECOND\")", "DAQ 2nd Monitor");
+  subsys = new SubSystem("DAQ", "daq");
+  subsys->AddAction("daqDraw(\"FIRST\")", "DAQ 1st Monitor");
+  subsys->AddAction("daqDraw(\"SECOND\")", "DAQ 2nd Monitor");
   // subsys->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
-  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  // pmf->RegisterSubSystem(subsys);
+   subsys->AddAction(new SubSystemActionSavePlot(subsys));
+   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
@@ -72,13 +72,13 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  // subsys = new SubSystem("MVTX", "mvtx");
-  // subsys->AddAction("mvtxDraw(\"GENERAL\")", "General Monitor");
-  // subsys->AddAction("mvtxDraw(\"FEE\")", "FEE");
-  // subsys->AddAction("mvtxDraw(\"FHR\")", "FHR");
-  // subsys->AddAction("mvtxDraw(\"OCC\")", "OCC");
-  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  // pmf->RegisterSubSystem(subsys);
+  subsys = new SubSystem("MVTX", "mvtx");
+  subsys->AddAction("mvtxDraw(\"GENERAL\")", "General Monitor");
+  subsys->AddAction("mvtxDraw(\"FEE\")", "FEE");
+  subsys->AddAction("mvtxDraw(\"FHR\")", "FHR");
+  subsys->AddAction("mvtxDraw(\"OCC\")", "OCC");
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("SEPD", "sepd");
   subsys->AddAction("sepdDraw(\"FIRST\")", "Towers");
@@ -102,6 +102,7 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCCLUSTERSXYUNWEIGTHED\")", "TPC Cluster XY MaxADC-Pedestal,u");
   subsys->AddAction("tpcDraw(\"TPCCLUSTERSZYWEIGTHED\")", "TPC Cluster ZY MaxADC-Pedestal,w");
   subsys->AddAction("tpcDraw(\"TPCCLUSTERSZYUNWEIGTHED\")", "TPC Cluster ZY MaxADC-Pedestal,u");
+  subsys->AddAction("tpcDraw(\"TPCLASERCLUSTERSXYWEIGTHED\")", "TPC DIFF. LASER Cluster XY MaxADC-Pedestal,w");
   subsys->AddAction("tpcDraw(\"TPCCHANNELPHI_LAYER_WEIGHTED\")", "TPC ChannelPhi vs Layer vs Pedest Sub. ADC,w");
   subsys->AddAction("tpcDraw(\"TPCNEVENTSEBDC\")", "TPC NEvents vs EBDC");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE\")", "TPC Pedest Sub. ADC vs Sample");
