@@ -9,6 +9,7 @@ class CaloWaveformFitting;
 class TowerInfoContainer;
 class Event;
 class TH1;
+class TProfile;
 class TH2;
 class Packet;
 class runningMean;
@@ -61,6 +62,7 @@ class HcalMon : public OnlMon
   TH1* h_rm_tower[24][64] = {nullptr};
   TH1* h_hcal_trig = {nullptr};
   TH2* h_caloPack_gl1_clock_diff = {nullptr};
+  TProfile* h_evtRec = {nullptr};
 
   eventReceiverClient *erc = {nullptr};
   bool anaGL1 = false;
