@@ -45,6 +45,8 @@ OnlBbcEvent::OnlBbcEvent(const int cal_pass) :
   }
   */
 
+  std::cout << "XXX " << MbdDefs::BBC_N_FEECH << "\t" << MbdDefs::MAX_SAMPLES << std::endl;
+
   for (int ifeech = 0; ifeech < MbdDefs::BBC_N_FEECH; ifeech++)
   {
     // std::cout << PHWHERE << "Creating _mbdsig " << ifeech << std::endl;
@@ -77,6 +79,7 @@ OnlBbcEvent::OnlBbcEvent(const int cal_pass) :
 
   // Maybe this is used in the online monitor???
   // BBCCALIB is used in offline to read in our calibrations
+  /*
   const char *bbccaldir = getenv("BBCCALIB");
   if (bbccaldir)
   {
@@ -93,15 +96,14 @@ OnlBbcEvent::OnlBbcEvent(const int cal_pass) :
     std::string tt_clk_offsetfile = std::string(bbccaldir) + "/" + "bbc_tt_clk.calib";
     Read_TT_CLK_Offsets(tt_clk_offsetfile);
 
-    /*
     std::string mondata_fname = std::string(bbccaldir) + "/" + "BbcMonData.dat";
     std::ifstream mondatafile( mondata_fname );
     string label;
     mondatafile >> label >> bz_offset;
     std::cout << PHWHERE << label << "\t" << bz_offset << std::endl;
     mondatafile.close();
-    */
   }
+  */
 
   // Debug stuff
   _debugintt = 0;
@@ -200,14 +202,18 @@ int OnlBbcEvent::InitRun()
     std::cout << "OUTPUT CALDIR = " << _caldir << std::endl;
   }
 
-  if ( _calpass == 1 )
+  if ( _calpass == 1 || _is_online )
   {
-    std::cout << "MBD Cal Pass 1" << std::endl;
-    TDirectory *orig_dir = gDirectory;
 
-    TString savefname = _caldir; savefname += "calpass1.root";
-    std::cout << "Saving calpass 1 results to " << savefname << std::endl;
-    _smax_tfile = std::make_unique<TFile>(savefname,"RECREATE");
+    TDirectory *orig_dir = gDirectory;
+    if ( !_is_online )
+    {
+      std::cout << "MBD Cal Pass 1" << std::endl;
+
+      TString savefname = _caldir; savefname += "calpass1.root";
+      std::cout << "Saving calpass 1 results to " << savefname << std::endl;
+      _smax_tfile = std::make_unique<TFile>(savefname,"RECREATE");
+    }
 
     std::string name;
 
@@ -235,7 +241,10 @@ int OnlBbcEvent::InitRun()
       h2_wave[itype]->SetYTitle("ch");
     }
 
-    orig_dir->cd();
+    if (!_is_online)
+    {
+      orig_dir->cd();
+    }
   }
   else if ( _calpass == 2 )
   {
@@ -859,7 +868,7 @@ int OnlBbcEvent::FillSampMaxCalib()
 
   // At 1000 events, get the tmax for the time channels
   // so we can fill the h2_trange histograms
-  if ( h2_tmax[0]->GetEntries() == (128*1000) )
+  if ( h2_tmax[0]->GetEntries() == (128*100) )
   {
     CalcSampMaxCalib();
     _calib_done = 1;
@@ -871,7 +880,10 @@ int OnlBbcEvent::FillSampMaxCalib()
 int OnlBbcEvent::CalcSampMaxCalib()
 {
   TDirectory *orig_dir = gDirectory;
-  _smax_tfile->cd();
+  if ( !_is_online )
+  {
+    _smax_tfile->cd();
+  }
 
   // sampmax for each board, for time and ch channels
   int feech = 0;
@@ -905,7 +917,10 @@ int OnlBbcEvent::CalcSampMaxCalib()
     delete h_projx;
   }
 
-  orig_dir->cd();
+  if ( !_is_online )
+  {
+    orig_dir->cd();
+  }
 
   return 1;
 }

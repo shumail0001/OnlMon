@@ -19,7 +19,7 @@
 #include <Event/eventReceiverClient.h>
 
 #include <mbd/MbdGeomV1.h>
-#include <mbd/MbdOutV1.h>
+#include <mbd/MbdOutV2.h>
 #include <mbd/MbdPmtContainerV1.h>
 #include <mbd/MbdPmtHit.h>
 
@@ -67,6 +67,7 @@ int BbcMon::Init()
   std::cout << "BbcMon::Init()" << std::endl;
 
   bevt = new OnlBbcEvent();
+  _mbdgeom = new MbdGeomV1();
 
   if (useGL1)
   {
@@ -302,7 +303,10 @@ int BbcMon::Init()
   // register histograms with server otherwise client won't get them
   OnlMonServer *se = OnlMonServer::instance();
 
-  se->registerHisto(this, bbc_trigs);
+  if ( useGL1 )
+  {
+    se->registerHisto(this, bbc_trigs);
+  }
   se->registerHisto(this, bbc_adc);
   se->registerHisto(this, bbc_tdc);
   se->registerHisto(this, bbc_tdc_overflow);
@@ -337,7 +341,7 @@ int BbcMon::Init()
   */
   Reset();
 
-  m_mbdout = new MbdOutV1();
+  m_mbdout = new MbdOutV2();
   m_mbdpmts = new MbdPmtContainerV1();
 
   return 0;

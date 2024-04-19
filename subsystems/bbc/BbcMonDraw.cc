@@ -870,7 +870,10 @@ int BbcMonDraw::Draw(const std::string &what)
 
   TH1 *bbc_trigs = static_cast<TH1 *>(cl->getHisto("BBCMON_0", "bbc_trigs"));
   ifdelete(Trigs);
-  Trigs = static_cast<TH1 *>(bbc_trigs->Clone());
+  if ( bbc_trigs!=0 )
+  {
+    Trigs = static_cast<TH1 *>(bbc_trigs->Clone());
+  }
 
   TH1 *bbc_nevent_counter = cl->getHisto("BBCMON_0", "bbc_nevent_counter");
 

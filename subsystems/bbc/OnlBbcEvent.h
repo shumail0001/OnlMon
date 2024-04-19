@@ -87,6 +87,7 @@ class OnlBbcEvent
   int _simflag{0};
   int _nsamples{31};
   int _calib_done{0};
+  int _is_online{1};
   Packet *p[2]{nullptr, nullptr};
 
   // alignment data
@@ -105,7 +106,7 @@ class OnlBbcEvent
   Float_t m_pmttt[MbdDefs::MBD_N_PMT]{};  // time in each arm
   Float_t m_pmttq[MbdDefs::MBD_N_PMT]{};  // time in each arm
 
-  int do_templatefit{1};
+  int do_templatefit{0};
 
   // output data
   Short_t m_bbcn[2]{};                                            // num hits for each arm (north and south)
