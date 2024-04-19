@@ -1498,6 +1498,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TH2F* h2_hcal_hits_trig1 = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits_trig1");
   TH2F* h2_hcal_hits_trig2 = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits_trig2");
   TH2F* h2_hcal_hits = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
+  TH2F* h_evtRec = (TH2F*) cl->getHisto(HCALMON_0, "h_evtRec");
   TH1F* h_hcal_trig = (TH1F*) cl->getHisto(HCALMON_0, "h_hcal_trig");
   TH2F* h_caloPack_gl1_clock_diff = (TH2F*) cl->getHisto(HCALMON_0, "h_caloPack_gl1_clock_diff");
 
@@ -1510,7 +1511,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TC[6]->SetEditable(1);
   TC[6]->Clear("D");
   Pad[16]->cd();
-  if (!h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig  || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2)
+  if (!h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig  || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2 || !h_evtRec)
   {
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(0);
@@ -1525,7 +1526,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
 
   float tsize = 0.06;
   h2_hcal_hits_trig1->GetXaxis()->SetNdivisions(510, kTRUE);
-  h2_hcal_hits_trig1->GetXaxis()->SetTitle("No trigger req  ieta");
+  h2_hcal_hits_trig1->GetXaxis()->SetTitle("trig1 req  ieta");
   h2_hcal_hits_trig1->GetYaxis()->SetTitle("iphi");
   h2_hcal_hits_trig1->GetXaxis()->SetLabelSize(tsize);
   h2_hcal_hits_trig1->GetYaxis()->SetLabelSize(tsize);
@@ -1565,7 +1566,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   float tsize2 = 0.08;
   h2_hcal_hits_trig2->Draw("colz");
   h2_hcal_hits_trig2->GetXaxis()->SetNdivisions(510, kTRUE);
-  h2_hcal_hits_trig2->GetXaxis()->SetTitle("trigger req  ieta");
+  h2_hcal_hits_trig2->GetXaxis()->SetTitle("trig 2 req  ieta");
   h2_hcal_hits_trig2->GetYaxis()->SetTitle("iphi");
   h2_hcal_hits_trig2->GetXaxis()->SetLabelSize(tsize2);
   h2_hcal_hits_trig2->GetYaxis()->SetLabelSize(tsize2);
@@ -1584,6 +1585,8 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   Pad[18]->cd();
 
   gStyle->SetTitleFontSize(0.06);
+
+  h_hcal_trig->SetTitle(Form("Receiving %0.3f of events from event reciever",h_evtRec->GetBinContent(1)));
 
   h_hcal_trig->Draw("hist");
   h_hcal_trig->GetXaxis()->SetNdivisions(510, kTRUE);
