@@ -323,7 +323,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[21] = new TPad("transparent21", "this does not show", 0, 0, 1, 1);
     transparent[21]->SetFillStyle(4000);
     transparent[21]->Draw();
-    TC[21]->SetEditable(false);
+    TC[22]->SetEditable(false);
   }      
   return 0;
 }
@@ -441,6 +441,7 @@ int TpcMonDraw::Draw(const std::string &what)
   {
     iret += DrawTPCXYlaserclusters(what);
     idraw++;
+    std::cout<<"You see the TPCLASERCLUSTERSXYWEIGTHED"<<std::endl; 
   }
   if (!idraw)
   {
@@ -2222,7 +2223,7 @@ int TpcMonDraw::DrawTPCXYlaserclusters(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << "_ADC-Pedestal>(5sigma||20ADC) WEIGHTED, Run" << cl->RunNumber()
+  runnostream << ThisName << "_LASER_ADC-Pedestal>(5sigma||20ADC) WEIGHTED, Run" << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[21]->cd();
