@@ -39,6 +39,7 @@ class LL1Mon : public OnlMon
 
   // EMCAL Trigger Section
 
+  TH1* h_2x2_sum_per_emcal_board[16] = {nullptr};
   TH2* h_8x8_sum_emcal = nullptr;
   TH2* h_8x8_sum_emcal_above_threshold[4] = {nullptr};
   TH2* h_sample_diff_emcal = nullptr;

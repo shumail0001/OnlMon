@@ -18,7 +18,6 @@ void ll1DrawInit(const int online = 0)
   cl->registerHisto("h_nhit_corr", "LL1MON_0");
   cl->registerHisto("h_line_up", "LL1MON_0");
   cl->registerHisto("h_line_up", "LL1MON_0");
-  cl->registerHisto("h_2x2_sum_emcal", "LL1MON_0");
   cl->registerHisto("h_8x8_sum_emcal", "LL1MON_0");
   cl->registerHisto("h_8x8_sum_emcal_above_threshold_0", "LL1MON_0");
   cl->registerHisto("h_8x8_sum_emcal_above_threshold_1", "LL1MON_0");
@@ -31,6 +30,11 @@ void ll1DrawInit(const int online = 0)
   cl->registerHisto("h_jet_output_above_threshold_2", "LL1MON_0");
   cl->registerHisto("h_jet_output_above_threshold_3", "LL1MON_0");
   cl->registerHisto("h_sample_diff_emcal", "LL1MON_0");
+  for (int i = 0; i < 16;i++)
+    {
+      std::string histname = "h_2x2_sum_emcal_"+std::to_string(i);
+      cl->registerHisto(histname.c_str(), "LL1MON_0");
+    }
   cl->registerHisto("h_sample_diff_jet_input", "LL1MON_0");
   cl->AddServerHost("localhost");  // check local host first
   //CreateHostList(online);

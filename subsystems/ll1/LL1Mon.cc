@@ -71,7 +71,12 @@ int LL1Mon::Init()
   //h_hit_check = new TH2D("h_hit_check",";N_{hit}^{north} sample index;N_{hit}^{south} sample index",3,8,11,3,8,11);
   //h_time_diff = new TH1D("h_time_diff",";time_diff;counts", 50, -0.5, 300);
   // EMCAL Trigger Section
-
+  for (int i = 0; i < 16; i++)
+    {
+      std::string histname= "h_2x2_sum_emcal_" + std::to_string(i);
+      std::string title = "EMCAL" + std::to_string(i) + ";2x2 sum; Occurrences";
+      h_2x2_sum_per_emcal_board[i] = new TH1D(histname.c_str(), title.c_str(), 257, -0.5, 256.5);
+    }
   h_8x8_sum_emcal = new TH2D("h_8x8_sum_emcal", ";#eta <8x8> sum; #phi <8x8> sum;", nbins_emcal_eta_8x8, -0.5, nbins_emcal_eta_8x8 - 0.5, nbins_emcal_phi_8x8, -0.5,nbins_emcal_phi_8x8 - 0.5);
   for (int i = 0; i < 4; i++)
     {
@@ -107,6 +112,10 @@ int LL1Mon::Init()
   se->registerHisto(this, h_sample_diff_emcal);  
   se->registerHisto(this, h_sample_diff_jet_input);  
 
+  for (int i = 0; i < 16; i++)
+    {
+      se->registerHisto(this, h_2x2_sum_per_emcal_board[i]);
+    }
   for (int i = 0; i < 4; i++)
     {
       se->registerHisto(this, h_8x8_sum_emcal_above_threshold[i]);  
@@ -210,29 +219,37 @@ int LL1Mon::process_event(Event * evt )
       h_sample_diff_emcal->Fill(ll1h->emcal_sample[iemcal], iemcal);
       h_sample_diff_jet_input->Fill(ll1h->jet_sample[iemcal], iemcal);
 
-      for (int i = 0; i < 2 ; i++)
+      for (int i = 0; i < 8 ; i++)
 	{	  
-	  for (int j = 0; j < 12; j++)
+	  int ii = i/4;
+	  int imod = i%4;
+	  for (int j = 0; j < 48; j++)
 	    {
-		  h_8x8_sum_emcal->Fill(j, iemcal * 2 + i, ll1h->emcal_8x8_map[j][iemcal*2 + i]);
+	      int jj = j/4;
+	      int jmod = j%4;
+	      if (!jmod && !imod)
+		{
+		  h_8x8_sum_emcal->Fill(jj, iemcal * 2 + ii, ll1h->emcal_8x8_map[jj][iemcal*2 + ii]);
 
-		  h_jet_input->Fill(j, iemcal*2 + i, ll1h->jet_input[j][iemcal*2 + i]);
-		  if (j < 9)
+		  h_jet_input->Fill(jj, iemcal*2 + ii, ll1h->jet_input[jj][iemcal*2 + ii]);
+		  if (jj < 9)
 		    {
-		      h_jet_output->Fill(j, iemcal*2 + i, ll1h->jet_output[j][iemcal*2 + i]);
+		      h_jet_output->Fill(jj, iemcal*2 + ii, ll1h->jet_output[jj][iemcal*2 + ii]);
 		    }
 		  for (int ith = 0; ith < 4; ith++)
 		    {
-		      if (ll1h->emcal_8x8_map[j][iemcal*2 + i] > ll1h->photon_threshold[ith])
+		      if (ll1h->emcal_8x8_map[jj][iemcal*2 + ii] > ll1h->photon_threshold[ith])
 			{
-			  h_8x8_sum_emcal_above_threshold[ith]->Fill(j, iemcal*2 + i);
+			  h_8x8_sum_emcal_above_threshold[ith]->Fill(jj, iemcal*2 + ii);
 			}
-		      if (j < 9 && ll1h->jet_output[j][iemcal*2 + i] > ll1h->jet_threshold[ith])
+		      if (jj < 9 && ll1h->jet_output[jj][iemcal*2 + ii] > ll1h->jet_threshold[ith])
 			{
-			  h_jet_output_above_threshold[ith]->Fill(j, iemcal*2 + i);			
+			  h_jet_output_above_threshold[ith]->Fill(jj, iemcal*2 + ii);			
 			}
 		      
 		    }
+		}
+	      h_2x2_sum_per_emcal_board[iemcal]->Fill(ll1h->emcal_2x2_map[j][iemcal*8 + i]);
 	    }
 	}
     }

@@ -157,6 +157,16 @@ void process_emcal(int pid, Packet *p, LL1HEADER *&ll1h)
 
   ll1h->emcal_sample[emcal_board] = -1;
 
+  for (int i = 0; i < p->iValue(0, "CHANNELS"); i++)
+    {
+      for (int is = 0; is < p->iValue(0, "SAMPLES"); is++)
+	{
+	  int value = p->iValue(is, i);
+
+	  ll1h->emcal_2x2_map[((i/16)%12) * 4 + (i%4)][emcal_board*8 + (i%16)/4] = value;
+	  
+	}
+    }
   for (int i = 0; i < p->iValue(0, "TRIGGERWORDS"); i++)
     {
       for (int is = 0; is < p->iValue(0, "SAMPLES"); is++)
