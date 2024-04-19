@@ -379,11 +379,11 @@ int ZdcMon::process_event(Event *e /* evt */)
       if ( smd_adc[i + 24] > 5 ) {s_ver++;}
       smd_adc_s_ver_ind[i]->Fill(smd_adc[i + 24]);
 
-      // if (smd_adc[i + 24] != 0) 
-      // {
-      //   double filling = i + 24 + 0.0;
-      //   smd_south_ver_hits->Fill(filling);  
-      // }
+      if (smd_adc[i + 24] != 0) 
+      {
+        double filling = i + 24 + 0.0;
+        smd_south_ver_hits->Fill(filling);  
+      }
     }
 
     bool fired_smd_hor_n = (n_hor  > 1);
