@@ -54,6 +54,12 @@ class ZdcMon : public OnlMon
   TH1 * smd_adc_n_ver_ind[7] = {nullptr};
   TH1 * smd_adc_s_ver_ind[7] = {nullptr};
 
+  // SMD hit Multiplicities
+  TH1 * smd_north_hor_hits = nullptr;
+  TH1 * smd_north_ver_hits = nullptr;
+  TH1 * smd_south_hor_hits = nullptr;
+  TH1 * smd_south_ver_hits = nullptr;
+
   // north smd
   TH1 *smd_hor_north = nullptr;
   TH1 *smd_ver_north = nullptr;
