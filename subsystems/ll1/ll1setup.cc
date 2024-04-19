@@ -157,23 +157,6 @@ void process_emcal(int pid, Packet *p, LL1HEADER *&ll1h)
 
   ll1h->emcal_sample[emcal_board] = -1;
 
-  for (int i = 0; i < 24; i++)
-    {
-      for (int j =0; j < 16; j++)
-	{
-	  ll1h->emcal_2x2_map[j%4 + (i%12)*4][j/4 + i/12 + emcal_board*2] = 0;
-	  for (int is = 0; is < p->iValue(0, "SAMPLES"); is++)
-	    {
-	      int value = p->iValue(is, i*16 + j);
-	      if (value)
-		{
-		  ll1h->emcal_sample[emcal_board] = is;
-		  ll1h->emcal_2x2_map[j%4 + (i%12)*4][j/4 + i/12 + emcal_board*2] = value;
-		}
-	    }
-	}
-    }
-
   for (int i = 0; i < p->iValue(0, "TRIGGERWORDS"); i++)
     {
       for (int is = 0; is < p->iValue(0, "SAMPLES"); is++)
@@ -181,6 +164,7 @@ void process_emcal(int pid, Packet *p, LL1HEADER *&ll1h)
 	  int value = p->iValue(is, 16*24 + i);
 	  if (value)
 	    {
+	      ll1h->emcal_sample[emcal_board] = is;
 	      ll1h->emcal_8x8_map[i%12][emcal_board*2 + i/12] = value;
 	    }
 	}

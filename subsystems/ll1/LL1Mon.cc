@@ -72,7 +72,6 @@ int LL1Mon::Init()
   //h_time_diff = new TH1D("h_time_diff",";time_diff;counts", 50, -0.5, 300);
   // EMCAL Trigger Section
 
-  h_2x2_sum_emcal = new TH2D("h_2x2_sum_emcal", ";#eta <2x2> sum; #phi <2x2> sum;", nbins_emcal_eta_2x2, -0.5, nbins_emcal_eta_2x2 - 0.5, nbins_emcal_phi_2x2, -0.5,nbins_emcal_phi_2x2 - 0.5);
   h_8x8_sum_emcal = new TH2D("h_8x8_sum_emcal", ";#eta <8x8> sum; #phi <8x8> sum;", nbins_emcal_eta_8x8, -0.5, nbins_emcal_eta_8x8 - 0.5, nbins_emcal_phi_8x8, -0.5,nbins_emcal_phi_8x8 - 0.5);
   for (int i = 0; i < 4; i++)
     {
@@ -104,15 +103,16 @@ int LL1Mon::Init()
 
   se->registerHisto(this, h_jet_input);  
   se->registerHisto(this, h_jet_output);  
-  se->registerHisto(this, h_2x2_sum_emcal);  
   se->registerHisto(this, h_8x8_sum_emcal);  
   se->registerHisto(this, h_sample_diff_emcal);  
   se->registerHisto(this, h_sample_diff_jet_input);  
+
   for (int i = 0; i < 4; i++)
     {
       se->registerHisto(this, h_8x8_sum_emcal_above_threshold[i]);  
       se->registerHisto(this, h_jet_output_above_threshold[i]);  
     }
+
   Reset();
 
   return 0;
@@ -135,9 +135,9 @@ int LL1Mon::process_event(Event * evt )
   Packet *pthresh = evt->getPacket(13901);
   if (pthresh)
     {
-      
       for (int ithreshold = 0; ithreshold < nthresholds; ithreshold++)
 	{
+	  std::cout << " threshold "<<ithreshold << " : " << pthresh->iValue(ithreshold) << std::endl;
 	  if (ithreshold < 4)
 	    {
 	      ll1h->jet_threshold[ithreshold] = pthresh->iValue(ithreshold);
@@ -204,42 +204,39 @@ int LL1Mon::process_event(Event * evt )
 
 
   // Fill in EMCAL histograms
+  
   for (int iemcal = 0; iemcal < 16; iemcal++)
     {
       h_sample_diff_emcal->Fill(ll1h->emcal_sample[iemcal], iemcal);
       h_sample_diff_jet_input->Fill(ll1h->jet_sample[iemcal], iemcal);
 
-      for (int i = 0; i < 8 ; i++)
+      for (int i = 0; i < 2 ; i++)
 	{	  
-	  for (int j = 0; j < 48; j++)
+	  for (int j = 0; j < 12; j++)
 	    {
-	      h_2x2_sum_emcal->Fill(j, iemcal*8 + i, ll1h->emcal_2x2_map[j][iemcal*8 + i]);
-	      if (i%4 == 0 && j%4 == 0)
-		{
-		  h_8x8_sum_emcal->Fill(j/4, iemcal * 2 + i/4, ll1h->emcal_8x8_map[j/4][iemcal*2 + i/4]);
+		  h_8x8_sum_emcal->Fill(j, iemcal * 2 + i, ll1h->emcal_8x8_map[j][iemcal*2 + i]);
 
-		  h_jet_input->Fill(j/4, iemcal*2 + i/4, ll1h->jet_input[j/4][iemcal*2 + i/4]);
-		  if (j/4 < 9)
+		  h_jet_input->Fill(j, iemcal*2 + i, ll1h->jet_input[j][iemcal*2 + i]);
+		  if (j < 9)
 		    {
-		      h_jet_output->Fill(j/4, iemcal*2 + i/4, ll1h->jet_output[j/4][iemcal*2 + i/4]);
+		      h_jet_output->Fill(j, iemcal*2 + i, ll1h->jet_output[j][iemcal*2 + i]);
 		    }
 		  for (int ith = 0; ith < 4; ith++)
 		    {
-		      if (ll1h->emcal_8x8_map[j/4][iemcal*2 + i/4] > ll1h->photon_threshold[ith])
+		      if (ll1h->emcal_8x8_map[j][iemcal*2 + i] > ll1h->photon_threshold[ith])
 			{
-			  h_8x8_sum_emcal_above_threshold[ith]->Fill(j/4, iemcal*2 + i/4);
+			  h_8x8_sum_emcal_above_threshold[ith]->Fill(j, iemcal*2 + i);
 			}
-		      if (j/4 < 9 && ll1h->jet_output[j/4][iemcal*2 + i/4] > ll1h->jet_threshold[ith])
+		      if (j < 9 && ll1h->jet_output[j][iemcal*2 + i] > ll1h->jet_threshold[ith])
 			{
-			  h_jet_output_above_threshold[ith]->Fill(j/4, iemcal*2 + i/4);
+			  h_jet_output_above_threshold[ith]->Fill(j, iemcal*2 + i);			
 			}
+		      
 		    }
-
-		}
 	    }
 	}
     }
-
+  
   delete ll1h;
 
   return 0;

@@ -30,8 +30,8 @@ class LL1MonDraw : public OnlMonDraw
   int DrawFifth(const std::string &what = "ALL");
   int DrawSixth(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
-  TCanvas *TC[3] = {nullptr};
-  TPad *transparent[3] = {nullptr};
+  TCanvas *TC[6] = {nullptr};
+  TPad *transparent[6] = {nullptr};
   TPad *Pad[6] = {nullptr};
 
   const int nPad1 = 4;

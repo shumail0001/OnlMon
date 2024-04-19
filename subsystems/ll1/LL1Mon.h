@@ -39,7 +39,6 @@ class LL1Mon : public OnlMon
 
   // EMCAL Trigger Section
 
-  TH2* h_2x2_sum_emcal = nullptr;
   TH2* h_8x8_sum_emcal = nullptr;
   TH2* h_8x8_sum_emcal_above_threshold[4] = {nullptr};
   TH2* h_sample_diff_emcal = nullptr;
@@ -51,8 +50,6 @@ class LL1Mon : public OnlMon
   TH2* h_jet_input = nullptr;
   TH2* h_sample_diff_jet_input= nullptr;
 
-  int nbins_emcal_eta_2x2 = 48;
-  int nbins_emcal_phi_2x2 = 128;
   int nbins_emcal_eta_8x8 = 12;
   int nbins_emcal_phi_8x8 = 32;
   int nbins_jet_input_eta = 12;
