@@ -162,7 +162,10 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
           h_gl1_clock_diff[start]->Add(h_gl1_clock_diff[i],1);
       }
   }    
-
+  if (start < 0)
+    {
+      return 0;
+    }
   int nbinsx = h_gl1_clock_diff[start]->GetNbinsX();
   int nbinsy = h_gl1_clock_diff[start]->GetNbinsY();
   for(int ibx=1; ibx<=nbinsx; ibx++){
@@ -271,7 +274,10 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
           h_gl1_clock_diff_capture[start]->Add(h_gl1_clock_diff_capture[i],1);
       }
   }    
-
+  if (start < 0)
+    {
+      return 0;
+    }
   Int_t color[2]; 
   color[0] = kRed; 
   color[1] = kGreen;
