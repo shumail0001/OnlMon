@@ -98,7 +98,6 @@ int TpcMon::Init()
   NorthSideADC_clusterXY_R3->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R3->SetYTitle("Y [mm]");
 
-
   //SouthSideADC_clusterXY_R1 = new TH2F("SouthSideADC_clusterXY_R1" , "ADC Peaks South Side", N_phi_binx_XY_R1, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
   SouthSideADC_clusterXY_R1 = new TH2F("SouthSideADC_clusterXY_R1" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R1->SetXTitle("X [mm]");
@@ -113,6 +112,39 @@ int TpcMon::Init()
   SouthSideADC_clusterXY_R3 = new TH2F("SouthSideADC_clusterXY_R3" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R3->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R3->SetYTitle("Y [mm]");
+
+  //____________________________________________________________________//
+
+  //TPC "cluster" XY heat maps DURING LASER TIME WEIGHTED
+  //
+  NorthSideADC_clusterXY_R1_LASER = new TH2F("NorthSideADC_clusterXY_R1_LASER" , "(ADC-Pedestal) > 5#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R1_LASER->SetXTitle("X [mm]");
+  NorthSideADC_clusterXY_R1_LASER->SetYTitle("Y [mm]");
+
+  //
+  NorthSideADC_clusterXY_R2_LASER = new TH2F("NorthSideADC_clusterXY_R2_LASER" , "(ADC-Pedestal) > 5#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R2_LASER->SetXTitle("X [mm]");
+  NorthSideADC_clusterXY_R2_LASER->SetYTitle("Y [mm]");
+
+  //
+  NorthSideADC_clusterXY_R3_LASER = new TH2F("NorthSideADC_clusterXY_R3_LASER" , "(ADC-Pedestal) > 5#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R3_LASER->SetXTitle("X [mm]");
+  NorthSideADC_clusterXY_R3_LASER->SetYTitle("Y [mm]");
+
+  //
+  SouthSideADC_clusterXY_R1_LASER = new TH2F("SouthSideADC_clusterXY_R1_LASER" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R1_LASER->SetXTitle("X [mm]");
+  SouthSideADC_clusterXY_R1_LASER->SetYTitle("Y [mm]");
+
+  //
+  SouthSideADC_clusterXY_R2_LASER = new TH2F("SouthSideADC_clusterXY_R2_LASER" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R2_LASER->SetXTitle("X [mm]");
+  SouthSideADC_clusterXY_R2_LASER->SetYTitle("Y [mm]");
+
+  //  
+  SouthSideADC_clusterXY_R3_LASER = new TH2F("SouthSideADC_clusterXY_R3_LASER" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R3_LASER->SetXTitle("X [mm]");
+  SouthSideADC_clusterXY_R3_LASER->SetYTitle("Y [mm]");
 
   //____________________________________________________________________//
 
@@ -394,6 +426,14 @@ int TpcMon::Init()
   se->registerHisto(this, SouthSideADC_clusterXY_R2_unw);
   se->registerHisto(this, SouthSideADC_clusterXY_R3_unw);
 
+  se->registerHisto(this, NorthSideADC_clusterXY_R1_LASER);
+  se->registerHisto(this, NorthSideADC_clusterXY_R2_LASER);
+  se->registerHisto(this, NorthSideADC_clusterXY_R3_LASER);
+
+  se->registerHisto(this, SouthSideADC_clusterXY_R1_LASER);
+  se->registerHisto(this, SouthSideADC_clusterXY_R2_LASER);
+  se->registerHisto(this, SouthSideADC_clusterXY_R3_LASER);
+
   se->registerHisto(this, NorthSideADC_clusterZY);
   se->registerHisto(this, SouthSideADC_clusterZY);
 
@@ -580,6 +620,9 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         float pedest_sub_wf_max = 0.;
 
+        int wf_max_laser_peak = 0;
+        float pedest_sub_wf_max_laser_peak = 0.;
+
         for( int s =0; s < nr_Samples ; s++ )
         {
           
@@ -590,6 +633,8 @@ int TpcMon::process_event(Event *evt/* evt */)
           Layer_ChannelPhi_ADC_weighted->Fill(padphi,layer,adc-pedestal);
 
           if( adc > wf_max){ wf_max = adc; t_max = s; pedest_sub_wf_max = adc - pedestal;}
+
+          if( (s> 310 && s < 350) && (adc > wf_max_laser_peak) ){ wf_max_laser_peak = adc; pedest_sub_wf_max_laser_peak = adc - pedestal; }   
 
           if( s >= 10 && s <= 19) // get first 10-19
           {
@@ -654,6 +699,20 @@ int TpcMon::process_event(Event *evt/* evt */)
           else if(Module_ID(fee)==2){SouthSideADC_clusterXY_R3->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterXY_R3_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
 
           if( t_max >= 10 && t_max <=255 ){z = -1030 + (t_max - 10)*(50 * 0.084);SouthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
+        }
+        //________________________________________________________________________________
+        //XY laser peak
+        if( (serverid < 12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && layer != 0 )
+        {
+          if(Module_ID(fee)==0){NorthSideADC_clusterXY_R1_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R1
+          else if(Module_ID(fee)==1){NorthSideADC_clusterXY_R2_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R2
+          else if(Module_ID(fee)==2){NorthSideADC_clusterXY_R3_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R3
+        }
+        else if( (serverid >=12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && layer != 0)
+        {
+          if(Module_ID(fee)==0){SouthSideADC_clusterXY_R1_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R1
+          else if(Module_ID(fee)==1){SouthSideADC_clusterXY_R2_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R2
+          else if(Module_ID(fee)==2){SouthSideADC_clusterXY_R3_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R3
         }
         //________________________________________________________________________________
 
