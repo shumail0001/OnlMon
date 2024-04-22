@@ -34,11 +34,13 @@ bbcinclude_HEADERS = \
   BbcMon.h \
   OnlBbcSig.h \
   OnlBbcEvent.h \
+  OnlBbcCalib.h \
   BbcMonDraw.h
 
 libonlbbcmon_server_la_SOURCES = \
   OnlBbcSig.cc \
   OnlBbcEvent.cc \
+  OnlBbcCalib.cc \
   BbcMon.cc
 
 libonlbbcmon_client_la_SOURCES = \

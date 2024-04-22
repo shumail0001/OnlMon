@@ -17,6 +17,7 @@
 #include <Event/Event.h>
 #include <Event/EventTypes.h>
 #include <Event/packet.h>
+#include <Event/eventReceiverClient.h>
 
 #include <mbd/BbcGeomV1.h>
 
@@ -53,6 +54,7 @@ BbcMon::~BbcMon()
 {
   delete bevt;
   delete bbcgeom;
+  if ( erc!=nullptr ) delete erc;
   return;
 }
 
@@ -63,6 +65,12 @@ int BbcMon::Init()
   std::cout << "BbcMon::Init()" << std::endl;
 
   bevt = new OnlBbcEvent();
+
+  if (useGL1)
+  {
+    //erc = new eventReceiverClient("gl1daq");
+    erc = new eventReceiverClient("localhost");
+  }
 
   /*
   // read our calibrations from BbcMonData.dat
@@ -77,29 +85,27 @@ int BbcMon::Init()
   */
 
   // Book Histograms
-  std::ostringstream name, title;
+
+  // Trigger Information ----------------------------------------------------
+  if ( useGL1 )
+  {
+    bbc_trigs = new TH1F("bbc_trigs", "Trigger Counts", 64, -0.5, 63.5);
+  }
 
   // TDC Distribution ----------------------------------------------------
 
-  name << "bbc_tdc";
-  title << "BBC Raw TDC Distribution";
-  bbc_tdc = new TH2F(name.str().c_str(), title.str().c_str(),
+  bbc_tdc = new TH2F("bbc_tdc", "BBC Raw TDC Distribution",
                      nPMT_BBC, -.5, nPMT_BBC - .5,
                      bbc_onlmon::nBIN_TDC, 0, bbc_onlmon::tdc_max_overflow * bbc_onlmon::TDC_CONVERSION_FACTOR);
-  name.str("");
-  title.str("");
+  std::cout << "BBCTDC " << (uint64_t)bbc_tdc << std::endl;
 
   // TDC Overflow Deviation ----------------------------------------------
-  name << "bbc_tdc_overflow";
-  title << "BBC/MBD TDC Overflow Deviation";
-  bbc_tdc_overflow = new TH2F(name.str().c_str(), title.str().c_str(),
+  bbc_tdc_overflow = new TH2F("bbc_tdc_overflow", "BBC/MBD TDC Overflow Deviation",
                               nPMT_BBC, -.5, nPMT_BBC - .5,
                               int(bbc_onlmon::VIEW_OVERFLOW_MAX - bbc_onlmon::VIEW_OVERFLOW_MIN + 1),
                               bbc_onlmon::VIEW_OVERFLOW_MIN - .5, bbc_onlmon::VIEW_OVERFLOW_MAX + .5);
-  name.str("");
-  title.str("");
-
   // TDC Overflow Distribution for each PMT ------------------------------
+  std::ostringstream name, title;
   for (int ipmt = 0; ipmt < nPMT_BBC; ipmt++)
   {
     name << "bbc_tdc_overflow_" << std::setw(3) << std::setfill('0') << ipmt;
@@ -108,7 +114,9 @@ int BbcMon::Init()
                                            int(bbc_onlmon::VIEW_OVERFLOW_MAX - bbc_onlmon::VIEW_OVERFLOW_MIN + 1),
                                            bbc_onlmon::VIEW_OVERFLOW_MIN, bbc_onlmon::VIEW_OVERFLOW_MAX);
     name.str("");
+    name.clear();
     title.str("");
+    title.clear();
   }
 
   // ADC Distribution --------------------------------------------------------
@@ -293,6 +301,7 @@ int BbcMon::Init()
   // register histograms with server otherwise client won't get them
   OnlMonServer *se = OnlMonServer::instance();
 
+  se->registerHisto(this, bbc_trigs);
   se->registerHisto(this, bbc_adc);
   se->registerHisto(this, bbc_tdc);
   se->registerHisto(this, bbc_tdc_overflow);
@@ -398,6 +407,31 @@ int BbcMon::process_event(Event *evt)
   }
 
   int f_evt = evt->getEvtSequence();
+
+  // Get Trigger Info
+  if (useGL1)
+  {
+    Event *gl1Event = erc->getEvent(f_evt);
+    if (gl1Event)
+    {
+      Packet* p_gl1 = gl1Event->getPacket(14001);
+      if (p_gl1)
+      {
+        gl1_bco = p_gl1->lValue(0,"BCO");
+        triggervec = static_cast<uint64_t>( p_gl1->lValue(0,"TriggerVector") );
+        for (int itrig = 0; itrig < 64; itrig++ )
+        {
+          uint64_t trigbit = 0x1UL << itrig;
+          if ( (triggervec&trigbit) != 0 )
+          {
+            bbc_trigs->Fill( itrig );
+          }
+        }
+
+        delete p_gl1;
+      }
+    }
+  }
 
   // calculate BBC
   bevt->Clear();
