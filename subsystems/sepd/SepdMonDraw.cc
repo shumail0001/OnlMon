@@ -39,8 +39,9 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   int ysize = cl->GetDisplaySizeY();
   if (name == "SepdMon1")
   {
+    // --- this is called by int DrawFirst(string&)
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "SepdMon Example Monitor", 1200, 600);
+    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - Average ADC vs Tile", 1200, 600);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -59,7 +60,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SepdMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "SepdMon2 Example Monitor", 1200, 600);
+    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - Currently Black On Purpose", 1200, 600);
     gSystem->ProcessEvents();
     Pad[2] = new TPad("sepdpad2", "Left", 0., 0., 0.5, 1);
     Pad[3] = new TPad("sepdpad3", "Right", 0.5, 0., 1, 1);
@@ -78,7 +79,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   */
   else if (name == "SepdMon4")
   {
-    TC[3] = new TCanvas(name.c_str(), "SepdMon3 Waveform Info", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[3] = new TCanvas(name.c_str(), "sEPD Monitor 4 - Waveform Info", xsize / 3, 0, xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     Pad[6] = new TPad("sepdpad6", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
     Pad[7] = new TPad("sepdpad7", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
@@ -95,7 +96,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SepdMon5")
   {
     // xpos negative: do not draw menu bar
-    TC[4] = new TCanvas(name.c_str(), "SEPD Packet Information", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[4] = new TCanvas(name.c_str(), "sEPD Monitor 5 - Packet Information", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     Pad[10] = new TPad("sepdpad10", "packet event check", 0.0, 0.6, 1.0 / 2, 0.95, 0);
     Pad[11] = new TPad("sepdpad11", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
@@ -117,7 +118,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
     transparent[4]->Draw();
 
     // packet warnings
-    warning[1] = new TPad("warning1", "packet warnings", 0.5, 0, 1, 0.2);
+    warning[1] = new TPad("warning1", "sEPD Packet Warnings", 0.5, 0, 1, 0.2);
     warning[1]->SetFillStyle(4000);
     warning[1]->Draw();
     TC[4]->SetEditable(0);
@@ -382,10 +383,11 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   gStyle->SetTitleFontSize(0.03);
   float ymaxp = h2_sepd_waveform->ProfileX()->GetMaximum();
   h2_sepd_waveform->GetYaxis()->SetRangeUser(0, ymaxp * 20);
+  h2_sepd_waveform->GetXaxis()->SetRangeUser(0, 11);
 
   h2_sepd_waveform->Draw("colz");
 
-  float tsize = 0.06;
+  float tsize = 0.08;
   h2_sepd_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
   h2_sepd_waveform->GetXaxis()->SetTitle("Sample #");
   h2_sepd_waveform->GetYaxis()->SetTitle("Waveform [ADC]");
@@ -393,13 +395,13 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h2_sepd_waveform->GetYaxis()->SetLabelSize(tsize);
   h2_sepd_waveform->GetXaxis()->SetTitleSize(tsize);
   h2_sepd_waveform->GetYaxis()->SetTitleSize(tsize);
-  h2_sepd_waveform->GetXaxis()->SetTitleOffset(1.2);
-  h2_sepd_waveform->GetYaxis()->SetTitleOffset(0.75);
+  h2_sepd_waveform->GetXaxis()->SetTitleOffset(1.0);
+  h2_sepd_waveform->GetYaxis()->SetTitleOffset(1.25);
   gPad->SetLogz();
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.2);
   gPad->SetRightMargin(0.05);
-  gPad->SetLeftMargin(0.15);
+  gPad->SetLeftMargin(0.2);
   gStyle->SetOptStat(0);
   gStyle->SetPalette(57);
   gPad->SetTicky();
@@ -414,7 +416,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   std::string runstring;
   time_t evttime = getTime();
   // fill run number and event time into string
-  runnostream << ThisName << ": Pulse fitting, Run" << cl->RunNumber()
+  runnostream << ThisName << ": Pulse fitting, Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[3]->cd();
@@ -424,7 +426,8 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
   gStyle->SetTitleFontSize(0.06);
 
-  float tsize2 = 0.08;
+  float tsize2 = 0.09;
+  h_waveform_time->GetXaxis()->SetRangeUser(0,11);
   h_waveform_time->Draw("hist");
   h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
@@ -434,7 +437,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_time->GetXaxis()->SetTitleSize(tsize2);
   h_waveform_time->GetYaxis()->SetTitleSize(tsize2);
   h_waveform_time->GetXaxis()->SetTitleOffset(1.0);
-  h_waveform_time->GetYaxis()->SetTitleOffset(0.85);
+  h_waveform_time->GetYaxis()->SetTitleOffset(1.25);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -447,6 +450,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
   gStyle->SetTitleFontSize(0.06);
 
+  h_waveform_pedestal->GetXaxis()->SetRangeUser(0,11);
   h_waveform_pedestal->Draw("hist");
   h_waveform_pedestal->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
@@ -456,7 +460,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_pedestal->GetXaxis()->SetTitleSize(tsize2);
   h_waveform_pedestal->GetYaxis()->SetTitleSize(tsize2);
   h_waveform_pedestal->GetXaxis()->SetTitleOffset(0.9);
-  h_waveform_pedestal->GetYaxis()->SetTitleOffset(0.85);
+  h_waveform_pedestal->GetYaxis()->SetTitleOffset(1.25);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
