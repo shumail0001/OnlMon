@@ -123,16 +123,20 @@ void process_jet(Packet *p, LL1HEADER *&ll1h)
 	{
 	  for (int is = 0; is < p->iValue(0, "SAMPLES"); is++)
 	    {
-	      int value = p->iValue(is, i*24 + j);
+	      int ieta = j%12;
+	      int iphi = j/12 + i*2;
+
+	      int value = p->iValue(is, iphi + 32*ieta);
 	      if (value)
 		{
 		  ll1h->jet_sample[i] = is;
-		  ll1h->jet_input[j%12][j/12 + i*2] = value;
+		  ll1h->jet_input[ieta][iphi] = value;
 		}
 	    }
 	}
     }
 
+  int eta_section = (int)(monitor >> 1U);
   for (int i = 0; i < p->iValue(0, "TRIGGERWORDS"); i++)
     {
       for (int is = 0; is < p->iValue(0,"SAMPLES"); is++)
