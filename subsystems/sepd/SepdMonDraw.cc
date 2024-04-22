@@ -80,9 +80,9 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     TC[3] = new TCanvas(name.c_str(), "SepdMon3 Waveform Info", xsize / 3, 0, xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
-    Pad[6] = new TPad("hcalpad6", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
-    Pad[7] = new TPad("hcalpad7", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
-    Pad[8] = new TPad("hcalpad8", "who needs this?", 0.0, 0.0, 1.0, 0.3, 0);
+    Pad[6] = new TPad("sepdpad6", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
+    Pad[7] = new TPad("sepdpad7", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
+    Pad[8] = new TPad("sepdpad8", "who needs this?", 0.0, 0.0, 1.0, 0.3, 0);
     Pad[6]->Draw();
     Pad[7]->Draw();
     Pad[8]->Draw();
@@ -95,12 +95,12 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SepdMon5")
   {
     // xpos negative: do not draw menu bar
-    TC[4] = new TCanvas(name.c_str(), "HCAL Packet Information", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[4] = new TCanvas(name.c_str(), "SEPD Packet Information", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
-    Pad[10] = new TPad("pad10", "packet event check", 0.0, 0.6, 1.0 / 2, 0.95, 0);
-    Pad[11] = new TPad("pad11", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
-    Pad[12] = new TPad("pad12", "packet channels", 0.0, 0.0, 1.0 / 2, 0.3, 0);
-    Pad[13] = new TPad("pad13", "event number offset", 0.5, 0.6, 1.0, 0.95, 0);
+    Pad[10] = new TPad("sepdpad10", "packet event check", 0.0, 0.6, 1.0 / 2, 0.95, 0);
+    Pad[11] = new TPad("sepdpad11", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
+    Pad[12] = new TPad("sepdpad12", "packet channels", 0.0, 0.0, 1.0 / 2, 0.3, 0);
+    Pad[13] = new TPad("sepdpad13", "event number offset", 0.5, 0.6, 1.0, 0.95, 0);
     // pad 14 and 15 side by side from left to right for correlation
     // Pad[14] = new TPad("pad14", "correlation0", 0.5, 0.3, 0.75, 0.6, 0);
     // Pad[15] = new TPad("pad15", "correlation1", 0.75, 0.3, 1.0, 0.6, 0);
@@ -449,7 +449,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
   h_waveform_pedestal->Draw("hist");
   h_waveform_pedestal->GetXaxis()->SetNdivisions(510, kTRUE);
-  h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedistal");
+  h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
   h_waveform_pedestal->GetYaxis()->SetTitle("Towers");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize2);
   h_waveform_pedestal->GetYaxis()->SetLabelSize(tsize2);
