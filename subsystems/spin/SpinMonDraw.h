@@ -3,6 +3,7 @@
 
 #include <onlmon/OnlMonDraw.h>
 
+#include <map>
 #include <string>  // for allocator, string
 #include <TH2.h>
 
@@ -29,7 +30,13 @@ class SpinMonDraw : public OnlMonDraw
   int DrawSecond(const std::string &what = "ALL");
   TCanvas *TC[2] = {nullptr};
   TPad *transparent[2] = {nullptr};
-  TPad *Pad[19] = {nullptr};
+  TPad *Pad[21] = {nullptr};
+
+
+  std::map<std::string,std::string> preset_pattern_blue;
+  std::map<std::string,std::string> preset_pattern_yellow;
+
+
 };
 
 #endif /* SPIN_SPINMONDRAW_H */

@@ -19,6 +19,7 @@ libonlspinmon_server_la_LIBADD = \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
   -lonlmonutils \
+  -lXingShiftCal \
   -lonlmondb
 
 libonlspinmon_client_la_LIBADD = \

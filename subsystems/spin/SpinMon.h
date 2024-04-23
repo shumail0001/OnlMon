@@ -30,9 +30,19 @@ class SpinMon : public OnlMon
     // Packet *p = nullptr;
     Packet *pBlueSpin = nullptr;
     Packet *pYellSpin = nullptr;
+    Packet *pBluePol = nullptr;
+    Packet *pYellPol = nullptr;
+    Packet *pBlueAsym = nullptr;
+    Packet *pYellAsym = nullptr;
+    Packet *pBlueIntPattern = nullptr;
+    Packet *pYellIntPattern = nullptr;
+    Packet *pBluePolPattern = nullptr;
+    Packet *pYellPolPattern = nullptr;
 
     bool success = 0;
     // default xingshift
+    int defaultxingshift = 5;
+    // for additional xingshift
     int xingshift = 5;
 
     uint64_t scalercounts[NTRIG][NBUNCHES]{};
@@ -42,6 +52,8 @@ class SpinMon : public OnlMon
 
  protected:
   int evtcnt = 0;
+
+  XingShiftCal *XingShift = nullptr;
 
   eventReceiverClient *erc = {nullptr};
 
@@ -54,12 +66,29 @@ class SpinMon : public OnlMon
 
   const int packet_BLUESPIN = 14902;
   const int packet_YELLSPIN = 14903;
+  //const int packet_BLUEPOL = 14905;
+  //const int packet_YELLPOL = 14906;
+  //const int packet_BLUEASYM = 14907;
+  //const int packet_YELLASYM = 14908;
+  //const int packet_BLUEINTPATTERN = 14910;
+  //const int packet_YELLINTPATTERN = 14911;
+  //const int packet_BLUEPOLPATTERN = 14912;
+  //const int packet_YELLPOLPATTERN = 14913;
   const int packetid_GL1 = 14001;
 
-  // static const int NTRIG = 16;
 
   //TH2 *spin_patterns[2] = {nullptr};
+  TH1 *hspinpatternBlue = nullptr;
+  TH1 *hspinpatternYellow = nullptr;
 
+  TH2 *pCspin_patternBlueUp = nullptr;
+  TH2 *pCspin_patternBlueDown = nullptr;
+  TH2 *pCspin_patternBlueUnpol = nullptr;
+
+  TH2 *pCspin_patternYellowUp = nullptr;
+  TH2 *pCspin_patternYellowDown = nullptr;
+  TH2 *pCspin_patternYellowUnpol = nullptr;
+  
   TH2 *spin_patternBlueUp = nullptr;
   TH2 *spin_patternBlueDown = nullptr;
   TH2 *spin_patternBlueUnpol = nullptr;
@@ -68,7 +97,14 @@ class SpinMon : public OnlMon
   TH2 *spin_patternYellowDown = nullptr;
   TH2 *spin_patternYellowUnpol = nullptr;
 
+  TH1 *hpolBlue = nullptr;
+  TH1 *hpolYellow = nullptr;
+
+  TH1 *hxingshift = nullptr;
+
   TH1 *gl1_counter[NTRIG] = {nullptr};
+
+  //uint64_t scalercounts[NTRIG][NBUNCHES]{};
   
 };
     
