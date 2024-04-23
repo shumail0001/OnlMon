@@ -60,7 +60,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SepdMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - Currently Black On Purpose", 1200, 600);
+    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - Checking...", 1200, 600);
     gSystem->ProcessEvents();
     Pad[2] = new TPad("sepdpad2", "Left", 0., 0., 0.5, 1);
     Pad[3] = new TPad("sepdpad3", "Right", 0.5, 0., 1, 1);
@@ -72,18 +72,28 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
   }
-  /*
   else if (name == "SepdMon3")
   {
+    // xpos negative: do not draw menu bar
+    TC[2] = new TCanvas(name.c_str(), "sEPD Monitor 3 - Checking...", 1200, 600);
+    gSystem->ProcessEvents();
+    Pad[4] = new TPad("sepdpad4", "Left", 0., 0., 0.5, 1);
+    Pad[5] = new TPad("sepdpad5", "Right", 0.5, 0., 1, 1);
+    Pad[4]->Draw();
+    Pad[5]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[1]->SetFillStyle(4000);
+    transparent[1]->Draw();
+    TC[2]->SetEditable(false);
   }
-  */
   else if (name == "SepdMon4")
   {
     TC[3] = new TCanvas(name.c_str(), "sEPD Monitor 4 - Waveform Info", xsize / 3, 0, xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
-    Pad[6] = new TPad("sepdpad6", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
-    Pad[7] = new TPad("sepdpad7", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
-    Pad[8] = new TPad("sepdpad8", "who needs this?", 0.0, 0.0, 1.0, 0.3, 0);
+    Pad[6] = new TPad("sepdpad6", "ADC vs sample #", 0.0, 0.6, 1.0, 0.95, 0);
+    Pad[7] = new TPad("sepdpad7", "counts vs sample #", 0.0, 0.3, 1.0, 0.6, 0);
+    Pad[8] = new TPad("sepdpad8", "pedestals", 0.0, 0.0, 1.0, 0.3, 0);
     Pad[6]->Draw();
     Pad[7]->Draw();
     Pad[8]->Draw();
@@ -141,13 +151,11 @@ int SepdMonDraw::Draw(const std::string &what)
     iret += DrawSecond(what);
     idraw++;
   }
-  /*
   if (what == "ALL" || what == "THIRD")
   {
     iret += DrawThird(what);
     idraw++;
   }
-  */
   if (what == "ALL" || what == "FOURTH")
   {
     iret += DrawFourth(what);
@@ -315,6 +323,7 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
 int SepdMonDraw::DrawThird(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
+  // --- these histos are filled in SepdMon.cc, not sure why they're showing up blank here
   TH2 *h_ADC_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC_corr");
   TH2 *h_hits_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_corr");
   time_t evttime = cl->EventTime("CURRENT");
