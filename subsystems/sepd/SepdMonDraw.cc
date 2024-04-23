@@ -288,6 +288,7 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
     return -1;
   }
   int nevt = h_event->GetEntries();
+  //std::cout << "This is very bad, don't do this.  Number of events is " << nevt << std::endl;
   h_hits0_s->Scale(1. / nevt);
   h_hits_s->Scale(1. / nevt);
   h_hits0_n->Scale(1. / nevt);
@@ -298,9 +299,29 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   Pad[2]->cd();
   h_hits0_s->Draw("COLZPOL");
   h_hits_s->Draw("COLZPOL same");
+  // ---
+  gPad->SetLogz();
+  gPad->SetBottomMargin(0.16);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.2);
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57);
+  gPad->SetTicky();
+  gPad->SetTickx();
+  // ---
   Pad[3]->cd();
   h_hits0_n->Draw("COLZPOL");
   h_hits_n->Draw("COLZPOL same");
+  // ---
+  gPad->SetLogz();
+  gPad->SetBottomMargin(0.16);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.2);
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57);
+  gPad->SetTicky();
+  gPad->SetTickx();
+  // ---
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);
@@ -337,12 +358,69 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
     TC[0]->SetEditable(false);
     return -1;
   }
+  // ---
+  // This is extremely verbose, for diagnostic and testing purposes only
+  // int nbinsx = h_ADC_corr->GetNbinsX();
+  // int nbinsy = h_ADC_corr->GetNbinsY();
+  // std::cout << "Number of x bins for h_ADC_corr is " << nbinsx << std::endl;
+  // std::cout << "Number of y bins for h_ADC_corr is " << nbinsy << std::endl;
+  // for (int ibx = 0; ibx < nbinsx; ibx++)
+  // {
+  //   for (int iby = 0; iby < nbinsy; iby++)
+  //   {
+  //     double con = h_ADC_corr->GetBinContent(ibx + 1, iby + 1);
+  //     if ( con > 0 )
+  //       {
+  //         std::cout << "for bin " << ibx+1 << ", " << iby+1 << " bin content is " << con << std::endl;
+  //       }
+  //   }
+  // }
+  // int nbinsx = h_hits_corr->GetNbinsX();
+  // int nbinsy = h_hits_corr->GetNbinsY();
+  // std::cout << "Number of x bins for h_hits_corr is " << nbinsx << std::endl;
+  // std::cout << "Number of y bins for h_hits_corr is " << nbinsy << std::endl;
+  // for (int ibx = 0; ibx < nbinsx; ibx++)
+  // {
+  //   for (int iby = 0; iby < nbinsy; iby++)
+  //   {
+  //     double con = h_hits_corr->GetBinContent(ibx + 1, iby + 1);
+  //     if ( con > 0 )
+  //       {
+  //         std::cout << "for bin " << ibx+1 << ", " << iby+1 << " bin content is " << con << std::endl;
+  //       }
+  //   }
+  // }
+  // ---
   TC[2]->SetEditable(true);
   TC[2]->Clear("D");
   Pad[4]->cd();
+  h_ADC_corr->GetYaxis()->SetNdivisions(505);
+  h_ADC_corr->GetXaxis()->SetNdivisions(505);
   h_ADC_corr->Draw("COLZ");
+  // ---
+  gPad->SetLogz();
+  gPad->SetBottomMargin(0.16);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.2);
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57);
+  gPad->SetTicky();
+  gPad->SetTickx();
+  // ---
   Pad[5]->cd();
+  h_hits_corr->GetYaxis()->SetNdivisions(505);
+  h_hits_corr->GetXaxis()->SetNdivisions(505);
   h_hits_corr->Draw("COLZ");
+  // ---
+  gPad->SetLogz();
+  gPad->SetBottomMargin(0.16);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.2);
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57);
+  gPad->SetTicky();
+  gPad->SetTickx();
+  // ---
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);
