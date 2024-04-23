@@ -30,7 +30,7 @@ class LL1HEADER
   int clock=0;
   int nsamples=NRSAM;
   int channels=0;
-  int monitor = 0;
+  uint16_t monitor = 0;
   
   int evenchecksum=0;
   int calcevenchecksum=0;
