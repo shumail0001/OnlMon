@@ -91,12 +91,12 @@ int SepdMon::Init()
   h_hits_s = new TH2F("h_hits_s", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
   h_hits_n = new TH2F("h_hits_n", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
 
-  int nADCcorr = 600;
+  int nADCcorr = 500;
   double ADCcorrmax = 2e4;
-  int nhitscorr = 700;
+  int nhitscorr = 500;
   double hitscorrmax = 1000;
   h_ADC_corr = new TH2F("h_ADC_corr", ";ADC avg sum (south); ADC avg sum (north)", nADCcorr, 0, ADCcorrmax, nADCcorr, 0, ADCcorrmax);
-  h_hits_corr = new TH2F("h_hits_corr", ";ADC avg sum (south); ADC avg sum (north)", nhitscorr, 0, hitscorrmax, nhitscorr, 0, hitscorrmax);
+  h_hits_corr = new TH2F("h_hits_corr", ";N hits avg sum (south); N hits avg sum (north)", nhitscorr, 0, hitscorrmax, nhitscorr, 0, hitscorrmax);
 
   h_event = new TH1F("h_event", "", 1, 0, 1);
 
