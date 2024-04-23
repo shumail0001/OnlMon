@@ -454,7 +454,9 @@ int SepdMon::process_event(Event *e /* evt */)
   // h1_waveform_twrAvg->Scale(1. / 32. / 48.);  // average tower waveform
   h1_waveform_twrAvg->Scale((float) 1 / ChannelNumber);
 
-  h_ADC_corr->Fill(sumADC_s / sumhit_s, sumADC_n / sumhit_n);
+  // --- This should not be normalized by the hits... RB
+  //h_ADC_corr->Fill(sumADC_s / sumhit_s, sumADC_n / sumhit_n);
+  h_ADC_corr->Fill(sumADC_s, sumADC_n);
   h_hits_corr->Fill(sumhit_s, sumhit_n);
   return 0;
 }
