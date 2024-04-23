@@ -118,7 +118,8 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
     transparent[4]->Draw();
 
     // packet warnings
-    warning[1] = new TPad("warning1", "sEPD Packet Warnings", 0.5, 0, 1, 0.2);
+    // xlow, ylow, xup, yup
+    warning[1] = new TPad("warning1", "sEPD Packet Warnings", 0.5, 0, 1, 0.65);
     warning[1]->SetFillStyle(4000);
     warning[1]->Draw();
     TC[4]->SetEditable(0);
@@ -387,7 +388,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
   h2_sepd_waveform->Draw("colz");
 
-  float tsize = 0.08;
+  float tsize = 0.09;
   h2_sepd_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
   h2_sepd_waveform->GetXaxis()->SetTitle("Sample #");
   h2_sepd_waveform->GetYaxis()->SetTitle("Waveform [ADC]");
@@ -426,16 +427,15 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
   gStyle->SetTitleFontSize(0.06);
 
-  float tsize2 = 0.09;
   h_waveform_time->GetXaxis()->SetRangeUser(0,11);
   h_waveform_time->Draw("hist");
   h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
   h_waveform_time->GetYaxis()->SetTitle("Towers");
-  h_waveform_time->GetXaxis()->SetLabelSize(tsize2);
-  h_waveform_time->GetYaxis()->SetLabelSize(tsize2);
-  h_waveform_time->GetXaxis()->SetTitleSize(tsize2);
-  h_waveform_time->GetYaxis()->SetTitleSize(tsize2);
+  h_waveform_time->GetXaxis()->SetLabelSize(tsize);
+  h_waveform_time->GetYaxis()->SetLabelSize(tsize);
+  h_waveform_time->GetXaxis()->SetTitleSize(tsize);
+  h_waveform_time->GetYaxis()->SetTitleSize(tsize);
   h_waveform_time->GetXaxis()->SetTitleOffset(1.0);
   h_waveform_time->GetYaxis()->SetTitleOffset(1.25);
   gPad->SetTopMargin(0.06);
@@ -455,10 +455,10 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_pedestal->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
   h_waveform_pedestal->GetYaxis()->SetTitle("Towers");
-  h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize2);
-  h_waveform_pedestal->GetYaxis()->SetLabelSize(tsize2);
-  h_waveform_pedestal->GetXaxis()->SetTitleSize(tsize2);
-  h_waveform_pedestal->GetYaxis()->SetTitleSize(tsize2);
+  h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize);
+  h_waveform_pedestal->GetYaxis()->SetLabelSize(tsize);
+  h_waveform_pedestal->GetXaxis()->SetTitleSize(tsize);
+  h_waveform_pedestal->GetYaxis()->SetTitleSize(tsize);
   h_waveform_pedestal->GetXaxis()->SetTitleOffset(0.9);
   h_waveform_pedestal->GetYaxis()->SetTitleOffset(1.25);
   gPad->SetTopMargin(0.06);
@@ -522,10 +522,14 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   TLine *one = new TLine(xmin, 1, xmax, 1);
   one->SetLineStyle(7);
 
-  TLine *goodSize = new TLine(xmin, 3991, xmax, 3991);
+  // --- need to know packet size
+  int PACKET_SIZE = 3991;
+  TLine *goodSize = new TLine(xmin, PACKET_SIZE, xmax, PACKET_SIZE);
   goodSize->SetLineStyle(7);
 
-  TLine *goodChans = new TLine(xmin, 128, xmax, 128);
+  // --- 768 channels but 744 tiles
+  int N_CHANNELS = 744;
+  TLine *goodChans = new TLine(xmin, N_CHANNELS, xmax, N_CHANNELS);
   goodChans->SetLineStyle(7);
 
   float param = 0.95;
@@ -537,30 +541,34 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   TLine *warnLineOne = new TLine(xmin, param * 1, xmax, param * 1);
   warnLineOne->SetLineStyle(7);
   warnLineOne->SetLineColor(2);
-
   leg->AddEntry(warnLineOne, "95% Threshold", "l");
 
-  TLine *warnLineSize = new TLine(xmin, param * 3991., xmax, param * 3991.);
+  // --- need to know what packet size should be...
+  TLine *warnLineSize = new TLine(xmin, param * PACKET_SIZE, xmax, param * PACKET_SIZE);
   warnLineSize->SetLineStyle(7);
   warnLineSize->SetLineColor(2);
 
-  TLine *warnLineChans = new TLine(xmin, param * 128., xmax, param * 128.);
+  // --- N_CHANNELS channels (though only 744 tiles)
+  TLine *warnLineChans = new TLine(xmin, param * N_CHANNELS, xmax, param * N_CHANNELS);
   warnLineChans->SetLineStyle(7);
   warnLineChans->SetLineColor(2);
 
+  // --- this one is okay
   Pad[10]->cd();
   float tsize = 0.08;
   h1_packet_number->GetYaxis()->SetRangeUser(0.0, 1.3);
   h1_packet_number->Draw("hist");
   one->Draw("same");
   warnLineOne->Draw("same");
+  leg->Draw("same");
   h1_packet_number->GetXaxis()->SetNdivisions(510, kTRUE);
   h1_packet_number->GetXaxis()->SetTitle("Packet #");
   h1_packet_number->GetYaxis()->SetTitle("% Of Events Present");
-  h1_packet_number->GetXaxis()->SetLabelSize(tsize - 0.01);
-  h1_packet_number->GetYaxis()->SetLabelSize(tsize - 0.01);
-  h1_packet_number->GetXaxis()->SetTitleSize(tsize - 0.01);
-  h1_packet_number->GetYaxis()->SetTitleSize(tsize - 0.01);
+  // the sizing is funny on this pad...
+  h1_packet_number->GetXaxis()->SetLabelSize(tsize/1.2);
+  h1_packet_number->GetYaxis()->SetLabelSize(tsize/1.2);
+  h1_packet_number->GetXaxis()->SetTitleSize(tsize/1.2);
+  h1_packet_number->GetYaxis()->SetTitleSize(tsize/1.2);
   h1_packet_number->GetXaxis()->SetTitleOffset(1);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);
@@ -570,18 +578,18 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   gPad->SetTicky();
   gPad->SetTickx();
 
+  // --- this one needs to be checked
   Pad[11]->cd();
   h1_packet_length->Draw("hist");
-  h1_packet_length->GetYaxis()->SetRangeUser(0, 6500);
+  h1_packet_length->GetYaxis()->SetRangeUser(0, 1000);
   goodSize->Draw("same");
   warnLineSize->Draw("same");
-  leg->Draw("same");
   h1_packet_length->GetXaxis()->SetNdivisions(510, kTRUE);
   h1_packet_length->GetXaxis()->SetTitle("Packet #");
   h1_packet_length->GetYaxis()->SetTitle("Average Packet Size");
-  h1_packet_length->GetXaxis()->SetLabelSize(tsize - .01);
+  h1_packet_length->GetXaxis()->SetLabelSize(tsize);
   h1_packet_length->GetYaxis()->SetLabelSize(tsize);
-  h1_packet_length->GetXaxis()->SetTitleSize(tsize - .01);
+  h1_packet_length->GetXaxis()->SetTitleSize(tsize);
   h1_packet_length->GetYaxis()->SetTitleSize(tsize);
   h1_packet_length->GetXaxis()->SetTitleOffset(1);
   h1_packet_length->GetYaxis()->SetTitleOffset(0.8);
@@ -593,17 +601,18 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   gPad->SetTicky();
   gPad->SetTickx();
 
+  // --- this one is okay
   Pad[12]->cd();
   h1_packet_chans->Draw("hist");
-  h1_packet_chans->GetYaxis()->SetRangeUser(0, 212);
+  h1_packet_chans->GetYaxis()->SetRangeUser(0, 1000);
   goodChans->Draw("same");
   warnLineChans->Draw("same");
   h1_packet_chans->GetXaxis()->SetNdivisions(510, kTRUE);
   h1_packet_chans->GetXaxis()->SetTitle("Packet #");
   h1_packet_chans->GetYaxis()->SetTitle("Average # of Channels");
-  h1_packet_chans->GetXaxis()->SetLabelSize(tsize - .01);
+  h1_packet_chans->GetXaxis()->SetLabelSize(tsize);
   h1_packet_chans->GetYaxis()->SetLabelSize(tsize);
-  h1_packet_chans->GetXaxis()->SetTitleSize(tsize - .01);
+  h1_packet_chans->GetXaxis()->SetTitleSize(tsize);
   h1_packet_chans->GetYaxis()->SetTitleSize(tsize);
   h1_packet_chans->GetXaxis()->SetTitleOffset(0.8);
   h1_packet_chans->GetYaxis()->SetTitleOffset(0.8);
@@ -620,13 +629,14 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   double ymax = h1_packet_event->GetMaximum();
   double ymin = h1_packet_event->GetMinimum();
 
+  // --- this one seems okay
   h1_packet_event->GetYaxis()->SetRangeUser(ymin - 0.3 * (ymax - ymin + 30), ymax + 0.3 * (ymax - ymin + 30));
   h1_packet_event->GetXaxis()->SetTitle("Packet #");
   h1_packet_event->GetYaxis()->SetTitle("clock offset");
-  h1_packet_event->GetXaxis()->SetLabelSize(tsize - .01);
-  h1_packet_event->GetYaxis()->SetLabelSize(tsize);
-  h1_packet_event->GetXaxis()->SetTitleSize(tsize - .01);
-  h1_packet_event->GetYaxis()->SetTitleSize(tsize);
+  h1_packet_event->GetXaxis()->SetLabelSize(tsize/1.2);
+  h1_packet_event->GetYaxis()->SetLabelSize(tsize/1.2);
+  h1_packet_event->GetXaxis()->SetTitleSize(tsize/1.2);
+  h1_packet_event->GetYaxis()->SetTitleSize(tsize/1.2);
   h1_packet_event->GetXaxis()->SetTitleOffset(0.8);
   h1_packet_event->GetYaxis()->SetTitleOffset(1.2);
   gPad->SetBottomMargin(0.16);
@@ -639,9 +649,9 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
 
 
   // draw the warning here:
-  
+
   warning[1]->cd();
-  
+
   std::vector<int> badPackets;
   std::vector<std::string> whatswrong;
   for (int i = 1; i <= 6; i++)
@@ -658,11 +668,11 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
     {
       badnumber = true;
     }
-    if (h1_packet_length->GetBinContent(i) < param * 3991.)
+    if (h1_packet_length->GetBinContent(i) < param * PACKET_SIZE)
     {
       badlength = true;
     }
-    if (h1_packet_chans->GetBinContent(i) < param * 128.)
+    if (h1_packet_chans->GetBinContent(i) < param * N_CHANNELS)
     {
       badchans = true;
     }
@@ -690,7 +700,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
         }
         // remove the last two characters
         reason = reason.substr(0, reason.size() - 2);
-        reason += ".";
+        //reason += ".";
       }
       whatswrong.push_back(reason);
     }
@@ -717,15 +727,16 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
 
   mismatchWarn.SetTextColor(1);
   mismatchWarn.SetTextSize(0.05);
- 
+
   // draw the bad packet warning here
+  // --- need to determine correct packet size
   TText PacketWarn;
-  PacketWarn.SetTextFont(62);
-  PacketWarn.SetTextSize(0.04);
+  //PacketWarn.SetTextFont(62);
+  PacketWarn.SetTextSize(0.05);
   PacketWarn.SetTextColor(1);
   PacketWarn.SetNDC();
   PacketWarn.SetTextAlign(23);
-  PacketWarn.DrawText(0.5, 0.75, "Bad Packets:");
+  PacketWarn.DrawText(0.5, 0.75, "Bad Packets (disregard if it says too short):");
   for (int i = 0; i < (int) badPackets.size(); i++)
   {
     PacketWarn.DrawText(0.5, 0.7 - 0.05 * i, Form("%i: %s", badPackets[i], whatswrong[i].c_str()));
