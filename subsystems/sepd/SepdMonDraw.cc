@@ -409,7 +409,6 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h2_sepd_waveform->GetYaxis()->SetTitleOffset(1.3);
   gPad->SetLogz();
   gPad->SetBottomMargin(0.16);
-  gPad->SetLeftMargin(0.2);
   gPad->SetRightMargin(0.05);
   gPad->SetLeftMargin(0.2);
   gStyle->SetOptStat(0);
@@ -583,7 +582,6 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   h1_packet_number->GetYaxis()->SetTitleSize(tsize/1.2);
   h1_packet_number->GetXaxis()->SetTitleOffset(1);
   gPad->SetBottomMargin(0.16);
-  gPad->SetLeftMargin(0.16);
   gPad->SetRightMargin(0.05);
   gPad->SetLeftMargin(0.15);
   gStyle->SetOptStat(0);
@@ -606,7 +604,6 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   h1_packet_length->GetXaxis()->SetTitleOffset(1);
   h1_packet_length->GetYaxis()->SetTitleOffset(0.8);
   gPad->SetBottomMargin(0.16);
-  gPad->SetLeftMargin(0.16);
   gPad->SetRightMargin(0.05);
   gPad->SetLeftMargin(0.15);
   gStyle->SetOptStat(0);
@@ -629,7 +626,6 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   h1_packet_chans->GetXaxis()->SetTitleOffset(0.8);
   h1_packet_chans->GetYaxis()->SetTitleOffset(0.8);
   gPad->SetBottomMargin(0.16);
-  gPad->SetLeftMargin(0.16);
   gPad->SetRightMargin(0.05);
   gPad->SetLeftMargin(0.15);
   gStyle->SetOptStat(0);
@@ -652,7 +648,6 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   h1_packet_event->GetXaxis()->SetTitleOffset(0.8);
   h1_packet_event->GetYaxis()->SetTitleOffset(1.2);
   gPad->SetBottomMargin(0.16);
-  gPad->SetLeftMargin(0.2);
   gPad->SetRightMargin(0.05);
   gPad->SetLeftMargin(0.2);
   gStyle->SetOptStat(0);
