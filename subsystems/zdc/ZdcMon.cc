@@ -335,6 +335,9 @@ int ZdcMon::process_event(Event *e /* evt */)
     int n_ver  = 0;
     int n_hor  = 0;
 
+    float zdc_adc_threshold = 200.;
+    float smd_adc_threshold = 20.;
+
     for ( int i = 0; i < 8; i++)
     {
       //****smd north horizontal individual channels****
@@ -351,7 +354,7 @@ int ZdcMon::process_event(Event *e /* evt */)
 	      smd_value_small->Fill(smd_adc[i], float(i));
       }
 
-      if (smd_adc[i] != 0) 
+      if ((smd_adc[i] > smd_adc_threshold) && (zdc_adc[0] > zdc_adc_threshold)) 
       {
         double filling = i + 0.0;
         smd_north_hor_hits->Fill(filling);  
@@ -372,7 +375,7 @@ int ZdcMon::process_event(Event *e /* evt */)
 	      smd_value_small->Fill(smd_adc[i + 16], float(i) + 16);
       }
       
-      if (smd_adc[i + 16] != 0) 
+      if ((smd_adc[i + 16] > smd_adc_threshold) && (zdc_adc[2] > zdc_adc_threshold)) 
       {
         double filling = i + 16 + 0.0;
         smd_south_hor_hits->Fill(filling);  
@@ -396,7 +399,7 @@ int ZdcMon::process_event(Event *e /* evt */)
 	      smd_value_small->Fill(smd_adc[i + 8], float(i) + 8);
       }
       
-      if (smd_adc[i + 8] != 0) 
+      if ((smd_adc[i + 8] > smd_adc_threshold) && (zdc_adc[1] > zdc_adc_threshold)) 
       {
         double filling = i + 8 + 0.0;
         smd_north_ver_hits->Fill(filling);  
@@ -417,11 +420,11 @@ int ZdcMon::process_event(Event *e /* evt */)
 	      smd_value_small->Fill(smd_adc[i + 24], float(i) + 24);
       }
 
-      if (smd_adc[i + 24] != 0) 
-       {
-         double filling = i + 24 + 0.0;
-         smd_south_ver_hits->Fill(filling);  
-       }
+      if ((smd_adc[i + 24] > smd_adc_threshold) && (zdc_adc[3] > zdc_adc_threshold)) 
+      {
+        double filling = i + 24 + 0.0;
+        smd_south_ver_hits->Fill(filling);  
+      }
       //****************************
 
     }
@@ -600,15 +603,16 @@ void ZdcMon::CompSumSmd() //compute 'digital' sum
   memset(smd_sum, 0, sizeof(smd_sum));
 
   for (int i = 0; i < 8; i++)
-    {
-      smd_sum[0] += smd_adc[i]; // north horizontal
-      smd_sum[2] += smd_adc[i + 16]; // south horizontal
-    }
+  {
+    smd_sum[0] += smd_adc[i]; // north horizontal
+    smd_sum[2] += smd_adc[i + 16]; // south horizontal
+  }
+  
   for (int i = 0; i < 7; i++)
-    {
-      smd_sum[1] += smd_adc[i + 8]; // north vertical
-      smd_sum[3] += smd_adc[i + 24]; // south vertical
-    }
+  {
+    smd_sum[1] += smd_adc[i + 8]; // north vertical
+    smd_sum[3] += smd_adc[i + 24]; // south vertical
+  }
 }
 
 
