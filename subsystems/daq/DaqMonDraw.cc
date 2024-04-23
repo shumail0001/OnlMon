@@ -143,20 +143,20 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   {    
       h_gl1_clock_diff[i]= (TH2*) cl->getHisto(Form("DAQMON_%d",i),"h_gl1_clock_diff");
       if(!h_gl1_clock_diff[i]) continue;
+      h_gl1_clock_diff[i]->GetXaxis()->SetTitleSize(0);
+      h_gl1_clock_diff[i]->GetYaxis()->SetNdivisions(555);
+      h_gl1_clock_diff[i]->GetXaxis()->SetNdivisions(101);
+      h_gl1_clock_diff[i]->GetYaxis()->SetBinLabel(1,"#bf{Unlocked}");
+      h_gl1_clock_diff[i]->GetYaxis()->SetBinLabel(2,"#bf{Locked}");
+      h_gl1_clock_diff[i]->GetXaxis()->SetBinLabel(1,"#bf{MBD}");
+      h_gl1_clock_diff[i]->GetXaxis()->SetBinLabel(2,"#bf{EMCal}");
+      h_gl1_clock_diff[i]->GetXaxis()->SetBinLabel(3,"#bf{IHCal}");
+      h_gl1_clock_diff[i]->GetXaxis()->SetBinLabel(4,"#bf{OHCal}");
+      h_gl1_clock_diff[i]->GetXaxis()->SetBinLabel(5,"#bf{sEPD}");
+      h_gl1_clock_diff[i]->GetXaxis()->SetBinLabel(6,"#bf{ZDC}");
 
       if(start==-1){
           start = i;
-          h_gl1_clock_diff[i]->GetXaxis()->SetTitleSize(0);
-          h_gl1_clock_diff[i]->GetYaxis()->SetNdivisions(555);
-          h_gl1_clock_diff[i]->GetXaxis()->SetNdivisions(101);
-          h_gl1_clock_diff[i]->GetYaxis()->SetBinLabel(1,"#bf{Unlocked}");
-          h_gl1_clock_diff[i]->GetYaxis()->SetBinLabel(2,"#bf{Locked}");
-          h_gl1_clock_diff[i]->GetXaxis()->SetBinLabel(1,"#bf{MBD}");
-          h_gl1_clock_diff[i]->GetXaxis()->SetBinLabel(2,"#bf{EMCal}");
-          h_gl1_clock_diff[i]->GetXaxis()->SetBinLabel(3,"#bf{IHCal}");
-          h_gl1_clock_diff[i]->GetXaxis()->SetBinLabel(4,"#bf{OHCal}");
-          h_gl1_clock_diff[i]->GetXaxis()->SetBinLabel(5,"#bf{sEPD}");
-          h_gl1_clock_diff[i]->GetXaxis()->SetBinLabel(6,"#bf{ZDC}");
       }
       else if(i > start){
           h_gl1_clock_diff[start]->Add(h_gl1_clock_diff[i],1);
@@ -166,6 +166,7 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
     {
       return 0;
     }
+
   int nbinsx = h_gl1_clock_diff[start]->GetNbinsX();
   int nbinsy = h_gl1_clock_diff[start]->GetNbinsY();
   for(int ibx=1; ibx<=nbinsx; ibx++){
@@ -178,7 +179,6 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
           if(con>0) h_gl1_clock_diff[start]->SetBinContent(ibx,iby,con/tot*100.);
       }
   }
-
   Int_t color[2]; 
   color[0] = kRed; 
   color[1] = kGreen;
@@ -257,18 +257,16 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   {    
       h_gl1_clock_diff_capture[i]= (TH2*) cl->getHisto(Form("DAQMON_%d",i),"h_gl1_clock_diff_capture");
       if(!h_gl1_clock_diff_capture[i]) continue;
+      h_gl1_clock_diff_capture[i]->GetXaxis()->SetTitle("Latest 1M events");
+      h_gl1_clock_diff_capture[i]->GetYaxis()->SetBinLabel(1,"#bf{MBD}");
+      h_gl1_clock_diff_capture[i]->GetYaxis()->SetBinLabel(2,"#bf{EMCal}");
+      h_gl1_clock_diff_capture[i]->GetYaxis()->SetBinLabel(3,"#bf{IHCal}");
+      h_gl1_clock_diff_capture[i]->GetYaxis()->SetBinLabel(4,"#bf{OHCal}");
+      h_gl1_clock_diff_capture[i]->GetYaxis()->SetBinLabel(5,"#bf{sEPD}");
+      h_gl1_clock_diff_capture[i]->GetYaxis()->SetBinLabel(6,"#bf{ZDC}");
 
       if(start==-1){
           start = i;
-          h_gl1_clock_diff_capture[i]->GetXaxis()->SetTitle("Latest 1M events");
-          h_gl1_clock_diff_capture[i]->GetYaxis()->SetNdivisions(501);
-          h_gl1_clock_diff_capture[i]->GetXaxis()->SetNdivisions(501);
-          h_gl1_clock_diff_capture[i]->GetYaxis()->SetBinLabel(1,"#bf{MBD}");
-          h_gl1_clock_diff_capture[i]->GetYaxis()->SetBinLabel(2,"#bf{EMCal}");
-          h_gl1_clock_diff_capture[i]->GetYaxis()->SetBinLabel(3,"#bf{IHCal}");
-          h_gl1_clock_diff_capture[i]->GetYaxis()->SetBinLabel(4,"#bf{OHCal}");
-          h_gl1_clock_diff_capture[i]->GetYaxis()->SetBinLabel(5,"#bf{sEPD}");
-          h_gl1_clock_diff_capture[i]->GetYaxis()->SetBinLabel(6,"#bf{ZDC}");
       }
       else if(i > start){
           h_gl1_clock_diff_capture[start]->Add(h_gl1_clock_diff_capture[i],1);
