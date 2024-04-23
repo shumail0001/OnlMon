@@ -392,12 +392,12 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h2_sepd_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
   h2_sepd_waveform->GetXaxis()->SetTitle("Sample #");
   h2_sepd_waveform->GetYaxis()->SetTitle("Waveform [ADC]");
-  h2_sepd_waveform->GetXaxis()->SetLabelSize(tsize);
-  h2_sepd_waveform->GetYaxis()->SetLabelSize(tsize);
-  h2_sepd_waveform->GetXaxis()->SetTitleSize(tsize);
-  h2_sepd_waveform->GetYaxis()->SetTitleSize(tsize);
+  h2_sepd_waveform->GetXaxis()->SetLabelSize(tsize/1.15);
+  h2_sepd_waveform->GetYaxis()->SetLabelSize(tsize/1.15);
+  h2_sepd_waveform->GetXaxis()->SetTitleSize(tsize/1.15);
+  h2_sepd_waveform->GetYaxis()->SetTitleSize(tsize/1.15);
   h2_sepd_waveform->GetXaxis()->SetTitleOffset(1.0);
-  h2_sepd_waveform->GetYaxis()->SetTitleOffset(1.25);
+  h2_sepd_waveform->GetYaxis()->SetTitleOffset(1.3);
   gPad->SetLogz();
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.2);
@@ -431,7 +431,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_time->Draw("hist");
   h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
-  h_waveform_time->GetYaxis()->SetTitle("Towers");
+  h_waveform_time->GetYaxis()->SetTitle("Tiles");
   h_waveform_time->GetXaxis()->SetLabelSize(tsize);
   h_waveform_time->GetYaxis()->SetLabelSize(tsize);
   h_waveform_time->GetXaxis()->SetTitleSize(tsize);
@@ -454,7 +454,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_pedestal->Draw("hist");
   h_waveform_pedestal->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
-  h_waveform_pedestal->GetYaxis()->SetTitle("Towers");
+  h_waveform_pedestal->GetYaxis()->SetTitle("Tiles");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize);
   h_waveform_pedestal->GetYaxis()->SetLabelSize(tsize);
   h_waveform_pedestal->GetXaxis()->SetTitleSize(tsize);
@@ -534,7 +534,10 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
 
   float param = 0.95;
 
+  float tsize = 0.08;
   TLegend *leg = new TLegend(0.3, 0.16, 0.95, 0.4);
+  leg->SetTextFont(42);
+  leg->SetTextSize(tsize);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
 
@@ -555,7 +558,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
 
   // --- this one is okay
   Pad[10]->cd();
-  float tsize = 0.08;
+  //float tsize = 0.08;
   h1_packet_number->GetYaxis()->SetRangeUser(0.0, 1.3);
   h1_packet_number->Draw("hist");
   one->Draw("same");
