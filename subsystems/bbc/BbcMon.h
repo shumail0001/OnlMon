@@ -8,8 +8,10 @@ class TH1;
 class TH2;
 class TF1;
 class TH2Poly;
-class OnlBbcEvent;
-class BbcGeom;
+class MbdEvent;
+class MbdGeom;
+class MbdOut;
+class MbdPmtContainer;
 class eventReceiverClient;
 // class OnlMonDB;
 
@@ -28,9 +30,9 @@ class BbcMon : public OnlMon
  protected:
   int DBVarInit();
 
-  OnlBbcEvent *bevt{nullptr};
+  MbdEvent *bevt{nullptr};
 
-  int useGL1{1};    // whether to use the GL1 data
+  int useGL1{0};    // whether to use the GL1 data
   uint64_t triggervec{0};
   uint64_t gl1_bco{0};
   eventReceiverClient *erc{nullptr};
@@ -38,7 +40,9 @@ class BbcMon : public OnlMon
   int evtcnt{0};
   // OnlMonDB *dbvars = nullptr;
 
-  BbcGeom *bbcgeom{nullptr};  // contains positions of BBC PMTs
+  MbdGeom *_mbdgeom{nullptr};  // contains positions of BBC PMTs
+  MbdOut *m_mbdout{nullptr};
+  MbdPmtContainer *m_mbdpmts{nullptr};
 
   TH1 *bbc_trigs{nullptr};
   TH2 *bbc_adc{nullptr};
