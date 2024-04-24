@@ -358,6 +358,9 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
     TC[0]->SetEditable(false);
     return -1;
   }
+  // --- rebin histograms
+  h_ADC_corr->Rebin2D(5,5);
+  h_hits_corr->Rebin2D(5,5);
   // ---
   // This is extremely verbose, for diagnostic and testing purposes only
   // int nbinsx = h_ADC_corr->GetNbinsX();
