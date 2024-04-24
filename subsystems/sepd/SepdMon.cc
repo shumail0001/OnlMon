@@ -86,6 +86,9 @@ int SepdMon::Init()
   h_ADC_s = new TH2F("h_ADC_s", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
   h_ADC_n = new TH2F("h_ADC_n", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
 
+  h_ADC_all_channel = new TH1F("h_ADC_all_channel",";;",768,-0.5,767.5);
+  h_hits_all_channel = new TH1F("h_hits_all_channel",";;",768,-0.5,767.5);
+
   h_hits0_s = new TH2F("h_hits0_s", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
   h_hits0_n = new TH2F("h_hits0_n", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
   h_hits_s = new TH2F("h_hits_s", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
@@ -134,6 +137,8 @@ int SepdMon::Init()
   se->registerHisto(this, h_hits0_n);
   se->registerHisto(this, h_hits_s);
   se->registerHisto(this, h_hits_n);
+  se->registerHisto(this, h_ADC_all_channel);
+  se->registerHisto(this, h_hits_all_channel);
   se->registerHisto(this, h_ADC_corr);
   se->registerHisto(this, h_hits_corr);
   se->registerHisto(this, h_event);
@@ -150,9 +155,10 @@ int SepdMon::Init()
   //  se->registerHisto(this, h1_sepd_fitting_timeDiff);
 
   // save inidividual channel ADC distribution
-  for (int ichannel = 0; ichannel < nChannels; ichannel++)
+  //for (int ichannel = 0; ichannel < nChannels; ichannel++)
+  for (int ichannel = 0; ichannel < 768; ichannel++)
   {
-    h_ADC_channel[ichannel] = new TH1F(Form("h_ADC_channel%d", ichannel), ";ADC;Counts", 1000, 0, 15e3);
+    h_ADC_channel[ichannel] = new TH1F(Form("h_ADC_channel_%d", ichannel), ";ADC;Counts", 1000, 0, 15e3);
     se->registerHisto(this, h_ADC_channel[ichannel]);
   }
 
@@ -327,6 +333,17 @@ int SepdMon::process_event(Event *e /* evt */)
             h2_sepd_waveform->Fill(s, p->iValue(s, c) - pedestalFast);
           }
         }
+        // ---
+        if ( signalFast > 0 && signalFast < 1e10 )
+          {
+            // --- 1d ADC distributions for all channels
+            h_ADC_channel[ChannelNumber-1]->Fill(signalFast);
+            // --- total ADC vs channel number
+            h_ADC_all_channel->Fill(ChannelNumber-1,signalFast);
+            // --- total hits vs channel number
+            h_hits_all_channel->Fill(ChannelNumber-1);
+          }
+        // ---
         // channel mapping
         int ChMap = SepdMapChannel(ChannelNumber - 1);
         if (ChMap == -1) continue;

@@ -76,7 +76,10 @@ class SepdMon : public OnlMon
   TH1 *h1_packet_number = nullptr;
   TH1 *h1_packet_event = nullptr;
 
-  TH1 *h_ADC_channel[744] = {nullptr};
+  TH1 *h_hits_all_channel = nullptr;
+  TH1 *h_ADC_all_channel = nullptr;
+  TH1 *h_ADC_channel[768] = {nullptr};
+  //TH1 *h_ADC_channel[744] = {nullptr};
 
   std::string runtypestr = "Unknown";
   std::string id_string;

@@ -21,6 +21,8 @@ void sepdDrawInit(const int online = 0)
   cl->registerHisto("h_hits_n", "SEPDMON_0");
   cl->registerHisto("h_ADC_corr", "SEPDMON_0");
   cl->registerHisto("h_hits_corr", "SEPDMON_0");
+  cl->registerHisto("h_ADC_all_channel", "SEPDMON_0");
+  cl->registerHisto("h_hits_all_channel", "SEPDMON_0");
   cl->registerHisto("h_event", "SEPDMON_0");
   cl->registerHisto("h1_waveform_twrAvg", "SEPDMON_0");
   cl->registerHisto("h1_waveform_time", "SEPDMON_0");
@@ -30,6 +32,11 @@ void sepdDrawInit(const int online = 0)
   cl->registerHisto("h1_packet_length", "SEPDMON_0");
   cl->registerHisto("h1_packet_number", "SEPDMON_0");
   cl->registerHisto("h1_packet_event", "SEPDMON_0");
+
+  for ( int i = 0; i < 768; ++i )
+    {
+      cl->registerHisto(Form("h_ADC_channel_%d",i), "SEPDMON_0");
+    }
 
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);
