@@ -31,6 +31,8 @@ class SepdMonDraw : public OnlMonDraw
   int DrawThird(const std::string &what = "ALL");
   int DrawFourth(const std::string &what = "ALL");
   int DrawFifth(const std::string &what = "ALL");
+  int returnSector(int ch);
+  int returnTile(int ch);
   time_t getTime();
 
   TCanvas* TC[9] = {nullptr};
