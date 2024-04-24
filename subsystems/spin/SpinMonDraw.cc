@@ -33,22 +33,23 @@ SpinMonDraw::SpinMonDraw(const std::string &name)
 
 int SpinMonDraw::Init()
 {
-  preset_pattern_blue  ["P1"]="+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
-  preset_pattern_yellow["P1"]="++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
-  preset_pattern_blue  ["P2"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
-  preset_pattern_yellow["P2"]="++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
-  preset_pattern_blue  ["P3"]="+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
-  preset_pattern_yellow["P3"]="--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
-  preset_pattern_blue  ["P4"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
-  preset_pattern_yellow["P4"]="--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
-  preset_pattern_blue  ["P5"]="++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
-  preset_pattern_yellow["P5"]="+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
-  preset_pattern_blue  ["P6"]="--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
-  preset_pattern_yellow["P6"]="+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
-  preset_pattern_blue  ["P7"]="++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
-  preset_pattern_yellow["P7"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
-  preset_pattern_blue  ["P8"]="--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
-  preset_pattern_yellow["P8"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
+
+  preset_pattern_blue  ["111x111_P1"]="+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
+  preset_pattern_yellow["111x111_P1"]="++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
+  preset_pattern_blue  ["111x111_P2"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
+  preset_pattern_yellow["111x111_P2"]="++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
+  preset_pattern_blue  ["111x111_P3"]="+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
+  preset_pattern_yellow["111x111_P3"]="--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
+  preset_pattern_blue  ["111x111_P4"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
+  preset_pattern_yellow["111x111_P4"]="--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
+  preset_pattern_blue  ["111x111_P5"]="++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
+  preset_pattern_yellow["111x111_P5"]="+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
+  preset_pattern_blue  ["111x111_P6"]="--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
+  preset_pattern_yellow["111x111_P6"]="+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
+  preset_pattern_blue  ["111x111_P7"]="++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
+  preset_pattern_yellow["111x111_P7"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
+  preset_pattern_blue  ["111x111_P8"]="--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
+  preset_pattern_yellow["111x111_P8"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
   return 0;
 }
 
@@ -182,6 +183,8 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
 
   TH1I *hxingshift = (TH1I*)cl->getHisto("SPINMON_0","h1_xingshift");
   TH1I *hfillnumber = (TH1I*)cl->getHisto("SPINMON_0","h1_fillnumber");
+  TH1I *hfilltypeBlue = (TH1I*)cl->getHisto("SPINMON_0","h1_filltypeBlue");
+  TH1I *hfilltypeYellow = (TH1I*)cl->getHisto("SPINMON_0","h1_filltypeYellow");
 
   TH1I* gl1_counter[NTRIG];
   for (int i = 0; i < NTRIG; i++){
@@ -266,7 +269,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     t_pCSpinPatt.SetTextSize(0.2);
     t_pCSpinPatt.SetNDC();          // set to normalized coordinates
     t_pCSpinPatt.SetTextAlign(23);  // center/top alignment
-    std::string pCSPstring = "Measured Fill Pattern (pC)";
+    std::string pCSPstring = "Measured Spin Pattern (pC)";
     t_pCSpinPatt.DrawText(0.5, 1, pCSPstring.c_str());
 
     
@@ -320,7 +323,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     t_SpinPatt.SetTextSize(0.2);
     t_SpinPatt.SetNDC();          // set to normalized coordinates
     t_SpinPatt.SetTextAlign(23);  // center/top alignment
-    std::string SPstring = "Intended Fill Pattern (CDEV)";
+    std::string SPstring = "Intended Spin Pattern (CDEV)";
     t_SpinPatt.DrawText(0.5, 1, SPstring.c_str());
 
   }
@@ -351,10 +354,36 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   }
 
 
+  TText t_FillType;
+  t_FillType.SetTextFont(62);
+  t_FillType.SetTextSize(textsize);
+  t_FillType.SetNDC();          // set to normalized coordinates
+  //Pattern.SetTextAlign(23);  // center/top alignment
+  std::ostringstream filltypestream;
+  filltypestream << "Fill type: " << hfilltypeBlue->GetBinContent(1) << "x" << hfilltypeYellow->GetBinContent(1);
+  std::string filltypestring = filltypestream.str();
+  t_FillType.DrawText(0.15, 0.8, filltypestring.c_str());
+  /*
+  if (hfilltype->GetBinContent(1) == 111)
+  {
+    fillnumberstring = "Fill type: 111x111";
+    t_FillType.DrawText(0.15, 0.8, fillnumberstring.c_str());
+  }
+  else if (hfilltype->GetBinContent(1) == 6)
+  {
+    fillnumberstring = "Fill type: 6x6";
+    t_FillType.DrawText(0.15, 0.8, fillnumberstring.c_str());
+  }
+  else
+  {
+    fillnumberstring = "Fill type unknown";
+    t_FillType.DrawText(0.15, 0.8, fillnumberstring.c_str());
+  }
+  */
+
+
   std::string scdev_blue  =TH1_to_string(hspinpatternBlue);
   std::string scdev_yellow=TH1_to_string(hspinpatternYellow);
-  //std::string scdev_blue="UNKNOWN";
-  //std::string scdev_yellow="UNKNOWN";
   std::string pattern_name="UNKNOWN";
 
   for(std::map<std::string,std::string>::const_iterator ii=preset_pattern_blue.begin(); ii!=preset_pattern_blue.end(); ++ii)
@@ -375,7 +404,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   std::string patternstring;
   patternstream << "Pattern: " << pattern_name;
   patternstring = patternstream.str();
-  t_Pattern.DrawText(0.15, 0.75, patternstring.c_str());
+  t_Pattern.DrawText(0.15, 0.7, patternstring.c_str());
 
 
   
@@ -426,40 +455,40 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     patternmatchstring = patternmatchstream.str();
     t_PatternMatch.SetTextColor(kRed);
   }
-  t_PatternMatch.DrawText(0.15, 0.7, patternmatchstring.c_str());
+  t_PatternMatch.DrawText(0.15, 0.65, patternmatchstring.c_str());
 
 
   TLatex *latPol = new TLatex();
   latPol->SetTextSize(textsize);
   latPol->SetTextColor(kBlack); 
   latPol->SetNDC();
-  latPol->DrawLatex(0.15, 0.6, "CNI POLARIZATION");
+  latPol->DrawLatex(0.15, 0.55, "CNI POLARIZATION");
 
   TLatex *t_PolBlue = new TLatex();
   t_PolBlue->SetTextFont(62);
   t_PolBlue->SetTextSize(textsize);
   t_PolBlue->SetNDC();          // set to normalized coordinates
   t_PolBlue->SetTextColor(kBlue);
-  t_PolBlue->DrawLatex(0.15, 0.55, "BLUE");
+  t_PolBlue->DrawLatex(0.15, 0.5, "BLUE");
   std::ostringstream polbluestream;
   std::string polbluestring;
   polbluestream << hpolBlue->GetBinContent(1) << " #pm " << hpolBlue->GetBinError(1) << " (stat)";
   polbluestring = polbluestream.str();
   t_PolBlue->SetTextColor(kBlack);
-  t_PolBlue->DrawLatex(0.4, 0.55, polbluestring.c_str());
+  t_PolBlue->DrawLatex(0.4, 0.5, polbluestring.c_str());
 
   TLatex *t_PolYellow = new TLatex();
   t_PolYellow->SetTextFont(62);
   t_PolYellow->SetTextSize(textsize);
   t_PolYellow->SetNDC();          // set to normalized coordinates
   t_PolYellow->SetTextColor(kOrange);
-  t_PolYellow->DrawLatex(0.15, 0.5, "YELLOW");
+  t_PolYellow->DrawLatex(0.15, 0.45, "YELLOW");
   std::ostringstream polyellowstream;
   std::string polyellowstring;
   polyellowstream << hpolYellow->GetBinContent(1) << " #pm " << hpolYellow->GetBinError(1) << " (stat)";
   polyellowstring = polyellowstream.str();
   t_PolYellow->SetTextColor(kBlack);
-  t_PolYellow->DrawLatex(0.4, 0.5, polyellowstring.c_str());
+  t_PolYellow->DrawLatex(0.4, 0.45, polyellowstring.c_str());
 
 
   TText t_xingshift;
@@ -470,12 +499,12 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   std::string xingshiftstring;
   xingshiftstream << "Default crossing shift: " << hxingshift->GetBinContent(1);
   xingshiftstring = xingshiftstream.str();
-  t_xingshift.DrawText(0.15, 0.35, xingshiftstring.c_str());
+  t_xingshift.DrawText(0.15, 0.3, xingshiftstring.c_str());
   std::ostringstream addxingshiftstream;
   std::string addxingshiftstring;
   addxingshiftstream << "Additional crossing shift: " << hxingshift->GetBinContent(2);
   addxingshiftstring = addxingshiftstream.str();
-  t_xingshift.DrawText(0.15, 0.3, addxingshiftstring.c_str());
+  t_xingshift.DrawText(0.15, 0.25, addxingshiftstring.c_str());
 
 
 

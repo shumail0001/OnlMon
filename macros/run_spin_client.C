@@ -38,6 +38,8 @@ void spinDrawInit(const int online = 0)
 
   cl->registerHisto("h1_xingshift","SPINMON_0");
   cl->registerHisto("h1_fillnumber","SPINMON_0");
+  cl->registerHisto("h1_filltypeBlue","SPINMON_0");
+  cl->registerHisto("h1_filltypeYellow","SPINMON_0");
 
 
   for (int i = 0; i < 16; i++){
