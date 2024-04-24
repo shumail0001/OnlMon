@@ -36,6 +36,8 @@ class SpinMonDraw : public OnlMonDraw
   std::map<std::string,std::string> preset_pattern_blue;
   std::map<std::string,std::string> preset_pattern_yellow;
 
+   std::string TH1_to_string(TH1* histo);
+
 
 };
 

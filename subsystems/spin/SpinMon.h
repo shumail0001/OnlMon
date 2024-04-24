@@ -38,6 +38,8 @@ class SpinMon : public OnlMon
     Packet *pYellIntPattern = nullptr;
     Packet *pBluePolPattern = nullptr;
     Packet *pYellPolPattern = nullptr;
+    Packet *pBlueFillNumber = nullptr;
+    Packet *pYellFillNumber = nullptr;
 
     bool success = 0;
     // default xingshift
@@ -47,8 +49,13 @@ class SpinMon : public OnlMon
 
     uint64_t scalercounts[NTRIG][NBUNCHES]{};
 
-    int blueSpinPattern[NBUNCHES] = {0};
-    int yellSpinPattern[NBUNCHES] = {0};
+    int blueSpinPattern[NBUNCHES] = {1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-10,-10,-10,-10,-10,-10,-10,-10,-10};
+    int yellSpinPattern[NBUNCHES] = {1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-10,-10,-10,-10,-10,-10,-10,-10,-10};
+
+    float blueAsyms[NBUNCHES] = {0};
+    float blueAsymsErr[NBUNCHES] = {0};
+    float yellAsyms[NBUNCHES] = {0};
+    float yellAsymsErr[NBUNCHES] = {0};
 
  protected:
   int evtcnt = 0;
@@ -74,12 +81,15 @@ class SpinMon : public OnlMon
   //const int packet_YELLINTPATTERN = 14911;
   //const int packet_BLUEPOLPATTERN = 14912;
   //const int packet_YELLPOLPATTERN = 14913;
+  //const int packet_BLUEFILLNUMBER = 14915;
+  //const int packet_YELLFILLNUMBER = 14916;
   const int packetid_GL1 = 14001;
 
-
-  //TH2 *spin_patterns[2] = {nullptr};
   TH1 *hspinpatternBlue = nullptr;
   TH1 *hspinpatternYellow = nullptr;
+
+  TH1 *hpCspinpatternBlue = nullptr;
+  TH1 *hpCspinpatternYellow = nullptr;
 
   TH2 *pCspin_patternBlueUp = nullptr;
   TH2 *pCspin_patternBlueDown = nullptr;
@@ -101,6 +111,7 @@ class SpinMon : public OnlMon
   TH1 *hpolYellow = nullptr;
 
   TH1 *hxingshift = nullptr;
+  TH1 *hfillnumber = nullptr;
 
   TH1 *gl1_counter[NTRIG] = {nullptr};
 

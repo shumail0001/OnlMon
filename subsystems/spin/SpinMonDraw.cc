@@ -60,31 +60,31 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
   if (name == "SpinMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "SpinMon Example Monitor", -1, 0, xsize / 2, ysize);
+    TC[0] = new TCanvas(name.c_str(), "SpinMon Shift Crew", -1, 0, xsize / 2, ysize);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
     // grow and grow but will not show a definitely lost memory leak
     gSystem->ProcessEvents();
-    Pad[0] = new TPad("spinpad1", "who needs this?", 0.05, 0.85, 0.95, 0.95, 0);
-    Pad[1] = new TPad("spinpad2", "who needs this?", 0.05, 0.75, 0.95, 0.85, 0);
-    Pad[2] = new TPad("spinpad3", "who needs this?", 0.7, 0.05, 0.95, 0.75, 0);
-    Pad[3] = new TPad("spinpad4", "who needs this?", 0.05, 0.575, 0.2, 0.75, 0);
-    Pad[4] = new TPad("spinpad5", "who needs this?", 0.2, 0.575, 0.35, 0.75, 0);
-    Pad[5] = new TPad("spinpad6", "who needs this?", 0.35, 0.575, 0.5, 0.75, 0);
-    Pad[6] = new TPad("spinpad7", "who needs this?", 0.5, 0.575, 0.65, 0.75, 0);
-    Pad[7] = new TPad("spinpad8", "who needs this?", 0.05, 0.40, 0.2, 0.575, 0);
-    Pad[8] = new TPad("spinpad9", "who needs this?", 0.2, 0.40, 0.35, 0.575, 0);
-    Pad[9] = new TPad("spinpad10", "who needs this?", 0.35, 0.40, 0.5, 0.575, 0);
-    Pad[10] = new TPad("spinpad11", "who needs this?", 0.5, 0.40, 0.65, 0.575, 0);
-    Pad[11] = new TPad("spinpad12", "who needs this?", 0.05, 0.225, 0.2, 0.40, 0);
-    Pad[12] = new TPad("spinpad13", "who needs this?", 0.2, 0.225, 0.35, 0.40, 0);
-    Pad[13] = new TPad("spinpad14", "who needs this?", 0.35, 0.225, 0.5, 0.40, 0);
-    Pad[14] = new TPad("spinpad15", "who needs this?", 0.5, 0.225, 0.65, 0.40, 0);
-    Pad[15] = new TPad("spinpad16", "who needs this?", 0.05, 0.05, 0.2, 0.225, 0);
-    Pad[16] = new TPad("spinpad17", "who needs this?", 0.2, 0.05, 0.35, 0.225, 0);
-    Pad[17] = new TPad("spinpad18", "who needs this?", 0.35, 0.05, 0.5, 0.225, 0);
-    Pad[18] = new TPad("spinpad19", "who needs this?", 0.5, 0.05, 0.65, 0.225, 0);
+    Pad[0] = new TPad("spinpad1", "who needs this?", 0.01, 0.8, 0.99, 0.95, 0);
+    Pad[1] = new TPad("spinpad2", "who needs this?", 0.01, 0.65, 0.99, 0.8, 0);
+    Pad[2] = new TPad("spinpad3", "who needs this?", 0.7, 0.05, 0.95, 0.6, 0);
+    Pad[3] = new TPad("spinpad4", "who needs this?", 0.05, 0.50, 0.2, 0.65, 0);
+    Pad[4] = new TPad("spinpad5", "who needs this?", 0.2, 0.50, 0.35, 0.65, 0);
+    Pad[5] = new TPad("spinpad6", "who needs this?", 0.35, 0.50, 0.5, 0.65, 0);
+    Pad[6] = new TPad("spinpad7", "who needs this?", 0.5, 0.50, 0.65, 0.65, 0);
+    Pad[7] = new TPad("spinpad8", "who needs this?", 0.05, 0.35, 0.2, 0.50, 0);
+    Pad[8] = new TPad("spinpad9", "who needs this?", 0.2, 0.35, 0.35, 0.50, 0);
+    Pad[9] = new TPad("spinpad10", "who needs this?", 0.35, 0.35, 0.5, 0.50, 0);
+    Pad[10] = new TPad("spinpad11", "who needs this?", 0.5, 0.35, 0.65, 0.50, 0);
+    Pad[11] = new TPad("spinpad12", "who needs this?", 0.05, 0.20, 0.2, 0.35, 0);
+    Pad[12] = new TPad("spinpad13", "who needs this?", 0.2, 0.20, 0.35, 0.35, 0);
+    Pad[13] = new TPad("spinpad14", "who needs this?", 0.35, 0.20, 0.5, 0.35, 0);
+    Pad[14] = new TPad("spinpad15", "who needs this?", 0.5, 0.20, 0.65, 0.35, 0);
+    Pad[15] = new TPad("spinpad16", "who needs this?", 0.05, 0.05, 0.2, 0.20, 0);
+    Pad[16] = new TPad("spinpad17", "who needs this?", 0.2, 0.05, 0.35, 0.20, 0);
+    Pad[17] = new TPad("spinpad18", "who needs this?", 0.35, 0.05, 0.5, 0.20, 0);
+    Pad[18] = new TPad("spinpad19", "who needs this?", 0.5, 0.05, 0.65, 0.20, 0);
     Pad[0]->Draw();
     Pad[1]->Draw();
     Pad[2]->Draw();
@@ -114,7 +114,7 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SpinMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "SpinMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
+    TC[1] = new TCanvas(name.c_str(), "SpinMon Experts", -xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     Pad[19] = new TPad("spinpad3", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
     Pad[20] = new TPad("spinpad4", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
@@ -158,8 +158,10 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   
   OnlMonClient *cl = OnlMonClient::instance();
 
-  //TH1I *hspinpatternBlue = (TH1I*)cl->getHisto("SPINMON_0","h1_spinpatternBlue");
-  //TH1I *hspinpatternYellow = (TH1I*)cl->getHisto("SPINMON_0","h1_spinpatternYellow");
+  TH1I *hpCspinpatternBlue = (TH1I*)cl->getHisto("SPINMON_0","h1_pCspinpatternBlue");
+  TH1I *hpCspinpatternYellow = (TH1I*)cl->getHisto("SPINMON_0","h1_pCspinpatternYellow");
+  TH1I *hspinpatternBlue = (TH1I*)cl->getHisto("SPINMON_0","h1_spinpatternBlue");
+  TH1I *hspinpatternYellow = (TH1I*)cl->getHisto("SPINMON_0","h1_spinpatternYellow");
 
   TH2I *pCspinpatternBlueUp = (TH2I*)cl->getHisto("SPINMON_0","h2_pCspinpatternBlueUp");
   TH2I *pCspinpatternBlueDown = (TH2I*)cl->getHisto("SPINMON_0","h2_pCspinpatternBlueDown");
@@ -179,6 +181,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   TH1D *hpolYellow = (TH1D*)cl->getHisto("SPINMON_0","h1_polYellow");
 
   TH1I *hxingshift = (TH1I*)cl->getHisto("SPINMON_0","h1_xingshift");
+  TH1I *hfillnumber = (TH1I*)cl->getHisto("SPINMON_0","h1_fillnumber");
 
   TH1I* gl1_counter[NTRIG];
   for (int i = 0; i < NTRIG; i++){
@@ -198,7 +201,13 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   
 
   //===================== Measured spin patterns ===============//
-  Pad[0]->cd(); float labelsize = 0.1;
+  Pad[0]->cd(); 
+  Pad[0]->SetTopMargin(0.25);
+  Pad[0]->SetBottomMargin(0.25);
+  Pad[0]->SetLeftMargin(0.15);
+  Pad[0]->SetRightMargin(0.15);
+
+  float labelsize = 0.1;
   if (!pCspinpatternBlueUp || !pCspinpatternBlueDown || !pCspinpatternBlueUnpol || !pCspinpatternYellowUp || !pCspinpatternYellowDown || !pCspinpatternYellowUnpol)
   {
     DrawDeadServer(transparent[0]);
@@ -210,35 +219,39 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     //Measured Fill Pattern (pC)
     pCspinpatternBlueUp->SetFillColor(6);
     pCspinpatternBlueUp->GetXaxis()->SetLabelSize(labelsize);
-    pCspinpatternBlueUp->SetTitleSize(0.05);
+    //pCspinpatternBlueUp->SetTitleSize(0.05);
     pCspinpatternBlueUp->SetStats(0);
     pCspinpatternBlueUp->GetXaxis()->SetTickLength(0);
     pCspinpatternBlueUp->GetYaxis()->SetTickLength(0);
-    pCspinpatternBlueUp->DrawCopy("box");
+    pCspinpatternBlueUp->GetXaxis()->SetNdivisions(120);
+    pCspinpatternBlueUp->SetLineColor(kBlack);
+    pCspinpatternBlueUp->SetLineWidth(1);
+    pCspinpatternBlueUp->GetYaxis()->SetLabelSize(0);
+    pCspinpatternBlueUp->DrawCopy("box1");
     pCspinpatternBlueDown->SetFillColor(7); 
     pCspinpatternBlueDown->GetXaxis()->SetLabelSize(labelsize);
-    pCspinpatternBlueDown->DrawCopy("box,same");
+    pCspinpatternBlueDown->DrawCopy("box1,same");
     pCspinpatternBlueUnpol->SetFillColor(4); 
     pCspinpatternBlueDown->GetXaxis()->SetLabelSize(labelsize);
-    pCspinpatternBlueUnpol->DrawCopy("box,same");
+    pCspinpatternBlueUnpol->DrawCopy("box1,same");
     pCspinpatternYellowUp->SetFillColor(2); 
-    pCspinpatternYellowUp->DrawCopy("box,same");
+    pCspinpatternYellowUp->DrawCopy("box1,same");
     pCspinpatternYellowUp->GetXaxis()->SetLabelSize(labelsize);
     pCspinpatternYellowDown->SetFillColor(3); 
-    pCspinpatternYellowDown->DrawCopy("box,same");
+    pCspinpatternYellowDown->DrawCopy("box1,same");
     pCspinpatternYellowDown->GetXaxis()->SetLabelSize(labelsize);
     pCspinpatternYellowUnpol->SetFillColor(5); 
-    pCspinpatternYellowUnpol->DrawCopy("box,same");
+    pCspinpatternYellowUnpol->DrawCopy("box1,same");
     pCspinpatternYellowUnpol->GetXaxis()->SetLabelSize(labelsize);
 
-    TLegend* leg_blue = new TLegend(0.01, 0.05, 0.075, 0.95);
+    TLegend* leg_blue = new TLegend(0.01, 0.01, 0.125, 0.99);
     leg_blue->SetFillStyle(0);
     leg_blue->SetBorderSize(1);
     leg_blue->AddEntry(pCspinpatternBlueUp,"Blue Up","F");
     leg_blue->AddEntry(pCspinpatternBlueDown,"Blue Down","F");
     leg_blue->AddEntry(pCspinpatternBlueUnpol,"Blue Unpol","F");
 
-    TLegend* leg_yellow = new TLegend(0.925, 0.05, 0.99, 0.95);
+    TLegend* leg_yellow = new TLegend(0.875, 0.01, 0.99, 0.99);
     leg_yellow->SetFillStyle(0);
     leg_yellow->SetBorderSize(1);
     leg_yellow->AddEntry(pCspinpatternYellowUp,"Yellow Up","F");
@@ -254,7 +267,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     t_pCSpinPatt.SetNDC();          // set to normalized coordinates
     t_pCSpinPatt.SetTextAlign(23);  // center/top alignment
     std::string pCSPstring = "Measured Fill Pattern (pC)";
-    t_pCSpinPatt.DrawText(0.5, 1., pCSPstring.c_str());
+    t_pCSpinPatt.DrawText(0.5, 1, pCSPstring.c_str());
 
     
 
@@ -262,6 +275,11 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
 
   //===================== Intended spin patterns ===============//
   Pad[1]->cd();
+  Pad[1]->SetTopMargin(0.25);
+  Pad[1]->SetBottomMargin(0.25);
+  Pad[1]->SetLeftMargin(0.15);
+  Pad[1]->SetRightMargin(0.15);
+
   if (!spinpatternBlueUp || !spinpatternBlueDown || !spinpatternBlueUnpol || !spinpatternYellowUp || !spinpatternYellowDown || !spinpatternYellowUnpol)
   {
     DrawDeadServer(transparent[0]);
@@ -275,22 +293,26 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     spinpatternBlueUp->GetXaxis()->SetLabelSize(labelsize);
     spinpatternBlueUp->SetStats(0);
     spinpatternBlueUp->GetXaxis()->SetTickLength(0);
+    spinpatternBlueUp->GetXaxis()->SetNdivisions(120);
+    spinpatternBlueUp->SetLineColor(kBlack);
+    spinpatternBlueUp->SetLineStyle(1);
     spinpatternBlueUp->GetYaxis()->SetTickLength(0);
-    spinpatternBlueUp->DrawCopy("box");
+    spinpatternBlueUp->GetYaxis()->SetLabelSize(0);
+    spinpatternBlueUp->DrawCopy("box1");
     spinpatternBlueDown->SetFillColor(7); 
     spinpatternBlueDown->GetXaxis()->SetLabelSize(labelsize);
-    spinpatternBlueDown->DrawCopy("box,same");
+    spinpatternBlueDown->DrawCopy("box1,same");
     spinpatternBlueUnpol->SetFillColor(4); 
     spinpatternBlueDown->GetXaxis()->SetLabelSize(labelsize);
-    spinpatternBlueUnpol->DrawCopy("box,same");
+    spinpatternBlueUnpol->DrawCopy("box1,same");
     spinpatternYellowUp->SetFillColor(2); 
-    spinpatternYellowUp->DrawCopy("box,same");
+    spinpatternYellowUp->DrawCopy("box1,same");
     spinpatternYellowUp->GetXaxis()->SetLabelSize(labelsize);
     spinpatternYellowDown->SetFillColor(3); 
-    spinpatternYellowDown->DrawCopy("box,same");
+    spinpatternYellowDown->DrawCopy("box1,same");
     spinpatternYellowDown->GetXaxis()->SetLabelSize(labelsize);
     spinpatternYellowUnpol->SetFillColor(5); 
-    spinpatternYellowUnpol->DrawCopy("box,same");
+    spinpatternYellowUnpol->DrawCopy("box1,same");
     spinpatternYellowUnpol->GetXaxis()->SetLabelSize(labelsize);
 
     TText t_SpinPatt;
@@ -299,17 +321,40 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     t_SpinPatt.SetNDC();          // set to normalized coordinates
     t_SpinPatt.SetTextAlign(23);  // center/top alignment
     std::string SPstring = "Intended Fill Pattern (CDEV)";
-    t_SpinPatt.DrawText(0.5, 1., SPstring.c_str());
+    t_SpinPatt.DrawText(0.5, 1, SPstring.c_str());
 
   }
 
   //============== text information ===============//
   Pad[2]->SetFillColor(18);
   Pad[2]->cd();
-  //string scdev_blue  =TH1_to_string(hspinpatternBlue);
-  //string scdev_yellow=TH1_to_string(hspinpatternYellow);
-  std::string scdev_blue="UNKNOWN";
-  std::string scdev_yellow="UNKNOWN";
+  float textsize = 0.05;
+
+
+  TText t_FillNumber;
+  t_FillNumber.SetTextFont(62);
+  t_FillNumber.SetTextSize(textsize);
+  t_FillNumber.SetNDC();          // set to normalized coordinates
+  //Pattern.SetTextAlign(23);  // center/top alignment
+  std::string fillnumberstring;
+  if (hfillnumber->GetBinContent(1) == hfillnumber->GetBinContent(2) && hfillnumber->GetBinContent(1) != 0)
+  {
+    std::ostringstream fillnumberstream;
+    fillnumberstream << "Fill number: " << hfillnumber->GetBinContent(1);
+    fillnumberstring = fillnumberstream.str();
+    t_FillNumber.DrawText(0.15, 0.85, fillnumberstring.c_str());
+  }
+  else
+  {
+    fillnumberstring = "Fill number not available";
+    t_FillNumber.DrawText(0.15, 0.85, fillnumberstring.c_str());
+  }
+
+
+  std::string scdev_blue  =TH1_to_string(hspinpatternBlue);
+  std::string scdev_yellow=TH1_to_string(hspinpatternYellow);
+  //std::string scdev_blue="UNKNOWN";
+  //std::string scdev_yellow="UNKNOWN";
   std::string pattern_name="UNKNOWN";
 
   for(std::map<std::string,std::string>::const_iterator ii=preset_pattern_blue.begin(); ii!=preset_pattern_blue.end(); ++ii)
@@ -320,101 +365,135 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
       pattern_name=key;
     }
   }
-
   
   TText t_Pattern;
   t_Pattern.SetTextFont(62);
-  t_Pattern.SetTextSize(0.04);
+  t_Pattern.SetTextSize(textsize);
   t_Pattern.SetNDC();          // set to normalized coordinates
   //Pattern.SetTextAlign(23);  // center/top alignment
   std::ostringstream patternstream;
   std::string patternstring;
   patternstream << "Pattern: " << pattern_name;
   patternstring = patternstream.str();
-  t_Pattern.DrawText(0.2, 0.9, patternstring.c_str());
+  t_Pattern.DrawText(0.15, 0.75, patternstring.c_str());
 
-  int match = 0;
+
+  
+  
+
+  int mismatches = 0;
+  for(int crossing=0; crossing<120; crossing++)
+  {
+    int spin_cdev_blue=hspinpatternBlue->GetBinContent(crossing+1);
+    int spin_pC_blue=hpCspinpatternBlue->GetBinContent(crossing+1);
+
+    int spin_cdev_yell=hspinpatternYellow->GetBinContent(crossing+1);
+    int spin_pC_yell=hpCspinpatternYellow->GetBinContent(crossing+1);
+      
+    if(spin_pC_blue==-1 || spin_pC_blue==1)
+    {
+      if(spin_cdev_blue!=spin_pC_blue)
+      {
+	mismatches+=1;	 
+      } 
+    } 
+
+    if(spin_pC_yell==-1 || spin_pC_yell==1)
+    {
+      if(spin_cdev_yell!=spin_pC_yell)
+      {
+	mismatches+=1;	 
+      } 
+    } 
+  }
+
+
   TText t_PatternMatch;
   t_PatternMatch.SetTextFont(62);
-  t_PatternMatch.SetTextSize(0.04);
+  t_PatternMatch.SetTextSize(textsize);
   t_PatternMatch.SetNDC();          // set to normalized coordinates
   //t_PatternMatch.SetTextAlign(23);  // center/top alignment
   std::string patternmatchstring;
-  if (match)
+  if (!mismatches)
   {
-    patternmatchstring = "PATTERNS MATCH";
+    patternmatchstring = "pC AND CDEV PATTERNS MATCH";
     t_PatternMatch.SetTextColor(kGreen);
   }
   else 
   {
-    patternmatchstring = "PATTERNS MISMATCH";
+    std::ostringstream patternmatchstream;
+    patternmatchstream << "pC AND CDEV PATTERNS MISMATCH: " << mismatches << " bunches";
+    patternmatchstring = patternmatchstream.str();
     t_PatternMatch.SetTextColor(kRed);
   }
-  t_PatternMatch.DrawText(0.2, 0.85, patternmatchstring.c_str());
+  t_PatternMatch.DrawText(0.15, 0.7, patternmatchstring.c_str());
 
 
   TLatex *latPol = new TLatex();
-  latPol->SetTextSize(0.04);
+  latPol->SetTextSize(textsize);
   latPol->SetTextColor(kBlack); 
   latPol->SetNDC();
-  latPol->DrawLatex(0.2, 0.75, "CNI POLARIZATION");
+  latPol->DrawLatex(0.15, 0.6, "CNI POLARIZATION");
 
   TLatex *t_PolBlue = new TLatex();
   t_PolBlue->SetTextFont(62);
-  t_PolBlue->SetTextSize(0.04);
+  t_PolBlue->SetTextSize(textsize);
   t_PolBlue->SetNDC();          // set to normalized coordinates
   t_PolBlue->SetTextColor(kBlue);
-  t_PolBlue->DrawLatex(0.2, 0.7, "BLUE");
+  t_PolBlue->DrawLatex(0.15, 0.55, "BLUE");
   std::ostringstream polbluestream;
   std::string polbluestring;
-  polbluestream << hpolBlue->GetBinContent(1) << " #pm " << hpolBlue->GetBinError(1);
+  polbluestream << hpolBlue->GetBinContent(1) << " #pm " << hpolBlue->GetBinError(1) << " (stat)";
   polbluestring = polbluestream.str();
   t_PolBlue->SetTextColor(kBlack);
-  t_PolBlue->DrawLatex(0.4, 0.7, polbluestring.c_str());
+  t_PolBlue->DrawLatex(0.4, 0.55, polbluestring.c_str());
 
   TLatex *t_PolYellow = new TLatex();
   t_PolYellow->SetTextFont(62);
-  t_PolYellow->SetTextSize(0.04);
+  t_PolYellow->SetTextSize(textsize);
   t_PolYellow->SetNDC();          // set to normalized coordinates
   t_PolYellow->SetTextColor(kOrange);
-  t_PolYellow->DrawLatex(0.2, 0.65, "YELLOW");
+  t_PolYellow->DrawLatex(0.15, 0.5, "YELLOW");
   std::ostringstream polyellowstream;
   std::string polyellowstring;
-  polyellowstream << hpolYellow->GetBinContent(1) << " #pm " << hpolYellow->GetBinError(1);
+  polyellowstream << hpolYellow->GetBinContent(1) << " #pm " << hpolYellow->GetBinError(1) << " (stat)";
   polyellowstring = polyellowstream.str();
   t_PolYellow->SetTextColor(kBlack);
-  t_PolYellow->DrawLatex(0.4, 0.65, polyellowstring.c_str());
+  t_PolYellow->DrawLatex(0.4, 0.5, polyellowstring.c_str());
 
 
   TText t_xingshift;
   t_xingshift.SetTextFont(62);
-  t_xingshift.SetTextSize(0.04);
+  t_xingshift.SetTextSize(textsize);
   t_xingshift.SetNDC();          // set to normalized coordinates
   std::ostringstream xingshiftstream;
   std::string xingshiftstring;
   xingshiftstream << "Default crossing shift: " << hxingshift->GetBinContent(1);
   xingshiftstring = xingshiftstream.str();
-  t_xingshift.DrawText(0.2, 0.45, xingshiftstring.c_str());
+  t_xingshift.DrawText(0.15, 0.35, xingshiftstring.c_str());
   std::ostringstream addxingshiftstream;
   std::string addxingshiftstring;
   addxingshiftstream << "Additional crossing shift: " << hxingshift->GetBinContent(2);
   addxingshiftstring = addxingshiftstream.str();
-  t_xingshift.DrawText(0.2, 0.4, addxingshiftstring.c_str());
+  t_xingshift.DrawText(0.15, 0.3, addxingshiftstring.c_str());
 
 
 
   //================================================
 
-  labelsize = 0.8;
-  float titlesize = 3;
+  gStyle->SetTitleFontSize(0.1);
+  gStyle->SetTitleAlign(33);
+  gStyle->SetTitleX(0.75);
+  labelsize = 0.05;
   for (int i = 0; i < NTRIG; i++){
     Pad[i+3]->cd();
     if (gl1_counter[i]){
-      gl1_counter[i]->SetTitleSize(titlesize);
       gl1_counter[i]->GetXaxis()->SetLabelSize(labelsize);
+      gl1_counter[i]->GetYaxis()->SetLabelSize(labelsize);  
+      gl1_counter[i]->GetYaxis()->SetMaxDigits(2);
       gl1_counter[i]->SetStats(0);
       gl1_counter[i]->DrawCopy("HIST");
-      if (gl1_counter[i]->GetEntries() == 0)
+      if (gl1_counter[i]->GetSumOfWeights() == 0)
       {
 	TLatex *lat = new TLatex();
 	lat->SetTextSize(0.15);
@@ -523,11 +602,11 @@ int SpinMonDraw::MakeHtml(const std::string &what)
   OnlMonClient *cl = OnlMonClient::instance();
 
   // Register the 1st canvas png file to the menu and produces the png file.
-  std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
+  std::string pngfile = cl->htmlRegisterPage(*this, "Shift Crew", "1", "png");
   cl->CanvasToPng(TC[0], pngfile);
 
   // idem for 2nd canvas.
-  pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
+  pngfile = cl->htmlRegisterPage(*this, "Expert", "2", "png");
   cl->CanvasToPng(TC[1], pngfile);
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
@@ -550,4 +629,27 @@ int SpinMonDraw::MakeHtml(const std::string &what)
 
 
   return 0;
+}
+
+
+std::string SpinMonDraw::TH1_to_string(TH1* hspin_pattern)
+{
+  std::string spin_pattern="";
+  for(int crossing=0; crossing<120; crossing++)
+    {
+      int ispin=hspin_pattern->GetBinContent(crossing+1);
+      if(ispin==1) 
+	{
+	  spin_pattern.push_back('+');
+	}
+      else if(ispin==-1)
+	{
+	  spin_pattern.push_back('-');
+	}
+      else
+	{
+	  spin_pattern.push_back('*');
+	}
+    }
+  return spin_pattern;
 }
