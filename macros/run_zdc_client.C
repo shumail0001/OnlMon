@@ -47,7 +47,7 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("smd_south_hor_hits", "ZDCMON_0");
   cl->registerHisto("smd_south_ver_hits", "ZDCMON_0");
   // // no threshold
-  cl->registerHisto("smd_north_hor_hits_nth", "ZDCMON_0");
+  // cl->registerHisto("smd_north_hor_hits_nth", "ZDCMON_0");
   // cl->registerHisto("smd_north_ver_hits_nth", "ZDCMON_0");
   // cl->registerHisto("smd_south_hor_hits_nth", "ZDCMON_0");
   // cl->registerHisto("smd_south_ver_hits_nth", "ZDCMON_0");

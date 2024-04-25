@@ -405,11 +405,11 @@ int ZdcMon::process_event(Event *e /* evt */)
       {
         smd_s_h_counter++;    
       }
-      // no threshold
-      if (smd_adc[i + 16] > 0.0) 
-      {
-        smd_s_h_counter_nth++;    
-      }
+      // // no threshold
+      // if (smd_adc[i + 16] > 0.0) 
+      // {
+      //   smd_s_h_counter_nth++;    
+      // }
       //****************************
     }
 
