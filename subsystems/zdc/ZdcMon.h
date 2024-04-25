@@ -59,6 +59,11 @@ class ZdcMon : public OnlMon
   TH1 * smd_north_ver_hits = nullptr;
   TH1 * smd_south_hor_hits = nullptr;
   TH1 * smd_south_ver_hits = nullptr;
+  // no thresholds
+  TH1 * smd_north_hor_hits_nth = nullptr;
+  TH1 * smd_north_ver_hits_nth = nullptr;
+  TH1 * smd_south_hor_hits_nth = nullptr;
+  TH1 * smd_south_ver_hits_nth = nullptr;
 
   // north smd
   TH1 *smd_hor_north = nullptr;
