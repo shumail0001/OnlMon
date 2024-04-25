@@ -135,10 +135,10 @@ int ZdcMon::Init()
     smd_adc_s_ver_ind[i] = new TH1I(Form("smd_adc_s_ver_ind%d", i),Form("smd_adc_s_ver_ind%d", i), 1000, 0, 5000);
   }
   // SMD Hit Multiplicity
-  smd_north_hor_hits = new TH1F("smd_north_hor_hits", "smd_north_hor_hits", 8, 0., 7.);
-  smd_north_ver_hits = new TH1F("smd_north_ver_hits", "smd_north_ver_hits", 7, 8., 14.);
-  smd_south_hor_hits = new TH1F("smd_south_hor_hits", "smd_south_hor_hits", 8, 16., 23.);
-  smd_south_ver_hits = new TH1F("smd_south_ver_hits", "smd_south_ver_hits", 7, 24., 30.);
+  smd_north_hor_hits = new TH1F("smd_north_hor_hits", "smd_north_hor_hits", 9, 0., 8.);
+  smd_north_ver_hits = new TH1F("smd_north_ver_hits", "smd_north_ver_hits", 8, 0., 7.);
+  smd_south_hor_hits = new TH1F("smd_south_hor_hits", "smd_south_hor_hits", 9, 0., 8.);
+  smd_south_ver_hits = new TH1F("smd_south_ver_hits", "smd_south_ver_hits", 8, 0., 7.);
 
   // north smd
   smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution jjj, SMD North y", 296, -5.92, 5.92);
@@ -337,6 +337,11 @@ int ZdcMon::process_event(Event *e /* evt */)
 
     float zdc_adc_threshold = 200.;
     float smd_adc_threshold = 20.;
+    // counters
+    int smd_n_h_counter = 0;
+    int smd_n_v_counter = 0;
+    int smd_s_h_counter = 0;
+    int smd_s_v_counter = 0;
 
     for ( int i = 0; i < 8; i++)
     {
@@ -357,7 +362,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       if ((smd_adc[i] > smd_adc_threshold) && (zdc_adc[0] > zdc_adc_threshold)) 
       {
         double filling = i + 0.0;
-        smd_north_hor_hits->Fill(filling);  
+        smd_n_h_counter++;  
       }
       //****************************
 
@@ -378,7 +383,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       if ((smd_adc[i + 16] > smd_adc_threshold) && (zdc_adc[2] > zdc_adc_threshold)) 
       {
         double filling = i + 16 + 0.0;
-        smd_south_hor_hits->Fill(filling);  
+        smd_s_h_counter++;    
       }
       //****************************
     }
@@ -402,7 +407,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       if ((smd_adc[i + 8] > smd_adc_threshold) && (zdc_adc[1] > zdc_adc_threshold)) 
       {
         double filling = i + 8 + 0.0;
-        smd_north_ver_hits->Fill(filling);  
+        smd_n_v_counter++;    
       }
       //****************************
 
@@ -423,9 +428,17 @@ int ZdcMon::process_event(Event *e /* evt */)
       if ((smd_adc[i + 24] > smd_adc_threshold) && (zdc_adc[3] > zdc_adc_threshold)) 
       {
         double filling = i + 24 + 0.0;
-        smd_south_ver_hits->Fill(filling);  
+        smd_s_v_counter++;    
       }
       //****************************
+
+      // Fill out the SMD counters
+      smd_north_hor_hits->Fill(smd_n_h_counter + 0.0);
+      smd_north_ver_hits->Fill(smd_n_v_counter + 0.0);
+      smd_south_hor_hits->Fill(smd_s_h_counter + 0.0);
+      smd_south_ver_hits->Fill(smd_s_v_counter + 0.0);
+
+
 
     }
 
