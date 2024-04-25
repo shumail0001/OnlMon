@@ -142,7 +142,7 @@ int ZdcMon::Init()
   smd_south_hor_hits = new TH1F("smd_south_hor_hits", "smd_south_hor_hits", 9, 0., 8.);
   smd_south_ver_hits = new TH1F("smd_south_ver_hits", "smd_south_ver_hits", 8, 0., 7.);
   // no thresholds
-  smd_north_hor_hits_nth = new TH1F("smd_north_hor_hits_nth", "smd_north_hor_hits_nth", 9, 0., 8.);
+  // smd_north_hor_hits_nth = new TH1F("smd_north_hor_hits_nth", "smd_north_hor_hits_nth", 9, 0., 8.);
   // smd_north_ver_hits_nth = new TH1F("smd_north_ver_hits_nth", "smd_north_ver_hits_nth", 8, 0., 7.);
   // smd_south_hor_hits_nth = new TH1F("smd_south_hor_hits_nth", "smd_south_hor_hits_nth", 9, 0., 8.);
   // smd_south_ver_hits_nth = new TH1F("smd_south_ver_hits_nth", "smd_south_ver_hits_nth", 8, 0., 7.);
@@ -202,7 +202,7 @@ int ZdcMon::Init()
   se->registerHisto(this, smd_south_hor_hits);
   se->registerHisto(this, smd_south_ver_hits);
   // no thresholds
-  se->registerHisto(this, smd_north_hor_hits_nth);
+  // se->registerHisto(this, smd_north_hor_hits_nth);
   // se->registerHisto(this, smd_north_ver_hits_nth);
   // se->registerHisto(this, smd_south_hor_hits_nth);
   // se->registerHisto(this, smd_south_ver_hits_nth);
@@ -405,11 +405,11 @@ int ZdcMon::process_event(Event *e /* evt */)
       {
         smd_s_h_counter++;    
       }
-      // // no threshold
-      // if (smd_adc[i + 16] > 0.0) 
-      // {
-      //   smd_s_h_counter_nth++;    
-      // }
+      // no threshold
+      if (smd_adc[i + 16] > 0.0) 
+      {
+        smd_s_h_counter_nth++;    
+      }
       //****************************
     }
 
@@ -466,7 +466,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       //****************************
 
       // Fill out the SMD counters with doubles instead of integers.
-      double nh = smd_n_hcounter + 0.0;
+      double nh = smd_n_h_counter + 0.0;
       smd_north_hor_hits->Fill(nh);
       double nv = smd_n_v_counter + 0.0;
       smd_north_ver_hits->Fill(nv);
