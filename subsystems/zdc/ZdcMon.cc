@@ -381,7 +381,7 @@ int ZdcMon::process_event(Event *e /* evt */)
         smd_n_h_counter++;  
       }
       // no threshold
-      if (smd_adc[i] > 0.0) 
+      if (smd_adc[i] > 0.5) 
       {
         smd_n_h_counter_nth++;  
       }
@@ -475,8 +475,8 @@ int ZdcMon::process_event(Event *e /* evt */)
       double sv = smd_s_v_counter + 0.0;
       smd_south_ver_hits->Fill();
       // no thresholds
-      double noth_nh = smd_n_h_counter_nth + 0.0;
-      smd_north_hor_hits_nth->Fill(noth_nh);
+      // double noth_nh = smd_n_h_counter_nth + 0.0;
+      // smd_north_hor_hits_nth->Fill(noth_nh);
       // double noth_nv = smd_n_v_counter_nth + 0.0;
       // smd_north_ver_hits_nth->Fill(noth_nv);
       // double noth_sh = smd_s_h_counter_nth + 0.0;
