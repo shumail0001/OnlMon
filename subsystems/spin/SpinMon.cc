@@ -166,26 +166,43 @@ int SpinMon::process_event(Event *e /* evt */)
     
 
     //********* Set beam polarization histograms **************//
-    //float polBlue = pBluePol->iValue(0)/10000.0;
-    //float polBlueErr = pBluePol->iValue(1)/10000.0;
     float polBlue = 1.;
     float polBlueErr = 0.1;
+    //if (pBluePol)
+    //{
+      //polBlue = pBluePol->iValue(0)/10000.0;
+      //polBlueErr = pBluePol->iValue(1)/10000.0;
+      //delete pBluePol;
+    //}
     hpolBlue->SetBinContent(1,polBlue);
     hpolBlue->SetBinError(1,polBlueErr);
 
-    //float polYellow = pYellowPol->iValue(0)/10000.0;
-    //float polYellowErr = pYellowPol->iValue(1)/10000.0;
+    
     float polYellow = 1.;
     float polYellowErr = 0.1;
+    //if (pBluePol)
+    //{
+      //polYellow = pYellowPol->iValue(0)/10000.0;
+      //polYellowErr = pYellowPol->iValue(1)/10000.0;
+      //delete pYellPol;
+    //}
     hpolYellow->SetBinContent(1,polYellow);
     hpolYellow->SetBinError(1,polYellowErr);
     //**********************************************************//
 
     //************** Set fill number histogram **************//
-    //float fillnumberBlue = pBlueFillNumber->iValue(0);
-    //float fillnumberYellow = pYellFillNumber->iValue(0);
     float fillnumberBlue = 0;
     float fillnumberYellow = 0;
+    //if (pBlueFillNumber)
+    //{
+      //fillnumberBlue = pBlueFillNumber->iValue(0);
+      //delete pBlueFillNumber;
+    //}
+    //if (pYellFillNumber)
+    //{
+      //fillnumberYellow = pYellFillNumber->iValue(0);
+      //delete pYellFillNumber;
+    //}  
     hfillnumber->SetBinContent(1,fillnumberBlue);
     hfillnumber->SetBinContent(2,fillnumberYellow);
     //*******************************************************//
@@ -195,161 +212,198 @@ int SpinMon::process_event(Event *e /* evt */)
     //************************************************//
     
     //************** Set spin pattern histograms **************//
-    int nbrFilledBlue = pBlueSpin->getDataLength();
-    int nbrFilledYellow = pYellSpin->getDataLength();
-    if (nbrFilledBlue == 112){nbrFilledBlue = 111;}
-    if (nbrFilledYellow == 112){nbrFilledYellow = 111;}
-    hfilltypeBlue->SetBinContent(1,nbrFilledBlue);
-    hfilltypeYellow->SetBinContent(1,nbrFilledYellow);
-    int ispinBlue = 0;
-    int ispinYell = 0;
-    // up = 1, down = -1, abort gap (bunches 111-120) = -10
-    for (int i = 0; i < NBUNCHES; i++)
+    //  up = 1, down = -1, abort gap (bunches 111-120) = -10
+    if (pBlueSpin)
     {
-
-      if (nbrFilledBlue == 6 && blueFillPattern6[i] == 0)
+      int numbluefilled = pBlueSpin->getDataLength();
+      if (numbluefilled == 112){numbluefilled = 111;}
+      hfilltypeBlue->SetBinContent(1,numbluefilled);
+      int ispinBlue = 0;
+      for (int i = 0; i < NBUNCHES; i++)
       {
-	hspinpatternBlue->SetBinContent(i+1,-10);
+
+	if (nbrFilledBlue == 6 && blueFillPattern6[i] == 0)
+	{
+	  hspinpatternBlue->SetBinContent(i+1,-10);
+	}
+	else if (nbrFilledBlue == 111 && blueFillPattern111[i] == 0)
+	{
+	  hspinpatternBlue->SetBinContent(i+1,-10);
+	}
+	else
+	{
+	  blueSpinPattern[i] = pBlueSpin->iValue(ispinBlue);
+
+	  hspinpatternBlue->SetBinContent(i+1,blueSpinPattern[i]);
+
+	  if (blueSpinPattern[i] == 1){spin_patternBlueUp->Fill(i,1);}
+	  if (blueSpinPattern[i] == -1){spin_patternBlueDown->Fill(i,1);}
+	  if (blueSpinPattern[i] == 0){spin_patternBlueUnpol->Fill(i,1);}
+
+	  ispinBlue++;
+	} 
       }
-      else if (nbrFilledBlue == 111 && blueFillPattern111[i] == 0)
+
+      delete pBlueSpin;
+    }
+
+    if (pYellSpin){
+      int numyellfilled = pYellSpin->getDataLength();
+      if (numyellfilled == 112){numyellfilled = 111;}
+      hfilltypeYellow->SetBinContent(1,numyellfilled);
+    
+      int ispinYell = 0;
+    
+      for (int i = 0; i < NBUNCHES; i++)
       {
-	hspinpatternBlue->SetBinContent(i+1,-10);
-      }
-      else
-      {
-	blueSpinPattern[i] = pBlueSpin->iValue(ispinBlue);
-
-	hspinpatternBlue->SetBinContent(i+1,blueSpinPattern[i]);
-
-        if (blueSpinPattern[i] == 1){spin_patternBlueUp->Fill(i,1);}
-        if (blueSpinPattern[i] == -1){spin_patternBlueDown->Fill(i,1);}
-        if (blueSpinPattern[i] == 0){spin_patternBlueUnpol->Fill(i,1);}
-
-	ispinBlue++;
+	if (nbrFilledYellow == 6 && yellFillPattern6[i] == 0)
+	{
+	  hspinpatternYellow->SetBinContent(i+1,-10);
+	}
+	else if (nbrFilledYellow == 111 && yellFillPattern111[i] == 0)
+	{
+	  hspinpatternYellow->SetBinContent(i+1,-10);
+	}
+	else
+	{
+	  yellSpinPattern[i] = pYellSpin->iValue(ispinYell);
+	  
+	  hspinpatternYellow->SetBinContent(i+1,yellSpinPattern[i]);
+	  
+	  if (yellSpinPattern[i] == 1){spin_patternYellowUp->Fill(i,2);}
+	  if (yellSpinPattern[i] == -1){spin_patternYellowDown->Fill(i,2);}
+	  if (yellSpinPattern[i] == 0){spin_patternYellowUnpol->Fill(i,2);}
+	  
+	  ispinYell++;
+	} 
       } 
 
-
-      if (nbrFilledYellow == 6 && yellFillPattern6[i] == 0)
-      {
-	hspinpatternYellow->SetBinContent(i+1,-10);
-      }
-      else if (nbrFilledYellow == 111 && yellFillPattern111[i] == 0)
-      {
-	hspinpatternYellow->SetBinContent(i+1,-10);
-      }
-      else
-      {
-	yellSpinPattern[i] = pYellSpin->iValue(ispinYell);
-
-	hspinpatternYellow->SetBinContent(i+1,yellSpinPattern[i]);
-
-        if (yellSpinPattern[i] == 1){spin_patternYellowUp->Fill(i,2);}
-        if (yellSpinPattern[i] == -1){spin_patternYellowDown->Fill(i,2);}
-        if (yellSpinPattern[i] == 0){spin_patternYellowUnpol->Fill(i,2);}
-
-	ispinYell++;
-      }  
-
-
+      delete pYellSpin;
     }
     //**********************************************************//
 
-    //************** Set intended spin pattern from buckets histograms **************//
+    //************** Set intended spin pattern histograms from buckets **************//
     /*
     //Get bunch asymmetries for measured spin pattern
     //there are 360 buckets for 120 bunches
-    for (int i = 0; i < 360; i+=3)
-    { 
-      float blueAsyms = pBlueAsym->iValue(i)/10000.0;
-      float yellAsyms = pYellAsym->iValue(i)/10000.0;
+    if (pBlueIntPattern && pBluePolPattern)
+    {
+      int numbluefill = 0;
+      for (int i = 0; i < 360; i+=3)
+      { 
+        if (pBlueIntPattern->iValue(i))
+	{
+	  blueSpinPattern[i/3] = pBluePolPattern->iValue(i);
+	  numbluefill++;
+	}
+        else
+	{
+	  blueSpinPattern[i/3] = -10;
+	}
+	
+	hspinpatternBlue->SetBinContent((i/3)+1,blueSpinPattern[i/3]);
+	if (blueSpinPattern[i/3] == 1){spin_patternBlueUp->Fill(i/3,1);}
+	if (blueSpinPattern[i/3] == -1){spin_patternBlueDown->Fill(i/3,1);}
+	if (blueSpinPattern[i/3] == 0){spin_patternBlueUnpol->Fill(i/3,1);}
 
-      float blueAsymsErr = pBlueAsym->iValue(i+360)/10000.0;
-      float yellAsymsErr = pYellAsym->iValue(i+360)/10000.0;
-      
-      float bluebot = blueAsyms-blueAsymsErr;
-      float bluetop = blueAsyms+blueAsymsErr;
-
-      float yellbot = yellAsyms-yellAsymsErr;
-      float yelltop = yellAsyms+yellAsymsErr;
-
-      if (blueAsyms != 0 || bluebot != 0 || bluetop != 0)
-      {
-        if (bluebot > 0 && bluetop > 0){pCspin_patternBlueUp->Fill(i/3,2);}
-        else if (bluebot < 0 && bluetop < 0){pCspin_patternBlueDown->Fill(i/3,2);}
-        else if (bluebot <= 0 && bluetop >= 0){pCspin_patternBlueUnpol->Fill(i/3,2);}
       }
 
-      if (yellAsyms != 0 || yellbot != 0 || yelltop != 0)
-      {
-        if (yellbot > 0 && yelltop > 0){pCspin_patternYellowUp->Fill(i/3,2);}
-        else if (yellbot < 0 && yelltop < 0){pCspin_patternYellowDown->Fill(i/3,2);}
-        else if (yellbot <= 0 && yelltop >= 0){pCspin_patternYellowUnpol->Fill(i/3,2);}
-      }
+      hfilltypeBlue->SetBinContent(1,numbluefill);
+
+      delete pBlueIntPattern;
+      delete pBluePolPattern;
     }
-    */
+  
+    if (pYellIntPattern && pYellPolPattern)
+    {
+      int numyellfill = 0;
+      for (int i = 0; i < 360; i+=3)
+      { 
+        if (pYellIntPattern->iValue(i))
+	{
+	  yellSpinPattern[i/3] = pYellPolPattern->iValue(i);
+	  numyellfill++;
+	}
+        else
+	{
+	  yellSpinPattern[i/3] = -10;
+	}
+
+	hspinpatternYellow->SetBinContent((i/3)+1,yellSpinPattern[i/3]);
+	  
+	if (yellSpinPattern[i/3] == 1){spin_patternYellowUp->Fill(i/3,2);}
+	if (yellSpinPattern[i/3] == -1){spin_patternYellowDown->Fill(i/3,2);}
+	if (yellSpinPattern[i/3] == 0){spin_patternYellowUnpol->Fill(i/3,2);}
+
+      }
+
+      hfilltypeYellow->SetBinContent(1,numyellfill);
+
+      delete pYellIntPattern;
+      delete pYellPolPattern;
+    }
     //***********************************************************************//
 
 
-    //************** Set pC spin pattern from buckets histograms **************//
+    //************** Set pC spin pattern histograms from buckets **************//
     /*
     //Get bunch asymmetries for measured spin pattern
     //there are 360 buckets for 120 bunches
-    for (int i = 0; i < 360; i+=3)
-    { 
-      float blueAsyms = pBlueAsym->iValue(i)/10000.0;
-      float yellAsyms = pYellAsym->iValue(i)/10000.0;
-
-      float blueAsymsErr = pBlueAsym->iValue(i+360)/10000.0;
-      float yellAsymsErr = pYellAsym->iValue(i+360)/10000.0;
-      
-      float bluebot = blueAsyms-blueAsymsErr;
-      float bluetop = blueAsyms+blueAsymsErr;
-
-      float yellbot = yellAsyms-yellAsymsErr;
-      float yelltop = yellAsyms+yellAsymsErr;
-
-      if (blueAsyms != 0 || bluebot != 0 || bluetop != 0)
-      {
-        if (bluebot > 0 && bluetop > 0){pCspin_patternBlueUp->Fill(i/3,2);}
-        else if (bluebot < 0 && bluetop < 0){pCspin_patternBlueDown->Fill(i/3,2);}
-        else if (bluebot <= 0 && bluetop >= 0){pCspin_patternBlueUnpol->Fill(i/3,2);}
+    if (pBlueAsym)
+    {
+      for (int i = 0; i < 360; i+=3)
+      { 
+        float blueAsyms = pBlueAsym->iValue(i)/10000.0;	
+	float blueAsymsErr = pBlueAsym->iValue(i+360)/10000.0;
+	
+	float bluebot = blueAsyms-blueAsymsErr;
+	float bluetop = blueAsyms+blueAsymsErr;
+	
+	if (blueAsyms != 0 || bluebot != 0 || bluetop != 0)
+	{
+          if (bluebot > 0 && bluetop > 0){pCspin_patternBlueUp->Fill(i/3,2);}
+	  else if (bluebot < 0 && bluetop < 0){pCspin_patternBlueDown->Fill(i/3,2);}
+	  else if (bluebot <= 0 && bluetop >= 0){pCspin_patternBlueUnpol->Fill(i/3,2);}
+	}
       }
+      delete pBlueAsym;
+    }
 
-      if (yellAsyms != 0 || yellbot != 0 || yelltop != 0)
-      {
-        if (yellbot > 0 && yelltop > 0){pCspin_patternYellowUp->Fill(i/3,2);}
-        else if (yellbot < 0 && yelltop < 0){pCspin_patternYellowDown->Fill(i/3,2);}
-        else if (yellbot <= 0 && yelltop >= 0){pCspin_patternYellowUnpol->Fill(i/3,2);}
+    if (pYellAsym)
+    {
+      for (int i = 0; i < 360; i+=3)
+      { 
+
+	float yellAsyms = pYellAsym->iValue(i)/10000.0;
+	float yellAsymsErr = pYellAsym->iValue(i+360)/10000.0;
+	
+	float yellbot = yellAsyms-yellAsymsErr;
+	float yelltop = yellAsyms+yellAsymsErr;
+
+	if (yellAsyms != 0 || yellbot != 0 || yelltop != 0)
+	{
+          if (yellbot > 0 && yelltop > 0){pCspin_patternYellowUp->Fill(i/3,2);}
+	  else if (yellbot < 0 && yelltop < 0){pCspin_patternYellowDown->Fill(i/3,2);}
+	  else if (yellbot <= 0 && yelltop >= 0){pCspin_patternYellowUnpol->Fill(i/3,2);}
+	}
       }
+      delete pYellAsym;
     }
     */
     //***********************************************************************//
-
-    delete pBlueSpin;
-    delete pYellSpin;
-    //delete pBluePol;
-    //delete pYellPol;
-    //delete pBlueAsym;
-    //delete pYellAsym;
-    //delete pBlueIntPattern;
-    //delete pYellIntPattern;
-    //delete pBluePolPattern;
-    //delete pYellPolPattern;
-    //delete pBlueFillNumber;
-    //delete pYellFillNumber;
 
   }
 
   else if (e->getEvtType() == 1)
   {
   //*************** gl1p scalers ***************//
-    //int evtnr = e->getEvtSequence();
-    //Event *gl1Event = erc->getEvent(evtnr);
-    //if (gl1Event)
-    //{
-    //Packet* p = gl1Event->getPacket(packetid_GL1);
-      Packet* p = e->getPacket(packetid_GL1);
-      if (p)
+    int evtnr = e->getEvtSequence();
+    Event *gl1Event = erc->getEvent(evtnr);
+    if (gl1Event)
+    {
+      p_gl1 = gl1Event->getPacket(packetid_GL1);
+      //Packet* p = e->getPacket(packetid_GL1);
+      if (p_gl1)
       {
 	//int triggervec = p->lValue(0,"TriggerVector");
 	int bunchnr = (p->lValue(0,"BunchNumber") + defaultxingshift) % NBUNCHES;
@@ -362,7 +416,8 @@ int SpinMon::process_event(Event *e /* evt */)
 	  scalercounts[i][bunchnr] = counts;
 	}
       }
-      //}
+      delete p_gl1;
+    }
     //************************//
   
     if (!success && evtcnt > 4999 && evtcnt % 5000 == 0)
