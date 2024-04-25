@@ -380,11 +380,11 @@ int ZdcMon::process_event(Event *e /* evt */)
       {
         smd_n_h_counter++;  
       }
-      // no threshold
-      if (smd_adc[i] > 0.5) 
-      {
-        smd_n_h_counter_nth++;  
-      }
+      // // no threshold
+      // if (smd_adc[i] > 0.5) 
+      // {
+      //   smd_n_h_counter_nth++;  
+      // }
       //****************************
 
       //****smd south horizontal individual channels****
