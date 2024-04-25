@@ -134,6 +134,7 @@ int ZdcMon::Init()
     smd_adc_n_ver_ind[i] = new TH1I(Form("smd_adc_n_ver_ind%d", i),Form("smd_adc_n_ver_ind%d", i), 1000, 0, 5000);
     smd_adc_s_ver_ind[i] = new TH1I(Form("smd_adc_s_ver_ind%d", i),Form("smd_adc_s_ver_ind%d", i), 1000, 0, 5000);
   }
+
   // SMD Hit Multiplicity
   // with thresholds
   smd_north_hor_hits = new TH1F("smd_north_hor_hits", "smd_north_hor_hits", 9, 0., 8.);
@@ -464,16 +465,24 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
       //****************************
 
-      // Fill out the SMD counters
-      smd_north_hor_hits->Fill(smd_n_h_counter + 0.0);
-      smd_north_ver_hits->Fill(smd_n_v_counter + 0.0);
-      smd_south_hor_hits->Fill(smd_s_h_counter + 0.0);
-      smd_south_ver_hits->Fill(smd_s_v_counter + 0.0);
+      // Fill out the SMD counters with doubles instead of integers.
+      double nh = smd_n_hcounter + 0.0;
+      smd_north_hor_hits->Fill(nh);
+      double nv = smd_n_v_counter + 0.0;
+      smd_north_ver_hits->Fill(nv);
+      double sh = smd_s_h_counter + 0.0;
+      smd_south_hor_hits->Fill(sh);
+      double sv = smd_s_v_counter + 0.0;
+      smd_south_ver_hits->Fill();
       // no thresholds
-      smd_north_hor_hits_nth->Fill(smd_n_h_counter_nth + 0.0);
-      smd_north_ver_hits_nth->Fill(smd_n_v_counter_nth + 0.0);
-      smd_south_hor_hits_nth->Fill(smd_s_h_counter_nth + 0.0);
-      smd_south_ver_hits_nth->Fill(smd_s_v_counter_nth + 0.0);
+      double noth_nh = smd_n_h_counter_nth + 0.0;
+      smd_north_hor_hits_nth->Fill(noth_nh);
+      double noth_nv = smd_n_v_counter_nth + 0.0;
+      smd_north_ver_hits_nth->Fill(noth_nv);
+      double noth_sh = smd_s_h_counter_nth + 0.0;
+      smd_south_hor_hits_nth->Fill(noth_sh);
+      double noth_sv = smd_s_v_counter_nth + 0.0;
+      smd_south_ver_hits_nth->Fill(noth_sv);
 
 
 
