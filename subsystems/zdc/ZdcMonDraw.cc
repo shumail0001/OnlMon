@@ -231,10 +231,10 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     // xpos negative: do not draw menu bar
     TC[6] = new TCanvas(name.c_str(), "Smd Multiplicities", -xsize/2 , -ysize / 2, xsize/2, ysize / 2);
     gSystem->ProcessEvents();
-    Pad[51] = new TPad("smd_north_hor_hits_nth", "smd_north_hor_hits_nth", 0.05, 0.5, 0.5, 0.98, 0);
-    Pad[52] = new TPad("smd_north_ver_hits_nth", "smd_north_ver_hits_nth", 0.5, 0.5, 0.98, 0.98, 0);
-    Pad[53] = new TPad("smd_south_hor_hits_nth", "smd_south_hor_hits_nth", 0.05, 0.05, 0.5, 0.5, 0);
-    Pad[54] = new TPad("smd_south_ver_hits_nth", "smd_south_ver_hits_nth", 0.5, 0.05, 0.95, 0.5, 0);
+    Pad[51] = new TPad("smd_north_hor_hits", "smd_north_hor_hits", 0.05, 0.5, 0.5, 0.98, 0);
+    Pad[52] = new TPad("smd_north_ver_hits", "smd_north_ver_hits", 0.5, 0.5, 0.98, 0.98, 0);
+    Pad[53] = new TPad("smd_south_hor_hits", "smd_south_hor_hits", 0.05, 0.05, 0.5, 0.5, 0);
+    Pad[54] = new TPad("smd_south_ver_hits", "smd_south_ver_hits", 0.5, 0.05, 0.95, 0.5, 0);
 
     Pad[51]->Draw();    
     Pad[52]->Draw();
@@ -760,10 +760,10 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
 {
   
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *smd_north_hor_hits_nth = (TH1*) cl->getHisto("ZDCMON_0","smd_north_hor_hits_nth");
-  TH1 *smd_north_ver_hits_nth = (TH1*) cl->getHisto("ZDCMON_0","smd_north_ver_hits_nth");
-  TH1 *smd_south_hor_hits_nth = (TH1*) cl->getHisto("ZDCMON_0","smd_south_hor_hits_nth");
-  TH1 *smd_south_ver_hits_nth = (TH1*) cl->getHisto("ZDCMON_0","smd_south_ver_hits_nth");
+  TH1 *smd_north_hor_hits = (TH1*) cl->getHisto("ZDCMON_0","smd_north_hor_hits");
+  TH1 *smd_north_ver_hits = (TH1*) cl->getHisto("ZDCMON_0","smd_north_ver_hits");
+  TH1 *smd_south_hor_hits = (TH1*) cl->getHisto("ZDCMON_0","smd_south_hor_hits");
+  TH1 *smd_south_ver_hits = (TH1*) cl->getHisto("ZDCMON_0","smd_south_ver_hits");
   
   if (!gROOT->FindObject("SmdMultiplicities"))
   {
@@ -773,9 +773,9 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
   TC[6]->SetEditable(true);
   TC[6]->Clear("D");
   Pad[51]->cd();
-  if (smd_north_hor_hits_nth)
+  if (smd_north_hor_hits)
   {
-    smd_north_hor_hits_nth->DrawCopy();
+    smd_north_hor_hits->DrawCopy();
   }
   else
   {
@@ -785,11 +785,11 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
   }
 
   Pad[52]->cd();
-  if (smd_north_ver_hits_nth) {smd_north_ver_hits_nth->DrawCopy();}
+  if (smd_north_ver_hits) {smd_north_ver_hits->DrawCopy();}
   Pad[53]->cd();
-  if (smd_south_hor_hits_nth) {smd_south_hor_hits_nth->DrawCopy();}
+  if (smd_south_hor_hits) {smd_south_hor_hits->DrawCopy();}
   Pad[54]->cd();
-  if (smd_south_ver_hits_nth) {smd_south_ver_hits_nth->DrawCopy();}
+  if (smd_south_ver_hits) {smd_south_ver_hits->DrawCopy();}
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
