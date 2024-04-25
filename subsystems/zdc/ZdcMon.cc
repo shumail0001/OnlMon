@@ -433,11 +433,11 @@ int ZdcMon::process_event(Event *e /* evt */)
       {
         smd_n_v_counter++;    
       }
-      // // no threshold
-      // if (smd_adc[i + 8] > 0.0) 
-      // {
-      //   smd_n_v_counter_nth++;    
-      // }
+      // no threshold
+      if (smd_adc[i + 8] > 0.0) 
+      {
+        smd_n_v_counter_nth++;    
+      }
       //****************************
 
       //****smd south vertical individual channels****
