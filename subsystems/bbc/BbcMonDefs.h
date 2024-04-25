@@ -5,7 +5,7 @@
 
 #define AUAU  // PROTONPROTON //PAL //PAU //DAU //HE3AU //CUCU //AUAU
 
-namespace bbc_onlmon
+namespace BbcMonDefs
 {
 
   const int num_pmt = 128;                 // number of PMT
@@ -246,6 +246,19 @@ namespace bbc_onlmon
   const int BBC_N_FEECH = 256;
   const int MAX_SAMPLES = 31;
 
-}  // namespace bbc_onlmon
+  enum
+  {
+    ABORTRUN = -2,
+    ABORTEVENT = -1,
+    EVENT_OK = 0,
+    DISCARDEVENT = 1,
+    SYNC_OK = 0,
+    SYNC_FAIL = -1,
+    SYNC_NOOBJECT = 1,
+    DONOTREGISTERSUBSYSTEM = -3,
+    RESET_NODE_TREE = 1
+  };
+  
+}  // namespace BbcMonDefs
 
 #endif /*__BBCMONDEFS_H__ */

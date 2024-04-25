@@ -36,11 +36,12 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
+
   gStyle->SetOptStat(0);
   if (name == "LL1Mon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "ll1Mon Monitor", -1, 0, xsize/2, ysize/2);
+    TC[0] = new TCanvas(name.c_str(), "LL1Mon Monitor - MBD", -1, 0, xsize/2, ysize/2);
     TC[0]->SetTicks(1,1);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
@@ -61,7 +62,7 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   {
     // xpos negative: do not draw menu bar
     gStyle->SetOptStat(0);
-    TC[1] = new TCanvas(name.c_str(), "ll1Mon2 Monitor", -xsize / 2, 0, xsize / 2, ysize/2);
+    TC[1] = new TCanvas(name.c_str(), "ll1Mon2 Monitor - MBD", -xsize / 2, 0, xsize / 2, ysize/2);
     TC[1]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
@@ -72,15 +73,79 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "LL1Mon3")
   {
-    TC[2] = new TCanvas(name.c_str(), "ll1Mon3 Monitor", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[2] = new TCanvas(name.c_str(), "ll1Mon3 Monitor - MBD", xsize / 2, 0, xsize / 2, ysize/2);
     TC[2]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
-            transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
-            transparent[2]->SetFillStyle(4000);
-            transparent[2]->Draw();
-          TC[2]->SetEditable(0);
+    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
+    TC[2]->SetEditable(0);
   }
+  else if (name == "LL1Mon4")
+  {
+    TC[3] = new TCanvas(name.c_str(), "ll1Mon4 Monitor - Photon", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[3]->SetTicks(1,1);
+    gSystem->ProcessEvents();
+
+    transparent[3] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
+    transparent[3]->SetFillStyle(4000);
+    transparent[3]->Draw();
+    TC[3]->SetEditable(0);
+
+  }
+  else if (name == "LL1Mon5")
+  {
+    TC[4] = new TCanvas(name.c_str(), "ll1Mon5 Monitor - HCAL", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[4]->SetTicks(1,1);
+    gSystem->ProcessEvents();
+    // this one is used to plot the run number on the canvas
+
+
+    transparent[4] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
+    transparent[4]->SetFillStyle(4000);
+    transparent[4]->Draw();
+    TC[4]->SetEditable(0);
+
+
+  }
+  else if (name == "LL1Mon6")
+  {
+    TC[5] = new TCanvas(name.c_str(), "ll1Mon6 Monitor - Jet", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[5]->SetTicks(1,1);
+    gSystem->ProcessEvents();
+    // 
+    transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
+    transparent[5]->SetFillStyle(4000);
+    transparent[5]->Draw();
+    TC[5]->SetEditable(0);
+
+
+  }
+  else if (name == "LL1Mon7")
+  {
+    TC[6] = new TCanvas(name.c_str(), "ll1Mon7 Monitor - EMCAL 2x2", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[6]->SetTicks(1,1);
+    gSystem->ProcessEvents();
+    // 
+    float topbrim = 0.96;
+    float dx = 0.25;
+    float dy = topbrim / 4.;
+    // this one is used to plot the run number on the canvas
+    for (int i = 0; i < 16; i++)
+      {
+	std::string padname = "pad_emcal_"+std::to_string(i);
+	int y = 3 - (i/4);
+	int x = i%4;
+	emcalpad[i] = new TPad(padname.c_str(),"", x*dx, y*dy,(x+1)*dx, (y+1)*dy); 
+	emcalpad[i]->Draw();
+      }
+    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
+    TC[6]->SetEditable(0);
+  }
+
   return 0;
 }
 
@@ -103,6 +168,28 @@ int LL1MonDraw::Draw(const std::string &what)
     iret += DrawThird(what);
     idraw++;
   }
+  if (what == "ALL" || what == "FOURTH")
+  {
+    iret += DrawFourth(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "FIFTH")
+  {
+    iret += DrawFifth(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "SIXTH")
+  {
+    iret += DrawSixth(what);
+    idraw++;
+  }
+
+  if (what == "ALL" || what == "SEVENTH")
+  {
+    iret += DrawSeventh(what);
+    idraw++;
+  }
+
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -244,6 +331,310 @@ int LL1MonDraw::DrawThird(const std::string & /* what */)
   TC[2]->SetTicks(1,1);
   TC[2]->Show();
   TC[2]->SetEditable(false);
+  return 0;
+}
+
+int LL1MonDraw::DrawFourth(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *h_8x8_sum_emcal= (TH2*) cl->getHisto("LL1MON_0","h_8x8_sum_emcal");
+  if (!h_8x8_sum_emcal)
+   {
+     DrawDeadServer(transparent[2]);
+     TC[3]->SetEditable(false);
+     return -1;
+   }
+  TH2 *h_8x8_sum_emcal_above_threshold= (TH2*) cl->getHisto("LL1MON_0","h_8x8_sum_emcal_above_threshold_0");
+  if (!h_8x8_sum_emcal_above_threshold)
+    {
+      DrawDeadServer(transparent[2]);
+      TC[3]->SetEditable(false);
+      return -1;
+    }
+  TH2 *h_sample_diff_emcal= (TH2*) cl->getHisto("LL1MON_0","h_sample_diff_emcal");
+  if (!h_sample_diff_emcal)
+   {
+     DrawDeadServer(transparent[2]);
+     TC[3]->SetEditable(false);
+     return -1;
+   }
+  time_t evttime = cl->EventTime("CURRENT");
+  if (!gROOT->FindObject("LL1Mon4"))
+  {
+    MakeCanvas("LL1Mon4");
+  }
+  TC[3]->SetEditable(true);
+  TC[3]->Clear("D");
+  gStyle->SetOptStat(0);
+
+  TC[3]->cd();
+  TPad *left_top_pad = new TPad("left_top_pad", "", 0.0, 0.45, 0.5, 0.9);
+  left_top_pad->SetTicks(1,1);
+  left_top_pad->Draw();
+  left_top_pad->cd();
+ 
+  h_8x8_sum_emcal->SetTitle("EMCAL 8x8 Total Sums ; #eta <8x8> sum; #phi <8x8> sum"); 
+  h_8x8_sum_emcal->Draw("colz");
+ 
+  TC[3]->cd();
+  TPad *top_right_pad = new TPad("top_right_pad", "", 0.5, 0.45, 1.0, 0.9);
+  top_right_pad->SetTicks(1,1);
+  top_right_pad->Draw();
+  top_right_pad->SetLogz();
+  top_right_pad->cd();
+
+  h_8x8_sum_emcal_above_threshold->SetTitle("EMCAL 8x8 Sums Above Threshold;#eta <8x8> sum; #phi <8x8> sum");
+  h_8x8_sum_emcal_above_threshold->Draw("colz");
+  
+  TC[3]->cd();
+  TPad *bottom_left_pad = new TPad("bottom_left_pad", "", 0.0, 0.0, 0.5, 0.450);
+  bottom_left_pad->SetTicks(1,1);
+  bottom_left_pad->SetTopMargin(0.2);
+  bottom_left_pad->Draw();
+
+  bottom_left_pad->SetLogz();
+  bottom_left_pad->cd();
+
+  h_sample_diff_emcal->SetTitle("EMCAL Output Timing; Relative BC of L1 Trigger; EMCAL Board");
+  h_sample_diff_emcal->Draw("colz");
+  
+  TC[3]->cd();
+  TPad *bottom_right_pad = new TPad("bottom_right_pad", "", 0.5, 0.0, 1.0, 0.450);
+  bottom_right_pad->SetTicks(1,1);
+  bottom_right_pad->SetTopMargin(0.2);
+  bottom_right_pad->Draw();
+  bottom_right_pad->cd();
+
+  TText PrintHot;
+  PrintHot.SetTextFont(62);
+  PrintHot.SetTextSize(0.08);
+  PrintHot.SetNDC();          // set to normalized coordinates
+  PrintHot.SetTextAlign(23);  // center/top alignment
+  std::ostringstream hotchannelstream;
+  std::string hotstring;
+  // fill run number and event time into string
+  hotchannelstream << "8x8 Photon Trigger - Hot Trigger Areas" << std::endl;
+  hotstring = hotchannelstream.str();
+  PrintHot.DrawText(0.5, .9, hotstring.c_str());
+  hotstring = "Not Available Yet";
+  PrintHot.DrawText(0.5, .8, hotstring.c_str());
+  TC[3]->cd();
+  TPad *tr = new TPad("tr", "this does not show", 0, 0, 1, 1);
+  tr->SetFillStyle(4000);
+  tr->Draw();
+  tr->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  // fill run number and event time into string
+  runnostream << "EMCAL 8x8 Photon Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[3]->Update();
+  TC[3]->SetTicks(1,1);
+  TC[3]->Show();
+  TC[3]->SetEditable(false);
+  return 0;
+}
+int LL1MonDraw::DrawFifth(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH2 *h_jet_input= (TH2*) cl->getHisto("LL1MON_0","h_jet_input");
+  if (!h_jet_input)
+    {
+      DrawDeadServer(transparent[4]);
+      TC[4]->SetEditable(false);
+      return -1;
+    }
+  
+
+  TH2 *h_sample_diff_jet_input = (TH2*) cl->getHisto("LL1MON_0","h_sample_diff_jet_input");
+  if (!h_sample_diff_jet_input)
+    {
+      DrawDeadServer(transparent[4]);
+      TC[4]->SetEditable(false);
+      return -1;
+    }
+  time_t evttime = cl->EventTime("CURRENT");
+  if (!gROOT->FindObject("LL1Mon5"))
+  {
+    MakeCanvas("LL1Mon5");
+  }
+  TC[4]->SetEditable(true);
+  TC[4]->Clear("D");
+  gStyle->SetOptStat(0);
+
+  TC[4]->cd();
+  TPad *left_pad = new TPad("left_pad", "", 0.0, 0.0,0.5, 0.9);
+  left_pad->SetTicks(1,1);
+  left_pad->Draw();
+  left_pad->cd();
+  left_pad->SetLogz();
+
+  h_jet_input->SetTitle("Jet Input (HCAL) 2x2 Tower Sums; #eta ; #phi");
+  h_jet_input->Draw("colz");
+  
+  TC[4]->cd();
+  TPad *right_pad = new TPad("right_pad", "", 0.5, 0.0,1.0, 0.9);
+  right_pad->SetTicks(1,1);
+  right_pad->Draw();
+  right_pad->cd();
+  right_pad->SetLogz();
+ 
+  h_jet_input->SetTitle("Jet Input (HCAL); #eta 2x2 Sum ; #phi 2x2 Sum");
+  h_sample_diff_jet_input->Draw("colz");
+ 
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  // fill run number and event time into string
+  runnostream << ThisName << "_3 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  TC[4]->cd();
+  TPad *tr = new TPad("tr", "this does not show", 0, 0, 1, 1);
+  tr->SetFillStyle(4000);
+  tr->Draw();
+  tr->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[4]->Update();
+  TC[4]->SetTicks(1,1);
+  TC[4]->Show();
+  TC[4]->SetEditable(false);
+  return 0;
+}
+
+int LL1MonDraw::DrawSixth(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH2 *h_jet_output= (TH2*) cl->getHisto("LL1MON_0","h_jet_output");
+  if (!h_jet_output)
+    {
+      DrawDeadServer(transparent[5]);
+      TC[5]->SetEditable(false);
+      return -1;
+    }
+  h_jet_output->SetTitle("Jet <8x8> Overlapping Total Sums; #eta <8x8> Sum; #phi <8x8> Sum");
+  TH2 *h_jet_output_above_threshold= (TH2*) cl->getHisto("LL1MON_0","h_jet_output_above_threshold_0");
+  if (!h_jet_output_above_threshold)
+    {
+      DrawDeadServer(transparent[5]);
+      TC[5]->SetEditable(false);
+      return -1;
+    }
+  h_jet_output_above_threshold->SetTitle("Jet <8x8> Overlapping Hits above Threshold; #eta <8x8> Sum; #phi <8x8> Sum");
+  time_t evttime = cl->EventTime("CURRENT");
+  if (!gROOT->FindObject("LL1Mon6"))
+  {
+    MakeCanvas("LL1Mon6");
+  }
+  TC[5]->SetEditable(true);
+  TC[5]->Clear("D");
+  gStyle->SetOptStat(0);
+  transparent[5]->cd();
+  TPad *left_pad = new TPad("left_pad", "", 0.0, 0.0, 0.5, 0.9);
+  left_pad->SetTicks(1,1);
+  left_pad->Draw();
+  left_pad->cd();
+
+  h_jet_output->Draw("colz");
+  
+  TC[5]->cd();
+  TPad *right_pad = new TPad("right_pad", "", 0.5, 0.0, 1.0, 0.9);
+  right_pad->SetTicks(1,1);
+  right_pad->Draw();
+  right_pad->SetLogz();
+  right_pad->cd();
+
+  h_jet_output_above_threshold->Draw("colz");
+  
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  // fill run number and event time into string
+  runnostream << ThisName << "_3 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  TC[5]->cd();
+  TPad *tr = new TPad("tr", "this does not show", 0, 0, 1, 1);
+  tr->SetFillStyle(4000);
+  tr->Draw();
+  tr->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[5]->Update();
+  TC[5]->SetTicks(1,1);
+  TC[5]->Show();
+  TC[5]->SetEditable(false);
+  return 0;
+}
+
+int LL1MonDraw::DrawSeventh(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  time_t evttime = cl->EventTime("CURRENT");
+  if (!gROOT->FindObject("LL1Mon7"))
+  {
+    MakeCanvas("LL1Mon7");
+  }
+
+  TC[6]->SetEditable(true);
+  TC[6]->Clear("D");
+  gStyle->SetOptStat(0);
+
+  for (int i = 0 ; i < 16; i++)
+    {
+      std::string histname = "h_2x2_sum_emcal_" + std::to_string(i);
+      TH1 *h_emcal= (TH1*) cl->getHisto("LL1MON_0",histname.c_str());
+
+      if (!h_emcal)
+	{
+	  DrawDeadServer(transparent[6]);
+	  TC[6]->SetEditable(false);
+	  return -1;
+	}
+      emcalpad[i]->cd();
+      h_emcal->SetLineColor(kBlack);
+      h_emcal->SetLineWidth(2);
+      h_emcal->SetFillColor(kSpring + 2);
+      h_emcal->Draw();
+    }
+  
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  // fill run number and event time into string
+  runnostream << ThisName << "_3 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  TC[6]->cd();
+  TPad *tr = new TPad("tr", "this does not show", 0, 0, 1, 1);
+  tr->SetFillStyle(4000);
+  tr->Draw();
+  tr->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[6]->Update();
+  TC[6]->SetTicks(1,1);
+  TC[6]->Show();
+  TC[6]->SetEditable(false);
   return 0;
 }
 
