@@ -141,8 +141,8 @@ int ZdcMon::Init()
   smd_north_ver_hits = new TH1F("smd_north_ver_hits", "smd_north_ver_hits", 8, 0., 7.);
   smd_south_hor_hits = new TH1F("smd_south_hor_hits", "smd_south_hor_hits", 9, 0., 8.);
   smd_south_ver_hits = new TH1F("smd_south_ver_hits", "smd_south_ver_hits", 8, 0., 7.);
-  // // no thresholds
-  // smd_north_hor_hits_nth = new TH1F("smd_north_hor_hits_nth", "smd_north_hor_hits_nth", 9, 0., 8.);
+  // no thresholds
+  smd_north_hor_hits_nth = new TH1F("smd_north_hor_hits_nth", "smd_north_hor_hits_nth", 9, 0., 8.);
   // smd_north_ver_hits_nth = new TH1F("smd_north_ver_hits_nth", "smd_north_ver_hits_nth", 8, 0., 7.);
   // smd_south_hor_hits_nth = new TH1F("smd_south_hor_hits_nth", "smd_south_hor_hits_nth", 9, 0., 8.);
   // smd_south_ver_hits_nth = new TH1F("smd_south_ver_hits_nth", "smd_south_ver_hits_nth", 8, 0., 7.);
@@ -201,8 +201,8 @@ int ZdcMon::Init()
   se->registerHisto(this, smd_north_ver_hits);
   se->registerHisto(this, smd_south_hor_hits);
   se->registerHisto(this, smd_south_ver_hits);
-  // // no thresholds
-  // se->registerHisto(this, smd_north_hor_hits_nth);
+  // no thresholds
+  se->registerHisto(this, smd_north_hor_hits_nth);
   // se->registerHisto(this, smd_north_ver_hits_nth);
   // se->registerHisto(this, smd_south_hor_hits_nth);
   // se->registerHisto(this, smd_south_ver_hits_nth);
@@ -380,11 +380,11 @@ int ZdcMon::process_event(Event *e /* evt */)
       {
         smd_n_h_counter++;  
       }
-      // // no threshold
-      // if (smd_adc[i] > 0.0) 
-      // {
-      //   smd_n_h_counter_nth++;  
-      // }
+      // no threshold
+      if (smd_adc[i] > 0.0) 
+      {
+        smd_n_h_counter_nth++;  
+      }
       //****************************
 
       //****smd south horizontal individual channels****
@@ -474,9 +474,9 @@ int ZdcMon::process_event(Event *e /* evt */)
       smd_south_hor_hits->Fill(sh);
       double sv = smd_s_v_counter + 0.0;
       smd_south_ver_hits->Fill();
-      // // no thresholds
-      // double noth_nh = smd_n_h_counter_nth + 0.0;
-      // smd_north_hor_hits_nth->Fill(noth_nh);
+      // no thresholds
+      double noth_nh = smd_n_h_counter_nth + 0.0;
+      smd_north_hor_hits_nth->Fill(noth_nh);
       // double noth_nv = smd_n_v_counter_nth + 0.0;
       // smd_north_ver_hits_nth->Fill(noth_nv);
       // double noth_sh = smd_s_h_counter_nth + 0.0;
