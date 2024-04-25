@@ -466,7 +466,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       //****************************
 
       // Fill out the SMD counters with doubles instead of integers.
-      double nh = smd_n_h_counter + 0.0;
+      double nh = smd_n_h_counter_nth + 0.0;
       smd_north_hor_hits->Fill(nh);
       double nv = smd_n_v_counter + 0.0;
       smd_north_ver_hits->Fill(nv);
