@@ -22,7 +22,6 @@ class SepdMon : public OnlMon
   int process_event(Event *evt);
   int Init();
   int BeginRun(const int runno);
-  int SepdMapChannel(int ch);
   int Reset();
 
  protected:

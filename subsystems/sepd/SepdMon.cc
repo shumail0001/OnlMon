@@ -348,27 +348,12 @@ int SepdMon::process_event(Event *e /* evt */)
             h1_waveform_pedestal->Fill(pedestalFast);
           }
         // ---
-        // channel mapping
-        // int ChMap = SepdMapChannel(ChannelNumber - 1);
-        // if (ChMap == -1) continue;
-        // // if(ChMap == -1){ std::cout << "Unused channel - " << ChMap << "go to next channel" << std::endl;continue;}
-        // unsigned int key = TowerInfoDefs::encode_epd(ChMap);
-        // int phi_bin = TowerInfoDefs::get_epd_phibin(key);
-        // int r_bin = TowerInfoDefs::get_epd_rbin(key);
-        // int z_bin = TowerInfoDefs::get_epd_arm(key);
-        // // unsigned int phi_bin = TowerInfoDefs::get_epd_phibin(key);
-        // // unsigned int r_bin = TowerInfoDefs::get_epd_rbin(key);
-        // // unsigned int z_bin = TowerInfoDefs::get_epd_arm(key);
 
         //      int sectorNumber = (ChannelNumber-1) % 32;
 
         // h1_sepd_fitting_sigDiff -> Fill(signalFast/signalTemp);
         // h1_sepd_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
         // h1_sepd_fitting_timeDiff -> Fill(timeFast - timeTemp);
-
-        // float signal = signalFast;
-
-        // h_ADC_channel[ChMap]->Fill(signal);
 
         int z_bin = -1;
         if ( ch >= 384 && ch <= 767 ) z_bin = 0;
@@ -378,88 +363,16 @@ int SepdMon::process_event(Event *e /* evt */)
         {
           sumhit_s++;
           sumADC_s += signalFast;
-          //sumADC_s += signal;
-          // if (r_bin == 0)
-          // {
-          //   phi_in = (phi_bin >= nPhi0 / 2) ? phi_bin - nPhi0 / 2 : phi_bin + nPhi0 / 2;
-          //   phi = -axislimit + axislimit / nPhi0 + 2 * axislimit / nPhi0 * phi_in;
-          //   r = -axislimit + axislimit / nRad + 2 * axislimit / nRad * r_bin;
-
-          //   if (fabs(phi) > axislimit || fabs(r) > axislimit)
-          //   {
-          //     std::cout << "Excess of channel range! Wrong mapping -- return -1 " << std::endl;
-          //     return -1;
-          //   }
-
-          //   h_ADC0_s->Fill(phi, r, signal);
-          //   h_hits0_s->Fill(phi, r);
-          // }
-          // else if (r_bin != 0)
-          // {
-          //   phi_in = (phi_bin >= nPhi / 2) ? phi_bin - nPhi / 2 : phi_bin + nPhi / 2;
-          //   phi = -axislimit + axislimit / nPhi + 2 * axislimit / nPhi * phi_in;
-          //   r = -axislimit + axislimit / nRad + 2 * axislimit / nRad * r_bin;
-
-          //   if (fabs(phi) > axislimit || fabs(r) > axislimit)
-          //   {
-          //     std::cout << "Excess of channel range! Wrong mapping -- return -1 " << std::endl;
-          //     return -1;
-          //   }
-
-          //   h_ADC_s->Fill(phi, r, signal);
-          //   h_hits_s->Fill(phi, r);
-          // }
-          // else
-          // {
-          //   std::cout << "r_bin not assigned ... " << std::endl;
-          //   return -1;
-          // }
         }
         else if (z_bin == 1)
         {
           sumhit_n++;
           sumADC_n += signalFast;
-          //sumADC_n += signal;
-          // if (r_bin == 0)
-          // {
-          //   phi_in = (phi_bin >= nPhi0 / 2) ? phi_bin - nPhi0 / 2 : phi_bin + nPhi0 / 2;
-          //   phi = -axislimit + axislimit / nPhi0 + 2 * axislimit / nPhi0 * phi_in;
-          //   r = -axislimit + axislimit / nRad + 2 * axislimit / nRad * r_bin;
-
-          //   if (fabs(phi) > axislimit || fabs(r) > axislimit)
-          //   {
-          //     std::cout << "Excess of channel range! Wrong mapping -- return -1 " << std::endl;
-          //     return -1;
-          //   }
-
-          //   h_ADC0_n->Fill(phi, r, signal);
-          //   h_hits0_n->Fill(phi, r);
-          // }
-          // else if (r_bin != 0)
-          // {
-          //   phi_in = (phi_bin >= nPhi / 2) ? phi_bin - nPhi / 2 : phi_bin + nPhi / 2;
-          //   phi = -axislimit + axislimit / nPhi + 2 * axislimit / nPhi * phi_in;
-          //   r = -axislimit + axislimit / nRad + 2 * axislimit / nRad * r_bin;
-
-          //   if (fabs(phi) > axislimit || fabs(r) > axislimit)
-          //   {
-          //     std::cout << "Excess of channel range! Wrong mapping -- return -1 " << std::endl;
-          //     return -1;
-          //   }
-
-          //   h_ADC_n->Fill(phi, r, signal);
-          //   h_hits_n->Fill(phi, r);
-          // }
-          // else
-          // {
-          //   std::cout << "r_bin not assigned ... " << std::endl;
-          //   return -1;
-          // }
         }
         else
         {
           std::cout << "z_bin not assigned ... " << std::endl;
-          return -1;
+          //return -1;
         }
 
       }  // channel loop end
@@ -495,32 +408,3 @@ int SepdMon::Reset()
   return 0;
 }
 
-int SepdMon::SepdMapChannel(int ch)
-{
-  int nch = ch / 16;
-  int chmap = -999;
-  if (nch % 2 == 0)
-  {
-    if (ch % 32 == 0)
-      chmap = ch - nch / 2;
-    else
-    {
-      chmap = 2 * (ch - 16 * nch) + 31 * (nch / 2) - 1;
-    }
-  }
-  else if (nch % 2 == 1)
-  {
-    if ((ch - 16) % 32 == 0)
-      chmap = -1;
-    else
-    {
-      chmap = 2 * (ch - 16 * nch) + 31 * ((nch - 1) / 2);
-    }
-  }
-  if (chmap == -999)
-  {
-    std::cout << "WRONG Channel map !!!! " << std::endl;
-    return -1;
-  }
-  return chmap;
-}
