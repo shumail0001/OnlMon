@@ -60,12 +60,13 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SepdMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1200, 600);
+    //TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1200, 600);
+    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1600, 800);
     gSystem->ProcessEvents();
     for ( int i = 0; i < 32; ++i )
       {
         // left 4x4 is for the 16 rings in the north, the right 4x4 is for the 16 rings in the south
-        if ( i == 16 ) std::cout << "Initializing 32 pads " << std::endl;
+        //if ( i == 16 ) std::cout << "Initializing 32 pads " << std::endl;
         double xlo = (i%4)*0.125 + (i/16)*0.5;
         double xhi = xlo + 0.125;
         double ylo = 0.75 - (i/4)*0.25 + (i/16);
@@ -195,6 +196,186 @@ int SepdMonDraw::Draw(const std::string &what)
 int SepdMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
+  TH1F *h_ADC_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
+  time_t evttime = cl->EventTime("CURRENT");
+
+  if (!gROOT->FindObject("SepdMon1"))
+  {
+    MakeCanvas("SepdMon1");
+  }
+  TC[0]->SetEditable(true);
+  TC[0]->Clear("D");
+
+  if (!h_ADC_all_channel)
+  {
+    DrawDeadServer(transparent[0]);
+    TC[0]->SetEditable(false);
+    return -1;
+  }
+
+  // TH2* histogram2DS = (TH2*)gROOT->FindObject(Form("%sS",histoname.c_str()));
+  // TH2* histogram2DN = (TH2*)gROOT->FindObject(Form("%sN",histoname.c_str()));
+
+  // TH2F* histogram2DS = new TH2F("histogram2DS",";;",16,-0.5,15.5,24,-0.5,23.5);
+  // TH2F* histogram2DN = new TH2F("histogram2DN",";;",16,-0.5,15.5,24,-0.5,23.5);
+  TH2F* histogram2DS = new TH2F("histogram2DS",";;",16,-0.5,15.5,24,-0.5,23.5);
+  TH2F* histogram2DN = new TH2F("histogram2DN",";;",16,-0.5,15.5,24,-0.5,23.5);
+
+  for ( int i = 0; i < 768; ++i )
+    {
+      int adc_channel = i;
+      float adc_signal = h_ADC_all_channel->GetBinContent(i+1);
+      int ring = returnRing(adc_channel);
+      int sector = returnSector(adc_channel);
+      int arm = returnArm(adc_channel);
+      if ( arm == 0 ) histogram2DS->Fill(ring,sector,adc_signal);
+      if ( arm == 1 ) histogram2DN->Fill(ring,sector,adc_signal);
+    }
+
+  // ----------------------------
+  // --- begin Rosi (mostly ) ---
+  // ----------------------------
+
+  float R_PI = 3.1415926535;
+
+  TH2F* polar_histS = new TH2F("polar_histS","polar_hist",
+                               24, 0, 2*R_PI,
+                               16, 0.15, 3.5);
+  TH2F* polar_histN = new TH2F("polar_histN","polar_hist",
+                               24, 0, 2*R_PI,
+                               16, 0.15, 3.5);
+
+  //tile 0 is 2x the angular size of the rest of the tiles and needs a separate histogram
+  TH2F* polar_histS01 = new TH2F("polar_histS01","polar_hist",
+                                 12, 0, 2*R_PI,
+                                 16, 0.15, 3.5);
+  TH2F* polar_histN01 = new TH2F("polar_histN01","polar_hist",
+                                 12, 0, 2*R_PI,
+                                 16, 0.15, 3.5);
+  for (int i = 0;i<24;i++){
+    for (int j = 0;j<16;j++){
+      if (histogram2DS->GetBinContent(i+1,j+1)==0)
+        histogram2DS->SetBinContent(i+1,j+1,0.1);
+      if (histogram2DN->GetBinContent(i+1,j+1)==0)
+        histogram2DN->SetBinContent(i+1,j+1,0.1);
+      polar_histS->SetBinContent(i+1,j+1,0.1);
+      polar_histN->SetBinContent(i+1,j+1,0.1);
+    }
+    if (i > 11)
+      continue;
+    polar_histS01->SetBinContent(i+1,1,0.1);
+    polar_histN01->SetBinContent(i+1,1,0.1);
+  }
+
+  for (int i = 0;i<768;i++){
+    int sector = returnSector(i);
+    int tile = returnTile(i);
+    int odd = (tile+1)%2;
+    //change depending on input data format
+    int x = i%24+1;
+    int y = i/24+1;
+    if (y > 16)
+      y = y - 16;
+    //*****
+
+    if ((i<384)&&(tile==0)) //north
+      polar_histN01->SetBinContent(sector+1,1,histogram2DN->GetBinContent(x,y));
+    else if (i<384)
+      polar_histN->SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DN->GetBinContent(x,y));
+    else if (tile==0) //south
+      polar_histS01->SetBinContent(sector+1,1,histogram2DS->GetBinContent(x,y));
+    else
+      polar_histS->SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DS->GetBinContent(x,y));
+    // if ((i<384)&&(tile==0)) //north
+    //   polar_histN01.SetBinContent(sector+1,1,histogram2DN.GetBinContent(x,y));
+    // else if (i<384)
+    //   polar_histN.SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DN.GetBinContent(x,y));
+    // else if (tile==0) //south
+    //   polar_histS01.SetBinContent(sector+1,1,histogram2DS.GetBinContent(x,y));
+    // else
+    //   polar_histS.SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DS.GetBinContent(x,y));
+  }
+
+  // -------------------------
+  // --- end Rosi (mostly) ---
+  // -------------------------
+
+  double zmin = 0.0;
+  double zmax = 1.1*h_ADC_all_channel->GetMaximum();
+
+  // int nbinsx0 = h_ADC0_s->GetNbinsX();
+  // int nbinsy0 = h_ADC0_s->GetNbinsY();
+  // int nbinsx = h_ADC_s->GetNbinsX();
+  // int nbinsy = h_ADC_s->GetNbinsY();
+
+  // for (int ibx = 0; ibx < nbinsx0; ibx++)
+  // {
+  //   for (int iby = 0; iby < nbinsy0; iby++)
+  //   {
+  //     double con = h_ADC0_s->GetBinContent(ibx + 1, iby + 1);
+  //     double div = h_hits0_s->GetBinContent(ibx + 1, iby + 1);
+  //     h_ADC0_s->SetBinContent(ibx + 1, iby + 1, con / div);
+  //     con = h_ADC0_n->GetBinContent(ibx + 1, iby + 1);
+  //     div = h_hits0_n->GetBinContent(ibx + 1, iby + 1);
+  //     h_ADC0_n->SetBinContent(ibx + 1, iby + 1, con / div);
+  //   }
+  // }
+
+  // for (int ibx = 0; ibx < nbinsx; ibx++)
+  // {
+  //   for (int iby = 0; iby < nbinsy; iby++)
+  //   {
+  //     double con = h_ADC_s->GetBinContent(ibx + 1, iby + 1);
+  //     double div = h_hits_s->GetBinContent(ibx + 1, iby + 1);
+  //     h_ADC_s->SetBinContent(ibx + 1, iby + 1, con / div);
+  //     con = h_ADC_n->GetBinContent(ibx + 1, iby + 1);
+  //     div = h_hits_n->GetBinContent(ibx + 1, iby + 1);
+  //     h_ADC_n->SetBinContent(ibx + 1, iby + 1, con / div);
+  //   }
+  // }
+
+  gStyle->SetOptStat(0);
+  // ---
+  Pad[0]->cd();
+  // h_ADC0_s->Draw("COLZPOL");
+  // h_ADC_s->Draw("COLZPOL same");
+  polar_histS->GetZaxis()->SetRangeUser(zmin,zmax);
+  polar_histS01->GetZaxis()->SetRangeUser(zmin,zmax);
+  polar_histS->Draw("same colz pol AH");
+  polar_histS01->Draw("same col pol AH");
+  // ---
+  Pad[1]->cd();
+  // h_ADC0_n->Draw("COLZPOL");
+  // h_ADC_n->Draw("COLZPOL same");
+  polar_histN->GetZaxis()->SetRangeUser(zmin,zmax);
+  polar_histN01->GetZaxis()->SetRangeUser(zmin,zmax);
+  polar_histN->Draw("same col pol AH");
+  polar_histN01->Draw("same col pol AH");
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  // fill run number and event time into string
+  runnostream << ThisName << "_1 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[0]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[0]->Update();
+  TC[0]->Show();
+  TC[0]->SetEditable(false);
+  return 0;
+}
+
+
+
+int SepdMonDraw::DrawFirstDeprecated(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
   TH2 *h_ADC0_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC0_s");
   TH2 *h_ADC0_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC0_n");
   TH2 *h_ADC_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC_s");
@@ -288,8 +469,8 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
       h_ADC_channel[i] = (TH1*)cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
     }
 
-  TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
-  int nevt = h_event->GetEntries();
+  //TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
+  //int nevt = h_event->GetEntries();
   time_t evttime = cl->EventTime("CURRENT");
 
   if (!gROOT->FindObject("SepdMon2"))
@@ -300,12 +481,12 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
 
-  TH2F hdummy("hdummy","",1,0,15000,1,0,nevt);
-  for ( int i = 0; i < 32; ++i )
-    {
-      adc_dist_pad[i]->cd();
-      hdummy.Draw();
-    }
+  // TH2F hdummy("hdummy","",1,0,15000,1,0,nevt);
+  // for ( int i = 0; i < 32; ++i )
+  //   {
+  //     adc_dist_pad[i]->cd();
+  //     hdummy.Draw();
+  //   }
 
   for ( int i = 0; i < 768; ++i )
     {
@@ -317,7 +498,14 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
       int pad_index = ring + arm*16;
       if ( pad_index < 0 || pad_index > 31 ) continue;
       if ( adc_dist_pad[pad_index] ) adc_dist_pad[pad_index]->cd(); else std::cout << "Missing pad for ADC channel " << i << ", pad index is  " << pad_index << std::endl;
-      if ( h_ADC_channel[i] ) h_ADC_channel[i]->Draw("same"); else std::cout << "Missing histogram for ADC channel " << i << std::endl;
+      if ( h_ADC_channel[i] )
+        {
+          h_ADC_channel[i]->GetXaxis()->SetNdivisions(505);
+          h_ADC_channel[i]->Draw("same");
+        }
+      else std::cout << "Missing histogram for ADC channel " << i << std::endl;
+      gPad->SetTicky();
+      gPad->SetTickx();
     }
   //std::cout << "Done drawing 768 ADC channel histograms... " << std::endl;
 
