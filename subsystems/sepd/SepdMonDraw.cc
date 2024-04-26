@@ -213,25 +213,6 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
     return -1;
   }
 
-  // TH2* histogram2DS = (TH2*)gROOT->FindObject(Form("%sS",histoname.c_str()));
-  // TH2* histogram2DN = (TH2*)gROOT->FindObject(Form("%sN",histoname.c_str()));
-
-  // TH2F* histogram2DS = new TH2F("histogram2DS",";;",16,-0.5,15.5,24,-0.5,23.5);
-  // TH2F* histogram2DN = new TH2F("histogram2DN",";;",16,-0.5,15.5,24,-0.5,23.5);
-  // TH2F* histogram2DS = new TH2F("histogram2DS",";;",16,-0.5,15.5,24,-0.5,23.5);
-  // TH2F* histogram2DN = new TH2F("histogram2DN",";;",16,-0.5,15.5,24,-0.5,23.5);
-
-  // for ( int i = 0; i < 768; ++i )
-  //   {
-  //     int adc_channel = i;
-  //     float adc_signal = h_ADC_all_channel->GetBinContent(i+1);
-  //     int ring = returnRing(adc_channel);
-  //     int sector = returnSector(adc_channel);
-  //     int arm = returnArm(adc_channel);
-  //     if ( arm == 0 ) histogram2DS->Fill(ring,sector,adc_signal);
-  //     if ( arm == 1 ) histogram2DN->Fill(ring,sector,adc_signal);
-  //   }
-
   // ----------------------------
   // --- begin Rosi (mostly ) ---
   // ----------------------------
@@ -252,49 +233,6 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   TH2F* polar_histN01 = new TH2F("polar_histN01","polar_hist",
                                  12, 0, 2*R_PI,
                                  16, 0.15, 3.5);
-  // for (int i = 0;i<24;i++){
-  //   for (int j = 0;j<16;j++){
-  //     if (histogram2DS->GetBinContent(i+1,j+1)==0)
-  //       histogram2DS->SetBinContent(i+1,j+1,0.1);
-  //     if (histogram2DN->GetBinContent(i+1,j+1)==0)
-  //       histogram2DN->SetBinContent(i+1,j+1,0.1);
-  //     polar_histS->SetBinContent(i+1,j+1,0.1);
-  //     polar_histN->SetBinContent(i+1,j+1,0.1);
-  //   }
-  //   if (i > 11)
-  //     continue;
-  //   polar_histS01->SetBinContent(i+1,1,0.1);
-  //   polar_histN01->SetBinContent(i+1,1,0.1);
-  // }
-
-  // for (int i = 0;i<768;i++){
-  //   int sector = returnSector(i);
-  //   int tile = returnTile(i);
-  //   int odd = (tile+1)%2;
-  //   //change depending on input data format
-  //   int x = i%24+1;
-  //   int y = i/24+1;
-  //   if (y > 16)
-  //     y = y - 16;
-  //   //*****
-
-  //   if ((i<384)&&(tile==0)) //north
-  //     polar_histN01->SetBinContent(sector+1,1,histogram2DN->GetBinContent(x,y));
-  //   else if (i<384)
-  //     polar_histN->SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DN->GetBinContent(x,y));
-  //   else if (tile==0) //south
-  //     polar_histS01->SetBinContent(sector+1,1,histogram2DS->GetBinContent(x,y));
-  //   else
-  //     polar_histS->SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DS->GetBinContent(x,y));
-  //   // if ((i<384)&&(tile==0)) //north
-  //   //   polar_histN01.SetBinContent(sector+1,1,histogram2DN.GetBinContent(x,y));
-  //   // else if (i<384)
-  //   //   polar_histN.SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DN.GetBinContent(x,y));
-  //   // else if (tile==0) //south
-  //   //   polar_histS01.SetBinContent(sector+1,1,histogram2DS.GetBinContent(x,y));
-  //   // else
-  //   //   polar_histS.SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DS.GetBinContent(x,y));
-  // }
 
   for ( int i = 0; i < 768; ++i )
     {
@@ -325,50 +263,16 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   double zmin = 0.0;
   double zmax = 1.1*h_ADC_all_channel->GetMaximum();
 
-  // int nbinsx0 = h_ADC0_s->GetNbinsX();
-  // int nbinsy0 = h_ADC0_s->GetNbinsY();
-  // int nbinsx = h_ADC_s->GetNbinsX();
-  // int nbinsy = h_ADC_s->GetNbinsY();
-
-  // for (int ibx = 0; ibx < nbinsx0; ibx++)
-  // {
-  //   for (int iby = 0; iby < nbinsy0; iby++)
-  //   {
-  //     double con = h_ADC0_s->GetBinContent(ibx + 1, iby + 1);
-  //     double div = h_hits0_s->GetBinContent(ibx + 1, iby + 1);
-  //     h_ADC0_s->SetBinContent(ibx + 1, iby + 1, con / div);
-  //     con = h_ADC0_n->GetBinContent(ibx + 1, iby + 1);
-  //     div = h_hits0_n->GetBinContent(ibx + 1, iby + 1);
-  //     h_ADC0_n->SetBinContent(ibx + 1, iby + 1, con / div);
-  //   }
-  // }
-
-  // for (int ibx = 0; ibx < nbinsx; ibx++)
-  // {
-  //   for (int iby = 0; iby < nbinsy; iby++)
-  //   {
-  //     double con = h_ADC_s->GetBinContent(ibx + 1, iby + 1);
-  //     double div = h_hits_s->GetBinContent(ibx + 1, iby + 1);
-  //     h_ADC_s->SetBinContent(ibx + 1, iby + 1, con / div);
-  //     con = h_ADC_n->GetBinContent(ibx + 1, iby + 1);
-  //     div = h_hits_n->GetBinContent(ibx + 1, iby + 1);
-  //     h_ADC_n->SetBinContent(ibx + 1, iby + 1, con / div);
-  //   }
-  // }
 
   gStyle->SetOptStat(0);
   // ---
   Pad[0]->cd();
-  // h_ADC0_s->Draw("COLZPOL");
-  // h_ADC_s->Draw("COLZPOL same");
   polar_histS->GetZaxis()->SetRangeUser(zmin,zmax);
   polar_histS01->GetZaxis()->SetRangeUser(zmin,zmax);
   polar_histS->Draw("same colz pol AH");
   polar_histS01->Draw("same col pol AH");
   // ---
   Pad[1]->cd();
-  // h_ADC0_n->Draw("COLZPOL");
-  // h_ADC_n->Draw("COLZPOL same");
   polar_histN->GetZaxis()->SetRangeUser(zmin,zmax);
   polar_histN01->GetZaxis()->SetRangeUser(zmin,zmax);
   polar_histN->Draw("same col pol AH");
