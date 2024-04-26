@@ -395,9 +395,10 @@ int SpinMon::process_event(Event *e /* evt */)
   {
 
   //=============== gl1p scalers ===============//
-    int evtnr = e->getEvtSequence();
-    Event *gl1Event = erc->getEvent(evtnr);
-    if (gl1Event)
+//    int evtnr = e->getEvtSequence();
+    Event *gl1Event = e;
+
+//    if (gl1Event)
     {
       p_gl1 = gl1Event->getPacket(packetid_GL1);
       //p_gl1 = e->getPacket(packetid_GL1);
