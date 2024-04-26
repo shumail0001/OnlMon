@@ -238,7 +238,7 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
     {
       int adc_channel = i;
       float adc_signal = h_ADC_all_channel->GetBinContent(i+1);
-      if ( adc_signal == 0 ) adc_signal = 0.1;
+      if ( adc_signal <= 0.1 ) adc_signal = 0.1;
       int tile = returnTile(i);
       int odd = (tile+1)%2;
       //int ring = returnRing(adc_channel);
@@ -269,12 +269,14 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   Pad[0]->cd();
   polar_histS->GetZaxis()->SetRangeUser(zmin,zmax);
   polar_histS01->GetZaxis()->SetRangeUser(zmin,zmax);
+  gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
   polar_histS->Draw("same colz pol AH");
   polar_histS01->Draw("same col pol AH");
   // ---
   Pad[1]->cd();
   polar_histN->GetZaxis()->SetRangeUser(zmin,zmax);
   polar_histN01->GetZaxis()->SetRangeUser(zmin,zmax);
+  gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
   polar_histN->Draw("same col pol AH");
   polar_histN01->Draw("same col pol AH");
 
