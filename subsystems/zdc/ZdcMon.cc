@@ -117,6 +117,9 @@ int ZdcMon::Init()
   zdc_S2 = new TH1F("zdc_S2", "ZDC2 ADC south", BIN_NUMBER, 0, MAX_ENERGY1);
   zdc_S3 = new TH1F("zdc_S3", "ZDC3 ADC south", BIN_NUMBER, 0, MAX_ENERGY1);
   
+  //waveform
+  h_waveform = new TH2F("h_waveform", "h_waveform", 13, -0.5, 12.5, 512, -500, 12000);
+
   // SMD
 
   // smd_adc_n_hor_ind0 = new TH1F("smd_adc_n_hor_ind0", "smd_adc_n_hor_ind0", 1000, 0, 5000 );
@@ -141,7 +144,7 @@ int ZdcMon::Init()
   smd_south_ver_hits = new TH1F("smd_south_ver_hits", "smd_south_ver_hits", 7, 24., 30.);
 
   // north smd
-  smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution jjj, SMD North y", 296, -5.92, 5.92);
+  smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
   smd_ver_north = new TH1F("smd_ver_north", "Beam centroid distribution, SMD North x", 220, -5.5, 5.5);
   smd_sum_hor_north = new TH1F ("smd_sum_hor_north", "SMD North y", 512, 0, 2048);
   smd_sum_ver_north = new TH1F ("smd_sum_ver_north", "SMD North x", 512, 0, 2048);
@@ -174,6 +177,8 @@ int ZdcMon::Init()
   se->registerHisto(this, zdc_S1 );
   se->registerHisto(this, zdc_S2 );
   se->registerHisto(this, zdc_S3 );
+  se->registerHisto(this, h_waveform);
+
 
   // SMD
   // Individual smd_adc channel histos
@@ -270,10 +275,25 @@ int ZdcMon::process_event(Event *e /* evt */)
       std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
       float signalFast = resultFast.at(0);
       float signal = signalFast;
-        
+
       unsigned int towerkey = TowerInfoDefs::decode_zdc(c);
       int zdc_side = TowerInfoDefs::get_zdc_side(towerkey);
-        
+  
+      double baseline = 0.;
+      double baseline_low = 0.;
+      double baseline_high = 0.;
+
+      for(int s = 0; s < 3; s++) {baseline_low += p->iValue(s, c);}
+      baseline_low /= 3.;
+       
+      for (int s = p->iValue(0, "SAMPLES")-3; s < p->iValue(0, "SAMPLES"); s++) {baseline_high += p->iValue(s,c);}
+      baseline_high /=3.;
+
+      for(int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+      {
+          h_waveform->Fill(s, p->iValue(s, c) - baseline);
+      }
+             
       int mod = c%2;
 
       if (c < 16) 
