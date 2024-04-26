@@ -218,19 +218,19 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 
   // TH2F* histogram2DS = new TH2F("histogram2DS",";;",16,-0.5,15.5,24,-0.5,23.5);
   // TH2F* histogram2DN = new TH2F("histogram2DN",";;",16,-0.5,15.5,24,-0.5,23.5);
-  TH2F* histogram2DS = new TH2F("histogram2DS",";;",16,-0.5,15.5,24,-0.5,23.5);
-  TH2F* histogram2DN = new TH2F("histogram2DN",";;",16,-0.5,15.5,24,-0.5,23.5);
+  // TH2F* histogram2DS = new TH2F("histogram2DS",";;",16,-0.5,15.5,24,-0.5,23.5);
+  // TH2F* histogram2DN = new TH2F("histogram2DN",";;",16,-0.5,15.5,24,-0.5,23.5);
 
-  for ( int i = 0; i < 768; ++i )
-    {
-      int adc_channel = i;
-      float adc_signal = h_ADC_all_channel->GetBinContent(i+1);
-      int ring = returnRing(adc_channel);
-      int sector = returnSector(adc_channel);
-      int arm = returnArm(adc_channel);
-      if ( arm == 0 ) histogram2DS->Fill(ring,sector,adc_signal);
-      if ( arm == 1 ) histogram2DN->Fill(ring,sector,adc_signal);
-    }
+  // for ( int i = 0; i < 768; ++i )
+  //   {
+  //     int adc_channel = i;
+  //     float adc_signal = h_ADC_all_channel->GetBinContent(i+1);
+  //     int ring = returnRing(adc_channel);
+  //     int sector = returnSector(adc_channel);
+  //     int arm = returnArm(adc_channel);
+  //     if ( arm == 0 ) histogram2DS->Fill(ring,sector,adc_signal);
+  //     if ( arm == 1 ) histogram2DN->Fill(ring,sector,adc_signal);
+  //   }
 
   // ----------------------------
   // --- begin Rosi (mostly ) ---
@@ -252,49 +252,71 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   TH2F* polar_histN01 = new TH2F("polar_histN01","polar_hist",
                                  12, 0, 2*R_PI,
                                  16, 0.15, 3.5);
-  for (int i = 0;i<24;i++){
-    for (int j = 0;j<16;j++){
-      if (histogram2DS->GetBinContent(i+1,j+1)==0)
-        histogram2DS->SetBinContent(i+1,j+1,0.1);
-      if (histogram2DN->GetBinContent(i+1,j+1)==0)
-        histogram2DN->SetBinContent(i+1,j+1,0.1);
-      polar_histS->SetBinContent(i+1,j+1,0.1);
-      polar_histN->SetBinContent(i+1,j+1,0.1);
+  // for (int i = 0;i<24;i++){
+  //   for (int j = 0;j<16;j++){
+  //     if (histogram2DS->GetBinContent(i+1,j+1)==0)
+  //       histogram2DS->SetBinContent(i+1,j+1,0.1);
+  //     if (histogram2DN->GetBinContent(i+1,j+1)==0)
+  //       histogram2DN->SetBinContent(i+1,j+1,0.1);
+  //     polar_histS->SetBinContent(i+1,j+1,0.1);
+  //     polar_histN->SetBinContent(i+1,j+1,0.1);
+  //   }
+  //   if (i > 11)
+  //     continue;
+  //   polar_histS01->SetBinContent(i+1,1,0.1);
+  //   polar_histN01->SetBinContent(i+1,1,0.1);
+  // }
+
+  // for (int i = 0;i<768;i++){
+  //   int sector = returnSector(i);
+  //   int tile = returnTile(i);
+  //   int odd = (tile+1)%2;
+  //   //change depending on input data format
+  //   int x = i%24+1;
+  //   int y = i/24+1;
+  //   if (y > 16)
+  //     y = y - 16;
+  //   //*****
+
+  //   if ((i<384)&&(tile==0)) //north
+  //     polar_histN01->SetBinContent(sector+1,1,histogram2DN->GetBinContent(x,y));
+  //   else if (i<384)
+  //     polar_histN->SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DN->GetBinContent(x,y));
+  //   else if (tile==0) //south
+  //     polar_histS01->SetBinContent(sector+1,1,histogram2DS->GetBinContent(x,y));
+  //   else
+  //     polar_histS->SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DS->GetBinContent(x,y));
+  //   // if ((i<384)&&(tile==0)) //north
+  //   //   polar_histN01.SetBinContent(sector+1,1,histogram2DN.GetBinContent(x,y));
+  //   // else if (i<384)
+  //   //   polar_histN.SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DN.GetBinContent(x,y));
+  //   // else if (tile==0) //south
+  //   //   polar_histS01.SetBinContent(sector+1,1,histogram2DS.GetBinContent(x,y));
+  //   // else
+  //   //   polar_histS.SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DS.GetBinContent(x,y));
+  // }
+
+  for ( int i = 0; i < 768; ++i )
+    {
+      int adc_channel = i;
+      float adc_signal = h_ADC_all_channel->GetBinContent(i+1);
+      if ( adc_signal == 0 ) adc_signal = 0.1;
+      int tile = returnTile(i);
+      int odd = (tile+1)%2;
+      //int ring = returnRing(adc_channel);
+      int sector = returnSector(adc_channel);
+      int arm = returnArm(adc_channel);
+      if ( arm == 0 )
+        {
+          polar_histS01->SetBinContent(sector+1,1,adc_signal);
+          polar_histS->SetBinContent(sector*2+1+odd,(tile+1)/2+1,adc_signal);
+        }
+      if ( arm == 1 )
+        {
+          polar_histN01->SetBinContent(sector+1,1,adc_signal);
+          polar_histN->SetBinContent(sector*2+1+odd,(tile+1)/2+1,adc_signal);
+        }
     }
-    if (i > 11)
-      continue;
-    polar_histS01->SetBinContent(i+1,1,0.1);
-    polar_histN01->SetBinContent(i+1,1,0.1);
-  }
-
-  for (int i = 0;i<768;i++){
-    int sector = returnSector(i);
-    int tile = returnTile(i);
-    int odd = (tile+1)%2;
-    //change depending on input data format
-    int x = i%24+1;
-    int y = i/24+1;
-    if (y > 16)
-      y = y - 16;
-    //*****
-
-    if ((i<384)&&(tile==0)) //north
-      polar_histN01->SetBinContent(sector+1,1,histogram2DN->GetBinContent(x,y));
-    else if (i<384)
-      polar_histN->SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DN->GetBinContent(x,y));
-    else if (tile==0) //south
-      polar_histS01->SetBinContent(sector+1,1,histogram2DS->GetBinContent(x,y));
-    else
-      polar_histS->SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DS->GetBinContent(x,y));
-    // if ((i<384)&&(tile==0)) //north
-    //   polar_histN01.SetBinContent(sector+1,1,histogram2DN.GetBinContent(x,y));
-    // else if (i<384)
-    //   polar_histN.SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DN.GetBinContent(x,y));
-    // else if (tile==0) //south
-    //   polar_histS01.SetBinContent(sector+1,1,histogram2DS.GetBinContent(x,y));
-    // else
-    //   polar_histS.SetBinContent(sector*2+1+odd,(tile+1)/2+1,histogram2DS.GetBinContent(x,y));
-  }
 
   // -------------------------
   // --- end Rosi (mostly) ---
