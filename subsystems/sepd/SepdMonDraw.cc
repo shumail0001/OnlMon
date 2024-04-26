@@ -281,11 +281,6 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 int SepdMonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  // TH2 *h_hits0_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits0_s");
-  // TH2 *h_hits0_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits0_n");
-  // TH2 *h_hits_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_s");
-  // TH2 *h_hits_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_n");
-  // TH1 *h_ADC_all_channel = (TH1*)cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
 
   TH1 *h_ADC_channel[768];
   for ( int i = 0; i < 768; ++i )
@@ -301,12 +296,6 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   {
     MakeCanvas("SepdMon2");
   }
-  // if (!h_hits0_s)
-  // {
-  //   DrawDeadServer(transparent[0]);
-  //   TC[0]->SetEditable(false);
-  //   return -1;
-  // }
 
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
@@ -322,64 +311,16 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
     {
       h_ADC_channel[i] = (TH1*)cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
       int ring = returnRing(i);
-      if ( ring < 0 || ring > 15 )
-        {
-          std::cout << "Trying to avoid something terrible, bad ring number... ADC channel is " << i << ", ring is " << ring << std::endl;
-          continue;
-        }
+      if ( ring < 0 || ring > 15 ) continue;
       int arm = returnArm(i);
-      if ( arm < 0 || arm > 1 )
-        {
-          std::cout << "Trying to avoid something terrible, bad arm number... ADC channel is " << i << ", arm is " << arm << std::endl;
-          continue;
-        }
+      if ( arm < 0 || arm > 1 ) continue;
       int pad_index = ring + arm*16;
-      if ( pad_index < 0 || pad_index > 31 )
-        {
-          std::cout << "Trying to avoid something terrible, bad pad_index number... ADC channel is " << i << ", pad_index is " << pad_index << std::endl;
-          continue;
-        }
+      if ( pad_index < 0 || pad_index > 31 ) continue;
       if ( adc_dist_pad[pad_index] ) adc_dist_pad[pad_index]->cd(); else std::cout << "Missing pad for ADC channel " << i << ", pad index is  " << pad_index << std::endl;
       if ( h_ADC_channel[i] ) h_ADC_channel[i]->Draw("same"); else std::cout << "Missing histogram for ADC channel " << i << std::endl;
     }
+  //std::cout << "Done drawing 768 ADC channel histograms... " << std::endl;
 
-  std::cout << "Done drawing 768 ADC channel histograms... " << std::endl;
-
-  // int nevt = h_event->GetEntries();
-  // //std::cout << "This is very bad, don't do this.  Number of events is " << nevt << std::endl;
-  // h_hits0_s->Scale(1. / nevt);
-  // h_hits_s->Scale(1. / nevt);
-  // h_hits0_n->Scale(1. / nevt);
-  // h_hits_n->Scale(1. / nevt);
-  // gStyle->SetOptStat(0);
-  // TC[1]->SetEditable(true);
-  // TC[1]->Clear("D");
-  // Pad[2]->cd();
-  // //h_hits0_s->Draw("COLZPOL");
-  // //h_hits_s->Draw("COLZPOL same");
-  // h_ADC_all_channel->Draw();
-  // //gPad->SetLogz();
-  // gPad->SetBottomMargin(0.16);
-  // gPad->SetRightMargin(0.05);
-  // gPad->SetLeftMargin(0.2);
-  // gStyle->SetOptStat(0);
-  // //gStyle->SetPalette(57);
-  // gPad->SetTicky();
-  // gPad->SetTickx();
-  // // ---
-  // Pad[3]->cd();
-  // h_hits0_n->Draw("COLZPOL");
-  // h_hits_n->Draw("COLZPOL same");
-  // // ---
-  // gPad->SetLogz();
-  // gPad->SetBottomMargin(0.16);
-  // gPad->SetRightMargin(0.05);
-  // gPad->SetLeftMargin(0.2);
-  // gStyle->SetOptStat(0);
-  // gStyle->SetPalette(57);
-  // gPad->SetTicky();
-  // gPad->SetTickx();
-  // ---
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);
@@ -396,8 +337,10 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->Update();
   TC[1]->Show();
   TC[1]->SetEditable(false);
-  std::cout << "Allegedly done drawing 768 histograms" << std::endl;
+  //std::cout << "Allegedly done drawing 768 histograms" << std::endl;
+
   return 0;
+
 }
 
 int SepdMonDraw::DrawSecondDeprecated(const std::string & /* what */)
