@@ -8,7 +8,6 @@ class TH1;
 class TH2;
 class Packet;
 class eventReceiverClient;
-class XingShiftCal;
 
 
 class SpinMon : public OnlMon
@@ -70,7 +69,7 @@ class SpinMon : public OnlMon
  protected:
   int evtcnt = 0;
 
-  XingShiftCal *XingShift = nullptr;
+  int CalculateCrossingShift(int &xingshift, uint64_t counts[NTRIG][NBUNCHES], bool &success);
 
   eventReceiverClient *erc = {nullptr};
 

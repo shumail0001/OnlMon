@@ -9,8 +9,6 @@
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
-#include <xingshiftcal/XingShiftCal.h>
-
 #include <Event/msg_profile.h>
 
 #include <Event/Event.h>
@@ -123,8 +121,6 @@ int SpinMon::Init()
   }
 
   Reset();
-
-  XingShift = new XingShiftCal();
 
   erc = new eventReceiverClient("gl1daq");
 
@@ -425,8 +421,8 @@ int SpinMon::process_event(Event *e /* evt */)
   
     if (!success && evtcnt > 4999 && evtcnt % 5000 == 0)
     {
-      XingShift->CalculateCrossingShift(xingshift, scalercounts, success);
-      int addxingshift = 0;
+      CalculateCrossingShift(xingshift, scalercounts, success);
+      int addxingshift = -999;
       if (success)
       {
 	addxingshift = xingshift;
@@ -443,5 +439,76 @@ int SpinMon::Reset()
 {
   // reset our internal counters
   evtcnt = 0;
+  return 0;
+}
+
+
+int SpinMon::CalculateCrossingShift(int &xing, uint64_t counts[NTRIG][NBUNCHES], bool &succ)
+{
+  succ = false;
+  int shift_array[NTRIG] = {0};
+
+  int trig_inactive_array[NTRIG] = {0};
+
+  int last_active_index = 0;
+
+  int _temp;
+  for (int itrig = 0; itrig < NTRIG; itrig++)
+  {
+    long long _counts = 0;
+    for (int ii = 0; ii < NBUNCHES; ii++)
+    {
+      _counts += counts[itrig][ii];
+    }
+
+    if (_counts < 10000)
+    {
+      trig_inactive_array[itrig] = 1;
+    }
+    else
+    {
+      last_active_index = itrig;
+    }
+
+    long long abort_sum_prev = _counts;
+
+    _temp = 0;
+    for (int ishift = 0; ishift < NBUNCHES; ishift++)
+    {
+      long long abort_sum = 0;
+      for (int iabortbunch = NBUNCHES - 9; iabortbunch < NBUNCHES; iabortbunch++)
+      {
+        abort_sum += counts[itrig][(iabortbunch + ishift) % NBUNCHES];
+      }
+      if (abort_sum < abort_sum_prev)
+      {
+        abort_sum_prev = abort_sum;
+        _temp = ishift;
+      }
+    }
+
+    shift_array[itrig] = _temp;
+  }
+
+  for (int itrig = 0; itrig < NTRIG; itrig++)
+  {
+    // if not matching for all trigger selections used, fails
+    if (!trig_inactive_array[itrig])
+    {
+      if (shift_array[itrig] == shift_array[last_active_index])
+      {
+        xing = shift_array[itrig];
+        succ = true;
+      }
+      else
+      {
+        xing = 0;
+        succ = false;
+        return 0;
+      }
+    }
+  }
+
+  // succ = true;
   return 0;
 }
