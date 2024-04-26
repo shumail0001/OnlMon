@@ -177,7 +177,6 @@ int SpinMon::process_event(Event *e /* evt */)
     hpolBlue->SetBinContent(1,polBlue);
     hpolBlue->SetBinError(1,polBlueErr);
 
-    
     float polYellow = -999;
     float polYellowErr = -999;
     if (pYellPol)
@@ -211,6 +210,7 @@ int SpinMon::process_event(Event *e /* evt */)
     hxingshift->SetBinContent(1,defaultxingshift);
     //================================================//
     
+
     //============== Set spin pattern histograms ==============//
     //  up = 1, down = -1, abort gap (bunches 111-120) = -10
     if (pBlueSpin)
@@ -282,6 +282,7 @@ int SpinMon::process_event(Event *e /* evt */)
     }
     //==========================================================//
 
+
     //============== Set intended spin pattern histograms from buckets ==============//
     /*
     //Get bunch asymmetries for measured spin pattern
@@ -347,6 +348,7 @@ int SpinMon::process_event(Event *e /* evt */)
 
 
     //============== Set pC spin pattern histograms from buckets ==============//
+
     //Get bunch asymmetries for measured spin pattern
     //there are 360 buckets for 120 bunches
     if (pBlueAsym)
@@ -395,6 +397,7 @@ int SpinMon::process_event(Event *e /* evt */)
 
   else if (e->getEvtType() == 1)
   {
+
   //=============== gl1p scalers ===============//
     int evtnr = e->getEvtSequence();
     Event *gl1Event = erc->getEvent(evtnr);
@@ -417,6 +420,7 @@ int SpinMon::process_event(Event *e /* evt */)
       }
       delete p_gl1;
     }
+
     //========================//
   
     if (!success && evtcnt > 4999 && evtcnt % 5000 == 0)
