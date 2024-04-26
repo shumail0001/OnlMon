@@ -46,7 +46,7 @@ class SpinMonDraw : public OnlMonDraw
 
   std::map<std::string, TH1*> gl1ptriggers;
 
-  TH1I* gl1_counter[NTRIG];
+  TH1I* gl1_counter[NTRIG] = {nullptr};
 
 
 };
