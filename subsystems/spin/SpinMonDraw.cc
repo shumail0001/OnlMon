@@ -25,6 +25,28 @@
 #include <sstream>
 #include <vector>  // for vector
 
+//triggermap
+enum
+{
+  CLOCK = 0,
+  RANDOM = 1,
+  MBD_noVTX = 2,
+  MBD_VTX = 3,
+  MBD_10cm_VTX = 4,
+  MBD_S = 5,
+  MBD_N = 6,
+  ZDC_wide = 7,
+  ZDC_narrow = 8,
+  ZDC_S = 9,
+  ZDC_N = 10,
+  EMPTY1 = 11,
+  EMPTY2 = 12,
+  EMPTY3 = 13,
+  EMPTY4 = 14,
+  EMPTY5 = 15
+};
+
+
 SpinMonDraw::SpinMonDraw(const std::string &name)
   : OnlMonDraw(name)
 {
@@ -50,6 +72,7 @@ int SpinMonDraw::Init()
   preset_pattern_yellow["111x111_P7"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
   preset_pattern_blue  ["111x111_P8"]="--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
   preset_pattern_yellow["111x111_P8"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
+
   return 0;
 }
 
@@ -70,22 +93,11 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
     Pad[0] = new TPad("spinpad1", "who needs this?", 0.01, 0.8, 0.99, 0.95, 0);
     Pad[1] = new TPad("spinpad2", "who needs this?", 0.01, 0.65, 0.99, 0.8, 0);
     Pad[2] = new TPad("spinpad3", "who needs this?", 0.7, 0.05, 0.95, 0.6, 0);
-    Pad[3] = new TPad("spinpad4", "who needs this?", 0.05, 0.50, 0.2, 0.65, 0);
-    Pad[4] = new TPad("spinpad5", "who needs this?", 0.2, 0.50, 0.35, 0.65, 0);
-    Pad[5] = new TPad("spinpad6", "who needs this?", 0.35, 0.50, 0.5, 0.65, 0);
-    Pad[6] = new TPad("spinpad7", "who needs this?", 0.5, 0.50, 0.65, 0.65, 0);
-    Pad[7] = new TPad("spinpad8", "who needs this?", 0.05, 0.35, 0.2, 0.50, 0);
-    Pad[8] = new TPad("spinpad9", "who needs this?", 0.2, 0.35, 0.35, 0.50, 0);
-    Pad[9] = new TPad("spinpad10", "who needs this?", 0.35, 0.35, 0.5, 0.50, 0);
-    Pad[10] = new TPad("spinpad11", "who needs this?", 0.5, 0.35, 0.65, 0.50, 0);
-    Pad[11] = new TPad("spinpad12", "who needs this?", 0.05, 0.20, 0.2, 0.35, 0);
-    Pad[12] = new TPad("spinpad13", "who needs this?", 0.2, 0.20, 0.35, 0.35, 0);
-    Pad[13] = new TPad("spinpad14", "who needs this?", 0.35, 0.20, 0.5, 0.35, 0);
-    Pad[14] = new TPad("spinpad15", "who needs this?", 0.5, 0.20, 0.65, 0.35, 0);
-    Pad[15] = new TPad("spinpad16", "who needs this?", 0.05, 0.05, 0.2, 0.20, 0);
-    Pad[16] = new TPad("spinpad17", "who needs this?", 0.2, 0.05, 0.35, 0.20, 0);
-    Pad[17] = new TPad("spinpad18", "who needs this?", 0.35, 0.05, 0.5, 0.20, 0);
-    Pad[18] = new TPad("spinpad19", "who needs this?", 0.5, 0.05, 0.65, 0.20, 0);
+    Pad[3] = new TPad("spinpad4", "who needs this?", 0.05, 0.35, 0.35, 0.65, 0);
+    Pad[4] = new TPad("spinpad5", "who needs this?", 0.35, 0.35, 0.65, 0.65, 0);
+    Pad[5] = new TPad("spinpad6", "who needs this?", 0.05, 0.05, 0.35, 0.35, 0);
+    Pad[6] = new TPad("spinpad7", "who needs this?", 0.35, 0.05, 0.65, 0.35, 0);
+
     Pad[0]->Draw();
     Pad[1]->Draw();
     Pad[2]->Draw();
@@ -93,18 +105,8 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
     Pad[4]->Draw();
     Pad[5]->Draw();
     Pad[6]->Draw();
-    Pad[7]->Draw();
-    Pad[8]->Draw();
-    Pad[9]->Draw();
-    Pad[10]->Draw();
-    Pad[11]->Draw();
-    Pad[12]->Draw();
-    Pad[13]->Draw();
-    Pad[14]->Draw();
-    Pad[15]->Draw();
-    Pad[16]->Draw();
-    Pad[17]->Draw();
-    Pad[18]->Draw();
+    
+    
 
     // this one is used to plot the run number on the canvas
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
@@ -117,10 +119,54 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
     // xpos negative: do not draw menu bar
     TC[1] = new TCanvas(name.c_str(), "SpinMon Experts", -xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    Pad[19] = new TPad("spinpad3", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[20] = new TPad("spinpad4", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
+    
+
+    Pad[7] = new TPad("spinpad8", "who needs this?", 0.05, 0.725, 0.35, 0.95, 0);
+    Pad[8] = new TPad("spinpad9", "who needs this?", 0.35, 0.725, 0.65, 0.95, 0);
+    Pad[9] = new TPad("spinpad10", "who needs this?", 0.65, 0.725, 0.95, 0.95, 0);
+    Pad[10] = new TPad("spinpad11", "who needs this?", 0.05, 0.50, 0.35, 0.725, 0);
+    Pad[11] = new TPad("spinpad12", "who needs this?", 0.35, 0.50, 0.65, 0.725, 0);
+    Pad[12] = new TPad("spinpad13", "who needs this?", 0.65, 0.50, 0.95, 0.725, 0);
+
+    Pad[13] = new TPad("spinpad14", "who needs this?", 0.05, 0.3875, 0.275, 0.5, 0);
+    Pad[14] = new TPad("spinpad15", "who needs this?", 0.275, 0.3875, 0.5, 0.5, 0);
+    Pad[15] = new TPad("spinpad16", "who needs this?", 0.5, 0.3875, 0.725, 0.5, 0);
+    Pad[16] = new TPad("spinpad17", "who needs this?", 0.725, 0.3875, 0.95, 0.5, 0);
+    Pad[17] = new TPad("spinpad18", "who needs this?", 0.05, 0.275, 0.275, 0.3875, 0);
+    Pad[18] = new TPad("spinpad19", "who needs this?", 0.275, 0.275, 0.5, 0.3875, 0);
+    Pad[19] = new TPad("spinpad20", "who needs this?", 0.5, 0.275, 0.725, 0.3875, 0);
+    Pad[20] = new TPad("spinpad21", "who needs this?", 0.725, 0.275, 0.95, 0.3875, 0);
+    Pad[21] = new TPad("spinpad22", "who needs this?", 0.05, 0.1625, 0.275, 0.275, 0);
+    Pad[22] = new TPad("spinpad23", "who needs this?", 0.275, 0.1625, 0.5, 0.275, 0);
+    Pad[23] = new TPad("spinpad24", "who needs this?", 0.5, 0.1625, 0.725, 0.275, 0);
+    Pad[24] = new TPad("spinpad25", "who needs this?", 0.725, 0.1625, 0.95, 0.275, 0);
+    Pad[25] = new TPad("spinpad26", "who needs this?", 0.05, 0.05, 0.275, 0.1625, 0);
+    Pad[26] = new TPad("spinpad27", "who needs this?", 0.275, 0.05, 0.5, 0.1625, 0);
+    Pad[27] = new TPad("spinpad28", "who needs this?", 0.5, 0.05, 0.725, 0.1625, 0);
+    Pad[28] = new TPad("spinpad29", "who needs this?", 0.725, 0.05, 0.95, 0.1625, 0);
+    
+    Pad[7]->Draw();
+    Pad[8]->Draw();
+    Pad[9]->Draw();
+    Pad[10]->Draw();
+    Pad[11]->Draw();
+    Pad[12]->Draw();
+    Pad[13]->Draw();
+    Pad[14]->Draw();
+    Pad[15]->Draw();
+    Pad[16]->Draw();
+    Pad[17]->Draw();
+    Pad[18]->Draw();
     Pad[19]->Draw();
     Pad[20]->Draw();
+    Pad[21]->Draw();
+    Pad[22]->Draw();
+    Pad[23]->Draw();
+    Pad[24]->Draw();
+    Pad[25]->Draw();
+    Pad[26]->Draw();
+    Pad[27]->Draw();
+    Pad[28]->Draw();
     // this one is used to plot the run number on the canvas
     transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
     transparent[1]->SetFillStyle(4000);
@@ -155,7 +201,7 @@ int SpinMonDraw::Draw(const std::string &what)
 int SpinMonDraw::DrawFirst(const std::string & /* what */)
 {
 
-  const int NTRIG = 16;
+  //const int NTRIG = 16;
   
   OnlMonClient *cl = OnlMonClient::instance();
 
@@ -185,11 +231,30 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   TH1I *hfillnumber = (TH1I*)cl->getHisto("SPINMON_0","h1_fillnumber");
   TH1I *hfilltypeBlue = (TH1I*)cl->getHisto("SPINMON_0","h1_filltypeBlue");
   TH1I *hfilltypeYellow = (TH1I*)cl->getHisto("SPINMON_0","h1_filltypeYellow");
-
-  TH1I* gl1_counter[NTRIG];
+  
   for (int i = 0; i < NTRIG; i++){
     gl1_counter[i] = (TH1I*)cl->getHisto("SPINMON_0",Form("gl1_counter_trig%d",i));
+    
   }
+
+  
+  gl1ptriggers["CLOCK"] = gl1_counter[CLOCK]; gl1ptriggers["CLOCK"]->SetTitle("gl1p CLOCK");
+  gl1ptriggers["RANDOM"] = gl1_counter[RANDOM]; gl1ptriggers["RANDOM"]->SetTitle("gl1p RANDOM");
+  gl1ptriggers["MBD_noVTX"] = gl1_counter[MBD_noVTX]; gl1ptriggers["MBD_noVTX"]->SetTitle("gl1p MBD noVTX");
+  gl1ptriggers["MBD_VTX"] = gl1_counter[MBD_VTX]; gl1ptriggers["MBD_VTX"]->SetTitle("gl1p MBD VTX");
+  gl1ptriggers["MBD_10cm_VTX"] = gl1_counter[MBD_10cm_VTX]; gl1ptriggers["MBD_10cm_VTX"]->SetTitle("gl1p MBD +/-10cm VTX");
+  gl1ptriggers["MBD_S"] = gl1_counter[MBD_S]; gl1ptriggers["MBD_S"]->SetTitle("gl1p MBD S");
+  gl1ptriggers["MBD_N"] = gl1_counter[MBD_N]; gl1ptriggers["MBD_N"]->SetTitle("gl1p MBD N");
+  gl1ptriggers["ZDC_wide"] = gl1_counter[ZDC_wide]; gl1ptriggers["ZDC_wide"]->SetTitle("gl1p ZDC wide");
+  gl1ptriggers["ZDC_narrow"] = gl1_counter[ZDC_narrow]; gl1ptriggers["ZDC_narrow"]->SetTitle("gl1p ZDC narrow");
+  gl1ptriggers["ZDC_S"] = gl1_counter[ZDC_S]; gl1ptriggers["ZDC_S"]->SetTitle("gl1p ZDC S");
+  gl1ptriggers["ZDC_N"] = gl1_counter[ZDC_N]; gl1ptriggers["ZDC_N"]->SetTitle("gl1p ZDC N");
+  gl1ptriggers["EMPTY1"] = gl1_counter[EMPTY1]; gl1ptriggers["EMPTY1"]->SetTitle("gl1p empty1");
+  gl1ptriggers["EMPTY2"] = gl1_counter[EMPTY2]; gl1ptriggers["EMPTY2"]->SetTitle("gl1p empty2");
+  gl1ptriggers["EMPTY3"] = gl1_counter[EMPTY3]; gl1ptriggers["EMPTY3"]->SetTitle("gl1p empty3");
+  gl1ptriggers["EMPTY4"] = gl1_counter[EMPTY4]; gl1ptriggers["EMPTY4"]->SetTitle("gl1p empty4");
+  gl1ptriggers["EMPTY5"] = gl1_counter[EMPTY5]; gl1ptriggers["EMPTY5"]->SetTitle("gl1p empty5");
+
 
   if (!gROOT->FindObject("SpinMon1"))
   {
@@ -363,23 +428,6 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   filltypestream << "Fill type: " << hfilltypeBlue->GetBinContent(1) << "x" << hfilltypeYellow->GetBinContent(1);
   std::string filltypestring = filltypestream.str();
   t_FillType.DrawText(0.15, 0.8, filltypestring.c_str());
-  /*
-  if (hfilltype->GetBinContent(1) == 111)
-  {
-    fillnumberstring = "Fill type: 111x111";
-    t_FillType.DrawText(0.15, 0.8, fillnumberstring.c_str());
-  }
-  else if (hfilltype->GetBinContent(1) == 6)
-  {
-    fillnumberstring = "Fill type: 6x6";
-    t_FillType.DrawText(0.15, 0.8, fillnumberstring.c_str());
-  }
-  else
-  {
-    fillnumberstring = "Fill type unknown";
-    t_FillType.DrawText(0.15, 0.8, fillnumberstring.c_str());
-  }
-  */
 
 
   std::string scdev_blue  =TH1_to_string(hspinpatternBlue);
@@ -510,35 +558,124 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
 
   //================================================
 
-  gStyle->SetTitleFontSize(0.1);
+  gStyle->SetTitleFontSize(0.06);
   gStyle->SetTitleAlign(33);
   gStyle->SetTitleX(0.75);
   labelsize = 0.05;
-  for (int i = 0; i < NTRIG; i++){
-    Pad[i+3]->cd();
-    if (gl1_counter[i]){
-      gl1_counter[i]->GetXaxis()->SetLabelSize(labelsize);
-      gl1_counter[i]->GetYaxis()->SetLabelSize(labelsize);  
-      gl1_counter[i]->GetYaxis()->SetMaxDigits(2);
-      gl1_counter[i]->SetStats(0);
-      gl1_counter[i]->DrawCopy("HIST");
-      if (gl1_counter[i]->GetSumOfWeights() == 0)
+
+  
+  for(std::map<std::string, TH1*>::const_iterator ii=gl1ptriggers.begin(); ii!=gl1ptriggers.end(); ++ii)
+  {
+    std::string key=(*ii).first;
+    if(key == "MBD_noVTX")
+    {
+      if (gl1ptriggers[key])
       {
-	TLatex *lat = new TLatex();
-	lat->SetTextSize(0.15);
-	lat->SetTextColor(kRed);   
-	lat->SetTextAngle(45);         
-	lat->SetNDC();
-	lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
+	Pad[3]->cd();
+	gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
+	gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);  
+	gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
+	gl1ptriggers[key]->SetStats(0);
+	gl1ptriggers[key]->DrawCopy("HIST");
+	if (gl1ptriggers[key]->GetSumOfWeights() == 0)
+	{
+	  TLatex *lat = new TLatex();
+	  lat->SetTextSize(0.15);
+	  lat->SetTextColor(kRed);   
+	  lat->SetTextAngle(45);         
+	  lat->SetNDC();
+	  lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
+	}
+      }
+      else
+      {
+	DrawDeadServer(transparent[0]);
+	TC[0]->SetEditable(false);
+	return -1;
       }
     }
-    else{
-      DrawDeadServer(transparent[0]);
-      TC[0]->SetEditable(false);
-      return -1;
+    else if (key == "MBD_VTX")
+    {
+      if (gl1ptriggers[key])
+      {
+	Pad[4]->cd();
+	gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
+	gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);  
+	gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
+	gl1ptriggers[key]->SetStats(0);
+	gl1ptriggers[key]->DrawCopy("HIST");
+	if (gl1ptriggers[key]->GetSumOfWeights() == 0)
+	{
+	  TLatex *lat = new TLatex();
+	  lat->SetTextSize(0.15);
+	  lat->SetTextColor(kRed);   
+	  lat->SetTextAngle(45);         
+	  lat->SetNDC();
+	  lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
+	}
+      }
+      else
+      {
+	DrawDeadServer(transparent[0]);
+	TC[0]->SetEditable(false);
+	return -1;
+      }
+    }
+    else if (key == "ZDC_wide")
+    {
+      if (gl1ptriggers[key])
+      {
+	Pad[5]->cd();
+	gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
+	gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);  
+	gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
+	gl1ptriggers[key]->SetStats(0);
+	gl1ptriggers[key]->DrawCopy("HIST");
+	if (gl1ptriggers[key]->GetSumOfWeights() == 0)
+	{
+	  TLatex *lat = new TLatex();
+	  lat->SetTextSize(0.15);
+	  lat->SetTextColor(kRed);   
+	  lat->SetTextAngle(45);         
+	  lat->SetNDC();
+	  lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
+	}
+      }
+      else
+      {
+	DrawDeadServer(transparent[0]);
+	TC[0]->SetEditable(false);
+	return -1;
+      }
+    }
+    else if (key == "ZDC_narrow")
+    {
+      if (gl1ptriggers[key])
+      {
+	Pad[6]->cd();
+	gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
+	gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);  
+	gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
+	gl1ptriggers[key]->SetStats(0);
+	gl1ptriggers[key]->DrawCopy("HIST");
+	if (gl1ptriggers[key]->GetSumOfWeights() == 0)
+	{
+	  TLatex *lat = new TLatex();
+	  lat->SetTextSize(0.15);
+	  lat->SetTextColor(kRed);   
+	  lat->SetTextAngle(45);         
+	  lat->SetNDC();
+	  lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
+	}
+      }
+      else
+      {
+	DrawDeadServer(transparent[0]);
+	TC[0]->SetEditable(false);
+	return -1;
+      }
     }
   }
-
   
 
   
@@ -564,7 +701,9 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
 
 int SpinMonDraw::DrawSecond(const std::string & /* what */)
 {
+  
   OnlMonClient *cl = OnlMonClient::instance();
+
 
   if (!gROOT->FindObject("SpinMon2"))
   {
@@ -572,9 +711,131 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
-  Pad[18]->cd();
 
-  Pad[19]->cd();
+  
+  gStyle->SetTitleFontSize(0.05);
+  gStyle->SetTitleAlign(33);
+  gStyle->SetTitleX(0.75);
+  float labelsize = 0.05;
+
+  if (gl1ptriggers["MBD_noVTX"] && gl1ptriggers["MBD_VTX"])
+  {
+    Pad[7]->cd();
+    std::string trig1 = "MBD_noVTX";
+    std::string trig2 = "MBD_VTX";
+    DrawGL1pRatio(trig1,trig2);
+  }
+  else
+  {
+    DrawDeadServer(transparent[0]);
+    TC[0]->SetEditable(false);
+    return -1;
+  }
+
+  if (gl1ptriggers["MBD_noVTX"] && gl1ptriggers["ZDC_wide"])
+  {
+    Pad[8]->cd();
+    std::string trig1 = "MBD_noVTX";
+    std::string trig2 = "ZDC_wide";
+    DrawGL1pRatio(trig1,trig2);
+  }
+  else
+  {
+    DrawDeadServer(transparent[0]);
+    TC[0]->SetEditable(false);
+    return -1;
+  }
+
+  if (gl1ptriggers["MBD_noVTX"] && gl1ptriggers["ZDC_narrow"])
+  {
+    Pad[9]->cd();
+    std::string trig1 = "MBD_noVTX";
+    std::string trig2 = "ZDC_narrow";
+    DrawGL1pRatio(trig1,trig2);
+  }
+  else
+  {
+    DrawDeadServer(transparent[0]);
+    TC[0]->SetEditable(false);
+    return -1;
+  }
+
+  if (gl1ptriggers["MBD_VTX"] && gl1ptriggers["ZDC_wide"])
+  {
+    Pad[10]->cd();
+    std::string trig1 = "MBD_VTX";
+    std::string trig2 = "ZDC_wide";
+    DrawGL1pRatio(trig1,trig2);
+  }
+  else
+  {
+    DrawDeadServer(transparent[0]);
+    TC[0]->SetEditable(false);
+    return -1;
+  }
+
+  if (gl1ptriggers["MBD_VTX"] && gl1ptriggers["ZDC_narrow"])
+  {
+    Pad[11]->cd();
+    std::string trig1 = "MBD_VTX";
+    std::string trig2 = "ZDC_narrow";
+    DrawGL1pRatio(trig1,trig2);
+  }
+  else
+  {
+    DrawDeadServer(transparent[0]);
+    TC[0]->SetEditable(false);
+    return -1;
+  }
+
+
+  if (gl1ptriggers["ZDC_wide"] && gl1ptriggers["ZDC_narrow"])
+  {
+    Pad[12]->cd();
+    std::string trig1 = "ZDC_wide";
+    std::string trig2 = "ZDC_narrow";
+    DrawGL1pRatio(trig1,trig2);
+  }
+  else
+  {
+    DrawDeadServer(transparent[0]);
+    TC[0]->SetEditable(false);
+    return -1;
+  }
+
+  gStyle->SetTitleFontSize(0.1);
+  gStyle->SetTitleAlign(33);
+  gStyle->SetTitleX(0.75);
+  labelsize = 0.05;
+
+  for (int i = 0; i < NTRIG; i++)
+  {
+    Pad[i+13]->cd();
+    if (gl1_counter[i])
+    {
+      gl1_counter[i]->GetXaxis()->SetLabelSize(labelsize);
+      gl1_counter[i]->GetYaxis()->SetLabelSize(labelsize);  
+      gl1_counter[i]->GetYaxis()->SetMaxDigits(2);
+      gl1_counter[i]->SetStats(0);
+      gl1_counter[i]->DrawCopy("HIST");
+      if (gl1_counter[i]->GetSumOfWeights() == 0)
+      {
+	TLatex *lat = new TLatex();
+	lat->SetTextSize(0.15);
+	lat->SetTextColor(kRed);   
+	lat->SetTextAngle(45);         
+	lat->SetNDC();
+	lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
+      }
+    }
+    else
+    {
+      DrawDeadServer(transparent[0]);
+      TC[0]->SetEditable(false);
+      return -1;
+    }
+  }
+  
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -681,4 +942,53 @@ std::string SpinMonDraw::TH1_to_string(TH1* hspin_pattern)
 	}
     }
   return spin_pattern;
+}
+
+
+int SpinMonDraw::DrawGL1pRatio(std::string trig1, std::string trig2)
+{
+  TH1I *ratio;
+  float labelsize = 0.05;
+  if (gl1ptriggers[trig1]->GetSumOfWeights() != 0 && gl1ptriggers[trig2]->GetSumOfWeights() != 0)
+  {
+    ratio = (TH1I*)gl1ptriggers[trig1]->Clone();
+    ratio->Divide(gl1ptriggers[trig2]);
+    ratio->SetTitle(Form("%s / %s",trig1.c_str(),trig2.c_str()));
+    ratio->GetXaxis()->SetLabelSize(labelsize);
+    ratio->GetYaxis()->SetLabelSize(labelsize);
+    ratio->SetStats(0);
+    ratio->DrawCopy();
+  }
+  else if (gl1ptriggers[trig1]->GetSumOfWeights() == 0)
+  {
+    ratio = (TH1I*)gl1ptriggers[trig1]->Clone();
+    ratio->SetTitle(Form("%s / %s",trig1.c_str(),trig2.c_str()));
+    ratio->GetXaxis()->SetLabelSize(labelsize);
+    ratio->GetYaxis()->SetLabelSize(labelsize);
+    ratio->SetStats(0);
+    ratio->DrawCopy();
+    TLatex *lat = new TLatex();
+    lat->SetTextSize(0.15);
+    lat->SetTextColor(kRed);   
+    lat->SetTextAngle(45);         
+    lat->SetNDC();
+    lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
+  }
+  else if (gl1ptriggers[trig2]->GetSumOfWeights() == 0)
+  {
+    ratio = (TH1I*)gl1ptriggers[trig2]->Clone();
+    ratio->SetTitle(Form("%s / %s",trig1.c_str(),trig2.c_str()));
+    ratio->GetXaxis()->SetLabelSize(labelsize);
+    ratio->GetYaxis()->SetLabelSize(labelsize);
+    ratio->SetStats(0);
+    ratio->DrawCopy();
+    TLatex *lat = new TLatex();
+    lat->SetTextSize(0.15);
+    lat->SetTextColor(kRed);   
+    lat->SetTextAngle(45);         
+    lat->SetNDC();
+    lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
+  }
+
+  return 0;
 }

@@ -27,7 +27,7 @@ class SpinMon : public OnlMon
 
   private:
 
-    // Packet *p = nullptr;
+    Packet *p_gl1 = nullptr;
     Packet *pBlueSpin = nullptr;
     Packet *pYellSpin = nullptr;
     Packet *pBluePol = nullptr;
@@ -49,9 +49,16 @@ class SpinMon : public OnlMon
 
     uint64_t scalercounts[NTRIG][NBUNCHES]{};
 
+    /*
+    //Set default spin patterns to 111x111_P1
+    int blueSpinPattern[NBUNCHES] = {1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-10,-10,-10,-10,-10,-10,-10,-10,-10};
+    int yellSpinPattern[NBUNCHES] = {1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-10,-10,-10,-10,-10,-10,-10,-10,-10};
+    */
+    
     //Set default spin patterns to all unfilled
     int blueSpinPattern[NBUNCHES] = {-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10};
     int yellSpinPattern[NBUNCHES] = {-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10};
+    
 
     //IntendedFillPatterns until getBuckets.py is implemented
     int blueFillPattern6[NBUNCHES] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
@@ -59,10 +66,6 @@ class SpinMon : public OnlMon
     int yellFillPattern6[NBUNCHES] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
     int yellFillPattern111[NBUNCHES] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
 
-    float blueAsyms[NBUNCHES] = {0};
-    float blueAsymsErr[NBUNCHES] = {0};
-    float yellAsyms[NBUNCHES] = {0};
-    float yellAsymsErr[NBUNCHES] = {0};
 
  protected:
   int evtcnt = 0;
@@ -80,16 +83,16 @@ class SpinMon : public OnlMon
 
   const int packet_BLUESPIN = 14902;
   const int packet_YELLSPIN = 14903;
-  //const int packet_BLUEPOL = 14905;
-  //const int packet_YELLPOL = 14906;
-  //const int packet_BLUEASYM = 14907;
-  //const int packet_YELLASYM = 14908;
-  //const int packet_BLUEINTPATTERN = 14910;
-  //const int packet_YELLINTPATTERN = 14911;
-  //const int packet_BLUEPOLPATTERN = 14912;
-  //const int packet_YELLPOLPATTERN = 14913;
-  //const int packet_BLUEFILLNUMBER = 14915;
-  //const int packet_YELLFILLNUMBER = 14916;
+  const int packet_BLUEPOL = 14905;
+  const int packet_YELLPOL = 14906;
+  const int packet_BLUEASYM = 14907;
+  const int packet_YELLASYM = 14908;
+  const int packet_BLUEINTPATTERN = 14910;
+  const int packet_YELLINTPATTERN = 14911;
+  const int packet_BLUEPOLPATTERN = 14912;
+  const int packet_YELLPOLPATTERN = 14913;
+  const int packet_BLUEFILLNUMBER = 14915;
+  const int packet_YELLFILLNUMBER = 14916;
   const int packetid_GL1 = 14001;
 
   TH1 *hspinpatternBlue = nullptr;
