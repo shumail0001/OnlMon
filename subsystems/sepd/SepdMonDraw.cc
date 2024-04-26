@@ -123,16 +123,11 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
     Pad[11] = new TPad("sepdpad11", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
     Pad[12] = new TPad("sepdpad12", "packet channels", 0.0, 0.0, 1.0 / 2, 0.3, 0);
     Pad[13] = new TPad("sepdpad13", "event number offset", 0.5, 0.6, 1.0, 0.95, 0);
-    // pad 14 and 15 side by side from left to right for correlation
-    // Pad[14] = new TPad("pad14", "correlation0", 0.5, 0.3, 0.75, 0.6, 0);
-    // Pad[15] = new TPad("pad15", "correlation1", 0.75, 0.3, 1.0, 0.6, 0);
 
     Pad[10]->Draw();
     Pad[11]->Draw();
     Pad[12]->Draw();
     Pad[13]->Draw();
-    //Pad[14]->Draw();
-    //Pad[15]->Draw();
     //  this one is used to plot the run number on the canvas
     transparent[4] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
     transparent[4]->SetFillStyle(4000);
@@ -409,13 +404,6 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
 
-  // TH2F hdummy("hdummy","",1,0,15000,1,0,nevt);
-  // for ( int i = 0; i < 32; ++i )
-  //   {
-  //     adc_dist_pad[i]->cd();
-  //     hdummy.Draw();
-  //   }
-
   for ( int i = 0; i < 768; ++i )
     {
       h_ADC_channel[i] = (TH1*)cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
@@ -425,7 +413,7 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
       if ( arm < 0 || arm > 1 ) continue;
       int pad_index = ring + arm*16;
       if ( pad_index < 0 || pad_index > 31 ) continue;
-      if ( adc_dist_pad[pad_index] ) adc_dist_pad[pad_index]->cd(); else std::cout << "Missing pad for ADC channel " << i << ", pad index is  " << pad_index << std::endl;
+      if ( adc_dist_pad[pad_index] ) adc_dist_pad[pad_index]->cd();
       if ( h_ADC_channel[i] )
         {
           h_ADC_channel[i]->GetXaxis()->SetNdivisions(505);
@@ -453,7 +441,6 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->Update();
   TC[1]->Show();
   TC[1]->SetEditable(false);
-  //std::cout << "Allegedly done drawing 768 histograms" << std::endl;
 
   return 0;
 
@@ -483,7 +470,6 @@ int SepdMonDraw::DrawSecondDeprecated(const std::string & /* what */)
     return -1;
   }
   int nevt = h_event->GetEntries();
-  //std::cout << "This is very bad, don't do this.  Number of events is " << nevt << std::endl;
   h_hits0_s->Scale(1. / nevt);
   h_hits_s->Scale(1. / nevt);
   h_hits0_n->Scale(1. / nevt);
@@ -492,8 +478,6 @@ int SepdMonDraw::DrawSecondDeprecated(const std::string & /* what */)
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
   Pad[2]->cd();
-  //h_hits0_s->Draw("COLZPOL");
-  //h_hits_s->Draw("COLZPOL same");
   h_ADC_all_channel->Draw();
   //gPad->SetLogz();
   gPad->SetBottomMargin(0.16);
@@ -539,7 +523,7 @@ int SepdMonDraw::DrawSecondDeprecated(const std::string & /* what */)
 int SepdMonDraw::DrawThird(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  // --- these histos are filled in SepdMon.cc, not sure why they're showing up blank here
+
   TH2 *h_ADC_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC_corr");
   TH2 *h_hits_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_corr");
   time_t evttime = cl->EventTime("CURRENT");
@@ -556,38 +540,6 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   // --- rebin histograms
   h_ADC_corr->Rebin2D(5,5);
   h_hits_corr->Rebin2D(5,5);
-  // ---
-  // This is extremely verbose, for diagnostic and testing purposes only
-  // int nbinsx = h_ADC_corr->GetNbinsX();
-  // int nbinsy = h_ADC_corr->GetNbinsY();
-  // std::cout << "Number of x bins for h_ADC_corr is " << nbinsx << std::endl;
-  // std::cout << "Number of y bins for h_ADC_corr is " << nbinsy << std::endl;
-  // for (int ibx = 0; ibx < nbinsx; ibx++)
-  // {
-  //   for (int iby = 0; iby < nbinsy; iby++)
-  //   {
-  //     double con = h_ADC_corr->GetBinContent(ibx + 1, iby + 1);
-  //     if ( con > 0 )
-  //       {
-  //         std::cout << "for bin " << ibx+1 << ", " << iby+1 << " bin content is " << con << std::endl;
-  //       }
-  //   }
-  // }
-  // int nbinsx = h_hits_corr->GetNbinsX();
-  // int nbinsy = h_hits_corr->GetNbinsY();
-  // std::cout << "Number of x bins for h_hits_corr is " << nbinsx << std::endl;
-  // std::cout << "Number of y bins for h_hits_corr is " << nbinsy << std::endl;
-  // for (int ibx = 0; ibx < nbinsx; ibx++)
-  // {
-  //   for (int iby = 0; iby < nbinsy; iby++)
-  //   {
-  //     double con = h_hits_corr->GetBinContent(ibx + 1, iby + 1);
-  //     if ( con > 0 )
-  //       {
-  //         std::cout << "for bin " << ibx+1 << ", " << iby+1 << " bin content is " << con << std::endl;
-  //       }
-  //   }
-  // }
   // ---
   TC[2]->SetEditable(true);
   TC[2]->Clear("D");
