@@ -398,7 +398,7 @@ int SpinMon::process_event(Event *e /* evt */)
 //    int evtnr = e->getEvtSequence();
     Event *gl1Event = e;
 
-    if (gl1Event)
+//    if (gl1Event)
     {
       p_gl1 = gl1Event->getPacket(packetid_GL1);
       //p_gl1 = e->getPacket(packetid_GL1);
