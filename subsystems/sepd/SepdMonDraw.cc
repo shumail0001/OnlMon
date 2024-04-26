@@ -60,12 +60,22 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SepdMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - Checking...", 1200, 600);
+    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1200, 600);
     gSystem->ProcessEvents();
-    Pad[2] = new TPad("sepdpad2", "Left", 0., 0., 0.5, 1);
-    Pad[3] = new TPad("sepdpad3", "Right", 0.5, 0., 1, 1);
-    Pad[2]->Draw();
-    Pad[3]->Draw();
+    for ( int i = 0; i < 32; ++i )
+      {
+        // left 4x4 is for the 16 rings in the north, the right 4x4 is for the 16 rings in the south
+        if ( i == 16 ) std::cout << "Initializing 32 pads " << std::endl;
+        double xlo = (i%4)*0.125 + (i/16)*0.5;
+        double xhi = xlo + 0.125;
+        double ylo = 0.75 - (i/4)*0.25 + (i/16);
+        double yhi = ylo + 0.25;
+        //std::cout << xlo << "\t" << ylo << "\t" << xhi << "\t" << yhi << std::endl;
+        adc_dist_pad[i] = new TPad(Form("adc_dist_pad_%d",i),"",xlo,ylo,xhi,yhi);
+        adc_dist_pad[i]->Draw();
+        adc_dist_pad[i]->SetTopMargin(0.2);
+        adc_dist_pad[i]->SetLeftMargin(0.2);
+      }
     // this one is used to plot the run number on the canvas
     transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
     transparent[1]->SetFillStyle(4000);
@@ -75,7 +85,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SepdMon3")
   {
     // xpos negative: do not draw menu bar
-    TC[2] = new TCanvas(name.c_str(), "sEPD Monitor 3 - Checking...", 1200, 600);
+    TC[2] = new TCanvas(name.c_str(), "sEPD Monitor 3 - North vs South Correlations", 1200, 600);
     gSystem->ProcessEvents();
     Pad[4] = new TPad("sepdpad4", "Left", 0., 0., 0.5, 1);
     Pad[5] = new TPad("sepdpad5", "Right", 0.5, 0., 1, 1);
@@ -266,7 +276,131 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   return 0;
 }
 
+
+
 int SepdMonDraw::DrawSecond(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  // TH2 *h_hits0_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits0_s");
+  // TH2 *h_hits0_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits0_n");
+  // TH2 *h_hits_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_s");
+  // TH2 *h_hits_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_n");
+  // TH1 *h_ADC_all_channel = (TH1*)cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
+
+  TH1 *h_ADC_channel[768];
+  for ( int i = 0; i < 768; ++i )
+    {
+      h_ADC_channel[i] = (TH1*)cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
+    }
+
+  TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
+  int nevt = h_event->GetEntries();
+  time_t evttime = cl->EventTime("CURRENT");
+
+  if (!gROOT->FindObject("SepdMon2"))
+  {
+    MakeCanvas("SepdMon2");
+  }
+  // if (!h_hits0_s)
+  // {
+  //   DrawDeadServer(transparent[0]);
+  //   TC[0]->SetEditable(false);
+  //   return -1;
+  // }
+
+  TC[1]->SetEditable(true);
+  TC[1]->Clear("D");
+
+  TH2F hdummy("hdummy","",1,0,15000,1,0,nevt);
+  for ( int i = 0; i < 32; ++i )
+    {
+      adc_dist_pad[i]->cd();
+      hdummy.Draw();
+    }
+
+  for ( int i = 0; i < 768; ++i )
+    {
+      h_ADC_channel[i] = (TH1*)cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
+      int ring = returnRing(i);
+      if ( ring < 0 || ring > 15 )
+        {
+          std::cout << "Trying to avoid something terrible, bad ring number... ADC channel is " << i << ", ring is " << ring << std::endl;
+          continue;
+        }
+      int arm = returnArm(i);
+      if ( arm < 0 || arm > 1 )
+        {
+          std::cout << "Trying to avoid something terrible, bad arm number... ADC channel is " << i << ", arm is " << arm << std::endl;
+          continue;
+        }
+      int pad_index = ring + arm*16;
+      if ( pad_index < 0 || pad_index > 31 )
+        {
+          std::cout << "Trying to avoid something terrible, bad pad_index number... ADC channel is " << i << ", pad_index is " << pad_index << std::endl;
+          continue;
+        }
+      if ( adc_dist_pad[pad_index] ) adc_dist_pad[pad_index]->cd(); else std::cout << "Missing pad for ADC channel " << i << ", pad index is  " << pad_index << std::endl;
+      if ( h_ADC_channel[i] ) h_ADC_channel[i]->Draw("same"); else std::cout << "Missing histogram for ADC channel " << i << std::endl;
+    }
+
+  std::cout << "Done drawing 768 ADC channel histograms... " << std::endl;
+
+  // int nevt = h_event->GetEntries();
+  // //std::cout << "This is very bad, don't do this.  Number of events is " << nevt << std::endl;
+  // h_hits0_s->Scale(1. / nevt);
+  // h_hits_s->Scale(1. / nevt);
+  // h_hits0_n->Scale(1. / nevt);
+  // h_hits_n->Scale(1. / nevt);
+  // gStyle->SetOptStat(0);
+  // TC[1]->SetEditable(true);
+  // TC[1]->Clear("D");
+  // Pad[2]->cd();
+  // //h_hits0_s->Draw("COLZPOL");
+  // //h_hits_s->Draw("COLZPOL same");
+  // h_ADC_all_channel->Draw();
+  // //gPad->SetLogz();
+  // gPad->SetBottomMargin(0.16);
+  // gPad->SetRightMargin(0.05);
+  // gPad->SetLeftMargin(0.2);
+  // gStyle->SetOptStat(0);
+  // //gStyle->SetPalette(57);
+  // gPad->SetTicky();
+  // gPad->SetTickx();
+  // // ---
+  // Pad[3]->cd();
+  // h_hits0_n->Draw("COLZPOL");
+  // h_hits_n->Draw("COLZPOL same");
+  // // ---
+  // gPad->SetLogz();
+  // gPad->SetBottomMargin(0.16);
+  // gPad->SetRightMargin(0.05);
+  // gPad->SetLeftMargin(0.2);
+  // gStyle->SetOptStat(0);
+  // gStyle->SetPalette(57);
+  // gPad->SetTicky();
+  // gPad->SetTickx();
+  // ---
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  // fill run number and event time into string
+  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[1]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[1]->Update();
+  TC[1]->Show();
+  TC[1]->SetEditable(false);
+  std::cout << "Allegedly done drawing 768 histograms" << std::endl;
+  return 0;
+}
+
+int SepdMonDraw::DrawSecondDeprecated(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   TH2 *h_hits0_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits0_s");
@@ -930,6 +1064,26 @@ time_t SepdMonDraw::getTime()
 
   currtime = cl->EventTime("CURRENT");
   return currtime;
+}
+
+int SepdMonDraw::returnRing(int ch)
+{
+  // 16 rings total, 0 is innermost, 15 is outermost
+  // ring 0 is tile 0
+  // ring 1 is tiles 1 and 2
+  // ring 2 is tiles 3 and 4
+  // etc
+  int tile = returnTile(ch);
+  int ring = (tile+1)/2;
+  return ring;
+}
+
+int SepdMonDraw::returnArm(int ch)
+{
+  // 0 is south, 1 is north
+  if ( ch >= 384 && ch <= 767 ) return 0;
+  else if ( ch <= 383 && ch >= 0 ) return 1;
+  else return -1;
 }
 
 int SepdMonDraw::returnSector(int ch){
