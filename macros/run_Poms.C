@@ -36,8 +36,8 @@ void StartPoms()
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("DAQ", "daq");
-  subsys->AddAction("daqDraw(\"FIRST\")", "DAQ 1st Monitor");
-  subsys->AddAction("daqDraw(\"SECOND\")", "DAQ 2nd Monitor");
+  subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
+  subsys->AddAction("daqDraw(\"SECOND\")", "Calo-GL1 Snapshot");
   // subsys->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
    subsys->AddAction(new SubSystemActionSavePlot(subsys));
    pmf->RegisterSubSystem(subsys);
@@ -92,6 +92,12 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
+  // subsys = new SubSystem("SPIN", "spin");
+  // subsys->AddAction("sepdDraw(\"FIRST\")", "Spin");
+  // subsys->AddAction("sepdDraw(\"SECOND\")", "GL1p");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
+
   subsys = new SubSystem("TPC", "tpc");
   subsys->AddAction("tpcDraw(\"TPCMODULE\")", "TPC SUM[ADC]");
   subsys->AddAction("tpcDraw(\"TPCSAMPLESIZE\")", "TPC Sample Size");
@@ -128,12 +134,27 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  // subsys = new SubSystem("ZDC", "zdc");
-  // subsys->AddAction("zdcDraw(\"FIRST\")", "ZDC 1st Monitor");
-  // subsys->AddAction("zdcDraw(\"SECOND\")", "ZDC 2nd Monitor");
-  // subsys->AddAction("zdcDraw(\"THIRD\")", "ZDC 3rd Monitor");
-  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  // pmf->RegisterSubSystem(subsys);
+  subsys = new SubSystem("ZDC/SMD", "zdc");
+  subsys->AddAction("zdcDraw(\"FIRST\")", "ZDC 1st Monitor");
+  subsys->AddAction("zdcDraw(\"SECOND\")", "ZDC 2nd Monitor");
+  subsys->AddAction("zdcDraw(\"ZDC_WAVEFORM\")", "ZDC Wave form");
+  subsys->AddAction("zdcDraw(\"SMDVALUES\")", "SMD Values");
+  subsys->AddAction("zdcDraw(\"SMDN&S\")", "SMD North South");
+  subsys->AddAction("zdcDraw(\"SMD_N_IND\")", "SMD North Individual");
+  subsys->AddAction("zdcDraw(\"SMD_S_IND\")", "SMD South Individual");
+  subsys->AddAction("zdcDraw(\"SMD_MULTIPLICITIES\")", "SMD Multiplicities");
+
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
 
   pmf->Draw();
+}
+
+void listCanvases()
+{
+  TSeqCollection* allCanvases = gROOT->GetListOfCanvases();
+  for (int i = 0; i<allCanvases->GetEntries(); i++)
+    {
+      cout << allCanvases->At(i)->GetName() << endl;
+    }
 }
