@@ -22,7 +22,6 @@ class SepdMon : public OnlMon
   int process_event(Event *evt);
   int Init();
   int BeginRun(const int runno);
-  int SepdMapChannel(int ch);
   int Reset();
 
  protected:
@@ -48,16 +47,6 @@ class SepdMon : public OnlMon
   int nRad = 24;
   double axislimit = M_PI;
 
-  TH2 *h_ADC0_s = nullptr;
-  TH2 *h_ADC0_n = nullptr;
-  TH2 *h_ADC_s = nullptr;
-  TH2 *h_ADC_n = nullptr;
-
-  TH2 *h_hits0_s = nullptr;
-  TH2 *h_hits0_n = nullptr;
-  TH2 *h_hits_s = nullptr;
-  TH2 *h_hits_n = nullptr;
-
   TH2 *h_ADC_corr = nullptr;
   TH2 *h_hits_corr = nullptr;
 
@@ -76,7 +65,10 @@ class SepdMon : public OnlMon
   TH1 *h1_packet_number = nullptr;
   TH1 *h1_packet_event = nullptr;
 
-  TH1 *h_ADC_channel[744] = {nullptr};
+  TH1 *h_hits_all_channel = nullptr;
+  TH1 *h_ADC_all_channel = nullptr;
+  TH1 *h_ADC_channel[768] = {nullptr};
+  //TH1 *h_ADC_channel[744] = {nullptr};
 
   std::string runtypestr = "Unknown";
   std::string id_string;

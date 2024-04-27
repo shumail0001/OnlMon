@@ -19,6 +19,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TProfile.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -116,7 +117,8 @@ int HcalMon::Init()
   printf("doing the Init\n");
 
   h2_hcal_hits = new TH2F("h2_hcal_hits", "", 24, 0, 24, 64, 0, 64);
-  h2_hcal_hits_trig = new TH2F("h2_hcal_hits_trig", "", 24, 0, 24, 64, 0, 64);
+  h2_hcal_hits_trig1 = new TH2F("h2_hcal_hits_trig1", "", 24, 0, 24, 64, 0, 64);
+  h2_hcal_hits_trig2 = new TH2F("h2_hcal_hits_trig2", "", 24, 0, 24, 64, 0, 64);
   h_hcal_trig = new TH1F("h_hcal_trig", "", 64, 0, 64);
   h2_hcal_rm = new TH2F("h2_hcal_rm", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_mean = new TH2F("h2_hcal_mean", "", 24, 0, 24, 64, 0, 64);
@@ -135,6 +137,7 @@ int HcalMon::Init()
   h1_packet_chans = new TH1F("h1_packet_chans", "", 8, packetlow - 0.5, packethigh + 0.5);
   h1_packet_event = new TH1F("h1_packet_event", "", 8, packetlow - 0.5, packethigh + 0.5);
   h_caloPack_gl1_clock_diff = new TH2F("h_caloPack_gl1_clock_diff","", 8, packetlow - 0.5, packethigh + 0.5,65536,0,65536);
+  h_evtRec = new TProfile("h_evtRec","",1,0,1);
 
   for (int ih = 0; ih < Nsector; ih++)
     h_rm_sectorAvg[ih] = new TH1F(Form("h_rm_sectorAvg_s%d", ih), "", historyLength, 0, historyLength * historyScaleDown);
@@ -165,8 +168,10 @@ int HcalMon::Init()
   OnlMonServer* se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, h2_hcal_hits);
-  se->registerHisto(this, h2_hcal_hits_trig);
+  se->registerHisto(this, h2_hcal_hits_trig1);
+  se->registerHisto(this, h2_hcal_hits_trig2);
   se->registerHisto(this, h_hcal_trig);
+  se->registerHisto(this, h_evtRec);
   se->registerHisto(this, h_caloPack_gl1_clock_diff);
   se->registerHisto(this, h2_hcal_rm);
   se->registerHisto(this, h2_hcal_mean);
@@ -313,7 +318,8 @@ int HcalMon::process_event(Event* e /* evt */)
   float energy2 = 0;
 
 
-  bool trig_fire = false;
+  bool trig1_fire = false;
+  bool trig2_fire = false;
   std::vector<bool> trig_bools;
   long long int gl1_clock = 0;
   if (anaGL1){
@@ -321,17 +327,23 @@ int HcalMon::process_event(Event* e /* evt */)
     Event *gl1Event = erc->getEvent(evtnr);
     if (gl1Event){
       Packet* p = gl1Event->getPacket(14001);
+      h_evtRec->Fill(0.0,1.0);
       if (p){
         gl1_clock = p->lValue(0,"BCO");
-        int triggervec = p->lValue(0,"TriggerVector");
+        uint64_t triggervec = p->lValue(0,"TriggerVector");
         for (int i = 0; i < 64; i++ ) {
-          bool trig_decision = (bool) triggervec & 1;
+          bool trig_decision = (( triggervec & 0x1U) == 0x1U);
           trig_bools.push_back(trig_decision);
           if (trig_decision) h_hcal_trig->Fill(i);
-          triggervec = triggervec >> 1;
+          triggervec = (triggervec >> 1U) & 0xffffffffU;
         }
-        trig_fire = trig_bools[2]; //trigger of interest is 2
+        trig1_fire = trig_bools[trig1]; 
+        trig2_fire = trig_bools[trig2]; 
       }
+    }
+    else{
+      std::cout << "GL1 event is null" << std::endl;
+      h_evtRec->Fill(0.0,0.0);
     }
   }
 
@@ -416,8 +428,11 @@ int HcalMon::process_event(Event* e /* evt */)
         if (signal > hit_threshold)
         {
           h2_hcal_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          if (trig_fire){
-            h2_hcal_hits_trig->Fill(eta_bin + 0.5, phi_bin + 0.5);
+          if (trig1_fire){
+            h2_hcal_hits_trig1->Fill(eta_bin + 0.5, phi_bin + 0.5);
+          }
+          if (trig2_fire){
+            h2_hcal_hits_trig2->Fill(eta_bin + 0.5, phi_bin + 0.5);
           }
         }
 

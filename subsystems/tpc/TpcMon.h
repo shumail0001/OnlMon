@@ -58,6 +58,14 @@ class TpcMon : public OnlMon
   TH2 *SouthSideADC_clusterXY_R2 = nullptr;
   TH2 *SouthSideADC_clusterXY_R3 = nullptr;
 
+  TH2 *NorthSideADC_clusterXY_R1_LASER = nullptr;
+  TH2 *NorthSideADC_clusterXY_R2_LASER = nullptr;
+  TH2 *NorthSideADC_clusterXY_R3_LASER = nullptr;
+
+  TH2 *SouthSideADC_clusterXY_R1_LASER = nullptr;
+  TH2 *SouthSideADC_clusterXY_R2_LASER = nullptr;
+  TH2 *SouthSideADC_clusterXY_R3_LASER = nullptr;
+
   TH2 *NorthSideADC_clusterXY_R1_unw = nullptr;
   TH2 *NorthSideADC_clusterXY_R2_unw = nullptr;
   TH2 *NorthSideADC_clusterXY_R3_unw = nullptr;

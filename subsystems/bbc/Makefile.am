@@ -6,6 +6,7 @@ BUILT_SOURCES = \
 SUBDIRS = calib
 
 AM_CPPFLAGS = \
+  -DONLINE \
   -I$(includedir) \
   -isystem$(ONLINE_MAIN)/include \
   -isystem$(ROOTSYS)/include
@@ -32,13 +33,9 @@ bbcincludedir=$(pkgincludedir)/bbc
 bbcinclude_HEADERS = \
   BbcMonDefs.h \
   BbcMon.h \
-  OnlBbcSig.h \
-  OnlBbcEvent.h \
   BbcMonDraw.h
 
 libonlbbcmon_server_la_SOURCES = \
-  OnlBbcSig.cc \
-  OnlBbcEvent.cc \
   BbcMon.cc
 
 libonlbbcmon_client_la_SOURCES = \

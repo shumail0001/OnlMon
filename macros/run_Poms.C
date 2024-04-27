@@ -35,12 +35,12 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  // subsys = new SubSystem("DAQ", "daq");
-  // subsys->AddAction("daqDraw(\"FIRST\")", "DAQ 1st Monitor");
-  // subsys->AddAction("daqDraw(\"SECOND\")", "DAQ 2nd Monitor");
+  subsys = new SubSystem("DAQ", "daq");
+  subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
+  subsys->AddAction("daqDraw(\"SECOND\")", "Calo-GL1 Snapshot");
   // subsys->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
-  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  // pmf->RegisterSubSystem(subsys);
+   subsys->AddAction(new SubSystemActionSavePlot(subsys));
+   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
@@ -69,16 +69,20 @@ void StartPoms()
   subsys->AddAction("ll1Draw(\"FIRST\")", "Hits");
   subsys->AddAction("ll1Draw(\"SECOND\")", "Hits Correlation");
   subsys->AddAction("ll1Draw(\"THIRD\")", "Hits Lineup");
+  subsys->AddAction("ll1Draw(\"FOURTH\")", "EMCAL LL1 - Photon");
+  subsys->AddAction("ll1Draw(\"FIFTH\")", "Jet Input - HCAL");
+  subsys->AddAction("ll1Draw(\"SIXTH\")", "Jet LL1");
+  subsys->AddAction("ll1Draw(\"SEVENTH\")", "EMCAL 2x2 Sums");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  // subsys = new SubSystem("MVTX", "mvtx");
-  // subsys->AddAction("mvtxDraw(\"GENERAL\")", "General Monitor");
-  // subsys->AddAction("mvtxDraw(\"FEE\")", "FEE");
-  // subsys->AddAction("mvtxDraw(\"FHR\")", "FHR");
-  // subsys->AddAction("mvtxDraw(\"OCC\")", "OCC");
-  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  // pmf->RegisterSubSystem(subsys);
+  subsys = new SubSystem("MVTX", "mvtx");
+  subsys->AddAction("mvtxDraw(\"GENERAL\")", "General Monitor");
+  subsys->AddAction("mvtxDraw(\"FEE\")", "FEE");
+  subsys->AddAction("mvtxDraw(\"FHR\")", "FHR");
+  subsys->AddAction("mvtxDraw(\"OCC\")", "OCC");
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("SEPD", "sepd");
   subsys->AddAction("sepdDraw(\"FIRST\")", "Towers");
@@ -87,6 +91,12 @@ void StartPoms()
   subsys->AddAction("sepdDraw(\"FIFTH\")", "Wave vs Fast Fitting");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
+
+  // subsys = new SubSystem("SPIN", "spin");
+  // subsys->AddAction("sepdDraw(\"FIRST\")", "Spin");
+  // subsys->AddAction("sepdDraw(\"SECOND\")", "GL1p");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("TPC", "tpc");
   subsys->AddAction("tpcDraw(\"TPCMODULE\")", "TPC SUM[ADC]");
@@ -102,6 +112,7 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCCLUSTERSXYUNWEIGTHED\")", "TPC Cluster XY MaxADC-Pedestal,u");
   subsys->AddAction("tpcDraw(\"TPCCLUSTERSZYWEIGTHED\")", "TPC Cluster ZY MaxADC-Pedestal,w");
   subsys->AddAction("tpcDraw(\"TPCCLUSTERSZYUNWEIGTHED\")", "TPC Cluster ZY MaxADC-Pedestal,u");
+  subsys->AddAction("tpcDraw(\"TPCLASERCLUSTERSXYWEIGTHED\")", "TPC DIFF. LASER Cluster XY MaxADC-Pedestal,w");
   subsys->AddAction("tpcDraw(\"TPCCHANNELPHI_LAYER_WEIGHTED\")", "TPC ChannelPhi vs Layer vs Pedest Sub. ADC,w");
   subsys->AddAction("tpcDraw(\"TPCNEVENTSEBDC\")", "TPC NEvents vs EBDC");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE\")", "TPC Pedest Sub. ADC vs Sample");
@@ -123,12 +134,27 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  // subsys = new SubSystem("ZDC", "zdc");
-  // subsys->AddAction("zdcDraw(\"FIRST\")", "ZDC 1st Monitor");
-  // subsys->AddAction("zdcDraw(\"SECOND\")", "ZDC 2nd Monitor");
-  // subsys->AddAction("zdcDraw(\"THIRD\")", "ZDC 3rd Monitor");
-  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  // pmf->RegisterSubSystem(subsys);
+  subsys = new SubSystem("ZDC/SMD", "zdc");
+  subsys->AddAction("zdcDraw(\"FIRST\")", "ZDC 1st Monitor");
+  subsys->AddAction("zdcDraw(\"SECOND\")", "ZDC 2nd Monitor");
+  subsys->AddAction("zdcDraw(\"ZDC_WAVEFORM\")", "ZDC Wave form");
+  subsys->AddAction("zdcDraw(\"SMDVALUES\")", "SMD Values");
+  subsys->AddAction("zdcDraw(\"SMDN&S\")", "SMD North South");
+  subsys->AddAction("zdcDraw(\"SMD_N_IND\")", "SMD North Individual");
+  subsys->AddAction("zdcDraw(\"SMD_S_IND\")", "SMD South Individual");
+  subsys->AddAction("zdcDraw(\"SMD_MULTIPLICITIES\")", "SMD Multiplicities");
+
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
 
   pmf->Draw();
+}
+
+void listCanvases()
+{
+  TSeqCollection* allCanvases = gROOT->GetListOfCanvases();
+  for (int i = 0; i<allCanvases->GetEntries(); i++)
+    {
+      cout << allCanvases->At(i)->GetName() << endl;
+    }
 }

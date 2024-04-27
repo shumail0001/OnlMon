@@ -1,9 +1,11 @@
 #ifndef __BBCMONDEFS_H__
 #define __BBCMONDEFS_H__
 
+//#include <gsl/gsl_const_cgsm.h>
+
 #define AUAU  // PROTONPROTON //PAL //PAU //DAU //HE3AU //CUCU //AUAU
 
-namespace bbc_onlmon
+namespace BbcMonDefs
 {
 
   const int num_pmt = 128;                 // number of PMT
@@ -233,6 +235,30 @@ namespace bbc_onlmon
 
   static const int BBC_NSAMPLES = 31;  // number of digitizer samples
 
-}  // namespace bbc_onlmon
+  const double index_refract = 1.4585;        // quartz radiator index of refraction
+  const double v_ckov = 1.0 / index_refract;  // velocity threshold for CKOV
+  const double C = 29.9792458;                // cm/ns
+  //const double C = GSL_CONST_CGSM_SPEED_OF_LIGHT*1e-9;                // cm/ns
+  
+  const int MBD_N_PMT = 128;
+  const int MBD_N_FEECH = 256;
+  const int BBC_N_PMT = 128;
+  const int BBC_N_FEECH = 256;
+  const int MAX_SAMPLES = 31;
+
+  enum
+  {
+    ABORTRUN = -2,
+    ABORTEVENT = -1,
+    EVENT_OK = 0,
+    DISCARDEVENT = 1,
+    SYNC_OK = 0,
+    SYNC_FAIL = -1,
+    SYNC_NOOBJECT = 1,
+    DONOTREGISTERSUBSYSTEM = -3,
+    RESET_NODE_TREE = 1
+  };
+  
+}  // namespace BbcMonDefs
 
 #endif /*__BBCMONDEFS_H__ */
