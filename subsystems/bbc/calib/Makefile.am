@@ -8,6 +8,7 @@ mbddata_DATA = \
   mbd_qfit.calib \
   mbd_tq_t0.calib \
   mbd_tt_t0.calib \
+  mbd_ped.calib \
   mbd_shape.calib \
   mbd_sherr.calib \
   mbd_timecorr.calib \
