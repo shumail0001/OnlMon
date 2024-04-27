@@ -82,8 +82,8 @@ void mvtxDrawInit(const int online = 0)
      //cl->registerHisto(Form("MVTXMON_chipHitmapFLX%d", iflx), instanceName);
   }
 
-  // cl->AddServerHost("localhost");  // check local host first
-  CreateHostList(online);
+   cl->AddServerHost("localhost");  // check local host first
+  //CreateHostList(online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
 
