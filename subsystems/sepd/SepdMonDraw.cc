@@ -328,9 +328,24 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
 
+  // --- needs some improvement
+  int colors[36] = {kAzure,kBlue,kViolet,kMagenta,
+                    kPink,kRed,kOrange,kYellow,
+                    kSpring,kGreen,kTeal,kCyan,
+                    kAzure-9,kBlue-9,kViolet-9,kMagenta-9,
+                    kPink-9,kRed-9,kOrange-9,kYellow-9,
+                    kSpring-9,kGreen-9,kTeal-9,kCyan-9,
+                    kAzure+10,kBlue+10,kViolet+10,kMagenta+10,
+                    kPink+10,kRed+10,kOrange+10,kYellow+10,
+                    kSpring+10,kGreen+10,kTeal+10,kCyan+10};
   for ( int i = 0; i < 768; ++i )
     {
       h_ADC_channel[i] = (TH1*)cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
+      int tile = returnTile(i);
+      if ( tile < 0 || tile > 31 ) continue;
+      //int odd = (tile+1)%2;
+      int sector = returnSector(i);
+      if ( sector < 0 || sector > 11 ) continue;
       int ring = returnRing(i);
       if ( ring < 0 || ring > 15 ) continue;
       int arm = returnArm(i);
@@ -338,9 +353,14 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
       int pad_index = ring + arm*16;
       if ( pad_index < 0 || pad_index > 31 ) continue;
       if ( adc_dist_pad[pad_index] ) adc_dist_pad[pad_index]->cd();
+      // ---
+      int color = colors[tile];
+      // ---
       if ( h_ADC_channel[i] )
         {
           h_ADC_channel[i]->GetXaxis()->SetNdivisions(505);
+          h_ADC_channel[i]->SetLineColor(color);
+          h_ADC_channel[i]->SetFillColor(color);
           h_ADC_channel[i]->Draw("same");
         }
       else std::cout << "Missing histogram for ADC channel " << i << std::endl;
