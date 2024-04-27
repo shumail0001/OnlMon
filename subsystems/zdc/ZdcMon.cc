@@ -118,7 +118,7 @@ int ZdcMon::Init()
   zdc_S3 = new TH1F("zdc_S3", "ZDC3 ADC south", BIN_NUMBER, 0, MAX_ENERGY1);
   
   //waveform
-  h_waveform = new TH2F("h_waveform", "h_waveform", 13, -0.5, 12.5, 512, -500, 12000);
+  h_waveform = new TH2F("h_waveform", "h_waveform", 13, -0.5, 12.5, 512, -500, 20000);
 
   // SMD
 
