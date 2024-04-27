@@ -346,7 +346,7 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   Pad[0]->cd();
-//  gPad->SetLogy();
+  gPad->SetLogy();
 //  gPad->SetLogx();
   if (zdc_adc_south)
   {
@@ -360,7 +360,7 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
     return -1;
   }
   Pad[1]->cd();
-//  gPad->SetLogy();
+  gPad->SetLogy();
 //  gPad->SetLogx();
   if (zdc_adc_north)
   {
