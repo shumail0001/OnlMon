@@ -82,10 +82,10 @@ int ZdcMon::Init()
     exit(1);
   }
 
-  for (int i = 0; i < 32; i++)
+  for (float & i : gain)
   {
     gain_infile >> col1 >> col2 >> col3;
-    gain[i] = col1;
+    i = col1;
   }
 
   for (int i = 0; i < 16; i++)  // relative gains of SMD north channels
@@ -241,7 +241,9 @@ int ZdcMon::BeginRun(const int /* runno */)
 std::vector<float> ZdcMon::anaWaveformFast(Packet *p, const int channel)
 {
   std::vector<float> waveform;
-  for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+// Chris: preallocation = speed improvement
+  waveform.reserve(p->iValue(0, "SAMPLES")); 
+for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
   {
     waveform.push_back(p->iValue(s, channel));
   }
@@ -280,14 +282,16 @@ int ZdcMon::process_event(Event *e /* evt */)
       int zdc_side = TowerInfoDefs::get_zdc_side(towerkey);
   
       double baseline = 0.;
+
+// Chris: this code is unused
       // double baseline_low = 0.;
       // double baseline_high = 0.;
 
-      for(int s = 0; s < 3; s++) {baseline_low += p->iValue(s, c);}
-      baseline_low /= 3.;
+      // for(int s = 0; s < 3; s++) {baseline_low += p->iValue(s, c);}
+      // baseline_low /= 3.;
        
-      for (int s = p->iValue(0, "SAMPLES")-3; s < p->iValue(0, "SAMPLES"); s++) {baseline_high += p->iValue(s,c);}
-      baseline_high /=3.;
+      // for (int s = p->iValue(0, "SAMPLES")-3; s < p->iValue(0, "SAMPLES"); s++) {baseline_high += p->iValue(s,c);}
+      // baseline_high /=3.;
 
       for(int s = 0; s < p->iValue(0, "SAMPLES"); s++)
       {
@@ -305,23 +309,30 @@ int ZdcMon::process_event(Event *e /* evt */)
        smd_adc[c - 16] = signal;
       }
 
-      if (mod != 0) continue;
+      if (mod != 0) { continue;
+}
       
       if((c < 16) && ((c != 6) && (c != 14)))
       {
         if (zdc_side == 0)
         {
           totalzdcsouthsignal+= signal;
-          if(c == 0) zdc_S1->Fill(signal);
-          if(c == 2) zdc_S2->Fill(signal);
-          if(c == 4) zdc_S3->Fill(signal);
+          if(c == 0) { zdc_S1->Fill(signal);
+}
+          if(c == 2) { zdc_S2->Fill(signal);
+}
+          if(c == 4) { zdc_S3->Fill(signal);
+}
         }
         else if (zdc_side == 1)
         {
           totalzdcnorthsignal+= signal;
-          if(c == 8) zdc_N1->Fill(signal);
-          if(c == 10) zdc_N2->Fill(signal);
-          if(c == 12) zdc_N3->Fill(signal);
+          if(c == 8) { zdc_N1->Fill(signal);
+}
+          if(c == 10) { zdc_N2->Fill(signal);
+}
+          if(c == 12) { zdc_N3->Fill(signal);
+}
         }
         else
         {
@@ -453,10 +464,10 @@ int ZdcMon::process_event(Event *e /* evt */)
     bool fired_smd_ver_s = (s_ver > 1);
 
     /***** for testing ***********/
-    fired_smd_hor_n = 1;
-    fired_smd_ver_n = 1;
-    fired_smd_hor_s = 1;
-    fired_smd_ver_s = 1;
+    fired_smd_hor_n = true;
+    fired_smd_ver_n = true;
+    fired_smd_hor_s = true;
+    fired_smd_ver_s = true;
 
     //compute, if smd is overloaded
     bool smd_ovld_north = false;
