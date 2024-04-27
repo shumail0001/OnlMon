@@ -850,6 +850,10 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   TC[7]->SetEditable(true);
   TC[7]->Clear("D");
   Pad[55]->cd();
+  gPad->SetLogz();
+  h_waveform->SetXTitle("Sample Number");
+  h_waveform->SetYTitle("Amplitude");
+
   if (h_waveform)
   {
     h_waveform->DrawCopy("colz");
