@@ -849,22 +849,18 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   }
   TC[7]->SetEditable(true);
   TC[7]->Clear("D");
-  Pad[55]->cd();
-  gPad->SetLogz();
-  h_waveform->SetXTitle("Sample Number");
-  h_waveform->SetYTitle("Amplitude");
-
-  if (h_waveform)
-  {
-    h_waveform->DrawCopy("colz");
-  }
-  else
+  if (!h_waveform)
   {
     DrawDeadServer(transparent[0]);
     TC[7]->SetEditable(false);
     return -1;
   }
- 
+  Pad[55]->cd();
+  gPad->SetLogz();
+  h_waveform->SetXTitle("Sample Number");
+  h_waveform->SetYTitle("Amplitude");
+  h_waveform->DrawCopy("colz"); 
+
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);

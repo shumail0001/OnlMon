@@ -280,8 +280,8 @@ int ZdcMon::process_event(Event *e /* evt */)
       int zdc_side = TowerInfoDefs::get_zdc_side(towerkey);
   
       double baseline = 0.;
-      double baseline_low = 0.;
-      double baseline_high = 0.;
+      // double baseline_low = 0.;
+      // double baseline_high = 0.;
 
       for(int s = 0; s < 3; s++) {baseline_low += p->iValue(s, c);}
       baseline_low /= 3.;
