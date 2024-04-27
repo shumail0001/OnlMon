@@ -831,7 +831,7 @@ for (int iLayer = 0; iLayer < 3; iLayer++) {
   hChipStaveOccupancy[1][NFlx]->GetZaxis()->SetTitle("");
   hChipStaveOccupancy[2][NFlx]->GetZaxis()->SetTitle("");
 
-  hChipStrobes[NFlx]->SetTitle("Chip Strobes (L1 triggers) vs Feeid");
+  hChipStrobes[NFlx]->SetTitle("Chip Strobes (L1 triggers) vs Chip*Stave");
   hChipStrobes[NFlx]->GetYaxis()->SetTitle("Number of strobes");
 
 
