@@ -188,10 +188,14 @@ int SepdMonDraw::Draw(const std::string &what)
   return iret;
 }
 
+
+
 int SepdMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   TH1F *h_ADC_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
+  //TH1F *h_hits_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_hits_all_channel");
+  TH1 *h_event = (TH1*)cl->getHisto("SEPDMON_0", "h_event");
   time_t evttime = cl->EventTime("CURRENT");
 
   if (!gROOT->FindObject("SepdMon1"))
@@ -229,11 +233,15 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
                                  12, 0, 2*R_PI,
                                  16, 0.15, 3.5);
 
+  // --- normalize
+  //h_ADC_all_channel->Divide(h_hits_all_channel);
+  int nevt = h_event->GetEntries();
+  h_ADC_all_channel->Scale(1.0/nevt);
   for ( int i = 0; i < 768; ++i )
     {
       int adc_channel = i;
       float adc_signal = h_ADC_all_channel->GetBinContent(i+1);
-      if ( adc_signal <= 0.1 ) adc_signal = 0.1;
+      if ( adc_signal <= 0.01 ) adc_signal = 0.01;
       int tile = returnTile(i);
       int odd = (tile+1)%2;
       //int ring = returnRing(adc_channel);
@@ -255,9 +263,9 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   // --- end Rosi (mostly) ---
   // -------------------------
 
+  // --- may need to update these depending on whether there are "hot" tiles
   double zmin = 0.0;
   double zmax = 1.1*h_ADC_all_channel->GetMaximum();
-
 
   gStyle->SetOptStat(0);
   // ---
