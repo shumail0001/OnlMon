@@ -369,14 +369,14 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   }
 
   Pad[2]->cd();
-  if (smd_xy_north)
-  {
-    smd_xy_north->DrawCopy("colz");
-  }
-  Pad[3]->cd();
   if (smd_xy_south)
   {
     smd_xy_south->DrawCopy("colz");
+  }
+  Pad[3]->cd();
+  if (smd_xy_north)
+  {
+    smd_xy_north->DrawCopy("colz");
   }
 
   TText PrintRun;
