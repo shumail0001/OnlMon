@@ -517,7 +517,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_time->Draw("hist");
   h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
-  h_waveform_time->GetYaxis()->SetTitle("Tiles");
+  h_waveform_time->GetYaxis()->SetTitle("Counts");
   h_waveform_time->GetXaxis()->SetLabelSize(tsize);
   h_waveform_time->GetYaxis()->SetLabelSize(tsize);
   h_waveform_time->GetXaxis()->SetTitleSize(tsize);
@@ -540,7 +540,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_pedestal->Draw("hist");
   h_waveform_pedestal->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
-  h_waveform_pedestal->GetYaxis()->SetTitle("Tiles");
+  h_waveform_pedestal->GetYaxis()->SetTitle("Counts");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize);
   h_waveform_pedestal->GetYaxis()->SetLabelSize(tsize);
   h_waveform_pedestal->GetXaxis()->SetTitleSize(tsize);
