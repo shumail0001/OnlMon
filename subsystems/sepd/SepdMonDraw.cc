@@ -296,92 +296,6 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 
 
 
-int SepdMonDraw::DrawFirstDeprecated(const std::string & /* what */)
-{
-  OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *h_ADC0_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC0_s");
-  TH2 *h_ADC0_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC0_n");
-  TH2 *h_ADC_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC_s");
-  TH2 *h_ADC_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC_n");
-  TH2 *h_hits0_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits0_s");
-  TH2 *h_hits0_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits0_n");
-  TH2 *h_hits_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_s");
-  TH2 *h_hits_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_n");
-  time_t evttime = cl->EventTime("CURRENT");
-
-  if (!gROOT->FindObject("SepdMon1"))
-  {
-    MakeCanvas("SepdMon1");
-  }
-  TC[0]->SetEditable(true);
-  TC[0]->Clear("D");
-
-  if (!h_ADC0_s)
-  {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
-    return -1;
-  }
-
-  int nbinsx0 = h_ADC0_s->GetNbinsX();
-  int nbinsy0 = h_ADC0_s->GetNbinsY();
-  int nbinsx = h_ADC_s->GetNbinsX();
-  int nbinsy = h_ADC_s->GetNbinsY();
-
-  for (int ibx = 0; ibx < nbinsx0; ibx++)
-  {
-    for (int iby = 0; iby < nbinsy0; iby++)
-    {
-      double con = h_ADC0_s->GetBinContent(ibx + 1, iby + 1);
-      double div = h_hits0_s->GetBinContent(ibx + 1, iby + 1);
-      h_ADC0_s->SetBinContent(ibx + 1, iby + 1, con / div);
-      con = h_ADC0_n->GetBinContent(ibx + 1, iby + 1);
-      div = h_hits0_n->GetBinContent(ibx + 1, iby + 1);
-      h_ADC0_n->SetBinContent(ibx + 1, iby + 1, con / div);
-    }
-  }
-
-  for (int ibx = 0; ibx < nbinsx; ibx++)
-  {
-    for (int iby = 0; iby < nbinsy; iby++)
-    {
-      double con = h_ADC_s->GetBinContent(ibx + 1, iby + 1);
-      double div = h_hits_s->GetBinContent(ibx + 1, iby + 1);
-      h_ADC_s->SetBinContent(ibx + 1, iby + 1, con / div);
-      con = h_ADC_n->GetBinContent(ibx + 1, iby + 1);
-      div = h_hits_n->GetBinContent(ibx + 1, iby + 1);
-      h_ADC_n->SetBinContent(ibx + 1, iby + 1, con / div);
-    }
-  }
-  gStyle->SetOptStat(0);
-  Pad[0]->cd();
-  h_ADC0_s->Draw("COLZPOL");
-  h_ADC_s->Draw("COLZPOL same");
-  Pad[1]->cd();
-  h_ADC0_n->Draw("COLZPOL");
-  h_ADC_n->Draw("COLZPOL same");
-
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  // fill run number and event time into string
-  runnostream << ThisName << "_1 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
-  runstring = runnostream.str();
-  transparent[0]->cd();
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[0]->Update();
-  TC[0]->Show();
-  TC[0]->SetEditable(false);
-  return 0;
-}
-
-
-
 int SepdMonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -446,79 +360,7 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
 
 }
 
-int SepdMonDraw::DrawSecondDeprecated(const std::string & /* what */)
-{
-  OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *h_hits0_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits0_s");
-  TH2 *h_hits0_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits0_n");
-  TH2 *h_hits_s = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_s");
-  TH2 *h_hits_n = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_n");
 
-  TH1 *h_ADC_all_channel = (TH1*)cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
-
-  TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
-  time_t evttime = cl->EventTime("CURRENT");
-
-  if (!gROOT->FindObject("SepdMon2"))
-  {
-    MakeCanvas("SepdMon2");
-  }
-  if (!h_hits0_s)
-  {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
-    return -1;
-  }
-  int nevt = h_event->GetEntries();
-  h_hits0_s->Scale(1. / nevt);
-  h_hits_s->Scale(1. / nevt);
-  h_hits0_n->Scale(1. / nevt);
-  h_hits_n->Scale(1. / nevt);
-  gStyle->SetOptStat(0);
-  TC[1]->SetEditable(true);
-  TC[1]->Clear("D");
-  Pad[2]->cd();
-  h_ADC_all_channel->Draw();
-  //gPad->SetLogz();
-  gPad->SetBottomMargin(0.16);
-  gPad->SetRightMargin(0.05);
-  gPad->SetLeftMargin(0.2);
-  gStyle->SetOptStat(0);
-  //gStyle->SetPalette(57);
-  gPad->SetTicky();
-  gPad->SetTickx();
-  // ---
-  Pad[3]->cd();
-  h_hits0_n->Draw("COLZPOL");
-  h_hits_n->Draw("COLZPOL same");
-  // ---
-  gPad->SetLogz();
-  gPad->SetBottomMargin(0.16);
-  gPad->SetRightMargin(0.05);
-  gPad->SetLeftMargin(0.2);
-  gStyle->SetOptStat(0);
-  gStyle->SetPalette(57);
-  gPad->SetTicky();
-  gPad->SetTickx();
-  // ---
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
-  runstring = runnostream.str();
-  transparent[1]->cd();
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[1]->Update();
-  TC[1]->Show();
-  TC[1]->SetEditable(false);
-  return 0;
-}
 
 int SepdMonDraw::DrawThird(const std::string & /* what */)
 {
@@ -711,6 +553,9 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
   return 0;
 }
+
+
+
 int SepdMonDraw::DrawFifth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -1004,6 +849,8 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   return 0;
 }
 
+
+
 int SepdMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -1026,6 +873,8 @@ int SepdMonDraw::SavePlot(const std::string &what, const std::string &type)
   }
   return 0;
 }
+
+
 
 int SepdMonDraw::MakeHtml(const std::string &what)
 {

@@ -27,9 +27,7 @@ class SepdMonDraw : public OnlMonDraw
  protected:
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
-  int DrawFirstDeprecated(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
-  int DrawSecondDeprecated(const std::string &what = "ALL");
   int DrawThird(const std::string &what = "ALL");
   int DrawFourth(const std::string &what = "ALL");
   int DrawFifth(const std::string &what = "ALL");
