@@ -50,8 +50,12 @@ ZdcMon::~ZdcMon()
 
 int ZdcMon::Init()
 {
-  const float MAX_ENERGY1 = 15000.;
-  const float MAX_ENERGY2 = 15000.;
+  // const float MAX_ENERGY1 = 15000.;
+  // const float MAX_ENERGY2 = 15000.;
+  const float MAX_ENERGY1 = 500.;
+  const float MAX_ENERGY2 = 500.;
+  const float MIN_ENERGY1 = 5.;
+  const float MIN_ENERGY2 = 5.;
   const int BIN_NUMBER = 1500;
 
   //  gRandom->SetSeed(rand());
@@ -103,15 +107,15 @@ int ZdcMon::Init()
   printf("doing the Init\n");
 
   // Create hitograms
-  zdc_adc_north = new TH1F("zdc_adc_north", "ZDC ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
-  zdc_adc_south = new TH1F("zdc_adc_south", "ZDC ADC south", BIN_NUMBER, 0, MAX_ENERGY2);
+  zdc_adc_north = new TH1F("zdc_adc_north", "ZDC ADC north", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+  zdc_adc_south = new TH1F("zdc_adc_south", "ZDC ADC south", BIN_NUMBER, MIN_ENERGY2, MAX_ENERGY2);
 
-  zdc_N1 = new TH1F("zdc_N1", "ZDC1 ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
-  zdc_N2 = new TH1F("zdc_N2", "ZDC2 ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
-  zdc_N3 = new TH1F("zdc_N3", "ZDC3 ADC north", BIN_NUMBER, 0, MAX_ENERGY1);
-  zdc_S1 = new TH1F("zdc_S1", "ZDC1 ADC south", BIN_NUMBER, 0, MAX_ENERGY1);
-  zdc_S2 = new TH1F("zdc_S2", "ZDC2 ADC south", BIN_NUMBER, 0, MAX_ENERGY1);
-  zdc_S3 = new TH1F("zdc_S3", "ZDC3 ADC south", BIN_NUMBER, 0, MAX_ENERGY1);
+  zdc_N1 = new TH1F("zdc_N1", "ZDC1 ADC north", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+  zdc_N2 = new TH1F("zdc_N2", "ZDC2 ADC north", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+  zdc_N3 = new TH1F("zdc_N3", "ZDC3 ADC north", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+  zdc_S1 = new TH1F("zdc_S1", "ZDC1 ADC south", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+  zdc_S2 = new TH1F("zdc_S2", "ZDC2 ADC south", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+  zdc_S3 = new TH1F("zdc_S3", "ZDC3 ADC south", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
 
   //waveform
   h_waveform = new TH2F("h_waveform", "h_waveform", 13, -0.5, 12.5, 512, -500, 20000);
