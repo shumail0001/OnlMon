@@ -15,7 +15,7 @@ InttMon::~InttMon()
 
 int InttMon::Init()
 {
-  OnlMonServer *omc = OnlMonServer::instance();
+  OnlMonServer *se = OnlMonServer::instance();
 
   //dbvars
   dbvars = new OnlMonDB(ThisName);
@@ -26,8 +26,8 @@ int InttMon::Init()
   HitMap = new TH1D(Form("InttMap"), Form("InttMap"), INTT::ADCS, 0, INTT::ADCS);
   //...
 
-  omc->registerHisto(this, NumEvents);
-  omc->registerHisto(this, HitMap);
+  se->registerHisto(this, NumEvents);
+  se->registerHisto(this, HitMap);
   //...
 
   //Read in calibrartion data from InttMonData.dat
