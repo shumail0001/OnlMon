@@ -81,18 +81,18 @@ int SepdMon::Init()
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("doing the Init\n");
-  h_ADC0_s = new TH2F("h_ADC0_s", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  h_ADC0_n = new TH2F("h_ADC0_n", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  h_ADC_s = new TH2F("h_ADC_s", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  h_ADC_n = new TH2F("h_ADC_n", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
+  // h_ADC0_s = new TH2F("h_ADC0_s", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
+  // h_ADC0_n = new TH2F("h_ADC0_n", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
+  // h_ADC_s = new TH2F("h_ADC_s", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
+  // h_ADC_n = new TH2F("h_ADC_n", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
 
   h_ADC_all_channel = new TH1F("h_ADC_all_channel",";;",768,-0.5,767.5);
   h_hits_all_channel = new TH1F("h_hits_all_channel",";;",768,-0.5,767.5);
 
-  h_hits0_s = new TH2F("h_hits0_s", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  h_hits0_n = new TH2F("h_hits0_n", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  h_hits_s = new TH2F("h_hits_s", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  h_hits_n = new TH2F("h_hits_n", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
+  // h_hits0_s = new TH2F("h_hits0_s", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
+  // h_hits0_n = new TH2F("h_hits0_n", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
+  // h_hits_s = new TH2F("h_hits_s", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
+  // h_hits_n = new TH2F("h_hits_n", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
 
   int nADCcorr = 500;
   double ADCcorrmax = 2e4;
@@ -129,14 +129,14 @@ int SepdMon::Init()
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
-  se->registerHisto(this, h_ADC0_s);  // uses the TH1->GetName() as key
-  se->registerHisto(this, h_ADC0_n);
-  se->registerHisto(this, h_ADC_s);
-  se->registerHisto(this, h_ADC_n);
-  se->registerHisto(this, h_hits0_s);
-  se->registerHisto(this, h_hits0_n);
-  se->registerHisto(this, h_hits_s);
-  se->registerHisto(this, h_hits_n);
+  // se->registerHisto(this, h_ADC0_s);  // uses the TH1->GetName() as key
+  // se->registerHisto(this, h_ADC0_n);
+  // se->registerHisto(this, h_ADC_s);
+  // se->registerHisto(this, h_ADC_n);
+  // se->registerHisto(this, h_hits0_s);
+  // se->registerHisto(this, h_hits0_n);
+  // se->registerHisto(this, h_hits_s);
+  // se->registerHisto(this, h_hits_n);
   se->registerHisto(this, h_ADC_all_channel);
   se->registerHisto(this, h_hits_all_channel);
   se->registerHisto(this, h_ADC_corr);
@@ -323,10 +323,10 @@ int SepdMon::process_event(Event *e /* evt */)
         float timeFast = resultFast.at(1);
         float pedestalFast = resultFast.at(2);
 
-        //      std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
-        //      float signalTemp = resultTemp.at(0);
-        //      float timeTemp  = resultTemp.at(1);
-        //      float pedestalTemp = resultTemp.at(2);
+        // std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
+        // float signalTemp = resultTemp.at(0);
+        // float timeTemp  = resultTemp.at(1);
+        // float pedestalTemp = resultTemp.at(2);
         if (signalFast > hit_threshold)
         {
           for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
@@ -338,18 +338,16 @@ int SepdMon::process_event(Event *e /* evt */)
         if ( signalFast > 0 && signalFast < 1e10 )
           {
             // --- 1d ADC distributions for all channels
-            h_ADC_channel[ChannelNumber-1]->Fill(signalFast);
+            h_ADC_channel[ch]->Fill(signalFast);
             // --- total ADC vs channel number
-            h_ADC_all_channel->Fill(ChannelNumber-1,signalFast);
+            h_ADC_all_channel->Fill(ch,signalFast);
             // --- total hits vs channel number
-            h_hits_all_channel->Fill(ChannelNumber-1);
+            h_hits_all_channel->Fill(ch);
             // --- 1d waveform
             h1_waveform_time->Fill(timeFast);
             h1_waveform_pedestal->Fill(pedestalFast);
           }
         // ---
-
-        //      int sectorNumber = (ChannelNumber-1) % 32;
 
         // h1_sepd_fitting_sigDiff -> Fill(signalFast/signalTemp);
         // h1_sepd_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
@@ -357,22 +355,17 @@ int SepdMon::process_event(Event *e /* evt */)
 
         int z_bin = -1;
         if ( ch >= 384 && ch <= 767 ) z_bin = 0;
-        else if ( ch <= 383 && ch >= 0 ) z_bin = 1;
+        if ( ch <= 383 && ch >= 0 ) z_bin = 1;
 
         if (z_bin == 0)
         {
           sumhit_s++;
           sumADC_s += signalFast;
         }
-        else if (z_bin == 1)
+        if (z_bin == 1)
         {
           sumhit_n++;
           sumADC_n += signalFast;
-        }
-        else
-        {
-          std::cout << "z_bin not assigned ... " << std::endl;
-          //return -1;
         }
 
       }  // channel loop end
@@ -396,7 +389,9 @@ int SepdMon::process_event(Event *e /* evt */)
   //h_ADC_corr->Fill(sumADC_s / sumhit_s, sumADC_n / sumhit_n);
   h_ADC_corr->Fill(sumADC_s, sumADC_n);
   h_hits_corr->Fill(sumhit_s, sumhit_n);
+
   return 0;
+
 }
 
 int SepdMon::Reset()

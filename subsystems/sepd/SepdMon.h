@@ -47,15 +47,15 @@ class SepdMon : public OnlMon
   int nRad = 24;
   double axislimit = M_PI;
 
-  TH2 *h_ADC0_s = nullptr;
-  TH2 *h_ADC0_n = nullptr;
-  TH2 *h_ADC_s = nullptr;
-  TH2 *h_ADC_n = nullptr;
+  //TH2 *h_ADC0_s = nullptr;
+  //TH2 *h_ADC0_n = nullptr;
+  //TH2 *h_ADC_s = nullptr;
+  //TH2 *h_ADC_n = nullptr;
 
-  TH2 *h_hits0_s = nullptr;
-  TH2 *h_hits0_n = nullptr;
-  TH2 *h_hits_s = nullptr;
-  TH2 *h_hits_n = nullptr;
+  //TH2 *h_hits0_s = nullptr;
+  //TH2 *h_hits0_n = nullptr;
+  //TH2 *h_hits_s = nullptr;
+  //TH2 *h_hits_n = nullptr;
 
   TH2 *h_ADC_corr = nullptr;
   TH2 *h_hits_corr = nullptr;
