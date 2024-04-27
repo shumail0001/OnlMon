@@ -11,14 +11,14 @@ void sepdDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
-  cl->registerHisto("h_ADC0_s", "SEPDMON_0");
-  cl->registerHisto("h_hits0_s", "SEPDMON_0");
-  cl->registerHisto("h_ADC0_n", "SEPDMON_0");
-  cl->registerHisto("h_hits0_n", "SEPDMON_0");
-  cl->registerHisto("h_ADC_s", "SEPDMON_0");
-  cl->registerHisto("h_hits_s", "SEPDMON_0");
-  cl->registerHisto("h_ADC_n", "SEPDMON_0");
-  cl->registerHisto("h_hits_n", "SEPDMON_0");
+  // cl->registerHisto("h_ADC0_s", "SEPDMON_0");
+  // cl->registerHisto("h_hits0_s", "SEPDMON_0");
+  // cl->registerHisto("h_ADC0_n", "SEPDMON_0");
+  // cl->registerHisto("h_hits0_n", "SEPDMON_0");
+  // cl->registerHisto("h_ADC_s", "SEPDMON_0");
+  // cl->registerHisto("h_hits_s", "SEPDMON_0");
+  // cl->registerHisto("h_ADC_n", "SEPDMON_0");
+  // cl->registerHisto("h_hits_n", "SEPDMON_0");
   cl->registerHisto("h_ADC_corr", "SEPDMON_0");
   cl->registerHisto("h_hits_corr", "SEPDMON_0");
   cl->registerHisto("h_ADC_all_channel", "SEPDMON_0");
