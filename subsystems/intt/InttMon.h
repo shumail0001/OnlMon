@@ -1,8 +1,8 @@
 #ifndef INTT_MON_H
 #define INTT_MON_H
 
+#include "InttFelixMap.h"
 #include "InttMonConstants.h"
-#include "InttFelixMap.h" 
 
 #include <onlmon/OnlMon.h>
 #include <onlmon/OnlMonDB.h>
@@ -15,7 +15,7 @@
 
 #include <TH1D.h>
 #include <TH2D.h>
-#include <TRandom.h> //for rng; remove later
+#include <TRandom.h>  //for rng; remove later
 
 #include <cmath>
 #include <cstdio>
@@ -26,33 +26,34 @@
 
 class InttMon : public OnlMon
 {
-public:
-	InttMon(const std::string &name);
-	virtual ~InttMon();
-	
-	int Init();
-	int BeginRun(const int);
-	int process_event(Event*);
-	int Reset();
+ public:
+  InttMon(const std::string& name);
+  virtual ~InttMon();
 
-	//for testing/debugging without unpacker, remove later
-	int MiscDebug();
-	void RandomEvent(int);
-private:
-	//// for testing/debugging without unpacker, remove later
-	TRandom* rng = nullptr;
-	//int InitExpectationHists();
-	////~for testing/debugging without unpacker, remove later
+  int Init();
+  int BeginRun(const int);
+  int process_event(Event*);
+  int Reset();
 
-	int DBVarInit();
-	int DBVarUpdate();
+  //for testing/debugging without unpacker, remove later
+  int MiscDebug();
+  void RandomEvent(int);
 
-	OnlMonDB* dbvars = nullptr;
-	int evtcnt = 0;
+ private:
+  //// for testing/debugging without unpacker, remove later
+  TRandom* rng = nullptr;
+  //int InitExpectationHists();
+  ////~for testing/debugging without unpacker, remove later
 
-	TH1D* NumEvents = nullptr;
-	TH1D* HitMap = nullptr;
-	//...
+  int DBVarInit();
+  int DBVarUpdate();
+
+  OnlMonDB* dbvars = nullptr;
+  int evtcnt = 0;
+
+  TH1D* NumEvents = nullptr;
+  TH1D* HitMap = nullptr;
+  //...
 };
 
 #endif
