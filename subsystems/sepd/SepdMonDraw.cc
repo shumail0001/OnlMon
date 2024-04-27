@@ -275,6 +275,7 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
   polar_histS->Draw("same colz pol AH");
   polar_histS01->Draw("same col pol AH");
+  gStyle->SetPalette(57);
   // ---
   Pad[1]->cd();
   polar_histN->GetZaxis()->SetRangeUser(zmin,zmax);
@@ -282,6 +283,7 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
   polar_histN->Draw("same col pol AH");
   polar_histN01->Draw("same col pol AH");
+  gStyle->SetPalette(57);
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
