@@ -81,18 +81,9 @@ int SepdMon::Init()
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("doing the Init\n");
-  // h_ADC0_s = new TH2F("h_ADC0_s", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  // h_ADC0_n = new TH2F("h_ADC0_n", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  // h_ADC_s = new TH2F("h_ADC_s", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  // h_ADC_n = new TH2F("h_ADC_n", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
 
   h_ADC_all_channel = new TH1F("h_ADC_all_channel",";;",768,-0.5,767.5);
   h_hits_all_channel = new TH1F("h_hits_all_channel",";;",768,-0.5,767.5);
-
-  // h_hits0_s = new TH2F("h_hits0_s", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  // h_hits0_n = new TH2F("h_hits0_n", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  // h_hits_s = new TH2F("h_hits_s", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  // h_hits_n = new TH2F("h_hits_n", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
 
   int nADCcorr = 500;
   double ADCcorrmax = 2e4;
@@ -129,14 +120,7 @@ int SepdMon::Init()
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
-  // se->registerHisto(this, h_ADC0_s);  // uses the TH1->GetName() as key
-  // se->registerHisto(this, h_ADC0_n);
-  // se->registerHisto(this, h_ADC_s);
-  // se->registerHisto(this, h_ADC_n);
-  // se->registerHisto(this, h_hits0_s);
-  // se->registerHisto(this, h_hits0_n);
-  // se->registerHisto(this, h_hits_s);
-  // se->registerHisto(this, h_hits_n);
+  // first histogram uses the TH1->GetName() as key
   se->registerHisto(this, h_ADC_all_channel);
   se->registerHisto(this, h_hits_all_channel);
   se->registerHisto(this, h_ADC_corr);
@@ -385,8 +369,7 @@ int SepdMon::process_event(Event *e /* evt */)
   // h1_waveform_twrAvg->Scale(1. / 32. / 48.);  // average tower waveform
   h1_waveform_twrAvg->Scale((float) 1 / ChannelNumber);
 
-  // --- This one should not be normalized by the hits... RB
-  //h_ADC_corr->Fill(sumADC_s / sumhit_s, sumADC_n / sumhit_n);
+  // --- need to rework these a bit (or possibly just not use them)
   h_ADC_corr->Fill(sumADC_s, sumADC_n);
   h_hits_corr->Fill(sumhit_s, sumhit_n);
 
