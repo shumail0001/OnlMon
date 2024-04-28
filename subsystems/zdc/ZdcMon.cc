@@ -50,13 +50,11 @@ ZdcMon::~ZdcMon()
 
 int ZdcMon::Init()
 {
-  // const float MAX_ENERGY1 = 15000.;
-  // const float MAX_ENERGY2 = 15000.;
-  const float MAX_ENERGY1 = 500.;
-  const float MAX_ENERGY2 = 500.;
-  const float MIN_ENERGY1 = 5.;
-  const float MIN_ENERGY2 = 5.;
-  const int BIN_NUMBER = 1500;
+  const float MAX_ENERGY1 = 1500.;
+  const float MAX_ENERGY2 = 1500.;
+  const float MIN_ENERGY1 = 0.;
+  const float MIN_ENERGY2 = 0.;
+  const int BIN_NUMBER = 150;
 
   //  gRandom->SetSeed(rand());
   // read our calibrations from ZdcMonData.dat
@@ -272,26 +270,35 @@ int ZdcMon::process_event(Event *e /* evt */)
       std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
       float signalFast = resultFast.at(0);
       float signal = signalFast;
-
+     
       unsigned int towerkey = TowerInfoDefs::decode_zdc(c);
       int zdc_side = TowerInfoDefs::get_zdc_side(towerkey);
 
       double baseline = 0.;
+      double baseline_low = 0.;
+      double baseline_high = 0.;
 
-      // Chris: this code is unused
-      // double baseline_low = 0.;
-      // double baseline_high = 0.;
+      for(int s = 0; s < 3; s++) 
+      {
+        baseline_low += p->iValue(s, c);
+      }
+      
+       baseline_low /= 3.;
 
-      // for(int s = 0; s < 3; s++) {baseline_low += p->iValue(s, c);}
-      // baseline_low /= 3.;
+      for (int s = p->iValue(0, "SAMPLES")-3; s < p->iValue(0, "SAMPLES"); s++) 
+      {
+       baseline_high += p->iValue(s,c);
+      }
+     
+       baseline_high /=3.;
+       baseline = baseline_low;
 
-      // for (int s = p->iValue(0, "SAMPLES")-3; s < p->iValue(0, "SAMPLES"); s++) {baseline_high += p->iValue(s,c);}
-      // baseline_high /=3.;
+       if(baseline_high < baseline_low) baseline = baseline_high;
 
       for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
       {
         h_waveform->Fill(s, p->iValue(s, c) - baseline);
-      }
+       }
 
       int mod = c % 2;
 

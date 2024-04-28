@@ -249,13 +249,13 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
       int arm = returnArm(adc_channel);
       if ( arm == 0 )
         {
-          polar_histS01->SetBinContent(sector+1,1,adc_signal);
-          polar_histS->SetBinContent(sector*2+1+odd,(tile+1)/2+1,adc_signal);
+          if ( tile == 0 ) polar_histS01->SetBinContent(sector+1,1,adc_signal);
+          else polar_histS->SetBinContent(sector*2+1+odd,(tile+1)/2+1,adc_signal);
         }
       if ( arm == 1 )
         {
-          polar_histN01->SetBinContent(sector+1,1,adc_signal);
-          polar_histN->SetBinContent(sector*2+1+odd,(tile+1)/2+1,adc_signal);
+          if ( tile == 0 ) polar_histN01->SetBinContent(sector+1,1,adc_signal);
+          else polar_histN->SetBinContent(sector*2+1+odd,(tile+1)/2+1,adc_signal);
         }
     }
 
@@ -1825,11 +1825,11 @@ int SepdMonDraw::returnTile(int ch){
     sEPD_adctotile[71] = 17;
     sEPD_adctotile[72] = 11;
     sEPD_adctotile[73] = 13;
-    sEPD_adctotile[74] = 31;
+    sEPD_adctotile[74] = 7;
     sEPD_adctotile[75] = 9;
     sEPD_adctotile[76] = 3;
     sEPD_adctotile[77] = 5;
-    sEPD_adctotile[78] = 0;
+    sEPD_adctotile[78] = 31;
     sEPD_adctotile[79] = 1;
     sEPD_adctotile[80] = 28;
     sEPD_adctotile[81] = 30;
