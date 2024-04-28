@@ -216,10 +216,12 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   TH2F* h2_hcal_mean = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_mean");
   TH1F* h_event = (TH1F*) cl->getHisto(HCALMON_0, "h_event");
   TH2F* h2_hcal_hits = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
+  TH2F* h2_hcal_time = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_time");
   TH2F* hist1_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_rm");
   TH2F* h2_hcal_mean_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_mean");
   TH1D* h_event_1 = (TH1D*) cl->getHisto(HCALMON_1, "h_event");
   TH2F* h2_hcal_hits_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits");
+  TH2F* h2_hcal_time_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_time");
 
   if (!gROOT->FindObject("HcalMon1"))
   {
@@ -243,6 +245,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   hist1->Add(hist1_1);
   h2_hcal_mean->Add(h2_hcal_mean_1);
   h2_hcal_hits->Add(h2_hcal_hits_1);
+  h2_hcal_time->Add(h2_hcal_time_1);
   // h_event->Add(h_event_1);
 
   // h2_hcal_mean->Scale(1. / h_event->GetEntries());
@@ -359,6 +362,9 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   TButton* but2 = new TButton("Draw Multiplicity", "", 0.51, 0.01, 0.99, 0.05);
   but2->SetName("hitmap");
   but2->Draw();
+  TButton* but3 = new TButton("Draw Avg. Time", "", 0.01, 0.06, 0.5, 0.1);
+  but3->SetName("avgtime");
+  but3->Draw();
 
   // this connects the clicks on TCavas to the HandleEvent method that makes a pop up window
   // and display the running mean history of the tower correponding to the bin you click on
@@ -1399,6 +1405,67 @@ void HcalMonDraw::DrawHitMap()
   TC[4]->SetEditable(0);
 }
 
+void HcalMonDraw::DrawAvgTime()
+{
+  OnlMonClient* cl = OnlMonClient::instance();
+  char HCALMON_0[100];
+  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
+  char HCALMON_1[100];
+  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
+
+  TH2D* h2_hcal_time = (TH2D*) cl->getHisto(HCALMON_0, "h2_hcal_time");
+
+  if (!gROOT->FindObject("HcalPopUp"))
+  {
+    MakeCanvas("HcalPopUp");
+  }
+  if (!h2_hcal_time)
+  {
+    DrawDeadServer(transparent[4]);
+    TC[4]->SetEditable(0);
+    return;
+  }
+
+  TC[4]->SetEditable(1);
+  TC[4]->Clear("D");
+  Pad[9]->cd();
+  gPad->SetLogz(0);
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57);
+  h2_hcal_time->GetXaxis()->SetTitle("eta index");
+  h2_hcal_time->GetYaxis()->SetTitle("phi index");
+  h2_hcal_time->SetTitle("Average Time[samples]");
+  h2_hcal_time->Draw("COLZ");
+  // lines
+  TLine* line_sector[32];
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line] = new TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+    line_sector[i_line]->SetLineColor(1);
+    line_sector[i_line]->SetLineWidth(4);
+    line_sector[i_line]->SetLineStyle(1);
+  }
+  TLine* line_board1 = new TLine(8, 0, 8, 64);
+  line_board1->SetLineColor(1);
+  line_board1->SetLineWidth(4);
+  line_board1->SetLineStyle(1);
+  TLine* line_board2 = new TLine(16, 0, 16, 64);
+  line_board2->SetLineColor(1);
+  line_board2->SetLineWidth(4);
+  line_board2->SetLineStyle(1);
+
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line]->Draw();
+  }
+  line_board1->Draw();
+  line_board2->Draw();
+  TC[4]->Update();
+  TC[4]->Show();
+  TC[4]->SetEditable(0);
+
+}
+
 // this is the method to idetify which bin you are clicking on and make the pop up window of TH1
 void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
 {
@@ -1420,6 +1487,12 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
     if (strcmp(selected->GetName(), "hitmap") == 0)
     {
       DrawHitMap();
+      return;
+    }
+    //avg time
+    if (strcmp(selected->GetName(), "avgtime") == 0)
+    {
+      DrawAvgTime();
       return;
     }
 

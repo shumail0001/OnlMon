@@ -44,6 +44,7 @@ class HcalMon : public OnlMon
   TH2* h2_hcal_mean = nullptr;
   TH2* h2_hcal_waveform = nullptr;
   TH2* h2_hcal_correlation = nullptr;
+  TH2* h2_hcal_time = nullptr;
   TH1* h_sectorAvg_total = nullptr;
   TH1* h_event = nullptr;
   TH1* h_ntower = nullptr;
@@ -58,6 +59,7 @@ class HcalMon : public OnlMon
 
   std::vector<runningMean*> rm_vector_sectAvg;
   std::vector<runningMean*> rm_vector_twr;
+  std::vector<runningMean*> rm_vector_twrTime;
   std::vector<runningMean*> rm_packet_number;
   std::vector<runningMean*> rm_packet_length;
   std::vector<runningMean*> rm_packet_chans;
