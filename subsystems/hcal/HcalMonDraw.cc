@@ -593,7 +593,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
 
   float tsize = 0.06;
   h2_hcal_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
-  h2_hcal_waveform->GetXaxis()->SetRangeUser(0, 12);
+  h2_hcal_waveform->GetXaxis()->SetRangeUser(0, 16);
   h2_hcal_waveform->GetXaxis()->SetTitle("Sample #");
   h2_hcal_waveform->GetYaxis()->SetTitle("Waveform [ADC]");
   h2_hcal_waveform->GetXaxis()->SetLabelSize(tsize);
@@ -634,7 +634,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   float tsize2 = 0.08;
   h_waveform_time->Draw("hist");
   h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
-  h_waveform_time->GetXaxis()->SetRangeUser(0, 12);
+  h_waveform_time->GetXaxis()->SetRangeUser(0, 16);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
   h_waveform_time->GetYaxis()->SetTitle("Towers");
   h_waveform_time->GetXaxis()->SetLabelSize(tsize2);
