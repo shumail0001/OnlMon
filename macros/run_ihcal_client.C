@@ -48,8 +48,9 @@ void ihcalDrawInit(const int online = 0)
       }
     }
   }
-  cl->AddServerHost("localhost");  // check local host first
-  CreateHostList(online);
+
+  // for local host, just call ihcalDrawInit(2)
+  CreateSubsysHostlist("hcal_hosts.list", online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
   for (int i = 0; i < 2; i++)

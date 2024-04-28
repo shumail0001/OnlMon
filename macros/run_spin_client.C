@@ -46,10 +46,9 @@ void spinDrawInit(const int online = 0)
     cl->registerHisto(Form("gl1_counter_trig%d",i),"SPINMON_0");
   }
 
-  cl->AddServerHost("localhost");  // check local host first
-  CreateHostList(online);
+  // for local host, just call spinDrawInit(2)
+  CreateSubsysHostlist("spin_hosts.list", online);
 
- // get my histos from server, the second parameter = 1 
 // says I know they are all on the same node
   cl->requestHistoBySubSystem("SPINMON_0", 1);
   OnlMonDraw *spinmon = new SpinMonDraw("SPINMONDRAW");    // create Drawing Object
