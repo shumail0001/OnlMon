@@ -134,7 +134,7 @@ int ZdcMon::Init()
   }
 
   // SMD Hit Multiplicity
-  smd_north_hor_hits = new TH1F("smd_north_hor_hits", "Is this even changing?", 9, -0.5, 8.5);
+  smd_north_hor_hits = new TH1F("smd_north_hor_hits", "smd_north_hor_hits", 9, -0.5, 8.5);
   smd_north_ver_hits = new TH1F("smd_north_ver_hits", "smd_north_ver_hits", 8, -0.5, 7.5);
   smd_south_hor_hits = new TH1F("smd_south_hor_hits", "smd_south_hor_hits", 9, -0.5, 8.5);
   smd_south_ver_hits = new TH1F("smd_south_ver_hits", "smd_south_ver_hits", 8, -0.5, 7.5);
