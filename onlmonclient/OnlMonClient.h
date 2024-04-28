@@ -23,6 +23,9 @@ class OnlMonClient : public OnlMonBase
  public:
   static OnlMonClient *instance();
   ~OnlMonClient() override;
+  using OnlMonBase::Verbosity;
+  void Verbosity(const int i) override;
+
   int UpdateServerHistoMap(const std::string &hname, const std::string &subsys, const std::string &hostname);
   void PutHistoInMap(const std::string &hname, const std::string &subsys, const std::string &hostname, const int port);
   void updateHistoMap(const std::string &subsys, const std::string &hname, TH1 *h1d);
@@ -58,6 +61,7 @@ class OnlMonClient : public OnlMonBase
 
   int LocateHistogram(const std::string &hname, const std::string &subsys);
   int RunNumber();
+  time_t EventTime(const std::string &which);
   time_t EventTime(const std::string &servername, const std::string &which);
   int SendCommand(const char *hostname, const int port, const char *cmd);
 
@@ -69,8 +73,6 @@ class OnlMonClient : public OnlMonBase
   int HistoToPng(TH1 *histo, std::string const &pngfilename, const char *drawopt = "", const int statopt = 11);
 
   int SaveLogFile(const OnlMonDraw &drawer);
-  using OnlMonBase::Verbosity;
-  void Verbosity(const int i) override;
   int SetStyleToDefault();
   int isCosmicRun();
   int isStandalone();

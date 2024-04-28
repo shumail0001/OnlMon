@@ -1,9 +1,11 @@
 #ifndef __BBCMONDEFS_H__
 #define __BBCMONDEFS_H__
 
+//#include <gsl/gsl_const_cgsm.h>
+
 #define AUAU  // PROTONPROTON //PAL //PAU //DAU //HE3AU //CUCU //AUAU
 
-namespace bbc_onlmon
+namespace BbcMonDefs
 {
 
   const int num_pmt = 128;                 // number of PMT
@@ -14,7 +16,7 @@ namespace bbc_onlmon
   const float min_armhittime = 0;          // Maximum od Tdc-ArmHitTime
   static const double TDC_FIT_MAX = 19.0;  // compatible type with TF::GetParameter(1)
   static const double TDC_FIT_MIN = 1.0;
-  //static const int zvtnbin = 180;
+  // static const int zvtnbin = 180;
   static const int zvtnbin = 600;
   static const float max_zvertex = 300;
   static const float min_zvertex = -300;
@@ -217,7 +219,7 @@ namespace bbc_onlmon
 
   static const unsigned long BBC_BBLL1_COPY_TRIG = 0x1000000;  // new trigger
   // static const int BBC_BBLL1_TRIG    = 0x10;       //0x1000;
-  //static const unsigned long BBC_LASER_TRIG = 0x40000000;  // 0x40000000;
+  // static const unsigned long BBC_LASER_TRIG = 0x40000000;  // 0x40000000;
 
   // the mean of TDC between south and north should be this value.
   // static const int BBC_DEFAULT_OFFSET = 1500;
@@ -233,6 +235,30 @@ namespace bbc_onlmon
 
   static const int BBC_NSAMPLES = 31;  // number of digitizer samples
 
-}  // namespace bbc_onlmon
+  const double index_refract = 1.4585;        // quartz radiator index of refraction
+  const double v_ckov = 1.0 / index_refract;  // velocity threshold for CKOV
+  const double C = 29.9792458;                // cm/ns
+  //const double C = GSL_CONST_CGSM_SPEED_OF_LIGHT*1e-9;                // cm/ns
+  
+  const int MBD_N_PMT = 128;
+  const int MBD_N_FEECH = 256;
+  const int BBC_N_PMT = 128;
+  const int BBC_N_FEECH = 256;
+  const int MAX_SAMPLES = 31;
+
+  enum
+  {
+    ABORTRUN = -2,
+    ABORTEVENT = -1,
+    EVENT_OK = 0,
+    DISCARDEVENT = 1,
+    SYNC_OK = 0,
+    SYNC_FAIL = -1,
+    SYNC_NOOBJECT = 1,
+    DONOTREGISTERSUBSYSTEM = -3,
+    RESET_NODE_TREE = 1
+  };
+  
+}  // namespace BbcMonDefs
 
 #endif /*__BBCMONDEFS_H__ */

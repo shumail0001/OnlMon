@@ -74,16 +74,12 @@ int TpotMon::Init()
   // setup calibrations
   if( std::ifstream( m_calibration_filename.c_str() ).good() )
   {
-
     m_calibration_data.read( m_calibration_filename );
-
   } else {
-
     std::cout << "TpotMon::Init -"
       << " file " << m_calibration_filename << " cannot be opened."
       << " No calibration loaded"
       << std::endl;
-
   }
 
   // server instance
@@ -248,7 +244,8 @@ int TpotMon::process_event(Event* event)
     if( !packet )
     {
       // no data
-      std::cout << "TpotMon::process_event -packet " << packet_id << " not found" << std::endl;
+      if( Verbosity() )
+      { std::cout << "TpotMon::process_event - packet " << packet_id << " not found" << std::endl; }
       continue;
     }
 
@@ -301,7 +298,7 @@ int TpotMon::process_event(Event* event)
       for( int is = 0; is < samples; ++is )
       {
         const auto adc =  packet->iValue( i, is );
-        const bool is_signal = (adc > pedestal + m_n_sigma*rms);
+        const bool is_signal = rms>0 && (adc > m_min_adc) && (adc> pedestal+m_n_sigma*rms);
         if( is_signal ) detector_histograms.m_counts_sample->Fill( is );
         detector_histograms.m_adc_sample->Fill( is, adc );
         detector_histograms.m_hit_charge->Fill( adc );
@@ -312,7 +309,7 @@ int TpotMon::process_event(Event* event)
       for( int is = std::max<int>(0,m_sample_window_signal.first); is < std::min<int>(samples,m_sample_window_signal.second); ++is )
       {
         const auto adc =  packet->iValue( i, is );
-        if( adc > pedestal + m_n_sigma*rms)
+        if( rms>0 && (adc > m_min_adc) && (adc>pedestal + m_n_sigma*rms) )
         {
           is_signal = true;
           break;

@@ -28,6 +28,10 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("NorthSideADC_clusterXY_R2", TPCMON_STR);
     cl->registerHisto("NorthSideADC_clusterXY_R3", TPCMON_STR);
 
+    cl->registerHisto("NorthSideADC_clusterXY_R1_LASER", TPCMON_STR);
+    cl->registerHisto("NorthSideADC_clusterXY_R2_LASER", TPCMON_STR);
+    cl->registerHisto("NorthSideADC_clusterXY_R3_LASER", TPCMON_STR);
+
     cl->registerHisto("NorthSideADC_clusterXY_R1_unw", TPCMON_STR);
     cl->registerHisto("NorthSideADC_clusterXY_R2_unw", TPCMON_STR);
     cl->registerHisto("NorthSideADC_clusterXY_R3_unw", TPCMON_STR);
@@ -38,6 +42,10 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("SouthSideADC_clusterXY_R2", TPCMON_STR);
     cl->registerHisto("SouthSideADC_clusterXY_R3", TPCMON_STR);
 
+    cl->registerHisto("SouthSideADC_clusterXY_R1_LASER", TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterXY_R2_LASER", TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterXY_R3_LASER", TPCMON_STR);
+
     cl->registerHisto("SouthSideADC_clusterXY_R1_unw", TPCMON_STR);
     cl->registerHisto("SouthSideADC_clusterXY_R2_unw", TPCMON_STR);
     cl->registerHisto("SouthSideADC_clusterXY_R3_unw", TPCMON_STR);
@@ -46,14 +54,31 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("Check_Sum_Error",TPCMON_STR);
     cl->registerHisto("Check_Sums",TPCMON_STR);
     cl->registerHisto("ADC_vs_SAMPLE",TPCMON_STR); 
+    cl->registerHisto("ADC_vs_SAMPLE_large",TPCMON_STR);
+    cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE",TPCMON_STR);
+    cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE_R1",TPCMON_STR);
+    cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE_R2",TPCMON_STR);
+    cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE_R3",TPCMON_STR);
     cl->registerHisto("MAXADC",TPCMON_STR);
 
     cl->registerHisto("RAWADC_1D_R1",TPCMON_STR);
     cl->registerHisto("MAXADC_1D_R1",TPCMON_STR);
+    cl->registerHisto("PEDEST_SUB_1D_R1",TPCMON_STR);
     cl->registerHisto("RAWADC_1D_R2",TPCMON_STR);
     cl->registerHisto("MAXADC_1D_R2",TPCMON_STR);
+    cl->registerHisto("PEDEST_SUB_1D_R2",TPCMON_STR);
     cl->registerHisto("RAWADC_1D_R3",TPCMON_STR);
     cl->registerHisto("MAXADC_1D_R3",TPCMON_STR);
+    cl->registerHisto("PEDEST_SUB_1D_R3",TPCMON_STR);
+
+    cl->registerHisto("NorthSideADC_clusterZY", TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterZY", TPCMON_STR);
+
+    cl->registerHisto("NorthSideADC_clusterZY_unw",TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterZY_unw",TPCMON_STR);
+
+    cl->registerHisto("Layer_ChannelPhi_ADC_weighted",TPCMON_STR);
+    cl->registerHisto("NEvents_vs_EBDC",TPCMON_STR);
   } //
 
 

@@ -81,22 +81,16 @@ int SepdMon::Init()
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("doing the Init\n");
-  h_ADC0_s = new TH2F("h_ADC0_s", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  h_ADC0_n = new TH2F("h_ADC0_n", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  h_ADC_s = new TH2F("h_ADC_s", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  h_ADC_n = new TH2F("h_ADC_n", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
 
-  h_hits0_s = new TH2F("h_hits0_s", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  h_hits0_n = new TH2F("h_hits0_n", ";;", nPhi0, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  h_hits_s = new TH2F("h_hits_s", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
-  h_hits_n = new TH2F("h_hits_n", ";;", nPhi, -axislimit, axislimit, nRad, -axislimit, axislimit);
+  h_ADC_all_channel = new TH1F("h_ADC_all_channel",";;",768,-0.5,767.5);
+  h_hits_all_channel = new TH1F("h_hits_all_channel",";;",768,-0.5,767.5);
 
-  int nADCcorr = 600;
+  int nADCcorr = 500;
   double ADCcorrmax = 2e4;
-  int nhitscorr = 700;
+  int nhitscorr = 500;
   double hitscorrmax = 1000;
   h_ADC_corr = new TH2F("h_ADC_corr", ";ADC avg sum (south); ADC avg sum (north)", nADCcorr, 0, ADCcorrmax, nADCcorr, 0, ADCcorrmax);
-  h_hits_corr = new TH2F("h_hits_corr", ";ADC avg sum (south); ADC avg sum (north)", nhitscorr, 0, hitscorrmax, nhitscorr, 0, hitscorrmax);
+  h_hits_corr = new TH2F("h_hits_corr", ";N hits avg sum (south); N hits avg sum (north)", nhitscorr, 0, hitscorrmax, nhitscorr, 0, hitscorrmax);
 
   h_event = new TH1F("h_event", "", 1, 0, 1);
 
@@ -126,14 +120,9 @@ int SepdMon::Init()
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
-  se->registerHisto(this, h_ADC0_s);  // uses the TH1->GetName() as key
-  se->registerHisto(this, h_ADC0_n);
-  se->registerHisto(this, h_ADC_s);
-  se->registerHisto(this, h_ADC_n);
-  se->registerHisto(this, h_hits0_s);
-  se->registerHisto(this, h_hits0_n);
-  se->registerHisto(this, h_hits_s);
-  se->registerHisto(this, h_hits_n);
+  // first histogram uses the TH1->GetName() as key
+  se->registerHisto(this, h_ADC_all_channel);
+  se->registerHisto(this, h_hits_all_channel);
   se->registerHisto(this, h_ADC_corr);
   se->registerHisto(this, h_hits_corr);
   se->registerHisto(this, h_event);
@@ -150,9 +139,10 @@ int SepdMon::Init()
   //  se->registerHisto(this, h1_sepd_fitting_timeDiff);
 
   // save inidividual channel ADC distribution
-  for (int ichannel = 0; ichannel < nChannels; ichannel++)
+  //for (int ichannel = 0; ichannel < nChannels; ichannel++)
+  for (int ichannel = 0; ichannel < 768; ichannel++)
   {
-    h_ADC_channel[ichannel] = new TH1F(Form("h_ADC_channel%d", ichannel), ";ADC;Counts", 1000, 0, 15e3);
+    h_ADC_channel[ichannel] = new TH1F(Form("h_ADC_channel_%d", ichannel), ";ADC;Counts", 1000, 0, 15e3);
     se->registerHisto(this, h_ADC_channel[ichannel]);
   }
 
@@ -270,9 +260,9 @@ int SepdMon::process_event(Event *e /* evt */)
   h1_packet_event->Reset();
   unsigned int ChannelNumber = 0;
   //  float sectorAvg[Nsector] = {0};
-  int phi_in = 0;
-  float phi;
-  float r;
+  // int phi_in = 0;
+  // float phi;
+  // float r;
   int sumhit_s = 0;
   int sumhit_n = 0;
   long double sumADC_s = 0;
@@ -309,6 +299,7 @@ int SepdMon::process_event(Event *e /* evt */)
         //  record waveform to show the average waveform
 
         ChannelNumber++;
+        int ch = ChannelNumber-1;
 
         // std::vector result =  getSignal(p,c); // simple peak extraction
         std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
@@ -316,10 +307,10 @@ int SepdMon::process_event(Event *e /* evt */)
         float timeFast = resultFast.at(1);
         float pedestalFast = resultFast.at(2);
 
-        //      std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
-        //      float signalTemp = resultTemp.at(0);
-        //      float timeTemp  = resultTemp.at(1);
-        //      float pedestalTemp = resultTemp.at(2);
+        // std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
+        // float signalTemp = resultTemp.at(0);
+        // float timeTemp  = resultTemp.at(1);
+        // float pedestalTemp = resultTemp.at(2);
         if (signalFast > hit_threshold)
         {
           for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
@@ -327,114 +318,38 @@ int SepdMon::process_event(Event *e /* evt */)
             h2_sepd_waveform->Fill(s, p->iValue(s, c) - pedestalFast);
           }
         }
-        // channel mapping
-        int ChMap = SepdMapChannel(ChannelNumber - 1);
-        if (ChMap == -1) continue;
-        // if(ChMap == -1){ std::cout << "Unused channel - " << ChMap << "go to next channel" << std::endl;continue;}
-        unsigned int key = TowerInfoDefs::encode_epd(ChMap);
-        int phi_bin = TowerInfoDefs::get_epd_phibin(key);
-        int r_bin = TowerInfoDefs::get_epd_rbin(key);
-        int z_bin = TowerInfoDefs::get_epd_arm(key);
-        // unsigned int phi_bin = TowerInfoDefs::get_epd_phibin(key);
-        // unsigned int r_bin = TowerInfoDefs::get_epd_rbin(key);
-        // unsigned int z_bin = TowerInfoDefs::get_epd_arm(key);
-
-        //      int sectorNumber = (ChannelNumber-1) % 32;
-        h1_waveform_time->Fill(timeFast);
-        h1_waveform_pedestal->Fill(pedestalFast);
+        // ---
+        if ( signalFast > 0 && signalFast < 1e10 )
+          {
+            // --- 1d ADC distributions for all channels
+            h_ADC_channel[ch]->Fill(signalFast);
+            // --- total ADC vs channel number
+            h_ADC_all_channel->Fill(ch,signalFast);
+            // --- total hits vs channel number
+            h_hits_all_channel->Fill(ch);
+            // --- 1d waveform
+            h1_waveform_time->Fill(timeFast);
+            h1_waveform_pedestal->Fill(pedestalFast);
+          }
+        // ---
 
         // h1_sepd_fitting_sigDiff -> Fill(signalFast/signalTemp);
         // h1_sepd_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
         // h1_sepd_fitting_timeDiff -> Fill(timeFast - timeTemp);
 
-        float signal = signalFast;
-
-        h_ADC_channel[ChMap]->Fill(signal);
+        int z_bin = -1;
+        if ( ch >= 384 && ch <= 767 ) z_bin = 0;
+        if ( ch <= 383 && ch >= 0 ) z_bin = 1;
 
         if (z_bin == 0)
         {
           sumhit_s++;
-          sumADC_s += signal;
-          if (r_bin == 0)
-          {
-            phi_in = (phi_bin >= nPhi0 / 2) ? phi_bin - nPhi0 / 2 : phi_bin + nPhi0 / 2;
-            phi = -axislimit + axislimit / nPhi0 + 2 * axislimit / nPhi0 * phi_in;
-            r = -axislimit + axislimit / nRad + 2 * axislimit / nRad * r_bin;
-
-            if (fabs(phi) > axislimit || fabs(r) > axislimit)
-            {
-              std::cout << "Excess of channel range! Wrong mapping -- return -1 " << std::endl;
-              return -1;
-            }
-
-            h_ADC0_s->Fill(phi, r, signal);
-            h_hits0_s->Fill(phi, r);
-          }
-          else if (r_bin != 0)
-          {
-            phi_in = (phi_bin >= nPhi / 2) ? phi_bin - nPhi / 2 : phi_bin + nPhi / 2;
-            phi = -axislimit + axislimit / nPhi + 2 * axislimit / nPhi * phi_in;
-            r = -axislimit + axislimit / nRad + 2 * axislimit / nRad * r_bin;
-
-            if (fabs(phi) > axislimit || fabs(r) > axislimit)
-            {
-              std::cout << "Excess of channel range! Wrong mapping -- return -1 " << std::endl;
-              return -1;
-            }
-
-            h_ADC_s->Fill(phi, r, signal);
-            h_hits_s->Fill(phi, r);
-          }
-          else
-          {
-            std::cout << "r_bin not assigned ... " << std::endl;
-            return -1;
-          }
+          sumADC_s += signalFast;
         }
-        else if (z_bin == 1)
+        if (z_bin == 1)
         {
           sumhit_n++;
-          sumADC_n += signal;
-          if (r_bin == 0)
-          {
-            phi_in = (phi_bin >= nPhi0 / 2) ? phi_bin - nPhi0 / 2 : phi_bin + nPhi0 / 2;
-            phi = -axislimit + axislimit / nPhi0 + 2 * axislimit / nPhi0 * phi_in;
-            r = -axislimit + axislimit / nRad + 2 * axislimit / nRad * r_bin;
-
-            if (fabs(phi) > axislimit || fabs(r) > axislimit)
-            {
-              std::cout << "Excess of channel range! Wrong mapping -- return -1 " << std::endl;
-              return -1;
-            }
-
-            h_ADC0_n->Fill(phi, r, signal);
-            h_hits0_n->Fill(phi, r);
-          }
-          else if (r_bin != 0)
-          {
-            phi_in = (phi_bin >= nPhi / 2) ? phi_bin - nPhi / 2 : phi_bin + nPhi / 2;
-            phi = -axislimit + axislimit / nPhi + 2 * axislimit / nPhi * phi_in;
-            r = -axislimit + axislimit / nRad + 2 * axislimit / nRad * r_bin;
-
-            if (fabs(phi) > axislimit || fabs(r) > axislimit)
-            {
-              std::cout << "Excess of channel range! Wrong mapping -- return -1 " << std::endl;
-              return -1;
-            }
-
-            h_ADC_n->Fill(phi, r, signal);
-            h_hits_n->Fill(phi, r);
-          }
-          else
-          {
-            std::cout << "r_bin not assigned ... " << std::endl;
-            return -1;
-          }
-        }
-        else
-        {
-          std::cout << "z_bin not assigned ... " << std::endl;
-          return -1;
+          sumADC_n += signalFast;
         }
 
       }  // channel loop end
@@ -454,9 +369,12 @@ int SepdMon::process_event(Event *e /* evt */)
   // h1_waveform_twrAvg->Scale(1. / 32. / 48.);  // average tower waveform
   h1_waveform_twrAvg->Scale((float) 1 / ChannelNumber);
 
-  h_ADC_corr->Fill(sumADC_s / sumhit_s, sumADC_n / sumhit_n);
+  // --- need to rework these a bit (or possibly just not use them)
+  h_ADC_corr->Fill(sumADC_s, sumADC_n);
   h_hits_corr->Fill(sumhit_s, sumhit_n);
+
   return 0;
+
 }
 
 int SepdMon::Reset()
@@ -468,32 +386,3 @@ int SepdMon::Reset()
   return 0;
 }
 
-int SepdMon::SepdMapChannel(int ch)
-{
-  int nch = ch / 16;
-  int chmap = -999;
-  if (nch % 2 == 0)
-  {
-    if (ch % 32 == 0)
-      chmap = ch - nch / 2;
-    else
-    {
-      chmap = 2 * (ch - 16 * nch) + 31 * (nch / 2) - 1;
-    }
-  }
-  else if (nch % 2 == 1)
-  {
-    if ((ch - 16) % 32 == 0)
-      chmap = -1;
-    else
-    {
-      chmap = 2 * (ch - 16 * nch) + 31 * ((nch - 1) / 2);
-    }
-  }
-  if (chmap == -999)
-  {
-    std::cout << "WRONG Channel map !!!! " << std::endl;
-    return -1;
-  }
-  return chmap;
-}

@@ -1201,6 +1201,21 @@ int OnlMonClient::RunNumber()
   return (runno);
 }
 
+time_t OnlMonClient::EventTime(const std::string &which)
+{
+  time_t tret = 0;
+  for (auto frwrkiter : m_MonitorFetchedSet)
+  {
+    tret = std::max(tret, EventTime(frwrkiter,which));
+  }
+
+  if (verbosity > 0)
+  {
+    std::cout << "Time is " << ctime(&tret) << std::endl;
+  }
+  return (tret);
+}
+
 time_t OnlMonClient::EventTime(const std::string &servername, const std::string &which)
 {
   time_t tret = 0;
@@ -1221,6 +1236,7 @@ time_t OnlMonClient::EventTime(const std::string &servername, const std::string 
   {
     std::cout << "Bad Option for Time: " << which
               << ", implemented are BOR EOR CURRENT" << std::endl;
+    ibin = CURRENTTIMEBIN;
   }
   TH1 *frameworkvars = getHisto(servername, "FrameWorkVars");
   if (frameworkvars == nullptr)
@@ -1461,27 +1477,16 @@ int OnlMonClient::SetStyleToDefault()
   return 0;
 }
 
-void OnlMonClient::CacheRunDB(const int runnoinput)
+void OnlMonClient::CacheRunDB(const int runno)
 {
-  int runno = 221;
-  if (runnoinput == 221)
-  {
-    runno = runnoinput;
-  }
   if (runno == cachedrun)
   {
     return;
   }
-  std::string TriggerConfig = "UNKNOWN";
   standalone = 0;
   cosmicrun = 0;
   runtype = "UNKNOWN";
 
-  if (runno == 0xFEE2DCB)  // dcm2 standalone runs have this runnumber
-  {
-    standalone = 1;
-    return;
-  }
   odbc::Connection *con = nullptr;
   odbc::Statement *query = nullptr;
   std::ostringstream cmd;
@@ -1523,7 +1528,7 @@ void OnlMonClient::CacheRunDB(const int runnoinput)
     }
   }
   cmd.str("");
-  cmd << "SELECT triggerconfig,brunixtime,runtype FROM RUN  WHERE RUNNUMBER = "
+  cmd << "SELECT runtype FROM RUN  WHERE RUNNUMBER = "
       << runno;
   if (verbosity > 0)
   {
@@ -1540,16 +1545,7 @@ void OnlMonClient::CacheRunDB(const int runnoinput)
   if (rs->next())
   {
     runtype = rs->getString("runtype");
-    TriggerConfig = rs->getString("triggerconfig");
-    if (TriggerConfig == "StandAloneMode")
-    {
-      standalone = 1;
-    }
-    else
-    {
-      standalone = 0;
-    }
-    if (TriggerConfig.find("Cosmic") != std::string::npos)
+    if (runtype == "cosmics")
     {
       cosmicrun = 1;
     }
@@ -1559,6 +1555,7 @@ void OnlMonClient::CacheRunDB(const int runnoinput)
     }
   }
   delete con;
+  cachedrun = runno;
   //  printf("CacheRunDB: runno: %d\n",runno);
   return;
 }

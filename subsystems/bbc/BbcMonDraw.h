@@ -69,6 +69,8 @@ class BbcMonDraw : public OnlMonDraw
   int nPadWarning[MAX_WARNING] = {};
   int nWarning = 0;
 
+  TH1 *Trigs{nullptr};
+
   // for the 1st Page
   TGraphErrors *TdcOver[nSIDE] = {};
   TPad *PadTdcOver[nSIDE] = {};
@@ -199,9 +201,8 @@ class BbcMonDraw : public OnlMonDraw
   TH1 *Prescale_hist = nullptr;
   TSpectrum *tspec = nullptr;
 
-private:
+ private:
   int DrawDeadServer(TPad *transparent_pad) override;
-
 };
 
 #endif /* BBC_BBCMONDRAW_H */

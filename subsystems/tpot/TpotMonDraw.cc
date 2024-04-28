@@ -175,7 +175,7 @@ void TpotMonDraw::draw_time( TPad* pad )
 
   std::ostringstream runnostream;
   auto cl = OnlMonClient::instance();
-  time_t evttime = cl->EventTime("TPOTMON_0", "CURRENT");
+  time_t evttime = cl->EventTime("CURRENT");
 
   runnostream
     << ThisName << " Run " << cl->RunNumber()
@@ -534,7 +534,9 @@ int TpotMonDraw::draw_counters()
     cv->cd(1);
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
-    m_counters->DrawCopy();
+    m_counters->SetFillStyle(1001);
+    m_counters->SetFillColor(kYellow );
+    m_counters->DrawCopy( "h" );
     
     if( m_counters_ref ) 
     {
@@ -758,8 +760,15 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
     {
       cv->cd(i+1);
       if( options&DrawOptions::Colz ) histograms[i]->DrawCopy( "col" );
-      else histograms[i]->DrawCopy();
-
+      else {
+        
+        histograms[i]->SetFillStyle(1001);
+        histograms[i]->SetFillColor(kYellow );
+        histograms[i]->DrawCopy( "h" );
+        histograms[i]->DrawCopy();
+      
+      }
+      
       // also draw reference
       if( ref_histograms[i] )
       {

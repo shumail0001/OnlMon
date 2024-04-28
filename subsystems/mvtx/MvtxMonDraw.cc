@@ -6,6 +6,7 @@
 #include <TAxis.h>  // for TAxis
 #include <TCanvas.h>
 #include <TDatime.h>
+#include <TGaxis.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TH2.h>
@@ -205,11 +206,11 @@ int MvtxMonDraw::Draw(const std::string &what)
 {
   int iret = 0;
   int idraw = 0;
-  if (what == "ALL" || what == "L0L"|| what == "L0R"|| what == "L1L"|| what == "L1R"|| what == "L2L"|| what == "L2R")
+  /*if (what == "ALL" || what == "L0L"|| what == "L0R"|| what == "L1L"|| what == "L1R"|| what == "L2L"|| what == "L2R")
   {
     iret += DrawHitMap(what);
     idraw++;
-  }
+  }*/
   if (what == "ALL" || what == "GENERAL")
   {
     iret += DrawGeneral(what);
@@ -310,7 +311,7 @@ int MvtxMonDraw::DrawHitMap(const std::string &what )
         //int stave = aLayer==0?aStave:NStaves[aLayer]+aStave;
 	TString prefix = Form("%d%d%d",aLayer,aStave,iChip);
         mvtxmon_HitMap[NFlx]->GetZaxis()->SetRange(((chipmapoffset[aLayer]+aStave)*9+iChip+1),((chipmapoffset[aLayer]+aStave)*9+iChip+1));
-        returnCode += PublishHistogram(Pad[padID],ipad*9+iChip+1,mvtxmon_HitMap[NFlx]->Project3D(prefix+"xy"),"colz"); //publish merged one
+        returnCode += PublishHistogram(Pad[padID],ipad*9+iChip+1,mvtxmon_HitMap[NFlx]->Project3D(prefix+"yx"),"colz"); //publish merged one
 	gStyle->SetOptStat(0);
       }
       ipad++;
@@ -405,14 +406,15 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
       mvtxmon_LaneStatusOverview[i][NFlx]->GetYaxis()->SetTitleOffset(0.6);
       mvtxmon_LaneStatusOverview[i][NFlx]->SetMinimum(0);
       mvtxmon_LaneStatusOverview[i][NFlx]->SetMaximum(1);
-      mvtxmon_LaneStatusOverview[i][NFlx]->SetBit(TH1::kIsAverage);
+      //mvtxmon_LaneStatusOverview[i][NFlx]->SetBit(TH1::kIsAverage);
     }
   }
   if(mvtxmon_mGeneralOccupancy[NFlx]) mvtxmon_mGeneralOccupancy[NFlx]->GetYaxis()->SetTitleOffset(0.6);
 
   if(mvtxmon_mGeneralErrorFile[NFlx]){
     for(int bin = 1; bin < mvtxmon_mGeneralErrorFile[NFlx]->GetNbinsX()+1;bin++ ){
-      mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetBinLabel(bin,Form("%d",(bin-1)%8));
+      if(bin <= 12 )mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetBinLabel(bin,Form("%d",(bin-1)%2));
+      else mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetBinLabel(bin,"");
     }
     mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetTitleSize(0.045);
     mvtxmon_mGeneralErrorFile[NFlx]->GetYaxis()->SetTitleSize(0.045);
@@ -466,8 +468,8 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   returnCode += PublishHistogram(Pad[padID],5,mvtxmon_mGeneralErrorPlots[NFlx]);
   returnCode += PublishHistogram(Pad[padID],6,mvtxmon_mGeneralErrorFile[NFlx],"lcol");
 
-  TPaveText *ptt5 = new TPaveText(.1,.85,.9,.95,"blNDC");
-  ptt5->SetTextSize(0.04);
+  TPaveText *ptt5 = new TPaveText(.1,.85,.5,.95,"blNDC");
+  ptt5->SetTextSize(0.02);
   ptt5->SetFillColor(0);
   ptt5->SetLineColor(0);
   ptt5->SetBorderSize(1);
@@ -679,17 +681,17 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   returnCode += PublishHistogram(Pad[padID],1,mTriggerVsFeeId[NFlx],"lcol");
   returnCode += PublishHistogram(Pad[padID],5,mTrigger[NFlx]);
   //returnCode += PublishHistogram(Pad[9],3,mLaneInfo[NFlx]);
-  returnCode += PublishHistogram(Pad[padID],3,mLaneStatus[0][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],3,mLaneStatus[0][NFlx],"lcol");
   for(int i = 0;i<3;i++)tlayer[i]->Draw();
-  returnCode += PublishHistogram(Pad[padID],7,mLaneStatus[1][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],7,mLaneStatus[1][NFlx],"lcol");
   for(int i = 0;i<3;i++)tlayer[i]->Draw();
-  returnCode += PublishHistogram(Pad[padID],11,mLaneStatus[2][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],11,mLaneStatus[2][NFlx],"lcol");
   for(int i = 0;i<3;i++)tlayer[i]->Draw();
-  returnCode += PublishHistogram(Pad[padID],4,mLaneStatusCumulative[0][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],4,mLaneStatusCumulative[0][NFlx],"lcol");
   for(int i = 0;i<3;i++)tlayer[i]->Draw();
-  returnCode += PublishHistogram(Pad[padID],8,mLaneStatusCumulative[1][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],8,mLaneStatusCumulative[1][NFlx],"lcol");
   for(int i = 0;i<3;i++)tlayer[i]->Draw();
-  returnCode += PublishHistogram(Pad[padID],12,mLaneStatusCumulative[2][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],12,mLaneStatusCumulative[2][NFlx],"lcol");
   for(int i = 0;i<3;i++)tlayer[i]->Draw();
   returnCode += PublishHistogram(Pad[padID],2,mLaneStatusSummary[0][NFlx]);
   returnCode += PublishHistogram(Pad[padID],6,mLaneStatusSummary[1][NFlx]);
@@ -708,15 +710,15 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
   const int padID = 3;
 
   TH1D* hOccupancyPlot[3][NFlx+1] = {nullptr};
-  //TH2I* hEtaPhiHitmap[3][NFlx+1];
   TH2D* hChipStaveOccupancy[3][NFlx+1] = {nullptr};
   TH1D *mvtxmon_ChipStave1D[NFlx+1] = {nullptr};
   TH1D *mvtxmon_ChipFiredHis[NFlx+1] = {nullptr};
+  TH1I *hChipStrobes[NFlx+1] = {nullptr};
+  TH1I *hChipL1[NFlx+1] = {nullptr};
 
   for (int aLayer = 0; aLayer < 3; aLayer++) {
     for (int iFelix = 0; iFelix <NFlx; iFelix++){
       hOccupancyPlot[aLayer][iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Occupancy_Layer%dOccupancy", aLayer)));
-      //hEtaPhiHitmap[aLayer][iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON/Occupancy/Layer%d/Layer%dEtaPhi", aLayer, aLayer)));
       hChipStaveOccupancy[aLayer][iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Occupancy_Layer%d_Layer%dChipStave", aLayer, aLayer)));
     }
   }
@@ -724,13 +726,16 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
   for (int iFelix = 0; iFelix <NFlx; iFelix++){
     mvtxmon_ChipStave1D[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_RawData_ChipStave1D"));
     mvtxmon_ChipFiredHis[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_RawData_ChipFiredHis"));
+    hChipStrobes[iFelix] = dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"hChipStrobes"));
+    hChipL1[iFelix] = dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"hChipL1"));
   }
 
   for (int i = 0; i < 3; i++) {
     MergeServers<TH1D*>(hOccupancyPlot[i]);
-   // MergeServers<TH2I*>(hEtaPhiHitmap[i]);
     MergeServers<TH2D*>(hChipStaveOccupancy[i]); 
   }
+
+  TH2D *hChipStaveOccupancy_low[3] =  {nullptr};
 
   for (int i = 0; i < 3; i++) {
     if(hOccupancyPlot[i][NFlx]){
@@ -740,6 +745,7 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
       hOccupancyPlot[i][NFlx]->GetYaxis()->SetLabelSize(0.045);
       hOccupancyPlot[i][NFlx]->GetYaxis()->SetTitleSize(0.05);
       hOccupancyPlot[i][NFlx]->GetYaxis()->SetTitleOffset(1);
+      hChipStaveOccupancy[i][NFlx]->SetMinimum(0);
     }  
     if(hChipStaveOccupancy[i][NFlx]){
       hChipStaveOccupancy[i][NFlx]->GetXaxis()->SetLabelSize(0.05);  
@@ -748,11 +754,19 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
       hChipStaveOccupancy[i][NFlx]->GetYaxis()->SetLabelSize(0.06);
       hChipStaveOccupancy[i][NFlx]->GetYaxis()->SetTitleSize(0.05);
       hChipStaveOccupancy[i][NFlx]->GetYaxis()->SetTitleOffset(0.7);
+
+      hChipStaveOccupancy_low[i] = (TH2D*)(hChipStaveOccupancy[i][NFlx])->Clone(Form("hChipStaveOccupancy_low_%d",i));
+      TString tmp = "Chip Occupancy < 1\%";
+      hChipStaveOccupancy_low[i]->SetTitle(tmp + Form(" of average occupancy in layer %d",i));
     }
   }
 
+   
+
   MergeServers<TH1D*>(mvtxmon_ChipStave1D);
   MergeServers<TH1D*>(mvtxmon_ChipFiredHis);
+  MergeServers<TH1I*>(hChipStrobes); 
+  MergeServers<TH1I*>(hChipL1); 
 
   if(mvtxmon_ChipStave1D[NFlx]){
     mvtxmon_ChipStave1D[NFlx]->GetXaxis()->SetLabelSize(0.05);  
@@ -772,26 +786,98 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
     mvtxmon_ChipFiredHis[NFlx]->GetYaxis()->SetTitleOffset(1.2);
   }
 
+ double avr_occ[3] = {0};
+
+  for (int iLayer = 0; iLayer < 3; iLayer++) {
+    for (int iStave = 0; iStave < NStaves[iLayer]; iStave++) {
+      for (int iChip = 0; iChip < 9; iChip++) {      
+        //double occ = hChipStaveOccupancy[iLayer][NFlx]->GetBinContent(iChip+1,iStave+1)/(hChipStrobes[NFlx]->GetBinContent((StaveBoundary[iLayer]+iStave)*9+iChip+1)*1024*512);
+        double occ = hChipStaveOccupancy[iLayer][NFlx]->GetBinContent(iChip+1,iStave+1)/(hChipStrobes[NFlx]->GetBinContent((StaveBoundary[iLayer]+iStave)*9+iChip+1)*1024*512);
+        if(occ > 10e-50)hChipStaveOccupancy[iLayer][NFlx]->SetBinContent(iChip+1,iStave+1,occ);
+        if(occ > 10e-50)avr_occ[iLayer]+=occ;
+      }
+    }
+  }
+
+for (int iLayer = 0; iLayer < 3; iLayer++) {
+  avr_occ[iLayer]/=(NStaves[iLayer]*9);
+    for (int iStave = 0; iStave < NStaves[iLayer]; iStave++) {
+      for (int iChip = 0; iChip < 9; iChip++) {      
+        double occ = hChipStaveOccupancy[iLayer][NFlx]->GetBinContent(iChip+1,iStave+1);
+        if(occ <0.01* avr_occ[iLayer]) hChipStaveOccupancy_low[iLayer]->SetBinContent(iChip+1,iStave+1,1);
+	else hChipStaveOccupancy_low[iLayer]->SetBinContent(iChip+1,iStave+1,0);
+      }
+    }
+  }
+
+  
+
   if (!gROOT->FindObject("MvtxMon_OCC"))
   {
     MakeCanvas("MvtxMon_OCC");
+
+
   }
 
   TC[canvasID]->SetEditable(true);
   TC[canvasID]->Clear("D");
-  Pad[padID]->Divide(3,3);
+  Pad[padID]->Divide(4,3);
+  Pad[padID]->cd(1)->SetLogy();
+  Pad[padID]->cd(2)->SetLogy();
+  Pad[padID]->cd(3)->SetLogy();
+
+
+  hChipStaveOccupancy[0][NFlx]->GetZaxis()->SetTitle("");
+  hChipStaveOccupancy[1][NFlx]->GetZaxis()->SetTitle("");
+  hChipStaveOccupancy[2][NFlx]->GetZaxis()->SetTitle("");
+
+  hChipStrobes[NFlx]->SetTitle("Chip Strobes (L1 triggers) vs Chip*Stave");
+  hChipStrobes[NFlx]->GetYaxis()->SetTitle("Number of strobes");
+
+
   int returnCode = 0;
   returnCode += PublishHistogram(Pad[padID],1,hOccupancyPlot[0][NFlx]);
   returnCode += PublishHistogram(Pad[padID],2,hOccupancyPlot[1][NFlx]);
   returnCode += PublishHistogram(Pad[padID],3,hOccupancyPlot[2][NFlx]);
- // returnCode += PublishHistogram(Pad[10],4,hEtaPhiHitmap[0][NFlx]);
-  //returnCode += PublishHistogram(Pad[10],5,hEtaPhiHitmap[1][NFlx]);
-  //returnCode += PublishHistogram(Pad[10],6,hEtaPhiHitmap[2][NFlx]);
-  returnCode += PublishHistogram(Pad[padID],4,hChipStaveOccupancy[0][NFlx],"colz");
-  returnCode += PublishHistogram(Pad[padID],5,hChipStaveOccupancy[1][NFlx],"colz");
-  returnCode += PublishHistogram(Pad[padID],6,hChipStaveOccupancy[2][NFlx],"colz");
-  returnCode += PublishHistogram(Pad[padID],7,mvtxmon_ChipStave1D[NFlx]);
+  returnCode += PublishHistogram(Pad[padID],5,hChipStaveOccupancy[0][NFlx],"colz");
+  returnCode += PublishHistogram(Pad[padID],6,hChipStaveOccupancy[1][NFlx],"colz");
+  returnCode += PublishHistogram(Pad[padID],7,hChipStaveOccupancy[2][NFlx],"colz");
+  returnCode += PublishHistogram(Pad[padID],9,hChipStaveOccupancy_low[0],"col");
+  returnCode += PublishHistogram(Pad[padID],10,hChipStaveOccupancy_low[1],"col");
+  returnCode += PublishHistogram(Pad[padID],11,hChipStaveOccupancy_low[2],"col");
+  returnCode += PublishHistogram(Pad[padID],4,mvtxmon_ChipStave1D[NFlx]);
   returnCode += PublishHistogram(Pad[padID],8,mvtxmon_ChipFiredHis[NFlx]);
+  returnCode += PublishHistogram(Pad[padID],12,hChipStrobes[NFlx]);
+
+//for( int i = 1; i<= hChipL1[NFlx]->GetNbinsX();i++) std::cout<<hChipL1[NFlx]->GetBinContent(i)<<" ";
+
+   Float_t rightmax = 2*hChipL1[NFlx]->GetMaximum();
+   Float_t scale = hChipStrobes[NFlx]->GetMaximum()/rightmax;
+   hChipL1[NFlx]->SetLineColor(kRed);
+   hChipL1[NFlx]->Scale(scale);
+   //std::cout<<rightmax<<" "<<hChipStrobes[NFlx]->GetMaximum()<<" "<<scale<<std::endl;
+   returnCode += PublishHistogram(Pad[padID],12,hChipL1[NFlx],"same hist");
+
+   TGaxis *axis = new TGaxis(48*9,0, 48*9, hChipStrobes[NFlx]->GetMaximum(),0,rightmax,510,"+L");
+   axis->SetLineColor(kRed);
+   axis->SetLabelColor(kRed);
+   axis->SetLabelFont(42);
+   axis->SetTitleFont(42);
+   axis->SetTitleColor(kRed);
+   axis->SetTitle("Number of L1 triggers");
+   axis->Draw();
+
+  TPaveText *pt = new TPaveText(6,12,8.5,13);
+  pt->SetBorderSize(0);
+  pt->SetFillStyle(0);
+  TText *t1 = pt->AddText("Not saved in .root");
+  t1->SetTextColor(kRed);
+  Pad[padID]->cd(9);
+  pt->Draw();
+  Pad[padID]->cd(10);
+  pt->Draw();
+  Pad[padID]->cd(11);
+  pt->Draw();
 
   PublishStatistics(TC[canvasID],cl);
   TC[canvasID]->SetEditable(false);
@@ -817,6 +903,12 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
   TH1D *mvtxmon_EvtHitChip[NFlx+1] = {nullptr}; 
   TH1D *mvtxmon_EvtHitDis[NFlx+1] = {nullptr}; 
 
+  TH1I *mRCDAQevt[NFlx+1] = {nullptr};
+
+  TH2D* mChipStaveNoisy[3][NFlx+1]; 
+
+  int nFLX[3]= {0};
+
   for (int iFelix = 0; iFelix <NFlx; iFelix++){
     mErrorVsFeeid[iFelix] =  dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_General_ErrorVsFeeid"));
     mGeneralOccupancy[iFelix] = dynamic_cast<TH2Poly*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_General_Occupancy"));
@@ -825,27 +917,43 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
     mTotalAliveChipPos[iFelix] = dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_Occupancy_TotalAliveChipPos"));
     mvtxmon_EvtHitChip[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_RawData_EvtHitChip"));
     mvtxmon_EvtHitDis[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_RawData_EvtHitDis"));
+    mRCDAQevt[iFelix] = dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"RCDAQ_evt"));
     for (int mLayer = 0; mLayer < 3; mLayer++) {
       mDeadChipPos[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Occupancy_Layer%d_Layer%dDeadChipPos", mLayer, mLayer)));
+      if(mDeadChipPos[mLayer][iFelix]) nFLX[mLayer]++;
       mAliveChipPos[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Occupancy_Layer%d_Layer%dAliveChipPos", mLayer, mLayer)));
      // mChipStaveOccupancy[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dChipStaveC", mLayer, mLayer)));
       mOccupancyPlot[mLayer][iFelix] =  dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Occupancy_Layer%dOccupancy_LOG", mLayer)));
+
+      mChipStaveNoisy[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Noisy_Layer%d_ChipStave", mLayer)));
     }
+  }
+
+  for (int iFelix = 0; iFelix < NFlx; iFelix++) {
+    for (int mLayer = 0; mLayer < 3; mLayer++) {
+	if(mAliveChipPos[mLayer][iFelix] && mRCDAQevt[iFelix]) mAliveChipPos[mLayer][iFelix]->Scale(1./mRCDAQevt[iFelix]->Integral());       
+
+     if(mChipStaveNoisy[mLayer][iFelix] && mRCDAQevt[iFelix]) mChipStaveNoisy[mLayer][iFelix]->Scale(1./mRCDAQevt[iFelix]->Integral());       
+    }
+    if(mGeneralNoisyPixel[iFelix] && mRCDAQevt[iFelix]) mGeneralNoisyPixel[iFelix]->Scale(1./mRCDAQevt[iFelix]->Integral());
   }
 
   for (int mLayer = 0; mLayer < 3; mLayer++) {
     MergeServers<TH2D*>(mDeadChipPos[mLayer]);
     MergeServers<TH2D*>(mAliveChipPos[mLayer]);
     MergeServers<TH1D*>(mOccupancyPlot[mLayer]);
+    MergeServers<TH2D*>(mChipStaveNoisy[mLayer]);
     if(mDeadChipPos[mLayer][NFlx]){
       mDeadChipPos[mLayer][NFlx]->SetMinimum(0);
       mDeadChipPos[mLayer][NFlx]->SetMaximum(1);
     }
-    if(mAliveChipPos[mLayer][NFlx]){
+    /*if(mAliveChipPos[mLayer][NFlx]){
       mAliveChipPos[mLayer][NFlx]->SetMinimum(0);
       mAliveChipPos[mLayer][NFlx]->SetMaximum(1);
-    }
+    }*/
   }
+
+
 
   MergeServers<TH2I*>(mErrorVsFeeid);
   MergeServers<TH2Poly*>(mGeneralOccupancy);
@@ -854,15 +962,29 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
   MergeServers<TH2D*>(mTotalAliveChipPos);
   MergeServers<TH1D*>(mvtxmon_EvtHitChip);
   MergeServers<TH1D*>(mvtxmon_EvtHitDis);
+  MergeServers<TH1I*>(mRCDAQevt);
 
   if(mTotalDeadChipPos[NFlx]){
     mTotalDeadChipPos[NFlx]->SetMinimum(0);
     mTotalDeadChipPos[NFlx]->SetMaximum(1);
   }
-  if(mTotalAliveChipPos[NFlx]){
+ /* if(mTotalAliveChipPos[NFlx]){
     mTotalAliveChipPos[NFlx]->SetMinimum(0);
     mTotalAliveChipPos[NFlx]->SetMaximum(1);
-  }
+  }*/
+
+   for (int mLayer = 0; mLayer < 3; mLayer++) {
+    if(mDeadChipPos[mLayer][NFlx]){
+        for (int binx = 0; binx < mDeadChipPos[mLayer][NFlx]->GetNbinsX(); binx++) {
+       for (int biny = 0; biny < mDeadChipPos[mLayer][NFlx]->GetNbinsY(); biny++) {
+
+      mDeadChipPos[mLayer][NFlx]->SetBinContent(binx+1,biny+1,mDeadChipPos[mLayer][NFlx]->GetBinContent(binx+1,biny+1)-nFLX[mLayer]+1);
+}
+}
+    }     
+   }
+
+
 
   if (!gROOT->FindObject("MvtxMon_FHR"))
   {
@@ -874,24 +996,27 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
   Pad[padID]->Divide(5,3);
 
   int returnCode = 0;
-  returnCode += PublishHistogram(Pad[padID],1,mErrorVsFeeid[0]);
-  returnCode += PublishHistogram(Pad[padID],6,mGeneralOccupancy[0]);
-  returnCode += PublishHistogram(Pad[padID],11,mGeneralNoisyPixel[0]);
-  returnCode += PublishHistogram(Pad[padID],3,mDeadChipPos[0][NFlx],"COL");
-  returnCode += PublishHistogram(Pad[padID],8,mDeadChipPos[1][NFlx],"COL");
-  returnCode += PublishHistogram(Pad[padID],13,mDeadChipPos[2][NFlx],"COL");
-  returnCode += PublishHistogram(Pad[padID],4,mAliveChipPos[0][NFlx],"COL");
-  returnCode += PublishHistogram(Pad[padID],9,mAliveChipPos[1][NFlx],"COL");
-  returnCode += PublishHistogram(Pad[padID],14,mAliveChipPos[2][NFlx],"COL");
+ // returnCode += PublishHistogram(Pad[padID],1,mErrorVsFeeid[0]);
+ // returnCode += PublishHistogram(Pad[padID],6,mGeneralOccupancy[NFlx],"COLZ");
+  returnCode += PublishHistogram(Pad[padID],5,mGeneralNoisyPixel[NFlx],"COLZ");
+  returnCode += PublishHistogram(Pad[padID],1,mDeadChipPos[0][NFlx],"COL");
+  returnCode += PublishHistogram(Pad[padID],6,mDeadChipPos[1][NFlx],"COL");
+  returnCode += PublishHistogram(Pad[padID],11,mDeadChipPos[2][NFlx],"COL");
+  returnCode += PublishHistogram(Pad[padID],2,mAliveChipPos[0][NFlx],"COLZ");
+  returnCode += PublishHistogram(Pad[padID],7,mAliveChipPos[1][NFlx],"COLZ");
+  returnCode += PublishHistogram(Pad[padID],12,mAliveChipPos[2][NFlx],"COLZ");
  // returnCode += PublishHistogram<TH2D*>(TC[canvasID],10,mChipStaveOccupancy[0][0]);
  // returnCode += PublishHistogram<TH2D*>(TC[canvasID],11,mChipStaveOccupancy[1][0]);
 //  returnCode += PublishHistogram<TH2D*>(TC[canvasID],12,mChipStaveOccupancy[2][0]);
-  returnCode += PublishHistogram(Pad[padID],2,mOccupancyPlot[0][NFlx]);
-  returnCode += PublishHistogram(Pad[padID],7,mOccupancyPlot[1][NFlx]);
-  returnCode += PublishHistogram(Pad[padID],12,mOccupancyPlot[2][NFlx]);  
+  returnCode += PublishHistogram(Pad[padID],3,mChipStaveNoisy[0][NFlx],"COLZ");
+  returnCode += PublishHistogram(Pad[padID],8,mChipStaveNoisy[1][NFlx],"COLZ");
+  returnCode += PublishHistogram(Pad[padID],13,mChipStaveNoisy[2][NFlx],"COLZ");
+  returnCode += PublishHistogram(Pad[padID],4,mOccupancyPlot[0][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],9,mOccupancyPlot[1][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],14,mOccupancyPlot[2][NFlx]);  
 
-  PublishHistogram(Pad[padID],5,mvtxmon_EvtHitChip[NFlx]);
-  PublishHistogram(Pad[padID],10,mvtxmon_EvtHitDis[NFlx]);
+  PublishHistogram(Pad[padID],10,mvtxmon_EvtHitChip[NFlx]);
+  PublishHistogram(Pad[padID],15,mvtxmon_EvtHitDis[NFlx]);
 
   //returnCode += PublishHistogram(Pad[11],16,mTotalDeadChipPos[NFlx],"COL");
   //returnCode += PublishHistogram(Pad[11],17,mTotalAliveChipPos[NFlx],"COL");
@@ -1130,6 +1255,7 @@ int MvtxMonDraw::PublishHistogram(TPad *p, TH1 *h, const char* opt ){
     TCanvas *c = nullptr;
     return PublishHistogram(c,0,h,opt);
   }
+
   else{
     return -1;
   }
@@ -1167,7 +1293,7 @@ void MvtxMonDraw::PublishStatistics(TCanvas *c,OnlMonClient *cl){
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();
+  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -1308,13 +1434,6 @@ void MvtxMonDraw::DrawPave(std::vector<MvtxMonDraw::Quality> status, int positio
 time_t MvtxMonDraw::getTime()
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  time_t currtime = 0;
-  int i = 0;
-  while (currtime == 0 && i <= 5)
-  {
-    std::string servername = "MVTXMON_" + std::to_string(i);
-    currtime = cl->EventTime(servername,"CURRENT");
-    i++;
-  }
+  time_t currtime = cl->EventTime("CURRENT");
   return currtime;
 }

@@ -16,6 +16,7 @@ void ohcalDrawInit(const int online = 0)
   {
     sprintf(HCALMON_STR, "OHCALMON_%i", i);
     cl->registerHisto("h2_hcal_hits", HCALMON_STR);
+    cl->registerHisto("h_caloPack_gl1_clock_diff", HCALMON_STR);
     cl->registerHisto("h2_hcal_rm", HCALMON_STR);
     cl->registerHisto("h2_hcal_mean", HCALMON_STR);
     cl->registerHisto("h2_hcal_time", HCALMON_STR);
@@ -31,6 +32,10 @@ void ohcalDrawInit(const int online = 0)
     cl->registerHisto("h1_packet_length", HCALMON_STR);
     cl->registerHisto("h1_packet_number", HCALMON_STR);
     cl->registerHisto("h1_packet_event", HCALMON_STR);
+    cl->registerHisto("h_evtRec", HCALMON_STR);
+    cl->registerHisto("h2_hcal_hits_trig1", HCALMON_STR);
+    cl->registerHisto("h2_hcal_hits_trig2", HCALMON_STR);
+    cl->registerHisto("h_hcal_trig", HCALMON_STR);
 
     for (int ih = 0; ih < 32; ih++)
     {

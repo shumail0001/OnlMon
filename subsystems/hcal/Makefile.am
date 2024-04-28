@@ -7,7 +7,7 @@ SUBDIRS = calib
 
 AM_CPPFLAGS = \
   -I$(includedir) \
-  -I$(ONLINE_MAIN)/include \
+  -isystem$(ONLINE_MAIN)/include \
   -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \
@@ -21,7 +21,8 @@ libonlhcalmon_server_la_LIBADD = \
   -lonlmondb \
   -lonlmonutils \
   -lcalo_io \
-  -lcalo_reco 
+  -lcalo_reco
+
 
 libonlhcalmon_client_la_LIBADD = \
   -L$(libdir) \

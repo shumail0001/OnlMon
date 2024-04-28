@@ -30,6 +30,7 @@ class TpcMon : public OnlMon
  protected:
   int evtcnt = 0;
   int idummy = 0;
+  int weird_counter = 0;
 
   static const int N_rBins = 4; //(one inner bin not filled, 2nd bin is R1, 3rd bin is R2, 4th bin is R3)
   const int N_thBins = 12; //(12 theta bins of uniform angle (360/12 = 30 degrees = TMath::Pi()/6 ~= 0.523 rad)
@@ -41,11 +42,13 @@ class TpcMon : public OnlMon
                                  223.83, 229.83, 235.83, 241.83, 247.83, 253.83, 259.83, 265.83, 271.83, 277.83, 283.83, 289.83, 295.83, 301.83, 306.83,
                                  311.05, 317.92, 323.31, 329.27, 334.63, 340.59, 345.95, 351.91, 357.27, 363.23, 368.59, 374.55, 379.91, 385.87, 391.23, 397.19, 402.49,
                                  411.53, 421.70, 431.90, 442.11, 452.32, 462.52, 472.73, 482.94, 493.14, 503.35, 513.56, 523.76, 533.97, 544.18, 554.39, 564.59, 574.76,
-                                 583.67, 594.59, 605.57, 616.54, 627.51, 638.48, 649.45, 660.42, 671.39, 682.36, 693.33, 704.30, 715.27, 726.24, 737.21, 748.18, 759.11}; // From Evgeny code - gloabl to all modules
+                                 583.67, 594.59, 605.57, 616.54, 627.51, 638.48, 649.45, 660.42, 671.39, 682.36, 693.33, 704.30, 715.27, 726.24, 737.21, 748.18, 759.11}; // From Evgeny code - global to all modules
 
   static const int N_phi_binx_XY_R1 = 1152; // from Evgeny code (0 to 2pi)
   static const int N_phi_binx_XY_R2 = 1536; // from Evgeny code (0 to 2pi)
   static const int N_phi_binx_XY_R3 = 2304; // from Evgeny code (0 to 2pi)
+
+  static const int N_z_bins = 3350; // (50 ns time bins * ~12.3 micron/ns drift time = 615 microns). Drift Length = 1.03 * 10^6 microns. 2 *1.03 *10^6 microns / 615 microns = 3350 bins
 
   TH2 *NorthSideADC_clusterXY_R1 = nullptr;
   TH2 *NorthSideADC_clusterXY_R2 = nullptr;
@@ -55,6 +58,14 @@ class TpcMon : public OnlMon
   TH2 *SouthSideADC_clusterXY_R2 = nullptr;
   TH2 *SouthSideADC_clusterXY_R3 = nullptr;
 
+  TH2 *NorthSideADC_clusterXY_R1_LASER = nullptr;
+  TH2 *NorthSideADC_clusterXY_R2_LASER = nullptr;
+  TH2 *NorthSideADC_clusterXY_R3_LASER = nullptr;
+
+  TH2 *SouthSideADC_clusterXY_R1_LASER = nullptr;
+  TH2 *SouthSideADC_clusterXY_R2_LASER = nullptr;
+  TH2 *SouthSideADC_clusterXY_R3_LASER = nullptr;
+
   TH2 *NorthSideADC_clusterXY_R1_unw = nullptr;
   TH2 *NorthSideADC_clusterXY_R2_unw = nullptr;
   TH2 *NorthSideADC_clusterXY_R3_unw = nullptr;
@@ -63,6 +74,11 @@ class TpcMon : public OnlMon
   TH2 *SouthSideADC_clusterXY_R2_unw = nullptr;
   TH2 *SouthSideADC_clusterXY_R3_unw = nullptr;
 
+  TH2 *NorthSideADC_clusterZY = nullptr;
+  TH2 *SouthSideADC_clusterZY = nullptr;
+
+  TH2 *NorthSideADC_clusterZY_unw = nullptr;
+  TH2 *SouthSideADC_clusterZY_unw = nullptr;
 
   TH1 *tpchist1 = nullptr;
   TH2 *tpchist2 = nullptr;
@@ -71,6 +87,11 @@ class TpcMon : public OnlMon
   TH2 *SouthSideADC = nullptr;
 
   TH2 *ADC_vs_SAMPLE = nullptr;
+  TH2 *PEDEST_SUB_ADC_vs_SAMPLE = nullptr;
+  TH2 *ADC_vs_SAMPLE_large = nullptr;
+  TH2 *PEDEST_SUB_ADC_vs_SAMPLE_R1 = nullptr;
+  TH2 *PEDEST_SUB_ADC_vs_SAMPLE_R2 = nullptr;
+  TH2 *PEDEST_SUB_ADC_vs_SAMPLE_R3 = nullptr;
 
   TH1 *sample_size_hist = nullptr;
   TH1 *Check_Sum_Error = nullptr;
@@ -80,12 +101,18 @@ class TpcMon : public OnlMon
 
   TH1 *RAWADC_1D_R1= nullptr;
   TH1 *MAXADC_1D_R1 = nullptr;
+  TH1 *PEDEST_SUB_1D_R1 = nullptr;
 
   TH1 *RAWADC_1D_R2= nullptr;
   TH1 *MAXADC_1D_R2 = nullptr;
+  TH1 *PEDEST_SUB_1D_R2 = nullptr;
 
   TH1 *RAWADC_1D_R3= nullptr;
   TH1 *MAXADC_1D_R3 = nullptr;
+  TH1 *PEDEST_SUB_1D_R3 = nullptr;
+
+  TH2 *Layer_ChannelPhi_ADC_weighted = nullptr;
+  TH1 *NEvents_vs_EBDC = nullptr;
 
   TpcMap M; //declare Martin's map
 
@@ -100,7 +127,7 @@ class TpcMon : public OnlMon
   int Module_ID(int fee_id);
   int Max_Nine(int one, int two, int three, int four, int five, int six, int seven, int eight, int nine);
   bool side(int server_id);
-  std::pair<float, float> calculateMeanAndStdDev(const std::vector<int>& values);
+  std::pair<float, float> calculateMedianAndStdDev(const std::vector<int>& values);
 };
 
 #endif /* TPC_TPCMON_H */

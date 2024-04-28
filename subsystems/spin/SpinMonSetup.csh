@@ -1,0 +1,1 @@
+setenv SPINCALIB $ONLMON_CALIB/spin

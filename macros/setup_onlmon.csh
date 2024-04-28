@@ -82,8 +82,8 @@ if (-f ${OPT_SPHENIX}/bin/setup_local.csh ) then
   source ${OPT_SPHENIX}/bin/setup_local.csh $ONLMON_MAIN
 else
   # start with your local directory
-  setenv ROOT_INCLUDE_PATH ./
-  foreach local_incdir (`find $ONLINE_MAIN/include -maxdepth 1 -type d -print`)
+  setenv ROOT_INCLUDE_PATH ./:$ONLINE_MAIN/include
+  foreach local_incdir ($ONLINE_MAIN/include/*)
     if (-d $local_incdir) then
       setenv ROOT_INCLUDE_PATH ${ROOT_INCLUDE_PATH}:$local_incdir
     endif

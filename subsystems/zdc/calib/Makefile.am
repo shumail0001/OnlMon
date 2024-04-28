@@ -4,4 +4,5 @@ include_HEADERS =
 zdcdatadir = $(pkgdatadir)/zdc
 
 zdcdata_DATA = \
-  ZdcMonData.dat
+  ZdcMonData.dat \
+  ZdcCalib.pmtgain

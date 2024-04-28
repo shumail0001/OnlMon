@@ -7,7 +7,7 @@ SUBDIRS = calib
 
 AM_CPPFLAGS = \
   -I$(includedir) \
-  -I$(ONLINE_MAIN)/include \
+  -isystem$(ONLINE_MAIN)/include \
   -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \
@@ -18,6 +18,9 @@ libonlzdcmon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
+  -lonlmonutils \
+  -lcalo_io \
+  -lcalo_reco \
   -lonlmondb
 
 libonlzdcmon_client_la_LIBADD = \
