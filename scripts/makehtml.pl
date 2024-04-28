@@ -7,7 +7,7 @@ sub findruns;
 
 my $stopthis = sprintf("stopthis");
 my $histodir = sprintf("/sphenix/lustre01/sphnxpro/commissioning/online_monitoring/histograms");
-my @subsystems = ("BBCMON", "CEMCMON", "DAQMON", "IHCALMON", "INTTMON", "LL1MON", "MVTXMON", "OHCALMON", "SEPDMON", "TPCMON", "TPOTMON", "ZDCMON");
+my @subsystems = ("BBCMON", "CEMCMON", "DAQMON", "IHCALMON", "INTTMON", "LL1MON", "MVTXMON", "OHCALMON", "SPINMON", "SEPDMON", "TPCMON", "TPOTMON", "ZDCMON");
 #my @subsystems = ("BBCMON", "CEMCMON", "INTTMON", "LL1MON", "TPOTMON", "TPCMON");
 
 for my $subsys (@subsystems)
