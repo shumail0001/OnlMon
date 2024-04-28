@@ -302,7 +302,7 @@ sub makemenucode {
       }
   }
 
-  print " menu.addItem(\"RunControl\",\"http://logbook.phenix.bnl.gov/runcontrol/RunSummary.php?RunNumber=$runnumber\",\"text\",\"See what runcontrol have to say about this run\",\"link.gif\");\n";
+#  print " menu.addItem(\"RunControl\",\"http://www.sphenix-intra.bnl.gov:7815/cgi-bin/run_details.py?run=$runnumber\",\"text\",\"See what runcontrol have to say about this run\",\"link.gif\");\n";
   print "}\n";
   print "</script>\n";
 }
@@ -404,7 +404,7 @@ sub print_start_1 {
   print "<html>\n";
   print "<head>\n";
   print "<link rel=\"stylesheet\" href=\"$css\" type=\"text/css\">\n";
-  print "<title>PHENIX Online Monitoring HTML Output for Run $run</title>\n";
+  print "<title>sPHENIX Online Monitoring HTML Output for Run $run</title>\n";
 
   print_copyright();
 
@@ -551,7 +551,7 @@ sub select_run {
   print html_doctype("Transitional");
   print "<html>\n<head>\n";
   print "<link rel=\"stylesheet\" href=\"mon.css\" type=\"text/css\">\n";
-  print "<title>PHENIX OnlMon HTML Output : Run Selection</title>\n";
+  print "<title>sPHENIX OnlMon HTML Output : Run Selection</title>\n";
   print "</head>\n<body class=\"runselect\">\n";
 
   print "<P>Please click on a run range below to expand it (by default the latest runs are expanded), and then click on a run number to browse it.\n";
@@ -595,62 +595,6 @@ sub select_run {
       dirlist("pulser",$runrange);
       print "</td>\n";
   }
-  if (-d "zerofielddata")
-  {
-      print "<td>\n";
-      dirlist("zerofielddata",$runrange);
-      print "</td>\n";
-  }
-
-  if (-d "pedestaldata")
-  {
-      print "<td>\n";
-      dirlist("pedestaldata",$runrange);
-      print "</td>\n";
-  }
-
-  if (-d "vernierscandata")
-  {
-      print "<td>\n";
-      dirlist("vernierscandata",$runrange);
-      print "</td>\n";
-  }
-
-  if (-d "localpoldata")
-  {
-      print "<td>\n";
-      dirlist("localpoldata",$runrange);
-      print "</td>\n";
-  }
-
-  if (-d "junkdata")
-  {
-      print "<td>\n";
-      dirlist("junkdata",$runrange);
-      print "</td>\n";
-  }
-
-  if (-d "prejecteddata")
-  {
-      print "<td>\n";
-      dirlist("prejecteddata",$runrange);
-      print "</td>\n";
-  }
-
-  if (-d "crejecteddata")
-  {
-      print "<td>\n";
-      dirlist("crejecteddata",$runrange);
-      print "</td>\n";
-  }
-
-  if (-d "pedrejecteddata")
-  {
-      print "<td>\n";
-      dirlist("pedrejecteddata",$runrange);
-      print "</td>\n";
-  }
-
   if (-d "unknowndata")
   {
       print "<td>\n";
@@ -665,190 +609,125 @@ sub select_run {
 #_____________________________________________________________________________
 sub show_contacts {
 
-  my $show_photo = shift;
+    my $show_photo = shift;
 
-  print html_doctype("Transitional");
-  print "<html>\n<head>\n";
-  print "<link rel=\"stylesheet\" href=\"mon.css\" type=\"text/css\">\n";
-  print "<title>The humans behind the PHENIX Online Monitoring</title>\n";
-  print "</head>\n<body class=\"contacts\">\n";
+    print html_doctype("Transitional");
+    print "<html>\n<head>\n";
+    print "<link rel=\"stylesheet\" href=\"mon.css\" type=\"text/css\">\n";
+    print "<title>The humans behind the sPHENIX Online Monitoring</title>\n";
+    print "</head>\n<body class=\"contacts\">\n";
 
-  print "<P>The humans behind the PHENIX Online Monitoring...<BR><HR>";
+    print "<P>The humans behind the sPHENIX Online Monitoring...<BR><HR>";
 
-  my %list = ( 
-	      "Master of the beast, Daq, Mcr, packet size, html" => {
-		       name => "Chris Pinkenburg",
-		       email => "pinkenburg\@bnl.gov",
-		       photo => "pinkenburg_chris.jpg",
-		      },
-	      "Aerogel, TofE (1)" => {
-			    name => "Hiroshi Nakagomi",
-			    email => "hiro_n\@rcf.rhic.bnl.gov",
-			    photo => "nakagomi_hiroshi.jpg"
-			   },
-	      "Aerogel, TofE (2)" => {
-		     name => "Hiroki Yamamoto",
-		     email => "s1420259\@u.tsukuba.ac.jp",
-		     photo => "yamamoto_hiroki.jpg"
-		    },
-	      "Bbc (1)" => {
-			name => "Kazuya Nagashima",
-			email => "nagashima\@hepl.hiroshima-u.ac.jp",
-			photo => "nagashima_kazuya.jpg"
-		       },
-	      "Bbc (2)" => {
-			name => "Yosuke Ueda",
-			email => "ueda\@hepl.hiroshima-u.ac.jp",
-			photo => "ueda_yosuke.jpg"
-		       },
-	      "Bbclvl1, Gl1, Muidlvl1, Zdclvl1" => {
-		     name => "John Lajoie",
-		     email => "lajoie\@iastate.edu",
-		     photo => "lajoie_john.jpg"
-		    },
-	      "Dch (1)" => {
-		     name => "Dmitry Kotov",
-		     email => "dmitriy.kotov\@gmail.com",
-		     photo => "kotov_dmitry.jpg"
-		    },
-	      "Dch (2)" => {
-		     name => "Victor Riabov",
-		     email => "riabovvg\@gmail.com",
-		     photo => "riabov_viktor.jpg"
-		    },
-	      "Emc" => {
-		      name => "Andrey Yanovich",
-		      email => "yanovich\@bnl.gov",
-		      photo => "yanovich_andrey.jpg"
-		     },
-	      "Ertlvl1" => {
-		     name => "Milap Patel",
-		     email => "mrpind\@iastate.edu",
-		     photo => "patel_milap.jpg"
-		    },
-	      "ErtMask" => {
-		     name => "TBA",
-		     email => "pinkenburg\@bnl.gov",
-		     photo => "confused_baby.jpg"
-		    },
-	      "Fvtx" => {
-		      name => "Haiwang Yu",
-		      email => "yuhw.pku\@gmail.com",
-		      photo => "yu_haiwang.jpg"
-		     },
-	      "LocalPol, Zdc (1)" => {
-		      name => "Minjung Kim",
-		      email => "keimj0703\@gmail.com",
-		      photo => "kim_minjung.jpg"
-		     },
-	      "LocalPol, Zdc (2)" => {
-		      name => "Junsang Park",
-		      email => "parkjunsang0405\@gmail.com",
-		      photo => "park_junsang.jpg"
-		     },
-	      "Mpc" => {
-		      name => "Mickey Chiu",
-		      email => "chiu\@bnl.gov",
-		      photo => "chiu_mickey.jpg"
-		     },
-	      "Mpc-Ex" => {
-		      name => "Jaehyeon Do",
-		      email => "jaehyeon.do\@gmail.com",
-		      photo => "do_jaehyeon.jpg"
-		     },
-	      "MuId" => {
-		     name => "David Silvermyr",
-		     email => "silvermy\@bnl.gov",
-		     photo => "silvermyr_david.jpg"
-		    },
-	      "Mutr" => {
-		      name => "Xiaodong Jiang",
-		      email => "jiang\@jlab.org",
-		      photo => "jiang_xiaodong.jpg"
-		     },
-	      "MuTrig" => {
-		      name => "Sanghwa Park",
-		      email => "sanghwa\@snu.ac.kr",
-		      photo => "park_sanghwa.jpg"
-		     },
-	      "MuTrigLvl1" => {
-		      name => "Josh Perry",
-		      email => "jpperry\@iastate.edu",
-		      photo => "perry_joshua.jpg"
-		     },
-	      "Pad" => {
-		     name => "Damian Reynolds",
-		     email => "dlreynol\@rcf.rhic.bnl.gov",
-		     photo => "reynolds_damian.jpg"
-		    },
-	      "PbGlU" => {
-		     name => "Andrey Kazantsev",
-		     email => "stkav\@rcf.rhic.bnl.gov",
-		     photo => "kazantsev_andrey"
-		    },
-	      "Rich" => {
-		     name => "Yorito Yamaguchi",
-		     email => "yorito\@cns.s.u-tokyo.ac.jp",
-		     photo => "yamaguchi_yorito.jpg"
-		    },
-	      "Spin" => {
-		     name => "Katherine DeBlasio",
-		     email => "deblasio.katherine\@gmail.com",
-		     photo => "deblasio_katherine.jpg"
-		    },
-	      "TofW" => {
-		     name => "Shengli Huang",
-		     email => "shengli.huang\@vanderbilt.edu",
-		     photo => "huang_shengli.jpg"
-		    },
-	      "Vtx" => {
-		     name => "Zack Rowan",
-		     email => "zfxrowan\@gmail.com",
-		     photo => "rowan_zachary.jpg"
-		    }
-	     );
+    my %list = (
+	"Master of the beast, html" => {
+	    name => "Chris Pinkenburg",
+	    email => "pinkenburg\@bnl.gov",
+	    photo => "pinkenburg_chris.jpg",
+	},
+	"MVTX" => {
+	    name => "Jakub Kvapil",
+	    email => "jakub.kvapil\@lanl.gov",
+	    photo => "kvapil_jakub.jpg"
+	},
+	"INTT" => {
+	    name => "Joseph Bertaux",
+	    email => "jbertau\@purdue.edu",
+	    photo => "bertaux_joseph.jpg"
+	},
+	"TPC" => {
+	    name => "Charles Hughes",
+	    email => "chughes2\@iastate.edu",
+	    photo => "sphenix-logo-white-bg.png"
+	},
+	"TPOT" => {
+	    name => "Hugo Pereira Da Costa",
+	    email => "hugo.pereira-da-costa\@lanl.gov",
+	    photo => "sphenix-logo-white-bg.png"
+	},
+	"CEMC" => {
+	    name => "Anthony Hodges",
+	    email => "ahodges4\@illinois.edu",
+	    photo => "sphenix-logo-white-bg.png"
+	},
+	"HCAL" => {
+	    name => "Blair Seidlitz",
+	    email => "blair.daniel.seidlitz\@cern.ch",
+	    photo => "sphenix-logo-white-bg.png"
+	},
+	"MBD" => {
+	    name => "Mickey Chiu",
+	    email => "chiu\@bnl.gov",
+	    photo => "chiu_mickey.jpg"
+	},
+	"SEPD" => {
+	    name => "Ron Belmont",
+	    email => "belmonrj\@gmail.com",
+	    photo => "sphenix-logo-white-bg.png"
+	},
+	"ZDC" => {
+	    name => "Ejiro Umaka",
+	    email => "ejironaomiumaka\@gmail.com",
+	    photo => "umaka_ejiro.jpg"
+	},
+	"DAQ" => {
+	    name => "JaeBeom Park",
+	    email => "jpark4\@bnl.gov",
+	    photo => "sphenix-logo-white-bg.png"
+	},
+	"LL1" => {
+	    name => "Daniel Lis",
+	    email => "Daniel.Lis\@colorado.edu",
+	    photo => "sphenix-logo-white-bg.png"
+	},
+	"Spin" => {
+	    name => "Devon Loomis",
+	    email => "dloom\@umich.edu",
+	    photo => "sphenix-logo-white-bg.png"
+	}
+	);
 
-  print "<table>\n";
-  my $photodir = "http://www.phenix.bnl.gov/WWW/run/all_faces";
+    print "<table>\n";
+    my $photodir = "./photos";
 
-  foreach my $l ( sort keys %list )
-  {
-    my $d = \%{$list{$l}};
-    my $component = $l;
+    foreach my $l ( sort keys %list )
+    {
+	my $d = \%{$list{$l}};
+	my $component = $l;
 
-    my @name = split ',',$$d{"name"};
-    my @email = split ",", $$d{"email"};
-    my @photo = split ",",$$d{"photo"};
+	my @name = split ',',$$d{"name"};
+	my @email = split ",", $$d{"email"};
+	my @photo = split ",",$$d{"photo"};
 
-    for ( my $i = 0; $i < $#name+1; ++$i ) {
-      my $name = $name[$i];
-      my $email = $email[$i];
-      my $photo = $photo[$i];
-      print "<TR><TD class=\"devcomponent\">$component",
-	  "<td><A class=\"devmail\" HREF=\"mailto:$email\">$name</a>";
-      if ( $show_photo == 1 )
-	{
-	  print "<td><img src=\"$photodir/$photo\" width=\"115\" height=\"115\">\n";
+	for ( my $i = 0; $i < $#name+1; ++$i ) {
+	    my $name = $name[$i];
+	    my $email = $email[$i];
+	    my $photo = $photo[$i];
+	    print "<TR><TD class=\"devcomponent\">$component",
+	    "<td><A class=\"devmail\" HREF=\"mailto:$email\">$name</a>";
+	    if ( $show_photo == 1 )
+	    {
+		print "<td><img src=\"$photodir/$photo\" width=\"115\" height=\"115\">\n";
+	    }
 	}
     }
-  }
 
-  print "<tr><td>&nbsp;<td>";
+    print "<tr><td>&nbsp;<td>";
 
-  print $q->start_form("post");#,"./mon.cgi?contacts=1&photo=1");
-  if ( $show_photo == 0 )
+    print $q->start_form("post");#,"./mon.cgi?contacts=1&photo=1");
+    if ( $show_photo == 0 )
     {
-      print $q->submit(-name=>'photo',-label=>'Show faces');
+	print $q->submit(-name=>'photo',-label=>'Show faces');
     }
-  else
+    else
     {
-      print $q->submit(-name=>'photo',-label=>'Hide faces');
+	print $q->submit(-name=>'photo',-label=>'Hide faces');
     }
-  print $q->endform();
+    print $q->endform();
 
-  print "</table>\n";
+    print "</table>\n";
 
-  print "</body></html>\n";
+    print "</body></html>\n";
 }
 
 #_____________________________________________________________________________
