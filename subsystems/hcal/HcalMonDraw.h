@@ -36,6 +36,7 @@ class HcalMonDraw : public OnlMonDraw
   int FindHotTower(TPad* warn, TH2*);
   void DrawTowerAvg();
   void DrawHitMap();
+  void DrawAvgTime();
   time_t getTime();
   
   // int DrawDeadServer(TPad *transparent);
