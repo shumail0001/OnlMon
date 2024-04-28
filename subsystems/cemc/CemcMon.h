@@ -11,8 +11,10 @@ class TowerInfoContainer;
 class Event;
 class TH1;
 class TH2;
+class TProfile;
 class Packet;
 class runningMean;
+class eventReceiverClient;
 
 class CemcMon : public OnlMon
 {
@@ -24,6 +26,9 @@ class CemcMon : public OnlMon
   int Init();
   int BeginRun(const int runno);
   int Reset();
+  void set_anaGL1(bool state){anaGL1=state;return;}
+  void set_trig1(int val) { trig1=val;return; }
+  void set_trig2(int val) { trig2=val;return; }
 
  protected:
   std::vector<float> getSignal(Packet *p, const int channel);
@@ -35,7 +40,7 @@ class CemcMon : public OnlMon
   TH2 *cemc_runningmean = nullptr;
   TH1 *cemc_signal = nullptr;
   TH1 *h1_cemc_adc = nullptr;
-  
+
   const int Nsector = 64;
   const int Ntower = 64*2*192;
   const int packetlow = 6001;
@@ -44,7 +49,14 @@ class CemcMon : public OnlMon
   const int m_nChannels = 192;
   const int templateDepth = 10000;
   int eventCounter = 0;
-  
+
+  TH2* h2_cemc_hits_trig1 = nullptr;
+  TH2* h2_cemc_hits_trig2 = nullptr;
+  TH1* h1_cemc_trig = nullptr;
+  TH1* h1_packet_event = nullptr;
+  TH2* h2_caloPack_gl1_clock_diff = nullptr;
+  TProfile* h_evtRec = nullptr;
+
   TH1* h1_packet_chans = nullptr;
   TH1* h1_packet_length = nullptr;
   TH1* h1_packet_number = nullptr;
@@ -67,11 +79,17 @@ class CemcMon : public OnlMon
   std::string runtypestr = "Unknown";
   std::string id_string;
 
+  eventReceiverClient *erc = {nullptr};
+  bool anaGL1 = false;
+
+  int trig1 = 1;
+  int trig2 = 3;
+
   CaloWaveformFitting* WaveformProcessingFast = nullptr;
   CaloWaveformFitting* WaveformProcessingTemp = nullptr;
 
 
-  std::vector<runningMean*> rm_vector; 
+  std::vector<runningMean*> rm_vector;
 
 };
 

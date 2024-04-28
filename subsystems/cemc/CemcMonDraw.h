@@ -30,6 +30,7 @@ class CemcMonDraw : public OnlMonDraw
   int DrawSecond(const std::string &what = "ALL");
   int DrawThird(const std::string &what = "ALL");
   int DrawFourth(const std::string &what = "ALL");
+  int DrawFifth(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
   int FindHotTower(TPad *warn,TH2* );
   time_t getTime();

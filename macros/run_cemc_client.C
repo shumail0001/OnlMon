@@ -14,6 +14,10 @@ void cemcDrawInit(const int online = 0)
   // register histos we want with monitor name
   for(int serverid = 0; serverid < 16; serverid++)
     {
+      cl->registerHisto("h2_cemc_hits_trig1", Form("CEMCMON_%d",serverid));
+      cl->registerHisto("h2_cemc_hits_trig2", Form("CEMCMON_%d",serverid));
+      cl->registerHisto("h1_cemc_trig", Form("CEMCMON_%d",serverid));
+      cl->registerHisto("h_evtRec", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h2_cemc_rm", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h2_cemc_mean", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h1_event", Form("CEMCMON_%d",serverid));
@@ -27,7 +31,7 @@ void cemcDrawInit(const int online = 0)
       cl->registerHisto("h1_packet_length",Form("CEMCMON_%d",serverid));
       cl->registerHisto("h1_packet_chans",Form("CEMCMON_%d",serverid));
       cl->registerHisto("h1_cemc_adc",Form("CEMCMON_%d",serverid));
-		    
+
       for (int ih=0; ih<32; ih++){
 	cl->registerHisto(Form("h1_rm_sectorAvg_s%d",ih), Form("CEMCMON_%d",serverid));
       }
