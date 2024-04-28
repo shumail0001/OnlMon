@@ -52,7 +52,7 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
   }
   else if (subsystem == "DAQMON")
   {
-    drawer = new CemcMonDraw("DAQMONDRAW");
+    drawer = new DaqMonDraw("DAQMONDRAW");
   }
   else if (subsystem == "IHCALMON")
   {
@@ -92,7 +92,7 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
   }
   else if (subsystem == "ZDCMON")
   {
-    drawer = new TpotMonDraw("ZDCMONDRAW");
+    drawer = new ZdcMonDraw("ZdcMONDRAW");
   }
   else
   {
