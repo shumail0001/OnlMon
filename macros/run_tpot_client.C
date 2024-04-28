@@ -29,8 +29,8 @@ void tpotDrawInit(const int online = 0)
     { cl->registerHisto( hname+"_"+detname, "TPOTMON_0" ); }
   }
 
-  // list of hosts from where histograms should be retrieved
-  CreateHostList(online);
+  // for local host, just call tpotDrawInit(2)
+  CreateSubsysHostlist("tpot_hosts.list", online);
 
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node

@@ -11,8 +11,8 @@ void inttDrawInit(const int online = 0)
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
 
-  cl->AddServerHost("localhost");	// check local host first
-  CreateHostList(online);
+  // for local host, just call inttDrawInit(2)
+  CreateSubsysHostlist("intt_hosts.list", online);
 
   for(int felix = 0; felix < INTT::FELIX; ++felix)
   {

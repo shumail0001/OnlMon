@@ -83,6 +83,10 @@ HcalMon::~HcalMon()
   {
     delete iter;
   }
+  for (auto iter : rm_vector_twrTime)
+  {
+    delete iter;
+  }
 
   if ( erc) delete erc;
 
@@ -122,6 +126,7 @@ int HcalMon::Init()
   h_hcal_trig = new TH1F("h_hcal_trig", "", 64, 0, 64);
   h2_hcal_rm = new TH2F("h2_hcal_rm", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_mean = new TH2F("h2_hcal_mean", "", 24, 0, 24, 64, 0, 64);
+  h2_hcal_time = new TH2F("h2_hcal_time", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_waveform = new TH2F("h2_hcal_waveform", "", n_samples_show, 0.5, n_samples_show + 0.5, 1000, 0, 15000);
   h2_hcal_correlation = new TH2F("h2_hcal_correlation", "", 200, 0, 100000, 200, 0, 150000);
   h_event = new TH1F("h_event", "", 1, 0, 1);
@@ -157,6 +162,7 @@ int HcalMon::Init()
   for (int i = 0; i < Ntower; i++)
   {
     rm_vector_twr.push_back(new pseudoRunningMean(1, depth));
+    rm_vector_twrTime.push_back(new pseudoRunningMean(1, depth));
   }
   for (int i = 0; i < 8; i++)
   {
@@ -175,6 +181,7 @@ int HcalMon::Init()
   se->registerHisto(this, h_caloPack_gl1_clock_diff);
   se->registerHisto(this, h2_hcal_rm);
   se->registerHisto(this, h2_hcal_mean);
+  se->registerHisto(this, h2_hcal_time);
   se->registerHisto(this, h2_hcal_waveform);
   se->registerHisto(this, h_event);
   se->registerHisto(this, h_sectorAvg_total);
@@ -214,7 +221,7 @@ int HcalMon::Init()
     hcaltemplate = ".";
   }
   hcaltemplate += std::string("/testbeam_ohcal_template.root");
-  WaveformProcessing->initialize_processing(hcaltemplate);
+  //WaveformProcessing->initialize_processing(hcaltemplate);
 
   if (anaGL1){
     erc = new eventReceiverClient("gl1daq");
@@ -295,6 +302,10 @@ int HcalMon::BeginRun(const int /* runno */)
     (*rm_it)->Reset();
   }
   for (rm_it = rm_packet_chans.begin(); rm_it != rm_packet_chans.end(); ++rm_it)
+  {
+    (*rm_it)->Reset();
+  }
+  for (rm_it = rm_vector_twrTime.begin(); rm_it != rm_vector_twrTime.end(); ++rm_it)
   {
     (*rm_it)->Reset();
   }
@@ -391,16 +402,21 @@ int HcalMon::process_event(Event* e /* evt */)
         unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
         unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
         int sectorNumber = phi_bin / 2 + 1;
-        if (signal > hit_threshold) h_waveform_time->Fill(time);
+        if (signal > hit_threshold){
+           h_waveform_time->Fill(time);
+           rm_vector_twrTime[towerNumber - 1]->Add(&time);
+        }
         h_waveform_pedestal->Fill(pedestal);
 
         sectorAvg[sectorNumber - 1] += signal;
 
         rm_vector_twr[towerNumber - 1]->Add(&signal);
 
+
         int bin = h2_hcal_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
         h2_hcal_mean->SetBinContent(bin, h2_hcal_mean->GetBinContent(bin) + signal);
         h2_hcal_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
+        h2_hcal_time->SetBinContent(bin, rm_vector_twrTime[towerNumber - 1]->getMean(0));
 
         // fill tower_rm here
         if (evtcnt <= historyLength * historyScaleDown)

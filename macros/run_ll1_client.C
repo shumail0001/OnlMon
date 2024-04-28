@@ -36,8 +36,10 @@ void ll1DrawInit(const int online = 0)
       cl->registerHisto(histname.c_str(), "LL1MON_0");
     }
   cl->registerHisto("h_sample_diff_jet_input", "LL1MON_0");
-  cl->AddServerHost("localhost");  // check local host first
-  //CreateHostList(online);
+
+  // for local host, just call ll1DrawInit(2)
+  CreateSubsysHostlist("ll1_hosts.list", online);
+
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
   
