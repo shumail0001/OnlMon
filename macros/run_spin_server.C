@@ -6,9 +6,9 @@
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlspinmon_server.so)
-
-// void run_spin_server(const std::string &name = "SPINMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/GL1/beam/GL1_beam_gl1daq-00024787-0000.prdf")
-void run_spin_server(const std::string &name = "SPINMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/GL1/cosmics/GL1_cosmics_gl1daq-00034390-0000.prdf") // Noise from Cosmics
+ 
+//void run_spin_server(const std::string &name = "SPINMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/GL1/junk/GL1_junk_gl1daq-00040314-0000.evt") 
+void run_spin_server(const std::string &name = "SPINMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/GL1/junk/GL1_junk_gl1daq-00040382-0000.evt")
 {
   OnlMon *m = new SpinMon(name);                     // create subsystem Monitor object
   m->SetMonitorServerId(serverid);
