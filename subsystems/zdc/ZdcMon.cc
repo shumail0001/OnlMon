@@ -118,12 +118,9 @@ int ZdcMon::Init()
   zdc_S3 = new TH1F("zdc_S3", "ZDC3 ADC south", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
 
   //waveform
-  // h_waveform = new TH2F("h_waveform", "h_waveform", 13, -0.5, 12.5, 512, -500, 20000);
+  h_waveform = new TH2F("h_waveform", "h_waveform", 13, -0.5, 12.5, 512, -500, 20000);
 
   // SMD
-
-  // smd_adc_n_hor_ind0 = new TH1F("smd_adc_n_hor_ind0", "smd_adc_n_hor_ind0", 1000, 0, 5000 );
-
   // Individual SMD_ADC Values
   // Horizontal (expert plot)
   for (int i = 0; i < 8; i++)
@@ -144,11 +141,7 @@ int ZdcMon::Init()
   smd_north_ver_hits = new TH1F("smd_north_ver_hits", "smd_north_ver_hits", 8, 0., 7.);
   smd_south_hor_hits = new TH1F("smd_south_hor_hits", "smd_south_hor_hits", 9, 0., 8.);
   smd_south_ver_hits = new TH1F("smd_south_ver_hits", "smd_south_ver_hits", 8, 0., 7.);
-  // no thresholds
-  // smd_north_hor_hits_nth = new TH1F("smd_north_hor_hits_nth", "smd_north_hor_hits_nth", 9, 0., 8.);
-  // smd_north_ver_hits_nth = new TH1F("smd_north_ver_hits_nth", "smd_north_ver_hits_nth", 8, 0., 7.);
-  // smd_south_hor_hits_nth = new TH1F("smd_south_hor_hits_nth", "smd_south_hor_hits_nth", 9, 0., 8.);
-  // smd_south_ver_hits_nth = new TH1F("smd_south_ver_hits_nth", "smd_south_ver_hits_nth", 8, 0., 7.);
+  
 
   // north smd
   smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
@@ -183,7 +176,7 @@ int ZdcMon::Init()
   se->registerHisto(this, zdc_S1);
   se->registerHisto(this, zdc_S2);
   se->registerHisto(this, zdc_S3);
-  // se->registerHisto(this, h_waveform);
+  se->registerHisto(this, h_waveform);
 
   // SMD
   // Individual smd_adc channel histos
@@ -204,11 +197,7 @@ int ZdcMon::Init()
   se->registerHisto(this, smd_north_ver_hits);
   se->registerHisto(this, smd_south_hor_hits);
   se->registerHisto(this, smd_south_ver_hits);
-  // no thresholds
-  // se->registerHisto(this, smd_north_hor_hits_nth);
-  // se->registerHisto(this, smd_north_ver_hits_nth);
-  // se->registerHisto(this, smd_south_hor_hits_nth);
-  // se->registerHisto(this, smd_south_ver_hits_nth);
+  
 
   // north SMD
   se->registerHisto(this, smd_hor_north);
@@ -299,10 +288,10 @@ int ZdcMon::process_event(Event *e /* evt */)
       // for (int s = p->iValue(0, "SAMPLES")-3; s < p->iValue(0, "SAMPLES"); s++) {baseline_high += p->iValue(s,c);}
       // baseline_high /=3.;
 
-      // for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
-      // {
-      //   h_waveform->Fill(s, p->iValue(s, c) - baseline);
-      // }
+      for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+      {
+        h_waveform->Fill(s, p->iValue(s, c) - baseline);
+      }
 
       int mod = c % 2;
 
@@ -506,15 +495,6 @@ int ZdcMon::process_event(Event *e /* evt */)
       smd_south_hor_hits->Fill(sh);
       double sv = smd_s_v_counter_nth + 0.0;
       smd_south_ver_hits->Fill(sv);
-      // no thresholds
-      // double noth_nh = smd_n_h_counter_nth + 0.0;
-      // smd_north_hor_hits_nth->Fill(noth_nh);
-      // double noth_nv = smd_n_v_counter_nth + 0.0;
-      // smd_north_ver_hits_nth->Fill(noth_nv);
-      // double noth_sh = smd_s_h_counter_nth + 0.0;
-      // smd_south_hor_hits_nth->Fill(noth_sh);
-      // double noth_sv = smd_s_v_counter_nth + 0.0;
-      // smd_south_ver_hits_nth->Fill(noth_sv);
 
 
     }
@@ -571,16 +551,10 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
       else
       {
-        smd_hor_north_good->Fill( smd_pos[0] );
-        smd_ver_north_good->Fill( smd_pos[1] );
-      } 
-      else 
-      {
-        smd_hor_north_small->Fill(smd_pos[0]);
-        smd_ver_north_small->Fill(smd_pos[1]);
         smd_hor_north_small->Fill( smd_pos[0] );
         smd_ver_north_small->Fill( smd_pos[1] );
-      }
+      } 
+
     }
 
     //if (fill_hor_north && fill_ver_north && totalzdcnorthsignal > 40) {
@@ -704,8 +678,4 @@ void ZdcMon::CompSumSmd()  //compute 'digital' sum
     smd_sum[0] += smd_adc[i];       // north horizontal
     smd_sum[2] += smd_adc[i + 16];  // south horizontal
   }
-  
 }
-
-
-

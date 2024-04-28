@@ -24,7 +24,7 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("zdc_N1","ZDCMON_0");
   cl->registerHisto("zdc_N2","ZDCMON_0");
   cl->registerHisto("zdc_N3","ZDCMON_0");
-  // cl->registerHisto("h_waveform","ZDCMON_0");
+  cl->registerHisto("h_waveform","ZDCMON_0");
  
 
  // smd
@@ -47,13 +47,7 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("smd_north_ver_hits", "ZDCMON_0");
   cl->registerHisto("smd_south_hor_hits", "ZDCMON_0");
   cl->registerHisto("smd_south_ver_hits", "ZDCMON_0");
-  // // no threshold
-  // cl->registerHisto("smd_north_hor_hits_nth", "ZDCMON_0");
-  // cl->registerHisto("smd_north_ver_hits_nth", "ZDCMON_0");
-  // cl->registerHisto("smd_south_hor_hits_nth", "ZDCMON_0");
-  // cl->registerHisto("smd_south_ver_hits_nth", "ZDCMON_0");
   
-
   // north smd
   cl->registerHisto("smd_hor_north", "ZDCMON_0");
   cl->registerHisto("smd_ver_north", "ZDCMON_0");
