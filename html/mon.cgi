@@ -302,7 +302,7 @@ sub makemenucode {
       }
   }
 
-  print " menu.addItem(\"RunControl\",\"http://logbook.phenix.bnl.gov/runcontrol/RunSummary.php?RunNumber=$runnumber\",\"text\",\"See what runcontrol have to say about this run\",\"link.gif\");\n";
+#  print " menu.addItem(\"RunControl\",\"http://www.sphenix-intra.bnl.gov:7815/cgi-bin/run_details.py?run=$runnumber\",\"text\",\"See what runcontrol have to say about this run\",\"link.gif\");\n";
   print "}\n";
   print "</script>\n";
 }
