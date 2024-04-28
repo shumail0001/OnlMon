@@ -48,7 +48,6 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("smd_south_hor_hits", "ZDCMON_0");
   cl->registerHisto("smd_south_ver_hits", "ZDCMON_0");
   
-
   // north smd
   cl->registerHisto("smd_hor_north", "ZDCMON_0");
   cl->registerHisto("smd_ver_north", "ZDCMON_0");

@@ -119,9 +119,6 @@ int ZdcMon::Init()
   h_waveform = new TH2F("h_waveform", "h_waveform", 13, -0.5, 12.5, 512, -500, 20000);
 
   // SMD
-
-  // smd_adc_n_hor_ind0 = new TH1F("smd_adc_n_hor_ind0", "smd_adc_n_hor_ind0", 1000, 0, 5000 );
-
   // Individual SMD_ADC Values
   // Horizontal (expert plot)
   for (int i = 0; i < 8; i++)
@@ -135,11 +132,14 @@ int ZdcMon::Init()
     smd_adc_n_ver_ind[i] = new TH1I(Form("smd_adc_n_ver_ind%d", i), Form("smd_adc_n_ver_ind%d", i), 1000, 0, 5000);
     smd_adc_s_ver_ind[i] = new TH1I(Form("smd_adc_s_ver_ind%d", i), Form("smd_adc_s_ver_ind%d", i), 1000, 0, 5000);
   }
+
   // SMD Hit Multiplicity
-  smd_north_hor_hits = new TH1F("smd_north_hor_hits", "smd_north_hor_hits", 8, 0., 7.);
-  smd_north_ver_hits = new TH1F("smd_north_ver_hits", "smd_north_ver_hits", 7, 8., 14.);
-  smd_south_hor_hits = new TH1F("smd_south_hor_hits", "smd_south_hor_hits", 8, 16., 23.);
-  smd_south_ver_hits = new TH1F("smd_south_ver_hits", "smd_south_ver_hits", 7, 24., 30.);
+  // with thresholds
+  smd_north_hor_hits = new TH1F("smd_north_hor_hits", "Is this even changing?", 9, 0., 8.);
+  smd_north_ver_hits = new TH1F("smd_north_ver_hits", "smd_north_ver_hits", 8, 0., 7.);
+  smd_south_hor_hits = new TH1F("smd_south_hor_hits", "smd_south_hor_hits", 9, 0., 8.);
+  smd_south_ver_hits = new TH1F("smd_south_ver_hits", "smd_south_ver_hits", 8, 0., 7.);
+  
 
   // north smd
   smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
@@ -195,6 +195,7 @@ int ZdcMon::Init()
   se->registerHisto(this, smd_north_ver_hits);
   se->registerHisto(this, smd_south_hor_hits);
   se->registerHisto(this, smd_south_ver_hits);
+  
 
   // north SMD
   se->registerHisto(this, smd_hor_north);
@@ -377,6 +378,19 @@ int ZdcMon::process_event(Event *e /* evt */)
     int n_ver = 0;
     int n_hor = 0;
 
+    float zdc_adc_threshold = 200.;
+    float smd_adc_threshold = 20.;
+    // counters
+    int smd_n_h_counter = 0;
+    int smd_n_v_counter = 0;
+    int smd_s_h_counter = 0;
+    int smd_s_v_counter = 0;
+    // no thresholds 
+    int smd_n_h_counter_nth = 0;
+    int smd_n_v_counter_nth = 0;
+    int smd_s_h_counter_nth = 0;
+    int smd_s_v_counter_nth = 0;
+
     for (int i = 0; i < 8; i++)
     {
       //****smd north horizontal individual channels****
@@ -389,17 +403,21 @@ int ZdcMon::process_event(Event *e /* evt */)
       smd_value->Fill(smd_adc[i], float(i));
       if (zdc_adc[8] > 200.)
       {
-        smd_value_good->Fill(smd_adc[i], float(i));
+              smd_value_good->Fill(smd_adc[i], float(i));
       }
       else
       {
-        smd_value_small->Fill(smd_adc[i], float(i));
+              smd_value_small->Fill(smd_adc[i], float(i));
       }
 
-      if (smd_adc[i] != 0)
+      if ((smd_adc[i] > smd_adc_threshold) && (zdc_adc[0] > zdc_adc_threshold)) 
       {
-        double filling = i + 0.0;
-        smd_north_hor_hits->Fill(filling);
+        smd_n_h_counter++;  
+      }
+      // no threshold
+      if (smd_adc[i] > smd_adc_threshold)
+      {
+        smd_n_h_counter_nth++;
       }
       //****************************
 
@@ -420,10 +438,9 @@ int ZdcMon::process_event(Event *e /* evt */)
         smd_value_small->Fill(smd_adc[i + 16], float(i) + 16);
       }
 
-      if (smd_adc[i + 16] != 0)
+      if (smd_adc[i + 16] > smd_adc_threshold)
       {
-        double filling = i + 16 + 0.0;
-        smd_south_hor_hits->Fill(filling);
+        smd_s_h_counter++;
       }
       //****************************
     }
@@ -447,10 +464,9 @@ int ZdcMon::process_event(Event *e /* evt */)
         smd_value_small->Fill(smd_adc[i + 8], float(i) + 8);
       }
 
-      if (smd_adc[i + 8] != 0)
+      if (smd_adc[i + 8] > smd_adc_threshold)
       {
-        double filling = i + 8 + 0.0;
-        smd_north_ver_hits->Fill(filling);
+        smd_n_v_counter++;
       }
       //****************************
 
@@ -471,12 +487,23 @@ int ZdcMon::process_event(Event *e /* evt */)
         smd_value_small->Fill(smd_adc[i + 24], float(i) + 24);
       }
 
-      if (smd_adc[i + 24] != 0)
+      if (smd_adc[i + 24] > smd_adc_threshold)
       {
-        double filling = i + 24 + 0.0;
-        smd_south_ver_hits->Fill(filling);
+        smd_s_v_counter++;
       }
       //****************************
+
+      // Fill out the SMD counters with doubles instead of integers.
+      double nh = smd_n_h_counter_nth + 0.0;
+      smd_north_hor_hits->Fill(nh);
+      double nv = smd_n_v_counter_nth + 0.0;
+      smd_north_ver_hits->Fill(nv);
+      double sh = smd_s_h_counter_nth + 0.0;
+      smd_south_hor_hits->Fill(sh);
+      double sv = smd_s_v_counter_nth + 0.0;
+      smd_south_ver_hits->Fill(sv);
+
+
     }
 
     bool fired_smd_hor_n = (n_hor > 1);
@@ -531,9 +558,10 @@ int ZdcMon::process_event(Event *e /* evt */)
       }
       else
       {
-        smd_hor_north_small->Fill(smd_pos[0]);
-        smd_ver_north_small->Fill(smd_pos[1]);
-      }
+        smd_hor_north_small->Fill( smd_pos[0] );
+        smd_ver_north_small->Fill( smd_pos[1] );
+      } 
+
     }
 
     //if (fill_hor_north && fill_ver_north && totalzdcnorthsignal > 40) {
@@ -649,12 +677,12 @@ void ZdcMon::CompSumSmd()  //compute 'digital' sum
 
   for (int i = 0; i < 8; i++)
   {
+    smd_sum[0] += smd_adc[i]; // north horizontal
+    smd_sum[2] += smd_adc[i + 16]; // south horizontal
+  }
+  for (int i = 0; i < 8; i++)
+  {
     smd_sum[0] += smd_adc[i];       // north horizontal
     smd_sum[2] += smd_adc[i + 16];  // south horizontal
-  }
-  for (int i = 0; i < 7; i++)
-  {
-    smd_sum[1] += smd_adc[i + 8];   // north vertical
-    smd_sum[3] += smd_adc[i + 24];  // south vertical
   }
 }
