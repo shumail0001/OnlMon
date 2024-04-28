@@ -32,7 +32,7 @@ void cemcDrawInit(const int online = 0)
 	cl->registerHisto(Form("h1_rm_sectorAvg_s%d",ih), Form("CEMCMON_%d",serverid));
       }
     }
-  CreateHostList(online);
+  CreateSubsysHostlist("cemc_hosts.list", online);
   //  get my histos from server, the second parameter = 1
   //  says I know they are all on the same node
   //cl->requestHistoBySubSystem(Form("CEMCMON_%d",serverid), 1);
