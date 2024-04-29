@@ -24,10 +24,10 @@
 #include <fstream>
 #include <iostream>  // for operator<<, basic_ostream, basic_os...
 #include <sstream>
-#include <vector>    // for vector
+#include <vector>  // for vector
 
 HcalMonDraw::HcalMonDraw(const std::string& name)
-: OnlMonDraw(name)
+  : OnlMonDraw(name)
 {
   // if name start with O prefix = "OHCALMON"
   // if name start with I prefix = "IHCALMON"
@@ -196,7 +196,7 @@ int HcalMonDraw::Draw(const std::string& what)
   {
     int retcode = DrawFirst(what);
     iret += retcode;
-    if (! retcode)
+    if (!retcode)
     {
       isuccess++;
     }
@@ -205,7 +205,7 @@ int HcalMonDraw::Draw(const std::string& what)
   if (what == "ALL" || what == "SECOND")
   {
     int retcode = DrawSecond(what);
-    if (! retcode)
+    if (!retcode)
     {
       isuccess++;
     }
@@ -214,7 +214,7 @@ int HcalMonDraw::Draw(const std::string& what)
   if (what == "ALL" || what == "THIRD")
   {
     int retcode = DrawThird(what);
-    if (! retcode)
+    if (!retcode)
     {
       isuccess++;
     }
@@ -223,7 +223,7 @@ int HcalMonDraw::Draw(const std::string& what)
   if (what == "ALL" || what == "FOURTH")
   {
     int retcode = DrawFourth(what);
-    if (! retcode)
+    if (!retcode)
     {
       isuccess++;
     }
@@ -232,7 +232,7 @@ int HcalMonDraw::Draw(const std::string& what)
   if (what == "ALL" || what == "FIFTH")
   {
     int retcode = DrawFifth(what);
-    if (! retcode)
+    if (!retcode)
     {
       isuccess++;
     }
@@ -243,7 +243,7 @@ int HcalMonDraw::Draw(const std::string& what)
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
     iret = -1;
   }
-  if (! isuccess)
+  if (!isuccess)
   {
     return iret;
   }
@@ -367,14 +367,14 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   gPad->SetRightMargin(0.11);
 
   hist1->Draw("colz");
-  for (auto & i_line : line_sector)
+  for (auto& i_line : line_sector)
   {
     i_line->Draw();
   }
   line_board1->Draw();
   line_board2->Draw();
 
-  for (auto & i_line : line_iphi)
+  for (auto& i_line : line_iphi)
   {
     i_line->Draw();
   }
@@ -517,7 +517,7 @@ int HcalMonDraw::DrawSecond(const std::string& /* what */)
   gPad->SetTicky();
   gPad->SetTopMargin(0.01);
 
-  for (auto & ih : h_rm_sectorAvg)
+  for (auto& ih : h_rm_sectorAvg)
   {
     ih->Draw("same hist ][");
   }
@@ -713,18 +713,30 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   if (!h1_packet_number || !h1_packet_length || !h1_packet_chans || !h_event || !h1_packet_event || !h2_hcal_correlation)
   {
     // print out which is not found
-    if (!h1_packet_number) { std::cout << "h1_packet_number not found" << std::endl;
-}
-    if (!h1_packet_length) { std::cout << "h1_packet_length not found" << std::endl;
-}
-    if (!h1_packet_chans) { std::cout << "h1_packet_chans not found" << std::endl;
-}
-    if (!h_event) { std::cout << "h_event not found" << std::endl;
-}
-    if (!h1_packet_event) { std::cout << "h1_packet_event not found" << std::endl;
-}
-    if (!h2_hcal_correlation) { std::cout << "h2_hcal_correlation not found" << std::endl;
-}
+    if (!h1_packet_number)
+    {
+      std::cout << "h1_packet_number not found" << std::endl;
+    }
+    if (!h1_packet_length)
+    {
+      std::cout << "h1_packet_length not found" << std::endl;
+    }
+    if (!h1_packet_chans)
+    {
+      std::cout << "h1_packet_chans not found" << std::endl;
+    }
+    if (!h_event)
+    {
+      std::cout << "h_event not found" << std::endl;
+    }
+    if (!h1_packet_event)
+    {
+      std::cout << "h1_packet_event not found" << std::endl;
+    }
+    if (!h2_hcal_correlation)
+    {
+      std::cout << "h2_hcal_correlation not found" << std::endl;
+    }
 
     DrawDeadServer(transparent[5]);
     TC[5]->SetEditable(false);
@@ -922,7 +934,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   gPad->SetTickx();
 
   Pad[14]->cd();
-  h2_hcal_correlation->Draw("colz");  
+  h2_hcal_correlation->Draw("colz");
   ymax = h2_hcal_correlation->ProfileX()->GetMaximum();
   xmax = h2_hcal_correlation->ProfileY()->GetMaximum();
   h2_hcal_correlation->GetYaxis()->SetRangeUser(0, ymax * 1.2);
@@ -968,7 +980,6 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   gStyle->SetOptStat(0);
   gPad->SetTicky();
   gPad->SetTickx();
-
 
   // draw the warning here:
   warning[1]->cd();
@@ -1132,28 +1143,32 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
 
       if (nhit > hot_threshold)
       {
-        if (nhott <= displaylimit) {
+        if (nhott <= displaylimit)
+        {
           hottowerlist << " (" << ieta << "," << iphi << ")";
-}
+        }
         nhott++;
       }
 
       if (nhit < dead_threshold)
       {
-        if (ndeadt <= displaylimit) {
+        if (ndeadt <= displaylimit)
+        {
           deadtowerlist << " (" << ieta << "," << iphi << ")";
-}
+        }
         ndeadt++;
       }
     }
   }
 
-  if (nhott > displaylimit) {
+  if (nhott > displaylimit)
+  {
     hottowerlist << "... " << nhott << " total";
-}
-  if (ndeadt > displaylimit) {
+  }
+  if (ndeadt > displaylimit)
+  {
     deadtowerlist << "... " << ndeadt << " total";
-}
+  }
 
   // draw warning here
   warningpad->cd();
@@ -1276,18 +1291,16 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
   }
 */
 
-
-int HcalMonDraw::SavePlot(const std::string &what, const std::string &type)
+int HcalMonDraw::SavePlot(const std::string& what, const std::string& type)
 {
-
-  OnlMonClient *cl = OnlMonClient::instance();
+  OnlMonClient* cl = OnlMonClient::instance();
   int iret = Draw(what);
   if (iret)  // on error no png files please
   {
     return iret;
   }
   int icnt = 0;
-  for (TCanvas *canvas : TC)
+  for (TCanvas* canvas : TC)
   {
     if (canvas == nullptr)
     {
@@ -1295,7 +1308,7 @@ int HcalMonDraw::SavePlot(const std::string &what, const std::string &type)
     }
     icnt++;
     std::string filename = ThisName + "_" + std::to_string(icnt) + "_" +
-      std::to_string(cl->RunNumber()) + "." + type;
+                           std::to_string(cl->RunNumber()) + "." + type;
     cl->CanvasToPng(canvas, filename);
   }
   return 0;
@@ -1312,7 +1325,7 @@ int HcalMonDraw::MakeHtml(const std::string& what)
 
   OnlMonClient* cl = OnlMonClient::instance();
   int icnt = 0;
-  for (TCanvas *canvas : TC)
+  for (TCanvas* canvas : TC)
   {
     if (canvas == nullptr)
     {
@@ -1381,7 +1394,7 @@ void HcalMonDraw::DrawTowerAvg()
   TC[4]->Clear("D");
   Pad[9]->cd();
 
-  //gPad->SetLogz();
+  // gPad->SetLogz();
   gStyle->SetOptStat(0);
   gStyle->SetPalette(57);
   h2_hcal_mean->GetXaxis()->SetTitle("eta index");
@@ -1406,7 +1419,7 @@ void HcalMonDraw::DrawTowerAvg()
   line_board2->SetLineWidth(4);
   line_board2->SetLineStyle(1);
 
-  for (auto & i_line : line_sector)
+  for (auto& i_line : line_sector)
   {
     i_line->Draw();
   }
@@ -1473,7 +1486,7 @@ void HcalMonDraw::DrawHitMap()
   line_board2->SetLineWidth(4);
   line_board2->SetLineStyle(1);
 
-  for (auto & i_line : line_sector)
+  for (auto& i_line : line_sector)
   {
     i_line->Draw();
   }
@@ -1533,7 +1546,7 @@ void HcalMonDraw::DrawAvgTime()
   line_board2->SetLineWidth(4);
   line_board2->SetLineStyle(1);
 
-  for (auto & i_line : line_sector)
+  for (auto& i_line : line_sector)
   {
     i_line->Draw();
   }
@@ -1542,7 +1555,6 @@ void HcalMonDraw::DrawAvgTime()
   TC[4]->Update();
   TC[4]->Show();
   TC[4]->SetEditable(false);
-
 }
 
 // this is the method to idetify which bin you are clicking on and make the pop up window of TH1
@@ -1568,7 +1580,7 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
       DrawHitMap();
       return;
     }
-    //avg time
+    // avg time
     if (strcmp(selected->GetName(), "avgtime") == 0)
     {
       DrawAvgTime();
@@ -1582,10 +1594,14 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
     double yhis = Pad[0]->PadtoY(yy);
     int biny = (int) yhis;
     // printf("ieta=%d, iphi=%d \n", binx, biny);
-    if (binx < 0 || binx > 23) { return;
-}
-    if (biny < 0 || biny > 63) { return;
-}
+    if (binx < 0 || binx > 23)
+    {
+      return;
+    }
+    if (biny < 0 || biny > 63)
+    {
+      return;
+    }
 
     OnlMonClient* cl = OnlMonClient::instance();
 
@@ -1617,7 +1633,6 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
   }
 }
 
-
 int HcalMonDraw::DrawFifth(const std::string& /* what */)
 {
   OnlMonClient* cl = OnlMonClient::instance();
@@ -1633,7 +1648,6 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TH1F* h_hcal_trig = (TH1F*) cl->getHisto(HCALMON_0, "h_hcal_trig");
   TH2F* h_caloPack_gl1_clock_diff = (TH2F*) cl->getHisto(HCALMON_0, "h_caloPack_gl1_clock_diff");
 
-
   if (!gROOT->FindObject("HcalMon5"))
   {
     MakeCanvas("HcalMon5");
@@ -1642,7 +1656,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TC[6]->SetEditable(true);
   TC[6]->Clear("D");
   Pad[16]->cd();
-  if (!h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig  || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2 || !h_evtRec)
+  if (!h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2 || !h_evtRec)
   {
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(false);
@@ -1653,7 +1667,6 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
     }
     return -1;
   }
-
 
   Pad[16]->cd();
   gStyle->SetTitleFontSize(0.03);
@@ -1722,7 +1735,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
 
   gStyle->SetTitleFontSize(0.06);
 
-  h_hcal_trig->SetTitle(Form("Receiving %0.3f of events from event reciever",h_evtRec->GetBinContent(1)));
+  h_hcal_trig->SetTitle(Form("Receiving %0.3f of events from event reciever", h_evtRec->GetBinContent(1)));
 
   h_hcal_trig->Draw("hist");
   h_hcal_trig->GetXaxis()->SetNdivisions(510, kTRUE);
@@ -1749,11 +1762,9 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   return 0;
 }
 
-
-
 time_t HcalMonDraw::getTime()
 {
-  OnlMonClient *cl = OnlMonClient::instance();
+  OnlMonClient* cl = OnlMonClient::instance();
   time_t currtime = cl->EventTime("CURRENT");
   return currtime;
 }

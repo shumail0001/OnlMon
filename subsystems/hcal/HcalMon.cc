@@ -14,8 +14,8 @@
 #include <caloreco/CaloWaveformFitting.h>
 
 #include <Event/Event.h>
-#include <Event/msg_profile.h>
 #include <Event/eventReceiverClient.h>
+#include <Event/msg_profile.h>
 
 #include <TH1.h>
 #include <TH2.h>
@@ -88,8 +88,10 @@ HcalMon::~HcalMon()
     delete iter;
   }
 
-  if ( erc) { delete erc;
-}
+  if (erc)
+  {
+    delete erc;
+  }
 
   return;
 }
@@ -98,7 +100,7 @@ const int depth = 10000;
 const int packet_depth = 1000;
 const int historyLength = 100;
 const int historyScaleDown = 100;
-//const int n_channel = 48;
+// const int n_channel = 48;
 const float hit_threshold = 100;
 const int n_samples_show = 31;
 
@@ -142,12 +144,13 @@ int HcalMon::Init()
   h1_packet_length = new TH1F("h1_packet_length", "", 8, packetlow - 0.5, packethigh + 0.5);
   h1_packet_chans = new TH1F("h1_packet_chans", "", 8, packetlow - 0.5, packethigh + 0.5);
   h1_packet_event = new TH1F("h1_packet_event", "", 8, packetlow - 0.5, packethigh + 0.5);
-  h_caloPack_gl1_clock_diff = new TH2F("h_caloPack_gl1_clock_diff","", 8, packetlow - 0.5, packethigh + 0.5,65536,0,65536);
-  h_evtRec = new TProfile("h_evtRec","",1,0,1);
+  h_caloPack_gl1_clock_diff = new TH2F("h_caloPack_gl1_clock_diff", "", 8, packetlow - 0.5, packethigh + 0.5, 65536, 0, 65536);
+  h_evtRec = new TProfile("h_evtRec", "", 1, 0, 1);
 
-  for (int ih = 0; ih < Nsector; ih++) {
+  for (int ih = 0; ih < Nsector; ih++)
+  {
     h_rm_sectorAvg[ih] = new TH1F(Form("h_rm_sectorAvg_s%d", ih), "", historyLength, 0, historyLength * historyScaleDown);
-}
+  }
   for (int ieta = 0; ieta < 24; ieta++)
   {
     for (int iphi = 0; iphi < 64; iphi++)
@@ -197,13 +200,14 @@ int HcalMon::Init()
   se->registerHisto(this, h1_packet_event);
   se->registerHisto(this, h2_hcal_correlation);
 
-  for (auto & ih : h_rm_sectorAvg) {
-    se->registerHisto(this, ih);
-}
-
-  for (auto & ieta : h_rm_tower)
+  for (auto& ih : h_rm_sectorAvg)
   {
-    for (auto & iphi : ieta)
+    se->registerHisto(this, ih);
+  }
+
+  for (auto& ieta : h_rm_tower)
+  {
+    for (auto& iphi : ieta)
     {
       se->registerHisto(this, iphi);
     }
@@ -224,9 +228,10 @@ int HcalMon::Init()
     hcaltemplate = ".";
   }
   hcaltemplate += std::string("/testbeam_ohcal_template.root");
-  //WaveformProcessing->initialize_processing(hcaltemplate);
+  // WaveformProcessing->initialize_processing(hcaltemplate);
 
-  if (anaGL1){
+  if (anaGL1)
+  {
     erc = new eventReceiverClient("gl1daq");
   }
 
@@ -266,7 +271,7 @@ std::vector<float> HcalMon::anaWaveform(Packet* p, const int channel)
 {
   std::vector<float> waveform;
   waveform.reserve(p->iValue(0, "SAMPLES"));
-for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+  for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
   {
     waveform.push_back(p->iValue(s, channel));
   }
@@ -332,34 +337,40 @@ int HcalMon::process_event(Event* e /* evt */)
   float energy1 = 0;
   float energy2 = 0;
 
-
   bool trig1_fire = false;
   bool trig2_fire = false;
   std::vector<bool> trig_bools;
   long long int gl1_clock = 0;
-  if (anaGL1){
+  if (anaGL1)
+  {
     int evtnr = e->getEvtSequence();
-    Event *gl1Event = erc->getEvent(evtnr);
-    if (gl1Event){
+    Event* gl1Event = erc->getEvent(evtnr);
+    if (gl1Event)
+    {
       Packet* p = gl1Event->getPacket(14001);
-      h_evtRec->Fill(0.0,1.0);
-      if (p){
-        gl1_clock = p->lValue(0,"BCO");
-        uint64_t triggervec = p->lValue(0,"TriggerVector");
-        for (int i = 0; i < 64; i++ ) {
-          bool trig_decision = (( triggervec & 0x1U) == 0x1U);
+      h_evtRec->Fill(0.0, 1.0);
+      if (p)
+      {
+        gl1_clock = p->lValue(0, "BCO");
+        uint64_t triggervec = p->lValue(0, "TriggerVector");
+        for (int i = 0; i < 64; i++)
+        {
+          bool trig_decision = ((triggervec & 0x1U) == 0x1U);
           trig_bools.push_back(trig_decision);
-          if (trig_decision) { h_hcal_trig->Fill(i);
-}
+          if (trig_decision)
+          {
+            h_hcal_trig->Fill(i);
+          }
           triggervec = (triggervec >> 1U) & 0xffffffffU;
         }
-        trig1_fire = trig_bools[trig1]; 
-        trig2_fire = trig_bools[trig2]; 
+        trig1_fire = trig_bools[trig1];
+        trig2_fire = trig_bools[trig2];
       }
     }
-    else{
+    else
+    {
       std::cout << "GL1 event is null" << std::endl;
-      h_evtRec->Fill(0.0,0.0);
+      h_evtRec->Fill(0.0, 0.0);
     }
   }
 
@@ -377,9 +388,9 @@ int HcalMon::process_event(Event* e /* evt */)
       h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet - packetlow]->getMean(0));
 
       h1_packet_event->SetBinContent(packet - packetlow + 1, p->iValue(0, "CLOCK"));
-      long long int p_clock = p->iValue(0,"CLOCK"); 
+      long long int p_clock = p->iValue(0, "CLOCK");
       long long int diff = (p_clock - gl1_clock) % 65536;
-      h_caloPack_gl1_clock_diff->Fill(packet,diff);
+      h_caloPack_gl1_clock_diff->Fill(packet, diff);
       int nChannels = p->iValue(0, "CHANNELS");
       if (nChannels > m_nChannels)
       {
@@ -400,24 +411,26 @@ int HcalMon::process_event(Event* e /* evt */)
         float signal = result.at(0);
         float time = result.at(1);
         float pedestal = result.at(2);
-        if (signal > 15 && signal< 15000) { energy1 += signal;
-}
-        
+        if (signal > 15 && signal < 15000)
+        {
+          energy1 += signal;
+        }
+
         // channel mapping
         unsigned int key = TowerInfoDefs::encode_hcal(towerNumber - 1);
         unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
         unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
         int sectorNumber = phi_bin / 2 + 1;
-        if (signal > hit_threshold){
-           h_waveform_time->Fill(time);
-           rm_vector_twrTime[towerNumber - 1]->Add(&time);
+        if (signal > hit_threshold)
+        {
+          h_waveform_time->Fill(time);
+          rm_vector_twrTime[towerNumber - 1]->Add(&time);
         }
         h_waveform_pedestal->Fill(pedestal);
 
         sectorAvg[sectorNumber - 1] += signal;
 
         rm_vector_twr[towerNumber - 1]->Add(&signal);
-
 
         int bin = h2_hcal_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
         h2_hcal_mean->SetBinContent(bin, h2_hcal_mean->GetBinContent(bin) + signal);
@@ -427,7 +440,7 @@ int HcalMon::process_event(Event* e /* evt */)
         // fill tower_rm here
         if (evtcnt <= historyLength * historyScaleDown)
         {
-          //only fill every scaledown event
+          // only fill every scaledown event
           if (evtcnt % historyScaleDown == 0)
           {
             h_rm_tower[eta_bin][phi_bin]->SetBinContent(evtcnt / historyScaleDown, rm_vector_twr[towerNumber - 1]->getMean(0));
@@ -435,7 +448,7 @@ int HcalMon::process_event(Event* e /* evt */)
         }
         else
         {
-          //only fill every scaledown event
+          // only fill every scaledown event
           if (evtcnt % historyScaleDown == 0)
           {
             for (int ib = 1; ib < historyLength; ib++)
@@ -444,16 +457,17 @@ int HcalMon::process_event(Event* e /* evt */)
             }
             h_rm_tower[eta_bin][phi_bin]->SetBinContent(historyLength, rm_vector_twr[towerNumber - 1]->getMean(0));
           }
-       
         }
 
         if (signal > hit_threshold)
         {
           h2_hcal_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          if (trig1_fire){
+          if (trig1_fire)
+          {
             h2_hcal_hits_trig1->Fill(eta_bin + 0.5, phi_bin + 0.5);
           }
-          if (trig2_fire){
+          if (trig2_fire)
+          {
             h2_hcal_hits_trig2->Fill(eta_bin + 0.5, phi_bin + 0.5);
           }
         }
@@ -462,13 +476,15 @@ int HcalMon::process_event(Event* e /* evt */)
         for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
         {
           h_waveform_twrAvg->Fill(s, p->iValue(s, c));
-          if (signal > hit_threshold) { h2_hcal_waveform->Fill(s, (p->iValue(s, c) - pedestal));
-}
+          if (signal > hit_threshold)
+          {
+            h2_hcal_waveform->Fill(s, (p->iValue(s, c) - pedestal));
+          }
         }
 
       }  // channel loop
 
-    }    // if packet good
+    }  // if packet good
     else
     {
       towerNumber += 192;
@@ -503,8 +519,10 @@ int HcalMon::process_event(Event* e /* evt */)
           // std::vector result =  getSignal(p,c); // simple peak extraction
           std::vector<float> result = anaWaveform(p, c);  // full waveform fitting
           float signal = result.at(0);
-          if (signal > 15 && signal<15000) { energy2 += signal;
-}
+          if (signal > 15 && signal < 15000)
+          {
+            energy2 += signal;
+          }
         }
       }
       delete p;
@@ -512,11 +530,14 @@ int HcalMon::process_event(Event* e /* evt */)
   }
   if (npacket1 == 4 && npacket2 == 4)
   {
-    if (packetlow == 8001) {
+    if (packetlow == 8001)
+    {
       h2_hcal_correlation->Fill(energy1, energy2);
-    } else {
+    }
+    else
+    {
       h2_hcal_correlation->Fill(energy2, energy1);
-}
+    }
   }
   // sector loop
   for (int isec = 0; isec < Nsector; isec++)
@@ -526,7 +547,7 @@ int HcalMon::process_event(Event* e /* evt */)
     rm_vector_sectAvg[isec]->Add(&sectorAvg[isec]);
     if (evtcnt <= historyLength * historyScaleDown)
     {
-      //only fill every scaledown event
+      // only fill every scaledown event
       if (evtcnt % historyScaleDown == 0)
       {
         h_rm_sectorAvg[isec]->SetBinContent(evtcnt / historyScaleDown, rm_vector_sectAvg[isec]->getMean(0));
@@ -534,7 +555,7 @@ int HcalMon::process_event(Event* e /* evt */)
     }
     else
     {
-      //only fill every scaledown event
+      // only fill every scaledown event
       if (evtcnt % historyScaleDown == 0)
       {
         for (int ib = 1; ib < historyLength; ib++)
