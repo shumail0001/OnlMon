@@ -34,7 +34,7 @@ class HcalMon : public OnlMon
  protected:
   int evtcnt = 0;
   int idummy = 0;
-  const int Nsector = 32;
+  static const int Nsector = 32;
   const int Ntower = 1536;
   const int m_nChannels = 192;
   int packetlow = 8001;
@@ -60,7 +60,7 @@ class HcalMon : public OnlMon
   TH1* h1_packet_number = nullptr;
   TH1* h1_packet_event = nullptr;
   TH1* h_rm_sectorAvg[32] = {nullptr};
-  TH1* h_rm_tower[24][64] = {nullptr};
+  TH1* h_rm_tower[24][64] {{nullptr}};
   TH1* h_hcal_trig = {nullptr};
   TH2* h_caloPack_gl1_clock_diff = {nullptr};
   TProfile* h_evtRec = {nullptr};

@@ -94,7 +94,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     warning[0]->SetFillStyle(4000);
     warning[0]->Draw();
 
-    TC[0]->SetEditable(0);
+    TC[0]->SetEditable(false);
   }
   else if (name == "HcalMon2")
   {
@@ -109,7 +109,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
     transparent[1]->SetFillStyle(4000);
     transparent[1]->Draw();
-    TC[1]->SetEditable(0);
+    TC[1]->SetEditable(false);
   }
   else if (name == "HcalMon3")
   {
@@ -125,7 +125,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     transparent[3] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
     transparent[3]->SetFillStyle(4000);
     transparent[3]->Draw();
-    TC[3]->SetEditable(0);
+    TC[3]->SetEditable(false);
   }
   else if (name == "HcalMon4")
   {
@@ -155,7 +155,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     warning[1] = new TPad("warning1", "packet warnings", 0.5, 0, 1, 0.2);
     warning[1]->SetFillStyle(4000);
     warning[1]->Draw();
-    TC[5]->SetEditable(0);
+    TC[5]->SetEditable(false);
   }
   else if (name == "HcalMon5")
   {
@@ -171,18 +171,18 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
     transparent[6]->SetFillStyle(4000);
     transparent[6]->Draw();
-    TC[6]->SetEditable(0);
+    TC[6]->SetEditable(false);
   }
   else if (name == "HcalPopUp")
   {
-    TC[4] = new TCanvas(name.c_str(), "!!!DO NOT CLOSE!!! OR THE CODE WILL CRASH!!!!(Maybe not...)", 2 * xsize / 3, 0.05, xsize / 2, 2 * ysize / 3);
+    TC[4] = new TCanvas(name.c_str(), "!!!DO NOT CLOSE!!! OR THE CODE WILL CRASH!!!!(Maybe not...)", 2 * xsize / 3, 0, xsize / 2, 2 * ysize / 3);
     gSystem->ProcessEvents();
     Pad[9] = new TPad("hcalpad9", "for single tower running mean", 0.0, 0.0, 1, 0.92, 0);
     Pad[9]->Draw();
     transparent[4] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
     transparent[4]->SetFillStyle(4000);
     transparent[4]->Draw();
-    TC[4]->SetEditable(0);
+    TC[4]->SetEditable(false);
   }
   return 0;
 }
@@ -280,7 +280,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   if (!hist1)
   {
     DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(0);
+    TC[0]->SetEditable(false);
     if (isHtml())
     {
       delete TC[0];
@@ -306,7 +306,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   // h2_hcal_mean->Scale(1. / h_event->GetEntries());
   // hist1->Divide(h2_hcal_mean);
 
-  TC[0]->SetEditable(1);
+  TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   Pad[0]->cd();
 
@@ -367,16 +367,16 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   gPad->SetRightMargin(0.11);
 
   hist1->Draw("colz");
-  for (int i_line = 0; i_line < 32; i_line++)
+  for (auto & i_line : line_sector)
   {
-    line_sector[i_line]->Draw();
+    i_line->Draw();
   }
   line_board1->Draw();
   line_board2->Draw();
 
-  for (int i_line = 0; i_line < 64; i_line++)
+  for (auto & i_line : line_iphi)
   {
-    line_iphi[i_line]->Draw();
+    i_line->Draw();
   }
   for (int i_line = 0; i_line < 24; i_line++)
   {
@@ -429,7 +429,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   TC[0]->Update();
   TC[0]->Show();
 
-  TC[0]->SetEditable(0);
+  TC[0]->SetEditable(false);
 
   // TC[0]->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", "TCanvas", TC[0],
   //           "Paint()");
@@ -464,13 +464,13 @@ int HcalMonDraw::DrawSecond(const std::string& /* what */)
     MakeCanvas("HcalMon2");
   }
 
-  TC[1]->SetEditable(1);
+  TC[1]->SetEditable(true);
   TC[1]->Clear("D");
   Pad[2]->cd();
   if (!h_rm_sectorAvg[0] || !h_event || !h_sectorAvg_total)
   {
     DrawDeadServer(transparent[1]);
-    TC[1]->SetEditable(0);
+    TC[1]->SetEditable(false);
     if (isHtml())
     {
       delete TC[1];
@@ -517,9 +517,9 @@ int HcalMonDraw::DrawSecond(const std::string& /* what */)
   gPad->SetTicky();
   gPad->SetTopMargin(0.01);
 
-  for (int ih = 0; ih < Nsector; ih++)
+  for (auto & ih : h_rm_sectorAvg)
   {
-    h_rm_sectorAvg[ih]->Draw("same hist ][");
+    ih->Draw("same hist ][");
   }
 
   TText PrintRun;
@@ -538,7 +538,7 @@ int HcalMonDraw::DrawSecond(const std::string& /* what */)
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[1]->Update();
   TC[1]->Show();
-  TC[1]->SetEditable(0);
+  TC[1]->SetEditable(false);
   return 0;
 }
 
@@ -564,13 +564,13 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
     MakeCanvas("HcalMon3");
   }
 
-  TC[3]->SetEditable(1);
+  TC[3]->SetEditable(true);
   TC[3]->Clear("D");
   Pad[6]->cd();
   if (!h2_hcal_waveform || !h_waveform_time || !h_waveform_pedestal)
   {
     DrawDeadServer(transparent[3]);
-    TC[3]->SetEditable(0);
+    TC[3]->SetEditable(false);
     if (isHtml())
     {
       delete TC[3];
@@ -675,7 +675,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
 
   TC[3]->Update();
   TC[3]->Show();
-  TC[3]->SetEditable(0);
+  TC[3]->SetEditable(false);
 
   return 0;
 }
@@ -707,21 +707,27 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
     MakeCanvas("HcalMon4");
   }
 
-  TC[5]->SetEditable(1);
+  TC[5]->SetEditable(true);
   TC[5]->Clear("D");
 
   if (!h1_packet_number || !h1_packet_length || !h1_packet_chans || !h_event || !h1_packet_event || !h2_hcal_correlation)
   {
     // print out which is not found
-    if (!h1_packet_number) std::cout << "h1_packet_number not found" << std::endl;
-    if (!h1_packet_length) std::cout << "h1_packet_length not found" << std::endl;
-    if (!h1_packet_chans) std::cout << "h1_packet_chans not found" << std::endl;
-    if (!h_event) std::cout << "h_event not found" << std::endl;
-    if (!h1_packet_event) std::cout << "h1_packet_event not found" << std::endl;
-    if (!h2_hcal_correlation) std::cout << "h2_hcal_correlation not found" << std::endl;
+    if (!h1_packet_number) { std::cout << "h1_packet_number not found" << std::endl;
+}
+    if (!h1_packet_length) { std::cout << "h1_packet_length not found" << std::endl;
+}
+    if (!h1_packet_chans) { std::cout << "h1_packet_chans not found" << std::endl;
+}
+    if (!h_event) { std::cout << "h_event not found" << std::endl;
+}
+    if (!h1_packet_event) { std::cout << "h1_packet_event not found" << std::endl;
+}
+    if (!h2_hcal_correlation) { std::cout << "h2_hcal_correlation not found" << std::endl;
+}
 
     DrawDeadServer(transparent[5]);
-    TC[5]->SetEditable(0);
+    TC[5]->SetEditable(false);
     if (isHtml())
     {
       delete TC[5];
@@ -1102,7 +1108,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   PrintRun.DrawText(0.5, .966, runstring.c_str());
   TC[5]->Update();
   TC[5]->Show();
-  TC[5]->SetEditable(0);
+  TC[5]->SetEditable(false);
   // if (save) TC[5]->SaveAs("plots/packets.pdf");
   return 0;
 }
@@ -1126,24 +1132,28 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
 
       if (nhit > hot_threshold)
       {
-        if (nhott <= displaylimit)
+        if (nhott <= displaylimit) {
           hottowerlist << " (" << ieta << "," << iphi << ")";
+}
         nhott++;
       }
 
       if (nhit < dead_threshold)
       {
-        if (ndeadt <= displaylimit)
+        if (ndeadt <= displaylimit) {
           deadtowerlist << " (" << ieta << "," << iphi << ")";
+}
         ndeadt++;
       }
     }
   }
 
-  if (nhott > displaylimit)
+  if (nhott > displaylimit) {
     hottowerlist << "... " << nhott << " total";
-  if (ndeadt > displaylimit)
+}
+  if (ndeadt > displaylimit) {
     deadtowerlist << "... " << ndeadt << " total";
+}
 
   // draw warning here
   warningpad->cd();
@@ -1354,7 +1364,7 @@ void HcalMonDraw::DrawTowerAvg()
   if (!h2_hcal_mean)
   {
     DrawDeadServer(transparent[4]);
-    TC[4]->SetEditable(0);
+    TC[4]->SetEditable(false);
     if (isHtml())
     {
       delete TC[4];
@@ -1367,7 +1377,7 @@ void HcalMonDraw::DrawTowerAvg()
   // h2_hcal_mean_1->Scale(1. / h_event_1->GetEntries());
   // h2_hcal_mean->Add(h2_hcal_mean_1);
 
-  TC[4]->SetEditable(1);
+  TC[4]->SetEditable(true);
   TC[4]->Clear("D");
   Pad[9]->cd();
 
@@ -1396,16 +1406,16 @@ void HcalMonDraw::DrawTowerAvg()
   line_board2->SetLineWidth(4);
   line_board2->SetLineStyle(1);
 
-  for (int i_line = 0; i_line < 32; i_line++)
+  for (auto & i_line : line_sector)
   {
-    line_sector[i_line]->Draw();
+    i_line->Draw();
   }
   line_board1->Draw();
   line_board2->Draw();
 
   TC[4]->Update();
   TC[4]->Show();
-  TC[4]->SetEditable(0);
+  TC[4]->SetEditable(false);
 }
 
 // this is a method that draw the tower hit map
@@ -1426,7 +1436,7 @@ void HcalMonDraw::DrawHitMap()
   if (!h2_hcal_hits)
   {
     DrawDeadServer(transparent[4]);
-    TC[4]->SetEditable(0);
+    TC[4]->SetEditable(false);
     if (isHtml())
     {
       delete TC[4];
@@ -1435,7 +1445,7 @@ void HcalMonDraw::DrawHitMap()
     return;
   }
 
-  TC[4]->SetEditable(1);
+  TC[4]->SetEditable(true);
   TC[4]->Clear("D");
   Pad[9]->cd();
   gPad->SetLogz(0);
@@ -1463,15 +1473,15 @@ void HcalMonDraw::DrawHitMap()
   line_board2->SetLineWidth(4);
   line_board2->SetLineStyle(1);
 
-  for (int i_line = 0; i_line < 32; i_line++)
+  for (auto & i_line : line_sector)
   {
-    line_sector[i_line]->Draw();
+    i_line->Draw();
   }
   line_board1->Draw();
   line_board2->Draw();
   TC[4]->Update();
   TC[4]->Show();
-  TC[4]->SetEditable(0);
+  TC[4]->SetEditable(false);
 }
 
 void HcalMonDraw::DrawAvgTime()
@@ -1491,11 +1501,11 @@ void HcalMonDraw::DrawAvgTime()
   if (!h2_hcal_time)
   {
     DrawDeadServer(transparent[4]);
-    TC[4]->SetEditable(0);
+    TC[4]->SetEditable(false);
     return;
   }
 
-  TC[4]->SetEditable(1);
+  TC[4]->SetEditable(true);
   TC[4]->Clear("D");
   Pad[9]->cd();
   gPad->SetLogz(0);
@@ -1523,15 +1533,15 @@ void HcalMonDraw::DrawAvgTime()
   line_board2->SetLineWidth(4);
   line_board2->SetLineStyle(1);
 
-  for (int i_line = 0; i_line < 32; i_line++)
+  for (auto & i_line : line_sector)
   {
-    line_sector[i_line]->Draw();
+    i_line->Draw();
   }
   line_board1->Draw();
   line_board2->Draw();
   TC[4]->Update();
   TC[4]->Show();
-  TC[4]->SetEditable(0);
+  TC[4]->SetEditable(false);
 
 }
 
@@ -1572,8 +1582,10 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
     double yhis = Pad[0]->PadtoY(yy);
     int biny = (int) yhis;
     // printf("ieta=%d, iphi=%d \n", binx, biny);
-    if (binx < 0 || binx > 23) return;
-    if (biny < 0 || biny > 63) return;
+    if (binx < 0 || binx > 23) { return;
+}
+    if (biny < 0 || biny > 63) { return;
+}
 
     OnlMonClient* cl = OnlMonClient::instance();
 
@@ -1587,21 +1599,21 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
     if (!h_rm_tower || !h_rm_tower_1)
     {
       DrawDeadServer(transparent[4]);
-      TC[4]->SetEditable(0);
+      TC[4]->SetEditable(false);
       return;
     }
     h_rm_tower->Add(h_rm_tower_1);
     h_rm_tower->SetXTitle("Time");
     h_rm_tower->SetYTitle("Running Mean");
 
-    TC[4]->SetEditable(1);
+    TC[4]->SetEditable(true);
     TC[4]->Clear("D");
     Pad[9]->cd();
     gStyle->SetOptStat(0);
     h_rm_tower->Draw();
     TC[4]->Update();
     TC[4]->Show();
-    TC[4]->SetEditable(0);
+    TC[4]->SetEditable(false);
   }
 }
 
@@ -1627,13 +1639,13 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
     MakeCanvas("HcalMon5");
   }
 
-  TC[6]->SetEditable(1);
+  TC[6]->SetEditable(true);
   TC[6]->Clear("D");
   Pad[16]->cd();
   if (!h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig  || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2 || !h_evtRec)
   {
     DrawDeadServer(transparent[6]);
-    TC[6]->SetEditable(0);
+    TC[6]->SetEditable(false);
     if (isHtml())
     {
       delete TC[6];
@@ -1732,7 +1744,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
 
   TC[6]->Update();
   TC[6]->Show();
-  TC[6]->SetEditable(0);
+  TC[6]->SetEditable(false);
 
   return 0;
 }
