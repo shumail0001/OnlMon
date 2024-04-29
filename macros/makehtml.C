@@ -4,6 +4,7 @@
 #include <onlmon/hcal/HcalMonDraw.h>
 #include <onlmon/intt/InttMonDraw.h>
 #include <onlmon/ll1/LL1MonDraw.h>
+#include <onlmon/localpol/LocalPolMonDraw.h>
 #include <onlmon/mvtx/MvtxMonDraw.h>
 #include <onlmon/sepd/SepdMonDraw.h>
 #include <onlmon/spin/SpinMonDraw.h>
@@ -25,6 +26,8 @@ R__LOAD_LIBRARY(libonlhcalmon_client.so)
 R__LOAD_LIBRARY(libonlinttmon_client.so)
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlll1mon_client.so)
+// cppcheck-suppress unknownMacro
+R__LOAD_LIBRARY(libonllocalpolmon_client.so)
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlmvtxmon_client.so)
 // cppcheck-suppress unknownMacro
@@ -65,6 +68,10 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
   else if (subsystem == "LL1MON")
   {
     drawer = new LL1MonDraw("LL1MONDRAW");
+  }
+  else if (subsystem == "LOCALPOLMON")
+  {
+    drawer = new LocalPolMonDraw("LOCALPOLMONDRAW");
   }
   else if (subsystem == "MVTXMON")
   {
