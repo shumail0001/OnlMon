@@ -978,10 +978,10 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
   TH1 *smd_adc_s_hor_ind[8];
   TH1 *smd_adc_s_ver_ind[7];
 
-  smd_adc_n_hor_means = new TH1F("smd_adc_n_hor_means", "SMD ADC for North-Horizontal Channels", 9, -1.5, 8.5);
-  smd_adc_s_hor_means = new TH1F("smd_adc_s_hor_means", "SMD ADC for South-Horizontal Channels", 9, -1.5, 8.5);
-  smd_adc_n_ver_means = new TH1F("smd_adc_n_ver_means", "SMD ADC for North-Vertical Channels", 8, -1.5, 7.5);
-  smd_adc_s_ver_means = new TH1F("smd_adc_s_ver_means", "SMD ADC for South-Vertical Channels", 8, -1.5, 7.5);
+  smd_adc_n_hor_means = new TH1F("smd_adc_n_hor_means", "SMD ADC for North-Horizontal Channels", 10, -1.5, 8.5);
+  smd_adc_s_hor_means = new TH1F("smd_adc_s_hor_means", "SMD ADC for South-Horizontal Channels", 10, -1.5, 8.5);
+  smd_adc_n_ver_means = new TH1F("smd_adc_n_ver_means", "SMD ADC for North-Vertical Channels", 9, -1.5, 7.5);
+  smd_adc_s_ver_means = new TH1F("smd_adc_s_ver_means", "SMD ADC for South-Vertical Channels", 9, -1.5, 7.5);
 
   // Horizontal
   for (int i = 0; i < 8; ++i)
