@@ -13,6 +13,7 @@
 
 #include <cmath>
 #include <cstdio>  // for printf
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -297,7 +298,8 @@ int TpotMon::process_event(Event* event)
 
       for( int is = 0; is < samples; ++is )
       {
-        const auto adc =  packet->iValue( i, is );
+        const uint16_t adc =  packet->iValue( i, is );
+        if( adc == MicromegasDefs::m_adc_invalid ) continue;
         const bool is_signal = rms>0 && (adc > m_min_adc) && (adc> pedestal+m_n_sigma*rms);
         if( is_signal ) detector_histograms.m_counts_sample->Fill( is );
         detector_histograms.m_adc_sample->Fill( is, adc );
@@ -308,7 +310,8 @@ int TpotMon::process_event(Event* event)
       bool is_signal = false;
       for( int is = std::max<int>(0,m_sample_window_signal.first); is < std::min<int>(samples,m_sample_window_signal.second); ++is )
       {
-        const auto adc =  packet->iValue( i, is );
+        const auto uint16_t =  packet->iValue( i, is );
+        if( adc == MicromegasDefs::m_adc_invalid ) continue;
         if( rms>0 && (adc > m_min_adc) && (adc>pedestal + m_n_sigma*rms) )
         {
           is_signal = true;
