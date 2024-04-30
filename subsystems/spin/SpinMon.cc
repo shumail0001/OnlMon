@@ -151,10 +151,10 @@ int SpinMon::process_event(Event *e /* evt */)
     pBlueAsym = e->getPacket(packet_BLUEASYM);
     pYellAsym = e->getPacket(packet_YELLASYM);
 
-    //pBlueIntPattern = e->getPacket(packet_BLUEINTPATTERN);
-    //pYellIntPattern = e->getPacket(packet_YELLINTPATTERN);
-    //pBluePolPattern = e->getPacket(packet_BLUEPOLPATTERN);
-    //pYellPolPattern = e->getPacket(packet_YELLPOLPATTERN);
+    pBlueIntPattern = e->getPacket(packet_BLUEINTPATTERN);
+    pYellIntPattern = e->getPacket(packet_YELLINTPATTERN);
+    pBluePolPattern = e->getPacket(packet_BLUEPOLPATTERN);
+    pYellPolPattern = e->getPacket(packet_YELLPOLPATTERN);
 
     pBlueFillNumber = e->getPacket(packet_BLUEFILLNUMBER);
     pYellFillNumber = e->getPacket(packet_YELLFILLNUMBER);
@@ -208,6 +208,7 @@ int SpinMon::process_event(Event *e /* evt */)
     
 
     //============== Set spin pattern histograms ==============//
+    /*
     //  up = 1, down = -1, abort gap (bunches 111-120) = -10
     if (pBlueSpin)
     {
@@ -276,11 +277,12 @@ int SpinMon::process_event(Event *e /* evt */)
 
       delete pYellSpin;
     }
+    */
     //==========================================================//
 
 
     //============== Set intended spin pattern histograms from buckets ==============//
-    /*
+    
     //Get bunch asymmetries for measured spin pattern
     //there are 360 buckets for 120 bunches
     if (pBlueIntPattern && pBluePolPattern)
@@ -339,7 +341,7 @@ int SpinMon::process_event(Event *e /* evt */)
       delete pYellIntPattern;
       delete pYellPolPattern;
     }
-    */
+    
     //=======================================================================//
 
 
