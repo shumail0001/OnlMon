@@ -24,8 +24,8 @@ class DaqMon : public OnlMon
   int Reset();
   int CaloPacketMap(int pnum);
           
-  uint32_t previousdiff = 0;
-  uint32_t clockdiff = 0;
+  uint32_t previousdiff[200] = {0};
+  uint32_t clockdiff[200] = {0};
 
 
  protected:

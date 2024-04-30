@@ -67,6 +67,24 @@ int DaqMon::Init()
 
   h_gl1_clock_diff = new TH2D("h_gl1_clock_diff","", 6, 0,6, 2, -0.5, 1.5);
   h_gl1_clock_diff_capture = new TH2D("h_gl1_clock_diff_capture","", 200, 0, nEventsCapture, 6, 0, 6);
+  h_gl1_clock_diff->GetXaxis()->SetTitleSize(0);
+  h_gl1_clock_diff->GetYaxis()->SetNdivisions(555);
+  h_gl1_clock_diff->GetXaxis()->SetNdivisions(101);
+  h_gl1_clock_diff->GetYaxis()->SetBinLabel(1,"#bf{Unlocked}");
+  h_gl1_clock_diff->GetYaxis()->SetBinLabel(2,"#bf{Locked}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(1,"#bf{MBD}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(2,"#bf{EMCal}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(3,"#bf{IHCal}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(4,"#bf{OHCal}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(5,"#bf{sEPD}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(6,"#bf{ZDC}");
+  h_gl1_clock_diff_capture->GetXaxis()->SetTitle("Latest 1M events");
+  h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(1,"#bf{MBD}");
+  h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(2,"#bf{EMCal}");
+  h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(3,"#bf{IHCal}");
+  h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(4,"#bf{OHCal}");
+  h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(5,"#bf{sEPD}");
+  h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(6,"#bf{ZDC}");
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, h_gl1_clock_diff);  
@@ -89,6 +107,9 @@ int DaqMon::process_event(Event *e /* evt */)
     {
         return 0;
     }
+  
+  int evtnr = e->getEvtSequence();
+  if(evtnr<2) return 0;
 
   evtcnt++;
   // get temporary pointers to histograms
@@ -101,15 +122,13 @@ int DaqMon::process_event(Event *e /* evt */)
       gevtcnt++;
       if(gevtcnt==nEventsCapture) gevtcnt=0; 
   }
-  uint64_t gl1_clock = 0;
-  int evtnr = e->getEvtSequence();
+  uint32_t gl1_clock = 0;
   Event *gl1Event = erc->getEvent(evtnr);
-  if (gl1Event){
-      Packet* p = gl1Event->getPacket(14001);
-      if (p){
-          gl1_clock = p->lValue(0,"BCO");
-      }   
-  }
+  if(!gl1Event) return 0;
+  Packet* pgl1 = gl1Event->getPacket(14001);
+  if (pgl1){
+      gl1_clock = pgl1->lValue(0,"BCO");
+  }   
  
   Packet * plist[100];
   int npackets = e->getPacketList(plist,100);
@@ -119,17 +138,19 @@ int DaqMon::process_event(Event *e /* evt */)
           int pnum = p->getIdentifier();
           int calomapid = CaloPacketMap(pnum);
           uint32_t packet_clock = p->iValue(0,"CLOCK");
-          clockdiff = (gl1_clock & 0xFFFFFFFF) - packet_clock;
-          uint32_t diff = clockdiff - previousdiff;
+          clockdiff[ipacket] = gl1_clock  - packet_clock;
+          uint32_t diff = clockdiff[ipacket] - previousdiff[ipacket];
           bool fdiff = (diff == 0) ? true : false;
-          if(gevtcnt>0){
+//          if(fdiff == false){std::cout << "Clock diff!! clockdiff - previousdiff : " << clockdiff[ipacket] << " - " << previousdiff[ipacket] << " : " << diff << ", actual clock : " << gl1_clock << "-" << packet_clock << ", pnum(packet_clock) : " << pnum << "(" << packet_clock << ")" << " out of " << npackets << " packets" << std::endl;}
+//          if(fdiff == true){std::cout << "This is good... clockdiff - previousdiff : " << clockdiff[ipacket] << " - " << previousdiff[ipacket] << " : " << diff << ", actual clock : " << packet_clock << ", pnum(packet_clock) : " << pnum << "(" << packet_clock << ")" << " out of " << npackets << " packets" << std::endl;}
+          if(gevtcnt>1){
               if(binindex>previndex || fdiff==false){
                   h_gl1_clock_diff_capture->SetBinContent(binindex,calomapid+1,fdiff);
               }
           }
-          if(previousdiff!=0) h_gl1_clock_diff->Fill(calomapid,fdiff);
+          if(previousdiff[ipacket]!=0) h_gl1_clock_diff->Fill(calomapid,fdiff);
           previndex = binindex;
-          previousdiff = clockdiff;
+          previousdiff[ipacket] = clockdiff[ipacket];
       }
       delete p;
   }
