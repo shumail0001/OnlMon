@@ -1045,7 +1045,7 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << "_7 Run " << cl->RunNumber()
+  runnostream << ThisName << "_8 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[8]->cd();
