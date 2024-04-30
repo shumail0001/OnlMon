@@ -646,13 +646,13 @@ sub show_contacts {
 	    photo => "sphenix-logo-white-bg.png"
 	},
 	"CEMC" => {
-	    name => "Anthony Hodges",
-	    email => "ahodges4\@illinois.edu",
+	    name => "Vincent Andrieux",
+	    email => "andrieux\@illinois.edu",
 	    photo => "sphenix-logo-white-bg.png"
 	},
 	"HCAL" => {
-	    name => "Blair Seidlitz",
-	    email => "blair.daniel.seidlitz\@cern.ch",
+	    name => "Shuhang Li",
+	    email => "sl4859\@columbia.edu",
 	    photo => "sphenix-logo-white-bg.png"
 	},
 	"MBD" => {

@@ -22,9 +22,8 @@ class HcalMonDraw : public OnlMonDraw
   int Init() override;
   int Draw(const std::string& what = "ALL") override;
   int MakeHtml(const std::string& what = "ALL") override;
-  int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
+  int SavePlot(const std::string& what = "ALL", const std::string& type = "png") override;
   void HandleEvent(int, int, int, TObject*);
-  
 
  private:
   int MakeCanvas(const std::string& name);
@@ -38,14 +37,14 @@ class HcalMonDraw : public OnlMonDraw
   void DrawHitMap();
   void DrawAvgTime();
   time_t getTime();
-  
+
   // int DrawDeadServer(TPad *transparent);
   std::string prefix = "HCALMON";
   TCanvas* TC[9] = {nullptr};
   TPad* transparent[9] = {nullptr};
   TPad* Pad[19] = {nullptr};
   TPad* warning[18] = {nullptr};
-  TGraphErrors* gr[2] = {nullptr};
+  //  TGraphErrors* gr[2] = {nullptr};
   TStyle* hcalStyle = nullptr;
 };
 

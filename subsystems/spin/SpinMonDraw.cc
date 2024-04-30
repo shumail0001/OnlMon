@@ -28,22 +28,22 @@
 //triggermap
 enum
 {
-  CLOCK = 0,
-  RANDOM = 1,
-  MBD_noVTX = 2,
-  MBD_VTX = 3,
-  MBD_10cm_VTX = 4,
-  MBD_S = 5,
-  MBD_N = 6,
-  ZDC_wide = 7,
-  ZDC_narrow = 8,
-  ZDC_S = 9,
-  ZDC_N = 10,
-  EMPTY1 = 11,
-  EMPTY2 = 12,
-  EMPTY3 = 13,
-  EMPTY4 = 14,
-  EMPTY5 = 15
+  MBD_NS = 0,
+  MBD_VTX = 1,
+  MBD_10cm_VTX = 2,
+  MBD_S = 3,
+  MBD_N = 4,
+  ZDC_NS = 5,
+  ZDC_S = 6,
+  ZDC_N = 7,
+  EMPTY1 = 8,
+  EMPTY2 = 9,
+  EMPTY3 = 10,
+  EMPTY4 = 11,
+  EMPTY5 = 12,
+  EMPTY6 = 13,
+  EMPTY7 = 14,
+  EMPTY8 = 15
 };
 
 
@@ -236,17 +236,16 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     gl1_counter[i] = (TH1I*)cl->getHisto("SPINMON_0",Form("gl1_counter_trig%d",i));
     
   }
-
+  std::cout << "here" << std::endl;
   
-  gl1ptriggers["CLOCK"] = gl1_counter[CLOCK]; gl1ptriggers["CLOCK"]->SetTitle("gl1p CLOCK");
-  gl1ptriggers["RANDOM"] = gl1_counter[RANDOM]; gl1ptriggers["RANDOM"]->SetTitle("gl1p RANDOM");
-  gl1ptriggers["MBD_noVTX"] = gl1_counter[MBD_noVTX]; gl1ptriggers["MBD_noVTX"]->SetTitle("gl1p MBD noVTX");
+  
+  gl1ptriggers["MBD_NS"] = gl1_counter[MBD_NS]; gl1ptriggers["MBD_NS"]->SetTitle("gl1p MBD NS");
+  
   gl1ptriggers["MBD_VTX"] = gl1_counter[MBD_VTX]; gl1ptriggers["MBD_VTX"]->SetTitle("gl1p MBD VTX");
   gl1ptriggers["MBD_10cm_VTX"] = gl1_counter[MBD_10cm_VTX]; gl1ptriggers["MBD_10cm_VTX"]->SetTitle("gl1p MBD +/-10cm VTX");
   gl1ptriggers["MBD_S"] = gl1_counter[MBD_S]; gl1ptriggers["MBD_S"]->SetTitle("gl1p MBD S");
   gl1ptriggers["MBD_N"] = gl1_counter[MBD_N]; gl1ptriggers["MBD_N"]->SetTitle("gl1p MBD N");
-  gl1ptriggers["ZDC_wide"] = gl1_counter[ZDC_wide]; gl1ptriggers["ZDC_wide"]->SetTitle("gl1p ZDC wide");
-  gl1ptriggers["ZDC_narrow"] = gl1_counter[ZDC_narrow]; gl1ptriggers["ZDC_narrow"]->SetTitle("gl1p ZDC narrow");
+  gl1ptriggers["ZDC_NS"] = gl1_counter[ZDC_NS]; gl1ptriggers["ZDC_NS"]->SetTitle("gl1p ZDC NS");
   gl1ptriggers["ZDC_S"] = gl1_counter[ZDC_S]; gl1ptriggers["ZDC_S"]->SetTitle("gl1p ZDC S");
   gl1ptriggers["ZDC_N"] = gl1_counter[ZDC_N]; gl1ptriggers["ZDC_N"]->SetTitle("gl1p ZDC N");
   gl1ptriggers["EMPTY1"] = gl1_counter[EMPTY1]; gl1ptriggers["EMPTY1"]->SetTitle("gl1p empty1");
@@ -254,7 +253,10 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   gl1ptriggers["EMPTY3"] = gl1_counter[EMPTY3]; gl1ptriggers["EMPTY3"]->SetTitle("gl1p empty3");
   gl1ptriggers["EMPTY4"] = gl1_counter[EMPTY4]; gl1ptriggers["EMPTY4"]->SetTitle("gl1p empty4");
   gl1ptriggers["EMPTY5"] = gl1_counter[EMPTY5]; gl1ptriggers["EMPTY5"]->SetTitle("gl1p empty5");
-
+  gl1ptriggers["EMPTY6"] = gl1_counter[EMPTY6]; gl1ptriggers["EMPTY6"]->SetTitle("gl1p empty6");
+  gl1ptriggers["EMPTY7"] = gl1_counter[EMPTY7]; gl1ptriggers["EMPTY7"]->SetTitle("gl1p empty7");
+  gl1ptriggers["EMPTY8"] = gl1_counter[EMPTY8]; gl1ptriggers["EMPTY8"]->SetTitle("gl1p empty8");
+  std::cout << "here2" << std::endl;
 
   if (!gROOT->FindObject("SpinMon1"))
   {
@@ -562,12 +564,12 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   gStyle->SetTitleAlign(33);
   gStyle->SetTitleX(0.75);
   labelsize = 0.05;
-
+  
   
   for(std::map<std::string, TH1*>::const_iterator ii=gl1ptriggers.begin(); ii!=gl1ptriggers.end(); ++ii)
   {
     std::string key=(*ii).first;
-    if(key == "MBD_noVTX")
+    if(key == "MBD_NS")
     {
       if (gl1ptriggers[key])
       {
@@ -621,7 +623,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
 	return -1;
       }
     }
-    else if (key == "ZDC_wide")
+    else if (key == "MBD_10cm_VTX")
     {
       if (gl1ptriggers[key])
       {
@@ -648,7 +650,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
 	return -1;
       }
     }
-    else if (key == "ZDC_narrow")
+    else if (key == "ZDC_NS")
     {
       if (gl1ptriggers[key])
       {
@@ -704,7 +706,7 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   
   OnlMonClient *cl = OnlMonClient::instance();
 
-
+  
   if (!gROOT->FindObject("SpinMon2"))
   {
     MakeCanvas("SpinMon2");
@@ -718,10 +720,10 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   gStyle->SetTitleX(0.75);
   float labelsize = 0.05;
 
-  if (gl1ptriggers["MBD_noVTX"] && gl1ptriggers["MBD_VTX"])
+  if (gl1ptriggers["MBD_NS"] && gl1ptriggers["MBD_VTX"])
   {
     Pad[7]->cd();
-    std::string trig1 = "MBD_noVTX";
+    std::string trig1 = "MBD_NS";
     std::string trig2 = "MBD_VTX";
     DrawGL1pRatio(trig1,trig2);
   }
@@ -732,11 +734,11 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
     return -1;
   }
 
-  if (gl1ptriggers["MBD_noVTX"] && gl1ptriggers["ZDC_wide"])
+  if (gl1ptriggers["MBD_NS"] && gl1ptriggers["MBD_10cm_VTX"])
   {
     Pad[8]->cd();
-    std::string trig1 = "MBD_noVTX";
-    std::string trig2 = "ZDC_wide";
+    std::string trig1 = "MBD_NS";
+    std::string trig2 = "MBD_10cm_VTX";
     DrawGL1pRatio(trig1,trig2);
   }
   else
@@ -746,11 +748,11 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
     return -1;
   }
 
-  if (gl1ptriggers["MBD_noVTX"] && gl1ptriggers["ZDC_narrow"])
+  if (gl1ptriggers["MBD_NS"] && gl1ptriggers["ZDC_NS"])
   {
     Pad[9]->cd();
-    std::string trig1 = "MBD_noVTX";
-    std::string trig2 = "ZDC_narrow";
+    std::string trig1 = "MBD_NS";
+    std::string trig2 = "ZDC_NS";
     DrawGL1pRatio(trig1,trig2);
   }
   else
@@ -760,11 +762,11 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
     return -1;
   }
 
-  if (gl1ptriggers["MBD_VTX"] && gl1ptriggers["ZDC_wide"])
+  if (gl1ptriggers["MBD_VTX"] && gl1ptriggers["MBD_10cm_VTX"])
   {
     Pad[10]->cd();
     std::string trig1 = "MBD_VTX";
-    std::string trig2 = "ZDC_wide";
+    std::string trig2 = "MBD_10cm_VTX";
     DrawGL1pRatio(trig1,trig2);
   }
   else
@@ -774,11 +776,11 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
     return -1;
   }
 
-  if (gl1ptriggers["MBD_VTX"] && gl1ptriggers["ZDC_narrow"])
+  if (gl1ptriggers["MBD_VTX"] && gl1ptriggers["ZDC_NS"])
   {
     Pad[11]->cd();
     std::string trig1 = "MBD_VTX";
-    std::string trig2 = "ZDC_narrow";
+    std::string trig2 = "ZDC_NS";
     DrawGL1pRatio(trig1,trig2);
   }
   else
@@ -789,11 +791,11 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
 
 
-  if (gl1ptriggers["ZDC_wide"] && gl1ptriggers["ZDC_narrow"])
+  if (gl1ptriggers["MBD_10cm_VTX"] && gl1ptriggers["ZDC_NS"])
   {
     Pad[12]->cd();
-    std::string trig1 = "ZDC_wide";
-    std::string trig2 = "ZDC_narrow";
+    std::string trig1 = "MBD_10cm_VTX";
+    std::string trig2 = "ZDC_NS";
     DrawGL1pRatio(trig1,trig2);
   }
   else
