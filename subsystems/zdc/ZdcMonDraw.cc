@@ -1113,15 +1113,15 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
   //SMD North ADC Individual channels
-  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s", TC[2]->GetTitle()), "5", "png");
+  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s", TC[2]->GetTitle()), "6", "png");
   cl->CanvasToPng(TC[2], pngfile);
 
   //SMD South ADC Individual channels
-  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s", TC[4]->GetTitle()), "6", "png");
+  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s", TC[4]->GetTitle()), "7", "png");
   cl->CanvasToPng(TC[4], pngfile);
 
   //2d hist of SMD ADC vs. channel number
-  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s", TC[5]->GetTitle()), "7", "png");
+  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s", TC[5]->GetTitle()), "8", "png");
   cl->CanvasToPng(TC[5], pngfile);
 
   /*
