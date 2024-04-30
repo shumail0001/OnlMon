@@ -1003,7 +1003,7 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
 
   if (!gROOT->FindObject("SmdAdcMeans"))
   {
-    MakeCanvas("SmdMeans");
+    MakeCanvas("SmdAdcMeans");
   }
 
   TC[8]->SetEditable(true);
