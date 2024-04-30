@@ -505,7 +505,7 @@ int MvtxMon::process_event(Event *evt)
             int error = decoder_error & 0xFFFFFFFF;
            // std::cout<<"feeid: "<<feeId<<" chip "<<chip<<" decoder error: "<<error<<std::endl;
             hErrorPlots->Fill(error);
-            hErrorFile->Fill(i,error);
+            hErrorFile->Fill((this->MonitorServerId()*2)+i,error);
             decoder_error = plist[i]->lValue(feeId, "decoder_error");
           }
         }
