@@ -27,14 +27,26 @@ class HcalMon : public OnlMon
   int Reset();
   std::vector<float> getSignal(Packet* p, const int channel);
   std::vector<float> anaWaveform(Packet* p, const int channel);
-  void set_anaGL1(bool state){anaGL1=state;return;}
-  void set_trig1(int val){trig1=val;return;}
-  void set_trig2(int val){trig2=val;return;}
+  void set_anaGL1(bool state)
+  {
+    anaGL1 = state;
+    return;
+  }
+  void set_trig1(int val)
+  {
+    trig1 = val;
+    return;
+  }
+  void set_trig2(int val)
+  {
+    trig2 = val;
+    return;
+  }
 
  protected:
   int evtcnt = 0;
   int idummy = 0;
-  const int Nsector = 32;
+  static const int Nsector = 32;
   const int Ntower = 1536;
   const int m_nChannels = 192;
   int packetlow = 8001;
@@ -51,6 +63,7 @@ class HcalMon : public OnlMon
   TH2* h2_hcal_mean = nullptr;
   TH2* h2_hcal_waveform = nullptr;
   TH2* h2_hcal_correlation = nullptr;
+  TH2* h2_hcal_time = nullptr;
   TH1* h_sectorAvg_total = nullptr;
   TH1* h_event = nullptr;
   TH1* h_ntower = nullptr;
@@ -59,25 +72,25 @@ class HcalMon : public OnlMon
   TH1* h1_packet_number = nullptr;
   TH1* h1_packet_event = nullptr;
   TH1* h_rm_sectorAvg[32] = {nullptr};
-  TH1* h_rm_tower[24][64] = {nullptr};
+  TH1* h_rm_tower[24][64]{{nullptr}};
   TH1* h_hcal_trig = {nullptr};
   TH2* h_caloPack_gl1_clock_diff = {nullptr};
   TProfile* h_evtRec = {nullptr};
 
-  eventReceiverClient *erc = {nullptr};
+  eventReceiverClient* erc = {nullptr};
   bool anaGL1 = false;
 
   CaloWaveformFitting* WaveformProcessing = nullptr;
 
   std::vector<runningMean*> rm_vector_sectAvg;
   std::vector<runningMean*> rm_vector_twr;
+  std::vector<runningMean*> rm_vector_twrTime;
   std::vector<runningMean*> rm_packet_number;
   std::vector<runningMean*> rm_packet_length;
   std::vector<runningMean*> rm_packet_chans;
 
   int trig1 = 1;
   int trig2 = 3;
-
 };
 
 #endif /* HCAL_HCALMON_H */

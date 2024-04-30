@@ -17,8 +17,8 @@ void daqDrawInit(const int online = 0)
       cl->registerHisto("h_gl1_clock_diff_capture", Form("DAQMON_%d",serverid));
   }
       
-  //cl->AddServerHost("localhost");
-  CreateHostList(online);
+   // for local host, just call daqDrawInit(2)
+  CreateSubsysHostlist("daq_hosts.list", online);
 
   for(int serverid = 0; serverid < 20; serverid++)
   {

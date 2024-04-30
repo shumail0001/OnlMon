@@ -350,7 +350,7 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
 //  gPad->SetLogx();
   if (zdc_adc_south)
   {
-    zdc_adc_south->Scale(1 / zdc_adc_south->Integral(), "width");
+    //zdc_adc_south->Scale(1 / zdc_adc_south->Integral(), "width");
     zdc_adc_south->DrawCopy();
   }
   else
@@ -364,7 +364,7 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
 //  gPad->SetLogx();
   if (zdc_adc_north)
   {
-    zdc_adc_north->Scale(1 / zdc_adc_north->Integral(), "width");
+    //zdc_adc_north->Scale(1 / zdc_adc_north->Integral(), "width");
     zdc_adc_north->DrawCopy();
   }
 
@@ -418,10 +418,10 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->Clear("D");
   Pad[4]->cd();
   gPad->SetLogy();
-  gPad->SetLogx();
+  //gPad->SetLogx();
   if (zdc_S1)
   {
-    zdc_S1->Scale(1 / zdc_S1->Integral(), "width");
+    //zdc_S1->Scale(1 / zdc_S1->Integral(), "width");
     zdc_S1->DrawCopy();
   }
   else
@@ -433,45 +433,45 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
 
   Pad[5]->cd();
   gPad->SetLogy();
-  gPad->SetLogx();
+  //gPad->SetLogx();
   if (zdc_S2)
   {
-    zdc_S2->Scale(1 / zdc_S2->Integral(), "width");
+    //zdc_S2->Scale(1 / zdc_S2->Integral(), "width");
     zdc_S2->DrawCopy();
   }
   Pad[6]->cd();
   gPad->SetLogy();
-  gPad->SetLogx();
+  //gPad->SetLogx();
   if (zdc_S3)
   {
-    zdc_S3->Scale(1 / zdc_S3->Integral(), "width");
+    //zdc_S3->Scale(1 / zdc_S3->Integral(), "width");
     zdc_S3->DrawCopy();
   }
 
   Pad[7]->cd();
   gPad->SetLogy();
-  gPad->SetLogx();
+  //gPad->SetLogx();
   if (zdc_N1)
   {
-    zdc_N1->Scale(1 / zdc_N1->Integral(), "width");
+    //zdc_N1->Scale(1 / zdc_N1->Integral(), "width");
     zdc_N1->DrawCopy();
   }
 
   Pad[8]->cd();
   gPad->SetLogy();
-  gPad->SetLogx();
+  //gPad->SetLogx();
   if (zdc_N2)
   {
-    zdc_N2->Scale(1 / zdc_N2->Integral(), "width");
+    //zdc_N2->Scale(1 / zdc_N2->Integral(), "width");
     zdc_N2->DrawCopy();
   }
 
   Pad[9]->cd();
   gPad->SetLogy();
-  gPad->SetLogx();
+  //gPad->SetLogx();
   if (zdc_N3)
   {
-    zdc_N3->Scale(1 / zdc_N3->Integral(), "width");
+    //zdc_N3->Scale(1 / zdc_N3->Integral(), "width");
     zdc_N3->DrawCopy();
   }
   TText PrintRun;
@@ -699,6 +699,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   TC[4]->SetEditable(true);
   TC[4]->Clear("D");
   Pad[21]->cd();
+  gPad->SetLogy(1); // log scale for the y-axis
 
   if (smd_adc_n_hor_ind[0])
   {
@@ -714,6 +715,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   for (int i = 1; i < 8; ++i)
   {
     Pad[21 + i]->cd();
+    gPad->SetLogy(1); // log scale for the y-axis
     if (smd_adc_n_hor_ind[i])
     {
       smd_adc_n_hor_ind[i]->DrawCopy();
@@ -723,6 +725,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   for (int i = 0; i < 7; ++i)
   {
     Pad[29 + i]->cd();
+    gPad->SetLogy(1); // log scale for the y-axis
     if (smd_adc_n_ver_ind[i])
     {
       smd_adc_n_ver_ind[i]->DrawCopy();
@@ -775,6 +778,7 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
   TC[5]->SetEditable(true);
   TC[5]->Clear("D");
   Pad[36]->cd();
+  gPad->SetLogy(1); // log scale for the y-axis
 
   if (smd_adc_s_hor_ind[0])
   {
@@ -790,6 +794,7 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
   for (int i = 1; i < 8; ++i)
   {
     Pad[36 + i]->cd();
+    gPad->SetLogy(1); // log scale for the y-axis
     if (smd_adc_s_hor_ind[i])
     {
       smd_adc_s_hor_ind[i]->DrawCopy();
@@ -799,6 +804,7 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
   for (int i = 0; i < 7; ++i)
   {
     Pad[44 + i]->cd();
+    gPad->SetLogy(1); // log scale for the y-axis
     if (smd_adc_s_ver_ind[i])
     {
       smd_adc_s_ver_ind[i]->DrawCopy();

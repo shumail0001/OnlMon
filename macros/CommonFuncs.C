@@ -3,9 +3,11 @@
 
 #include <onlmon/OnlMonClient.h>
 
+// cppcheck-suppress unknownMacro
+R__LOAD_LIBRARY(libonlmonclient.so)
+
 void CreateHostList(const int online = 0)
 {
-  cout << "online: " << online << endl;
   OnlMonClient *cl = OnlMonClient::instance();
   if (!online)
   {
@@ -60,6 +62,36 @@ void ClearCanvases()
   {
     std::cout << "Deleting Canvas " << canvas->GetName() << std::endl;
     delete canvas;
+  }
+}
+
+void CreateSubsysHostlist(const std::string &list, const int online)
+{
+  if (online != 1)
+  {
+    CreateHostList(online);
+    return;
+  }
+  OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
+  const char *hostlistdir = gSystem->Getenv("ONLMON_RUNDIR");
+  char hostlistname[200];
+  if (hostlistdir)
+  {
+    char node[20];
+    sprintf(hostlistname, "%s/%s", hostlistdir,list.c_str());
+    cout << "trying to open " << hostlistname << endl;
+    FILE *f = fopen(hostlistname, "r");
+    if (! f)
+    {
+      CreateHostList(online);
+      return;
+    }
+    while (fscanf(f, "%19s", &node[0]) != EOF)
+    {
+      cout << "adding " << node << endl;
+      cl->AddServerHost(node);      // put monitoring machines in search list
+    }
+    fclose(f);
   }
 }
 
