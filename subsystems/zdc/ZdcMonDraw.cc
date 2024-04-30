@@ -269,6 +269,28 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     TC[7]->SetEditable(false);
   }
 
+  else if (name == "SmdAdcMeans")
+  {
+    // xpos negative: do not draw menu bar
+    TC[8] = new TCanvas(name.c_str(), "SMD ADC Mean Values Per Channel", -xsize / 2, -ysize / 2, xsize / 2, ysize / 2);
+    gSystem->ProcessEvents();
+    Pad[56] = new TPad("smd_adc_n_hor_means", "SMD ADC for North-Horizontal Channels", 0.05, 0.5, 0.5, 0.98, 0);
+    Pad[57] = new TPad("smd_adc_s_hor_means", "SMD ADC for South-Horizontal Channels", 0.5, 0.5, 0.98, 0.98, 0);
+    Pad[58] = new TPad("smd_adc_n_ver_means", "SMD ADC for North-Vertical Channels", 0.05, 0.05, 0.5, 0.5, 0);
+    Pad[59] = new TPad("smd_adc_s_ver_means", "SMD ADC for South-Vertical Channels", 0.5, 0.05, 0.95, 0.5, 0);
+
+    Pad[56]->Draw();
+    Pad[57]->Draw();
+    Pad[58]->Draw();
+    Pad[59]->Draw();
+
+    // this one is used to plot the run number on the canvas
+    transparent[8] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[8]->SetFillStyle(4000);
+    transparent[8]->Draw();
+    TC[8]->SetEditable(false);
+  }
+
   return 0;
 }
 
@@ -320,6 +342,12 @@ int ZdcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "ZDC_WAVEFORM")
   {
     iret += DrawWaveForm(what);
+    idraw++;
+  }
+
+  if (what == "ALL" || what == "SMD_ADC_MEANS")
+  {
+    iret += DrawSmdAdcMeans(what);
     idraw++;
   }
 
@@ -1077,6 +1105,10 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   //SMD hit multiplicities
   pngfile = cl->htmlRegisterPage(*this, TC[6]->GetTitle(), "4", "png");
   cl->CanvasToPng(TC[6], pngfile);
+
+  //SMD ADC Mean Values
+  pngfile = cl->htmlRegisterPage(*this, TC[8]->GetTitle(), "5", "png");
+  cl->CanvasToPng(TC[8], pngfile);
 
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
