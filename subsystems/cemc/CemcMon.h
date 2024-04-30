@@ -40,7 +40,6 @@ class CemcMon : public OnlMon
   const int Ntower = 64*2*192;
   const int packetlow = 6001;
   const int packethigh = 6128;
-  const int m_nSamples = 16;
   const int m_nChannels = 192;
   const int templateDepth = 10000;
   int eventCounter = 0;
