@@ -134,12 +134,10 @@ int ZdcMon::Init()
   }
 
   // SMD Hit Multiplicity
-  // with thresholds
-  smd_north_hor_hits = new TH1F("smd_north_hor_hits", "Is this even changing?", 9, 0., 8.);
-  smd_north_ver_hits = new TH1F("smd_north_ver_hits", "smd_north_ver_hits", 8, 0., 7.);
-  smd_south_hor_hits = new TH1F("smd_south_hor_hits", "smd_south_hor_hits", 9, 0., 8.);
-  smd_south_ver_hits = new TH1F("smd_south_ver_hits", "smd_south_ver_hits", 8, 0., 7.);
-  
+  smd_north_hor_hits = new TH1F("smd_north_hor_hits", "smd_north_hor_hits", 9, -0.5, 8.5);
+  smd_north_ver_hits = new TH1F("smd_north_ver_hits", "smd_north_ver_hits", 8, -0.5, 7.5);
+  smd_south_hor_hits = new TH1F("smd_south_hor_hits", "smd_south_hor_hits", 9, -0.5, 8.5);
+  smd_south_ver_hits = new TH1F("smd_south_ver_hits", "smd_south_ver_hits", 8, -0.5, 7.5);
 
   // north smd
   smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
@@ -385,11 +383,6 @@ int ZdcMon::process_event(Event *e /* evt */)
     int smd_n_v_counter = 0;
     int smd_s_h_counter = 0;
     int smd_s_v_counter = 0;
-    // no thresholds 
-    int smd_n_h_counter_nth = 0;
-    int smd_n_v_counter_nth = 0;
-    int smd_s_h_counter_nth = 0;
-    int smd_s_v_counter_nth = 0;
 
     for (int i = 0; i < 8; i++)
     {
@@ -417,7 +410,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       // no threshold
       if (smd_adc[i] > smd_adc_threshold)
       {
-        smd_n_h_counter_nth++;
+        smd_n_h_counter++;
       }
       //****************************
 
@@ -494,13 +487,13 @@ int ZdcMon::process_event(Event *e /* evt */)
       //****************************
 
       // Fill out the SMD counters with doubles instead of integers.
-      double nh = smd_n_h_counter_nth + 0.0;
+      double nh = smd_n_h_counter + 0.0;
       smd_north_hor_hits->Fill(nh);
-      double nv = smd_n_v_counter_nth + 0.0;
+      double nv = smd_n_v_counter + 0.0;
       smd_north_ver_hits->Fill(nv);
-      double sh = smd_s_h_counter_nth + 0.0;
+      double sh = smd_s_h_counter + 0.0;
       smd_south_hor_hits->Fill(sh);
-      double sv = smd_s_v_counter_nth + 0.0;
+      double sv = smd_s_v_counter + 0.0;
       smd_south_ver_hits->Fill(sv);
 
 
