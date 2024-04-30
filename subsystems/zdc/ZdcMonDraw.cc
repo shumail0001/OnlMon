@@ -986,19 +986,21 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
   // Horizontal
   for (int i = 0; i < 8; ++i)
   {
+    int j = i+1;
     smd_adc_n_hor_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_n_hor_ind%d", i));  // north horizontal individual histograms
     smd_adc_s_hor_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_s_hor_ind%d", i));  // south horizontal individual histograms
-    smd_adc_n_hor_means->SetBinContent(i+1, smd_adc_n_hor_ind[i]->GetMean()); // means of north horizontal
-    smd_adc_s_hor_means->SetBinContent(i+1, smd_adc_s_hor_ind[i]->GetMean()); // means of south horizontal
+    smd_adc_n_hor_means->SetBinContent(j, smd_adc_n_hor_ind[i]->GetMean()); // means of north horizontal
+    smd_adc_s_hor_means->SetBinContent(j, smd_adc_s_hor_ind[i]->GetMean()); // means of south horizontal
   }
   // Vertical
   for (int i = 0; i < 7; ++i)
   {
+    int j = i + 1;
     smd_adc_n_ver_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_n_ver_ind%d", i));  // north vertical individual histograms 
     smd_adc_s_ver_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_s_ver_ind%d", i));  // south vertical individual histograms  
     // means
-    smd_adc_n_ver_means->SetBinContent(i+1, smd_adc_n_ver_ind[i]->GetMean()); // means of north vertical
-    smd_adc_s_ver_means->SetBinContent(i+1, smd_adc_s_ver_ind[i]->GetMean()); // mean of each
+    smd_adc_n_ver_means->SetBinContent(j, smd_adc_n_ver_ind[i]->GetMean()); // means of north vertical
+    smd_adc_s_ver_means->SetBinContent(j, smd_adc_s_ver_ind[i]->GetMean()); // mean of each
   }
 
   if (!gROOT->FindObject("SmdAdcMeans"))
