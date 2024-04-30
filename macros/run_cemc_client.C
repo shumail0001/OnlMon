@@ -28,9 +28,7 @@ void cemcDrawInit(const int online = 0)
       cl->registerHisto("h1_packet_chans",Form("CEMCMON_%d",serverid));
       cl->registerHisto("h1_cemc_adc",Form("CEMCMON_%d",serverid));
 		    
-      for (int ih=0; ih<32; ih++){
-	cl->registerHisto(Form("h1_rm_sectorAvg_s%d",ih), Form("CEMCMON_%d",serverid));
-      }
+
     }
   CreateSubsysHostlist("cemc_hosts.list", online);
   //  get my histos from server, the second parameter = 1
