@@ -19,6 +19,7 @@ void ohcalDrawInit(const int online = 0)
     cl->registerHisto("h_caloPack_gl1_clock_diff", HCALMON_STR);
     cl->registerHisto("h2_hcal_rm", HCALMON_STR);
     cl->registerHisto("h2_hcal_mean", HCALMON_STR);
+    cl->registerHisto("h2_hcal_time", HCALMON_STR);
     cl->registerHisto("h2_hcal_waveform", HCALMON_STR);
     cl->registerHisto("h2_hcal_correlation", HCALMON_STR);
     cl->registerHisto("h_event", HCALMON_STR);
@@ -48,9 +49,10 @@ void ohcalDrawInit(const int online = 0)
       }
     }
   }
-  cl->AddServerHost("localhost");  // check local host first
-  CreateHostList(online);
-  // get my histos from server, the second parameter = 1
+
+  // for local host, just call ohcalDrawInit(2)
+  CreateSubsysHostlist("hcal_hosts.list", online);
+
   // says I know they are all on the same node
   for (int i = 0; i < 2; i++)
   {
