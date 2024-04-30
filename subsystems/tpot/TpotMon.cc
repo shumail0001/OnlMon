@@ -310,7 +310,7 @@ int TpotMon::process_event(Event* event)
       bool is_signal = false;
       for( int is = std::max<int>(0,m_sample_window_signal.first); is < std::min<int>(samples,m_sample_window_signal.second); ++is )
       {
-        const auto uint16_t =  packet->iValue( i, is );
+        const uint16_t adc =  packet->iValue( i, is );
         if( adc == MicromegasDefs::m_adc_invalid ) continue;
         if( rms>0 && (adc > m_min_adc) && (adc>pedestal + m_n_sigma*rms) )
         {
