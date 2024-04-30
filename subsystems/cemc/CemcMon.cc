@@ -257,8 +257,8 @@ std::vector<float> CemcMon::getSignal(Packet *p, const int channel)
 std::vector<float> CemcMon::anaWaveformFast(Packet *p, const int channel)
 {
   std::vector<float> waveform;
-  waveform.reserve(m_nSamples);  
-  for ( int s = 0;  s < m_nSamples/*p->iValue(0,"SAMPLES")*/; s++) {
+  waveform.reserve(p->iValue(0,"SAMPLES"));
+  for ( int s = 0;  s < p->iValue(0,"SAMPLES"); s++) {
     waveform.push_back(p->iValue(s,channel));
   }
   std::vector<std::vector<float>> multiple_wfs;
@@ -276,8 +276,8 @@ std::vector<float> CemcMon::anaWaveformFast(Packet *p, const int channel)
 std::vector<float> CemcMon::anaWaveformTemp(Packet *p, const int channel)
 {
   std::vector<float> waveform;
-  waveform.reserve(m_nSamples);
-  for ( int s = 0;  s < m_nSamples/*p->iValue(0,"SAMPLES")*/; s++) {
+  waveform.reserve(p->iValue(0,"SAMPLES"));
+  for ( int s = 0;  s < p->iValue(0,"SAMPLES"); s++) {
     
     waveform.push_back(p->iValue(s,channel));
   }
