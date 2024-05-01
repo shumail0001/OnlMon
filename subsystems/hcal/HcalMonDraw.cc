@@ -1724,7 +1724,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   runnostream << ThisName << ": Pulse fitting, Run" << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
-  transparent[3]->cd();
+  transparent[6]->cd();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
   Pad[17]->cd();
