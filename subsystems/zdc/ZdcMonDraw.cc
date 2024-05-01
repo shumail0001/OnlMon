@@ -269,6 +269,28 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     TC[7]->SetEditable(false);
   }
 
+  else if (name == "SmdAdcMeans")
+  {
+    // xpos negative: do not draw menu bar
+    TC[8] = new TCanvas(name.c_str(), "SMD ADC Mean Values Per Channel", -xsize / 2, -ysize / 2, xsize / 2, ysize / 2);
+    gSystem->ProcessEvents();
+    Pad[56] = new TPad("smd_adc_n_hor_means", "SMD ADC for North-Horizontal Channels", 0.05, 0.5, 0.5, 0.98, 0);
+    Pad[57] = new TPad("smd_adc_s_hor_means", "SMD ADC for South-Horizontal Channels", 0.5, 0.5, 0.98, 0.98, 0);
+    Pad[58] = new TPad("smd_adc_n_ver_means", "SMD ADC for North-Vertical Channels", 0.05, 0.05, 0.5, 0.5, 0);
+    Pad[59] = new TPad("smd_adc_s_ver_means", "SMD ADC for South-Vertical Channels", 0.5, 0.05, 0.95, 0.5, 0);
+
+    Pad[56]->Draw();
+    Pad[57]->Draw();
+    Pad[58]->Draw();
+    Pad[59]->Draw();
+
+    // this one is used to plot the run number on the canvas
+    transparent[8] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[8]->SetFillStyle(4000);
+    transparent[8]->Draw();
+    TC[8]->SetEditable(false);
+  }
+
   return 0;
 }
 
@@ -323,6 +345,12 @@ int ZdcMonDraw::Draw(const std::string &what)
     idraw++;
   }
 
+  if (what == "ALL" || what == "SMD_ADC_MEANS")
+  {
+    iret += DrawSmdAdcMeans(what);
+    idraw++;
+  }
+
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -347,7 +375,7 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->Clear("D");
   Pad[0]->cd();
   gPad->SetLogy();
-//  gPad->SetLogx();
+  //  gPad->SetLogx();
   if (zdc_adc_south)
   {
     //zdc_adc_south->Scale(1 / zdc_adc_south->Integral(), "width");
@@ -361,7 +389,7 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   }
   Pad[1]->cd();
   gPad->SetLogy();
-//  gPad->SetLogx();
+  //  gPad->SetLogx();
   if (zdc_adc_north)
   {
     //zdc_adc_north->Scale(1 / zdc_adc_north->Integral(), "width");
@@ -691,6 +719,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
     smd_adc_n_ver_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_n_ver_ind%d", i));  // Retrieve histogram pointer using 'histName'
   }
 
+
   if (!gROOT->FindObject("SmdAdcNorthIndividual"))
   {
     MakeCanvas("SmdAdcNorthIndividual");
@@ -939,6 +968,97 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   return 0;
 }
 
+int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  
+  // Array that holds pointer to the histogram of each channel
+  TH1 *smd_adc_n_hor_ind[8];
+  TH1 *smd_adc_n_ver_ind[7];
+  TH1 *smd_adc_s_hor_ind[8];
+  TH1 *smd_adc_s_ver_ind[7];
+
+  smd_adc_n_hor_means = new TH1F("smd_adc_n_hor_means", "SMD ADC for North-Horizontal Channels", 10, -1.5, 8.5);
+  smd_adc_s_hor_means = new TH1F("smd_adc_s_hor_means", "SMD ADC for South-Horizontal Channels", 10, -1.5, 8.5);
+  smd_adc_n_ver_means = new TH1F("smd_adc_n_ver_means", "SMD ADC for North-Vertical Channels", 9, -1.5, 7.5);
+  smd_adc_s_ver_means = new TH1F("smd_adc_s_ver_means", "SMD ADC for South-Vertical Channels", 9, -1.5, 7.5);
+
+  // Horizontal
+  for (int i = 0; i < 8; ++i)
+  {
+    int j = i + 2;
+    smd_adc_n_hor_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_n_hor_ind%d", i));  // north horizontal individual histograms
+    smd_adc_s_hor_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_s_hor_ind%d", i));  // south horizontal individual histograms
+    smd_adc_n_hor_means->SetBinContent(j, smd_adc_n_hor_ind[i]->GetMean()); // means of north horizontal
+    smd_adc_s_hor_means->SetBinContent(j, smd_adc_s_hor_ind[i]->GetMean()); // means of south horizontal
+  }
+  // Vertical
+  for (int i = 0; i < 7; ++i)
+  {
+    int j = i + 2;
+    smd_adc_n_ver_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_n_ver_ind%d", i));  // north vertical individual histograms 
+    smd_adc_s_ver_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_s_ver_ind%d", i));  // south vertical individual histograms  
+    // means
+    smd_adc_n_ver_means->SetBinContent(j, smd_adc_n_ver_ind[i]->GetMean()); // means of north vertical
+    smd_adc_s_ver_means->SetBinContent(j, smd_adc_s_ver_ind[i]->GetMean()); // mean of each
+  }
+
+  if (!gROOT->FindObject("SmdAdcMeans"))
+  {
+    MakeCanvas("SmdAdcMeans");
+  }
+
+  TC[8]->SetEditable(true);
+  TC[8]->Clear("D");
+  Pad[56]->cd();
+  if (smd_adc_n_hor_means)
+  {
+    smd_adc_n_hor_means->DrawCopy();
+  }
+  else
+  {
+    DrawDeadServer(transparent[8]);
+    TC[8]->SetEditable(false);
+    return -1;
+  }
+
+  Pad[57]->cd();
+  if (smd_adc_s_hor_means)
+  {
+    smd_adc_s_hor_means->DrawCopy();
+  }
+  Pad[58]->cd();
+  if (smd_adc_n_ver_means)
+  {
+    smd_adc_n_ver_means->DrawCopy();
+  }
+  Pad[59]->cd();
+  if (smd_adc_s_ver_means)
+  {
+    smd_adc_s_ver_means->DrawCopy();
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_8 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[8]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[8]->Update();
+  TC[8]->Show();
+  TC[8]->SetEditable(false);
+
+  return 0;
+}
+
 int ZdcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -987,6 +1107,10 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   //SMD hit multiplicities
   pngfile = cl->htmlRegisterPage(*this, TC[6]->GetTitle(), "4", "png");
   cl->CanvasToPng(TC[6], pngfile);
+
+  //SMD ADC Mean Values
+  pngfile = cl->htmlRegisterPage(*this, TC[8]->GetTitle(), "8", "png");
+  cl->CanvasToPng(TC[8], pngfile);
 
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 

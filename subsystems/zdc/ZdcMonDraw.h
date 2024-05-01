@@ -5,12 +5,13 @@
 
 #include <string>  // for allocator, string
 
+class TH1;
 class OnlMonDB;
 class TCanvas;
 class TGraphErrors;
 class TPad;
-const int NUM_CANV = 2 + 1 + 1 + 1 + 1 + 1 + 1 + 1;
-const int NUM_PAD = 4 + 3 + 12 + 2 + 4 + 15 + 15 + 4 + 1;
+const int NUM_CANV = 2 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1;
+const int NUM_PAD = 4 + 3 + 12 + 2 + 4 + 15 + 15 + 4 + 1 + 4;
 
 class ZdcMonDraw : public OnlMonDraw
 {
@@ -25,6 +26,12 @@ class ZdcMonDraw : public OnlMonDraw
   int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
 
  protected:
+
+  TH1 *smd_adc_n_hor_means = nullptr;
+  TH1 *smd_adc_s_hor_means = nullptr;
+  TH1 *smd_adc_n_ver_means = nullptr;
+  TH1 *smd_adc_s_ver_means = nullptr;
+
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
@@ -35,6 +42,7 @@ class ZdcMonDraw : public OnlMonDraw
   int DrawSmdAdcSouthIndividual(const std::string &what = "ALL");
   int DrawSmdMultiplicities(const std::string &what = "ALL");
   int DrawWaveForm(const std::string &what = "ALL");
+  int DrawSmdAdcMeans(const std::string &what = "ALL");
 
   TCanvas *TC[NUM_CANV] = {nullptr};
   TPad *transparent[NUM_CANV] = {nullptr};
