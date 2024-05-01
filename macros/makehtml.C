@@ -87,7 +87,7 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
   }
   else if (subsystem == "SPINMON")
   {
-    drawer = new SepdMonDraw("SPINMONDRAW");
+    drawer = new SpinMonDraw("SPINMONDRAW");
   }
   else if (subsystem == "TPCMON")
   {
