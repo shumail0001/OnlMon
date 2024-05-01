@@ -596,7 +596,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         //std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<std::endl;
 
-        int mid = floor(nr_Samples/2); //get median sample
+        int mid = floor(360/2); //get median sample from 0-360 (we are assuming the sample > 360 is not useful to us as of 05.01.24)
 
         if( nr_Samples > 9)
         {
