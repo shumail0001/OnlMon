@@ -628,7 +628,9 @@ int TpcMon::process_event(Event *evt/* evt */)
           
           //int t = s + 2 * (current_BCO - starting_BCO);
 
-          int adc = p->iValue(wf,s);       
+          int adc = p->iValue(wf,s);
+
+          if( adc > 64500 ) { continue;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense      
 
           Layer_ChannelPhi_ADC_weighted->Fill(padphi,layer,adc-pedestal);
 
