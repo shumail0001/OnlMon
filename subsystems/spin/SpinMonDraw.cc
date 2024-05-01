@@ -205,7 +205,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1I *hpCspinpatternBlue = (TH1I*)cl->getHisto("SPINMON_0","h1_pCspinpatternBlue");
+ TH1I *hpCspinpatternBlue = (TH1I*)cl->getHisto("SPINMON_0","h1_pCspinpatternBlue");
   TH1I *hpCspinpatternYellow = (TH1I*)cl->getHisto("SPINMON_0","h1_pCspinpatternYellow");
   TH1I *hspinpatternBlue = (TH1I*)cl->getHisto("SPINMON_0","h1_spinpatternBlue");
   TH1I *hspinpatternYellow = (TH1I*)cl->getHisto("SPINMON_0","h1_spinpatternYellow");
@@ -232,9 +232,26 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   TH1I *hfilltypeBlue = (TH1I*)cl->getHisto("SPINMON_0","h1_filltypeBlue");
   TH1I *hfilltypeYellow = (TH1I*)cl->getHisto("SPINMON_0","h1_filltypeYellow");
   
-  for (int i = 0; i < NTRIG; i++){
-    gl1_counter[i] = (TH1I*)cl->getHisto("SPINMON_0",Form("gl1_counter_trig%d",i));
-    
+  if (!gROOT->FindObject("SpinMon1"))
+  {
+    MakeCanvas("SpinMon1");
+  }
+
+   for (int i = 0; i < NTRIG; i++){
+    gl1_counter[i] = cl->getHisto("SPINMON_0",Form("gl1_counter_trig%d",i));
+    if (!gl1_counter[i] )
+      {
+ 
+    DrawDeadServer(transparent[0]);
+    TC[0]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[0];
+      TC[0] = nullptr;
+    }
+    return -1;
+  
+  }
   }
   
   
@@ -256,10 +273,6 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   gl1ptriggers["EMPTY8"] = gl1_counter[EMPTY8]; gl1ptriggers["EMPTY8"]->SetTitle("gl1p empty8");
   
 
-  if (!gROOT->FindObject("SpinMon1"))
-  {
-    MakeCanvas("SpinMon1");
-  }
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   gStyle->SetOptStat(0);
@@ -950,7 +963,7 @@ std::string SpinMonDraw::TH1_to_string(TH1* hspin_pattern)
 }
 
 
-int SpinMonDraw::DrawGL1pRatio(std::string trig1, std::string trig2)
+int SpinMonDraw::DrawGL1pRatio(const std::string &trig1, const std::string &trig2)
 {
   TH1I *ratio;
   float labelsize = 0.05;
