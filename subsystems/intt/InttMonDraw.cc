@@ -152,22 +152,6 @@ int InttMonDraw::MakeHtml(const std::string& what)
     }
   }
 
-  std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream log_out(logfile.c_str());
-  log_out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber();
-  log_out << "</TITLE></HEAD>" << std::endl;
-  log_out << "<P>[Implement me]" << std::endl;
-  log_out.close();
-
-  std::string stsfile = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
-  std::ofstream sts_out(stsfile.c_str());
-  sts_out << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber();
-  sts_out << "</TITLE></HEAD>" << std::endl;
-  sts_out << "<P>[Implement me]" << std::endl;
-  sts_out.close();
-
-  cl->SaveLogFile(*this);
-
   return 0;
 }
 
