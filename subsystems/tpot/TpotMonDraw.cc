@@ -795,5 +795,5 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
   
   // need to delete reference histograms to avoid leak
   for( auto h:ref_histograms ) { delete h; }
-  
+  return 0;
 }
