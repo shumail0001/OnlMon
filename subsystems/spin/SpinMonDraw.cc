@@ -236,11 +236,9 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     gl1_counter[i] = (TH1I*)cl->getHisto("SPINMON_0",Form("gl1_counter_trig%d",i));
     
   }
-  std::cout << "here" << std::endl;
   
   
   gl1ptriggers["MBD_NS"] = gl1_counter[MBD_NS]; gl1ptriggers["MBD_NS"]->SetTitle("gl1p MBD NS");
-  
   gl1ptriggers["MBD_VTX"] = gl1_counter[MBD_VTX]; gl1ptriggers["MBD_VTX"]->SetTitle("gl1p MBD VTX");
   gl1ptriggers["MBD_10cm_VTX"] = gl1_counter[MBD_10cm_VTX]; gl1ptriggers["MBD_10cm_VTX"]->SetTitle("gl1p MBD +/-10cm VTX");
   gl1ptriggers["MBD_S"] = gl1_counter[MBD_S]; gl1ptriggers["MBD_S"]->SetTitle("gl1p MBD S");
@@ -256,7 +254,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   gl1ptriggers["EMPTY6"] = gl1_counter[EMPTY6]; gl1ptriggers["EMPTY6"]->SetTitle("gl1p empty6");
   gl1ptriggers["EMPTY7"] = gl1_counter[EMPTY7]; gl1ptriggers["EMPTY7"]->SetTitle("gl1p empty7");
   gl1ptriggers["EMPTY8"] = gl1_counter[EMPTY8]; gl1ptriggers["EMPTY8"]->SetTitle("gl1p empty8");
-  std::cout << "here2" << std::endl;
+  
 
   if (!gROOT->FindObject("SpinMon1"))
   {
@@ -469,21 +467,21 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     int spin_cdev_yell=hspinpatternYellow->GetBinContent(crossing+1);
     int spin_pC_yell=hpCspinpatternYellow->GetBinContent(crossing+1);
       
-    if(spin_pC_blue==-1 || spin_pC_blue==1)
-    {
-      if(spin_cdev_blue!=spin_pC_blue)
+    //if(spin_pC_blue==-1 || spin_pC_blue==1)
+    //{
+      if(spin_cdev_blue!=spin_pC_blue && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
       {
 	mismatches+=1;	 
       } 
-    } 
+      //} 
 
-    if(spin_pC_yell==-1 || spin_pC_yell==1)
-    {
-      if(spin_cdev_yell!=spin_pC_yell)
+      //if(spin_pC_yell==-1 || spin_pC_yell==1)
+      //{
+      if(spin_cdev_yell!=spin_pC_yell && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
       {
 	mismatches+=1;	 
       } 
-    } 
+      //} 
   }
 
 
@@ -492,53 +490,58 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   t_PatternMatch.SetTextSize(textsize);
   t_PatternMatch.SetNDC();          // set to normalized coordinates
   //t_PatternMatch.SetTextAlign(23);  // center/top alignment
-  std::string patternmatchstring;
+  
+  
   if (!mismatches)
   {
-    patternmatchstring = "pC AND CDEV PATTERNS MATCH";
+    std::string patternmatchstring = "pC AND CDEV PATTERNS MATCH";
     t_PatternMatch.SetTextColor(kGreen);
+    t_PatternMatch.DrawText(0.15, 0.65, patternmatchstring.c_str());
   }
   else 
   {
+    std::string patternmatchstring1 = "pC/CDEV PATTERN MISMATCH:";
     std::ostringstream patternmatchstream;
-    patternmatchstream << "pC AND CDEV PATTERNS MISMATCH: " << mismatches << " bunches";
-    patternmatchstring = patternmatchstream.str();
+    patternmatchstream << mismatches << " bunch(es)";
+    std::string patternmatchstring2 = patternmatchstream.str();
     t_PatternMatch.SetTextColor(kRed);
+    t_PatternMatch.DrawText(0.15, 0.65, patternmatchstring1.c_str());
+    t_PatternMatch.DrawText(0.15, 0.6, patternmatchstring2.c_str());
   }
-  t_PatternMatch.DrawText(0.15, 0.65, patternmatchstring.c_str());
+  
 
 
   TLatex *latPol = new TLatex();
   latPol->SetTextSize(textsize);
   latPol->SetTextColor(kBlack); 
   latPol->SetNDC();
-  latPol->DrawLatex(0.15, 0.55, "CNI POLARIZATION");
+  latPol->DrawLatex(0.15, 0.5, "CNI POLARIZATION");
 
   TLatex *t_PolBlue = new TLatex();
   t_PolBlue->SetTextFont(62);
   t_PolBlue->SetTextSize(textsize);
   t_PolBlue->SetNDC();          // set to normalized coordinates
   t_PolBlue->SetTextColor(kBlue);
-  t_PolBlue->DrawLatex(0.15, 0.5, "BLUE");
+  t_PolBlue->DrawLatex(0.15, 0.45, "BLUE");
   std::ostringstream polbluestream;
   std::string polbluestring;
-  polbluestream << hpolBlue->GetBinContent(1) << " #pm " << hpolBlue->GetBinError(1) << " (stat)";
+  polbluestream << round(hpolBlue->GetBinContent(1)*100)/100 << " #pm " << round(hpolBlue->GetBinError(1)*100)/100 << " (stat)";
   polbluestring = polbluestream.str();
   t_PolBlue->SetTextColor(kBlack);
-  t_PolBlue->DrawLatex(0.4, 0.5, polbluestring.c_str());
+  t_PolBlue->DrawLatex(0.4, 0.45, polbluestring.c_str());
 
   TLatex *t_PolYellow = new TLatex();
   t_PolYellow->SetTextFont(62);
   t_PolYellow->SetTextSize(textsize);
   t_PolYellow->SetNDC();          // set to normalized coordinates
   t_PolYellow->SetTextColor(kOrange);
-  t_PolYellow->DrawLatex(0.15, 0.45, "YELLOW");
+  t_PolYellow->DrawLatex(0.15, 0.4, "YELLOW");
   std::ostringstream polyellowstream;
   std::string polyellowstring;
-  polyellowstream << hpolYellow->GetBinContent(1) << " #pm " << hpolYellow->GetBinError(1) << " (stat)";
+  polyellowstream << round(hpolYellow->GetBinContent(1)*100)/100 << " #pm " << round(hpolYellow->GetBinError(1)*100)/100 << " (stat)";
   polyellowstring = polyellowstream.str();
   t_PolYellow->SetTextColor(kBlack);
-  t_PolYellow->DrawLatex(0.4, 0.45, polyellowstring.c_str());
+  t_PolYellow->DrawLatex(0.4, 0.4, polyellowstring.c_str());
 
 
   TText t_xingshift;
@@ -994,3 +997,5 @@ int SpinMonDraw::DrawGL1pRatio(std::string trig1, std::string trig2)
 
   return 0;
 }
+
+

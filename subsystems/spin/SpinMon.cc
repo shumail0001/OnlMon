@@ -209,7 +209,7 @@ int SpinMon::process_event(Event *e /* evt */)
 
     //============== Set spin pattern histograms ==============//
     /*
-    //  up = 1, down = -1, abort gap (bunches 111-120) = -10
+    //  up = 1, down = -1, abort gap (bunches 111-120) = 10
     if (pBlueSpin)
     {
       int numbluefilled = pBlueSpin->getDataLength();
@@ -221,11 +221,11 @@ int SpinMon::process_event(Event *e /* evt */)
 
 	if (numbluefilled == 6 && blueFillPattern6[i] == 0)
 	{
-	  hspinpatternBlue->SetBinContent(i+1,-10);
+	  hspinpatternBlue->SetBinContent(i+1,10);
 	}
 	else if (numbluefilled == 111 && blueFillPattern111[i] == 0)
 	{
-	  hspinpatternBlue->SetBinContent(i+1,-10);
+	  hspinpatternBlue->SetBinContent(i+1,10);
 	}
 	else
 	{
@@ -255,11 +255,11 @@ int SpinMon::process_event(Event *e /* evt */)
       {
 	if (numyellfilled == 6 && yellFillPattern6[i] == 0)
 	{
-	  hspinpatternYellow->SetBinContent(i+1,-10);
+	  hspinpatternYellow->SetBinContent(i+1,10);
 	}
 	else if (numyellfilled == 111 && yellFillPattern111[i] == 0)
 	{
-	  hspinpatternYellow->SetBinContent(i+1,-10);
+	  hspinpatternYellow->SetBinContent(i+1,10);
 	}
 	else
 	{
@@ -297,7 +297,7 @@ int SpinMon::process_event(Event *e /* evt */)
 	}
         else
 	{
-	  blueSpinPattern[i/3] = -10;
+	  blueSpinPattern[i/3] = 10;
 	}
 	
 	hspinpatternBlue->SetBinContent((i/3)+1,blueSpinPattern[i/3]);
@@ -325,7 +325,7 @@ int SpinMon::process_event(Event *e /* evt */)
 	}
         else
 	{
-	  yellSpinPattern[i/3] = -10;
+	  yellSpinPattern[i/3] = 10;
 	}
 
 	hspinpatternYellow->SetBinContent((i/3)+1,yellSpinPattern[i/3]);
@@ -355,15 +355,31 @@ int SpinMon::process_event(Event *e /* evt */)
       { 
         float blueAsyms = pBlueAsym->iValue(i)/10000.0;	
 	float blueAsymsErr = pBlueAsym->iValue(i+360)/10000.0;
-	
+
 	float bluebot = blueAsyms-blueAsymsErr;
 	float bluetop = blueAsyms+blueAsymsErr;
 	
 	if (blueAsyms != 0 || bluebot != 0 || bluetop != 0)
 	{
-          if (bluebot > 0 && bluetop > 0){pCspin_patternBlueUp->Fill(i/3,2);}
-	  else if (bluebot < 0 && bluetop < 0){pCspin_patternBlueDown->Fill(i/3,2);}
-	  else if (bluebot <= 0 && bluetop >= 0){pCspin_patternBlueUnpol->Fill(i/3,2);}
+          if (bluebot > 0 && bluetop > 0)
+	  {
+	    hpCspinpatternBlue->SetBinContent((i/3)+1,1);
+	    pCspin_patternBlueUp->Fill(i/3,1);
+	  }
+	  else if (bluebot < 0 && bluetop < 0)
+	  {
+	    hpCspinpatternBlue->SetBinContent((i/3)+1,-1);
+	    pCspin_patternBlueDown->Fill(i/3,1);
+	  }
+	  else if (bluebot <= 0 && bluetop >= 0)
+	  {
+	    hpCspinpatternBlue->SetBinContent((i/3)+1,0);
+	    pCspin_patternBlueUnpol->Fill(i/3,1);
+	  }
+	}
+	else
+	{
+	  hpCspinpatternBlue->SetBinContent((i/3)+1,10);
 	}
       }
       delete pBlueAsym;
@@ -382,9 +398,25 @@ int SpinMon::process_event(Event *e /* evt */)
 
 	if (yellAsyms != 0 || yellbot != 0 || yelltop != 0)
 	{
-          if (yellbot > 0 && yelltop > 0){pCspin_patternYellowUp->Fill(i/3,2);}
-	  else if (yellbot < 0 && yelltop < 0){pCspin_patternYellowDown->Fill(i/3,2);}
-	  else if (yellbot <= 0 && yelltop >= 0){pCspin_patternYellowUnpol->Fill(i/3,2);}
+          if (yellbot > 0 && yelltop > 0)
+	  {
+	    hpCspinpatternYellow->SetBinContent((i/3)+1,1);
+	    pCspin_patternYellowUp->Fill(i/3,2);
+	  }
+	  else if (yellbot < 0 && yelltop < 0)
+	  {
+	    hpCspinpatternYellow->SetBinContent((i/3)+1,-1);
+	    pCspin_patternYellowDown->Fill(i/3,2);
+	  }
+	  else if (yellbot <= 0 && yelltop >= 0)
+	  {
+	    hpCspinpatternYellow->SetBinContent((i/3)+1,0);
+	    pCspin_patternYellowUnpol->Fill(i/3,2);
+	  }
+	}
+	else
+	{
+	  hpCspinpatternYellow->SetBinContent((i/3)+1,10);
 	}
       }
       delete pYellAsym;
