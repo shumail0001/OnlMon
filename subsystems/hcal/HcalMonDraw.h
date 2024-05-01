@@ -41,9 +41,9 @@ class HcalMonDraw : public OnlMonDraw
   // int DrawDeadServer(TPad *transparent);
   std::string prefix = "HCALMON";
   TCanvas* TC[9] = {nullptr};
-  TPad* transparent[9] = {nullptr};
-  TPad* Pad[19] = {nullptr};
-  TPad* warning[18] = {nullptr};
+  TPad* transparent[19] = {nullptr};
+  TPad* Pad[29] = {nullptr};
+  TPad* warning[28] = {nullptr};
   //  TGraphErrors* gr[2] = {nullptr};
   TStyle* hcalStyle = nullptr;
 };
