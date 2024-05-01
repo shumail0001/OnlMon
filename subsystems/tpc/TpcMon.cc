@@ -606,6 +606,7 @@ int TpcMon::process_event(Event *evt/* evt */)
           }
           for( int si=0;si < nr_Samples; si++ ) //get pedestal and noise before hand
           {
+            if( p->iValue(wf,si) > 64500 ){ break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
             median_and_stdev_vec.push_back(p->iValue(wf,si));
           }
         } //Compare 5 values to determine stuck !!
@@ -630,7 +631,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           int adc = p->iValue(wf,s);
 
-          if( adc > 64500 ) { continue;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense      
+          if( adc > 64500 ) { break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop      
 
           Layer_ChannelPhi_ADC_weighted->Fill(padphi,layer,adc-pedestal);
 
