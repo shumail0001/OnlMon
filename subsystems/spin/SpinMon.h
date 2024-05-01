@@ -44,7 +44,8 @@ class SpinMon : public OnlMon
     // default xingshift
     int defaultxingshift = 5;
     // for additional xingshift
-    int xingshift = 5;
+    int xingshift = 0;
+    int addxingshift = -999;
 
     uint64_t scalercounts[NTRIG][NBUNCHES]{};
 
@@ -61,6 +62,8 @@ class SpinMon : public OnlMon
 
  protected:
   int evtcnt = 0;
+
+  
 
   int CalculateCrossingShift(int &xingshift, uint64_t counts[NTRIG][NBUNCHES], bool &success);
 

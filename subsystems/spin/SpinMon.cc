@@ -457,13 +457,14 @@ int SpinMon::process_event(Event *e /* evt */)
     if (!success && evtcnt > 4999 && evtcnt % 5000 == 0)
     {
       CalculateCrossingShift(xingshift, scalercounts, success);
-      int addxingshift = -999;
+      
       if (success)
       {
 	addxingshift = xingshift;
       }
-      hxingshift->SetBinContent(2,addxingshift);
+      
     }
+    hxingshift->SetBinContent(2,addxingshift);
   }
 
   return 0;
