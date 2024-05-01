@@ -32,7 +32,6 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Health");
   subsys->AddAction("cemcDraw(\"THIRD\")", "Wave Forms");
   subsys->AddAction("cemcDraw(\"FOURTH\")", "Wave vs Fast Fitting");
-  subsys->AddAction("cemcDraw(\"FIFTH\")", "trigger");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -56,6 +55,7 @@ void StartPoms()
   subsys->AddAction("ohcalDraw(\"SECOND\")", "Sector Average");
   subsys->AddAction("ohcalDraw(\"THIRD\")", "Wave Form");
   subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health");
+  subsys->AddAction("ohcalDraw(\"FIFTH\")", "trigger");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
