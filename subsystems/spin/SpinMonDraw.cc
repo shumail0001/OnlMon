@@ -301,7 +301,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     pCspinpatternBlueUp->SetFillColor(6);
     pCspinpatternBlueUp->GetXaxis()->SetLabelSize(labelsize);
     //pCspinpatternBlueUp->SetTitleSize(0.05);
-    pCspinpatternBlueUp->SetStats(0);
+    pCspinpatternBlueUp->SetStats(false);
     pCspinpatternBlueUp->GetXaxis()->SetTickLength(0);
     pCspinpatternBlueUp->GetYaxis()->SetTickLength(0);
     pCspinpatternBlueUp->GetXaxis()->SetNdivisions(120);
@@ -372,7 +372,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     //Intended Fill Pattern (CDEV)
     spinpatternBlueUp->SetFillColor(6);
     spinpatternBlueUp->GetXaxis()->SetLabelSize(labelsize);
-    spinpatternBlueUp->SetStats(0);
+    spinpatternBlueUp->SetStats(false);
     spinpatternBlueUp->GetXaxis()->SetTickLength(0);
     spinpatternBlueUp->GetXaxis()->SetNdivisions(120);
     spinpatternBlueUp->SetLineColor(kBlack);
@@ -593,7 +593,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
 	gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
 	gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);  
 	gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
-	gl1ptriggers[key]->SetStats(0);
+	gl1ptriggers[key]->SetStats(false);
 	gl1ptriggers[key]->DrawCopy("HIST");
 	if (gl1ptriggers[key]->GetSumOfWeights() == 0)
 	{
@@ -620,7 +620,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
 	gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
 	gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);  
 	gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
-	gl1ptriggers[key]->SetStats(0);
+	gl1ptriggers[key]->SetStats(false);
 	gl1ptriggers[key]->DrawCopy("HIST");
 	if (gl1ptriggers[key]->GetSumOfWeights() == 0)
 	{
@@ -647,7 +647,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
 	gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
 	gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);  
 	gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
-	gl1ptriggers[key]->SetStats(0);
+	gl1ptriggers[key]->SetStats(false);
 	gl1ptriggers[key]->DrawCopy("HIST");
 	if (gl1ptriggers[key]->GetSumOfWeights() == 0)
 	{
@@ -674,7 +674,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
 	gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
 	gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);  
 	gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
-	gl1ptriggers[key]->SetStats(0);
+	gl1ptriggers[key]->SetStats(false);
 	gl1ptriggers[key]->DrawCopy("HIST");
 	if (gl1ptriggers[key]->GetSumOfWeights() == 0)
 	{
@@ -834,7 +834,7 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
       gl1_counter[i]->GetXaxis()->SetLabelSize(labelsize);
       gl1_counter[i]->GetYaxis()->SetLabelSize(labelsize);  
       gl1_counter[i]->GetYaxis()->SetMaxDigits(2);
-      gl1_counter[i]->SetStats(0);
+      gl1_counter[i]->SetStats(false);
       gl1_counter[i]->DrawCopy("HIST");
       if (gl1_counter[i]->GetSumOfWeights() == 0)
       {
@@ -974,7 +974,7 @@ int SpinMonDraw::DrawGL1pRatio(const std::string &trig1, const std::string &trig
     ratio->SetTitle(Form("%s / %s",trig1.c_str(),trig2.c_str()));
     ratio->GetXaxis()->SetLabelSize(labelsize);
     ratio->GetYaxis()->SetLabelSize(labelsize);
-    ratio->SetStats(0);
+    ratio->SetStats(false);
     ratio->DrawCopy();
   }
   else if (gl1ptriggers[trig1]->GetSumOfWeights() == 0)
@@ -983,7 +983,7 @@ int SpinMonDraw::DrawGL1pRatio(const std::string &trig1, const std::string &trig
     ratio->SetTitle(Form("%s / %s",trig1.c_str(),trig2.c_str()));
     ratio->GetXaxis()->SetLabelSize(labelsize);
     ratio->GetYaxis()->SetLabelSize(labelsize);
-    ratio->SetStats(0);
+    ratio->SetStats(false);
     ratio->DrawCopy();
     TLatex *lat = new TLatex();
     lat->SetTextSize(0.15);
@@ -998,7 +998,7 @@ int SpinMonDraw::DrawGL1pRatio(const std::string &trig1, const std::string &trig
     ratio->SetTitle(Form("%s / %s",trig1.c_str(),trig2.c_str()));
     ratio->GetXaxis()->SetLabelSize(labelsize);
     ratio->GetYaxis()->SetLabelSize(labelsize);
-    ratio->SetStats(0);
+    ratio->SetStats(false);
     ratio->DrawCopy();
     TLatex *lat = new TLatex();
     lat->SetTextSize(0.15);

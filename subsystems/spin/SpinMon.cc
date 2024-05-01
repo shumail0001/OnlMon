@@ -115,9 +115,9 @@ int SpinMon::Init()
   se->registerHisto(this, hfilltypeBlue);
   se->registerHisto(this, hfilltypeYellow);
 
-  for (int i = 0; i < NTRIG; i++)
+  for (auto & i : gl1_counter)
   {
-    se->registerHisto(this, gl1_counter[i]);
+    se->registerHisto(this, i);
   }
 
   Reset();
