@@ -126,6 +126,8 @@ int HcalMon::Init()
   h2_hcal_hits = new TH2F("h2_hcal_hits", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_hits_trig1 = new TH2F("h2_hcal_hits_trig1", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_hits_trig2 = new TH2F("h2_hcal_hits_trig2", "", 24, 0, 24, 64, 0, 64);
+  h2_hcal_hits_trig3 = new TH2F("h2_hcal_hits_trig3", "", 24, 0, 24, 64, 0, 64);
+  h2_hcal_hits_trig4 = new TH2F("h2_hcal_hits_trig4", "", 24, 0, 24, 64, 0, 64);
   h_hcal_trig = new TH1F("h_hcal_trig", "", 64, 0, 64);
   h2_hcal_rm = new TH2F("h2_hcal_rm", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_mean = new TH2F("h2_hcal_mean", "", 24, 0, 24, 64, 0, 64);
@@ -181,6 +183,8 @@ int HcalMon::Init()
   se->registerHisto(this, h2_hcal_hits);
   se->registerHisto(this, h2_hcal_hits_trig1);
   se->registerHisto(this, h2_hcal_hits_trig2);
+  se->registerHisto(this, h2_hcal_hits_trig3);
+  se->registerHisto(this, h2_hcal_hits_trig4);
   se->registerHisto(this, h_hcal_trig);
   se->registerHisto(this, h_evtRec);
   se->registerHisto(this, h_caloPack_gl1_clock_diff);
@@ -339,6 +343,8 @@ int HcalMon::process_event(Event* e /* evt */)
 
   bool trig1_fire = false;
   bool trig2_fire = false;
+  bool trig3_fire = false;
+  bool trig4_fire = false;
   std::vector<bool> trig_bools;
   long long int gl1_clock = 0;
   if (anaGL1)
@@ -365,6 +371,8 @@ int HcalMon::process_event(Event* e /* evt */)
         }
         trig1_fire = trig_bools[trig1];
         trig2_fire = trig_bools[trig2];
+        trig3_fire = trig_bools[trig3];
+        trig4_fire = trig_bools[trig4];
       }
     }
     else
@@ -469,6 +477,14 @@ int HcalMon::process_event(Event* e /* evt */)
           if (trig2_fire)
           {
             h2_hcal_hits_trig2->Fill(eta_bin + 0.5, phi_bin + 0.5);
+          }
+          if (trig3_fire)
+          {
+            h2_hcal_hits_trig3->Fill(eta_bin + 0.5, phi_bin + 0.5);
+          }
+          if (trig4_fire)
+          {
+            h2_hcal_hits_trig4->Fill(eta_bin + 0.5, phi_bin + 0.5);
           }
         }
 

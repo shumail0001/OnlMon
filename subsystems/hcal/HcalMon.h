@@ -56,6 +56,8 @@ class HcalMon : public OnlMon
   TH2* h2_hcal_hits = nullptr;
   TH2* h2_hcal_hits_trig1 = nullptr;
   TH2* h2_hcal_hits_trig2 = nullptr;
+  TH2* h2_hcal_hits_trig3 = nullptr;
+  TH2* h2_hcal_hits_trig4 = nullptr;
   TH1* h_waveform_twrAvg = nullptr;
   TH1* h_waveform_time = nullptr;
   TH1* h_waveform_pedestal = nullptr;
@@ -78,7 +80,7 @@ class HcalMon : public OnlMon
   TProfile* h_evtRec = {nullptr};
 
   eventReceiverClient* erc = {nullptr};
-  bool anaGL1 = false;
+  bool anaGL1 = true;
 
   CaloWaveformFitting* WaveformProcessing = nullptr;
 
@@ -89,8 +91,10 @@ class HcalMon : public OnlMon
   std::vector<runningMean*> rm_packet_length;
   std::vector<runningMean*> rm_packet_chans;
 
-  int trig1 = 1;
-  int trig2 = 3;
+  int trig1 = 28;
+  int trig2 = 5;
+  int trig3 = 10;
+  int trig4 = 4;
 };
 
 #endif /* HCAL_HCALMON_H */
