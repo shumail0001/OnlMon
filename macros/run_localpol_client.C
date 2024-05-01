@@ -13,7 +13,7 @@ void localpolDrawInit(const int online = 0)
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
   cl->registerHisto("h_example","LOCALPOLMON_0");
-  cl->registerHisto("h_example2","LOCALPOLMON_0");
+  // cl->registerHisto("h_example2","LOCALPOLMON_0");
 
   // for local host, just call localpolDrawInit(2)
   CreateSubsysHostlist("localpol_hosts.list", online);
