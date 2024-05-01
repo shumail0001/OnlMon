@@ -1647,13 +1647,15 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
 
   TH2F* h2_hcal_hits_trig1 = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits_trig1");
-  h2_hcal_hits_trig1->Add((TH2F*) cl->getHisto(HCALMON_1,"h2_hcal_hits_trig1"));
   TH2F* h2_hcal_hits_trig2 = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits_trig2");
-  h2_hcal_hits_trig2->Add((TH2F*) cl->getHisto(HCALMON_1,"h2_hcal_hits_trig2"));
   TH2F* h2_hcal_hits_trig3 = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits_trig3");
-  h2_hcal_hits_trig3->Add((TH2F*) cl->getHisto(HCALMON_1,"h2_hcal_hits_trig3"));
   TH2F* h2_hcal_hits_trig4 = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits_trig4");
-  h2_hcal_hits_trig4->Add((TH2F*) cl->getHisto(HCALMON_1,"h2_hcal_hits_trig4"));
+
+  TH2F* h2_hcal_hits_trig1_2 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits_trig1");
+  TH2F* h2_hcal_hits_trig2_2 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits_trig2");
+  TH2F* h2_hcal_hits_trig3_2 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits_trig3");
+  TH2F* h2_hcal_hits_trig4_2 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits_trig4");
+
 
   TH2F* h2_hcal_hits = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
   TH2F* h_evtRec = (TH2F*) cl->getHisto(HCALMON_0, "h_evtRec");
@@ -1668,7 +1670,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TC[6]->SetEditable(true);
   TC[6]->Clear("D");
   Pad[16]->cd();
-  if (!h2_hcal_hits_trig4 || !h2_hcal_hits_trig3 || !h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2 || !h_evtRec)
+  if (!h2_hcal_hits_trig4 || !h2_hcal_hits_trig3 || !h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2 || !h_evtRec || !h2_hcal_hits_trig4_2 || !h2_hcal_hits_trig3_2 || !h2_hcal_hits_trig1_2 || !h2_hcal_hits_trig2_2 )
   {
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(false);
@@ -1679,6 +1681,11 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
     }
     return -1;
   }
+
+  h2_hcal_hits_trig1->Add(h2_hcal_hits_trig1_2);
+  h2_hcal_hits_trig2->Add(h2_hcal_hits_trig2_2);
+  h2_hcal_hits_trig3->Add(h2_hcal_hits_trig3_2);
+  h2_hcal_hits_trig4->Add(h2_hcal_hits_trig4_2);
 
   Pad[16]->cd();
   gStyle->SetTitleFontSize(0.03);
