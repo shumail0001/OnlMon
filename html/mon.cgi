@@ -589,6 +589,12 @@ sub select_run {
       dirlist("led",$runrange);
       print "</td>\n";
   }
+  if (-d "physics")
+  {
+      print "<td>\n";
+      dirlist("physics",$runrange);
+      print "</td>\n";
+  }
   if (-d "pulser")
   {
       print "<td>\n";
