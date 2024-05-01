@@ -9,7 +9,6 @@ class TH2;
 class Packet;
 class eventReceiverClient;
 
-
 class SpinMon : public OnlMon
 {
  public:
@@ -22,43 +21,42 @@ class SpinMon : public OnlMon
   int Reset();
 
   static const int NTRIG = 16;
-  static const int NBUNCHES = 120; // OG is 120
+  static const int NBUNCHES = 120;  // OG is 120
 
-  private:
+ private:
+  Packet *p_gl1 = nullptr;
+  Packet *pBlueSpin = nullptr;
+  Packet *pYellSpin = nullptr;
+  Packet *pBluePol = nullptr;
+  Packet *pYellPol = nullptr;
+  Packet *pBlueAsym = nullptr;
+  Packet *pYellAsym = nullptr;
+  Packet *pBlueIntPattern = nullptr;
+  Packet *pYellIntPattern = nullptr;
+  Packet *pBluePolPattern = nullptr;
+  Packet *pYellPolPattern = nullptr;
+  Packet *pBlueFillNumber = nullptr;
+  Packet *pYellFillNumber = nullptr;
 
-    Packet *p_gl1 = nullptr;
-    Packet *pBlueSpin = nullptr;
-    Packet *pYellSpin = nullptr;
-    Packet *pBluePol = nullptr;
-    Packet *pYellPol = nullptr;
-    Packet *pBlueAsym = nullptr;
-    Packet *pYellAsym = nullptr;
-    Packet *pBlueIntPattern = nullptr;
-    Packet *pYellIntPattern = nullptr;
-    Packet *pBluePolPattern = nullptr;
-    Packet *pYellPolPattern = nullptr;
-    Packet *pBlueFillNumber = nullptr;
-    Packet *pYellFillNumber = nullptr;
+  bool success = 0;
+  // default xingshift
+  int defaultxingshift = 5;
+  // for additional xingshift
+  int xingshift = 0;
+  int addxingshift = -999;
 
-    bool success = 0;
-    // default xingshift
-    int defaultxingshift = 5;
-    // for additional xingshift
-    int xingshift = 0;
-    int addxingshift = -999;
+  uint64_t scalercounts[NTRIG][NBUNCHES]{};
 
-    uint64_t scalercounts[NTRIG][NBUNCHES]{};
+  /*
+  //Set default spin patterns to 111x111_P1
+  int blueSpinPattern[NBUNCHES] = {1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,10,10,10,10,10,10,10,10,10};
+  int yellSpinPattern[NBUNCHES] = {1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,10,10,10,10,10,10,10,10,10};
+  */
 
-    /*
-    //Set default spin patterns to 111x111_P1
-    int blueSpinPattern[NBUNCHES] = {1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,-1,1,-1,1,-1,1,-1,1,1,-1,1,10,10,10,10,10,10,10,10,10};
-    int yellSpinPattern[NBUNCHES] = {1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,-1,1,1,-1,10,10,10,10,10,10,10,10,10};
-    */
-    
-    //Set default spin patterns to all unfilled
-    int blueSpinPattern[NBUNCHES] = {10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10};
-    int yellSpinPattern[NBUNCHES] = {10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10};
-
+  // Set default spin patterns to all unfilled
+  int blueSpinPattern[NBUNCHES] = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
+  int yellSpinPattern[NBUNCHES] = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
+>>>>>>> 6586765038456c99be22e16abec5b447461e66d1
 
  protected:
   int evtcnt = 0;
@@ -103,7 +101,7 @@ class SpinMon : public OnlMon
   TH2 *pCspin_patternYellowUp = nullptr;
   TH2 *pCspin_patternYellowDown = nullptr;
   TH2 *pCspin_patternYellowUnpol = nullptr;
-  
+
   TH2 *spin_patternBlueUp = nullptr;
   TH2 *spin_patternBlueDown = nullptr;
   TH2 *spin_patternBlueUnpol = nullptr;
@@ -122,8 +120,7 @@ class SpinMon : public OnlMon
 
   TH1 *gl1_counter[NTRIG] = {nullptr};
 
-  //uint64_t scalercounts[NTRIG][NBUNCHES]{};
-  
+  // uint64_t scalercounts[NTRIG][NBUNCHES]{};
 };
-    
+
 #endif /* SPIN_SPINMON_H */

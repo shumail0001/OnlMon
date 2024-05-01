@@ -10,13 +10,13 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TH2I.h>
+#include <TLatex.h>
 #include <TLegend.h>
 #include <TPad.h>
 #include <TROOT.h>
 #include <TStyle.h>
 #include <TSystem.h>
 #include <TText.h>
-#include <TLatex.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -25,7 +25,7 @@
 #include <sstream>
 #include <vector>  // for vector
 
-//triggermap
+// triggermap
 enum
 {
   MBD_NS = 0,
@@ -46,7 +46,6 @@ enum
   EMPTY8 = 15
 };
 
-
 SpinMonDraw::SpinMonDraw(const std::string &name)
   : OnlMonDraw(name)
 {
@@ -55,23 +54,22 @@ SpinMonDraw::SpinMonDraw(const std::string &name)
 
 int SpinMonDraw::Init()
 {
-
-  preset_pattern_blue  ["111x111_P1"]="+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
-  preset_pattern_yellow["111x111_P1"]="++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
-  preset_pattern_blue  ["111x111_P2"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
-  preset_pattern_yellow["111x111_P2"]="++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
-  preset_pattern_blue  ["111x111_P3"]="+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
-  preset_pattern_yellow["111x111_P3"]="--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
-  preset_pattern_blue  ["111x111_P4"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
-  preset_pattern_yellow["111x111_P4"]="--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
-  preset_pattern_blue  ["111x111_P5"]="++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
-  preset_pattern_yellow["111x111_P5"]="+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
-  preset_pattern_blue  ["111x111_P6"]="--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
-  preset_pattern_yellow["111x111_P6"]="+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
-  preset_pattern_blue  ["111x111_P7"]="++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
-  preset_pattern_yellow["111x111_P7"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
-  preset_pattern_blue  ["111x111_P8"]="--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
-  preset_pattern_yellow["111x111_P8"]="-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
+  preset_pattern_blue["111x111_P1"] = "+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
+  preset_pattern_yellow["111x111_P1"] = "++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
+  preset_pattern_blue["111x111_P2"] = "-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
+  preset_pattern_yellow["111x111_P2"] = "++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
+  preset_pattern_blue["111x111_P3"] = "+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
+  preset_pattern_yellow["111x111_P3"] = "--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
+  preset_pattern_blue["111x111_P4"] = "-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
+  preset_pattern_yellow["111x111_P4"] = "--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
+  preset_pattern_blue["111x111_P5"] = "++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
+  preset_pattern_yellow["111x111_P5"] = "+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
+  preset_pattern_blue["111x111_P6"] = "--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
+  preset_pattern_yellow["111x111_P6"] = "+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+--+-++-+-+-+--+-+-+-++-+*********";
+  preset_pattern_blue["111x111_P7"] = "++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++-*********";
+  preset_pattern_yellow["111x111_P7"] = "-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
+  preset_pattern_blue["111x111_P8"] = "--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--++--+*********";
+  preset_pattern_yellow["111x111_P8"] = "-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-++-+--+-+-+-++-+-+-+--+-*********";
 
   return 0;
 }
@@ -105,8 +103,6 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
     Pad[4]->Draw();
     Pad[5]->Draw();
     Pad[6]->Draw();
-    
-    
 
     // this one is used to plot the run number on the canvas
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
@@ -119,7 +115,6 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
     // xpos negative: do not draw menu bar
     TC[1] = new TCanvas(name.c_str(), "SpinMon Experts", -xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    
 
     Pad[7] = new TPad("spinpad8", "who needs this?", 0.05, 0.725, 0.35, 0.95, 0);
     Pad[8] = new TPad("spinpad9", "who needs this?", 0.35, 0.725, 0.65, 0.95, 0);
@@ -144,7 +139,7 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
     Pad[26] = new TPad("spinpad27", "who needs this?", 0.275, 0.05, 0.5, 0.1625, 0);
     Pad[27] = new TPad("spinpad28", "who needs this?", 0.5, 0.05, 0.725, 0.1625, 0);
     Pad[28] = new TPad("spinpad29", "who needs this?", 0.725, 0.05, 0.95, 0.1625, 0);
-    
+
     Pad[7]->Draw();
     Pad[8]->Draw();
     Pad[9]->Draw();
@@ -200,76 +195,99 @@ int SpinMonDraw::Draw(const std::string &what)
 
 int SpinMonDraw::DrawFirst(const std::string & /* what */)
 {
+  // const int NTRIG = 16;
 
-  //const int NTRIG = 16;
-  
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1I *hpCspinpatternBlue = (TH1I*)cl->getHisto("SPINMON_0","h1_pCspinpatternBlue");
-  TH1I *hpCspinpatternYellow = (TH1I*)cl->getHisto("SPINMON_0","h1_pCspinpatternYellow");
-  TH1I *hspinpatternBlue = (TH1I*)cl->getHisto("SPINMON_0","h1_spinpatternBlue");
-  TH1I *hspinpatternYellow = (TH1I*)cl->getHisto("SPINMON_0","h1_spinpatternYellow");
+  TH1I *hpCspinpatternBlue = (TH1I *) cl->getHisto("SPINMON_0", "h1_pCspinpatternBlue");
+  TH1I *hpCspinpatternYellow = (TH1I *) cl->getHisto("SPINMON_0", "h1_pCspinpatternYellow");
+  TH1I *hspinpatternBlue = (TH1I *) cl->getHisto("SPINMON_0", "h1_spinpatternBlue");
+  TH1I *hspinpatternYellow = (TH1I *) cl->getHisto("SPINMON_0", "h1_spinpatternYellow");
 
-  TH2I *pCspinpatternBlueUp = (TH2I*)cl->getHisto("SPINMON_0","h2_pCspinpatternBlueUp");
-  TH2I *pCspinpatternBlueDown = (TH2I*)cl->getHisto("SPINMON_0","h2_pCspinpatternBlueDown");
-  TH2I *pCspinpatternBlueUnpol = (TH2I*)cl->getHisto("SPINMON_0","h2_pCspinpatternBlueUnpol");
-  TH2I *pCspinpatternYellowUp = (TH2I*)cl->getHisto("SPINMON_0","h2_pCspinpatternYellowUp");
-  TH2I *pCspinpatternYellowDown = (TH2I*)cl->getHisto("SPINMON_0","h2_pCspinpatternYellowDown");
-  TH2I *pCspinpatternYellowUnpol = (TH2I*)cl->getHisto("SPINMON_0","h2_pCspinpatternYellowUnpol");
+  TH2I *pCspinpatternBlueUp = (TH2I *) cl->getHisto("SPINMON_0", "h2_pCspinpatternBlueUp");
+  TH2I *pCspinpatternBlueDown = (TH2I *) cl->getHisto("SPINMON_0", "h2_pCspinpatternBlueDown");
+  TH2I *pCspinpatternBlueUnpol = (TH2I *) cl->getHisto("SPINMON_0", "h2_pCspinpatternBlueUnpol");
+  TH2I *pCspinpatternYellowUp = (TH2I *) cl->getHisto("SPINMON_0", "h2_pCspinpatternYellowUp");
+  TH2I *pCspinpatternYellowDown = (TH2I *) cl->getHisto("SPINMON_0", "h2_pCspinpatternYellowDown");
+  TH2I *pCspinpatternYellowUnpol = (TH2I *) cl->getHisto("SPINMON_0", "h2_pCspinpatternYellowUnpol");
 
-  TH2I *spinpatternBlueUp = (TH2I*)cl->getHisto("SPINMON_0","h2_spinpatternBlueUp");
-  TH2I *spinpatternBlueDown = (TH2I*)cl->getHisto("SPINMON_0","h2_spinpatternBlueDown");
-  TH2I *spinpatternBlueUnpol = (TH2I*)cl->getHisto("SPINMON_0","h2_spinpatternBlueUnpol");
-  TH2I *spinpatternYellowUp = (TH2I*)cl->getHisto("SPINMON_0","h2_spinpatternYellowUp");
-  TH2I *spinpatternYellowDown = (TH2I*)cl->getHisto("SPINMON_0","h2_spinpatternYellowDown");
-  TH2I *spinpatternYellowUnpol = (TH2I*)cl->getHisto("SPINMON_0","h2_spinpatternYellowUnpol");
+  TH2I *spinpatternBlueUp = (TH2I *) cl->getHisto("SPINMON_0", "h2_spinpatternBlueUp");
+  TH2I *spinpatternBlueDown = (TH2I *) cl->getHisto("SPINMON_0", "h2_spinpatternBlueDown");
+  TH2I *spinpatternBlueUnpol = (TH2I *) cl->getHisto("SPINMON_0", "h2_spinpatternBlueUnpol");
+  TH2I *spinpatternYellowUp = (TH2I *) cl->getHisto("SPINMON_0", "h2_spinpatternYellowUp");
+  TH2I *spinpatternYellowDown = (TH2I *) cl->getHisto("SPINMON_0", "h2_spinpatternYellowDown");
+  TH2I *spinpatternYellowUnpol = (TH2I *) cl->getHisto("SPINMON_0", "h2_spinpatternYellowUnpol");
 
-  TH1D *hpolBlue = (TH1D*)cl->getHisto("SPINMON_0","h1_polBlue");
-  TH1D *hpolYellow = (TH1D*)cl->getHisto("SPINMON_0","h1_polYellow");
+  TH1D *hpolBlue = (TH1D *) cl->getHisto("SPINMON_0", "h1_polBlue");
+  TH1D *hpolYellow = (TH1D *) cl->getHisto("SPINMON_0", "h1_polYellow");
 
-  TH1I *hxingshift = (TH1I*)cl->getHisto("SPINMON_0","h1_xingshift");
-  TH1I *hfillnumber = (TH1I*)cl->getHisto("SPINMON_0","h1_fillnumber");
-  TH1I *hfilltypeBlue = (TH1I*)cl->getHisto("SPINMON_0","h1_filltypeBlue");
-  TH1I *hfilltypeYellow = (TH1I*)cl->getHisto("SPINMON_0","h1_filltypeYellow");
-  
-  for (int i = 0; i < NTRIG; i++){
-    gl1_counter[i] = (TH1I*)cl->getHisto("SPINMON_0",Form("gl1_counter_trig%d",i));
-    
-  }
-  
-  
-  gl1ptriggers["MBD_NS"] = gl1_counter[MBD_NS]; gl1ptriggers["MBD_NS"]->SetTitle("gl1p MBD NS");
-  gl1ptriggers["MBD_VTX"] = gl1_counter[MBD_VTX]; gl1ptriggers["MBD_VTX"]->SetTitle("gl1p MBD VTX");
-  gl1ptriggers["MBD_10cm_VTX"] = gl1_counter[MBD_10cm_VTX]; gl1ptriggers["MBD_10cm_VTX"]->SetTitle("gl1p MBD +/-10cm VTX");
-  gl1ptriggers["MBD_S"] = gl1_counter[MBD_S]; gl1ptriggers["MBD_S"]->SetTitle("gl1p MBD S");
-  gl1ptriggers["MBD_N"] = gl1_counter[MBD_N]; gl1ptriggers["MBD_N"]->SetTitle("gl1p MBD N");
-  gl1ptriggers["ZDC_NS"] = gl1_counter[ZDC_NS]; gl1ptriggers["ZDC_NS"]->SetTitle("gl1p ZDC NS");
-  gl1ptriggers["ZDC_S"] = gl1_counter[ZDC_S]; gl1ptriggers["ZDC_S"]->SetTitle("gl1p ZDC S");
-  gl1ptriggers["ZDC_N"] = gl1_counter[ZDC_N]; gl1ptriggers["ZDC_N"]->SetTitle("gl1p ZDC N");
-  gl1ptriggers["EMPTY1"] = gl1_counter[EMPTY1]; gl1ptriggers["EMPTY1"]->SetTitle("gl1p empty1");
-  gl1ptriggers["EMPTY2"] = gl1_counter[EMPTY2]; gl1ptriggers["EMPTY2"]->SetTitle("gl1p empty2");
-  gl1ptriggers["EMPTY3"] = gl1_counter[EMPTY3]; gl1ptriggers["EMPTY3"]->SetTitle("gl1p empty3");
-  gl1ptriggers["EMPTY4"] = gl1_counter[EMPTY4]; gl1ptriggers["EMPTY4"]->SetTitle("gl1p empty4");
-  gl1ptriggers["EMPTY5"] = gl1_counter[EMPTY5]; gl1ptriggers["EMPTY5"]->SetTitle("gl1p empty5");
-  gl1ptriggers["EMPTY6"] = gl1_counter[EMPTY6]; gl1ptriggers["EMPTY6"]->SetTitle("gl1p empty6");
-  gl1ptriggers["EMPTY7"] = gl1_counter[EMPTY7]; gl1ptriggers["EMPTY7"]->SetTitle("gl1p empty7");
-  gl1ptriggers["EMPTY8"] = gl1_counter[EMPTY8]; gl1ptriggers["EMPTY8"]->SetTitle("gl1p empty8");
-  
+  TH1I *hxingshift = (TH1I *) cl->getHisto("SPINMON_0", "h1_xingshift");
+  TH1I *hfillnumber = (TH1I *) cl->getHisto("SPINMON_0", "h1_fillnumber");
+  TH1I *hfilltypeBlue = (TH1I *) cl->getHisto("SPINMON_0", "h1_filltypeBlue");
+  TH1I *hfilltypeYellow = (TH1I *) cl->getHisto("SPINMON_0", "h1_filltypeYellow");
 
   if (!gROOT->FindObject("SpinMon1"))
   {
     MakeCanvas("SpinMon1");
   }
+
+  for (int i = 0; i < NTRIG; i++)
+  {
+    gl1_counter[i] = cl->getHisto("SPINMON_0", Form("gl1_counter_trig%d", i));
+    if (!gl1_counter[i])
+    {
+      DrawDeadServer(transparent[0]);
+      TC[0]->SetEditable(false);
+      if (isHtml())
+      {
+        delete TC[0];
+        TC[0] = nullptr;
+      }
+      return -1;
+    }
+  }
+
+  gl1ptriggers["MBD_NS"] = gl1_counter[MBD_NS];
+  gl1ptriggers["MBD_NS"]->SetTitle("gl1p MBD NS");
+  gl1ptriggers["MBD_VTX"] = gl1_counter[MBD_VTX];
+  gl1ptriggers["MBD_VTX"]->SetTitle("gl1p MBD VTX");
+  gl1ptriggers["MBD_10cm_VTX"] = gl1_counter[MBD_10cm_VTX];
+  gl1ptriggers["MBD_10cm_VTX"]->SetTitle("gl1p MBD +/-10cm VTX");
+  gl1ptriggers["MBD_S"] = gl1_counter[MBD_S];
+  gl1ptriggers["MBD_S"]->SetTitle("gl1p MBD S");
+  gl1ptriggers["MBD_N"] = gl1_counter[MBD_N];
+  gl1ptriggers["MBD_N"]->SetTitle("gl1p MBD N");
+  gl1ptriggers["ZDC_NS"] = gl1_counter[ZDC_NS];
+  gl1ptriggers["ZDC_NS"]->SetTitle("gl1p ZDC NS");
+  gl1ptriggers["ZDC_S"] = gl1_counter[ZDC_S];
+  gl1ptriggers["ZDC_S"]->SetTitle("gl1p ZDC S");
+  gl1ptriggers["ZDC_N"] = gl1_counter[ZDC_N];
+  gl1ptriggers["ZDC_N"]->SetTitle("gl1p ZDC N");
+  gl1ptriggers["EMPTY1"] = gl1_counter[EMPTY1];
+  gl1ptriggers["EMPTY1"]->SetTitle("gl1p empty1");
+  gl1ptriggers["EMPTY2"] = gl1_counter[EMPTY2];
+  gl1ptriggers["EMPTY2"]->SetTitle("gl1p empty2");
+  gl1ptriggers["EMPTY3"] = gl1_counter[EMPTY3];
+  gl1ptriggers["EMPTY3"]->SetTitle("gl1p empty3");
+  gl1ptriggers["EMPTY4"] = gl1_counter[EMPTY4];
+  gl1ptriggers["EMPTY4"]->SetTitle("gl1p empty4");
+  gl1ptriggers["EMPTY5"] = gl1_counter[EMPTY5];
+  gl1ptriggers["EMPTY5"]->SetTitle("gl1p empty5");
+  gl1ptriggers["EMPTY6"] = gl1_counter[EMPTY6];
+  gl1ptriggers["EMPTY6"]->SetTitle("gl1p empty6");
+  gl1ptriggers["EMPTY7"] = gl1_counter[EMPTY7];
+  gl1ptriggers["EMPTY7"]->SetTitle("gl1p empty7");
+  gl1ptriggers["EMPTY8"] = gl1_counter[EMPTY8];
+  gl1ptriggers["EMPTY8"]->SetTitle("gl1p empty8");
+
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   gStyle->SetOptStat(0);
-  //gStyle->SetTitleAlign(23);
-  //gStyle->SetLabelSize(0.5,"X");
- 
-  
+  // gStyle->SetTitleAlign(23);
+  // gStyle->SetLabelSize(0.5,"X");
 
   //===================== Measured spin patterns ===============//
-  Pad[0]->cd(); 
+  Pad[0]->cd();
   Pad[0]->SetTopMargin(0.25);
   Pad[0]->SetBottomMargin(0.25);
   Pad[0]->SetLeftMargin(0.15);
@@ -284,11 +302,11 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   }
   else
   {
-    //Measured Fill Pattern (pC)
+    // Measured Fill Pattern (pC)
     pCspinpatternBlueUp->SetFillColor(6);
     pCspinpatternBlueUp->GetXaxis()->SetLabelSize(labelsize);
-    //pCspinpatternBlueUp->SetTitleSize(0.05);
-    pCspinpatternBlueUp->SetStats(0);
+    // pCspinpatternBlueUp->SetTitleSize(0.05);
+    pCspinpatternBlueUp->SetStats(false);
     pCspinpatternBlueUp->GetXaxis()->SetTickLength(0);
     pCspinpatternBlueUp->GetYaxis()->SetTickLength(0);
     pCspinpatternBlueUp->GetXaxis()->SetNdivisions(120);
@@ -296,35 +314,35 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     pCspinpatternBlueUp->SetLineWidth(1);
     pCspinpatternBlueUp->GetYaxis()->SetLabelSize(0);
     pCspinpatternBlueUp->DrawCopy("box1");
-    pCspinpatternBlueDown->SetFillColor(7); 
+    pCspinpatternBlueDown->SetFillColor(7);
     pCspinpatternBlueDown->GetXaxis()->SetLabelSize(labelsize);
     pCspinpatternBlueDown->DrawCopy("box1,same");
-    pCspinpatternBlueUnpol->SetFillColor(4); 
+    pCspinpatternBlueUnpol->SetFillColor(4);
     pCspinpatternBlueDown->GetXaxis()->SetLabelSize(labelsize);
     pCspinpatternBlueUnpol->DrawCopy("box1,same");
-    pCspinpatternYellowUp->SetFillColor(2); 
+    pCspinpatternYellowUp->SetFillColor(2);
     pCspinpatternYellowUp->DrawCopy("box1,same");
     pCspinpatternYellowUp->GetXaxis()->SetLabelSize(labelsize);
-    pCspinpatternYellowDown->SetFillColor(3); 
+    pCspinpatternYellowDown->SetFillColor(3);
     pCspinpatternYellowDown->DrawCopy("box1,same");
     pCspinpatternYellowDown->GetXaxis()->SetLabelSize(labelsize);
-    pCspinpatternYellowUnpol->SetFillColor(5); 
+    pCspinpatternYellowUnpol->SetFillColor(5);
     pCspinpatternYellowUnpol->DrawCopy("box1,same");
     pCspinpatternYellowUnpol->GetXaxis()->SetLabelSize(labelsize);
 
-    TLegend* leg_blue = new TLegend(0.01, 0.01, 0.125, 0.99);
+    TLegend *leg_blue = new TLegend(0.01, 0.01, 0.125, 0.99);
     leg_blue->SetFillStyle(0);
     leg_blue->SetBorderSize(1);
-    leg_blue->AddEntry(pCspinpatternBlueUp,"Blue Up","F");
-    leg_blue->AddEntry(pCspinpatternBlueDown,"Blue Down","F");
-    leg_blue->AddEntry(pCspinpatternBlueUnpol,"Blue Unpol","F");
+    leg_blue->AddEntry(pCspinpatternBlueUp, "Blue Up", "F");
+    leg_blue->AddEntry(pCspinpatternBlueDown, "Blue Down", "F");
+    leg_blue->AddEntry(pCspinpatternBlueUnpol, "Blue Unpol", "F");
 
-    TLegend* leg_yellow = new TLegend(0.875, 0.01, 0.99, 0.99);
+    TLegend *leg_yellow = new TLegend(0.875, 0.01, 0.99, 0.99);
     leg_yellow->SetFillStyle(0);
     leg_yellow->SetBorderSize(1);
-    leg_yellow->AddEntry(pCspinpatternYellowUp,"Yellow Up","F");
-    leg_yellow->AddEntry(pCspinpatternYellowDown,"Yellow Down","F");
-    leg_yellow->AddEntry(pCspinpatternYellowUnpol,"Yellow Unpol","F");
+    leg_yellow->AddEntry(pCspinpatternYellowUp, "Yellow Up", "F");
+    leg_yellow->AddEntry(pCspinpatternYellowDown, "Yellow Down", "F");
+    leg_yellow->AddEntry(pCspinpatternYellowUnpol, "Yellow Unpol", "F");
 
     leg_blue->Draw("same");
     leg_yellow->Draw("same");
@@ -336,9 +354,6 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     t_pCSpinPatt.SetTextAlign(23);  // center/top alignment
     std::string pCSPstring = "Measured Spin Pattern (pC)";
     t_pCSpinPatt.DrawText(0.5, 1, pCSPstring.c_str());
-
-    
-
   }
 
   //===================== Intended spin patterns ===============//
@@ -356,10 +371,10 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   }
   else
   {
-    //Intended Fill Pattern (CDEV)
+    // Intended Fill Pattern (CDEV)
     spinpatternBlueUp->SetFillColor(6);
     spinpatternBlueUp->GetXaxis()->SetLabelSize(labelsize);
-    spinpatternBlueUp->SetStats(0);
+    spinpatternBlueUp->SetStats(false);
     spinpatternBlueUp->GetXaxis()->SetTickLength(0);
     spinpatternBlueUp->GetXaxis()->SetNdivisions(120);
     spinpatternBlueUp->SetLineColor(kBlack);
@@ -367,19 +382,19 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     spinpatternBlueUp->GetYaxis()->SetTickLength(0);
     spinpatternBlueUp->GetYaxis()->SetLabelSize(0);
     spinpatternBlueUp->DrawCopy("box1");
-    spinpatternBlueDown->SetFillColor(7); 
+    spinpatternBlueDown->SetFillColor(7);
     spinpatternBlueDown->GetXaxis()->SetLabelSize(labelsize);
     spinpatternBlueDown->DrawCopy("box1,same");
-    spinpatternBlueUnpol->SetFillColor(4); 
+    spinpatternBlueUnpol->SetFillColor(4);
     spinpatternBlueDown->GetXaxis()->SetLabelSize(labelsize);
     spinpatternBlueUnpol->DrawCopy("box1,same");
-    spinpatternYellowUp->SetFillColor(2); 
+    spinpatternYellowUp->SetFillColor(2);
     spinpatternYellowUp->DrawCopy("box1,same");
     spinpatternYellowUp->GetXaxis()->SetLabelSize(labelsize);
-    spinpatternYellowDown->SetFillColor(3); 
+    spinpatternYellowDown->SetFillColor(3);
     spinpatternYellowDown->DrawCopy("box1,same");
     spinpatternYellowDown->GetXaxis()->SetLabelSize(labelsize);
-    spinpatternYellowUnpol->SetFillColor(5); 
+    spinpatternYellowUnpol->SetFillColor(5);
     spinpatternYellowUnpol->DrawCopy("box1,same");
     spinpatternYellowUnpol->GetXaxis()->SetLabelSize(labelsize);
 
@@ -390,7 +405,6 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     t_SpinPatt.SetTextAlign(23);  // center/top alignment
     std::string SPstring = "Intended Spin Pattern (CDEV)";
     t_SpinPatt.DrawText(0.5, 1, SPstring.c_str());
-
   }
 
   //============== text information ===============//
@@ -398,12 +412,11 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   Pad[2]->cd();
   float textsize = 0.05;
 
-
   TText t_FillNumber;
   t_FillNumber.SetTextFont(62);
   t_FillNumber.SetTextSize(textsize);
-  t_FillNumber.SetNDC();          // set to normalized coordinates
-  //Pattern.SetTextAlign(23);  // center/top alignment
+  t_FillNumber.SetNDC();  // set to normalized coordinates
+  // Pattern.SetTextAlign(23);  // center/top alignment
   std::string fillnumberstring;
   if (hfillnumber->GetBinContent(1) == hfillnumber->GetBinContent(2) && hfillnumber->GetBinContent(1) != 0)
   {
@@ -418,87 +431,79 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     t_FillNumber.DrawText(0.15, 0.85, fillnumberstring.c_str());
   }
 
-
   TText t_FillType;
   t_FillType.SetTextFont(62);
   t_FillType.SetTextSize(textsize);
-  t_FillType.SetNDC();          // set to normalized coordinates
-  //Pattern.SetTextAlign(23);  // center/top alignment
+  t_FillType.SetNDC();  // set to normalized coordinates
+  // Pattern.SetTextAlign(23);  // center/top alignment
   std::ostringstream filltypestream;
   filltypestream << "Fill type: " << hfilltypeBlue->GetBinContent(1) << "x" << hfilltypeYellow->GetBinContent(1);
   std::string filltypestring = filltypestream.str();
   t_FillType.DrawText(0.15, 0.8, filltypestring.c_str());
 
+  std::string scdev_blue = TH1_to_string(hspinpatternBlue);
+  std::string scdev_yellow = TH1_to_string(hspinpatternYellow);
+  std::string pattern_name = "UNKNOWN";
 
-  std::string scdev_blue  =TH1_to_string(hspinpatternBlue);
-  std::string scdev_yellow=TH1_to_string(hspinpatternYellow);
-  std::string pattern_name="UNKNOWN";
-
-  for(std::map<std::string,std::string>::const_iterator ii=preset_pattern_blue.begin(); ii!=preset_pattern_blue.end(); ++ii)
+  for (std::map<std::string, std::string>::const_iterator ii = preset_pattern_blue.begin(); ii != preset_pattern_blue.end(); ++ii)
   {
-    std::string key=(*ii).first;
-    if(preset_pattern_blue[key]==scdev_blue && preset_pattern_yellow[key]==scdev_yellow)
+    std::string key = (*ii).first;
+    if (preset_pattern_blue[key] == scdev_blue && preset_pattern_yellow[key] == scdev_yellow)
     {
-      pattern_name=key;
+      pattern_name = key;
     }
   }
-  
+
   TText t_Pattern;
   t_Pattern.SetTextFont(62);
   t_Pattern.SetTextSize(textsize);
-  t_Pattern.SetNDC();          // set to normalized coordinates
-  //Pattern.SetTextAlign(23);  // center/top alignment
+  t_Pattern.SetNDC();  // set to normalized coordinates
+  // Pattern.SetTextAlign(23);  // center/top alignment
   std::ostringstream patternstream;
   std::string patternstring;
   patternstream << "Pattern: " << pattern_name;
   patternstring = patternstream.str();
   t_Pattern.DrawText(0.15, 0.7, patternstring.c_str());
 
-
-  
-  
-
   int mismatches = 0;
-  for(int crossing=0; crossing<120; crossing++)
+  for (int crossing = 0; crossing < 120; crossing++)
   {
-    int spin_cdev_blue=hspinpatternBlue->GetBinContent(crossing+1);
-    int spin_pC_blue=hpCspinpatternBlue->GetBinContent(crossing+1);
+    int spin_cdev_blue = hspinpatternBlue->GetBinContent(crossing + 1);
+    int spin_pC_blue = hpCspinpatternBlue->GetBinContent(crossing + 1);
 
-    int spin_cdev_yell=hspinpatternYellow->GetBinContent(crossing+1);
-    int spin_pC_yell=hpCspinpatternYellow->GetBinContent(crossing+1);
-      
-    //if(spin_pC_blue==-1 || spin_pC_blue==1)
+    int spin_cdev_yell = hspinpatternYellow->GetBinContent(crossing + 1);
+    int spin_pC_yell = hpCspinpatternYellow->GetBinContent(crossing + 1);
+
+    // if(spin_pC_blue==-1 || spin_pC_blue==1)
     //{
-      if(spin_cdev_blue!=spin_pC_blue && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
-      {
-	mismatches+=1;	 
-      } 
-      //} 
+    if (spin_cdev_blue != spin_pC_blue && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
+    {
+      mismatches += 1;
+    }
+    //}
 
-      //if(spin_pC_yell==-1 || spin_pC_yell==1)
-      //{
-      if(spin_cdev_yell!=spin_pC_yell && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
-      {
-	mismatches+=1;	 
-      } 
-      //} 
+    // if(spin_pC_yell==-1 || spin_pC_yell==1)
+    //{
+    if (spin_cdev_yell != spin_pC_yell && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
+    {
+      mismatches += 1;
+    }
+    //}
   }
-
 
   TText t_PatternMatch;
   t_PatternMatch.SetTextFont(62);
   t_PatternMatch.SetTextSize(textsize);
-  t_PatternMatch.SetNDC();          // set to normalized coordinates
-  //t_PatternMatch.SetTextAlign(23);  // center/top alignment
-  
-  
+  t_PatternMatch.SetNDC();  // set to normalized coordinates
+  // t_PatternMatch.SetTextAlign(23);  // center/top alignment
+
   if (!mismatches)
   {
     std::string patternmatchstring = "pC AND CDEV PATTERNS MATCH";
     t_PatternMatch.SetTextColor(kGreen);
     t_PatternMatch.DrawText(0.15, 0.65, patternmatchstring.c_str());
   }
-  else 
+  else
   {
     std::string patternmatchstring1 = "pC/CDEV PATTERN MISMATCH:";
     std::ostringstream patternmatchstream;
@@ -508,24 +513,22 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     t_PatternMatch.DrawText(0.15, 0.65, patternmatchstring1.c_str());
     t_PatternMatch.DrawText(0.15, 0.6, patternmatchstring2.c_str());
   }
-  
-
 
   TLatex *latPol = new TLatex();
   latPol->SetTextSize(textsize);
-  latPol->SetTextColor(kBlack); 
+  latPol->SetTextColor(kBlack);
   latPol->SetNDC();
   latPol->DrawLatex(0.15, 0.5, "CNI POLARIZATION");
 
   TLatex *t_PolBlue = new TLatex();
   t_PolBlue->SetTextFont(62);
   t_PolBlue->SetTextSize(textsize);
-  t_PolBlue->SetNDC();          // set to normalized coordinates
+  t_PolBlue->SetNDC();  // set to normalized coordinates
   t_PolBlue->SetTextColor(kBlue);
   t_PolBlue->DrawLatex(0.15, 0.45, "BLUE");
   std::ostringstream polbluestream;
   std::string polbluestring;
-  polbluestream << round(hpolBlue->GetBinContent(1)*100)/100 << " #pm " << round(hpolBlue->GetBinError(1)*100)/100 << " (stat)";
+  polbluestream << round(hpolBlue->GetBinContent(1) * 100) / 100 << " #pm " << round(hpolBlue->GetBinError(1) * 100) / 100 << " (stat)";
   polbluestring = polbluestream.str();
   t_PolBlue->SetTextColor(kBlack);
   t_PolBlue->DrawLatex(0.4, 0.45, polbluestring.c_str());
@@ -533,21 +536,20 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   TLatex *t_PolYellow = new TLatex();
   t_PolYellow->SetTextFont(62);
   t_PolYellow->SetTextSize(textsize);
-  t_PolYellow->SetNDC();          // set to normalized coordinates
+  t_PolYellow->SetNDC();  // set to normalized coordinates
   t_PolYellow->SetTextColor(kOrange);
   t_PolYellow->DrawLatex(0.15, 0.4, "YELLOW");
   std::ostringstream polyellowstream;
   std::string polyellowstring;
-  polyellowstream << round(hpolYellow->GetBinContent(1)*100)/100 << " #pm " << round(hpolYellow->GetBinError(1)*100)/100 << " (stat)";
+  polyellowstream << round(hpolYellow->GetBinContent(1) * 100) / 100 << " #pm " << round(hpolYellow->GetBinError(1) * 100) / 100 << " (stat)";
   polyellowstring = polyellowstream.str();
   t_PolYellow->SetTextColor(kBlack);
   t_PolYellow->DrawLatex(0.4, 0.4, polyellowstring.c_str());
 
-
   TText t_xingshift;
   t_xingshift.SetTextFont(62);
   t_xingshift.SetTextSize(textsize);
-  t_xingshift.SetNDC();          // set to normalized coordinates
+  t_xingshift.SetNDC();  // set to normalized coordinates
   std::ostringstream xingshiftstream;
   std::string xingshiftstring;
   xingshiftstream << "Default crossing shift: " << hxingshift->GetBinContent(1);
@@ -568,131 +570,126 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     t_xingshift.DrawText(0.15, 0.25, addxingshiftstring.c_str());
   }
 
-
-
   //================================================
 
   gStyle->SetTitleFontSize(0.06);
   gStyle->SetTitleAlign(33);
   gStyle->SetTitleX(0.75);
   labelsize = 0.05;
-  
-  
-  for(std::map<std::string, TH1*>::const_iterator ii=gl1ptriggers.begin(); ii!=gl1ptriggers.end(); ++ii)
+
+  for (std::map<std::string, TH1 *>::const_iterator ii = gl1ptriggers.begin(); ii != gl1ptriggers.end(); ++ii)
   {
-    std::string key=(*ii).first;
-    if(key == "MBD_NS")
+    std::string key = (*ii).first;
+    if (key == "MBD_NS")
     {
       if (gl1ptriggers[key])
       {
-	Pad[3]->cd();
-	gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
-	gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);  
-	gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
-	gl1ptriggers[key]->SetStats(0);
-	gl1ptriggers[key]->DrawCopy("HIST");
-	if (gl1ptriggers[key]->GetSumOfWeights() == 0)
-	{
-	  TLatex *lat = new TLatex();
-	  lat->SetTextSize(0.15);
-	  lat->SetTextColor(kRed);   
-	  lat->SetTextAngle(45);         
-	  lat->SetNDC();
-	  lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
-	}
+        Pad[3]->cd();
+        gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
+        gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);
+        gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
+        gl1ptriggers[key]->SetStats(false);
+        gl1ptriggers[key]->DrawCopy("HIST");
+        if (gl1ptriggers[key]->GetSumOfWeights() == 0)
+        {
+          TLatex *lat = new TLatex();
+          lat->SetTextSize(0.15);
+          lat->SetTextColor(kRed);
+          lat->SetTextAngle(45);
+          lat->SetNDC();
+          lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
+        }
       }
       else
       {
-	DrawDeadServer(transparent[0]);
-	TC[0]->SetEditable(false);
-	return -1;
+        DrawDeadServer(transparent[0]);
+        TC[0]->SetEditable(false);
+        return -1;
       }
     }
     else if (key == "MBD_VTX")
     {
       if (gl1ptriggers[key])
       {
-	Pad[4]->cd();
-	gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
-	gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);  
-	gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
-	gl1ptriggers[key]->SetStats(0);
-	gl1ptriggers[key]->DrawCopy("HIST");
-	if (gl1ptriggers[key]->GetSumOfWeights() == 0)
-	{
-	  TLatex *lat = new TLatex();
-	  lat->SetTextSize(0.15);
-	  lat->SetTextColor(kRed);   
-	  lat->SetTextAngle(45);         
-	  lat->SetNDC();
-	  lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
-	}
+        Pad[4]->cd();
+        gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
+        gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);
+        gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
+        gl1ptriggers[key]->SetStats(false);
+        gl1ptriggers[key]->DrawCopy("HIST");
+        if (gl1ptriggers[key]->GetSumOfWeights() == 0)
+        {
+          TLatex *lat = new TLatex();
+          lat->SetTextSize(0.15);
+          lat->SetTextColor(kRed);
+          lat->SetTextAngle(45);
+          lat->SetNDC();
+          lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
+        }
       }
       else
       {
-	DrawDeadServer(transparent[0]);
-	TC[0]->SetEditable(false);
-	return -1;
+        DrawDeadServer(transparent[0]);
+        TC[0]->SetEditable(false);
+        return -1;
       }
     }
     else if (key == "MBD_10cm_VTX")
     {
       if (gl1ptriggers[key])
       {
-	Pad[5]->cd();
-	gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
-	gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);  
-	gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
-	gl1ptriggers[key]->SetStats(0);
-	gl1ptriggers[key]->DrawCopy("HIST");
-	if (gl1ptriggers[key]->GetSumOfWeights() == 0)
-	{
-	  TLatex *lat = new TLatex();
-	  lat->SetTextSize(0.15);
-	  lat->SetTextColor(kRed);   
-	  lat->SetTextAngle(45);         
-	  lat->SetNDC();
-	  lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
-	}
+        Pad[5]->cd();
+        gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
+        gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);
+        gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
+        gl1ptriggers[key]->SetStats(false);
+        gl1ptriggers[key]->DrawCopy("HIST");
+        if (gl1ptriggers[key]->GetSumOfWeights() == 0)
+        {
+          TLatex *lat = new TLatex();
+          lat->SetTextSize(0.15);
+          lat->SetTextColor(kRed);
+          lat->SetTextAngle(45);
+          lat->SetNDC();
+          lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
+        }
       }
       else
       {
-	DrawDeadServer(transparent[0]);
-	TC[0]->SetEditable(false);
-	return -1;
+        DrawDeadServer(transparent[0]);
+        TC[0]->SetEditable(false);
+        return -1;
       }
     }
     else if (key == "ZDC_NS")
     {
       if (gl1ptriggers[key])
       {
-	Pad[6]->cd();
-	gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
-	gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);  
-	gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
-	gl1ptriggers[key]->SetStats(0);
-	gl1ptriggers[key]->DrawCopy("HIST");
-	if (gl1ptriggers[key]->GetSumOfWeights() == 0)
-	{
-	  TLatex *lat = new TLatex();
-	  lat->SetTextSize(0.15);
-	  lat->SetTextColor(kRed);   
-	  lat->SetTextAngle(45);         
-	  lat->SetNDC();
-	  lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
-	}
+        Pad[6]->cd();
+        gl1ptriggers[key]->GetXaxis()->SetLabelSize(labelsize);
+        gl1ptriggers[key]->GetYaxis()->SetLabelSize(labelsize);
+        gl1ptriggers[key]->GetYaxis()->SetMaxDigits(2);
+        gl1ptriggers[key]->SetStats(false);
+        gl1ptriggers[key]->DrawCopy("HIST");
+        if (gl1ptriggers[key]->GetSumOfWeights() == 0)
+        {
+          TLatex *lat = new TLatex();
+          lat->SetTextSize(0.15);
+          lat->SetTextColor(kRed);
+          lat->SetTextAngle(45);
+          lat->SetNDC();
+          lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
+        }
       }
       else
       {
-	DrawDeadServer(transparent[0]);
-	TC[0]->SetEditable(false);
-	return -1;
+        DrawDeadServer(transparent[0]);
+        TC[0]->SetEditable(false);
+        return -1;
       }
     }
   }
-  
 
-  
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);
@@ -715,10 +712,8 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
 
 int SpinMonDraw::DrawSecond(const std::string & /* what */)
 {
-  
   OnlMonClient *cl = OnlMonClient::instance();
 
-  
   if (!gROOT->FindObject("SpinMon2"))
   {
     MakeCanvas("SpinMon2");
@@ -726,7 +721,6 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
 
-  
   gStyle->SetTitleFontSize(0.05);
   gStyle->SetTitleAlign(33);
   gStyle->SetTitleX(0.75);
@@ -737,7 +731,7 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
     Pad[7]->cd();
     std::string trig1 = "MBD_NS";
     std::string trig2 = "MBD_VTX";
-    DrawGL1pRatio(trig1,trig2);
+    DrawGL1pRatio(trig1, trig2);
   }
   else
   {
@@ -751,7 +745,7 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
     Pad[8]->cd();
     std::string trig1 = "MBD_NS";
     std::string trig2 = "MBD_10cm_VTX";
-    DrawGL1pRatio(trig1,trig2);
+    DrawGL1pRatio(trig1, trig2);
   }
   else
   {
@@ -765,7 +759,7 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
     Pad[9]->cd();
     std::string trig1 = "MBD_NS";
     std::string trig2 = "ZDC_NS";
-    DrawGL1pRatio(trig1,trig2);
+    DrawGL1pRatio(trig1, trig2);
   }
   else
   {
@@ -779,7 +773,7 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
     Pad[10]->cd();
     std::string trig1 = "MBD_VTX";
     std::string trig2 = "MBD_10cm_VTX";
-    DrawGL1pRatio(trig1,trig2);
+    DrawGL1pRatio(trig1, trig2);
   }
   else
   {
@@ -793,7 +787,7 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
     Pad[11]->cd();
     std::string trig1 = "MBD_VTX";
     std::string trig2 = "ZDC_NS";
-    DrawGL1pRatio(trig1,trig2);
+    DrawGL1pRatio(trig1, trig2);
   }
   else
   {
@@ -802,13 +796,12 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
     return -1;
   }
 
-
   if (gl1ptriggers["MBD_10cm_VTX"] && gl1ptriggers["ZDC_NS"])
   {
     Pad[12]->cd();
     std::string trig1 = "MBD_10cm_VTX";
     std::string trig2 = "ZDC_NS";
-    DrawGL1pRatio(trig1,trig2);
+    DrawGL1pRatio(trig1, trig2);
   }
   else
   {
@@ -824,22 +817,22 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
 
   for (int i = 0; i < NTRIG; i++)
   {
-    Pad[i+13]->cd();
+    Pad[i + 13]->cd();
     if (gl1_counter[i])
     {
       gl1_counter[i]->GetXaxis()->SetLabelSize(labelsize);
-      gl1_counter[i]->GetYaxis()->SetLabelSize(labelsize);  
+      gl1_counter[i]->GetYaxis()->SetLabelSize(labelsize);
       gl1_counter[i]->GetYaxis()->SetMaxDigits(2);
-      gl1_counter[i]->SetStats(0);
+      gl1_counter[i]->SetStats(false);
       gl1_counter[i]->DrawCopy("HIST");
       if (gl1_counter[i]->GetSumOfWeights() == 0)
       {
-	TLatex *lat = new TLatex();
-	lat->SetTextSize(0.15);
-	lat->SetTextColor(kRed);   
-	lat->SetTextAngle(45);         
-	lat->SetNDC();
-	lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
+        TLatex *lat = new TLatex();
+        lat->SetTextSize(0.15);
+        lat->SetTextColor(kRed);
+        lat->SetTextAngle(45);
+        lat->SetNDC();
+        lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
       }
     }
     else
@@ -849,7 +842,6 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
       return -1;
     }
   }
-  
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -873,12 +865,11 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
 
 int SpinMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
-
   OnlMonClient *cl = OnlMonClient::instance();
   int iret = Draw(what);
   if (iret)  // on error no png files please
   {
-      return iret;
+    return iret;
   }
   int icnt = 0;
   for (TCanvas *canvas : TC)
@@ -889,7 +880,7 @@ int SpinMonDraw::SavePlot(const std::string &what, const std::string &type)
     }
     icnt++;
     std::string filename = ThisName + "_" + std::to_string(icnt) + "_" +
-      std::to_string(cl->RunNumber()) + "." + type;
+                           std::to_string(cl->RunNumber()) + "." + type;
     cl->CanvasToPng(canvas, filename);
   }
   return 0;
@@ -931,80 +922,75 @@ int SpinMonDraw::MakeHtml(const std::string &what)
   cl->SaveLogFile(*this);
   */
 
-
   return 0;
 }
 
-
-std::string SpinMonDraw::TH1_to_string(TH1* hspin_pattern)
+std::string SpinMonDraw::TH1_to_string(TH1 *hspin_pattern)
 {
-  std::string spin_pattern="";
-  for(int crossing=0; crossing<120; crossing++)
+  std::string spin_pattern = "";
+  for (int crossing = 0; crossing < 120; crossing++)
+  {
+    int ispin = hspin_pattern->GetBinContent(crossing + 1);
+    if (ispin == 1)
     {
-      int ispin=hspin_pattern->GetBinContent(crossing+1);
-      if(ispin==1) 
-	{
-	  spin_pattern.push_back('+');
-	}
-      else if(ispin==-1)
-	{
-	  spin_pattern.push_back('-');
-	}
-      else
-	{
-	  spin_pattern.push_back('*');
-	}
+      spin_pattern.push_back('+');
     }
+    else if (ispin == -1)
+    {
+      spin_pattern.push_back('-');
+    }
+    else
+    {
+      spin_pattern.push_back('*');
+    }
+  }
   return spin_pattern;
 }
 
-
-int SpinMonDraw::DrawGL1pRatio(std::string trig1, std::string trig2)
+int SpinMonDraw::DrawGL1pRatio(const std::string &trig1, const std::string &trig2)
 {
   TH1I *ratio;
   float labelsize = 0.05;
   if (gl1ptriggers[trig1]->GetSumOfWeights() != 0 && gl1ptriggers[trig2]->GetSumOfWeights() != 0)
   {
-    ratio = (TH1I*)gl1ptriggers[trig1]->Clone();
+    ratio = (TH1I *) gl1ptriggers[trig1]->Clone();
     ratio->Divide(gl1ptriggers[trig2]);
-    ratio->SetTitle(Form("%s / %s",trig1.c_str(),trig2.c_str()));
+    ratio->SetTitle(Form("%s / %s", trig1.c_str(), trig2.c_str()));
     ratio->GetXaxis()->SetLabelSize(labelsize);
     ratio->GetYaxis()->SetLabelSize(labelsize);
-    ratio->SetStats(0);
+    ratio->SetStats(false);
     ratio->DrawCopy();
   }
   else if (gl1ptriggers[trig1]->GetSumOfWeights() == 0)
   {
-    ratio = (TH1I*)gl1ptriggers[trig1]->Clone();
-    ratio->SetTitle(Form("%s / %s",trig1.c_str(),trig2.c_str()));
+    ratio = (TH1I *) gl1ptriggers[trig1]->Clone();
+    ratio->SetTitle(Form("%s / %s", trig1.c_str(), trig2.c_str()));
     ratio->GetXaxis()->SetLabelSize(labelsize);
     ratio->GetYaxis()->SetLabelSize(labelsize);
-    ratio->SetStats(0);
+    ratio->SetStats(false);
     ratio->DrawCopy();
     TLatex *lat = new TLatex();
     lat->SetTextSize(0.15);
-    lat->SetTextColor(kRed);   
-    lat->SetTextAngle(45);         
+    lat->SetTextColor(kRed);
+    lat->SetTextAngle(45);
     lat->SetNDC();
     lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
   }
   else if (gl1ptriggers[trig2]->GetSumOfWeights() == 0)
   {
-    ratio = (TH1I*)gl1ptriggers[trig2]->Clone();
-    ratio->SetTitle(Form("%s / %s",trig1.c_str(),trig2.c_str()));
+    ratio = (TH1I *) gl1ptriggers[trig2]->Clone();
+    ratio->SetTitle(Form("%s / %s", trig1.c_str(), trig2.c_str()));
     ratio->GetXaxis()->SetLabelSize(labelsize);
     ratio->GetYaxis()->SetLabelSize(labelsize);
-    ratio->SetStats(0);
+    ratio->SetStats(false);
     ratio->DrawCopy();
     TLatex *lat = new TLatex();
     lat->SetTextSize(0.15);
-    lat->SetTextColor(kRed);   
-    lat->SetTextAngle(45);         
+    lat->SetTextColor(kRed);
+    lat->SetTextAngle(45);
     lat->SetNDC();
     lat->DrawLatex(0.25, 0.15, "NOT ACTIVE");
   }
 
   return 0;
 }
-
-
