@@ -29,12 +29,12 @@ class DaqMon : public OnlMon
 
 
  protected:
-  int evtcnt = 0;
+  Long64_t evtcnt = 0;
   int gevtcnt = 0;
   int binindex = 0;
   int previndex = 0;
 
-  int nEventsCapture=1000000;
+  long long int nEventsCapture=10000000;
   int idummy = 0;
   int packetlow = 6001;
   int packethigh = 12001;
@@ -59,8 +59,11 @@ class DaqMon : public OnlMon
 
   TH1 *daqhist1 = nullptr;
   TH2 *daqhist2 = nullptr;
-  TH2D *h_gl1_clock_diff= nullptr;
-  TH2D *h_gl1_clock_diff_capture= nullptr;
+  TH2D* h_gl1_clock_diff= nullptr;
+  TH2D* h_gl1_clock_diff_capture= nullptr;
+  TH1D* h_unlock_hist = nullptr;
+  TH2* h_unlock_clock = nullptr;
+
   eventReceiverClient *erc = {nullptr};
 };
 

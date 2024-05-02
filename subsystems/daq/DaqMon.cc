@@ -68,7 +68,7 @@ int DaqMon::Init()
   h_gl1_clock_diff = new TH2D("h_gl1_clock_diff","", 6, 0,6, 2, -0.5, 1.5);
   h_gl1_clock_diff_capture = new TH2D("h_gl1_clock_diff_capture","", 200, 0, nEventsCapture, 6, 0, 6);
   h_gl1_clock_diff->GetXaxis()->SetTitleSize(0);
-  h_gl1_clock_diff->GetYaxis()->SetNdivisions(555);
+  h_gl1_clock_diff->GetYaxis()->SetNdivisions(202);
   h_gl1_clock_diff->GetXaxis()->SetNdivisions(101);
   h_gl1_clock_diff->GetYaxis()->SetBinLabel(1,"#bf{Unlocked}");
   h_gl1_clock_diff->GetYaxis()->SetBinLabel(2,"#bf{Locked}");
@@ -85,13 +85,18 @@ int DaqMon::Init()
   h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(4,"#bf{OHCal}");
   h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(5,"#bf{sEPD}");
   h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(6,"#bf{ZDC}");
+ 
+  int nbins = packet_zdc-packet_mbd_low + 1;
+  h_unlock_hist = new TH1D("h_unlock_hist",";packet number;",nbins,packet_mbd_low-0.5,packet_zdc+0.5);
 
-
+  h_unlock_clock = new TH2F("h_unlock_clock",";Type;Clock",2,0,2,42949672,0,42949672);
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, h_gl1_clock_diff);  
   se->registerHisto(this, h_gl1_clock_diff_capture); 
+  se->registerHisto(this, h_unlock_hist); 
+  se->registerHisto(this, h_unlock_clock); 
   Reset();
   erc = new eventReceiverClient("gl1daq");
   return 0;
@@ -112,7 +117,7 @@ int DaqMon::process_event(Event *e /* evt */)
     }
   
   int evtnr = e->getEvtSequence();
-  if(evtnr<2) return 0;
+  if(evtnr<3) return 0;
 
   evtcnt++;
   
@@ -121,7 +126,7 @@ int DaqMon::process_event(Event *e /* evt */)
       gevtcnt++;
       if(gevtcnt==nEventsCapture) gevtcnt=0; 
   }
-  uint32_t gl1_clock = 0;
+  long int gl1_clock = 0;
   Event *gl1Event = erc->getEvent(evtnr);
 
   if(!gl1Event) return 0;
@@ -137,17 +142,22 @@ int DaqMon::process_event(Event *e /* evt */)
       if (p != nullptr) {
           int pnum = p->getIdentifier();
           int calomapid = CaloPacketMap(pnum);
-          uint32_t packet_clock = p->iValue(0,"CLOCK");
+          long int packet_clock = p->iValue(0,"CLOCK");
           clockdiff[ipacket] = gl1_clock  - packet_clock;
-          uint32_t diff = clockdiff[ipacket] - previousdiff[ipacket];
-          bool fdiff = (diff > 0) ? false : true;
-          if(gevtcnt>1 && evtcnt>2){
-              if(binindex>previndex || fdiff==false){
+          int fdiff = (clockdiff[ipacket] != previousdiff[ipacket]) ? 0 : 1;
+          if(gevtcnt>1 && evtcnt>3){
+              if(binindex>previndex || fdiff==0){
                   h_gl1_clock_diff_capture->SetBinContent(binindex,calomapid+1,fdiff);
               }
               previndex = binindex;
           }
-          if(evtcnt>2) h_gl1_clock_diff->Fill(calomapid,fdiff);
+          if(evtcnt>3) h_gl1_clock_diff->Fill(calomapid,fdiff);
+          if(fdiff==0){
+              h_unlock_hist ->Fill(pnum);
+              h_unlock_clock -> Fill(0., gl1_clock);
+              h_unlock_clock -> Fill(1., packet_clock);
+          }
+
           previousdiff[ipacket] = clockdiff[ipacket];
       }
       delete p;
