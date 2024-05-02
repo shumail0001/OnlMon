@@ -35,6 +35,8 @@ void ohcalDrawInit(const int online = 0)
     cl->registerHisto("h_evtRec", HCALMON_STR);
     cl->registerHisto("h2_hcal_hits_trig1", HCALMON_STR);
     cl->registerHisto("h2_hcal_hits_trig2", HCALMON_STR);
+    cl->registerHisto("h2_hcal_hits_trig3", HCALMON_STR);
+    cl->registerHisto("h2_hcal_hits_trig4", HCALMON_STR);
     cl->registerHisto("h_hcal_trig", HCALMON_STR);
 
     for (int ih = 0; ih < 32; ih++)

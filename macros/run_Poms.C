@@ -55,6 +55,7 @@ void StartPoms()
   subsys->AddAction("ohcalDraw(\"SECOND\")", "Sector Average");
   subsys->AddAction("ohcalDraw(\"THIRD\")", "Wave Form");
   subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health");
+  subsys->AddAction("ohcalDraw(\"FIFTH\")", "trigger");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -85,18 +86,19 @@ void StartPoms()
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("SEPD", "sepd");
-  subsys->AddAction("sepdDraw(\"FIRST\")", "Towers");
-  subsys->AddAction("sepdDraw(\"SECOND\")", "Packet Health");
+  subsys->AddAction("sepdDraw(\"FIRST\")", "Average ADC vs Tile (Wheel Plot)");
+  subsys->AddAction("sepdDraw(\"SECOND\")", "ADC distributions");
+  subsys->AddAction("sepdDraw(\"THIRD\")", "North vs South Correlations");
   subsys->AddAction("sepdDraw(\"FOURTH\")", "Wave Forms");
-  subsys->AddAction("sepdDraw(\"FIFTH\")", "Wave vs Fast Fitting");
+  subsys->AddAction("sepdDraw(\"FIFTH\")", "Packet Status");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  // subsys = new SubSystem("SPIN", "spin");
-  // subsys->AddAction("sepdDraw(\"FIRST\")", "Spin");
-  // subsys->AddAction("sepdDraw(\"SECOND\")", "GL1p");
-  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  // pmf->RegisterSubSystem(subsys);
+  subsys = new SubSystem("SPIN", "spin");
+  subsys->AddAction("spinDraw(\"FIRST\")", "Spin");
+  subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("TPC", "tpc");
   subsys->AddAction("tpcDraw(\"TPCMODULE\")", "TPC SUM[ADC]");
