@@ -286,15 +286,15 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     // xpos negative: do not draw menu bar
     TC[8] = new TCanvas(name.c_str(), "SMD ADC Mean Values Per Channel", -xsize / 2, -ysize / 2, xsize / 2, ysize / 2);
     gSystem->ProcessEvents();
-    Pad[60] = new TPad("smd_adc_n_hor_means", "SMD ADC for North-Horizontal Channels", 0.05, 0.5, 0.5, 0.98, 0);
-    Pad[61] = new TPad("smd_adc_s_hor_means", "SMD ADC for South-Horizontal Channels", 0.5, 0.5, 0.98, 0.98, 0);
-    Pad[62] = new TPad("smd_adc_n_ver_means", "SMD ADC for North-Vertical Channels", 0.05, 0.05, 0.5, 0.5, 0);
-    Pad[63] = new TPad("smd_adc_s_ver_means", "SMD ADC for South-Vertical Channels", 0.5, 0.05, 0.95, 0.5, 0);
+    Pad[61] = new TPad("smd_adc_n_hor_means", "SMD ADC for North-Horizontal Channels", 0.05, 0.5, 0.5, 0.98, 0);
+    Pad[62] = new TPad("smd_adc_s_hor_means", "SMD ADC for South-Horizontal Channels", 0.5, 0.5, 0.98, 0.98, 0);
+    Pad[63] = new TPad("smd_adc_n_ver_means", "SMD ADC for North-Vertical Channels", 0.05, 0.05, 0.5, 0.5, 0);
+    Pad[64] = new TPad("smd_adc_s_ver_means", "SMD ADC for South-Vertical Channels", 0.5, 0.05, 0.95, 0.5, 0);
 
-    Pad[60]->Draw();
     Pad[61]->Draw();
     Pad[62]->Draw();
     Pad[63]->Draw();
+    Pad[64]->Draw();
 
     // this one is used to plot the run number on the canvas
     transparent[8] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
@@ -958,56 +958,25 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     TC[7]->SetEditable(false);
     return -1;
   }
+  
   Pad[55]->cd();
   gPad->SetLogz();
-  h_waveformZDC->SetXTitle("Sample Number");
-  h_waveformZDC->SetYTitle("Amplitude");
   h_waveformZDC->DrawCopy("colz");
-    
   Pad[56]->cd();
   gPad->SetLogz();
-  h_waveformSMD_North->SetXTitle("Sample Number");
-  h_waveformSMD_North->SetYTitle("Amplitude");
-  if (h_waveformSMD_North)
-  {
-      h_waveformSMD_North->DrawCopy("colz");
-  }
-
-  Pad[57]->cd();
+  h_waveformSMD_North->DrawCopy("colz");
+   Pad[57]->cd();
   gPad->SetLogz();
-  h_waveformSMD_South->SetXTitle("Sample Number");
-  h_waveformSMD_South->SetYTitle("Amplitude");
-  if (h_waveformSMD_South)
-  {
-     h_waveformSMD_South->DrawCopy("colz");
-  }
-    
+  h_waveformSMD_South->DrawCopy("colz");
   Pad[58]->cd();
   gPad->SetLogz();
-  h_waveformVeto_North->SetXTitle("Sample Number");
-  h_waveformVeto_North->SetYTitle("Amplitude");
-  if (h_waveformVeto_North)
-  {
-    h_waveformVeto_North->DrawCopy("colz");
-  }
-
+  h_waveformVeto_North->DrawCopy("colz");
   Pad[59]->cd();
   gPad->SetLogz();
-  h_waveformVeto_South->SetXTitle("Sample Number");
-  h_waveformVeto_South->SetYTitle("Amplitude");
-  if (h_waveformVeto_South)
-  {
-    h_waveformVeto_South->DrawCopy("colz");
-   }
-    
+  h_waveformVeto_South->DrawCopy("colz");
   Pad[60]->cd();
   gPad->SetLogz();
-  h_waveformAll->SetXTitle("Sample Number");
-  h_waveformAll->SetYTitle("Amplitude");
-  if (h_waveformAll)
-  {
-    h_waveformAll->DrawCopy("colz");
-  }
+  h_waveformAll->DrawCopy("colz");
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
