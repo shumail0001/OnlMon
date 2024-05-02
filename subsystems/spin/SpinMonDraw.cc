@@ -555,11 +555,20 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   xingshiftstream << "Default crossing shift: " << hxingshift->GetBinContent(1);
   xingshiftstring = xingshiftstream.str();
   t_xingshift.DrawText(0.15, 0.3, xingshiftstring.c_str());
-  std::ostringstream addxingshiftstream;
+  
   std::string addxingshiftstring;
-  addxingshiftstream << "Additional crossing shift: " << hxingshift->GetBinContent(2);
-  addxingshiftstring = addxingshiftstream.str();
-  t_xingshift.DrawText(0.15, 0.25, addxingshiftstring.c_str());
+  if (hxingshift->GetBinContent(2) != -999)
+  {
+    std::ostringstream addxingshiftstream;
+    addxingshiftstream << "Additional crossing shift: " << hxingshift->GetBinContent(2);
+    addxingshiftstring = addxingshiftstream.str();
+    t_xingshift.DrawText(0.15, 0.25, addxingshiftstring.c_str());
+  }
+  else 
+  {
+    addxingshiftstring = "Additional crossing shift: Unknown";
+    t_xingshift.DrawText(0.15, 0.25, addxingshiftstring.c_str());
+  }
 
   //================================================
 
