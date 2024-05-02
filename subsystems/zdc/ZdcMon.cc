@@ -116,7 +116,13 @@ int ZdcMon::Init()
   zdc_S3 = new TH1F("zdc_S3", "ZDC3 ADC south", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
 
   //waveform
-  h_waveform = new TH2F("h_waveform", "h_waveform", 13, -0.5, 12.5, 512, -500, 20000);
+  h_waveformZDC = new TH2F("h_waveformZDC", "h_waveformZDC", 13, -0.5, 12.5, 512, -500, 20000);
+  h_waveformSMD_North = new TH2F("h_waveformSMD_North", "h_waveformSMD_North", 13, -0.5, 12.5, 512, -500, 20000);
+  h_waveformSMD_South = new TH2F("h_waveformSMD_South", "h_waveformSMD_South", 13, -0.5, 12.5, 512, -500, 20000);
+  h_waveformVeto_North = new TH2F("h_waveformVeto_North", "h_waveformVeto_North", 13, -0.5, 12.5, 512, -500, 20000);
+  h_waveformVeto_South = new TH2F("h_waveformVeto_South", "h_waveformVeto_South", 13, -0.5, 12.5, 512, -500, 20000);
+  h_waveformAll = new TH2F("h_waveformAll", "h_waveformAll", 13, -0.5, 12.5, 512, -500, 20000);
+
 
   // SMD
   // Individual SMD_ADC Values
@@ -172,7 +178,13 @@ int ZdcMon::Init()
   se->registerHisto(this, zdc_S1);
   se->registerHisto(this, zdc_S2);
   se->registerHisto(this, zdc_S3);
-  se->registerHisto(this, h_waveform);
+  se->registerHisto(this, h_waveformZDC);
+  se->registerHisto(this, h_waveformSMD_North);
+  se->registerHisto(this, h_waveformSMD_South);
+  se->registerHisto(this, h_waveformVeto_North);
+  se->registerHisto(this, h_waveformVeto_South);
+  se->registerHisto(this, h_waveformAll);
+
 
   // SMD
   // Individual smd_adc channel histos
@@ -262,42 +274,71 @@ int ZdcMon::process_event(Event *e /* evt */)
   Packet *p = e->getPacket(packet);
   if (p)
   {
-    // in this for loop we get: zdc_adc and smd_adc
+      
+    for (int j = 0; j < p->iValue(0, "CHANNELS"); j++)
+    {
+        double baseline = 0.;
+        double baseline_low = 0.;
+        double baseline_high = 0.;
+
+       for(int s = 0; s < 3; s++)
+        {
+         baseline_low += p->iValue(s, j);
+        }
+          
+        baseline_low /= 3.;
+
+        for (int s = p->iValue(0, "SAMPLES")-3; s < p->iValue(0, "SAMPLES"); s++)
+        {
+          baseline_high += p->iValue(s,j);
+        }
+         
+        baseline_high /=3.;
+        baseline = baseline_low;
+
+        if(baseline_high < baseline_low) baseline = baseline_high;
+
+        for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+        {
+             h_waveformAll->Fill(s, p->iValue(s, j) - baseline);
+
+              if (j < 16) //-->(0,15)
+              {
+                  h_waveformZDC->Fill(s, p->iValue(s, j) - baseline);
+              }
+              
+             if ((j > 15) && (j < 32)) //-->(16,31)
+              {
+                  h_waveformSMD_North->Fill(s, p->iValue(s, j) - baseline);
+              }
+            
+              if ((j > 31) && (j < 48)) //-->(32,47)
+              {
+                  h_waveformSMD_South->Fill(s, p->iValue(s, j) - baseline);
+              }
+              
+              if ((j > 47) && (j < 50)) //-->(48,49)
+               {
+                   h_waveformVeto_North->Fill(s, p->iValue(s, j) - baseline);
+
+               }
+               
+              if ((j > 49) && (j < 52)) //-->(50,51)
+              {
+                  h_waveformVeto_South->Fill(s, p->iValue(s, j) - baseline);
+              }
+           }
+      } // waveform hists
+      
     for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
     {
+        
       std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
       float signalFast = resultFast.at(0);
       float signal = signalFast;
      
       unsigned int towerkey = TowerInfoDefs::decode_zdc(c);
       int zdc_side = TowerInfoDefs::get_zdc_side(towerkey);
-
-      double baseline = 0.;
-      double baseline_low = 0.;
-      double baseline_high = 0.;
-
-      for(int s = 0; s < 3; s++) 
-      {
-        baseline_low += p->iValue(s, c);
-      }
-      
-       baseline_low /= 3.;
-
-      for (int s = p->iValue(0, "SAMPLES")-3; s < p->iValue(0, "SAMPLES"); s++) 
-      {
-       baseline_high += p->iValue(s,c);
-      }
-     
-       baseline_high /=3.;
-       baseline = baseline_low;
-
-       if(baseline_high < baseline_low) baseline = baseline_high;
-
-      for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
-      {
-        h_waveform->Fill(s, p->iValue(s, c) - baseline);
-       }
-
       int mod = c % 2;
 
       if (c < 16)
