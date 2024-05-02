@@ -54,7 +54,7 @@ class CemcMonDraw : public OnlMonDraw
   TStyle* cemcStyle = nullptr;
   TProfile*** summedProfile=nullptr;
   TProfile*** AllProfiles=nullptr;
-  const int nSEBs = 1;
+  const int nSEBs = 16;
 };
 
 #endif /* CEMC_CEMCMONDRAW_H */

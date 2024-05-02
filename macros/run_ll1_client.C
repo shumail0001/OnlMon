@@ -17,10 +17,33 @@ void ll1DrawInit(const int online = 0)
   cl->registerHisto("h_nhit_s2", "LL1MON_0");
   cl->registerHisto("h_nhit_corr", "LL1MON_0");
   cl->registerHisto("h_line_up", "LL1MON_0");
-  cl->AddServerHost("localhost");  // check local host first
-  CreateHostList(online);
+  cl->registerHisto("h_line_up", "LL1MON_0");
+  cl->registerHisto("h_8x8_sum_emcal", "LL1MON_0");
+  cl->registerHisto("h_8x8_sum_emcal_above_threshold_0", "LL1MON_0");
+  cl->registerHisto("h_8x8_sum_emcal_above_threshold_1", "LL1MON_0");
+  cl->registerHisto("h_8x8_sum_emcal_above_threshold_2", "LL1MON_0");
+  cl->registerHisto("h_8x8_sum_emcal_above_threshold_3", "LL1MON_0");
+  cl->registerHisto("h_jet_input", "LL1MON_0");
+  cl->registerHisto("h_jet_output", "LL1MON_0");
+  cl->registerHisto("h_jet_output_above_threshold_0", "LL1MON_0");
+  cl->registerHisto("h_jet_output_above_threshold_1", "LL1MON_0");
+  cl->registerHisto("h_jet_output_above_threshold_2", "LL1MON_0");
+  cl->registerHisto("h_jet_output_above_threshold_3", "LL1MON_0");
+  cl->registerHisto("h_sample_diff_emcal", "LL1MON_0");
+  for (int i = 0; i < 16;i++)
+    {
+      std::string histname = "h_2x2_sum_emcal_"+std::to_string(i);
+      cl->registerHisto(histname.c_str(), "LL1MON_0");
+    }
+  cl->registerHisto("h_sample_diff_jet_input", "LL1MON_0");
+
+  // for local host, just call ll1DrawInit(2)
+  CreateSubsysHostlist("ll1_hosts.list", online);
+
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
+  
+
   cl->requestHistoBySubSystem("LL1MON_0", 1);
   OnlMonDraw *ll1mon = new LL1MonDraw("LL1MONDRAW");  // create Drawing Object
   cl->registerDrawer(ll1mon);                // register with client framework

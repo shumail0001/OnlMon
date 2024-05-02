@@ -106,7 +106,9 @@ class MvtxMon : public OnlMon
   float mOccupancyCutForNoisyPixel = 0.2;
   int mNoisyPixelNumber[3][20][9] = { { 0 } };
 
-  static constexpr int NError = 11;
+  int mStatusFlagNumber[3][3][20][9] = { { 0 } };
+
+  static constexpr int NError = 29;
   static constexpr int NErrorExtended = 19;
  
  /* TString ErrorType[NError] = { "Error ID 1: ErrPageCounterDiscontinuity", "Error ID 2: ErrRDHvsGBTHPageCnt",
@@ -115,11 +117,15 @@ class MvtxMon : public OnlMon
                                 "Error ID 9: ErrIBChipLaneMismatch", "Error ID 10: ErrCableDataHeadWrong",
                                 "Error ID 11: Jump in RDH_packetCounter" };*/
 
-  TString ErrorType[NError] = { "Error ID 1", "Error ID 2",
+  /*TString ErrorType[NError] = { "Error ID 1", "Error ID 2",
                                 "Error ID 3", "Error ID 4", "Error ID 5",
                                 "Error ID 6", "Error ID 7", "Error ID 8",
                                 "Error ID 9", "Error ID 10",
-                                "Error ID 11" };
+                                "Error ID 11" };*/
+
+  TString ErrorType[NError] = { "1: rawDataError-skip", "2: Wrong dataOffset value", "3: Previous event was already completed", "4: Bad GBT counter in the FLX packet", "5: Expected all active lanes for links", "6: TDT packet done before TDH", "7: DDW found but not stop bit", "8: Trigger header not found before chip data", "9: chip data is too short", "10: Invalid ALPIDE byte", 
+  "11: APE_STRIP_START", "12: APE_DET_TIMEOUT", "13: APE_OOT", "14: APE_PROTOCOL_ERROR", "15: APE_LANE_FIFO_OVERFLOW_ERROR", "16: APE_FSM_ERROR", "17: APE_PENDING_DETECTOR_EVENT_LIMIT", "18: APE_PENDING_LANE_EVENT_LIMIT", "19: APE_O2N_ERROR", "20: APE_RATE_MISSING_TRG_ERROR", "21: APE_PE_DATA_MISSING",  "22: APE_OOT_DATA_MISSING",  "23: Unknown APE code",  "24: Error laneId != chipID", 
+  "25: No data short would fit","26: data short before region header", "27: No data long would fit", "28: data long before region header", "29: Wrong bit before DATA LONG bit map"};
 
 
   const int NFiles = 6;
@@ -130,7 +136,7 @@ class MvtxMon : public OnlMon
   const float StartAngle[3] = { 16.997 / 360 * (M_PI * 2.), 17.504 / 360 * (M_PI * 2.), 17.337 / 360 * (M_PI * 2.)}; // start angle of first stave in each layer
   const float MidPointRad[3] = { 23.49, 31.586, 39.341}; 
 
-  const int mapstave[3][20] = {{10,11,12,1,2,3,4,5,6,7,8,9,0,0,0,0,0,0,0,0},{25,26,27,28,13,14,15,16,17,18,19,20,21,22,23,24,0,0,0,0},{44,45,46,47,48,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43}};
+  const int mapstave[3][20] = {{6,5,4,3,2,1,12,11,10,9,8,7,0,0,0,0,0,0,0,0},{20,19,18,17,16,15,14,13,28,27,26,25,24,23,22,21,0,0,0,0},{38,37,36,35,34,33,32,31,30,29,48,47,46,45,44,43,42,41,40,39}};
 
 
   typedef struct linkId

@@ -11,16 +11,11 @@ void sepdDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
-  cl->registerHisto("h_ADC0_s", "SEPDMON_0");
-  cl->registerHisto("h_hits0_s", "SEPDMON_0");
-  cl->registerHisto("h_ADC0_n", "SEPDMON_0");
-  cl->registerHisto("h_hits0_n", "SEPDMON_0");
-  cl->registerHisto("h_ADC_s", "SEPDMON_0");
-  cl->registerHisto("h_hits_s", "SEPDMON_0");
-  cl->registerHisto("h_ADC_n", "SEPDMON_0");
-  cl->registerHisto("h_hits_n", "SEPDMON_0");
+  // first histogram uses the TH1->GetName() as key
   cl->registerHisto("h_ADC_corr", "SEPDMON_0");
   cl->registerHisto("h_hits_corr", "SEPDMON_0");
+  cl->registerHisto("h_ADC_all_channel", "SEPDMON_0");
+  cl->registerHisto("h_hits_all_channel", "SEPDMON_0");
   cl->registerHisto("h_event", "SEPDMON_0");
   cl->registerHisto("h1_waveform_twrAvg", "SEPDMON_0");
   cl->registerHisto("h1_waveform_time", "SEPDMON_0");
@@ -31,9 +26,14 @@ void sepdDrawInit(const int online = 0)
   cl->registerHisto("h1_packet_number", "SEPDMON_0");
   cl->registerHisto("h1_packet_event", "SEPDMON_0");
 
-  cl->AddServerHost("localhost");  // check local host first
-  CreateHostList(online);
-  // get my histos from server, the second parameter = 1
+  for ( int i = 0; i < 768; ++i )
+    {
+      cl->registerHisto(Form("h_ADC_channel_%d",i), "SEPDMON_0");
+    }
+
+  // for local host, just call ohcalDrawInit(2)
+  CreateSubsysHostlist("sepd_hosts.list", online);
+
   // says I know they are all on the same node
   cl->requestHistoBySubSystem("SEPDMON_0", 1);
   OnlMonDraw *sepdmon = new SepdMonDraw("SEPDMONDRAW");  // create Drawing Object

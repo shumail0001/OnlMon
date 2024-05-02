@@ -98,7 +98,6 @@ int TpcMon::Init()
   NorthSideADC_clusterXY_R3->SetXTitle("X [mm]");
   NorthSideADC_clusterXY_R3->SetYTitle("Y [mm]");
 
-
   //SouthSideADC_clusterXY_R1 = new TH2F("SouthSideADC_clusterXY_R1" , "ADC Peaks South Side", N_phi_binx_XY_R1, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
   SouthSideADC_clusterXY_R1 = new TH2F("SouthSideADC_clusterXY_R1" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R1->SetXTitle("X [mm]");
@@ -113,6 +112,39 @@ int TpcMon::Init()
   SouthSideADC_clusterXY_R3 = new TH2F("SouthSideADC_clusterXY_R3" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
   SouthSideADC_clusterXY_R3->SetXTitle("X [mm]");
   SouthSideADC_clusterXY_R3->SetYTitle("Y [mm]");
+
+  //____________________________________________________________________//
+
+  //TPC "cluster" XY heat maps DURING LASER TIME WEIGHTED
+  //
+  NorthSideADC_clusterXY_R1_LASER = new TH2F("NorthSideADC_clusterXY_R1_LASER" , "(ADC-Pedestal) > 5#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R1_LASER->SetXTitle("X [mm]");
+  NorthSideADC_clusterXY_R1_LASER->SetYTitle("Y [mm]");
+
+  //
+  NorthSideADC_clusterXY_R2_LASER = new TH2F("NorthSideADC_clusterXY_R2_LASER" , "(ADC-Pedestal) > 5#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R2_LASER->SetXTitle("X [mm]");
+  NorthSideADC_clusterXY_R2_LASER->SetYTitle("Y [mm]");
+
+  //
+  NorthSideADC_clusterXY_R3_LASER = new TH2F("NorthSideADC_clusterXY_R3_LASER" , "(ADC-Pedestal) > 5#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R3_LASER->SetXTitle("X [mm]");
+  NorthSideADC_clusterXY_R3_LASER->SetYTitle("Y [mm]");
+
+  //
+  SouthSideADC_clusterXY_R1_LASER = new TH2F("SouthSideADC_clusterXY_R1_LASER" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R1_LASER->SetXTitle("X [mm]");
+  SouthSideADC_clusterXY_R1_LASER->SetYTitle("Y [mm]");
+
+  //
+  SouthSideADC_clusterXY_R2_LASER = new TH2F("SouthSideADC_clusterXY_R2_LASER" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R2_LASER->SetXTitle("X [mm]");
+  SouthSideADC_clusterXY_R2_LASER->SetYTitle("Y [mm]");
+
+  //  
+  SouthSideADC_clusterXY_R3_LASER = new TH2F("SouthSideADC_clusterXY_R3_LASER" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R3_LASER->SetXTitle("X [mm]");
+  SouthSideADC_clusterXY_R3_LASER->SetYTitle("Y [mm]");
 
   //____________________________________________________________________//
 
@@ -221,7 +253,7 @@ int TpcMon::Init()
   // Sample size distribution 1D histogram
   char sample_size_title_str[100];
   sprintf(sample_size_title_str,"Distribution of Sample Sizes in Events: SECTOR %i",MonitorServerId());
-  sample_size_hist = new TH1F("sample_size_hist" , sample_size_title_str, 1000, 0.5, 1000.5);
+  sample_size_hist = new TH1F("sample_size_hist" , sample_size_title_str, 1030, 0.5, 1030.5);
   sample_size_hist->SetXTitle("sample size");
   sample_size_hist->SetYTitle("counts");
 
@@ -394,6 +426,14 @@ int TpcMon::Init()
   se->registerHisto(this, SouthSideADC_clusterXY_R2_unw);
   se->registerHisto(this, SouthSideADC_clusterXY_R3_unw);
 
+  se->registerHisto(this, NorthSideADC_clusterXY_R1_LASER);
+  se->registerHisto(this, NorthSideADC_clusterXY_R2_LASER);
+  se->registerHisto(this, NorthSideADC_clusterXY_R3_LASER);
+
+  se->registerHisto(this, SouthSideADC_clusterXY_R1_LASER);
+  se->registerHisto(this, SouthSideADC_clusterXY_R2_LASER);
+  se->registerHisto(this, SouthSideADC_clusterXY_R3_LASER);
+
   se->registerHisto(this, NorthSideADC_clusterZY);
   se->registerHisto(this, SouthSideADC_clusterZY);
 
@@ -556,7 +596,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         //std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<std::endl;
 
-        int mid = floor(nr_Samples/2); //get median sample
+        int mid = floor(360/2); //get median sample from 0-360 (we are assuming the sample > 360 is not useful to us as of 05.01.24)
 
         if( nr_Samples > 9)
         {
@@ -566,9 +606,18 @@ int TpcMon::process_event(Event *evt/* evt */)
           }
           for( int si=0;si < nr_Samples; si++ ) //get pedestal and noise before hand
           {
+	    if( (p->iValue(wf,si)) > 64500 ){ break; } //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
             median_and_stdev_vec.push_back(p->iValue(wf,si));
           }
         } //Compare 5 values to determine stuck !!
+
+        if( median_and_stdev_vec.size() == 0 ) // if all waveform values were 65 K
+        {         
+          is_channel_stuck = 0; //reset after looping through waveform samples
+          store_ten.clear(); //clear this after every waveform
+          median_and_stdev_vec.clear(); //clear this after every waveform
+          continue; 
+        }
 
         std::pair<float, float> result = calculateMedianAndStdDev(median_and_stdev_vec);
 	//std::cout<<"pedestal = "<<result.first<<", RMS = "<<result.second<<", ADC, channel: "<<channel<<", layer: "<<layer<<", phi: "<<phi<<std::endl;
@@ -580,16 +629,23 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         float pedest_sub_wf_max = 0.;
 
+        int wf_max_laser_peak = 0;
+        float pedest_sub_wf_max_laser_peak = 0.;
+
         for( int s =0; s < nr_Samples ; s++ )
         {
           
           //int t = s + 2 * (current_BCO - starting_BCO);
 
-          int adc = p->iValue(wf,s);       
+          int adc = p->iValue(wf,s);
+
+          if( adc > 64500 ) { break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
 
           Layer_ChannelPhi_ADC_weighted->Fill(padphi,layer,adc-pedestal);
 
           if( adc > wf_max){ wf_max = adc; t_max = s; pedest_sub_wf_max = adc - pedestal;}
+
+          if( (s> 310 && s < 350) && (adc > wf_max_laser_peak) ){ wf_max_laser_peak = adc; pedest_sub_wf_max_laser_peak = adc - pedestal; }   
 
           if( s >= 10 && s <= 19) // get first 10-19
           {
@@ -654,6 +710,20 @@ int TpcMon::process_event(Event *evt/* evt */)
           else if(Module_ID(fee)==2){SouthSideADC_clusterXY_R3->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterXY_R3_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
 
           if( t_max >= 10 && t_max <=255 ){z = -1030 + (t_max - 10)*(50 * 0.084);SouthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
+        }
+        //________________________________________________________________________________
+        //XY laser peak
+        if( (serverid < 12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && layer != 0 )
+        {
+          if(Module_ID(fee)==0){NorthSideADC_clusterXY_R1_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R1
+          else if(Module_ID(fee)==1){NorthSideADC_clusterXY_R2_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R2
+          else if(Module_ID(fee)==2){NorthSideADC_clusterXY_R3_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R3
+        }
+        else if( (serverid >=12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && layer != 0)
+        {
+          if(Module_ID(fee)==0){SouthSideADC_clusterXY_R1_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R1
+          else if(Module_ID(fee)==1){SouthSideADC_clusterXY_R2_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R2
+          else if(Module_ID(fee)==2){SouthSideADC_clusterXY_R3_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R3
         }
         //________________________________________________________________________________
 
@@ -788,6 +858,8 @@ std::pair<float, float> TpcMon::calculateMedianAndStdDev(const std::vector<int>&
     std::vector<int> sortedValues = values;
     std::sort(sortedValues.begin(), sortedValues.end());    
     size_t size = sortedValues.size();
+
+    //std::cout<<"SIZE OF INPUT VEC = "<<size<<std::endl;
 
     float median;
     if (size % 2 == 0) 

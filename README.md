@@ -16,6 +16,9 @@ source setup_onlmon.sh
 
 (or for csh source setup_onlmon.csh)
 
+## If you use GL1 info in your monitor, you need to start the server that buffers the GL1 data and serves it to the clients
+eventServer -d 200000 -i -v -f <gl1_rawdatafile>
+
 ## You need three sessions to run the show, two for the servers, one for the client. In the server windows start root and run the example server2:
 
 root.exe

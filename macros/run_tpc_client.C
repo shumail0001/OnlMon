@@ -28,6 +28,10 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("NorthSideADC_clusterXY_R2", TPCMON_STR);
     cl->registerHisto("NorthSideADC_clusterXY_R3", TPCMON_STR);
 
+    cl->registerHisto("NorthSideADC_clusterXY_R1_LASER", TPCMON_STR);
+    cl->registerHisto("NorthSideADC_clusterXY_R2_LASER", TPCMON_STR);
+    cl->registerHisto("NorthSideADC_clusterXY_R3_LASER", TPCMON_STR);
+
     cl->registerHisto("NorthSideADC_clusterXY_R1_unw", TPCMON_STR);
     cl->registerHisto("NorthSideADC_clusterXY_R2_unw", TPCMON_STR);
     cl->registerHisto("NorthSideADC_clusterXY_R3_unw", TPCMON_STR);
@@ -37,6 +41,10 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("SouthSideADC_clusterXY_R1", TPCMON_STR);
     cl->registerHisto("SouthSideADC_clusterXY_R2", TPCMON_STR);
     cl->registerHisto("SouthSideADC_clusterXY_R3", TPCMON_STR);
+
+    cl->registerHisto("SouthSideADC_clusterXY_R1_LASER", TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterXY_R2_LASER", TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterXY_R3_LASER", TPCMON_STR);
 
     cl->registerHisto("SouthSideADC_clusterXY_R1_unw", TPCMON_STR);
     cl->registerHisto("SouthSideADC_clusterXY_R2_unw", TPCMON_STR);
@@ -75,8 +83,9 @@ void tpcDrawInit(const int online = 0)
 
 
 
-  cl->AddServerHost("localhost");  // check local host first
-  CreateHostList(online);
+  // for local host, just call tpcDrawInit(2)
+  CreateSubsysHostlist("tpc_hosts.list", online);
+
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
 

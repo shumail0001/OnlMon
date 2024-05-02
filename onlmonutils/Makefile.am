@@ -6,7 +6,7 @@ BUILT_SOURCES = \
 AM_CPPFLAGS = \
   -I$(includedir) \
   -I$(ONLMON_MAIN)/include \
-  -I$(ONLINE_MAIN)/include \
+  -isystem$(ONLINE_MAIN)/include \
   -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \

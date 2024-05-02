@@ -7,7 +7,7 @@
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlhcalmon_server.so)
 
-void run_hcal_server(const std::string &name = "HCALMON", unsigned int serverid = 0, const std::string &prdffile = "/bbox/commissioning/HCal/calib/calib_West-00011989-0000.prdf")
+void run_hcal_server(const std::string &name = "HCALMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/HCal/beam/beam_West-00020797-0000.prdf")
 {
   char OHCALMON_STR[100];
   sprintf(OHCALMON_STR, "O%s", name.c_str());

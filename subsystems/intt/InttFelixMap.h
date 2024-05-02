@@ -5,14 +5,14 @@
 
 namespace INTT_Felix
 {
-	struct Ladder_s
-	{
-		int barrel;
-		int layer;
-		int ladder;
-	};
+  struct Ladder_s
+  {
+    int barrel;
+    int layer;
+    int ladder;
+  };
 
-	int FelixMap(int const&, int const&, struct Ladder_s&);
-};
+  int FelixMap(int const&, int const&, struct Ladder_s&);
+};  // namespace INTT_Felix
 
-#endif//FELIX_MAP_H
+#endif  //FELIX_MAP_H

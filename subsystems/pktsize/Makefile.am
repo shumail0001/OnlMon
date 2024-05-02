@@ -5,8 +5,8 @@ BUILT_SOURCES = \
 
 AM_CPPFLAGS = \
   -I$(includedir) \
-  -I$(ONLINE_MAIN)/include \
-  -I$(OPT_SPHENIX)/include \
+  -isystem$(ONLINE_MAIN)/include \
+  -isystem$(OPT_SPHENIX)/include \
   -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \

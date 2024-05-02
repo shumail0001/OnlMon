@@ -69,6 +69,8 @@ class BbcMonDraw : public OnlMonDraw
   int nPadWarning[MAX_WARNING] = {};
   int nWarning = 0;
 
+  TH1 *Trigs{nullptr};
+
   // for the 1st Page
   TGraphErrors *TdcOver[nSIDE] = {};
   TPad *PadTdcOver[nSIDE] = {};

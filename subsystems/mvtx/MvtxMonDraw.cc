@@ -206,11 +206,11 @@ int MvtxMonDraw::Draw(const std::string &what)
 {
   int iret = 0;
   int idraw = 0;
-  if (what == "ALL" || what == "L0L"|| what == "L0R"|| what == "L1L"|| what == "L1R"|| what == "L2L"|| what == "L2R")
+  /*if (what == "ALL" || what == "L0L"|| what == "L0R"|| what == "L1L"|| what == "L1R"|| what == "L2L"|| what == "L2R")
   {
     iret += DrawHitMap(what);
     idraw++;
-  }
+  }*/
   if (what == "ALL" || what == "GENERAL")
   {
     iret += DrawGeneral(what);
@@ -406,14 +406,15 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
       mvtxmon_LaneStatusOverview[i][NFlx]->GetYaxis()->SetTitleOffset(0.6);
       mvtxmon_LaneStatusOverview[i][NFlx]->SetMinimum(0);
       mvtxmon_LaneStatusOverview[i][NFlx]->SetMaximum(1);
-      mvtxmon_LaneStatusOverview[i][NFlx]->SetBit(TH1::kIsAverage);
+      //mvtxmon_LaneStatusOverview[i][NFlx]->SetBit(TH1::kIsAverage);
     }
   }
   if(mvtxmon_mGeneralOccupancy[NFlx]) mvtxmon_mGeneralOccupancy[NFlx]->GetYaxis()->SetTitleOffset(0.6);
 
   if(mvtxmon_mGeneralErrorFile[NFlx]){
     for(int bin = 1; bin < mvtxmon_mGeneralErrorFile[NFlx]->GetNbinsX()+1;bin++ ){
-      mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetBinLabel(bin,Form("%d",(bin-1)%8));
+      if(bin <= 12 )mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetBinLabel(bin,Form("%d",(bin-1)%2));
+      else mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetBinLabel(bin,"");
     }
     mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetTitleSize(0.045);
     mvtxmon_mGeneralErrorFile[NFlx]->GetYaxis()->SetTitleSize(0.045);
@@ -467,8 +468,8 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   returnCode += PublishHistogram(Pad[padID],5,mvtxmon_mGeneralErrorPlots[NFlx]);
   returnCode += PublishHistogram(Pad[padID],6,mvtxmon_mGeneralErrorFile[NFlx],"lcol");
 
-  TPaveText *ptt5 = new TPaveText(.1,.85,.9,.95,"blNDC");
-  ptt5->SetTextSize(0.04);
+  TPaveText *ptt5 = new TPaveText(.1,.85,.5,.95,"blNDC");
+  ptt5->SetTextSize(0.02);
   ptt5->SetFillColor(0);
   ptt5->SetLineColor(0);
   ptt5->SetBorderSize(1);
@@ -680,17 +681,17 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   returnCode += PublishHistogram(Pad[padID],1,mTriggerVsFeeId[NFlx],"lcol");
   returnCode += PublishHistogram(Pad[padID],5,mTrigger[NFlx]);
   //returnCode += PublishHistogram(Pad[9],3,mLaneInfo[NFlx]);
-  returnCode += PublishHistogram(Pad[padID],3,mLaneStatus[0][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],3,mLaneStatus[0][NFlx],"lcol");
   for(int i = 0;i<3;i++)tlayer[i]->Draw();
-  returnCode += PublishHistogram(Pad[padID],7,mLaneStatus[1][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],7,mLaneStatus[1][NFlx],"lcol");
   for(int i = 0;i<3;i++)tlayer[i]->Draw();
-  returnCode += PublishHistogram(Pad[padID],11,mLaneStatus[2][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],11,mLaneStatus[2][NFlx],"lcol");
   for(int i = 0;i<3;i++)tlayer[i]->Draw();
-  returnCode += PublishHistogram(Pad[padID],4,mLaneStatusCumulative[0][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],4,mLaneStatusCumulative[0][NFlx],"lcol");
   for(int i = 0;i<3;i++)tlayer[i]->Draw();
-  returnCode += PublishHistogram(Pad[padID],8,mLaneStatusCumulative[1][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],8,mLaneStatusCumulative[1][NFlx],"lcol");
   for(int i = 0;i<3;i++)tlayer[i]->Draw();
-  returnCode += PublishHistogram(Pad[padID],12,mLaneStatusCumulative[2][NFlx]);
+  returnCode += PublishHistogram(Pad[padID],12,mLaneStatusCumulative[2][NFlx],"lcol");
   for(int i = 0;i<3;i++)tlayer[i]->Draw();
   returnCode += PublishHistogram(Pad[padID],2,mLaneStatusSummary[0][NFlx]);
   returnCode += PublishHistogram(Pad[padID],6,mLaneStatusSummary[1][NFlx]);
@@ -790,6 +791,7 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
   for (int iLayer = 0; iLayer < 3; iLayer++) {
     for (int iStave = 0; iStave < NStaves[iLayer]; iStave++) {
       for (int iChip = 0; iChip < 9; iChip++) {      
+        //double occ = hChipStaveOccupancy[iLayer][NFlx]->GetBinContent(iChip+1,iStave+1)/(hChipStrobes[NFlx]->GetBinContent((StaveBoundary[iLayer]+iStave)*9+iChip+1)*1024*512);
         double occ = hChipStaveOccupancy[iLayer][NFlx]->GetBinContent(iChip+1,iStave+1)/(hChipStrobes[NFlx]->GetBinContent((StaveBoundary[iLayer]+iStave)*9+iChip+1)*1024*512);
         if(occ > 10e-50)hChipStaveOccupancy[iLayer][NFlx]->SetBinContent(iChip+1,iStave+1,occ);
         if(occ > 10e-50)avr_occ[iLayer]+=occ;
@@ -856,7 +858,7 @@ for (int iLayer = 0; iLayer < 3; iLayer++) {
    //std::cout<<rightmax<<" "<<hChipStrobes[NFlx]->GetMaximum()<<" "<<scale<<std::endl;
    returnCode += PublishHistogram(Pad[padID],12,hChipL1[NFlx],"same hist");
 
-   TGaxis *axis = new TGaxis(48*9,hChipStrobes[NFlx]->GetMinimum(), 48*9, hChipStrobes[NFlx]->GetMaximum(),0,rightmax,510,"+L");
+   TGaxis *axis = new TGaxis(48*9,0, 48*9, hChipStrobes[NFlx]->GetMaximum(),0,rightmax,510,"+L");
    axis->SetLineColor(kRed);
    axis->SetLabelColor(kRed);
    axis->SetLabelFont(42);

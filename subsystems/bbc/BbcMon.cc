@@ -5,8 +5,7 @@
 
 #include "BbcMon.h"
 #include "BbcMonDefs.h"
-#include "OnlBbcEvent.h"
-#include "OnlBbcSig.h"
+#include <mbd/MbdEvent.h>
 
 #include <onlmon/OnlMon.h>
 #include <onlmon/OnlMonDB.h>
@@ -17,8 +16,12 @@
 #include <Event/Event.h>
 #include <Event/EventTypes.h>
 #include <Event/packet.h>
+#include <Event/eventReceiverClient.h>
 
-#include <mbd/BbcGeomV1.h>
+#include <mbd/MbdGeomV1.h>
+#include <mbd/MbdOutV2.h>
+#include <mbd/MbdPmtContainerV1.h>
+#include <mbd/MbdPmtHit.h>
 
 #include <TF1.h>
 #include <TGraphErrors.h>
@@ -52,7 +55,8 @@ BbcMon::BbcMon(const std::string &name)
 BbcMon::~BbcMon()
 {
   delete bevt;
-  delete bbcgeom;
+  delete _mbdgeom;
+  delete erc;
   return;
 }
 
@@ -62,7 +66,14 @@ int BbcMon::Init()
   // system (all couts are redirected)
   std::cout << "BbcMon::Init()" << std::endl;
 
-  bevt = new OnlBbcEvent();
+  bevt = new MbdEvent();
+  _mbdgeom = new MbdGeomV1();
+
+  if (useGL1)
+  {
+    //erc = new eventReceiverClient("gl1daq");
+    erc = new eventReceiverClient("localhost");
+  }
 
   /*
   // read our calibrations from BbcMonData.dat
@@ -77,53 +88,53 @@ int BbcMon::Init()
   */
 
   // Book Histograms
-  std::ostringstream name, title;
+
+  // Trigger Information ----------------------------------------------------
+  if ( useGL1 )
+  {
+    bbc_trigs = new TH1F("bbc_trigs", "Trigger Counts", 64, -0.5, 63.5);
+  }
 
   // TDC Distribution ----------------------------------------------------
 
-  name << "bbc_tdc";
-  title << "BBC Raw TDC Distribution";
-  bbc_tdc = new TH2F(name.str().c_str(), title.str().c_str(),
+  bbc_tdc = new TH2F("bbc_tdc", "BBC Raw TDC Distribution",
                      nPMT_BBC, -.5, nPMT_BBC - .5,
-                     bbc_onlmon::nBIN_TDC, 0, bbc_onlmon::tdc_max_overflow * bbc_onlmon::TDC_CONVERSION_FACTOR);
-  name.str("");
-  title.str("");
+                     BbcMonDefs::nBIN_TDC, 0, BbcMonDefs::tdc_max_overflow * BbcMonDefs::TDC_CONVERSION_FACTOR);
+  std::cout << "BBCTDC " << (uint64_t)bbc_tdc << std::endl;
 
   // TDC Overflow Deviation ----------------------------------------------
-  name << "bbc_tdc_overflow";
-  title << "BBC/MBD TDC Overflow Deviation";
-  bbc_tdc_overflow = new TH2F(name.str().c_str(), title.str().c_str(),
+  bbc_tdc_overflow = new TH2F("bbc_tdc_overflow", "BBC/MBD TDC Overflow Deviation",
                               nPMT_BBC, -.5, nPMT_BBC - .5,
-                              int(bbc_onlmon::VIEW_OVERFLOW_MAX - bbc_onlmon::VIEW_OVERFLOW_MIN + 1),
-                              bbc_onlmon::VIEW_OVERFLOW_MIN - .5, bbc_onlmon::VIEW_OVERFLOW_MAX + .5);
-  name.str("");
-  title.str("");
-
+                              int(BbcMonDefs::VIEW_OVERFLOW_MAX - BbcMonDefs::VIEW_OVERFLOW_MIN + 1),
+                              BbcMonDefs::VIEW_OVERFLOW_MIN - .5, BbcMonDefs::VIEW_OVERFLOW_MAX + .5);
   // TDC Overflow Distribution for each PMT ------------------------------
+  std::ostringstream name, title;
   for (int ipmt = 0; ipmt < nPMT_BBC; ipmt++)
   {
     name << "bbc_tdc_overflow_" << std::setw(3) << std::setfill('0') << ipmt;
     title << "BBC/MBD TDC Overflow Deviation of #" << std::setw(3) << std::setfill('0') << ipmt;
     bbc_tdc_overflow_each[ipmt] = new TH1F(name.str().c_str(), title.str().c_str(),
-                                           int(bbc_onlmon::VIEW_OVERFLOW_MAX - bbc_onlmon::VIEW_OVERFLOW_MIN + 1),
-                                           bbc_onlmon::VIEW_OVERFLOW_MIN, bbc_onlmon::VIEW_OVERFLOW_MAX);
+                                           int(BbcMonDefs::VIEW_OVERFLOW_MAX - BbcMonDefs::VIEW_OVERFLOW_MIN + 1),
+                                           BbcMonDefs::VIEW_OVERFLOW_MIN, BbcMonDefs::VIEW_OVERFLOW_MAX);
     name.str("");
+    name.clear();
     title.str("");
+    title.clear();
   }
 
   // ADC Distribution --------------------------------------------------------
 
-  bbc_adc = new TH2F("bbc_adc", "BBC/MBD ADC(Charge) Distribution", nPMT_BBC, -.5, nPMT_BBC - .5, bbc_onlmon::nBIN_ADC, 0, bbc_onlmon::MAX_ADC_MIP);
+  bbc_adc = new TH2F("bbc_adc", "BBC/MBD ADC(Charge) Distribution", nPMT_BBC, -.5, nPMT_BBC - .5, BbcMonDefs::nBIN_ADC, 0, BbcMonDefs::MAX_ADC_MIP);
 
   bbc_tdc_armhittime = new TH2F("bbc_tdc_armhittime", "Arm-Hit-Time Correlation of North and South BBC/MBD",
-                                64, bbc_onlmon::min_armhittime, bbc_onlmon::max_armhittime,
-                                64, bbc_onlmon::min_armhittime, bbc_onlmon::max_armhittime);
+                                64, BbcMonDefs::min_armhittime, BbcMonDefs::max_armhittime,
+                                64, BbcMonDefs::min_armhittime, BbcMonDefs::max_armhittime);
   bbc_tdc_armhittime->GetXaxis()->SetTitle("South [ns]");
   bbc_tdc_armhittime->GetYaxis()->SetTitle("North [ns]");
 
   // Vertex Distributions --------------------------------------------------------
 
-  bbc_zvertex = new TH1F("bbc_zvertex", "BBC/MBD ZVertex (all trigs, wide)", 128, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex);
+  bbc_zvertex = new TH1F("bbc_zvertex", "BBC/MBD ZVertex (all trigs, wide)", 128, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
   bbc_zvertex->GetXaxis()->SetTitle("ZVertex [cm]");
   bbc_zvertex->GetYaxis()->SetTitle("Number of Event");
   bbc_zvertex->GetXaxis()->SetTitleSize(0.05);
@@ -132,7 +143,7 @@ int BbcMon::Init()
   bbc_zvertex->GetYaxis()->SetTitleOffset(1.75);
 
   bbc_zvertex_bbll1 = new TH1F("bbc_zvertex_bbll1", "BBC/MBD ZVertex (All triggers)",
-                               bbc_onlmon::zvtnbin, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex);
+                               BbcMonDefs::zvtnbin, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
   bbc_zvertex_bbll1->Sumw2();
   bbc_zvertex_bbll1->GetXaxis()->SetTitle("ZVertex [cm]");
   bbc_zvertex_bbll1->GetYaxis()->SetTitle("Number of Event");
@@ -142,7 +153,7 @@ int BbcMon::Init()
   bbc_zvertex_bbll1->GetYaxis()->SetTitleOffset(1.75);
 
   bbc_zvertex_short = new TH1F("bbc_zvertex_short", "BBC/MBD ZVertex (All triggers), short time scale",
-                               bbc_onlmon::zvtnbin, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex);
+                               BbcMonDefs::zvtnbin, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
   bbc_zvertex_short->Sumw2();
   bbc_zvertex_short->GetXaxis()->SetTitle("ZVertex [cm]");
   bbc_zvertex_short->GetYaxis()->SetTitle("Number of Event");
@@ -191,10 +202,10 @@ int BbcMon::Init()
   bbc_north_hittime->GetXaxis()->SetTitleOffset(0.70);
   bbc_north_hittime->GetYaxis()->SetTitleOffset(1.75);
 
-  // bbc_south_chargesum = new TH1F("bbc_south_chargesum", "BBC South ChargeSum [MIP]", 128, 0, bbc_onlmon::MAX_CHARGE_SUM);
-  // bbc_north_chargesum = new TH1F("bbc_north_chargesum", "BBC North ChargeSum [MIP]", 128, 0, bbc_onlmon::MAX_CHARGE_SUM);
-  bbc_south_chargesum = new TH1F("bbc_south_chargesum", "BBC South ChargeSum [AU]", 128, 0, bbc_onlmon::MAX_CHARGE_SUM);
-  bbc_north_chargesum = new TH1F("bbc_north_chargesum", "BBC North ChargeSum [AU]", 128, 0, bbc_onlmon::MAX_CHARGE_SUM);
+  // bbc_south_chargesum = new TH1F("bbc_south_chargesum", "BBC South ChargeSum [MIP]", 128, 0, BbcMonDefs::MAX_CHARGE_SUM);
+  // bbc_north_chargesum = new TH1F("bbc_north_chargesum", "BBC North ChargeSum [MIP]", 128, 0, BbcMonDefs::MAX_CHARGE_SUM);
+  bbc_south_chargesum = new TH1F("bbc_south_chargesum", "BBC South ChargeSum [AU]", 128, 0, BbcMonDefs::MAX_CHARGE_SUM);
+  bbc_north_chargesum = new TH1F("bbc_north_chargesum", "BBC North ChargeSum [AU]", 128, 0, BbcMonDefs::MAX_CHARGE_SUM);
 
   bbc_north_chargesum->SetTitle("BBC/MBD ChargeSum [MIP]");
   bbc_north_chargesum->GetXaxis()->SetTitle("ChargeSum [MIP]");
@@ -216,8 +227,8 @@ int BbcMon::Init()
   bbc_prescale_hist = new TH1F("bbc_prescale_hist", "", 100, 0, 100);
 
   // waveforms
-  bbc_time_wave = new TH2F("bbc_time_wave", "time waveforms by ch", bbc_onlmon::BBC_NSAMPLES, -0.5, bbc_onlmon::BBC_NSAMPLES - 0.5, 128, 0, 128);
-  bbc_charge_wave = new TH2F("bbc_charge_wave", "charge waveforms by ch", bbc_onlmon::BBC_NSAMPLES, -0.5, bbc_onlmon::BBC_NSAMPLES - 0.5, 128, 0, 128);
+  bbc_time_wave = new TH2F("bbc_time_wave", "time waveforms by ch", BbcMonDefs::BBC_NSAMPLES, -0.5, BbcMonDefs::BBC_NSAMPLES - 0.5, 128, 0, 128);
+  bbc_charge_wave = new TH2F("bbc_charge_wave", "charge waveforms by ch", BbcMonDefs::BBC_NSAMPLES, -0.5, BbcMonDefs::BBC_NSAMPLES - 0.5, 128, 0, 128);
 
   bbc_time_wave->GetXaxis()->SetTitle("Sample");
   bbc_time_wave->GetYaxis()->SetTitle("Ch");
@@ -256,14 +267,13 @@ int BbcMon::Init()
   bbc_north_hitmap->SetMinimum(0.1);
 
   // Get the detector geometry
-  bbcgeom = new BbcGeomV1{};
   Double_t x[6];  // x,y location of the 6 points of the BBC hexagonal PMT's, in cm
   Double_t y[6];
   for (int ipmt = 0; ipmt < 128; ipmt++)
   {
-    float xcent = bbcgeom->get_x(ipmt);
-    float ycent = bbcgeom->get_y(ipmt);
-    int arm = bbcgeom->get_arm(ipmt);
+    float xcent = _mbdgeom->get_x(ipmt);
+    float ycent = _mbdgeom->get_y(ipmt);
+    int arm = _mbdgeom->get_arm(ipmt);
     std::cout << ipmt << "\t" << xcent << "\t" << ycent << std::endl;
 
     // create hexagon
@@ -293,6 +303,10 @@ int BbcMon::Init()
   // register histograms with server otherwise client won't get them
   OnlMonServer *se = OnlMonServer::instance();
 
+  if ( useGL1 )
+  {
+    se->registerHisto(this, bbc_trigs);
+  }
   se->registerHisto(this, bbc_adc);
   se->registerHisto(this, bbc_tdc);
   se->registerHisto(this, bbc_tdc_overflow);
@@ -326,6 +340,9 @@ int BbcMon::Init()
   DBVarInit();
   */
   Reset();
+
+  m_mbdout = new MbdOutV2();
+  m_mbdpmts = new MbdPmtContainerV1();
 
   return 0;
 }
@@ -399,11 +416,36 @@ int BbcMon::process_event(Event *evt)
 
   int f_evt = evt->getEvtSequence();
 
+  // Get Trigger Info
+  if (useGL1)
+  {
+    Event *gl1Event = erc->getEvent(f_evt);
+    if (gl1Event)
+    {
+      Packet* p_gl1 = gl1Event->getPacket(14001);
+      if (p_gl1)
+      {
+        gl1_bco = p_gl1->lValue(0,"BCO");
+        triggervec = static_cast<uint64_t>( p_gl1->lValue(0,"TriggerVector") );
+        for (int itrig = 0; itrig < 64; itrig++ )
+        {
+          uint64_t trigbit = 0x1UL << itrig;
+          if ( (triggervec&trigbit) != 0 )
+          {
+            bbc_trigs->Fill( itrig );
+          }
+        }
+
+        delete p_gl1;
+      }
+    }
+  }
+
   // calculate BBC
   bevt->Clear();
-  bevt->setRawData(evt);
-  bevt->calculate();
+  bevt->SetRawData(evt,m_mbdpmts);
 
+  bevt->FillSampMaxCalib();
   if (bevt->calib_is_done() == 0)
   {
     delete p[0];
@@ -411,13 +453,15 @@ int BbcMon::process_event(Event *evt)
     return 0;
   }
 
+  bevt->Calculate(m_mbdpmts, m_mbdout);
+
   bbc_nevent_counter->Fill(1);
 
-  double zvtx = bevt->get_bbcz();
-  double t0 = bevt->get_t0();
+  double zvtx = m_mbdout->get_zvtx();
+  double t0 = m_mbdout->get_t0();
   double qsum[2] = {0, 0};
-  qsum[0] = bevt->getChargeSum(0);
-  qsum[1] = bevt->getChargeSum(1);
+  qsum[0] = m_mbdout->get_q(0);
+  qsum[1] = m_mbdout->get_q(1);
 
   static int counter = 0;
   evtcnt++;
@@ -459,20 +503,20 @@ int BbcMon::process_event(Event *evt)
 
   for (int ipmt = 0; ipmt < 128; ipmt++)
   {
-    float q = bevt->getQ(ipmt);
+    float q = m_mbdpmts->get_pmt(ipmt)->get_q();
     bbc_adc->Fill(ipmt, q);
 
     // std::cout << f_evt << "\tipmt " << ipmt << "\t" << q << "\t";
     if (q > 0.5)
     {
-      float tq = bevt->getTQ(ipmt);
+      float tt = m_mbdpmts->get_pmt(ipmt)->get_time();
       if (ipmt < 64)
       {
-        bbc_south_hittime->Fill(tq);
+        bbc_south_hittime->Fill(tt);
       }
       else
       {
-        bbc_north_hittime->Fill(tq);
+        bbc_north_hittime->Fill(tt);
       }
 
       // std::cout << tq;
@@ -488,7 +532,7 @@ int BbcMon::process_event(Event *evt)
   for (int ipmt = 0; ipmt < 128; ipmt++)
   {
     int tch = (ipmt / 8) * 16 + ipmt % 8;
-    OnlBbcSig *bbcsig = bevt->GetSig(tch);
+    MbdSig *bbcsig = bevt->GetSig(tch);
     TGraphErrors *gwave = bbcsig->GetGraph();
     Int_t n = gwave->GetN();
     Double_t *x = gwave->GetX();
@@ -510,10 +554,10 @@ int BbcMon::process_event(Event *evt)
     }
 
     // hit map
-    float xcent = bbcgeom->get_x(ipmt);
-    float ycent = bbcgeom->get_y(ipmt);
-    int arm = bbcgeom->get_arm(ipmt);
-    float q = bevt->getQ(ipmt);
+    float xcent = _mbdgeom->get_x(ipmt);
+    float ycent = _mbdgeom->get_y(ipmt);
+    int arm = _mbdgeom->get_arm(ipmt);
+    float q = m_mbdpmts->get_pmt(ipmt)->get_q();
 
     if (arm == 0)
     {

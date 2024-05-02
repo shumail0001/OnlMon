@@ -5,5 +5,12 @@ mbddatadir = $(pkgdatadir)/mbd
 
 mbddata_DATA = \
   BbcMonData.dat \
-  bbc_mip.calib \
-  bbc_tq_t0.calib
+  mbd_qfit.calib \
+  mbd_tq_t0.calib \
+  mbd_tt_t0.calib \
+  mbd_ped.calib \
+  mbd_sampmax.calib \
+  mbd_shape.calib \
+  mbd_sherr.calib \
+  mbd_timecorr.calib \
+  mbd_slewcorr.calib

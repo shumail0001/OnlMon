@@ -294,37 +294,9 @@ void OnlMonHtml::runInit()
   // Then check (and create if necessary) the "menu" template file.
   std::string runtype = "unknowndata";
   std::string runtmp = rundb->RunType(fRunNumber);
-  if (runtmp == "JUNK")
+  if (!runtmp.empty())
   {
-    runtype = "junkdata";
-  }
-  else if (runtmp == "PHYSICS")
-  {
-    runtype = "eventdata";
-  }
-  else if (runtmp == "CALIBRATION")
-  {
-    runtype = "calibdata";
-  }
-  else if (runtmp == "PREJECTED")
-  {
-    runtype = "prejecteddata";
-  }
-  else if (runtmp == "LOCALPOLARIMETER")
-  {
-    runtype = "localpoldata";
-  }
-  else if (runtmp == "PEDESTAL")
-  {
-    runtype = "pedestaldata";
-  }
-  else if (runtmp == "VERNIERSCAN")
-  {
-    runtype = "vernierscandata";
-  }
-  else if (runtmp == "ZEROFIELD")
-  {
-    runtype = "zerofielddata";
+    runtype = runtmp;
   }
   std::cout << "runtype is " << runtype << std::endl;
 

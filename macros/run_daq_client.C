@@ -10,14 +10,23 @@ R__LOAD_LIBRARY(libonldaqmon_client.so)
 void daqDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  // register histos we want with monitor name
-  cl->registerHisto("daqmon_hist1", "DAQMON_0");
-  cl->registerHisto("daqmon_hist2", "DAQMON_0");
-  cl->AddServerHost("localhost");  // check local host first
-  CreateHostList(online);
-  // get my histos from server, the second parameter = 1
-  // says I know they are all on the same node
-  cl->requestHistoBySubSystem("DAQMON_0", 1);
+
+  for(int serverid = 0; serverid < 20; serverid++)
+  {
+      cl->registerHisto("h_gl1_clock_diff", Form("DAQMON_%d",serverid));
+      cl->registerHisto("h_gl1_clock_diff_capture", Form("DAQMON_%d",serverid));
+      cl->registerHist("h_unlock_hist",Form("DAQMON_%d",serverid));
+      cl->registerHist("h_unlock_clock",Form("DAQMON_%d",serverid));
+  }
+      
+   // for local host, just call daqDrawInit(2)
+  CreateSubsysHostlist("daq_hosts.list", online);
+
+  for(int serverid = 0; serverid < 20; serverid++)
+  {
+      cl->requestHistoBySubSystem(Form("DAQMON_%d",serverid), 1);
+  }
+
   OnlMonDraw *daqmon = new DaqMonDraw("DAQMONDRAW");  // create Drawing Object
   cl->registerDrawer(daqmon);             // register with client framework
 }
@@ -25,7 +34,10 @@ void daqDrawInit(const int online = 0)
 void daqDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("DAQMON_0",1);        // update histos
+  for(int serverid = 0; serverid < 20; serverid++)
+  {
+      cl->requestHistoBySubSystem(Form("DAQMON_%d",serverid), 1);
+  }
   cl->Draw("DAQMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 
@@ -42,3 +54,4 @@ void daqHtml()
   cl->MakeHtml("DAQMONDRAW");                       // Create html output
   return;
 }
+
