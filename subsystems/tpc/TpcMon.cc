@@ -253,7 +253,7 @@ int TpcMon::Init()
   // Sample size distribution 1D histogram
   char sample_size_title_str[100];
   sprintf(sample_size_title_str,"Distribution of Sample Sizes in Events: SECTOR %i",MonitorServerId());
-  sample_size_hist = new TH1F("sample_size_hist" , sample_size_title_str, 1000, 0.5, 1000.5);
+  sample_size_hist = new TH1F("sample_size_hist" , sample_size_title_str, 1030, 0.5, 1030.5);
   sample_size_hist->SetXTitle("sample size");
   sample_size_hist->SetYTitle("counts");
 
@@ -606,10 +606,18 @@ int TpcMon::process_event(Event *evt/* evt */)
           }
           for( int si=0;si < nr_Samples; si++ ) //get pedestal and noise before hand
           {
-            if( p->iValue(wf,si) > 64500 ){ break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
+	    if( (p->iValue(wf,si)) > 64500 ){ break; } //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
             median_and_stdev_vec.push_back(p->iValue(wf,si));
           }
         } //Compare 5 values to determine stuck !!
+
+        if( median_and_stdev_vec.size() == 0 ) // if all waveform values were 65 K
+        {         
+          is_channel_stuck = 0; //reset after looping through waveform samples
+          store_ten.clear(); //clear this after every waveform
+          median_and_stdev_vec.clear(); //clear this after every waveform
+          continue; 
+        }
 
         std::pair<float, float> result = calculateMedianAndStdDev(median_and_stdev_vec);
 	//std::cout<<"pedestal = "<<result.first<<", RMS = "<<result.second<<", ADC, channel: "<<channel<<", layer: "<<layer<<", phi: "<<phi<<std::endl;
@@ -631,7 +639,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           int adc = p->iValue(wf,s);
 
-          if( adc > 64500 ) { break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop      
+          if( adc > 64500 ) { break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
 
           Layer_ChannelPhi_ADC_weighted->Fill(padphi,layer,adc-pedestal);
 
@@ -850,6 +858,8 @@ std::pair<float, float> TpcMon::calculateMedianAndStdDev(const std::vector<int>&
     std::vector<int> sortedValues = values;
     std::sort(sortedValues.begin(), sortedValues.end());    
     size_t size = sortedValues.size();
+
+    //std::cout<<"SIZE OF INPUT VEC = "<<size<<std::endl;
 
     float median;
     if (size % 2 == 0) 
