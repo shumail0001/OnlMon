@@ -38,8 +38,6 @@ class ZdcMon : public OnlMon
   TH1 *zdc_adc_north = nullptr;
   TH1 *zdc_adc_south = nullptr;
 
-  // //waveform
-  // TH2 *h_waveform = nullptr;
 
   TH1 *zdc_N1 = nullptr;
   TH1 *zdc_N2 = nullptr;
@@ -49,7 +47,13 @@ class ZdcMon : public OnlMon
   TH1 *zdc_S3 = nullptr;
 
   // //waveform
-  TH2 *h_waveform = nullptr;
+  TH2 *h_waveformZDC = nullptr;
+  TH2 *h_waveformSMD_North = nullptr;
+  TH2 *h_waveformSMD_South = nullptr;
+  TH2 *h_waveformVeto_North = nullptr;
+  TH2 *h_waveformVeto_South = nullptr;
+  TH2 *h_waveformAll = nullptr;
+    
   // smd
   // Individual Channels
   TH1 *smd_adc_n_hor_ind[8] = {nullptr};
