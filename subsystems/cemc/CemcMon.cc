@@ -15,9 +15,11 @@
 #include <Event/Event.h>
 #include <Event/EventTypes.h>
 #include <Event/msg_profile.h>
+#include <Event/eventReceiverClient.h>
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TProfile.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -68,6 +70,7 @@ CemcMon::~CemcMon()
   }
   delete WaveformProcessingFast;
   delete WaveformProcessingTemp;
+  if(erc) delete erc;
   return;
 }
 
@@ -87,7 +90,15 @@ int CemcMon::Init()
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("CemcMon::Init()\n");
-  // Histograms definitions 
+  // Histograms definitions
+  //Trigger histograms
+  h2_cemc_hits_trig1 = new TH2F("h2_cemc_hits_trig1", "", 96, 0, 96, 256, 0, 256);
+  h2_cemc_hits_trig2 = new TH2F("h2_cemc_hits_trig2", "", 96, 0, 96, 256, 0, 256);
+  h1_cemc_trig = new TH1F("h1_cemc_trig", "", 64, 0, 64);
+  h1_packet_event = new TH1F("h1_packet_event", "", 8, packetlow - 0.5, packethigh + 0.5);
+  h2_caloPack_gl1_clock_diff = new TH2F("h2_caloPack_gl1_clock_diff","", 8, packetlow - 0.5, packethigh + 0.5,65536,0,65536);
+  h_evtRec = new TProfile("h_evtRec","", 1, 0, 1);
+
   //tower hit information
   h2_cemc_hits = new TH2F("h2_cemc_hits", "", 96, 0, 96, 256, 0, 256);
   h2_cemc_rm = new TH2F("h2_cemc_rm", ""    , 96, 0, 96, 256, 0, 256);
@@ -101,13 +112,14 @@ int CemcMon::Init()
   h2_waveform_twrAvg = new TH2F("h2_waveform_twrAvg", "", 12, -0.5, 11.5, 1000,0,15000);
   h1_waveform_time = new TH1F("h1_waveform_time", "", 12,-0.5, 11.5);
   h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 25, 1.3e3, 2.0e3);
-  
+
   //waveform processing, template vs. fast interpolation
   h1_cemc_fitting_sigDiff = new TH1F("h1_fitting_sigDiff","",50,0,2);
   h1_cemc_fitting_pedDiff = new TH1F("h1_fitting_pedDiff","",50,0,2);
   h1_cemc_fitting_timeDiff = new TH1F("h1_fitting_timeDiff","",50,-10,10);
-  
+
   //
+
   //h1_sectorAvg_total = new TH1F("h1_sectorAvg_total", "", 32, 0.5, 32.5);
   
   //packet information
@@ -155,6 +167,14 @@ int CemcMon::Init()
   se->registerHisto(this, cemc_occupancy );  // uses the TH1->GetName() as key
   se->registerHisto(this, cemc_runningmean );  // uses the TH1->GetName() as key
 
+  //Trigger histograms
+  se->registerHisto(this, h2_cemc_hits_trig1);
+  se->registerHisto(this, h2_cemc_hits_trig2);
+  se->registerHisto(this, h1_cemc_trig);
+  se->registerHisto(this, h1_packet_event);
+  se->registerHisto(this, h2_caloPack_gl1_clock_diff);
+  se->registerHisto(this, h_evtRec);
+
   se->registerHisto(this, h2_cemc_hits);
   se->registerHisto(this, h2_cemc_rm);
   se->registerHisto(this, h2_cemc_mean);
@@ -170,6 +190,7 @@ int CemcMon::Init()
   se->registerHisto(this, h1_packet_length);
   se->registerHisto(this, h1_packet_chans);
   se->registerHisto(this, h1_cemc_adc);
+
   
   // for (int ih = 0; ih < Nsector; ih++)
   //   {
@@ -199,6 +220,11 @@ int CemcMon::Init()
     }
   cemctemplate += std::string("/testbeam_cemc_template.root");
   WaveformProcessingTemp->initialize_processing(cemctemplate);
+
+  if(anaGL1)
+  {
+    erc = new eventReceiverClient("gl1daq");
+  }
 
   return 0;
 }
@@ -241,7 +267,7 @@ std::vector<float> CemcMon::getSignal(Packet *p, const int channel)
       x++;
       signal += p->iValue(s,channel) - baseline;
     }
-	  
+
   signal /= x;
 
 
@@ -251,15 +277,17 @@ std::vector<float> CemcMon::getSignal(Packet *p, const int channel)
   result.push_back(1);
   return result;
 }
-	  
+
 
 
 std::vector<float> CemcMon::anaWaveformFast(Packet *p, const int channel)
 {
   std::vector<float> waveform;
+
   int nSamples = p->iValue(0,"SAMPLES");
   waveform.reserve(nSamples);  
   for ( int s = 0;  s < nSamples; s++) {
+
     waveform.push_back(p->iValue(s,channel));
   }
   std::vector<std::vector<float>> multiple_wfs;
@@ -276,6 +304,7 @@ std::vector<float> CemcMon::anaWaveformFast(Packet *p, const int channel)
 std::vector<float> CemcMon::anaWaveformTemp(Packet *p, const int channel)
 {
   std::vector<float> waveform;
+
   waveform.reserve(p->iValue(0,"SAMPLES"));
   for ( int s = 0;  s < p->iValue(0,"SAMPLES"); s++) {
     
@@ -296,7 +325,42 @@ std::vector<float> CemcMon::anaWaveformTemp(Packet *p, const int channel)
 int CemcMon::process_event(Event *e  /* evt */)
 {
   float sectorAvg[Nsector] = {0};
-  unsigned int towerNumber = 0;	
+  unsigned int towerNumber = 0;
+
+  bool trig1_fire = false;
+  bool trig2_fire = false;
+  std::vector<bool> trig_bools;
+  long long int gl1_clock = 0;
+  if(anaGL1)
+  {
+    int evtnr = e->getEvtSequence();
+    Event *gl1Event = erc->getEvent(evtnr);
+    if(gl1Event)
+    {
+      Packet* p = gl1Event->getPacket(14001);
+      h_evtRec->Fill(0.0,1.0);
+      if(p)
+      {
+        gl1_clock = p->lValue(0,"BCO");
+        uint64_t triggervec = p->lValue(0,"TriggerVector");
+        for (int i = 0; i < 64; i++)
+        {
+          bool trig_decision = ((triggervec & 0x1U) == 0x1U);
+          trig_bools.push_back(trig_decision);
+          if (trig_decision) h1_cemc_trig->Fill(i);
+          triggervec = (triggervec >> 1U) & 0xffffffffU;
+        }
+        trig1_fire = trig_bools[trig1];
+        trig2_fire = trig_bools[trig2];
+      }
+    }
+    else
+    {
+      std::cout << "GL1 event is null" << std::endl;
+      h_evtRec->Fill(0.0,0.0);
+    }
+  }
+
   // loop over packets which contain a single sector
   eventCounter++;
   for (int packet = packetlow; packet <= packethigh; packet++)
@@ -305,24 +369,31 @@ int CemcMon::process_event(Event *e  /* evt */)
 
       if (p)
 	{
-	  
+
 	  h1_packet_number -> Fill(packet);
 	  h1_packet_length -> SetBinContent(packet-6000,h1_packet_length->GetBinContent(packet-6000) + p -> getLength());
-	  
+
+    h1_packet_event->SetBinContent(packet-6000, p->iValue(0, "CLOCK"));
+
+    long long int p_clock = p->iValue(0,"CLOCK");
+    long long int diff = (p_clock - gl1_clock) % 65536;
+    h2_caloPack_gl1_clock_diff->Fill(packet,diff);
+
 	  int nChannels = p->iValue(0, "CHANNELS");
-	  if(nChannels > m_nChannels) 
+	  if(nChannels > m_nChannels)
 	    {
 	      return -1;//packet is corrupted, reports too many channels
 	    }
 	  for (int c = 0; c < nChannels; c++)
 	    {
-	      	      
+
 	      h1_packet_chans -> Fill(packet);
-	      
+
 	      std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
 	      float signalFast = resultFast.at(0);
 	      float timeFast = resultFast.at(1);
 	      float pedestalFast = resultFast.at(2);
+
 	      h1_waveform_pedestal->Fill(pedestalFast);
 	      if(signalFast<hit_threshold) continue;
 	       
@@ -344,36 +415,45 @@ int CemcMon::process_event(Event *e  /* evt */)
 	      int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
 
 	      rm_vector_twr[towerNumber - 1] -> Add(&signalFast);
-	
+
 	      h2_cemc_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
-		
+
 	      //create beginning of run template
 	      if(eventCounter < templateDepth)h2_cemc_mean->SetBinContent(bin, h2_cemc_mean->GetBinContent(bin) + signalFast);
 
 	      h1_cemc_adc ->Fill(signalFast);
-	      
+
 	      if(!((eventCounter - 2)% 10000))
-	      	{
-	      	  std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
-	      	  float signalTemp = resultTemp.at(0);
-	      	  float timeTemp  = resultTemp.at(1);
-	      	  float pedestalTemp = resultTemp.at(2);
-	      	  h1_cemc_fitting_sigDiff -> Fill(signalFast/signalTemp);
-	      	  h1_cemc_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
-	      	  h1_cemc_fitting_timeDiff -> Fill(timeFast - timeTemp - 6);
-	      	}
+	      {
+          std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
+          float signalTemp = resultTemp.at(0);
+          float timeTemp  = resultTemp.at(1);
+          float pedestalTemp = resultTemp.at(2);
+          h1_cemc_fitting_sigDiff -> Fill(signalFast/signalTemp);
+          h1_cemc_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
+          h1_cemc_fitting_timeDiff -> Fill(timeFast - timeTemp - 6);
+	      }
 	      if (signalFast > hit_threshold)
 		{
 		  h2_cemc_hits -> SetBinContent(bin, h2_cemc_hits -> GetBinContent(bin) + signalFast);
+
+      if(trig1_fire)
+      {
+        h2_cemc_hits_trig1->Fill(eta_bin + 0.5, phi_bin + 0.5);
+      }
+      if (trig2_fire)
+      {
+        h2_cemc_hits_trig2->Fill(eta_bin + 0.5, phi_bin + 0.5);
+      }
 		}
 	    }  // channel loop
 	  if(nChannels < m_nChannels)
 	    {
-	      //still need to correctly set bad channels to zero. 
+	      //still need to correctly set bad channels to zero.
 	      for(int channel = 0; channel < m_nChannels - nChannels; channel++)
 		{
 		  towerNumber++;
-		  
+
 		  unsigned int key = TowerInfoDefs::encode_emcal(towerNumber - 1);
 		  unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
 		  unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
@@ -383,22 +463,22 @@ int CemcMon::process_event(Event *e  /* evt */)
 		  int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
 
 		  sectorAvg[sectorNumber -1] += 0.;
-		  
+
 		  float signalFast = 0.0;
-		  
+
 		  rm_vector_twr[towerNumber -1] -> Add(&signalFast);
-		  
+
 		  h2_cemc_rm -> SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
-		  
+
 		  h2_cemc_mean -> SetBinContent(bin, h2_cemc_mean->GetBinContent(bin));
-		
+
 		}
 	    }
 	  delete p;
 	}  // if packet good
       else //packet is corrupted, treat all channels as zero suppressed
 	{
-	 
+
 	  for(int channel = 0; channel < m_nChannels; channel++)
 	    {
 	      towerNumber++;
@@ -413,11 +493,11 @@ int CemcMon::process_event(Event *e  /* evt */)
 	      sectorAvg[sectorNumber -1] += 0;
 
 	      float signalFast = 0;
-		  
+
 	      rm_vector_twr[towerNumber -1] -> Add(&signalFast);
-		  
+
 	      h2_cemc_rm -> SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
-		  
+
 	      h2_cemc_mean -> SetBinContent(bin, h2_cemc_mean->GetBinContent(bin));
 	    }
 	} //zero filling bad packets
@@ -425,6 +505,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 
 
   h1_event->Fill(0);
+
   eventCounter++;
   return 0;
 }
