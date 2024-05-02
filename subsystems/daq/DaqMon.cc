@@ -142,7 +142,7 @@ int DaqMon::process_event(Event *e /* evt */)
       if (p != nullptr) {
           int pnum = p->getIdentifier();
           int calomapid = CaloPacketMap(pnum);
-          long int packet_clock = p->iValue(0,"CLOCK");
+          long int packet_clock = p->lValue(0,"CLOCK");
           clockdiff[ipacket] = gl1_clock  - packet_clock;
           int fdiff = (clockdiff[ipacket] != previousdiff[ipacket]) ? 0 : 1;
           if(gevtcnt>1 && evtcnt>3){
