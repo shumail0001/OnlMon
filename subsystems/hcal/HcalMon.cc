@@ -395,8 +395,8 @@ int HcalMon::process_event(Event* e /* evt */)
 
       h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet - packetlow]->getMean(0));
 
-      h1_packet_event->SetBinContent(packet - packetlow + 1, p->iValue(0, "CLOCK"));
-      long long int p_clock = p->iValue(0, "CLOCK");
+      h1_packet_event->SetBinContent(packet - packetlow + 1, p->lValue(0, "CLOCK"));
+      long long int p_clock = p->lValue(0, "CLOCK");
       long long int diff = (p_clock - gl1_clock) % 65536;
       h_caloPack_gl1_clock_diff->Fill(packet, diff);
       int nChannels = p->iValue(0, "CHANNELS");
