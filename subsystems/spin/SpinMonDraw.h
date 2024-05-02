@@ -5,11 +5,9 @@
 
 #include <map>
 #include <string>  // for allocator, string
-#include <TH2.h>
 
-class OnlMonDB;
 class TCanvas;
-class TGraphErrors;
+class TH1;
 class TPad;
 
 class SpinMonDraw : public OnlMonDraw
@@ -34,21 +32,18 @@ class SpinMonDraw : public OnlMonDraw
   TPad *transparent[2] = {nullptr};
   TPad *Pad[29] = {nullptr};
 
+  std::map<std::string, std::string> preset_pattern_blue;
+  std::map<std::string, std::string> preset_pattern_yellow;
 
-  std::map<std::string,std::string> preset_pattern_blue;
-  std::map<std::string,std::string> preset_pattern_yellow;
+  std::string TH1_to_string(TH1 *histo);
 
-  std::string TH1_to_string(TH1* histo);
+  int DrawGL1pRatio(const std::string &t1, const std::string &t2);
 
-  int DrawGL1pRatio(std::string t1, std::string t2);
+  // std::map<std::string, int> gl1ptriggers;
 
-  //std::map<std::string, int> gl1ptriggers;
+  std::map<std::string, TH1 *> gl1ptriggers;
 
-  std::map<std::string, TH1*> gl1ptriggers;
-
-  TH1I* gl1_counter[NTRIG] = {nullptr};
-
-
+  TH1 *gl1_counter[NTRIG] = {nullptr};
 };
 
 #endif /* SPIN_SPINMONDRAW_H */

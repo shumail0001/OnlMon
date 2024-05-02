@@ -249,13 +249,13 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
       int arm = returnArm(adc_channel);
       if ( arm == 0 )
         {
-          polar_histS01->SetBinContent(sector+1,1,adc_signal);
-          polar_histS->SetBinContent(sector*2+1+odd,(tile+1)/2+1,adc_signal);
+          if ( tile == 0 ) polar_histS01->SetBinContent(sector+1,1,adc_signal);
+          else polar_histS->SetBinContent(sector*2+1+odd,(tile+1)/2+1,adc_signal);
         }
       if ( arm == 1 )
         {
-          polar_histN01->SetBinContent(sector+1,1,adc_signal);
-          polar_histN->SetBinContent(sector*2+1+odd,(tile+1)/2+1,adc_signal);
+          if ( tile == 0 ) polar_histN01->SetBinContent(sector+1,1,adc_signal);
+          else polar_histN->SetBinContent(sector*2+1+odd,(tile+1)/2+1,adc_signal);
         }
     }
 
@@ -265,7 +265,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 
   // --- may need to update these depending on whether there are "hot" tiles
   double zmin = 0.0;
-  double zmax = 1.1*h_ADC_all_channel->GetMaximum();
+  double zmax = 300;
+  //double zmax = 1.1*h_ADC_all_channel->GetMaximum();
 
   gStyle->SetOptStat(0);
   // ---
@@ -316,8 +317,8 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
       h_ADC_channel[i] = (TH1*)cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
     }
 
-  //TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
-  //int nevt = h_event->GetEntries();
+  TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
+  int nevt = h_event->GetEntries();
   time_t evttime = cl->EventTime("CURRENT");
 
   if (!gROOT->FindObject("SepdMon2"))
@@ -328,22 +329,21 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
 
-  // --- needs some improvement
-  int colors[36] = {kAzure,kBlue,kViolet,kMagenta,
-                    kPink,kRed,kOrange,kYellow,
-                    kSpring,kGreen,kTeal,kCyan,
-                    kAzure-9,kBlue-9,kViolet-9,kMagenta-9,
-                    kPink-9,kRed-9,kOrange-9,kYellow-9,
-                    kSpring-9,kGreen-9,kTeal-9,kCyan-9,
-                    kAzure+10,kBlue+10,kViolet+10,kMagenta+10,
-                    kPink+10,kRed+10,kOrange+10,kYellow+10,
-                    kSpring+10,kGreen+10,kTeal+10,kCyan+10};
+  gStyle->SetPalette(kRainBow);
+  TText tring;
+  tring.SetNDC();
+  tring.SetTextFont(42);
+  tring.SetTextSize(0.1);
+  TText tside;
+  tside.SetNDC();
+  tside.SetTextFont(42);
+  tside.SetTextSize(0.1);
   for ( int i = 0; i < 768; ++i )
     {
       h_ADC_channel[i] = (TH1*)cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
       int tile = returnTile(i);
       if ( tile < 0 || tile > 31 ) continue;
-      //int odd = (tile+1)%2;
+      int odd = (tile+1)%2;
       int sector = returnSector(i);
       if ( sector < 0 || sector > 11 ) continue;
       int ring = returnRing(i);
@@ -354,16 +354,31 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
       if ( pad_index < 0 || pad_index > 31 ) continue;
       if ( adc_dist_pad[pad_index] ) adc_dist_pad[pad_index]->cd();
       // ---
-      int color = colors[tile];
+      //int color = colors[tile];
+      int color_index = sector;
+      int skip = 255/12;
+      if ( ring > 0 )
+        {
+          color_index = sector*2+odd;
+          skip = 255/24;
+        }
+      int color = gStyle->GetColorPalette(color_index*skip);
       // ---
       if ( h_ADC_channel[i] )
         {
+          h_ADC_channel[i]->Scale(1.0/nevt);
           h_ADC_channel[i]->GetXaxis()->SetNdivisions(505);
+          h_ADC_channel[i]->GetXaxis()->SetRangeUser(0,500);
+          h_ADC_channel[i]->SetMinimum(0.0);
+          h_ADC_channel[i]->SetMaximum(0.01);
           h_ADC_channel[i]->SetLineColor(color);
-          h_ADC_channel[i]->SetFillColor(color);
-          h_ADC_channel[i]->Draw("same");
+          //h_ADC_channel[i]->SetFillColor(color);
+          h_ADC_channel[i]->Draw("same hist");
         }
       else std::cout << "Missing histogram for ADC channel " << i << std::endl;
+      tring.DrawText(0.55,0.7,Form("Ring %d",ring));
+      if ( arm == 0 ) tring.DrawText(0.55,0.6,"South");
+      if ( arm == 1 ) tring.DrawText(0.55,0.6,"North");
       gPad->SetTicky();
       gPad->SetTickx();
     }
@@ -633,8 +648,8 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   TLine *one = new TLine(xmin, 1, xmax, 1);
   one->SetLineStyle(7);
 
-  // --- need to know packet size
-  int PACKET_SIZE = 3991;
+  // --- Martin says 1047 for NZS
+  int PACKET_SIZE = 1047;
   TLine *goodSize = new TLine(xmin, PACKET_SIZE, xmax, PACKET_SIZE);
   goodSize->SetLineStyle(7);
 
@@ -694,7 +709,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   // --- this one needs to be checked
   Pad[11]->cd();
   h1_packet_length->Draw("hist");
-  h1_packet_length->GetYaxis()->SetRangeUser(0, 1000);
+  h1_packet_length->GetYaxis()->SetRangeUser(0, 1200);
   goodSize->Draw("same");
   warnLineSize->Draw("same");
   h1_packet_length->GetXaxis()->SetNdivisions(510, kTRUE);
@@ -762,13 +777,14 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
 
   warning[1]->cd();
 
+
   std::vector<int> badPackets;
   std::vector<std::string> whatswrong;
   for (int i = 1; i <= 6; i++)
   {
     bool missing = false;
     bool badnumber = false;
-    bool badlength = false;
+    //bool badlength = false;
     bool badchans = false;
     if (h1_packet_number->GetBinContent(i) == 0)
     {
@@ -778,15 +794,16 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
     {
       badnumber = true;
     }
-    if (h1_packet_length->GetBinContent(i) < param * PACKET_SIZE)
-    {
-      badlength = true;
-    }
+    // if (h1_packet_length->GetBinContent(i) < param * PACKET_SIZE)
+    // {
+    //   badlength = true;
+    // }
     if (h1_packet_chans->GetBinContent(i) < param * N_CHANNELS)
     {
       badchans = true;
     }
-    if (badnumber || badlength || badchans || missing)
+    //if (badnumber || badlength || badchans || missing)
+    if (badnumber || badchans || missing)
     {
       badPackets.push_back((int) h1_packet_number->GetBinCenter(i));
       std::string reason = "";
@@ -800,10 +817,10 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
         {
           reason += "some events are missing, ";
         }
-        if (badlength)
-        {
-          reason += "too short, ";
-        }
+        // if (badlength)
+        // {
+        //   reason += "too short, ";
+        // }
         if (badchans)
         {
           reason += "too few channels, ";
@@ -846,11 +863,15 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   PacketWarn.SetTextColor(1);
   PacketWarn.SetNDC();
   PacketWarn.SetTextAlign(23);
-  PacketWarn.DrawText(0.5, 0.75, "Bad Packets (disregard if it says too short):");
-  for (int i = 0; i < (int) badPackets.size(); i++)
-  {
-    PacketWarn.DrawText(0.5, 0.7 - 0.05 * i, Form("%i: %s", badPackets[i], whatswrong[i].c_str()));
-  }
+  //PacketWarn.DrawText(0.5, 0.75, "Bad Packets (disregard if it says too short):");
+  if ( badPackets.size() > 0 )
+    {
+      PacketWarn.DrawText(0.5, 0.75, "Bad Packets:");
+      for (int i = 0; i < (int) badPackets.size(); i++)
+        {
+          PacketWarn.DrawText(0.5, 0.7 - 0.05 * i, Form("%i: %s", badPackets[i], whatswrong[i].c_str()));
+        }
+    }
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -1825,11 +1846,11 @@ int SepdMonDraw::returnTile(int ch){
     sEPD_adctotile[71] = 17;
     sEPD_adctotile[72] = 11;
     sEPD_adctotile[73] = 13;
-    sEPD_adctotile[74] = 31;
+    sEPD_adctotile[74] = 7;
     sEPD_adctotile[75] = 9;
     sEPD_adctotile[76] = 3;
     sEPD_adctotile[77] = 5;
-    sEPD_adctotile[78] = 0;
+    sEPD_adctotile[78] = 31;
     sEPD_adctotile[79] = 1;
     sEPD_adctotile[80] = 28;
     sEPD_adctotile[81] = 30;

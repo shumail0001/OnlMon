@@ -300,7 +300,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
       	{
       	  for(int j = 0; j < nTowersPhi; j++)
       	    {
-      	      if(i < 8) continue;
+      	      //if(i < 8) continue;
       	      if(h2_cemc_mean[start[1]]-> GetBinContent(i+1, j+1) < 0.75 && hist1[start[0]] -> GetBinContent(i+1, j+1) < 0.75) hist1[start[0]]->SetBinContent(i+1, j+1, h2_cemc_mean[start[1]] -> GetBinContent(i+1, j+1));
       	      else hist1[start[0]] -> SetBinContent(i+1, j+1, hist1[start[0]]->GetBinContent(i+1,j+1)/h2_cemc_mean[start[1]]->GetBinContent(i+1,j+1));
       	    }
@@ -312,9 +312,10 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
 	{
 	  for(int j = 0; j < nTowersPhi; j++)
 	    {
-	      if(i < 8) continue;
 
-	      else hist1[start[0]]->SetBinContent(i+1, j+1, 0);
+	      //if(i < 8) continue;
+	     
+	      hist1[start[0]]->SetBinContent(i+1, j+1, 0);
 	    }
 	}
     }
@@ -793,8 +794,11 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   h2_waveform_twrAvg[start[0]]->GetYaxis()->SetTitleSize(tsize);
   h2_waveform_twrAvg[start[0]]->GetXaxis()->SetTitleOffset(1.);
   h2_waveform_twrAvg[start[0]]->GetYaxis()->SetTitleOffset(1.25);
-  TLine *windowLow1 = new TLine(4,0,4,pow(2,14));
-  TLine *windowHigh1 = new TLine(10,0,10,pow(2,14));
+  float windowSize = 5000;
+  h2_waveform_twrAvg[start[0]]->GetYaxis() -> SetRangeUser(0,windowSize);
+
+  TLine *windowLow1 = new TLine(4,0,4,windowSize);
+  TLine *windowHigh1 = new TLine(10,0,10,windowSize);
   gStyle -> SetOptStat(0);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);

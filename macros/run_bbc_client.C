@@ -11,7 +11,6 @@ void bbcDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
-  cl->registerHisto("bbc_trigs", "BBCMON_0");
   cl->registerHisto("bbc_adc", "BBCMON_0");
   cl->registerHisto("bbc_tdc", "BBCMON_0");
   cl->registerHisto("bbc_tdc_overflow", "BBCMON_0");
@@ -31,10 +30,9 @@ void bbcDrawInit(const int online = 0)
   cl->registerHisto("bbc_south_hitmap", "BBCMON_0");
   cl->registerHisto("bbc_north_hitmap", "BBCMON_0");
 
-  cl->AddServerHost("localhost");  // check local host first
-  CreateHostList(online);
+  // for local host, just call bbcDrawInit(2)
+  CreateSubsysHostlist("bbc_hosts.list", online);
 
-  // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
   cl->requestHistoBySubSystem("BBCMON_0", 1);
   OnlMonDraw *bbcmon = new BbcMonDraw("BBCMONDRAW");  // create Drawing Object

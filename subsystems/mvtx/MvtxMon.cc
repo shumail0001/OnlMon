@@ -180,6 +180,7 @@ int MvtxMon::Init()
     }
     mLaneStatusSummary[i]->GetXaxis()->CenterLabels();
     mLaneStatusSummary[i]->SetStats(0);
+    mLaneStatusSummary[i]->SetFillColor(kRed);
     se->registerHisto(this,  mLaneStatusSummary[i]);
   }
 
@@ -190,6 +191,7 @@ int MvtxMon::Init()
   }
   mLaneStatusSummaryIB->GetXaxis()->CenterLabels();
   mLaneStatusSummaryIB->SetStats(0);
+  mLaneStatusSummaryIB->SetFillColor(kRed);
   se->registerHisto(this,  mLaneStatusSummaryIB);
 
   //raw task
@@ -200,27 +202,31 @@ int MvtxMon::Init()
   hErrorPlots->SetFillColor(kRed); //remove
   hErrorPlots->SetStats(0);
 
-  TPaveText* pt[NError]={nullptr};
-  for (int i = 0; i < NError; i++) {
-    pt[i] = new TPaveText(0.20, 0.80 - i * 0.05, 0.85, 0.85 - i * 0.05, "NDC");
-    pt[i]->SetTextSize(0.04);
-    pt[i]->SetTextAlign(12);
-    pt[i]->SetFillColor(0);
-    pt[i]->SetTextColor(2);
-    pt[i]->AddText(ErrorType[i].Data());
-    hErrorPlots->GetListOfFunctions()->Add(pt[i]);
-  }
+
   se->registerHisto(this,  hErrorPlots);
 
-  hErrorFile = new TH2D("MVTXMON_General_ErrorFile", "Decoding Errors vs Packet ID", 6*8, 0, 6*8+1, NError, 0.5, NError + 0.5);
+  hErrorFile = new TH2D("MVTXMON_General_ErrorFile", "Decoding Errors vs Packet ID", 6*2*2, 0, 6*2*2+1, NError, 0.5, NError + 0.5);
   hErrorFile->GetYaxis()->SetTitle("Error ID");
   hErrorFile->GetXaxis()->SetTitle("Packet ID");
   hErrorFile->GetZaxis()->SetTitle("Counts");
   hErrorFile->SetMinimum(0);
   hErrorFile->SetStats(0);
 
+
+
+    TPaveText* pt[NError]={nullptr};
+  for (int i = 0; i < NError; i++) {
+    pt[i] = new TPaveText(0.50, 0.825 - i * 0.025, 0.9, 0.85 - i * 0.025, "NDC");
+    pt[i]->SetTextSize(0.015);
+    pt[i]->SetTextAlign(12);
+    pt[i]->SetFillColor(0);
+    pt[i]->SetTextColor(2);
+    pt[i]->AddText(ErrorType[i].Data());
+    hErrorFile->GetListOfFunctions()->Add(pt[i]);
+  }
+
   for (int i = 1; i < 6; i++) {
-    auto l = new TLine(i*8+0.5+((i-3)*0.15), 0.5, i*8+0.5+((i-3)*0.15), hErrorFile->GetNbinsY()+0.5);
+    auto l = new TLine(i*2+0.2+((i-3)*0.12), 0.5, i*2+0.2+((i-3)*0.12), hErrorFile->GetNbinsY()+0.5);
     hErrorFile->GetListOfFunctions()->Add(l);
   }
 
@@ -351,7 +357,7 @@ int MvtxMon::process_event(Event *evt)
 {
   evtcnt++;
   mRCDAQevt->Fill(this->MonitorServerId());
-  //std::cout << "Processing Event " << evtcnt << std::endl;
+  std::cout << "Processing Event " << evtcnt << std::endl;
   OnlMonServer *se = OnlMonServer::instance();
 
   plist = new Packet *[2];
@@ -365,6 +371,12 @@ int MvtxMon::process_event(Event *evt)
     }
   }
   hChipHitmap_evt->Reset("ICESM");
+  mLaneStatus[0]->Reset("ICESM");
+  mLaneStatus[1]->Reset("ICESM");
+  mLaneStatus[2]->Reset("ICESM");
+  mvtxmon_LaneStatusOverview[0]->Reset("ICESM");
+  mvtxmon_LaneStatusOverview[1]->Reset("ICESM");
+  mvtxmon_LaneStatusOverview[2]->Reset("ICESM");
 
    int nChipStrobes[8*9*6] = {0};
 
@@ -406,8 +418,8 @@ int MvtxMon::process_event(Event *evt)
           {
             //auto l1Trg_bco = plist[i]->lValue(feeId, iL1, "L1_IR_BCO");
             hChipL1->Fill((StaveBoundary[link.layer]+link.stave)*9 + 3 * link.gbtid + 0); //same for chip id 0 1 and 2
-	    hChipL1->Fill((StaveBoundary[link.layer]+link.stave)*9 + 3 * link.gbtid + 1);
-	    hChipL1->Fill((StaveBoundary[link.layer]+link.stave)*9 + 3 * link.gbtid + 2);
+	        hChipL1->Fill((StaveBoundary[link.layer]+link.stave)*9 + 3 * link.gbtid + 1);
+	        hChipL1->Fill((StaveBoundary[link.layer]+link.stave)*9 + 3 * link.gbtid + 2);
           }
 
           //m_FeeStrobeMap[feeId] += num_strobes;
@@ -418,18 +430,18 @@ int MvtxMon::process_event(Event *evt)
             auto num_hits = plist[i]->iValue(feeId, i_strb, "TRG_NR_HITS");
             if (Verbosity() > 4)
             {
- 	      if(link.layer == 0){
-              std::cout << "evtno: " << ", Fee: " << feeId;
-              std::cout << " Layer: " << link.layer << " Stave: " << link.stave;
-              std::cout << " GBT: " << link.gbtid << ", bco: 0x" << std::hex << strb_bco << std::dec;
-              std::cout << ", n_hits: " << num_hits << std::endl;
-	      }
+              if(link.layer == 0){
+                    std::cout << "evtno: " << ", Fee: " << feeId;
+                    std::cout << " Layer: " << link.layer << " Stave: " << link.stave;
+                    std::cout << " GBT: " << link.gbtid << ", bco: 0x" << std::hex << strb_bco << std::dec;
+                    std::cout << ", n_hits: " << num_hits << std::endl;
+              }
             }
             hChipStrobes->Fill((StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 0); //same for chip id 0 1 and 2
-	    hChipStrobes->Fill((StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 1);
-	    hChipStrobes->Fill((StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 2);
-	    nChipStrobes[(StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 0]++;
-	    nChipStrobes[(StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 1]++;
+            hChipStrobes->Fill((StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 1);
+            hChipStrobes->Fill((StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 2);
+            nChipStrobes[(StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 0]++;
+            nChipStrobes[(StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 1]++;
             nChipStrobes[(StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + 2]++;
 
            
@@ -445,7 +457,7 @@ int MvtxMon::process_event(Event *evt)
               mHitPerChip[link.layer][link.stave%20][3 * link.gbtid + chip_id]++;
               hChipHitmap->Fill(chip_col,chip_row,(StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + chip_id);
               hChipStaveOccupancy[link.layer]->Fill(3 * link.gbtid + chip_id, link.stave%20);
-	      hChipHitmap_evt->Fill(chip_col,chip_row,(StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + chip_id);
+	            hChipHitmap_evt->Fill(chip_col,chip_row,(StaveBoundary[link.layer]+link.stave%20)*9 + 3 * link.gbtid + chip_id);
 
             }
 
@@ -455,6 +467,46 @@ int MvtxMon::process_event(Event *evt)
             //m_BeamClockFEE[strb_bco].insert(feeId);
             //m_BclkStack.insert(strb_bco);
            // m_FEEBclkMap[feeId] = strb_bco;
+          }
+
+          int ifee_plot = 3 * StaveBoundary[link.layer] + 3 * link.stave  + link.gbtid;
+          auto lane_error = plist[i]->iValue(feeId, "tdt_lanestatus_error");
+          
+          while(lane_error != -1){
+//std::cout<<"feeid: "<<feeId<<" lane error: "<<lane_error<<std::endl;
+
+            for (int ilane = 0; ilane < NLanesMax; ilane++) {
+              int laneValue = lane_error >> (2 * ilane) & 0x3;
+              
+              if (laneValue) {
+                //mStatusFlagNumber[link.layer][link.stave][i%3][laneValue]++;
+               // std::cout<<"lanevalue: "<<laneValue<<" layer "<<link.layer<<" stave "<<link.stave<<" lane "<<ilane<<std::endl;
+
+                mLaneStatus[laneValue-1]->Fill(ifee_plot,ilane);
+                mLaneStatusCumulative[laneValue-1]->Fill(ifee_plot,ilane);
+                mLaneStatusSummary[link.layer]->Fill(laneValue-0.5);
+
+                mStatusFlagNumber[laneValue-1][link.layer][link.stave][ilane]++;
+                mLaneStatusSummaryIB->Fill(laneValue-0.5);
+
+
+              }
+            }
+
+
+            
+            lane_error = plist[i]->iValue(feeId, "tdt_lanestatus_error");
+
+          }
+
+          auto decoder_error = plist[i]->lValue(feeId, "decoder_error");
+          while(decoder_error != -1){
+            //int chip = (decoder_error & 0xFFFFFFFF00000000ULL) >> 32;
+            int error = decoder_error & 0xFFFFFFFF;
+           // std::cout<<"feeid: "<<feeId<<" chip "<<chip<<" decoder error: "<<error<<std::endl;
+            hErrorPlots->Fill(error);
+            hErrorFile->Fill((this->MonitorServerId()*2)+i+0.5,error);
+            decoder_error = plist[i]->lValue(feeId, "decoder_error");
           }
         }
       }
@@ -513,9 +565,27 @@ int MvtxMon::process_event(Event *evt)
         double noisy = *(std::max_element(mNoisyPixelNumber[iLayer][iStave], mNoisyPixelNumber[iLayer][iStave] + 9));
         mGeneralNoisyPixel->SetBinContent(mapstave[iLayer][iStave], noisy);
         if(mNoisyPixelNumber[iLayer][iStave][iChip]>0) hChipStaveNoisy[iLayer]->SetBinContent(iChip+1,iStave+1,mNoisyPixelNumber[iLayer][iStave][iChip]);
+        for (int iFlag = 0; iFlag < 3; iFlag++) {
+          if(mStatusFlagNumber[iFlag][iLayer][iStave][iChip] > 0){
+            
+            mvtxmon_LaneStatusOverview[iFlag]->SetBinContent(mapstave[iLayer][iStave],mvtxmon_LaneStatusOverview[iFlag]->GetBinContent(mapstave[iLayer][iStave])+1);
+            
+          }
       }
     }
   }
+  }
+
+for (int iLayer = 0; iLayer < 3; iLayer++) {
+    for (int iStave = 0; iStave < NStaves[iLayer]; iStave++) {
+        for (int iFlag = 0; iFlag < 3; iFlag++) {
+          //std::cout<<"b layer "<<iLayer<<" stave "<<iStave<<" chip "<<0<<" flag "<<iFlag<<" count "<<mStatusFlagNumber[iFlag][iLayer][iStave][0]<<" bin "<<mvtxmon_LaneStatusOverview[iFlag]->GetBinContent(mapstave[iLayer][iStave])<<std::endl;
+            mvtxmon_LaneStatusOverview[iFlag]->SetBinContent(mapstave[iLayer][iStave],static_cast<double>(mvtxmon_LaneStatusOverview[iFlag]->GetBinContent(mapstave[iLayer][iStave]))/9);
+            //std::cout<<"a layer "<<iLayer<<" stave "<<iStave<<" chip "<<0<<" flag "<<iFlag<<" count "<<mStatusFlagNumber[iFlag][iLayer][iStave][0]<<" bin "<<mvtxmon_LaneStatusOverview[iFlag]->GetBinContent(mapstave[iLayer][iStave])<<" mapstave "<<mapstave[iLayer][iStave]<<std::endl;
+            
+      }
+  }
+}
 
 for (int iLayer = 0; iLayer < 3; iLayer++) {
     for (int iStave = 0; iStave < NStaves[iLayer]; iStave++) {
@@ -533,41 +603,7 @@ for (int iLayer = 0; iLayer < 3; iLayer++) {
     }
   }
 
-  
-  int packet_init = 2001;
-  //std::cout<<"processing rcdaq event"<<std::endl;
-  for ( int iPkt = 0; iPkt < 8; iPkt++ ){
-    Packet *p = evt->getPacket(packet_init + iPkt);  
-    if (p){
-      //std::cout<<"PACKET: "<<iPkt<<std::endl;
-     // std::map<mvtx::InteractionRecord, std::vector<mvtx::ChipPixelData>> *data = reinterpret_cast<std::map<mvtx::InteractionRecord, std::vector<mvtx::ChipPixelData>>*>(p->pValue(-1, "ChipData"));
-     // int nevents_packet = 0; 
-    if(false){
-    //std::vector<mvtx::GBTLinkDecodingStat> *linkErrors = reinterpret_cast<std::vector<mvtx::GBTLinkDecodingStat>*>(p->pValue(-1, "linkErrors"));
-/*
-      if(linkErrors){
-        for (auto error : *linkErrors){
-          for (int ierror = 0; ierror < mvtx::GBTLinkDecodingStat::NErrorsDefined; ierror++) {
-            if (error.errorCounts[ierror] <= 0) {
-              continue;
-            }
-            //mErrorCount[istave][ilink][ierror] = GBTLinkInfo->statistics.errorCounts[ierror];
-            std::cout<<error.feeID<<" "<<ierror<<" "<<error.errorCounts[ierror]<<std::endl;
-          }
-
-      //    for (int i = 0; i < NError; i++) {
-       //     hErrorPlots->SetBinContent(i + 1, mErrors[i]);
-          //hErrorFile->SetBinContent((FileID + 1 + (EPID - 4) * 12), i + 1, mErrorPerFile[i]);
-       //   }
-        }
-      }
-*/	
-  delete p;
-}
-  }// if(p)
-}// for packet loop
-
-
+ 
   // get temporary pointers to histograms
   // one can do in principle directly se->getHisto("mvtxhist1")->Fill()
   // but the search in the histogram Map is somewhat expensive and slows
@@ -584,6 +620,16 @@ for (int iLayer = 0; iLayer < 3; iLayer++) {
 int MvtxMon::Reset()
 {
   // reset our internal counters
+  /*for (int iLayer = 0; iLayer < 3; iLayer++) {
+    for (int iStave = 0; iStave < NStaves[iLayer]; iStave++) {
+      for (int iChip = 0; iChip < 9; iChip++) {
+        for (int iFlag = 0; iFlag < 3; iFlag++) {
+             mStatusFlagNumber[iFlag][link.layer][link.stave][iChip] = 0;
+            
+      }
+    }
+  }
+  }*/
   evtcnt = 0;
   idummy = 0;
   return 0;

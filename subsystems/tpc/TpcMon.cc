@@ -596,7 +596,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         //std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<std::endl;
 
-        int mid = floor(nr_Samples/2); //get median sample
+        int mid = floor(360/2); //get median sample from 0-360 (we are assuming the sample > 360 is not useful to us as of 05.01.24)
 
         if( nr_Samples > 9)
         {
@@ -606,6 +606,7 @@ int TpcMon::process_event(Event *evt/* evt */)
           }
           for( int si=0;si < nr_Samples; si++ ) //get pedestal and noise before hand
           {
+            if( p->iValue(wf,si) > 64500 ){ break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
             median_and_stdev_vec.push_back(p->iValue(wf,si));
           }
         } //Compare 5 values to determine stuck !!
@@ -628,7 +629,9 @@ int TpcMon::process_event(Event *evt/* evt */)
           
           //int t = s + 2 * (current_BCO - starting_BCO);
 
-          int adc = p->iValue(wf,s);       
+          int adc = p->iValue(wf,s);
+
+          if( adc > 64500 ) { break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop      
 
           Layer_ChannelPhi_ADC_weighted->Fill(padphi,layer,adc-pedestal);
 

@@ -24,6 +24,7 @@ class ZdcMon : public OnlMon
   int Init();
   int BeginRun(const int runno);
   int Reset();
+  
 
  protected:
   std::vector<float> anaWaveformFast(Packet *p, const int channel);
@@ -37,6 +38,9 @@ class ZdcMon : public OnlMon
   TH1 *zdc_adc_north = nullptr;
   TH1 *zdc_adc_south = nullptr;
 
+  // //waveform
+  // TH2 *h_waveform = nullptr;
+
   TH1 *zdc_N1 = nullptr;
   TH1 *zdc_N2 = nullptr;
   TH1 *zdc_N3 = nullptr;
@@ -44,11 +48,10 @@ class ZdcMon : public OnlMon
   TH1 *zdc_S2 = nullptr;
   TH1 *zdc_S3 = nullptr;
 
-  //waveform
+  // //waveform
   TH2 *h_waveform = nullptr;
   // smd
   // Individual Channels
-  TH1 *smd_adc_n_hor_ind0 = nullptr;
   TH1 *smd_adc_n_hor_ind[8] = {nullptr};
   TH1 *smd_adc_s_hor_ind[8] = {nullptr};
   TH1 *smd_adc_n_ver_ind[7] = {nullptr};
