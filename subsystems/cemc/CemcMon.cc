@@ -412,7 +412,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 	      unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
 	      unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
 	      //std::cout << "ieta " << eta_bin << "  iphi " << phi_bin<< std::endl;
-	      int sectorNumber = phi_bin / 8 + 1;
+	      //int sectorNumber = phi_bin / 8 + 1;
 	      for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
 		{
 		  h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);

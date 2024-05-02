@@ -346,7 +346,7 @@ float LocalPolMon::anaWaveformFast(Packet *p, const int channel)
 
   std::vector<float> result;
   result = fitresults_zdc.at(0);
-  return result.at(0)-result.at(1);//check whether it is really - pedestal
+  return result.at(0);
 
 }
 
