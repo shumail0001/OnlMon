@@ -16,8 +16,9 @@ void inttDrawInit(const int online = 0)
 
   for(int felix = 0; felix < INTT::FELIX; ++felix)
   {
-    cl->registerHisto("InttNumEvents",	Form("INTTMON_%d", felix));
-    cl->registerHisto("InttMap",	Form("INTTMON_%d", felix));
+    cl->registerHisto("InttNumEvents",  Form("INTTMON_%d", felix));
+    cl->registerHisto("InttMap",        Form("INTTMON_%d", felix));
+    cl->registerHisto("InttBcoDiffMap", Form("INTTMON_%d", felix));
   }
   //cl->registerHisto("InttHitMapRef",	"INTTMON_0");
 

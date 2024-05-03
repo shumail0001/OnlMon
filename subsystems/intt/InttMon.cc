@@ -24,10 +24,12 @@ int InttMon::Init()
   //histograms
   NumEvents = new TH1D(Form("InttNumEvents"), Form("InttNumEvents"), 1, 0, 1);
   HitMap = new TH1D(Form("InttMap"), Form("InttMap"), INTT::ADCS, 0, INTT::ADCS);
+  BcoDiffMap = new TH1D(Form("InttBcoDiffMap"), Form("InttBcoDiffMap"), INTT::BCOS, 0, INTT::BCOS);
   //...
 
   se->registerHisto(this, NumEvents);
   se->registerHisto(this, HitMap);
+  se->registerHisto(this, BcoDiffMap);
   //...
 
   //Read in calibrartion data from InttMonData.dat
@@ -62,17 +64,16 @@ int InttMon::BeginRun(const int /* run_num */)
 int InttMon::process_event(Event *evt)
 {
   int bin;
+  int bco_bin;
   int N;
   int n;
 
   int pid = 3001;
   int felix;
   int felix_channel;
-  struct INTT_Felix::Ladder_s lddr_s
-  {
-  };
-
+  struct INTT_Felix::Ladder_s lddr_s;
   struct INTT::Indexes_s indexes;
+  struct INTT::BcoData_s bco_data;
 
   for (pid = 3001; pid < 3009; ++pid)
   {
@@ -125,6 +126,13 @@ int InttMon::process_event(Event *evt)
         break;
       }
       HitMap->AddBinContent(bin);
+
+	  bco_data.pid = pid;
+	  bco_data.fee = p->iValue(n, "FEE");
+	  bco_data.bco = ((0x7f & p->lValue(n, "BCO")) - p->iValue(n, "FPHX_BCO") + 128) % 128;
+	  INTT::GetBcoBin(bco_bin, bco_data);
+
+	  BcoDiffMap->AddBinContent(bco_bin);
     }
 
     delete p;
@@ -282,6 +290,64 @@ int InttMon::MiscDebug()
   }
 
   std::cout << "Felix Round trip worked" << std::endl;
+
+  return 0;
+}
+
+int InttMon::CheckBcoRoundTrip()
+{
+  struct INTT::BcoData_s bco_data, bco_data_check;
+  int b, b_check;
+
+  bco_data.pid = 3001;
+  bco_data.fee = 0;
+  bco_data.bco = 0;
+  while(true)
+  {
+    INTT::GetBcoBin(b, bco_data);
+	INTT::GetBcoIndexes(b, bco_data_check);
+
+	bool flag = false;
+	flag = flag || (bco_data.pid != bco_data_check.pid);
+	flag = flag || (bco_data.fee != bco_data_check.fee);
+	flag = flag || (bco_data.bco != bco_data_check.bco);
+
+	if(flag)
+	{
+	  std::cout << "Mismatch (BcoData_s -> Bin -> BcoData_s)" << std::endl;
+	  std::cout << "From:"
+                << "\t" << bco_data.pid << "\n"
+                << "\t" << bco_data.fee << "\n"
+                << "\t" << bco_data.bco << "\n"
+                << "To:"
+                << "\t" << bco_data_check.pid << "\n"
+                << "\t" << bco_data_check.fee << "\n"
+                << "\t" << bco_data_check.bco << "\n"
+				<< "Bin: " << b << "\n"
+				<< std::endl;
+      break;
+	}
+
+	if(++bco_data.bco < INTT::BCO)continue;
+	bco_data.bco = 0;
+	if(++bco_data.fee < INTT::FELIX)continue;
+	bco_data.fee = 0;
+	if(++bco_data.pid < 3009)continue;
+
+    break;
+  }
+
+  for(b = 1; b < INTT::BCOS; ++b)
+  {
+    INTT::GetBcoIndexes(b, bco_data);
+	INTT::GetBcoBin(b_check, bco_data);
+
+	if(b != b_check)
+	{
+	  std::cout << "Mismatch (Bin -> BcoData_s -> Bin)" << std::endl;
+	  break;
+	}
+  }
 
   return 0;
 }
