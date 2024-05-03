@@ -89,7 +89,6 @@ BbcMonDraw::BbcMonDraw(const std::string &name)
 BbcMonDraw::~BbcMonDraw()
 {
   PRINT_DEBUG("In BbcMonDraw::~BbcMonDraw()");
-  // ifdelete( bbccalib );
 
   ifdelete(bbcStyle);
 
@@ -230,7 +229,7 @@ int BbcMonDraw::Init()
 {
   PRINT_DEBUG("In BbcMonDraw::Init()");
   TStyle *oldStyle = gStyle;
-  bbcStyle = new TStyle("bbcStyle", "BBC/MBD Online Monitor Style");
+  bbcStyle = new TStyle("bbcStyle", "MBD Online Monitor Style");
   bbcStyle->SetOptStat(0);
   bbcStyle->SetTitleH(0.075);
   bbcStyle->SetTitleW(0.98);
@@ -289,7 +288,7 @@ int BbcMonDraw::Init()
   memset(TextZVertex_scale, 0, sizeof(TextZVertex_scale));
   memset(TextZVertex_mean, 0, sizeof(TextZVertex_mean));
 
-  FitZvtx = new TF1("FitZvtx", "gaus");
+  FitZvtx = new TF1("FitZvtx", "gaus", -60, 60);
   TextZvtxStatus[0] = new TLatex;
   TextZvtxStatus[1] = new TLatex;
 
@@ -370,10 +369,10 @@ int BbcMonDraw::Warning(TPad *pad, const float x, const float y, const int r, co
     PaveWarning[newWarning]->AddText(wmsg.str().c_str());
     wmsg.str("");
   }
-  // PaveWarning[newWarning]->AddText( "Call BBC/MBD Expert. If this run is a PHYSICS run " );
-  PaveWarning[newWarning]->AddText("Do Quick-feed BBC/MBD");
-  PaveWarning[newWarning]->AddText("If it is NOT fixed by feed at PHYSICS run, call BBC/MBD experts");
-  // PaveWarning[newWarning]->AddText( "If it is NOT fixed by quick feed at PHYSICS run, conform to the BBC/MBD standing orders" );
+  // PaveWarning[newWarning]->AddText( "Call MBD Expert. If this run is a PHYSICS run " );
+  PaveWarning[newWarning]->AddText("Do Quick-feed MBD");
+  PaveWarning[newWarning]->AddText("If it is NOT fixed by feed at PHYSICS run, call MBD experts");
+  // PaveWarning[newWarning]->AddText( "If it is NOT fixed by quick feed at PHYSICS run, conform to the MBD standing orders" );
 
   if (PaveWarnings)
   {
@@ -410,7 +409,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
   {
     std::cout << "Creating Canvas BbcMon1..." << std::endl;
 
-    TC[0] = new TCanvas("BbcMon1", "BBC/MBD Z-Vertex View for Shift crew", -1, 0, xsize / 2, ysize);
+    TC[0] = new TCanvas("BbcMon1", "MBD Z-Vertex View for Shift crew", -1, 0, xsize / 2, ysize);
 
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
@@ -438,7 +437,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
 
     // ifnew( TText, TextZVertexNotice );
     // TextZVertexNotice->SetTextSize(0.08);
-    // TextZVertexNotice->SetText(0.05, 0.75, "< Z vertex deviation may NOT be due to BBC/MBD, don't page expert easily! >");
+    // TextZVertexNotice->SetText(0.05, 0.75, "< Z vertex deviation may NOT be due to MBD, don't page expert easily! >");
 
     // for (int i = 0; i < 4; i++)
     for (int i = 0; i < 1; i++)  //  pp
@@ -627,7 +626,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
   {
     std::cout << "Creating Canvas BbcMon3..." << std::endl;
 
-    TC[2] = new TCanvas("BbcMon3", "BBC/MBD status view for Expert", -xsize / 2, 0, xsize / 2, ysize);
+    TC[2] = new TCanvas("BbcMon3", "MBD status view for Expert", -xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     TC[2]->cd();
 
@@ -799,7 +798,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
      */
   {
     ifnew(TPaveText(0.05, 0.65, 0.70, 0.95), PaveTop);
-    PaveTop->AddText("BBC/MBD ONLINE MONITOR");
+    PaveTop->AddText("MBD ONLINE MONITOR");
     ifnew(TText, TextTop);
     TextTop->SetTextSize(0.25);
   }
@@ -996,8 +995,8 @@ int BbcMonDraw::Draw(const std::string &what)
       name.str("");
     }
 
-    name << BbcMonDefs::SIDE_Str[side] << " BBC/MBD TDC Distribution";
-    // name << BbcMonDefs::SIDE_Str[side] << " BBC/MBD TDC" << tdc << " Distribution(Trigger:BBLL1)" ; // Run14 AuAu 15GeV 2014.02.23
+    name << BbcMonDefs::SIDE_Str[side] << " MBD TDC Distribution";
+    // name << BbcMonDefs::SIDE_Str[side] << " MBD TDC" << tdc << " Distribution(Trigger:BBLL1)" ; // Run14 AuAu 15GeV 2014.02.23
     HitTime[side]->SetTitle(name.str().c_str());
     ifnew(TF1(name.str().c_str(), "gaus"), FitHitTime[side]);
     name.str("");
@@ -1011,8 +1010,8 @@ int BbcMonDraw::Draw(const std::string &what)
   ifnew(TF1("FitAvrHitTime", "gaus"), FitAvrHitTime);
   ifnew(TF1("FitNorthHitTime", "gaus"), FitNorthHitTime);
   ifnew(TF1("FitSouthHitTime", "gaus"), FitSouthHitTime);
-  FitZvtx->SetLineWidth(1);  // 0.05 was used for run3
-  FitZvtx->SetLineColor(4);
+  FitZvtx->SetLineWidth(3);
+  FitZvtx->SetLineColor(1);
 
   // ------------------------------------------------------------------------------
   // making nHit TGraph
@@ -1130,10 +1129,10 @@ int BbcMonDraw::Draw(const std::string &what)
     PadZVertexSummary->cd();
 
     Zvtx->SetLineColor(4);
-    Zvtx->SetFillColor(4);
+    Zvtx->SetFillColor(7);
 
     Zvtx_bbll1->SetLineColor(4);
-    Zvtx_bbll1->SetFillColor(4);
+    Zvtx_bbll1->SetFillColor(7);
 
     // Get Maximum at the inside of BBC which is 130cm from center;
     float maxEntries = 10;
@@ -1151,7 +1150,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
     // Fit No-Vertex Distribution
     FitZvtx->SetRange(-75, 75);
-    FitZvtx->SetLineColor(7);
+    FitZvtx->SetLineColor(1);
     // Zvtx->Fit("FitZvtx", "LRQ");
     Zvtx->Fit("FitZvtx", "R");
 
@@ -1176,7 +1175,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
     // Draw ZVertex triggerd variable trigger
     Zvtx->SetMaximum(maxEntries * 1.05);
-    Zvtx->SetTitle("BBC/MBD ZVertex (south<-->north)");
+    Zvtx->SetTitle("MBD ZVertex (south<-->north)");
     // PadZVertex->DrawFrame(-160,0,160,maxEntries*1.05,"Bbc ZVertex (south<-->north)");
     // std::cout << "maxEntries " << maxEntries << std::endl;
     // Zvtx->Draw("hist");
@@ -1187,6 +1186,7 @@ int BbcMonDraw::Draw(const std::string &what)
     if (Zvtx->GetEntries() > 0)
     {
       Zvtx->Draw("hist");
+      FitZvtx->Draw("same");
     }
     // trigger rate between BBCLL1 and Zvertex within +- BBC_ZVERTEX_CUT_FOR_TRIG_RATE
     // bbll1, zdc, bbll1_novtx
@@ -1283,9 +1283,9 @@ int BbcMonDraw::Draw(const std::string &what)
 
     // Draw Status
     otext.str("");
-    otext << "Z_{All Trigs}^{Fit}= " << ((float) int(FitZvtx->GetParameter(1) * 10)) / 10.0 << " cm";
-    //	      << " #pm " << ((float)int(FitZvtx->GetParError(1)*10))/10.0
-    //	      << " #pm " << ((float)int(FitZvtx->GetParError(2)*10))/10.0
+    otext << "Z_{All Trigs}^{Fit}= " << ((float) int(FitZvtx->GetParameter(1) * 10)) / 10.0 
+    	  << " #pm " << ((float)int(FitZvtx->GetParError(1)*10))/10.0
+          << " cm";
 
     text = otext.str();
     // TextZvtxStatus[0]->SetText(0.0, 0.85, text.c_str());
@@ -1294,7 +1294,9 @@ int BbcMonDraw::Draw(const std::string &what)
     TextZvtxStatus[0]->Draw();
 
     otext.str("");
-    otext << "#sigma = " << int(FitZvtx->GetParameter(2)) << " cm";
+    otext << "#sigma = " << int(FitZvtx->GetParameter(2))
+    	  << " #pm " << ((float)int(FitZvtx->GetParError(2)*10))/10.0
+          << " cm";
     text = otext.str();
     TextZvtxStatus[1]->SetText(100., maxEntries * 0.8, text.c_str());
     TextZvtxStatus[1]->SetTextSize(0.10);
@@ -1306,7 +1308,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
     if (Zvtx_bbll1->GetEntries() > 0)
     {
-      Zvtx_bbll1->GetXaxis()->SetRangeUser(-30, 30);
+      Zvtx_bbll1->GetXaxis()->SetRangeUser(-40, 40);
       Zvtx_bbll1->Draw("hist");
     }
 
@@ -1654,7 +1656,7 @@ int BbcMonDraw::Draw(const std::string &what)
       std::cout << "FrameTdcOver[" << side << "] = " << (unsigned long) FrameTdcOver[side] << std::endl;
       BoxTdcOver[side]->Draw();
 
-      name << BbcMonDefs::SIDE_Str[side] << " BBC/MBD TDC Distribution";
+      name << BbcMonDefs::SIDE_Str[side] << " MBD TDC Distribution";
       FrameTdcOver[side]->SetTitle(name.str().c_str());
       name.str("");
 
@@ -1721,7 +1723,7 @@ int BbcMonDraw::Draw(const std::string &what)
       BoxnHit[0][side]->Draw();
       BoxnHit[1][side]->Draw();
 
-      name << BbcMonDefs::SIDE_Str[side] << " BBC/MBD number of Hit per Event";
+      name << BbcMonDefs::SIDE_Str[side] << " MBD number of Hit per Event";
       FramenHit[side]->SetTitle(name.str().c_str());
       name.str("");
 

@@ -32,7 +32,7 @@ class BbcMon : public OnlMon
 
   MbdEvent *bevt{nullptr};
 
-  int useGL1{0};    // whether to use the GL1 data
+  int useGL1{1};    // whether to use the GL1 data
   uint64_t triggervec{0};
   uint64_t gl1_bco{0};
   eventReceiverClient *erc{nullptr};
