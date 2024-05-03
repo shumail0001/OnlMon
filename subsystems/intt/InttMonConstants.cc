@@ -1,5 +1,56 @@
 #include "InttMonConstants.h"
 
+Color_t INTT::GetFeeColor(int fee)
+{
+  switch(fee % 7)
+  {
+	case 0:
+	  return (fee / 7) ? kGray + 3 : kBlack;
+    case 1:
+      return kRed + 3 * (fee / 7);
+    case 2:
+      return kYellow + 3 * (fee / 7);
+    case 3:
+      return kGreen + 3 * (fee / 7);
+    case 4:
+      return kCyan + 3 * (fee / 7);
+    case 5:
+      return kBlue + 3 * (fee / 7);
+    case 6:
+      return kMagenta + 3 * (fee / 7);
+  }
+  return kBlack;
+}
+
+void INTT::GetBcoBin(int& b, struct BcoData_s const& bco_data)
+{
+  int s = 1;
+  b = 0;
+
+  b += bco_data.bco * s;
+  s *= BCO;
+
+  b += bco_data.fee * s;
+  s *= FELIX_CHANNEL;
+
+  b += (bco_data.pid - 3001) * s;
+
+  ++b;
+}
+
+void INTT::GetBcoIndexes(int b, struct BcoData_s& bco_data)
+{
+  --b;
+
+  bco_data.bco = b % BCO;
+  b /= BCO;
+
+  bco_data.fee = b % FELIX_CHANNEL;
+  b /= FELIX_CHANNEL;
+
+  bco_data.pid = b + 3001;
+}
+
 void INTT::GetFelixBinFromIndexes(int& b, int felix_channel, struct Indexes_s const& indexes)
 {
   int s = 1;

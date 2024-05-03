@@ -37,6 +37,7 @@ class InttMon : public OnlMon
 
   //for testing/debugging without unpacker, remove later
   int MiscDebug();
+  int CheckBcoRoundTrip();
   void RandomEvent(int);
 
  private:
@@ -53,6 +54,7 @@ class InttMon : public OnlMon
 
   TH1D* NumEvents = nullptr;
   TH1D* HitMap = nullptr;
+  TH1D* BcoDiffMap = nullptr;
   //...
 };
 
