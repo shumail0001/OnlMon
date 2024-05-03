@@ -24,8 +24,12 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("zdc_N1","ZDCMON_0");
   cl->registerHisto("zdc_N2","ZDCMON_0");
   cl->registerHisto("zdc_N3","ZDCMON_0");
-  cl->registerHisto("h_waveform","ZDCMON_0");
- 
+  cl->registerHisto("h_waveformZDC","ZDCMON_0");
+  cl->registerHisto("h_waveformSMD_North","ZDCMON_0");
+  cl->registerHisto("h_waveformSMD_South","ZDCMON_0");
+  cl->registerHisto("h_waveformVeto_North","ZDCMON_0");
+  cl->registerHisto("h_waveformVeto_South","ZDCMON_0");
+  cl->registerHisto("h_waveformAll","ZDCMON_0");
 
  // smd
   // Individual smd_adc channel histos

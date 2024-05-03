@@ -373,9 +373,9 @@ int CemcMon::process_event(Event *e  /* evt */)
 	  h1_packet_number -> Fill(packet);
 	  h1_packet_length -> SetBinContent(packet-6000,h1_packet_length->GetBinContent(packet-6000) + p -> getLength());
 
-    h1_packet_event->SetBinContent(packet-6000, p->iValue(0, "CLOCK"));
+    h1_packet_event->SetBinContent(packet-6000, p->lValue(0, "CLOCK"));
 
-    long long int p_clock = p->iValue(0,"CLOCK");
+    long long int p_clock = p->lValue(0,"CLOCK");
     long long int diff = (p_clock - gl1_clock) % 65536;
     h2_caloPack_gl1_clock_diff->Fill(packet,diff);
 

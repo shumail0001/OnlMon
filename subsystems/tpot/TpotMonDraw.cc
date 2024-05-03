@@ -58,37 +58,37 @@ namespace
     return out;
 
   }
- 
+
   // draw an vertical line that extends automatically from both sides of a canvas
   [[maybe_unused]] TLine* vertical_line( TVirtualPad* pad, Double_t x )
   {
     Double_t yMin = pad->GetUymin();
     Double_t yMax = pad->GetUymax();
-    
+
     if( pad->GetLogy() )
     {
       yMin = std::pow( 10, yMin );
       yMax = std::pow( 10, yMax );
     }
-    
+
     return new TLine( x, yMin, x, yMax );
   }
-  
+
   // draw an horizontal line that extends automatically from both sides of a canvas
   [[maybe_unused]] TLine* horizontal_line( TVirtualPad* pad, Double_t y )
   {
     Double_t xMin = pad->GetUxmin();
     Double_t xMax = pad->GetUxmax();
-    
+
     if( pad->GetLogx() )
     {
       xMin = std::pow( 10, xMin );
       xMax = std::pow( 10, xMax );
     }
-    
-    return new TLine( xMin, y, xMax, y );    
+
+    return new TLine( xMin, y, xMax, y );
   }
-  
+
   // divide canvas, adjusting canvas positions to leave room for a banner at the top
   void divide_canvas( TCanvas* cv, int ncol, int nrow )
   {
@@ -127,7 +127,7 @@ TpotMonDraw::TpotMonDraw(const std::string &name)
     std::cout << "TpotMon::TpotMon - TPOTCALIBREF environment variable not set. Reading reference histograms from: " << m_ref_histograms_filename << std::endl;
     m_ref_histograms_tfile.reset( TFile::Open( m_ref_histograms_filename.c_str(), "READ" ) );
   }
-  
+
   // this TimeOffsetTicks is neccessary to get the time axis right
   TDatime T0(2003, 01, 01, 00, 00, 00);
   TimeOffsetTicks = T0.Convert();
@@ -146,11 +146,11 @@ int TpotMonDraw::Init()
 //__________________________________________________________________________________
 int TpotMonDraw::DrawDeadServer( TPad* pad )
 {
-  if( !pad ) 
+  if( !pad )
   {
     if( Verbosity() ) std::cout << "TpotMonDraw::DrawDeadServer - invalid pad" << std::endl;
     return 0;
-  } else {  
+  } else {
     pad->SetPad(0,0,1,1);
     return OnlMonDraw::DrawDeadServer( pad );
   }
@@ -159,12 +159,12 @@ int TpotMonDraw::DrawDeadServer( TPad* pad )
 //__________________________________________________________________________________
 void TpotMonDraw::draw_time( TPad* pad )
 {
-  if( !pad ) 
+  if( !pad )
   {
     if( Verbosity() ) std::cout << "TpotMonDraw::draw_time - invalid pad" << std::endl;
     return;
   }
-  
+
   pad->SetPad( 0, 0.94, 1, 1 );
   pad->Clear();
   TText PrintRun;
@@ -263,9 +263,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     {
       auto&& pad = cv->GetPad(i+1);
       pad->SetLeftMargin(0.15);
-      pad->SetRightMargin(0.02);    
+      pad->SetRightMargin(0.02);
     }
-        
+
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -415,10 +415,12 @@ int TpotMonDraw::Draw(const std::string &what)
       cv->Update();
       for( int i = 0; i < 16; ++i )
       {
-        // draw vertical lines that match sample window
+        // draw vertical lines that match HV sectors
+        // also set log y
         auto&& pad = cv->GetPad(i+1);
         pad->cd();
-        for( const int& channel:{64, 128, 196} ) 
+        pad->SetLogy(true);
+        for( const int& channel:{64, 128, 196} )
         {
           const auto line = vertical_line( pad, channel );
           line->SetLineStyle(2);
@@ -516,7 +518,7 @@ int TpotMonDraw::draw_counters()
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_counters" << std::endl;
 
   // get histograms
-  auto m_counters =  get_histogram( "m_counters");  
+  auto m_counters =  get_histogram( "m_counters");
   std::unique_ptr<TH1> m_counters_ref( normalize( get_ref_histogram( "m_counters" ), get_ref_scale_factor() ) );
 
   auto cv = get_canvas("TPOT_counters");
@@ -537,17 +539,17 @@ int TpotMonDraw::draw_counters()
     m_counters->SetFillStyle(1001);
     m_counters->SetFillColor(kYellow );
     m_counters->DrawCopy( "h" );
-    
-    if( m_counters_ref ) 
+
+    if( m_counters_ref )
     {
       m_counters_ref->SetLineColor(2);
       m_counters_ref->DrawCopy( "hist same" );
     }
-    
+
     draw_time(transparent);
     return 0;
   } else {
-    
+
     DrawDeadServer(transparent);
     return -1;
   }
@@ -566,7 +568,7 @@ int TpotMonDraw::draw_detector_occupancy()
   // turn off stat panel
   for( const auto& h:{m_detector_occupancy_phi,m_detector_occupancy_z} )
   { if(h) h->SetStats(0); }
-  
+
   auto cv = get_canvas("TPOT_detector_occupancy");
   auto transparent = get_transparent_pad( cv, "TPOT_detector_occupancy");
   if( !cv )
@@ -615,7 +617,7 @@ int TpotMonDraw::draw_resist_occupancy()
   // turn off stat panel
   for( const auto& h:{m_resist_occupancy_phi,m_resist_occupancy_z} )
   { if(h) h->SetStats(0); }
-    
+
   auto cv = get_canvas("TPOT_resist_occupancy");
   auto transparent = get_transparent_pad( cv, "TPOT_resist_occupancy");
   if( !cv )
@@ -712,10 +714,10 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_ref_histograms_scaled( const std
 {
   histogram_array_t source( get_ref_histograms( name ) );
   histogram_array_t out{{nullptr}};
-  
+
   const double scale = get_ref_scale_factor();
   for( size_t i=0; i<source.size(); ++i)
-  { if( source[i] ) out[i]=normalize( source[i], scale ); } 
+  { if( source[i] ) out[i]=normalize( source[i], scale ); }
 
   return out;
 }
@@ -727,7 +729,7 @@ double TpotMonDraw::get_ref_scale_factor() const
   const auto m_counters = get_histogram( "m_counters");
   const auto m_counters_ref = get_ref_histogram( "m_counters");
   if( !( m_counters && m_counters_ref ) ) return 0;
-  
+
   const double full_events = m_counters->GetBinContent( TpotMonDefs::kFullEventCounter );
   const double full_events_ref = m_counters_ref->GetBinContent( TpotMonDefs::kFullEventCounter );
   return full_events_ref > 0 ? full_events/full_events_ref : 0;
@@ -761,21 +763,21 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
       cv->cd(i+1);
       if( options&DrawOptions::Colz ) histograms[i]->DrawCopy( "col" );
       else {
-        
+
         histograms[i]->SetFillStyle(1001);
         histograms[i]->SetFillColor(kYellow );
         histograms[i]->DrawCopy( "h" );
         histograms[i]->DrawCopy();
-      
+
       }
-      
+
       // also draw reference
       if( ref_histograms[i] )
       {
         ref_histograms[i]->SetLineColor(2);
         ref_histograms[i]->Draw("hist same" );
       }
-      
+
       gPad->SetBottomMargin(0.12);
       if( options&DrawOptions::Logx ) gPad->SetLogx( true );
       if( options&DrawOptions::Logy && histograms[i]->GetEntries() > 0 ) gPad->SetLogy( true );
@@ -792,7 +794,7 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
     DrawDeadServer(transparent);
     return -1;
   }
-  
+
   // need to delete reference histograms to avoid leak
   for( auto h:ref_histograms ) { delete h; }
   return 0;

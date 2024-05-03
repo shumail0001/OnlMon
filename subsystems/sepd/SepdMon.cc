@@ -281,7 +281,7 @@ int SepdMon::process_event(Event *e /* evt */)
 
       h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet - packetlow]->getMean(0));
 
-      h1_packet_event->SetBinContent(packet - packetlow + 1, p->iValue(0, "CLOCK"));
+      h1_packet_event->SetBinContent(packet - packetlow + 1, p->lValue(0, "CLOCK"));
       int nPacketChannels = p->iValue(0, "CHANNELS");
       if (nPacketChannels > m_nChannels)
       {

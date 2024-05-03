@@ -260,8 +260,20 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     // gSystem->ProcessEvents(), otherwise your process will grow and
     // grow and grow but will not show a definitely lost memory leak
     gSystem->ProcessEvents();
-    Pad[55] = new TPad("zdc waveform", "who needs this?", 0.05, 0.5, 0.5, 0.9, 0);
+    Pad[55] = new TPad("zdc waveform", "who needs this?", 0.05, 0.65, 0.35, 0.95, 0);
+    Pad[56] = new TPad("smd north waveform", "who needs this?", 0.35, 0.65, 0.65, 0.95, 0);
+    Pad[57] = new TPad("smd south waveform", "who needs this?", 0.65, 0.65, 0.95, 0.95, 0);
+    Pad[58] = new TPad("veto north waveform", "who needs this?", 0.05, 0.35, 0.35, 0.65, 0);
+    Pad[59] = new TPad("veto south waveform", "who needs this?", 0.35, 0.35, 0.65, 0.65, 0);
+    Pad[60] = new TPad("all channels waveform", "who needs this?", 0.65, 0.35, 0.95, 0.65, 0);
+
     Pad[55]->Draw();
+    Pad[56]->Draw();
+    Pad[57]->Draw();
+    Pad[58]->Draw();
+    Pad[59]->Draw();
+    Pad[60]->Draw();
+
     // this one is used to plot the run number on the canvas
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
     transparent[0]->SetFillStyle(4000);
@@ -274,15 +286,15 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     // xpos negative: do not draw menu bar
     TC[8] = new TCanvas(name.c_str(), "SMD ADC Mean Values Per Channel", -xsize / 2, -ysize / 2, xsize / 2, ysize / 2);
     gSystem->ProcessEvents();
-    Pad[56] = new TPad("smd_adc_n_hor_means", "SMD ADC for North-Horizontal Channels", 0.05, 0.5, 0.5, 0.98, 0);
-    Pad[57] = new TPad("smd_adc_s_hor_means", "SMD ADC for South-Horizontal Channels", 0.5, 0.5, 0.98, 0.98, 0);
-    Pad[58] = new TPad("smd_adc_n_ver_means", "SMD ADC for North-Vertical Channels", 0.05, 0.05, 0.5, 0.5, 0);
-    Pad[59] = new TPad("smd_adc_s_ver_means", "SMD ADC for South-Vertical Channels", 0.5, 0.05, 0.95, 0.5, 0);
+    Pad[61] = new TPad("smd_adc_n_hor_means", "SMD ADC for North-Horizontal Channels", 0.05, 0.5, 0.5, 0.98, 0);
+    Pad[62] = new TPad("smd_adc_s_hor_means", "SMD ADC for South-Horizontal Channels", 0.5, 0.5, 0.98, 0.98, 0);
+    Pad[63] = new TPad("smd_adc_n_ver_means", "SMD ADC for North-Vertical Channels", 0.05, 0.05, 0.5, 0.5, 0);
+    Pad[64] = new TPad("smd_adc_s_ver_means", "SMD ADC for South-Vertical Channels", 0.5, 0.05, 0.95, 0.5, 0);
 
-    Pad[56]->Draw();
-    Pad[57]->Draw();
-    Pad[58]->Draw();
-    Pad[59]->Draw();
+    Pad[61]->Draw();
+    Pad[62]->Draw();
+    Pad[63]->Draw();
+    Pad[64]->Draw();
 
     // this one is used to plot the run number on the canvas
     transparent[8] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
@@ -927,7 +939,12 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
 int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *h_waveform = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveform");
+  TH2 *h_waveformZDC = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveformZDC");
+  TH2 *h_waveformSMD_North = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveformSMD_North");
+  TH2 *h_waveformSMD_South = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveformSMD_South");
+  TH2 *h_waveformVeto_North = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveformVeto_North");
+  TH2 *h_waveformVeto_South = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveformVeto_South");
+  TH2 *h_waveformAll = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveformAll");
 
   if (!gROOT->FindObject("waveform"))
   {
@@ -935,17 +952,31 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   }
   TC[7]->SetEditable(true);
   TC[7]->Clear("D");
-  if (!h_waveform)
+  if (!h_waveformZDC)
   {
     DrawDeadServer(transparent[0]);
     TC[7]->SetEditable(false);
     return -1;
   }
+  
   Pad[55]->cd();
   gPad->SetLogz();
-  h_waveform->SetXTitle("Sample Number");
-  h_waveform->SetYTitle("Amplitude");
-  h_waveform->DrawCopy("colz");
+  h_waveformZDC->DrawCopy("colz");
+  Pad[56]->cd();
+  gPad->SetLogz();
+  h_waveformSMD_North->DrawCopy("colz");
+   Pad[57]->cd();
+  gPad->SetLogz();
+  h_waveformSMD_South->DrawCopy("colz");
+  Pad[58]->cd();
+  gPad->SetLogz();
+  h_waveformVeto_North->DrawCopy("colz");
+  Pad[59]->cd();
+  gPad->SetLogz();
+  h_waveformVeto_South->DrawCopy("colz");
+  Pad[60]->cd();
+  gPad->SetLogz();
+  h_waveformAll->DrawCopy("colz");
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -1010,7 +1041,7 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
 
   TC[8]->SetEditable(true);
   TC[8]->Clear("D");
-  Pad[56]->cd();
+  Pad[61]->cd();
   if (smd_adc_n_hor_means)
   {
     smd_adc_n_hor_means->DrawCopy();
@@ -1022,17 +1053,17 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
     return -1;
   }
 
-  Pad[57]->cd();
+  Pad[62]->cd();
   if (smd_adc_s_hor_means)
   {
     smd_adc_s_hor_means->DrawCopy();
   }
-  Pad[58]->cd();
+  Pad[63]->cd();
   if (smd_adc_n_ver_means)
   {
     smd_adc_n_ver_means->DrawCopy();
   }
-  Pad[59]->cd();
+  Pad[64]->cd();
   if (smd_adc_s_ver_means)
   {
     smd_adc_s_ver_means->DrawCopy();
