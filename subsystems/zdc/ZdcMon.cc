@@ -116,12 +116,12 @@ int ZdcMon::Init()
   zdc_S3 = new TH1F("zdc_S3", "ZDC3 ADC south", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
 
   //waveform
-  h_waveformZDC = new TH2F("h_waveformZDC", "h_waveformZDC", 13, -0.5, 12.5, 512, -500, 20000);
-  h_waveformSMD_North = new TH2F("h_waveformSMD_North", "h_waveformSMD_North", 13, -0.5, 12.5, 512, -500, 20000);
-  h_waveformSMD_South = new TH2F("h_waveformSMD_South", "h_waveformSMD_South", 13, -0.5, 12.5, 512, -500, 20000);
-  h_waveformVeto_North = new TH2F("h_waveformVeto_North", "h_waveformVeto_North", 13, -0.5, 12.5, 512, -500, 20000);
-  h_waveformVeto_South = new TH2F("h_waveformVeto_South", "h_waveformVeto_South", 13, -0.5, 12.5, 512, -500, 20000);
-  h_waveformAll = new TH2F("h_waveformAll", "h_waveformAll", 13, -0.5, 12.5, 512, -500, 20000);
+  h_waveformZDC = new TH2F("h_waveformZDC", "h_waveformZDC", 19, -0.5, 18.5, 512, -500, 20000);
+  h_waveformSMD_North = new TH2F("h_waveformSMD_North", "h_waveformSMD_North", 19, -0.5, 18.5, 512, -500, 20000);
+  h_waveformSMD_South = new TH2F("h_waveformSMD_South", "h_waveformSMD_South", 19, -0.5, 18.5, 512, -500, 20000);
+  h_waveformVeto_North = new TH2F("h_waveformVeto_North", "h_waveformVeto_North", 19, -0.5, 18.5, 512, -500, 20000);
+  h_waveformVeto_South = new TH2F("h_waveformVeto_South", "h_waveformVeto_South", 19, -0.5, 18.5, 512, -500, 20000);
+  h_waveformAll = new TH2F("h_waveformAll", "h_waveformAll", 19, -0.5, 18.5, 512, -500, 20000);
 
 
   // SMD
