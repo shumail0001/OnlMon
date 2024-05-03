@@ -265,6 +265,15 @@ int TpotMon::process_event(Event* event)
     for( int i=0; i<n_waveforms; ++i )
     {
       auto channel = packet->iValue( i, "CHANNEL" );
+
+      // bound check channel
+      if( channel < 0 || channel >= MicromegasDefs::m_nchannels_fee )
+      {
+        if( Verbosity() )
+        { std::cout << "TpotMon::process_event - invalid channel: " << channel << std::endl; }
+        continue;
+      }
+
       int fee_id = packet->iValue(i, "FEE" );
       int samples = packet->iValue( i, "SAMPLES" );
 
