@@ -61,8 +61,8 @@ class DaqMon : public OnlMon
   TH2 *daqhist2 = nullptr;
   TH2D* h_gl1_clock_diff= nullptr;
   TH2D* h_gl1_clock_diff_capture= nullptr;
-  TH1D* h_unlock_hist = nullptr;
-  TH2* h_unlock_clock = nullptr;
+  //TH1D* h_unlock_hist = nullptr;
+  //TH2* h_unlock_clock = nullptr;
 
   eventReceiverClient *erc = {nullptr};
 };
