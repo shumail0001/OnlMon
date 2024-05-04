@@ -133,8 +133,11 @@ int DaqMon::process_event(Event *e /* evt */)
   Packet* pgl1 = gl1Event->getPacket(14001);
   if (pgl1){
       gl1_clock = pgl1->lValue(0,"BCO");
+      delete pgl1;
   }   
- 
+  delete gl1Event;
+  
+
   Packet * plist[100];
   int npackets = e->getPacketList(plist,100);
   for (int ipacket = 0; ipacket < npackets; ipacket++) {
