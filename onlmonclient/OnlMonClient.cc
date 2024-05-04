@@ -520,6 +520,7 @@ int OnlMonClient::DoSomething(const std::string &who, const std::string &what, c
           std::cout << __PRETTY_FUNCTION__ << " creating html output for "
                     << iter->second->Name() << std::endl;
         }
+	iter->second->isHtml(true);
         if (iter->second->MakeHtml(what))
         {
           std::cout << "subsystem " << iter->second->Name()
@@ -561,6 +562,7 @@ int OnlMonClient::DoSomething(const std::string &who, const std::string &what, c
                     << iter->second->Name() << std::endl;
         }
         gROOT->Reset();
+	iter->second->isHtml(true);
         int iret = iter->second->MakeHtml(what);
         if (iret)
         {
