@@ -1320,7 +1320,6 @@ int HcalMonDraw::SavePlot(const std::string& what, const std::string& type)
 
 int HcalMonDraw::MakeHtml(const std::string& what)
 {
-  isHtml(true);
   int iret = Draw(what);
   if (iret)  // on error no html output please
   {
