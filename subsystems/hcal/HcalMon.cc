@@ -373,7 +373,9 @@ int HcalMon::process_event(Event* e /* evt */)
         trig2_fire = trig_bools[trig2];
         trig3_fire = trig_bools[trig3];
         trig4_fire = trig_bools[trig4];
+	delete p;
       }
+      delete gl1Event;
     }
     else
     {
