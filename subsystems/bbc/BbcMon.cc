@@ -443,6 +443,7 @@ int BbcMon::process_event(Event *evt)
 
         delete p_gl1;
       }
+      delete gl1Event;
     }
   }
 
