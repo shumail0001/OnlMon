@@ -890,27 +890,33 @@ std::pair<float, float> TpcMon::calculateMedianAndStdDev(const std::vector<int>&
       {
         selectedValues.push_back(value);
       }
-    }    
-
-    //Calculate Mean of selected values
-    float sum = 0.0;
-    for (int value : selectedValues) 
-    {
-      sum += value;
     }
-    float mean = sum / selectedValues.size();
 
-    // Calculate RMS of selected values
-    float sumSquares = 0.0;
+    float stdDev = 3; // default answer is 3 ADC if nothing passes the +/- 40 ADC band for stdDev calc.
 
-    // Calculate the standard deviation of selected values only
-    for (int value : selectedValues)
-    {
-      float diff = value - mean;
-      sumSquares += std::pow(diff, 2);
+    if(selectedValues.size() > 0 ){   
+
+      //Calculate Mean of selected values
+      float sum = 0.0;
+      for (int value : selectedValues) 
+      {
+        sum += value;
+      }
+      float mean = sum / selectedValues.size();
+  
+      // Calculate RMS of selected values
+      float sumSquares = 0.0;
+  
+      // Calculate the standard deviation of selected values only
+      for (int value : selectedValues)
+      {
+        float diff = value - mean;
+        sumSquares += std::pow(diff, 2);
+      }
+      float variance = sumSquares / selectedValues.size();
+      stdDev = std::sqrt(variance);
+
     }
-    float variance = sumSquares / selectedValues.size();
-    float stdDev = std::sqrt(variance);
     
     return std::make_pair(median, stdDev);
 }
