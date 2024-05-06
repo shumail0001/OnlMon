@@ -499,6 +499,7 @@ int TpcMon::process_event(Event *evt/* evt */)
   int lastpacket = firstpacket+232;
 
   NEvents_vs_EBDC->Fill(MonitorServerId());
+  //std::cout<<"Event #"<< evtcnt <<std::endl;
   
   for( int packet = firstpacket; packet < lastpacket; packet++) //packet 4001 or 4002 = Sec 00, packet 4231 or 4232 = Sec 23
   {
@@ -519,7 +520,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
       for( int wf = 0; wf < nr_of_waveforms; wf++)
       {
-
+	//std::cout<<"START OF WF LOOP, "<<"current wf = "<<wf<<", total wf = "<<nr_of_waveforms<<" EVENT "<<evtcnt<<std::endl;
         int current_BCO = p->iValue(wf, "BCO") + rollover_value;
         if (starting_BCO < 0)
         {
@@ -606,13 +607,15 @@ int TpcMon::process_event(Event *evt/* evt */)
           }
           for( int si=0;si < nr_Samples; si++ ) //get pedestal and noise before hand
           {
-	    if( (p->iValue(wf,si)) > 64500 ){ break; } //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
-            median_and_stdev_vec.push_back(p->iValue(wf,si));
+	    if( (p->iValue(wf,si)) > 64500 && si > 359){ break; } //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 360, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
+            else if( (p->iValue(wf,si)) > 64500 ){ continue; }  //only use reasonable values to calculate median
+            median_and_stdev_vec.push_back(p->iValue(wf,si)); 
           }
         } //Compare 5 values to determine stuck !!
 
         if( median_and_stdev_vec.size() == 0 ) // if all waveform values were 65 K
-        {         
+        { 
+	  //std::cout<<"All values skipped, Event # "<<evtcnt<<std::endl;        
           is_channel_stuck = 0; //reset after looping through waveform samples
           store_ten.clear(); //clear this after every waveform
           median_and_stdev_vec.clear(); //clear this after every waveform
@@ -620,9 +623,9 @@ int TpcMon::process_event(Event *evt/* evt */)
         }
 
         std::pair<float, float> result = calculateMedianAndStdDev(median_and_stdev_vec);
-	//std::cout<<"pedestal = "<<result.first<<", RMS = "<<result.second<<", ADC, channel: "<<channel<<", layer: "<<layer<<", phi: "<<phi<<std::endl;
+	//std::cout<<"pedestal = "<<result.first<<", RMS = "<<result.second<<" ADC, fee: "<<fee<<", channel: "<<channel<<", layer: "<<layer<<", phi: "<<phi<<", event num: "<<evtcnt<<std::endl;
         float pedestal = result.first; //average/pedestal -- based on MEDIAN OF ALL ENTRIES NOW, NOT MEAN OF FIRST 10 (02/12/24)
-        float noise = result.second; //stdev - BASED ON REASONABLE SIGMA OF ENTRIES THAT ARE +/- 15 ADC WITHIN PEDESTAL
+        float noise = result.second; //stdev - BASED ON REASONABLE SIGMA OF ENTRIES THAT ARE +/- 40 ADC WITHIN PEDESTAL
 
         int wf_max = 0;
         int t_max = 0;
@@ -634,12 +637,15 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         for( int s =0; s < nr_Samples ; s++ )
         {
-          
+	  //std::cout<<"MADE IT TO START OF sample LOOP, "<<"current sample = "<<s<<", total sample = "<<nr_Samples<<" EVENT "<<evtcnt<<std::endl;          
           //int t = s + 2 * (current_BCO - starting_BCO);
 
           int adc = p->iValue(wf,s);
 
-          if( adc > 64500 ) { break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
+	  //std::cout<<"adc = "<<adc<<" ADC, FEE = "<<fee<<", channel: "<<channel<<", layer: "<<layer<<", phi: "<<phi<<", event num: "<<evtcnt<<std::endl;
+
+          if( adc > 64500 && s > 359 ) { break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 360, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
+          else if( adc > 64500 ) { continue; } // we do not care about 65K ADC entries - ignore them
 
           Layer_ChannelPhi_ADC_weighted->Fill(padphi,layer,adc-pedestal);
 
@@ -647,11 +653,11 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           if( (s> 310 && s < 350) && (adc > wf_max_laser_peak) ){ wf_max_laser_peak = adc; pedest_sub_wf_max_laser_peak = adc - pedestal; }   
 
-          if( s >= 10 && s <= 19) // get first 10-19
+          if( (store_ten.size() < 10) ) // get first 10
           {
             store_ten.push_back(adc);
           }
-          else if( s > 19 )  
+          else  
           {
 
             //nine_max = Max_Nine(p->iValue(wf,s-9),p->iValue(wf,s-8),p->iValue(wf,s-7),p->iValue(wf,s-6),p->iValue(wf,s-5),p->iValue(wf,s-4),p->iValue(wf,s-3),p->iValue(wf,s-2),p->iValue(wf,s-1)); //take the previous 9 numbers
@@ -687,6 +693,7 @@ int TpcMon::process_event(Event *evt/* evt */)
           if(serverid >= 0 && serverid < 12 ){ North_Side_Arr[ Index_from_Module(serverid,fee) ] += adc;}
           else {South_Side_Arr[ Index_from_Module(serverid,fee)-36 ] += adc;}
 
+	  //std::cout<<"MADE IT TO END OF sample LOOP, "<<"current sample = "<<s<<", total sample = "<<nr_Samples<<" EVENT "<<evtcnt<<std::endl;
         } //nr samples
 
         //for complicated XY stuff ____________________________________________________
@@ -732,12 +739,15 @@ int TpcMon::process_event(Event *evt/* evt */)
         store_ten.clear(); //clear this after every waveform
         
         median_and_stdev_vec.clear(); //clear this after every waveform
-
+	//std::cout<<"MADE IT TO END OF WF LOOP, "<<"current wf = "<<wf<<", total wf = "<<nr_of_waveforms<<" EVENT "<<evtcnt<<std::endl;
 
       } //nr waveforms
+      //std::cout<<"ABOUT TO DELETE THE EXISTING PACKET, EVENT # "<<evtcnt<<std::endl;
       delete p;
-    }
-  } //packet loop
+      //std::cout<<"JUST DELETETED THE EXISTING PACKET, EVENT # "<<evtcnt<<std::endl;
+    } // if packet exists
+    //std::cout<<"MADE IT TO END OF PACKET LOOP, EVENT # "<<evtcnt<<std::endl;
+  } //end of packet loop
 
   evtcnt++;
 
@@ -755,21 +765,22 @@ int TpcMon::process_event(Event *evt/* evt */)
   //float North_Side_Arr[36] = { 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50 };
   //float South_Side_Arr[36] = { 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50, 12, 8, 40, 39, 80, 50 };
 
-  for(int tpciter = 1; tpciter < 73 ; tpciter++){
-
+  for(int tpciter = 1; tpciter < 73 ; tpciter++)
+  {
     Locate(tpciter, &r, &theta);
     //std::cout << "r is: "<< r <<" theta is: "<< theta <<"\n";
-    if(tpciter < 37){ //South side
+    if(tpciter < 37)
+    { //South side
       NorthSideADC->Fill(theta,r, North_Side_Arr[tpciter-1]); //fill South side with the weight = bin content
     }
-    else { //North side
+    else 
+    { //North side
       SouthSideADC->Fill(theta,r,South_Side_Arr[tpciter-37]); //fill North side with the weight = bin content
     }
-  }
-  //
+  } //end loop over tpciter
 
   return 0;
-}
+} // end PROCESS_EVENT FUNCTION
 
 int TpcMon::Module_ID(int fee_id) //for simply determining which module you are in (doesn't care about sector)
 {
@@ -879,28 +890,35 @@ std::pair<float, float> TpcMon::calculateMedianAndStdDev(const std::vector<int>&
       {
         selectedValues.push_back(value);
       }
-    }    
-
-    //Calculate Mean of selected values
-    float sum = 0.0;
-    for (int value : selectedValues) 
-    {
-      sum += value;
     }
-    float mean = sum / selectedValues.size();
 
-    // Calculate RMS of selected values
-    float sumSquares = 0.0;
+    float stdDev = 3; // default answer is 3 ADC if nothing passes the +/- 40 ADC band for stdDev calc.
 
-    // Calculate the standard deviation of selected values only
-    for (int value : selectedValues)
-    {
-      float diff = value - mean;
-      sumSquares += std::pow(diff, 2);
+    if(selectedValues.size() > 0 )
+    {   
+
+      //Calculate Mean of selected values
+      float sum = 0.0;
+      for (int value : selectedValues) 
+      {
+        sum += value;
+      }
+      float mean = sum / selectedValues.size();
+  
+      // Calculate RMS of selected values
+      float sumSquares = 0.0;
+  
+      // Calculate the standard deviation of selected values only
+      for (int value : selectedValues)
+      {
+        float diff = value - mean;
+        sumSquares += std::pow(diff, 2);
+      }
+      float variance = sumSquares / selectedValues.size();
+      stdDev = std::sqrt(variance);
+
     }
-    float variance = sumSquares / selectedValues.size();
-    float stdDev = std::sqrt(variance);
-    
+    //std::cout<<"PED = "<< median << "ADC, NOISE = "<< stdDev <<" ADC"<<std::endl;
     return std::make_pair(median, stdDev);
 }
 
