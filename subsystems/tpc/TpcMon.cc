@@ -615,7 +615,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         if( median_and_stdev_vec.size() == 0 ) // if all waveform values were 65 K
         { 
-	  std::cout<<"All values skipped, Event # "<<evtcnt<<std::endl;        
+	  //std::cout<<"All values skipped, Event # "<<evtcnt<<std::endl;        
           is_channel_stuck = 0; //reset after looping through waveform samples
           store_ten.clear(); //clear this after every waveform
           median_and_stdev_vec.clear(); //clear this after every waveform
@@ -894,7 +894,8 @@ std::pair<float, float> TpcMon::calculateMedianAndStdDev(const std::vector<int>&
 
     float stdDev = 3; // default answer is 3 ADC if nothing passes the +/- 40 ADC band for stdDev calc.
 
-    if(selectedValues.size() > 0 ){   
+    if(selectedValues.size() > 0 )
+    {   
 
       //Calculate Mean of selected values
       float sum = 0.0;
@@ -917,7 +918,7 @@ std::pair<float, float> TpcMon::calculateMedianAndStdDev(const std::vector<int>&
       stdDev = std::sqrt(variance);
 
     }
-    
+    //std::cout<<"PED = "<< median << "ADC, NOISE = "<< stdDev <<" ADC"<<std::endl;
     return std::make_pair(median, stdDev);
 }
 
