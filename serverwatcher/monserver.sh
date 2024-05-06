@@ -68,7 +68,6 @@ case "$1" in
 		    fi
 		done
 	    fi
-	fi
 	    rm $pidfile
 	fi
 	;;
