@@ -226,7 +226,7 @@ getMonitors();
 my $mw = MainWindow->new;
 my $column=0;
 my $row=0;
-my $ncolumns=6;
+my $ncolumns=10;
 
 foreach my $m ( sort keys %monitors ) {
   
