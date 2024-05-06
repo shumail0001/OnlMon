@@ -253,6 +253,21 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     m_canvas.push_back( cv );
     return cv;
 
+  } else if (name == "TPOT_adc_vs_channel") {
+
+    auto cv = new TCanvas(name.c_str(), "TpotMon adc vs channel", -1, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name);
+    for( int i = 0; i < 16; ++i )
+    {
+      cv->GetPad(i+1)->SetLeftMargin(0.15);
+      cv->GetPad(i+1)->SetRightMargin(0.02);
+    }
+    cv->SetEditable(false);
+    m_canvas.push_back( cv );
+    return cv;
+
   } else if (name == "TPOT_counts_vs_sample") {
 
     auto cv = new TCanvas(name.c_str(), "TpotMon counts vs sample", -1, 0, xsize / 2, ysize);
@@ -367,6 +382,32 @@ int TpotMonDraw::Draw(const std::string &what)
     ++idraw;
   }
 
+  if (what == "ALL" || what == "TPOT_adc_vs_channel")
+  {
+    iret += draw_array("TPOT_adc_vs_channel", get_histograms( "m_adc_channel" ), DrawOptions::Colz );
+    auto cv = get_canvas("TPOT_adc_vs_channel");
+    if( cv )
+    {
+      CanvasEditor cv_edit(cv);
+      cv->Update();
+      for( int i = 0; i < 16; ++i )
+      {
+        // draw vertical lines that match HV sectors
+        auto&& pad = cv->GetPad(i+1);
+        pad->cd();
+        for( const int& channel:{64, 128, 196} )
+        {
+          const auto line = vertical_line( pad, channel );
+          line->SetLineStyle(2);
+          line->SetLineColor(1);
+          line->SetLineWidth(1);
+          line->Draw();
+        }
+      }
+    }
+    ++idraw;
+  }
+
   if (what == "ALL" || what == "TPOT_counts_vs_sample")
   {
     iret += draw_array("TPOT_counts_vs_sample", get_histograms( "m_counts_sample" ), get_ref_histograms_scaled( "m_counts_sample" ) );
@@ -420,6 +461,7 @@ int TpotMonDraw::Draw(const std::string &what)
         auto&& pad = cv->GetPad(i+1);
         pad->cd();
         pad->SetLogy(true);
+        pad->Update();
         for( const int& channel:{64, 128, 196} )
         {
           const auto line = vertical_line( pad, channel );

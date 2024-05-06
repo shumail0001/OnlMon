@@ -7,6 +7,8 @@
 #include <Event/msg_profile.h>
 #include <Event/Event.h>
 
+#include <micromegas/MicromegasDefs.h>
+
 #include <TH1.h>
 #include <TH2.h>
 #include <TH2Poly.h>
@@ -174,6 +176,17 @@ int TpotMon::Init()
       se->registerHisto(this, detector_histograms.m_adc_sample);
     }
 
+    {
+      auto h = detector_histograms.m_adc_channel = new TH2I(
+        Form( "m_adc_channel_%s", detector_name.c_str() ),
+        Form( "adc count vs strip (%s);strip;adc", detector_name.c_str() ),
+        MicromegasDefs::m_nchannels_fee, 0, MicromegasDefs::m_nchannels_fee,
+        1024, 0, 1024 );
+      h->GetXaxis()->SetTitleOffset(1.);
+      h->GetYaxis()->SetTitleOffset(1.65);
+      se->registerHisto(this, detector_histograms.m_adc_channel);
+    }
+
     // hit charge
     static constexpr double max_hit_charge = 1024;
     detector_histograms.m_hit_charge = new TH1I(
@@ -186,14 +199,14 @@ int TpotMon::Init()
     detector_histograms.m_hit_multiplicity = new TH1I(
       Form( "m_hit_multiplicity_%s", detector_name.c_str() ),
       Form( "hit multiplicity (%s);#hits", detector_name.c_str() ),
-      256, 0, 256 );
+      MicromegasDefs::m_nchannels_fee, 0, MicromegasDefs::m_nchannels_fee );
     se->registerHisto(this, detector_histograms.m_hit_multiplicity);
 
     // hit per channel
     detector_histograms.m_hit_vs_channel = new TH1I(
       Form( "m_hit_vs_channel_%s", detector_name.c_str() ),
-      Form( "hit profile (%s);channel", detector_name.c_str() ),
-      256, 0, 256 );
+      Form( "hit profile (%s);strip", detector_name.c_str() ),
+      MicromegasDefs::m_nchannels_fee, 0, MicromegasDefs::m_nchannels_fee );
     se->registerHisto(this, detector_histograms.m_hit_vs_channel);
 
     // store in map
@@ -256,7 +269,8 @@ int TpotMon::process_event(Event* event)
     // add contribution to full event
     /*
      * we assume a full event must have m_nchannels_total waveforms
-     * this will break when zero suppression is implemented
+     * this does not work with zero suppression ON. We do not know how many waveforms to expect for a full event.
+     * it might be more relevant to load taggers and increment.
      */
     fullevent_weight += double(n_waveforms)/MicromegasDefs::m_nchannels_total;
 
@@ -264,7 +278,7 @@ int TpotMon::process_event(Event* event)
     { std::cout << "TpotMon::process_event - n_waveforms: " << n_waveforms << std::endl; }
     for( int i=0; i<n_waveforms; ++i )
     {
-      auto channel = packet->iValue( i, "CHANNEL" );
+      const auto channel = packet->iValue( i, "CHANNEL" );
 
       // bound check channel
       if( channel < 0 || channel >= MicromegasDefs::m_nchannels_fee )
@@ -274,8 +288,9 @@ int TpotMon::process_event(Event* event)
         continue;
       }
 
-      int fee_id = packet->iValue(i, "FEE" );
-      int samples = packet->iValue( i, "SAMPLES" );
+      const int fee_id = packet->iValue(i, "FEE" );
+      const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
+      const int samples = packet->iValue( i, "SAMPLES" );
 
       // get channel rms and pedestal from calibration data
       const double pedestal = m_calibration_data.get_pedestal( fee_id, channel );
@@ -313,6 +328,9 @@ int TpotMon::process_event(Event* event)
         if( is_signal ) detector_histograms.m_counts_sample->Fill( is );
         detector_histograms.m_adc_sample->Fill( is, adc );
         detector_histograms.m_hit_charge->Fill( adc );
+
+        detector_histograms.m_adc_channel->Fill( strip_index, adc );
+
       }
 
       // define if hit is signal
@@ -331,7 +349,6 @@ int TpotMon::process_event(Event* event)
       // fill hit profile for this channel
       if( is_signal )
       {
-        const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
         detector_histograms.m_hit_vs_channel->Fill( strip_index );
 
         // update multiplicity for this detector
@@ -394,7 +411,7 @@ int TpotMon::Reset()
 
   for( const auto& [fee_id,hlist]:m_detector_histograms )
   {
-    for( TH1* h:std::initializer_list<TH1*>{hlist.m_counts_sample, hlist.m_adc_sample, hlist.m_hit_charge,  hlist.m_hit_multiplicity,   hlist.m_hit_vs_channel } )
+    for( TH1* h:std::initializer_list<TH1*>{hlist.m_counts_sample, hlist.m_adc_sample, hlist.m_adc_channel, hlist.m_hit_charge,  hlist.m_hit_multiplicity,   hlist.m_hit_vs_channel } )
     { h->Reset(); }
   }
 
