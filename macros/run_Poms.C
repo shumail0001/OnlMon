@@ -128,11 +128,12 @@ void StartPoms()
   subsys->AddAction("tpotDraw(\"TPOT_counters\")", "Event counters");
   subsys->AddAction("tpotDraw(\"TPOT_detector_occupancy\")", "Detector Occupancy");
   subsys->AddAction("tpotDraw(\"TPOT_resist_occupancy\")", "Resist Occupnacy");
-  subsys->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC Sample");
-  subsys->AddAction("tpotDraw(\"TPOT_counts_vs_sample\")", "Counts Sample");
+  subsys->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC vs Sample");
+  subsys->AddAction("tpotDraw(\"TPOT_adc_vs_channel\")", "ADC vs Strip");
+  subsys->AddAction("tpotDraw(\"TPOT_counts_vs_sample\")", "Counts vs Sample");
   subsys->AddAction("tpotDraw(\"TPOT_hit_charge\")", "Hit Charge");
   subsys->AddAction("tpotDraw(\"TPOT_hit_multiplicity\")", "Hit Multiplicity");
-  subsys->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit Channel");
+  subsys->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit vs Strip");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 

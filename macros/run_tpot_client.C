@@ -23,7 +23,7 @@ void tpotDrawInit(const int online = 0)
   for( const std::string& hname: { "m_counters", "m_detector_occupancy_phi", "m_detector_occupancy_z", "m_resist_occupancy_phi", "m_resist_occupancy_z" } )
   { cl->registerHisto( hname, "TPOTMON_0" ); }
 
-  for( const std::string& hname: { "m_adc_sample", "m_counts_sample", "m_hit_charge", "m_hit_multiplicity", "m_hit_vs_channel" } )
+  for( const std::string& hname: { "m_adc_sample", "m_adc_channel", "m_counts_sample", "m_hit_charge", "m_hit_multiplicity", "m_hit_vs_channel" } )
   {
     for( const auto& detname : detector_names )
     { cl->registerHisto( hname+"_"+detname, "TPOTMON_0" ); }
