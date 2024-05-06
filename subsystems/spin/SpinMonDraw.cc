@@ -82,7 +82,7 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
   if (name == "SpinMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "SpinMon Shift Crew", -1, 0, xsize / 2, ysize);
+    TC[0] = new TCanvas(name.c_str(), "SpinMon Shift Crew", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -113,7 +113,7 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SpinMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "SpinMon Experts", -xsize / 2, 0, xsize / 2, ysize);
+    TC[1] = new TCanvas(name.c_str(), "SpinMon Experts", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
     gSystem->ProcessEvents();
 
     Pad[7] = new TPad("spinpad8", "who needs this?", 0.05, 0.725, 0.35, 0.95, 0);
@@ -555,7 +555,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   xingshiftstream << "Default crossing shift: " << hxingshift->GetBinContent(1);
   xingshiftstring = xingshiftstream.str();
   t_xingshift.DrawText(0.15, 0.3, xingshiftstring.c_str());
-  
+
   std::string addxingshiftstring;
   if (hxingshift->GetBinContent(2) != -999)
   {
@@ -564,7 +564,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     addxingshiftstring = addxingshiftstream.str();
     t_xingshift.DrawText(0.15, 0.25, addxingshiftstring.c_str());
   }
-  else 
+  else
   {
     addxingshiftstring = "Additional crossing shift: Unknown";
     t_xingshift.DrawText(0.15, 0.25, addxingshiftstring.c_str());

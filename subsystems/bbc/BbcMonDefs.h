@@ -88,40 +88,11 @@ namespace BbcMonDefs
   static const float BBC_MIN_REGULAR_ZVERTEX_MEAN = -20.0;
   static const float BBC_MIN_WORNING_STATISTICS_FOR_ZVERTEX_MEAN = 5000;
 
-  static const int BBC_PACKET_ID = 1001;
+  static const int BBCS_PACKET_ID = 1001;
   static const int BBCN_PACKET_ID = 1002;
-  static const int BBCS_PACKET_ID = 1003;
-  static const int BBC_ZDC_PACKET_ID = 13001;
   static const int BBC_TRIG_PACKET_ID = 14001;
 
-#ifdef HE3AU
-  static const unsigned long BBC_ZDC_TRIG = 0x4;     // 0x2;
-  static const unsigned long BBC_BBC_TRIG = 0x2;     // 0x1;
-  static const unsigned long BBC_BBZDC_TRIG = 0x8;   // 0x8;
-  static const unsigned long BBC_BBLL1_TRIG = 0x40;  // 0x1000;
-  // for He3Au
-  static const float BBC_nHIT_MB_MAX[nSIDE] = {0.90, 0.90};
-  static const float BBC_nHIT_MB_MIN[nSIDE] = {0.05, 0.05};
-  static const float ZDC_BBC_TRIGSCALE = 1;
-  // Charge Sum plot
-  static const int MAX_ADC_MIP = 100;     // for He3Au
-  static const int MAX_CHARGE_SUM = 500;  // for He3Au
-#endif
 
-#ifdef CUCU
-  static const unsigned long BBC_ZDC_TRIG = 0x4;     // 0x2;
-  static const unsigned long BBC_BBC_TRIG = 0x2;     // 0x1;
-  static const unsigned long BBC_BBZDC_TRIG = 0x8;   // 0x8;
-  static const unsigned long BBC_BBLL1_TRIG = 0x40;  // 0x1000;
-  // for CuCu
-  static const float BBC_nHIT_MB_MAX[nSIDE] = {0.90, 0.90};
-  static const float BBC_nHIT_MB_MIN[nSIDE] = {0.10, 0.10};
-  static const float ZDC_BBC_TRIGSCALE = 10;
-  // Charge Sum plot
-  static const int MAX_ADC_MIP = 50;       // for AuAu
-  static const int MAX_CHARGE_SUM = 1500;  // for AuAu
-#endif
-                                           // last year
 #ifdef AUAU
   static const unsigned long BBC_ZDC_TRIG = 0x4;     // 0x2;
   static const unsigned long BBC_BBC_TRIG = 0x2;     // 0x1;
@@ -172,20 +143,6 @@ namespace BbcMonDefs
   static const int MAX_CHARGE_SUM = 250;  // for pAu
 #endif
 
-#ifdef PAL
-  static const unsigned long BBC_ZDC_TRIG = 0x4;     // 0x2;
-  static const unsigned long BBC_BBC_TRIG = 0x2;     // 0x1;
-  static const unsigned long BBC_BBZDC_TRIG = 0x8;   // 0x8;
-  static const unsigned long BBC_BBLL1_TRIG = 0x40;  // 0x1000;
-  // for pAl
-  static const float BBC_nHIT_MB_MAX[nSIDE] = {0.80, 0.60};
-  static const float BBC_nHIT_MB_MIN[nSIDE] = {0.02, 0.01};
-  static const float ZDC_BBC_TRIGSCALE = 3;
-  // Charge Sum plot
-  static const int MAX_ADC_MIP = 100;     // for pAu
-  static const int MAX_CHARGE_SUM = 200;  // for pAu
-#endif
-
 #ifdef PROTONPROTON
 
   static const unsigned long BBC_ZDC_TRIG = 0x4000000;           // 27 zdcns;
@@ -204,19 +161,6 @@ namespace BbcMonDefs
   static const int MAX_CHARGE_SUM = 100;  // for pp
 #endif
 
-#ifdef UU
-  static const unsigned long BBC_ZDC_TRIG = 0x4;     // 0x2;
-  static const unsigned long BBC_BBC_TRIG = 0x2;     // 0x1;
-  static const unsigned long BBC_BBZDC_TRIG = 0x8;   // 0x8;
-  static const unsigned long BBC_BBLL1_TRIG = 0x40;  // 0x1000;
-  static const float BBC_nHIT_MB_MAX[nSIDE] = {0.90, 0.90};
-  static const float BBC_nHIT_MB_MIN[nSIDE] = {0.05, 0.05};
-  static const float ZDC_BBC_TRIGSCALE = 1;
-  // Charge Sum plot
-  static const int MAX_ADC_MIP = 50;       // for UU
-  static const int MAX_CHARGE_SUM = 1500;  // for UU 200GeV
-#endif
-
   static const unsigned long BBC_BBLL1_COPY_TRIG = 0x1000000;  // new trigger
   // static const int BBC_BBLL1_TRIG    = 0x10;       //0x1000;
   // static const unsigned long BBC_LASER_TRIG = 0x40000000;  // 0x40000000;
@@ -233,7 +177,7 @@ namespace BbcMonDefs
   // static const int BBC_COLOR_ZVTX[4] = {4,2,7,1};
   static const int BBC_COLOR_ZVTX[5] = {4, 2, 7, 6, 1};
 
-  static const int BBC_NSAMPLES = 31;  // number of digitizer samples
+  static const int BBC_MAXSAMPLES = 31;  // number of digitizer samples
 
   const double index_refract = 1.4585;        // quartz radiator index of refraction
   const double v_ckov = 1.0 / index_refract;  // velocity threshold for CKOV

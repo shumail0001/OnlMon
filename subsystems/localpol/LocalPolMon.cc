@@ -67,7 +67,7 @@ int LocalPolMon::process_event(Event *e /* evt */)
   
   Packet* p = e->getPacket(packetid);
   if (p){
-
+    delete p;
   }
 
   return 0;

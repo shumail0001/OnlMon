@@ -60,8 +60,6 @@ class SpinMon : public OnlMon
  protected:
   int evtcnt = 0;
 
-  
-
   int CalculateCrossingShift(int &xingshift, uint64_t counts[NTRIG][NBUNCHES], bool &success);
 
   eventReceiverClient *erc = {nullptr};
