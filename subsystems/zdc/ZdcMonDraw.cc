@@ -362,11 +362,15 @@ int ZdcMonDraw::Draw(const std::string &what)
     iret += DrawSmdAdcMeans(what);
     idraw++;
   }
-
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
-    iret = -1;
+    iret--;
+    idraw++;
+  }
+  if (std::fabs(iret) != idraw) // at least one succeeded
+  {
+    return 0;
   }
   return iret;
 }
@@ -397,6 +401,11 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   {
     DrawDeadServer(transparent[0]);
     TC[0]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[0];
+      TC[0] = nullptr;
+    }
     return -1;
   }
   Pad[1]->cd();
@@ -468,6 +477,11 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   {
     DrawDeadServer(transparent[1]);
     TC[1]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[1];
+      TC[1] = nullptr;
+    }
     return -1;
   }
 
@@ -557,6 +571,11 @@ int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
   {
     DrawDeadServer(transparent[2]);
     TC[2]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[2];
+      TC[2] = nullptr;
+    }
     return -1;
   }
 
@@ -629,6 +648,11 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   {
     DrawDeadServer(transparent[3]);
     TC[3]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[3];
+      TC[3] = nullptr;
+    }
     return -1;
   }
   Pad[14]->cd();
@@ -750,6 +774,11 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   {
     DrawDeadServer(transparent[4]);
     TC[4]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[4];
+      TC[4] = nullptr;
+    }
     return -1;
   }
 
@@ -829,6 +858,11 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
   {
     DrawDeadServer(transparent[5]);
     TC[5]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[5];
+      TC[5] = nullptr;
+    }
     return -1;
   }
 
@@ -896,6 +930,11 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
   {
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[6];
+      TC[6] = nullptr;
+    }
     return -1;
   }
 
@@ -956,6 +995,11 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   {
     DrawDeadServer(transparent[0]);
     TC[7]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[7];
+      TC[7] = nullptr;
+    }
     return -1;
   }
   
@@ -1003,6 +1047,11 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   
+  if (!gROOT->FindObject("SmdAdcMeans"))
+  {
+    MakeCanvas("SmdAdcMeans");
+  }
+
   // Array that holds pointer to the histogram of each channel
   TH1 *smd_adc_n_hor_ind[8];
   TH1 *smd_adc_n_ver_ind[7];
@@ -1020,6 +1069,17 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
     int j = i + 2;
     smd_adc_n_hor_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_n_hor_ind%d", i));  // north horizontal individual histograms
     smd_adc_s_hor_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_s_hor_ind%d", i));  // south horizontal individual histograms
+    if (!smd_adc_n_hor_ind[i] || !smd_adc_s_hor_ind[i])
+    {
+      DrawDeadServer(transparent[8]);
+      TC[8]->SetEditable(false);
+      if (isHtml())
+      {
+	delete TC[8];
+	TC[8] = nullptr;
+      }
+      return -1;
+    }
     smd_adc_n_hor_means->SetBinContent(j, smd_adc_n_hor_ind[i]->GetMean()); // means of north horizontal
     smd_adc_s_hor_means->SetBinContent(j, smd_adc_s_hor_ind[i]->GetMean()); // means of south horizontal
   }
@@ -1034,10 +1094,6 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
     smd_adc_s_ver_means->SetBinContent(j, smd_adc_s_ver_ind[i]->GetMean()); // mean of each
   }
 
-  if (!gROOT->FindObject("SmdAdcMeans"))
-  {
-    MakeCanvas("SmdAdcMeans");
-  }
 
   TC[8]->SetEditable(true);
   TC[8]->Clear("D");
@@ -1050,6 +1106,11 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
   {
     DrawDeadServer(transparent[8]);
     TC[8]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[8];
+      TC[8] = nullptr;
+    }
     return -1;
   }
 
@@ -1123,55 +1184,26 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
 
   OnlMonClient *cl = OnlMonClient::instance();
 
-  // Register the 1st canvas png file to the menu and produces the png file.
-  std::string pngfile = cl->htmlRegisterPage(*this, TC[0]->GetTitle(), "1", "png");
-  cl->CanvasToPng(TC[0], pngfile);
+  int icnt = 0;
+  std::set <int> expert_indices; // these canvases end up under expert
+  expert_indices.insert(2);
+  expert_indices.insert(4);
+  expert_indices.insert(5);
 
-  // idem for 2nd canvas.
-  pngfile = cl->htmlRegisterPage(*this, TC[1]->GetTitle(), "2", "png");
-  cl->CanvasToPng(TC[1], pngfile);
-
-  //SMD North and South vertical/horizontal ADC sums
-  pngfile = cl->htmlRegisterPage(*this, TC[3]->GetTitle(), "3", "png");
-  cl->CanvasToPng(TC[3], pngfile);
-
-  //SMD hit multiplicities
-  pngfile = cl->htmlRegisterPage(*this, TC[6]->GetTitle(), "4", "png");
-  cl->CanvasToPng(TC[6], pngfile);
-
-  //SMD ADC Mean Values
-  pngfile = cl->htmlRegisterPage(*this, TC[8]->GetTitle(), "8", "png");
-  cl->CanvasToPng(TC[8], pngfile);
-
-  // Now register also EXPERTS html pages, under the EXPERTS subfolder.
-
-  //SMD North ADC Individual channels
-  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s", TC[2]->GetTitle()), "5", "png");
-  cl->CanvasToPng(TC[2], pngfile);
-
-  //SMD South ADC Individual channels
-  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s", TC[4]->GetTitle()), "6", "png");
-  cl->CanvasToPng(TC[4], pngfile);
-
-  //2d hist of SMD ADC vs. channel number
-  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s", TC[5]->GetTitle()), "7", "png");
-  cl->CanvasToPng(TC[5], pngfile);
-
-  /*
-  std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream out(logfile.c_str());
-  out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << std::endl;
-  out << "<P>Some log file output would go here." << std::endl;
-  out.close();
-
-  std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
-  std::ofstream out2(status.c_str());
-  out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
-       << "</TITLE></HEAD>" << std::endl;
-  out2 << "<P>Some status output would go here." << std::endl;
-  out2.close();
-  cl->SaveLogFile(*this);
-  */
+  for (TCanvas* canvas : TC)
+  {
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    std::string title = canvas->GetTitle();
+    if (expert_indices.find(icnt) != expert_indices.end())
+    {
+      title = "EXPERTS/" + title;
+    }
+    std::string pngfile = cl->htmlRegisterPage(*this, title, std::to_string(icnt), "png");
+    cl->CanvasToPng(canvas, pngfile);
+    icnt++;
+  }
   return 0;
 }

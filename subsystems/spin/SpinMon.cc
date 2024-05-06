@@ -208,70 +208,70 @@ int SpinMon::process_event(Event *e /* evt */)
     //  up = 1, down = -1, abort gap (bunches 111-120) = 10
     if (pBlueSpin)
     {
-      int numbluefilled = pBlueSpin->getDataLength();
-      if (numbluefilled == 112){numbluefilled = 111;}
-      hfilltypeBlue->SetBinContent(1,numbluefilled);
-      int ispinBlue = 0;
-      for (int i = 0; i < NBUNCHES; i++)
-      {
+    int numbluefilled = pBlueSpin->getDataLength();
+    if (numbluefilled == 112){numbluefilled = 111;}
+    hfilltypeBlue->SetBinContent(1,numbluefilled);
+    int ispinBlue = 0;
+    for (int i = 0; i < NBUNCHES; i++)
+    {
 
-        if (numbluefilled == 6 && blueFillPattern6[i] == 0)
-        {
-          hspinpatternBlue->SetBinContent(i+1,10);
-        }
-        else if (numbluefilled == 111 && blueFillPattern111[i] == 0)
-        {
-          hspinpatternBlue->SetBinContent(i+1,10);
-        }
-        else
-        {
-          blueSpinPattern[i] = pBlueSpin->iValue(ispinBlue);
+    if (numbluefilled == 6 && blueFillPattern6[i] == 0)
+    {
+    hspinpatternBlue->SetBinContent(i+1,10);
+    }
+    else if (numbluefilled == 111 && blueFillPattern111[i] == 0)
+    {
+    hspinpatternBlue->SetBinContent(i+1,10);
+    }
+    else
+    {
+    blueSpinPattern[i] = pBlueSpin->iValue(ispinBlue);
 
-          hspinpatternBlue->SetBinContent(i+1,blueSpinPattern[i]);
+    hspinpatternBlue->SetBinContent(i+1,blueSpinPattern[i]);
 
-          if (blueSpinPattern[i] == 1){spin_patternBlueUp->Fill(i,1);}
-          if (blueSpinPattern[i] == -1){spin_patternBlueDown->Fill(i,1);}
-          if (blueSpinPattern[i] == 0){spin_patternBlueUnpol->Fill(i,1);}
+    if (blueSpinPattern[i] == 1){spin_patternBlueUp->Fill(i,1);}
+    if (blueSpinPattern[i] == -1){spin_patternBlueDown->Fill(i,1);}
+    if (blueSpinPattern[i] == 0){spin_patternBlueUnpol->Fill(i,1);}
 
-          ispinBlue++;
-        }
-      }
+    ispinBlue++;
+    }
+    }
 
-      delete pBlueSpin;
+    delete pBlueSpin;
     }
 
     if (pYellSpin){
-      int numyellfilled = pYellSpin->getDataLength();
-      if (numyellfilled == 112){numyellfilled = 111;}
-      hfilltypeYellow->SetBinContent(1,numyellfilled);
+    int numyellfilled = pYellSpin->getDataLength();
+    if (numyellfilled == 112){numyellfilled = 111;}
+    hfilltypeYellow->SetBinContent(1,numyellfilled);
 
-      int ispinYell = 0;
+    int ispinYell = 0;
 
-      for (int i = 0; i < NBUNCHES; i++)
-      {
-        if (numyellfilled == 6 && yellFillPattern6[i] == 0)
-        {
-          hspinpatternYellow->SetBinContent(i+1,10);
-        }
-        else if (numyellfilled == 111 && yellFillPattern111[i] == 0)
-        {
-          hspinpatternYellow->SetBinContent(i+1,10);
-        }
-        else
-        {
-          yellSpinPattern[i] = pYellSpin->iValue(ispinYell);
+    for (int i = 0; i < NBUNCHES; i++)
+    {
+    if (numyellfilled == 6 && yellFillPattern6[i] == 0)
+    {
+    hspinpatternYellow->SetBinContent(i+1,10);
+    }
+    else if (numyellfilled == 111 && yellFillPattern111[i] == 0)
+    {
+    hspinpatternYellow->SetBinContent(i+1,10);
+    }
+    else
+    {
+    yellSpinPattern[i] = pYellSpin->iValue(ispinYell);
 
-          hspinpatternYellow->SetBinContent(i+1,yellSpinPattern[i]);
+    hspinpatternYellow->SetBinContent(i+1,yellSpinPattern[i]);
 
-          if (yellSpinPattern[i] == 1){spin_patternYellowUp->Fill(i,2);}
-          if (yellSpinPattern[i] == -1){spin_patternYellowDown->Fill(i,2);}
-          if (yellSpinPattern[i] == 0){spin_patternYellowUnpol->Fill(i,2);}
+    if (yellSpinPattern[i] == 1){spin_patternYellowUp->Fill(i,2);}
+    if (yellSpinPattern[i] == -1){spin_patternYellowDown->Fill(i,2);}
+    if (yellSpinPattern[i] == 0){spin_patternYellowUnpol->Fill(i,2);}
 
-          ispinYell++;
-        }
-      }
+    ispinYell++;
+    }
+    }
 
-      delete pYellSpin;
+    delete pYellSpin;
     }
     */
     //==========================================================//
@@ -437,24 +437,19 @@ int SpinMon::process_event(Event *e /* evt */)
   {
     //=============== gl1p scalers ===============//
     //    int evtnr = e->getEvtSequence();
-    Event *gl1Event = e;
-
-    //    if (gl1Event)
+    p_gl1 = e->getPacket(packetid_GL1);
+    // p_gl1 = e->getPacket(packetid_GL1);
+    if (p_gl1)
     {
-      p_gl1 = gl1Event->getPacket(packetid_GL1);
-      // p_gl1 = e->getPacket(packetid_GL1);
-      if (p_gl1)
+      // int triggervec = p->lValue(0,"TriggerVector");
+      int bunchnr = (p_gl1->lValue(0, "BunchNumber") + defaultxingshift) % NBUNCHES;
+      for (int i = 0; i < 16; i++)
       {
-        // int triggervec = p->lValue(0,"TriggerVector");
-        int bunchnr = (p_gl1->lValue(0, "BunchNumber") + defaultxingshift) % NBUNCHES;
-        for (int i = 0; i < 16; i++)
-        {
-          // 2nd arg of lValue: 0 is raw trigger count, 1 is live trigger count, 2 is scaled trigger count
-          int counts = p_gl1->lValue(i, "GL1PLIVE");  // live gl1p cnts.
-          // update instead of add
-          gl1_counter[i]->SetBinContent(bunchnr + 1, counts);  // update bin with new scaler info. instead of adding every evt
-          scalercounts[i][bunchnr] = counts;
-        }
+        // 2nd arg of lValue: 0 is raw trigger count, 1 is live trigger count, 2 is scaled trigger count
+        int counts = p_gl1->lValue(i, "GL1PLIVE");  // live gl1p cnts.
+        // update instead of add
+        gl1_counter[i]->SetBinContent(bunchnr + 1, counts);  // update bin with new scaler info. instead of adding every evt
+        scalercounts[i][bunchnr] = counts;
       }
       delete p_gl1;
     }
@@ -464,14 +459,13 @@ int SpinMon::process_event(Event *e /* evt */)
     if (!success && evtcnt > 4999 && evtcnt % 5000 == 0)
     {
       CalculateCrossingShift(xingshift, scalercounts, success);
-      
+
       if (success)
       {
         addxingshift = xingshift;
       }
-
     }
-    hxingshift->SetBinContent(2,addxingshift);
+    hxingshift->SetBinContent(2, addxingshift);
   }
 
   return 0;
