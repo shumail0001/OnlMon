@@ -49,13 +49,26 @@ case "$1" in
     stop)
 	if [ -s $pidfile ]
 	then
-	    kill -9 `cat $pidfile`
+	    kill -INT `cat $pidfile`
 	    if [ $? != 0 ]
 	    then
 		echo "No Online Monitoring process " `cat $pidfile`
 	    else
-		echo "Killed Online Monitoring process " `cat $pidfile`
+		echo "Sending INT signal to Online Monitoring process " `cat $pidfile`
+                sleep 1
+                counter=0
+                while ps -p `cat $pidfile` > /dev/null
+                do
+                    sleep 1
+                    counter=$[$counter + 1]
+		    if [ $counter -gt 5 ]
+		    then
+			echo "Online Monitoring process " `cat $pidfile` " survived SIGINT signal, sending SIGKILL"
+			kill -9 `cat $pidfile`
+		    fi
+		done
 	    fi
+	fi
 	    rm $pidfile
 	fi
 	;;
