@@ -33,10 +33,12 @@
 #include <pthread.h>
 #include <sys/types.h>  // for time_t
 #include <unistd.h>     // for sleep
+#include <csignal>
 #include <cstdio>       // for printf, NULL
 #include <cstdlib>      // for exit
 #include <cstring>      // for strcmp
 #include <iostream>     // for operator<<, basic_ostream, endl, basic_o...
+#include <limits>
 #include <sstream>
 #include <string>
 
@@ -61,7 +63,7 @@ pthread_mutex_t mutex;
 #endif
 
 TH1 *FrameWorkVars = nullptr;
-
+void signalhandler(int signum);
 //*********************************************************************
 
 int pinit()
@@ -77,7 +79,7 @@ int pinit()
 #ifdef USE_MUTEX
   pthread_mutex_lock(&mutex);
 #endif
-
+signal(SIGINT, signalhandler);
 #if defined(SERVER) || defined(ROOTTHREAD)
 
   pthread_t ThreadId = 0;
@@ -97,7 +99,7 @@ int pinit()
   }
 #endif
   // for the timestamp we need doubles
-  FrameWorkVars = new TH1D("FrameWorkVars", "FrameWorkVars", NFRAMEWORKBINS, 0., NFRAMEWORKBINS);
+  FrameWorkVars = new TH1I("FrameWorkVars", "FrameWorkVars", NFRAMEWORKBINS, 0., NFRAMEWORKBINS);
   Onlmonserver->registerCommonHisto(FrameWorkVars);
 #ifdef USE_MUTEX
   pthread_mutex_unlock(&mutex);
@@ -109,13 +111,13 @@ int pinit()
 //*********************************************************************
 int process_event(Event *evt)
 {
-  static uint64_t savetmpticks = 0x7FFFFFFF;
-  static uint64_t borticks = 0;
-  static uint64_t eorticks = 0;
+  static time_t savetmpticks = 0x7FFFFFFF;
+  static time_t borticks = 0;
+  static time_t eorticks = 0;
   static int eventcnt = 0;
 
   OnlMonServer *se = OnlMonServer::instance();
-  uint64_t tmpticks = evt->getTime();
+  time_t tmpticks = evt->getTime();
 
   // first test if a new run has started and call BOR/EOR methods of monitors
   if (se->RunNumber() == -1)
@@ -126,7 +128,7 @@ int process_event(Event *evt)
 #ifdef USE_MUTEX
     pthread_mutex_lock(&mutex);
 #endif
-    FrameWorkVars->SetBinContent(RUNNUMBERBIN, (Stat_t) newrun);
+    FrameWorkVars->SetBinContent(RUNNUMBERBIN, newrun);
     se->BadEvents(0);
     se->EventNumber(evt->getEvtSequence());
     se->RunNumber(newrun);
@@ -137,7 +139,7 @@ int process_event(Event *evt)
     se->BeginRun(newrun);
     // set trigger mask in et pool frontend
     borticks = se->BorTicks();
-    FrameWorkVars->SetBinContent(BORTIMEBIN, (Stat_t) borticks);
+    FrameWorkVars->SetBinContent(BORTIMEBIN, borticks);
 #ifdef USE_MUTEX
     pthread_mutex_unlock(&mutex);
 #endif
@@ -559,4 +561,13 @@ int send_message(const int severity, const std::string &msg)
   std::cout << *Message << msg << std::endl;
   delete Message;
   return 0;
+}
+
+// we send a kill -2 to the server if it should terminate
+void signalhandler(int signum)
+{
+  std::cout << "Signal " << signum << " received, saving histos" << std::endl;
+  OnlMonServer *Onlmonserver = OnlMonServer::instance();
+  Onlmonserver->WriteHistoFile();
+  gSystem->Exit(0);
 }
