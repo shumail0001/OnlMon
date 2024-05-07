@@ -192,8 +192,12 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete(PaveWarnings);
 
   // for 4th Page
-  ifdelete(Zvtx_bbll1);
   ifdelete(Zvtx);
+  ifdelete(Zvtx_ns);
+  ifdelete(Zvtx_10);
+  ifdelete(Zvtx_30);
+  ifdelete(Zvtx_60);
+  ifdelete(Zvtx_zdcns);
   ifdelete(TzeroZvtx);
   ifdelete(TextZVertexNotice);
 
@@ -931,9 +935,25 @@ int BbcMonDraw::Draw(const std::string &what)
   ifdelete(Zvtx);
   Zvtx = static_cast<TH1 *>(bbc_zvertex->Clone());
 
-  TH1 *bbc_zvertex_bbll1 = cl->getHisto("BBCMON_0", "bbc_zvertex_bbll1");
-  ifdelete(Zvtx_bbll1);
-  Zvtx_bbll1 = static_cast<TH1 *>(bbc_zvertex_bbll1->Clone());
+  TH1 *bbc_zvertex_ns = cl->getHisto("BBCMON_0", "bbc_zvertex_ns");
+  ifdelete(Zvtx_ns);
+  Zvtx_ns = static_cast<TH1 *>(bbc_zvertex_ns->Clone());
+
+  TH1 *bbc_zvertex_10 = cl->getHisto("BBCMON_0", "bbc_zvertex_10");
+  ifdelete(Zvtx_10);
+  Zvtx_10 = static_cast<TH1 *>(bbc_zvertex_10->Clone());
+
+  TH1 *bbc_zvertex_30 = cl->getHisto("BBCMON_0", "bbc_zvertex_30");
+  ifdelete(Zvtx_30);
+  Zvtx_30 = static_cast<TH1 *>(bbc_zvertex_30->Clone());
+
+  TH1 *bbc_zvertex_60 = cl->getHisto("BBCMON_0", "bbc_zvertex_60");
+  ifdelete(Zvtx_60);
+  Zvtx_60 = static_cast<TH1 *>(bbc_zvertex_60->Clone());
+
+  TH1 *bbc_zvertex_zdcns = cl->getHisto("BBCMON_0", "bbc_zvertex_zdcns");
+  ifdelete(Zvtx_zdcns);
+  Zvtx_zdcns = static_cast<TH1 *>(bbc_zvertex_zdcns->Clone());
 
   TH2 *bbc_tzero_zvtx = static_cast<TH2 *>(cl->getHisto("BBCMON_0", "bbc_tzero_zvtx"));
   ifdelete(TzeroZvtx);
@@ -1131,8 +1151,17 @@ int BbcMonDraw::Draw(const std::string &what)
     Zvtx->SetLineColor(4);
     Zvtx->SetFillColor(7);
 
-    Zvtx_bbll1->SetLineColor(4);
-    Zvtx_bbll1->SetFillColor(7);
+    Zvtx_ns->SetLineColor(4);
+    Zvtx_ns->SetFillColor(7);
+
+    Zvtx_60->SetLineColor(40);
+    Zvtx_60->SetFillColor(6);
+
+    Zvtx_30->SetLineColor(30);
+    Zvtx_30->SetFillColor(3);
+
+    Zvtx_10->SetLineColor(46);
+    Zvtx_10->SetFillColor(2);
 
     // Get Maximum at the inside of BBC which is 130cm from center;
     float maxEntries = 10;
@@ -1306,10 +1335,23 @@ int BbcMonDraw::Draw(const std::string &what)
 
     PadZVertex->cd();
 
-    if (Zvtx_bbll1->GetEntries() > 0)
+    if (Zvtx_ns->GetEntries() > 0)
     {
-      Zvtx_bbll1->GetXaxis()->SetRangeUser(-40, 40);
-      Zvtx_bbll1->Draw("hist");
+      Zvtx_ns->GetXaxis()->SetRangeUser(-60, 60);
+      Zvtx_ns->Draw("hist");
+
+      // dirty way to determine if we are using GL1 trig info
+      if ( Zvtx_zdcns->GetEntries() != Zvtx_ns->GetEntries() )
+      {
+        Zvtx_zdcns->Draw("same");
+        Zvtx_60->Draw("same");
+        Zvtx_30->Draw("same");
+        Zvtx_10->Draw("same");
+        /*
+        std::cout << "aaa " << Zvtx_ns->GetEntries() << " " << Zvtx_10->GetEntries() << " " << Zvtx_30->GetEntries() << " "
+        << Zvtx_60->GetEntries() << " " << Zvtx_zdcns->GetEntries() << " " << std::endl;
+        */
+      }
     }
 
     /*

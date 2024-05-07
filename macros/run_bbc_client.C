@@ -16,7 +16,11 @@ void bbcDrawInit(const int online = 0)
   cl->registerHisto("bbc_tdc_overflow", "BBCMON_0");
   cl->registerHisto("bbc_tdc_armhittime", "BBCMON_0");
   cl->registerHisto("bbc_zvertex", "BBCMON_0");
-  cl->registerHisto("bbc_zvertex_bbll1", "BBCMON_0");
+  cl->registerHisto("bbc_zvertex_ns", "BBCMON_0");
+  cl->registerHisto("bbc_zvertex_10", "BBCMON_0");
+  cl->registerHisto("bbc_zvertex_30", "BBCMON_0");
+  cl->registerHisto("bbc_zvertex_60", "BBCMON_0");
+  cl->registerHisto("bbc_zvertex_zdcns", "BBCMON_0");
   cl->registerHisto("bbc_nevent_counter", "BBCMON_0");
   cl->registerHisto("bbc_tzero_zvtx", "BBCMON_0");
   cl->registerHisto("bbc_prescale_hist", "BBCMON_0");
