@@ -347,11 +347,11 @@ int LL1MonDraw::DrawFourth(const std::string & /* what */)
    }
   TH2 *h_8x8_sum_emcal_above_threshold= (TH2*) cl->getHisto("LL1MON_0","h_8x8_sum_emcal_above_threshold_0");
   if (!h_8x8_sum_emcal_above_threshold)
-    {
+  {
       DrawDeadServer(transparent[2]);
       TC[3]->SetEditable(false);
       return -1;
-    }
+  }
   TH2 *h_sample_diff_emcal= (TH2*) cl->getHisto("LL1MON_0","h_sample_diff_emcal");
   if (!h_sample_diff_emcal)
    {
@@ -400,25 +400,54 @@ int LL1MonDraw::DrawFourth(const std::string & /* what */)
   h_sample_diff_emcal->Draw("colz");
   
   TC[3]->cd();
+
+  //Calculate 8x8 EMCal sum excessing 10% of the total integral 
+  int nbinsx = h_8x8_sum_emcal_above_threshold->GetNbinsX();
+  int nbinsy = h_8x8_sum_emcal_above_threshold->GetNbinsY();
+  float integral = h_8x8_sum_emcal_above_threshold->Integral();
+  std::vector<std::tuple<int,int,float>> emcalhotbin;
+
+  for(int ibinx = 1; ibinx<=nbinsx; ibinx++){
+      for(int ibiny=1; ibiny<=nbinsy; ibiny++){
+          float con = h_8x8_sum_emcal_above_threshold->GetBinContent(ibinx,ibiny);
+          if(con > integral*0.1) emcalhotbin.push_back(std::make_tuple(ibinx,ibiny,con/integral));
+      }
+  }
+          
   TPad *bottom_right_pad = new TPad("bottom_right_pad", "", 0.5, 0.0, 1.0, 0.450);
   bottom_right_pad->SetTicks(1,1);
   bottom_right_pad->SetTopMargin(0.2);
   bottom_right_pad->Draw();
   bottom_right_pad->cd();
 
-  TText PrintHot;
-  PrintHot.SetTextFont(62);
-  PrintHot.SetTextSize(0.08);
+  double textsize = 0.04;
+  TLatex PrintHot;
+  //PrintHot.SetTextFont(40);
+  PrintHot.SetTextSize(textsize);
   PrintHot.SetNDC();          // set to normalized coordinates
   PrintHot.SetTextAlign(23);  // center/top alignment
   std::ostringstream hotchannelstream;
   std::string hotstring;
-  // fill run number and event time into string
-  hotchannelstream << "8x8 Photon Trigger - Hot Trigger Areas" << std::endl;
+  
+  float y_position = 0.9;
+  float x_position = 0.4;
+  
+  hotchannelstream << "8x8 Photon Trigger - Hot Trigger Areas : Total " << emcalhotbin.size() << std::endl;
   hotstring = hotchannelstream.str();
-  PrintHot.DrawText(0.5, .9, hotstring.c_str());
-  hotstring = "Not Available Yet";
-  PrintHot.DrawText(0.5, .8, hotstring.c_str());
+  PrintHot.DrawText(x_position, y_position, hotstring.c_str());
+  y_position -=0.06;
+
+  for (auto& entry : emcalhotbin) {
+      int etabin = std::get<0>(entry);
+      int phibin = std::get<1>(entry);
+      float frac = std::get<2>(entry)*100.;
+
+      std::string text = "#eta bin : " + std::to_string(etabin) + ", #phi bin : " + std::to_string(phibin) + Form(", fraction : %.1f",frac) + " (%)";
+      PrintHot.DrawLatex(x_position, y_position, text.c_str());
+      y_position -= (textsize * 1.2);
+      if (y_position < 0) break; 
+  }
+
   TC[3]->cd();
   TPad *tr = new TPad("tr", "this does not show", 0, 0, 1, 1);
   tr->SetFillStyle(4000);
