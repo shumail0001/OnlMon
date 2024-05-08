@@ -13,6 +13,7 @@ class TH2;
 class TProfile;
 class Packet;
 class TRandom;
+class eventReceiverClient;
 
 
 
@@ -74,6 +75,8 @@ class LocalPolMon : public OnlMon
   TH1D**** h_AsymScramble = nullptr;
 
   TRandom* myRandomBunch  = nullptr;
+  std::map<int, int> stored_gl1p_files;
+  eventReceiverClient *erc = {nullptr};
   
 };
     

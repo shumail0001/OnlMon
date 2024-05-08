@@ -175,17 +175,17 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "CemcMon6" ){
     TC[5] = new TCanvas(name.c_str(),"Basic waveform summary", -xsize/3 , 0, xsize/3, ysize*0.9);
     gSystem->ProcessEvents();
-    Pad[13]=new TPad("cemcpad10","who needs this?",0.0,0.475,0.5,0.950);
+    Pad[13]=new TPad("cemcpad13","who needs this?",0.0,0.475,0.5,0.950);
     Pad[13]->SetRightMargin(0.15);
     Pad[13]->Draw();
-    Pad[14]=new TPad("cemcpad11","who needs this?",0.5,0.475,1.0,0.950);
+    Pad[14]=new TPad("cemcpad14","who needs this?",0.5,0.475,1.0,0.950);
     Pad[14]->Draw();
-    Pad[15]=new TPad("cemcpad12","who needs this?",0.0,0.0,0.5,0.475);
+    Pad[15]=new TPad("cemcpad15","who needs this?",0.0,0.0,0.5,0.475);
     Pad[15]->SetRightMargin(0.15);
     Pad[15]->Draw();
-    Pad[16]=new TPad("cemcpad13","who needs this?",0.5,0.0,1.0,0.475);
+    Pad[16]=new TPad("cemcpad16","who needs this?",0.5,0.0,1.0,0.475);
     Pad[16]->Draw();
-    transparent[5] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
+    transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
     transparent[5]->SetFillStyle(4000);
    transparent[5]->Draw();
     TC[5]->SetEditable(0);
@@ -311,6 +311,11 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
 	}
     }
 
+  if (!gROOT->FindObject("CemcMon1"))
+    {
+      MakeCanvas("CemcMon1");
+    }
+
   if (start[0] < 0)
     {
       DrawDeadServer(transparent[0]);
@@ -332,11 +337,6 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
 	  adcCount[i] -> SetName(Form("h1_cemc_adc_%d",i));
 	  if(i != start[3])adcCount[start[3]] -> Add(adcCount[i],1);
 	}
-    }
-
-  if (!gROOT->FindObject("CemcMon1"))
-    {
-      MakeCanvas("CemcMon1");
     }
 
 
@@ -1469,26 +1469,26 @@ void CemcMonDraw::HandleEvent(int event, int x, int y, TObject* sel){
     TCanvas* canvas=nullptr;
     TPad *mypad=nullptr;
     if(strcmp(sel->GetName(),"transparent0")==0){
-      canvas=TC[0];
-      mypad=Pad[0];
+      //canvas=TC[0];
+      //mypad=Pad[0];
       return;//we do not want draw from there
     }
-    else if(strcmp(sel->GetName(),"transparent4")==0){
-      canvas=TC[4];
+    else if(strcmp(sel->GetName(),"transparent5")==0){
+      canvas=TC[5];
       if(canvas->AbsPixeltoX(x)<0.5){
 	if(canvas->AbsPixeltoY(y)<0.475){
-	  mypad=Pad[12];
+	  mypad=Pad[15];
 	}
 	else{
-	  mypad=Pad[10];
+	  mypad=Pad[13];
 	}
       }
       else{
 	if(canvas->AbsPixeltoY(y)<0.475){
-	  mypad=Pad[13];
+	  mypad=Pad[16];
 	}
 	else{
-	  mypad=Pad[11];
+	  mypad=Pad[14];
 	}
       }
 	

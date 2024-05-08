@@ -15,6 +15,7 @@
 #include <Event/Event.h>
 #include <Event/EventTypes.h>
 #include <Event/msg_profile.h>
+#include <Event/eventReceiverClient.h>
 
 #include <TH1.h>
 #include <TH2.h>
@@ -102,18 +103,22 @@ int LocalPolMon::Init()
       if(!val.IsDigit()){
 	std::cout<<key<<": expecting 0/1 for true or false\n Keep false as default.\n";
 	fake=false;
+	//erc = new eventReceiverClient("gl1daq");
       }
       else{
 	int ival=val.Atoi();
 	if(ival!=0 && ival!=1){
 	  std::cout<<key<<": expecting 0/1 for true or false\n Keep false as default.\n";
 	  fake=false;
+	  //erc = new eventReceiverClient("gl1daq");
 	}
 	else{
 	  if(ival==1){
 	    fake=true;
+	    erc = nullptr;
 	  }
 	  else fake=false;
+	  //erc = new eventReceiverClient("gl1daq");
 	}
       }
     }
@@ -401,6 +406,7 @@ int LocalPolMon::process_event(Event *e /* evt */)
 
   if(pgl1){
     int bunchnr = pgl1->lValue(0,"BunchNumber");
+    stored_gl1p_files[e->getEvtSequence()]=bunchnr;
     for (int i = 0; i < 16; i++ ) { //16 triggers for gl1p 
       //long long counts = pgl1->lValue(i,2); 
       //gl1_counter[i][bunchnr]=counts; 
@@ -418,6 +424,9 @@ int LocalPolMon::process_event(Event *e /* evt */)
     for(int i=0; i<16; i++){
       if(!goodtrigger[i]) continue;
       std::map<int, long long> tmpmap=gl1_counter[i];
+      for(std::map<int,long long>::iterator ittest=tmpmap.begin(); ittest!=tmpmap.end(); ++ittest){
+	std::cout<<ittest->second<<" ";
+      }
       for(int emptyfill=0; emptyfill<9; emptyfill++){
 	int myminimum=min_element(tmpmap.begin(),tmpmap.end(),[](const std::pair<int,long long>&lhs, const std::pair<int,long long>& rhs){return lhs.second<rhs.second;})->first;
 	if(myminimum<111)gap[i].push_back(120+myminimum);
@@ -444,7 +453,37 @@ int LocalPolMon::process_event(Event *e /* evt */)
   float smd_adc[32];
   if (psmd){
 
-    int bunchnr = psmd->lValue(0,"BunchNumber");
+    int bunchnr=0;// = psmd->lValue(0,"BunchNumber");
+    Event* egl1=nullptr;
+    if(erc) {
+      egl1=erc->getEvent(e->getEvtSequence());
+    }
+    if(egl1){
+      Packet* ptmpgl1=egl1->getPacket(packetid_gl1);
+      if(ptmpgl1){
+	bunchnr=ptmpgl1->lValue(0,"BunchNumber");
+	delete ptmpgl1;
+	ptmpgl1=nullptr;
+      }
+      else{
+	std::cout<<"Failed grabing gl1 from event receiver"<<std::endl;
+      }
+      delete egl1;
+      egl1=nullptr;
+    }
+    else{
+      std::map<int,int>::iterator it;
+      it=stored_gl1p_files.find(e->getEvtSequence());
+      if(it!=stored_gl1p_files.end()) {
+	bunchnr=it->second;
+	std::cout<<bunchnr<<std::endl;
+      }
+      else {
+	bunchnr=0;
+	std::cout<<"Trick also failed to retrieve bunch number"<<std::endl;
+      }
+    }
+    
     if(fake) bunchnr +=15+myRandomBunch->Integer(4);
 
     for(int ch=16; ch<47; ch++){//according to mapping in ZDC logbook entry #85 March 9th 2024 
