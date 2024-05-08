@@ -51,6 +51,8 @@ class CemcMon : public OnlMon
 
   TH2* h2_cemc_hits_trig1 = nullptr;
   TH2* h2_cemc_hits_trig2 = nullptr;
+  TH2* h2_cemc_hits_trig3 = nullptr;
+  TH2* h2_cemc_hits_trig4 = nullptr;
   TH1* h1_cemc_trig = nullptr;
   TH1* h1_packet_event = nullptr;
   TH2* h2_caloPack_gl1_clock_diff = nullptr;
@@ -79,10 +81,12 @@ class CemcMon : public OnlMon
   std::string id_string;
 
   eventReceiverClient *erc = {nullptr};
-  bool anaGL1 = false;
+  bool anaGL1 = true;
 
   int trig1 = 1;
   int trig2 = 3;
+  int trig3 = 1;
+  int trig4 = 3;
 
   CaloWaveformFitting* WaveformProcessingFast = nullptr;
   CaloWaveformFitting* WaveformProcessingTemp = nullptr;

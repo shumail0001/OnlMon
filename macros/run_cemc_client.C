@@ -16,6 +16,8 @@ void cemcDrawInit(const int online = 0)
     {
       cl->registerHisto("h2_cemc_hits_trig1", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h2_cemc_hits_trig2", Form("CEMCMON_%d",serverid));
+      cl->registerHisto("h2_cemc_hits_trig3", Form("CEMCMON_%d",serverid));
+      cl->registerHisto("h2_cemc_hits_trig4", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h1_cemc_trig", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h_evtRec", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h2_cemc_rm", Form("CEMCMON_%d",serverid));
