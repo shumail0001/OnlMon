@@ -357,7 +357,7 @@ float LocalPolMon::anaWaveformFast(Packet *p, const int channel)
 
 int LocalPolMon::process_event(Event *e /* evt */)
 {
-  
+
   if(e->getEvtType() == BEGRUNEVENT/*9*/){ //spin patterns stored in BeginRun event
     bool first=true;
     Packet* bluepacket = e->getPacket(14902);

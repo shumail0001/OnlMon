@@ -2,6 +2,7 @@
 #define INTT_MON_CONSTANTS_H
 
 #include <iostream>
+#include <TROOT.h>
 
 namespace INTT
 {
@@ -18,6 +19,8 @@ namespace INTT
   constexpr int CHIP = 26;
   constexpr int CHANNEL = 128;
   constexpr int ADC = 8;
+
+  constexpr int BCO = 128;
 
   constexpr int LADDERS_()
   {
@@ -37,6 +40,7 @@ namespace INTT
   constexpr int CHIPS = CHIP * FELIX_CHANNELS;
   constexpr int CHANNELS = CHANNEL * CHIPS;
   constexpr int ADCS = CHANNELS * ADC;
+  constexpr int BCOS = FELIX * FELIX_CHANNEL * BCO;
 
   struct Indexes_s
   {
@@ -47,6 +51,17 @@ namespace INTT
     int chn = 0;
     int adc = 0;
   };
+
+  struct BcoData_s
+  {
+    int pid = 0;
+	int fee = 0;
+	int bco = 0; // bco difference
+  };
+
+  void GetBcoBin(int&, struct BcoData_s const&);
+  void GetBcoIndexes(int, struct BcoData_s&);
+  Color_t GetFeeColor(int);
 
   void GetFelixBinFromIndexes(int&, int, struct Indexes_s const&);
   void GetFelixIndexesFromBin(int, int&, struct Indexes_s&);
@@ -62,6 +77,7 @@ namespace INTT
 
   void GetLocalChipBinXYFromIndexes(int&, int&, struct Indexes_s const&);
   void GetIndexesFromLocalChipBinXY(int const&, int const&, struct Indexes_s&);
+
 }  // namespace INTT
 
 //      Ladder Structure                //

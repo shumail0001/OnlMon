@@ -54,6 +54,9 @@ class InttMonDraw : public OnlMonDraw
   typedef std::map<std::string, struct Option_s> Options_t;
   static Options_t OPTIONS;
 
+  //BCO histograms
+  static void DrawBcoDiff(std::string const&);
+
   //GlobalChip-Channel idiom
   static void GlobalChipLocalChannelHead(std::string const&);
   static void DrawGlobalChipMap(std::string const&);
@@ -78,7 +81,7 @@ class InttMonDraw : public OnlMonDraw
   static void PrepLocalChipHists_Hitmap(std::string const&, TH2D**, struct INTT::Indexes_s&);
 
  private:
-  //===	Constants for Drawing	===//
+  //===  Constants for Drawing  ===//
   static constexpr double NUM_SIG = 2.0;
 
   static constexpr int CNVS_WIDTH = 1280;
@@ -92,17 +95,19 @@ class InttMonDraw : public OnlMonDraw
   static constexpr double TOP_FRAC = 0.05;
   static constexpr double DISP_FRAC = 0.1;
   static constexpr double DISP_TEXT_SIZE = 0.20;
+  static constexpr double LEGEND_TEXT_SIZE = 0.10;
 
   static constexpr double KEY_FRAC = 0.0;
+  static constexpr double LEGEND_FRAC = 0.1;
   static constexpr double Y_LABEL_FRAC = 0.05;
   static constexpr double X_LABEL_FRAC = 0.15;
   static constexpr double Y_LABEL_TEXT_SIZE = 0.5;
   static constexpr double X_LABEL_TEXT_SIZE = 0.5;
-  //===	~Constants for Drawing	===//
+  //===  ~Constants for Drawing  ===//
 
-  //===	Drawing Methods		===//
+  //===  Drawing Methods   ===//
   static void DrawPad(TPad*, TPad*);
-  //===	~Drawing Methods	===//
+  //===  ~Drawing Methods  ===//
 };
 
 #endif

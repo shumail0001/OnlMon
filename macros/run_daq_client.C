@@ -15,8 +15,8 @@ void daqDrawInit(const int online = 0)
   {
       cl->registerHisto("h_gl1_clock_diff", Form("DAQMON_%d",serverid));
       cl->registerHisto("h_gl1_clock_diff_capture", Form("DAQMON_%d",serverid));
-      cl->registerHist("h_unlock_hist",Form("DAQMON_%d",serverid));
-      cl->registerHist("h_unlock_clock",Form("DAQMON_%d",serverid));
+//      cl->registerHisto("h_unlock_hist",Form("DAQMON_%d",serverid));
+//      cl->registerHisto("h_unlock_clock",Form("DAQMON_%d",serverid));
   }
       
    // for local host, just call daqDrawInit(2)

@@ -44,18 +44,18 @@ void StartPoms()
 
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
-  subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average");
+  subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average [Expert]");
   subsys->AddAction("ihcalDraw(\"THIRD\")", "Wave Form");
-  subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health");
+  subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("Outer HCAL", "ohcal");
   subsys->AddAction("ohcalDraw(\"FIRST\")", "Towers");
-  subsys->AddAction("ohcalDraw(\"SECOND\")", "Sector Average");
+  subsys->AddAction("ohcalDraw(\"SECOND\")", "Sector Average [Expert]");
   subsys->AddAction("ohcalDraw(\"THIRD\")", "Wave Form");
-  subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health");
-  subsys->AddAction("ohcalDraw(\"FIFTH\")", "trigger");
+  subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health [Expert]");
+  subsys->AddAction("ohcalDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -63,6 +63,7 @@ void StartPoms()
   subsys->AddAction("inttDraw(\"chip_hitmap\")", "Chip Hitmap");
   subsys->AddAction("inttDraw(\"ladder_hitmap\")", "Ladder Hitmap");
   subsys->AddAction("inttDraw(\"chip_nll\")", "Chip NLL");
+  subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -128,11 +129,12 @@ void StartPoms()
   subsys->AddAction("tpotDraw(\"TPOT_counters\")", "Event counters");
   subsys->AddAction("tpotDraw(\"TPOT_detector_occupancy\")", "Detector Occupancy");
   subsys->AddAction("tpotDraw(\"TPOT_resist_occupancy\")", "Resist Occupnacy");
-  subsys->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC Sample");
-  subsys->AddAction("tpotDraw(\"TPOT_counts_vs_sample\")", "Counts Sample");
+  subsys->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC vs Sample");
+  subsys->AddAction("tpotDraw(\"TPOT_adc_vs_channel\")", "ADC vs Strip");
+  subsys->AddAction("tpotDraw(\"TPOT_counts_vs_sample\")", "Counts vs Sample");
   subsys->AddAction("tpotDraw(\"TPOT_hit_charge\")", "Hit Charge");
   subsys->AddAction("tpotDraw(\"TPOT_hit_multiplicity\")", "Hit Multiplicity");
-  subsys->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit Channel");
+  subsys->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit vs Strip");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 

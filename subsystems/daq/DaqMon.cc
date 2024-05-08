@@ -86,17 +86,16 @@ int DaqMon::Init()
   h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(5,"#bf{sEPD}");
   h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(6,"#bf{ZDC}");
  
-  int nbins = packet_zdc-packet_mbd_low + 1;
-  h_unlock_hist = new TH1D("h_unlock_hist",";packet number;",nbins,packet_mbd_low-0.5,packet_zdc+0.5);
-
-  h_unlock_clock = new TH2F("h_unlock_clock",";Type;Clock",2,0,2,42949672,0,42949672);
+  //int nbins = packet_zdc-packet_mbd_low + 1;
+  //h_unlock_hist = new TH1D("h_unlock_hist",";packet number;",nbins,packet_mbd_low-0.5,packet_zdc+0.5);
+  //h_unlock_clock = new TH2F("h_unlock_clock",";Type;Clock",2,0,2,42949672,0,42949672);
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, h_gl1_clock_diff);  
   se->registerHisto(this, h_gl1_clock_diff_capture); 
-  se->registerHisto(this, h_unlock_hist); 
-  se->registerHisto(this, h_unlock_clock); 
+//  se->registerHisto(this, h_unlock_hist); 
+//  se->registerHisto(this, h_unlock_clock); 
   Reset();
   erc = new eventReceiverClient("gl1daq");
   return 0;
@@ -133,8 +132,11 @@ int DaqMon::process_event(Event *e /* evt */)
   Packet* pgl1 = gl1Event->getPacket(14001);
   if (pgl1){
       gl1_clock = pgl1->lValue(0,"BCO");
+      delete pgl1;
   }   
- 
+  delete gl1Event;
+  
+
   Packet * plist[100];
   int npackets = e->getPacketList(plist,100);
   for (int ipacket = 0; ipacket < npackets; ipacket++) {
@@ -152,11 +154,11 @@ int DaqMon::process_event(Event *e /* evt */)
               previndex = binindex;
           }
           if(evtcnt>3) h_gl1_clock_diff->Fill(calomapid,fdiff);
-          if(fdiff==0){
-              h_unlock_hist ->Fill(pnum);
-              h_unlock_clock -> Fill(0., gl1_clock);
-              h_unlock_clock -> Fill(1., packet_clock);
-          }
+//          if(fdiff==0){
+//              h_unlock_hist ->Fill(pnum);
+//              h_unlock_clock -> Fill(0., gl1_clock);
+//              h_unlock_clock -> Fill(1., packet_clock);
+//          }
 
           previousdiff[ipacket] = clockdiff[ipacket];
       }

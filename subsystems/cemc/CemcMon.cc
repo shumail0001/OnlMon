@@ -70,7 +70,7 @@ CemcMon::~CemcMon()
   }
   delete WaveformProcessingFast;
   delete WaveformProcessingTemp;
-  if(erc) delete erc;
+  delete erc;
   return;
 }
 
@@ -364,7 +364,9 @@ int CemcMon::process_event(Event *e  /* evt */)
         }
         trig1_fire = trig_bools[trig1];
         trig2_fire = trig_bools[trig2];
+	delete p;
       }
+      delete gl1Event;
     }
     else
     {

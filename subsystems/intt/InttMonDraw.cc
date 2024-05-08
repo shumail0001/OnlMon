@@ -1,5 +1,7 @@
 #include "InttMonDraw.h"
 
+#include <TPolyLine.h>
+
 InttMonDraw::Options_t InttMonDraw::OPTIONS =
     {
         //Chip-Channel
@@ -8,10 +10,22 @@ InttMonDraw::Options_t InttMonDraw::OPTIONS =
                             .global = &InttMonDraw::PrepGlobalChipHists_Hitmap,
                             .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
 
-        {"chip_nll", (struct Option_s){.head = &InttMonDraw::GlobalChipLocalChannelHead, .global = &InttMonDraw::PrepGlobalChipHists_NLL, .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
+        {"chip_nll", (struct Option_s){
+                            .head = &InttMonDraw::GlobalChipLocalChannelHead,
+                            .global = &InttMonDraw::PrepGlobalChipHists_NLL,
+                            .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
 
         //Ladder-Chip
-        {"ladder_hitmap", (struct Option_s){.head = &InttMonDraw::GlobalLadderLocalChipHead, .global = &InttMonDraw::PrepGlobalLadderHists_Interface, .local = &InttMonDraw::PrepLocalChipHists_Hitmap}},
+        {"ladder_hitmap", (struct Option_s){
+                            .head = &InttMonDraw::GlobalLadderLocalChipHead,
+                            .global = &InttMonDraw::PrepGlobalLadderHists_Interface,
+                            .local = &InttMonDraw::PrepLocalChipHists_Hitmap}},
+
+    //Bco Diffs
+    {"bco_diff", (struct Option_s){ // Does not follow same recursive structure; everything is done in the head function
+                            .head = &InttMonDraw::DrawBcoDiff,
+                            .global = nullptr,
+                            .local = nullptr}},
 };
 
 InttMonDraw::InttMonDraw(const std::string& name)
@@ -25,7 +39,7 @@ InttMonDraw::~InttMonDraw()
   return;
 }
 
-//===		Inherited Functions		===//
+//===    Inherited Functions    ===//
 int InttMonDraw::Init()
 {
   return 0;
@@ -243,6 +257,213 @@ void InttMonDraw::DrawPad(TPad* base, TPad* pad)
   base->cd();
   pad->Draw();
   pad->cd();
+}
+
+//BCO histograms
+void InttMonDraw::DrawBcoDiff(std::string const& option)
+{
+  int bin;
+  double x_lower = 0.0;
+  double y_lower = DISP_FRAC;
+  double x_upper = 1.0 - LEGEND_FRAC;
+  double y_upper = 1.0;
+
+  std::string name;
+
+  TStyle* style;
+  TCanvas* cnvs;
+  TPad* disp_pad;
+  TPad* legend_pad;
+  TPad* hist_pad[INTT::FELIX];
+  TH1D* hist[INTT::FELIX][INTT::FELIX_CHANNEL];
+
+  name = Form("Intt_%s_Global_Style", option.c_str());
+  style = (TStyle*) gROOT->FindObject(name.c_str());
+  if (!style)
+  {
+    style = new TStyle(
+        name.c_str(),
+        name.c_str());
+    style->SetOptStat(0);
+    style->SetOptTitle(0);
+    //...
+  }
+  style->cd();
+
+  name = Form("Intt_%s_Global_Canvas", option.c_str());
+  cnvs = (TCanvas*) gROOT->FindObject(name.c_str());
+  if (!cnvs)
+  {
+    cnvs = new TCanvas(
+        name.c_str(),
+        name.c_str(),
+        0,
+        0,
+        CNVS_WIDTH,
+        CNVS_HEIGHT);
+    //cnvs->...
+    //...
+  }
+
+  name = Form("Intt_%s_disp_pad", option.c_str());
+  disp_pad = (TPad*) gROOT->FindObject(name.c_str());
+  if (!disp_pad)
+  {
+    disp_pad = new TPad(
+        name.c_str(),
+        name.c_str(),
+		x_lower,
+		0.0,
+		x_upper,
+		y_lower);
+    DrawPad(cnvs, disp_pad);
+  }
+  disp_pad->cd();
+
+  OnlMonClient* cl = OnlMonClient::instance();
+  TText* run_text = new TText(
+      0.5,
+      0.50,
+      Form("Run: %08d", cl->RunNumber()));
+  run_text->SetName(Form("Intt_%s_Global_RunText", option.c_str()));
+  run_text->SetTextAlign(22);
+  run_text->SetTextSize(DISP_TEXT_SIZE);
+  run_text->Draw();
+
+  std::time_t now = std::time(nullptr);
+  struct std::tm* time_s = std::localtime(&now);
+  TText* time_text = new TText(
+      0.5,
+      0.20,
+      Form("%02d/%02d/%4d (mm/dd/yyy)", time_s->tm_mon + 1, time_s->tm_mday, time_s->tm_year + 1900));
+  time_text->SetName(Form("Intt_%s_Global_TimeText", option.c_str()));
+  time_text->SetTextAlign(22);
+  time_text->SetTextSize(DISP_TEXT_SIZE);
+  time_text->Draw();
+
+  name = Form("Intt_%s_legend_pad", option.c_str());
+  legend_pad = (TPad*) gROOT->FindObject(name.c_str());
+  if (!legend_pad)
+  {
+    legend_pad = new TPad(
+        name.c_str(),
+        name.c_str(),
+		x_upper,
+		y_lower,
+		1.0,
+		y_upper - DISP_FRAC);
+    DrawPad(cnvs, legend_pad);
+  }
+  legend_pad->cd();
+  for(int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
+  {
+    double x[4] = {0.2, 0.3, 0.3, 0.2};
+	double y[4] = {y_lower + (y_upper - y_lower) / (2 * INTT::FELIX_CHANNEL) * (2 * fee + 1)};
+	for(int i = 0; i < 4; ++i)
+	{
+      y[i] = y[0];
+	}
+
+	TText* legend_text = new TText(
+      0.5,
+	  y[0],
+      Form("fee%2d", fee));
+  	legend_text->SetName(Form("Intt_%s_%01d_Legend_Text", option.c_str(), fee));
+    legend_text->SetTextAlign(22);
+    legend_text->SetTextSize(LEGEND_TEXT_SIZE);
+	// legend_text->SetTextColor(INTT::GetFeeColor(fee));
+	legend_text->SetTextColor(kBlack);
+	legend_text->Draw();
+
+	y[0] -= 0.025;
+	y[1] -= 0.025;
+	y[2] += 0.025;
+	y[3] += 0.025;
+
+	TPolyLine* box = new TPolyLine(4, x, y);
+	box->SetFillColor(INTT::GetFeeColor(fee));
+	box->SetLineColor(kBlack);
+	box->SetLineWidth(1);
+	box->Draw("f");
+  }
+
+  struct INTT::BcoData_s bco_data;
+  for(int i = 0; i < INTT::FELIX; ++i)
+  {
+    name = Form("Intt_%s_%01d_pad", option.c_str(), i);
+    hist_pad[i] = (TPad*) gROOT->FindObject(name.c_str());
+    if (!hist_pad[i])
+    {
+      hist_pad[i] = new TPad(
+          name.c_str(),
+          name.c_str(),
+          x_lower + (x_upper - x_lower) / 4 * (i % 4),
+          y_lower + (y_upper - y_lower) / 2 * (i / 4),
+          x_lower + (x_upper - x_lower) / 4 * (i % 4 + 1),
+          y_lower + (y_upper - y_lower) / 2 * (i / 4 + 1));
+      DrawPad(cnvs, hist_pad[i]);
+      hist_pad[i]->SetTopMargin(0.1);
+      hist_pad[i]->SetBottomMargin(0.1);
+      hist_pad[i]->SetLeftMargin(0.1);
+      hist_pad[i]->SetRightMargin(0.1);
+    }
+    hist_pad[i]->SetLogy();
+    hist_pad[i]->cd();
+
+	int max_count = 0;
+	bco_data.pid = i + 3001;
+	for(int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
+	{
+      name = Form("Intt_%s_%01d_%02d_hist", option.c_str(), i, fee);
+      hist[i][fee] = (TH1D*) gROOT->FindObject(name.c_str());
+      if(!hist[i][fee])
+      {
+        hist[i][fee] = new TH1D(
+          name.c_str(),
+          name.c_str(),
+          128,
+          0,
+          127
+        );
+        hist[i][fee]->GetXaxis()->SetNdivisions(16, true);
+        // hist[i][fee]->GetXaxis()->SetLabelSize(0.0);
+        // hist[i][fee]->GetXaxis()->SetLabelSize(0.0);
+      }
+      hist[i][fee]->Reset();
+
+      TH1D* server_hist = (TH1D*) cl->getHisto(Form("INTTMON_%d", i), "InttBcoDiffMap");
+      if(!server_hist)
+      {
+        std::cerr << "InttMonDraw::DrawBcoDiff\n"
+                  << "\tCould not get \"InttBcoDiffMap\" from " << Form("INTTMON_%d", i) << std::endl;
+        continue;
+      }
+
+	  // Fill
+	  bco_data.fee = fee;
+	  for(int bco = 0; bco < INTT::BCO; ++bco)
+	  {
+		  bco_data.bco = bco;
+		  INTT::GetBcoBin(bin, bco_data);
+		  bin = server_hist->GetBinContent(bin); // reuse the index as the value in that bin
+		  if(max_count < bin)max_count = bin;
+		  hist[i][fee]->SetBinContent(bco + 1, bin); // + 1 is b/c the 0th bin is an underflow bin
+	  }
+	}
+	for(int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
+	{
+      hist[i][fee]->GetYaxis()->SetRangeUser(1, max_count ? max_count * 10 : 10);
+	  hist[i][fee]->SetLineColor(INTT::GetFeeColor(fee));
+      if(fee)
+	  {
+		  hist[i][fee]->Draw("same");
+	  }
+	  else
+	  {
+		  hist[i][fee]->Draw();
+	  }
+	}
+  }
 }
 
 //GlobalChip-Channel idiom
