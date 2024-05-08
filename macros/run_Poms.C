@@ -32,6 +32,7 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Health");
   subsys->AddAction("cemcDraw(\"THIRD\")", "Wave Forms");
   subsys->AddAction("cemcDraw(\"FOURTH\")", "Wave vs Fast Fitting");
+  subsys->AddAction("cemcDraw(\"FIFTH\")", "Trigger");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
