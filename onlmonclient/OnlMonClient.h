@@ -9,6 +9,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <tuple>
 #include <vector>
 
 class ClientHistoList;
@@ -20,7 +21,7 @@ class TStyle;
 
 class OnlMonClient : public OnlMonBase
 {
- public:
+public:
   static OnlMonClient *instance();
   ~OnlMonClient() override;
   using OnlMonBase::Verbosity;
@@ -38,7 +39,8 @@ class OnlMonClient : public OnlMonBase
   int requestHistoBySubSystem(const std::string &subsystem, int getall = 0);
   void registerHisto(const std::string &hname, const std::string &subsys);
   void Print(const char *what = "ALL");
-
+  void PrintHistos(const std::string &what = "ALL");
+  
   void AddServerHost(const std::string &hostname);
   void registerDrawer(OnlMonDraw *Drawer);
   int ReadHistogramsFromFile(const std::string &filename);
@@ -82,8 +84,9 @@ class OnlMonClient : public OnlMonBase
   int FindMonitor(const std::string &name);
   int IsMonitorRunning(const std::string &name);
   std::string ExtractSubsystem(const std::string &filename);
-
- private:
+  int GetServerInfo();
+		    
+private:
   OnlMonClient(const std::string &name = "ONLMONCLIENT");
   int DoSomething(const std::string &who, const std::string &what, const std::string &opt);
   void InitAll();
@@ -106,6 +109,7 @@ class OnlMonClient : public OnlMonBase
   std::map<const std::string, ClientHistoList *> Histo;
   std::map<const std::string, OnlMonDraw *> DrawerList;
   std::vector<std::string> MonitorHosts;
+  std::map<std::string, std::tuple<bool, int, int>> m_ServerStats;
 };
 
 #endif /* ONLMONCLIENT_ONLMONCLIENT_H */
