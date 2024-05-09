@@ -21,7 +21,7 @@ class TStyle;
 
 class OnlMonClient : public OnlMonBase
 {
-public:
+ public:
   static OnlMonClient *instance();
   ~OnlMonClient() override;
   using OnlMonBase::Verbosity;
@@ -40,7 +40,7 @@ public:
   void registerHisto(const std::string &hname, const std::string &subsys);
   void Print(const char *what = "ALL");
   void PrintHistos(const std::string &what = "ALL");
-  
+
   void AddServerHost(const std::string &hostname);
   void registerDrawer(OnlMonDraw *Drawer);
   int ReadHistogramsFromFile(const std::string &filename);
@@ -85,11 +85,11 @@ public:
   int IsMonitorRunning(const std::string &name);
   std::string ExtractSubsystem(const std::string &filename);
   int GetServerInfo();
-  std::map<std::string, std::tuple<bool, int, int, time_t>>::const_iterator GetServerMap(const std::string subsys) {return m_ServerStatsMap.find(subsys);}
-  std::map<std::string, std::tuple<bool, int, int, time_t>>::const_iterator GetServerMapEnd() {return m_ServerStatsMap.end();}
+  std::map<std::string, std::tuple<bool, int, int, time_t>>::const_iterator GetServerMap(const std::string subsys) { return m_ServerStatsMap.find(subsys); }
+  std::map<std::string, std::tuple<bool, int, int, time_t>>::const_iterator GetServerMapEnd() { return m_ServerStatsMap.end(); }
   OnlMonDraw *GetDrawer(const std::string &name);
-		    
-private:
+
+ private:
   OnlMonClient(const std::string &name = "ONLMONCLIENT");
   int DoSomething(const std::string &who, const std::string &what, const std::string &opt);
   void InitAll();
