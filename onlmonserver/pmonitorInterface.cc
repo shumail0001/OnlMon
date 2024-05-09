@@ -227,6 +227,7 @@ int process_event(Event *evt)
   FrameWorkVars->SetBinContent(CURRENTTIMEBIN, se->CurrentTicks());
   se->EventNumber(evt->getEvtSequence());
   se->IncrementEventCounter();
+  FrameWorkVars->SetBinContent(EVENTCOUNTERBIN,se->EventCounter());
   se->process_event(evt);
 #ifdef USE_MUTEX
   pthread_mutex_unlock(&mutex);
