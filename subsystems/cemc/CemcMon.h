@@ -1,7 +1,6 @@
 #ifndef CEMC_CEMCMON_H
 #define CEMC_CEMCMON_H
 
-
 #include <onlmon/OnlMon.h>
 
 #include <vector>
@@ -19,30 +18,42 @@ class eventReceiverClient;
 class CemcMon : public OnlMon
 {
  public:
-  CemcMon(const std::string &name);
+  CemcMon(const std::string& name);
   virtual ~CemcMon();
 
-  int process_event(Event *evt);
+  int process_event(Event* evt);
   int Init();
   int BeginRun(const int runno);
   int Reset();
-  void set_anaGL1(bool state){anaGL1=state;return;}
-  void set_trig1(int val) { trig1=val;return; }
-  void set_trig2(int val) { trig2=val;return; }
+  void set_anaGL1(bool state)
+  {
+    anaGL1 = state;
+    return;
+  }
+  void set_trig1(int val)
+  {
+    trig1 = val;
+    return;
+  }
+  void set_trig2(int val)
+  {
+    trig2 = val;
+    return;
+  }
 
  protected:
-  std::vector<float> getSignal(Packet *p, const int channel);
-  std::vector<float> anaWaveformFast(Packet *p, const int channel);
-  std::vector<float> anaWaveformTemp(Packet *p, const int channel);
+  std::vector<float> getSignal(Packet* p, const int channel);
+  std::vector<float> anaWaveformFast(Packet* p, const int channel);
+  std::vector<float> anaWaveformTemp(Packet* p, const int channel);
 
   int idummy = 0;
-  TH2 *cemc_occupancy = nullptr;
-  TH2 *cemc_runningmean = nullptr;
-  TH1 *cemc_signal = nullptr;
-  TH1 *h1_cemc_adc = nullptr;
+  TH2* cemc_occupancy = nullptr;
+  TH2* cemc_runningmean = nullptr;
+  TH1* cemc_signal = nullptr;
+  TH1* h1_cemc_adc = nullptr;
 
   static const int Nsector = 64;
-  const int Ntower = 64*2*192;
+  const int Ntower = 64 * 2 * 192;
   const int packetlow = 6001;
   const int packethigh = 6128;
   const int m_nChannels = 192;
@@ -80,7 +91,7 @@ class CemcMon : public OnlMon
   std::string runtypestr = "Unknown";
   std::string id_string;
 
-  eventReceiverClient *erc = {nullptr};
+  eventReceiverClient* erc = {nullptr};
   bool anaGL1 = true;
 
   int trig1 = 1;
@@ -91,9 +102,7 @@ class CemcMon : public OnlMon
   CaloWaveformFitting* WaveformProcessingFast = nullptr;
   CaloWaveformFitting* WaveformProcessingTemp = nullptr;
 
-
   std::vector<runningMean*> rm_vector;
-
 };
 
 #endif /* CEMC_CEMCMON_H */
