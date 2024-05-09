@@ -87,7 +87,7 @@ void OnlMonClient::InitAll()
 		    << displaystring << std::endl;
 	  if (displaystring.find("unix") != std::string::npos)
 	    {
-	      utsname ThisNode;
+	      utsname ThisNode{};
 	      uname(&ThisNode);
 	      std::cout << "presumably the virtual framebuffer is not running on " << ThisNode.nodename
 			<< ", check if process /usr/X11R6/bin/Xvfb is alive" << std::endl;
@@ -210,7 +210,7 @@ void OnlMonClient::registerHisto(const std::string &hname, const std::string &su
 int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
 {
   std::string mysubsys = subsys.substr(0,subsys.find('_'));
-  for (auto frwrkiter : m_MonitorFetchedSet)
+  for (const auto& frwrkiter : m_MonitorFetchedSet)
     {
       if (frwrkiter.find(mysubsys) == std::string::npos)
 	{
@@ -324,13 +324,13 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
 	  }
       }
       std::list<std::string>::const_iterator liter;
-      for (auto listiter = transferlist.begin(); listiter != transferlist.end(); ++listiter)
+      for (auto & listiter : transferlist)
 	{
-	  std::list<std::string> hlist = listiter->second;
-	  auto hostportiter = MonitorHostPorts.find(listiter->first);
+	  std::list<std::string> hlist = listiter.second;
+	  auto hostportiter = MonitorHostPorts.find(listiter.first);
 	  if (hostportiter == MonitorHostPorts.end())
 	    {
-	      std::cout << __PRETTY_FUNCTION__ << "Cannot find MonitorHostPorts entry for " << listiter->first << std::endl;
+	      std::cout << __PRETTY_FUNCTION__ << "Cannot find MonitorHostPorts entry for " << listiter.first << std::endl;
 	      std::cout << "existing hosts: " << std::endl;
 	      for (auto &hport : MonitorHostPorts)
 		{
@@ -339,7 +339,7 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
 		}
 	      continue;
 	    }
-	  if (requestHistoList(listiter->first, hostportiter->second.first, hostportiter->second.second, hlist) != 0)
+	  if (requestHistoList(listiter.first, hostportiter->second.first, hostportiter->second.second, hlist) != 0)
 	    {
 	      for (liter = hlist.begin(); liter != hlist.end(); ++liter)
 		{
@@ -1027,12 +1027,13 @@ void OnlMonClient::Print(const char *what)
 	      std::cout << "Subsystem " << subs.first << " runs on " << subiter->second.first;
 	      std::cout << " on port " << subiter->second.second << std::endl;
 	    }
-	  for (auto &histos : subs.second)
+	  for (auto &histos : subs.second) {
 	    std::cout << histos.first << " @ " << subs.first
 		      << " Address " << histos.second->Histo()
 		      << " on host " << histos.second->ServerHost()
 		      << " port " << histos.second->ServerPort()
 		      << ", subsystem " << histos.second->SubSystem() << std::endl;
+}
 	}
       std::cout << std::endl;
     }
@@ -1226,7 +1227,7 @@ int OnlMonClient::LocateHistogram(const std::string &hname, const std::string &s
 int OnlMonClient::RunNumber()
 {
   int runno = -9999;
-  for (auto frwrkiter : m_MonitorFetchedSet)
+  for (const auto& frwrkiter : m_MonitorFetchedSet)
     {
       TH1 *frameworkvars = getHisto(frwrkiter, "FrameWorkVars");
       if (frameworkvars)
@@ -1241,7 +1242,7 @@ int OnlMonClient::GetServerInfo()
 {
   std::map<std::string, int> server_runmap;
   int runno = -9999;
-  for (auto frwrkiter : m_MonitorFetchedSet)
+  for (const auto& frwrkiter : m_MonitorFetchedSet)
     {
       TH1 *frameworkvars = getHisto(frwrkiter, "FrameWorkVars");
       if (frameworkvars)
@@ -1306,7 +1307,7 @@ int OnlMonClient::GetServerInfo()
 time_t OnlMonClient::EventTime(const std::string &which)
 {
   time_t tret = 0;
-  for (auto frwrkiter : m_MonitorFetchedSet)
+  for (const auto& frwrkiter : m_MonitorFetchedSet)
     {
       tret = std::max(tret, EventTime(frwrkiter,which));
     }
