@@ -322,26 +322,26 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
 
       if(adcCount[start[3]]->GetMean())hist1[start[0]] -> Scale(1./adcCount[start[3]]->GetMean());
 
-      for(int i = 0; i < nTowersEta; i++)
+      for(int k = 0; k < nTowersEta; k++)
       	{
       	  for(int j = 0; j < nTowersPhi; j++)
       	    {
-      	      //if(i < 8) continue;
-      	      if(h2_cemc_mean[start[1]]-> GetBinContent(i+1, j+1) < 0.75 && hist1[start[0]] -> GetBinContent(i+1, j+1) < 0.75) hist1[start[0]]->SetBinContent(i+1, j+1, h2_cemc_mean[start[1]] -> GetBinContent(i+1, j+1));
-      	      else hist1[start[0]] -> SetBinContent(i+1, j+1, hist1[start[0]]->GetBinContent(i+1,j+1)/h2_cemc_mean[start[1]]->GetBinContent(i+1,j+1));
+      	      //if(k < 8) continue;
+      	      if(h2_cemc_mean[start[1]]-> GetBinContent(k+1, j+1) < 0.75 && hist1[start[0]] -> GetBinContent(k+1, j+1) < 0.75) hist1[start[0]]->SetBinContent(k+1, j+1, h2_cemc_mean[start[1]] -> GetBinContent(k+1, j+1));
+      	      else hist1[start[0]] -> SetBinContent(k+1, j+1, hist1[start[0]]->GetBinContent(k+1,j+1)/h2_cemc_mean[start[1]]->GetBinContent(k+1,j+1));
       	    }
       	}
     }
   else
     {
-      for(int i = 0; i < nTowersEta; i++)
+      for(int k = 0; k < nTowersEta; k++)
 	{
 	  for(int j = 0; j < nTowersPhi; j++)
 	    {
 
-	      //if(i < 8) continue;
+	      //if(k < 8) continue;
 
-	      hist1[start[0]]->SetBinContent(i+1, j+1, 0);
+	      hist1[start[0]]->SetBinContent(k+1, j+1, 0);
 	    }
 	}
     }
@@ -676,37 +676,37 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   float badboys = 0;
   if(maxEvent > 0)
     {
-      for(int i = 0; i < 3; i++)
+      for(int k = 0; k < 3; k++)
 	{
-	  for(int j = 0; j < (int)badPackets[i].size(); j++)
+	  for(int j = 0; j < (int)badPackets[k].size(); j++)
 	    {
 	      //there's most certainly a better way to do this but it's 5:00 on day 5 of owl shift
 	      //just want to prevent a packet showing up multiple times and crowding the screen
-	      if(badPackets[i][j] == 0) continue;//need this to prevent seg faulting
+	      if(badPackets[k][j] == 0) continue;//need this to prevent seg faulting
 
-	      if(i == 0)
+	      if(k == 0)
 		{
-		  badPacks -> AddEntry("",Form("%d",badPackets[i][j]),"");
+		  badPacks -> AddEntry("",Form("%d",badPackets[k][j]),"");
 		  badboys++;
 		}
-	      else if(i == 1)
+	      else if(k == 1)
 		{
-		  if(!(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j])))
+		  if(!(std::count(badPackets[k-1].begin(),badPackets[k-1].end(),badPackets[k][j])))
 		    {
-		      badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
+		      badPacks -> AddEntry("",Form("%d",badPackets[k].at(j)),"");
 		      badboys++;
 		    }
 		}
-	      else if(i == 2)
+	      else if(k == 2)
 		{
-		  if(!(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j])))
+		  if(!(std::count(badPackets[k-1].begin(),badPackets[k-1].end(),badPackets[k][j])))
 		    {
-		      badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
+		      badPacks -> AddEntry("",Form("%d",badPackets[k].at(j)),"");
 		      badboys++;
 		    }
-		  if(!(std::count(badPackets[i-2].begin(),badPackets[i-2].end(),badPackets[i][j])) && !(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j])))
+		  if(!(std::count(badPackets[k-2].begin(),badPackets[k-2].end(),badPackets[k][j])) && !(std::count(badPackets[k-1].begin(),badPackets[k-1].end(),badPackets[k][j])))
 		    {
-		      badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
+		      badPacks -> AddEntry("",Form("%d",badPackets[k].at(j)),"");
 		      badboys++;
 		    }
 		}

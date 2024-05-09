@@ -41,7 +41,7 @@ class CemcMon : public OnlMon
   TH1 *cemc_signal = nullptr;
   TH1 *h1_cemc_adc = nullptr;
 
-  const int Nsector = 64;
+  static const int Nsector = 64;
   const int Ntower = 64*2*192;
   const int packetlow = 6001;
   const int packethigh = 6128;

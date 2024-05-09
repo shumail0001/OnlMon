@@ -36,7 +36,7 @@ enum
   };
 
 const int depth = 10000;
-const int historyLength = 100;
+//const int historyLength = 100;
 const float hit_threshold = 100;
 
 
