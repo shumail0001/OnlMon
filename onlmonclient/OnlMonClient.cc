@@ -1248,13 +1248,28 @@ int OnlMonClient::GetServerInfo()
 	{
 	  int runnumber = frameworkvars->GetBinContent(RUNNUMBERBIN);
 	  time_t currtime = frameworkvars->GetBinContent(CURRENTTIMEBIN);
+	  int eventcounter = frameworkvars->GetBinContent(EVENTCOUNTERBIN);
 	  if (Verbosity() > 0)
 	    {
 	  std::cout << "Run number for " << frwrkiter << " is "
-		    << runnumber << " time is " << ctime(&currtime); // ctime adds eol
+		    << runnumber
+		    << " events take: " << eventcounter
+		    << " time is " << ctime(&currtime); // ctime adds eol
 	    }
 	  runno = std::max(runno, runnumber);
 	  server_runmap[frwrkiter] = runnumber;
+	  if (m_ServerStatsMap.find(frwrkiter) == m_ServerStatsMap.end())
+	    {
+	      m_ServerStatsMap[frwrkiter] = std::make_tuple(true,runnumber,eventcounter,currtime);
+	    }
+	  else
+	    {
+	      auto &statsiter = m_ServerStatsMap[frwrkiter];
+	      std::get<0>(statsiter) = true;
+	      std::get<1>(statsiter) = runnumber;
+	      std::get<2>(statsiter) = eventcounter;
+	      std::get<3>(statsiter) = currtime;
+	    }
 	}
     }
   for (auto const &iter : server_runmap)
@@ -1263,6 +1278,7 @@ int OnlMonClient::GetServerInfo()
 	{
 	  std::cout << "server " << iter.first << " has bad run " << iter.second << std::endl;
 	  std::cout << "Resetting histos for " << iter.first << std::endl;
+	  std::get<0>(m_ServerStatsMap[iter.first]) = false;
 	  auto subsysiter = SubsysHisto.find(iter.first);
 	  if (subsysiter == SubsysHisto.end())
 	    {
@@ -1274,7 +1290,10 @@ int OnlMonClient::GetServerInfo()
 		{
 		  if (hiter.first != "FrameWorkVars")
 		    {
-		      hiter.second->Histo()->Reset();
+		      if (hiter.second->Histo())
+			{
+		           hiter.second->Histo()->Reset();
+			}
 		    }
 		}
 	    }
@@ -1755,4 +1774,15 @@ std::string OnlMonClient::ExtractSubsystem(const std::string &fullfilename)
   subsys = subsys.substr(0, subsys.find(".root"));
   m_MonitorFetchedSet.insert(subsys);
   return subsys;
+}
+
+OnlMonDraw *OnlMonClient::GetDrawer(const std::string &name)
+{
+  auto iter = DrawerList.find(name);
+  if (iter != DrawerList.end())
+    {
+      return iter->second;
+    }
+  std::cout << "Cannot locate Drawer " << name << " in my list" << std::endl;
+  return nullptr;
 }

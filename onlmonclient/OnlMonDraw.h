@@ -1,6 +1,7 @@
 #ifndef ONLMONCLIENT_ONLMONDRAW_H
 #define ONLMONCLIENT_ONLMONDRAW_H
 
+#include <set>
 #include <string>
 
 class TPad;
@@ -21,12 +22,16 @@ class OnlMonDraw
   int Verbosity() const { return verbosity; }
   bool isHtml() const {return make_html;}
   void isHtml(const bool b) {make_html = b;}
+  virtual void AddServer(const std::string &server) {m_ServerSet.insert(server);}
+  std::set<std::string>::const_iterator ServerBegin() {return m_ServerSet.begin();}
+  std::set<std::string>::const_iterator ServerEnd() {return m_ServerSet.end();}
   
- protected:
+protected:
   virtual int DrawDeadServer(TPad *transparent);
-  std::string ThisName;
   int verbosity {0};
   bool make_html {false};
+  std::string ThisName;
+  std::set<std::string> m_ServerSet;
 };
 
 #endif /* ONLMONCLIENT_ONLMONDRAW_H */

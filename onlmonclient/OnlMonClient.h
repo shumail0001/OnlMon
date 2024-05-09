@@ -85,6 +85,9 @@ public:
   int IsMonitorRunning(const std::string &name);
   std::string ExtractSubsystem(const std::string &filename);
   int GetServerInfo();
+  std::map<std::string, std::tuple<bool, int, int, time_t>>::const_iterator GetServerMap(const std::string subsys) {return m_ServerStatsMap.find(subsys);}
+  std::map<std::string, std::tuple<bool, int, int, time_t>>::const_iterator GetServerMapEnd() {return m_ServerStatsMap.end();}
+  OnlMonDraw *GetDrawer(const std::string &name);
 		    
 private:
   OnlMonClient(const std::string &name = "ONLMONCLIENT");
@@ -109,7 +112,7 @@ private:
   std::map<const std::string, ClientHistoList *> Histo;
   std::map<const std::string, OnlMonDraw *> DrawerList;
   std::vector<std::string> MonitorHosts;
-  std::map<std::string, std::tuple<bool, int, int>> m_ServerStats;
+  std::map<std::string, std::tuple<bool, int, int, time_t>> m_ServerStatsMap;
 };
 
 #endif /* ONLMONCLIENT_ONLMONCLIENT_H */
