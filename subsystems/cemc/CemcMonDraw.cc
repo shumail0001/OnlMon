@@ -157,6 +157,16 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
       transparent[4]->Draw();
       TC[4]->SetEditable(0);
     }
+      else if (name == "CemcMon6")
+    {
+      TC[5] = new TCanvas(name.c_str(), "CemcMon6 Server Stats", 2*xsize / 3, 0, 2*xsize / 3, ysize*0.9);
+      gSystem->ProcessEvents();
+      // this one is used to plot the run number on the canvas
+      transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
+      transparent[5]->SetFillStyle(4000);
+      transparent[5]->Draw();
+      TC[5]->SetEditable(0);
+    }
 
   return 0;
 }
@@ -192,6 +202,11 @@ int CemcMonDraw::Draw(const std::string &what)
       iret += DrawFifth(what);
       idraw++;
     }
+   if (what == "ALL" || what == "SERVERSTATS")
+    {
+      iret += DrawServerStats();
+      idraw++;
+    }
   if (!idraw)
     {
       std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -211,38 +226,47 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   const int nHists = 4;
   int start[nHists];
   start[0] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  //for(int i = 0; i < nSEBs; i++)
+    int i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      hist1[i] = (TH2*)cl->getHisto(Form("CEMCMON_%d",i),"h2_cemc_rm");
+      //      hist1[i] = (TH2*)cl->getHisto(Form("CEMCMON_%d",i),"h2_cemc_rm");
+      hist1[i] = (TH2*)cl->getHisto(*server,"h2_cemc_rm");
       if(hist1[i] && start[0] == -1) start[0] = i;
       if(start[0] > -1 && hist1[i])
 	{
 	  hist1[i] -> SetName(Form("h2_cemc_rm_%d",i));
 	  if(i != start[0])hist1[start[0]] -> Add(hist1[i],1);
 	}
+      i++;
     }
 
 
   TH2* h2_cemc_mean[nSEBs];
   start[1] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  //  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      h2_cemc_mean[i] = (TH2*)cl->getHisto(Form("CEMCMON_%d",i),"h2_cemc_mean");
+      h2_cemc_mean[i] = (TH2*)cl->getHisto(*server,"h2_cemc_mean");
       if( h2_cemc_mean[i] && start[1] == -1) start[1] = i;
       if(start[1] > -1 && h2_cemc_mean[i])
 	{
 	  h2_cemc_mean[i] -> SetName(Form("h2_cemc_mean_%d",i));
 	  if(i != start[1])h2_cemc_mean[start[1]] -> Add(h2_cemc_mean[i],1);
 	}
+      i++;
     }
 
   TH1* h_event[nSEBs];
   TH1* h_eventSource[nSEBs];
   start[2] = -1;
   float maxEvent = 1;
-  for(int i = 0; i < nSEBs; i++)
+  //  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      h_eventSource[i] = (TH1*)cl->getHisto(Form("CEMCMON_%d",i),"h1_event");
+      h_eventSource[i] = (TH1*)cl->getHisto(*server,"h1_event");
       if(h_eventSource[i] && start[2] == -1) start[2] = i;
       if(start[2] > -1 && h_eventSource[i])
 	{
@@ -255,6 +279,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
 	      maxEvent = h_event[i] -> GetEntries();
 	    }
 	}
+      i++;
     }
 
   if (start[0] < 0)
@@ -1474,4 +1499,51 @@ time_t CemcMonDraw::getTime()
   OnlMonClient *cl = OnlMonClient::instance();
   time_t currtime = cl->EventTime("CURRENT");
   return currtime;
+}
+
+int CemcMonDraw::DrawServerStats()
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("CemcMon6"))
+    {
+      MakeCanvas("CemcMon6");
+    }
+  TC[5]->Clear("D");
+  TC[5]->SetEditable(1);
+  transparent[5]->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+	PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+
+	PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  for (auto server: m_ServerSet)
+    {
+      std::ostringstream txt;
+  auto servermapiter = cl->GetServerMap(server);
+  txt << "Server " << server
+      << ", run number " << std::get<1>(servermapiter->second)
+      << ", event count: " << std::get<2>(servermapiter->second)
+      <<", current time " << ctime(&(std::get<3>(servermapiter->second)));
+    if (std::get<0>(servermapiter->second))
+      {
+	PrintRun.SetTextColor(3);
+      }
+    else
+      {
+	PrintRun.SetTextColor(2);
+      }
+  PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+  vpos -= vdist;
+    }
+  TC[5]->Update();
+  TC[5]->Show();
+  TC[5]->SetEditable(0);
+
+  return 0;
 }

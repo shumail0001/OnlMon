@@ -23,7 +23,7 @@ class CemcMonDraw : public OnlMonDraw
   int MakeHtml(const std::string &what = "ALL") override;
   int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
   void setSave(int s) {save = s;}
-
+  
  private:
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
@@ -32,6 +32,8 @@ class CemcMonDraw : public OnlMonDraw
   int DrawFourth(const std::string &what = "ALL");
   int DrawFifth(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
+  int DrawServerStats();
+  
   int FindHotTower(TPad *warn,TH2* );
   time_t getTime();
   std::vector<int>  getBadPackets(TH1 *hist, int what, float cutoff);
