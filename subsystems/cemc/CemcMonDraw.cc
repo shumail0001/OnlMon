@@ -222,15 +222,13 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
   //watch the absolute insanity as we merge all these
   //histograms from across seven different machines
-  TH2* hist1[nSEBs];
+  TH2* hist1[m_ServerSet.size()];
   const int nHists = 4;
   int start[nHists];
   start[0] = -1;
-  //for(int i = 0; i < nSEBs; i++)
     int i = 0;
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      //      hist1[i] = (TH2*)cl->getHisto(Form("CEMCMON_%d",i),"h2_cemc_rm");
       hist1[i] = (TH2*)cl->getHisto(*server,"h2_cemc_rm");
       if(hist1[i] && start[0] == -1) start[0] = i;
       if(start[0] > -1 && hist1[i])
@@ -242,9 +240,8 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
     }
 
 
-  TH2* h2_cemc_mean[nSEBs];
+    TH2* h2_cemc_mean[m_ServerSet.size()];
   start[1] = -1;
-  //  for(int i = 0; i < nSEBs; i++)
   i = 0;
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
@@ -258,15 +255,14 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
       i++;
     }
 
-  TH1* h_event[nSEBs];
-  TH1* h_eventSource[nSEBs];
+  TH1* h_event[m_ServerSet.size()];
+  TH1* h_eventSource[m_ServerSet.size()];
   start[2] = -1;
   float maxEvent = 1;
-  //  for(int i = 0; i < nSEBs; i++)
   i = 0;
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      h_eventSource[i] = (TH1*)cl->getHisto(*server,"h1_event");
+      h_eventSource[i] = cl->getHisto(*server,"h1_event");
       if(h_eventSource[i] && start[2] == -1) start[2] = i;
       if(start[2] > -1 && h_eventSource[i])
 	{
@@ -291,11 +287,12 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
 
   //h_event[start[2]] -> Scale(1./divisor);
 
-  TH1* adcCount[nSEBs];
+  TH1* adcCount[m_ServerSet.size()];
   start[3] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      adcCount[i] = (TH1*)cl->getHisto(Form("CEMCMON_%i",i),"h1_cemc_adc");
+      adcCount[i] = cl->getHisto(*server,"h1_cemc_adc");
 
       if(adcCount[i] && start[3] == -1) start[3] = i;
       if(start[3] > -1 && adcCount[i])
@@ -456,14 +453,15 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 
   OnlMonClient *cl = OnlMonClient::instance();
   gStyle -> SetOptStat(0);
-  TH1* h_event[nSEBs];
-  TH1* h_eventSource[nSEBs];
+  TH1* h_event[m_ServerSet.size()];
+  TH1* h_eventSource[m_ServerSet.size()];
   int start[4];
   start[0] = -1;
   float maxEvent = -1;
-  for(int i = 0; i < nSEBs; i++)
+  int i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      h_eventSource[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_event");
+      h_eventSource[i] = cl->getHisto(*server,"h1_event");
       if(h_eventSource[i] && start[0] == -1) start[0] = i;
       if(start[0] > -1 && h_eventSource[i])
 	{
@@ -475,46 +473,53 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 	      maxEvent = h_event[i] -> GetEntries();
 	    }
 	}
+      i++;
     }
 
-  TH1* h1_packet_number[nSEBs];
+  TH1* h1_packet_number[m_ServerSet.size()];
   start[1] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      h1_packet_number[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_packet_number");
+      h1_packet_number[i] = cl->getHisto(*server,"h1_packet_number");
       if(h1_packet_number[i] && start[1] == -1) start[1] = i;
       if(start[1] > -1 && h1_packet_number[i])
 	{
 	  h1_packet_number[i] -> SetName(Form("h1_papcket_number_%d",i));
 	  if(i != start[1])h1_packet_number[start[1]] -> Add(h1_packet_number[i],1);
 	}
+      i++;
     }
 
-  TH1* h1_packet_length[nSEBs];
+  TH1* h1_packet_length[m_ServerSet.size()];
   start[2] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      h1_packet_length[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_packet_length");
+      h1_packet_length[i] = cl->getHisto(*server,"h1_packet_length");
       if(h1_packet_length[i] && start[2] == -1) start[2] = i;
       if(start[2] > -1 && h1_packet_length[i])
 	{
 	  h1_packet_length[i] -> SetName(Form("h1_papcket_length_%d",i));
 	  if(i != start[2])h1_packet_length[start[2]] -> Add(h1_packet_length[i],1);
 	}
+      i++;
     }
 
 
-  TH1* h1_packet_chans[nSEBs];
+  TH1* h1_packet_chans[m_ServerSet.size()];
   start[3] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      h1_packet_chans[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_packet_chans");
+      h1_packet_chans[i] = (TH1*) cl->getHisto(*server,"h1_packet_chans");
       if(h1_packet_chans[i] && start[3] == -1) start[3] = i;
       if(start[3] > -1 && h1_packet_chans[i])
 	{
 	  h1_packet_chans[i] -> SetName(Form("h1_papcket_chans_%d",i));
 	  if(i != start[3])h1_packet_chans[start[3]] -> Add(h1_packet_chans[i],1);
 	}
+      i++;
     }
 
     if (start[0] < 0  || start[1] < 0 || start[2] < 0)
@@ -750,13 +755,13 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH2* h2_waveform_twrAvg[nSEBs];
+  TH2* h2_waveform_twrAvg[m_ServerSet.size()];
   int start[3];
   start[0] = -1;
-
-  for(int i = 0; i < nSEBs; i++)
+  int i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      h2_waveform_twrAvg[i] = (TH2*) cl->getHisto(Form("CEMCMON_%d",i),"h2_waveform_twrAvg");
+      h2_waveform_twrAvg[i] = (TH2*) cl->getHisto(*server,"h2_waveform_twrAvg");
       if(h2_waveform_twrAvg[i] && start[0] == -1) start[0] = i;
       if(start[0] > -1 && h2_waveform_twrAvg[i])
 	{
@@ -765,24 +770,27 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
 	}
     }
 
-  TH1* h1_waveform_time[nSEBs];
+  TH1* h1_waveform_time[m_ServerSet.size()];
   start[1] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      h1_waveform_time[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_waveform_time");
+      h1_waveform_time[i] = (TH1*) cl->getHisto(*server,"h1_waveform_time");
       if(h1_waveform_time[i] && start[1] == -1) start[1] = i;
       if(start[1] > -1 && h1_waveform_time[i])
 	{
 	  h1_waveform_time[i] -> SetName(Form("h1_waveform_time_%d",i));
 	  h1_waveform_time[start[1]] -> Add(h1_waveform_time[i],1);
 	}
+      i++;
     }
 
-  TH1* h1_waveform_pedestal[nSEBs];
+  TH1* h1_waveform_pedestal[m_ServerSet.size()];
   start[2] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      h1_waveform_pedestal[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_waveform_pedestal");
+      h1_waveform_pedestal[i] = (TH1*) cl->getHisto(*server,"h1_waveform_pedestal");
 
       if(h1_waveform_pedestal[i] && start[2] == -1) start[2] = i;
       if(start[2] > -1 && h1_waveform_pedestal[i])
@@ -790,6 +798,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
 	  h1_waveform_pedestal[i] -> SetName(Form("h1_waveform_pedestal_%d",i));
 	  h1_waveform_pedestal[start[2]] -> Add(h1_waveform_pedestal[i],1);
 	}
+      i++;
     }
 
   if (!gROOT->FindObject("CemcMon3"))
@@ -940,44 +949,50 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
 
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *h_waveform_sigDiff[nSEBs];
+  TH1 *h_waveform_sigDiff[m_ServerSet.size()];
   int start[3];
   start[0] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  int i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      h_waveform_sigDiff[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_fitting_sigDiff");
+      h_waveform_sigDiff[i] = (TH1*) cl->getHisto(*server,"h1_fitting_sigDiff");
       if(h_waveform_sigDiff[i] && start[0] == -1) start[0] = i;
       if(start[0] > -1 && h_waveform_sigDiff[i])
 	{
 	  h_waveform_sigDiff[i] -> SetName(Form("h_fitting_sigDiff_%d",i));
 	  h_waveform_sigDiff[start[0]] -> Add(h_waveform_sigDiff[i],1);
 	}
+      i++;
     }
 
-  TH1 *h_waveform_pedDiff[nSEBs];
+  TH1 *h_waveform_pedDiff[m_ServerSet.size()];
   start[1] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      h_waveform_pedDiff[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_fitting_pedDiff");
+      h_waveform_pedDiff[i] = (TH1*) cl->getHisto(*server,"h1_fitting_pedDiff");
       if(h_waveform_pedDiff[i] && start[1] == -1) start[1] = i;
       if(start[1] > -1 && h_waveform_pedDiff[i])
 	{
 	  h_waveform_pedDiff[i] -> SetName(Form("h_fitting_pedDiff_%d",i));
 	  h_waveform_pedDiff[start[1]] -> Add(h_waveform_pedDiff[i],1);
 	}
+      i++;
     }
 
-  TH1 *h_waveform_timeDiff[nSEBs];
+  TH1 *h_waveform_timeDiff[m_ServerSet.size()];
   start[2] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      h_waveform_timeDiff[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_fitting_timeDiff");
+      h_waveform_timeDiff[i] = (TH1*) cl->getHisto(*server,"h1_fitting_timeDiff");
       if(h_waveform_timeDiff[i] && start[2] == -1) start[2] = i;
       if(start[2] > -1 && h_waveform_timeDiff[i])
 	{
 	  h_waveform_timeDiff[i] -> SetName(Form("h_fitting_timeDiff_%d",i));
 	  h_waveform_timeDiff[start[2]] -> Add(h_waveform_timeDiff[i],1);
 	}
+      i++;
     }
 
   if(!gROOT -> FindObject("CemcMon4"))
@@ -1100,76 +1115,87 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH2 *h_cemc_hits_trig1[nSEBs];
+  TH2 *h_cemc_hits_trig1[m_ServerSet.size()];
   int start[5];
   start[0] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  int i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_cemc_hits_trig1[i] = (TH2*) cl->getHisto(Form("CEMCMON_%d",i),"h2_cemc_hits_trig1");
+    h_cemc_hits_trig1[i] = (TH2*) cl->getHisto(*server,"h2_cemc_hits_trig1");
     if(h_cemc_hits_trig1[i] && start[0] == -1) start[0] = i;
     if(start[0] > -1 && h_cemc_hits_trig1[i])
     {
       h_cemc_hits_trig1[i]->SetName(Form("h_cemc_hits_trig1_%d",i));
       if(start[0] != i) h_cemc_hits_trig1[start[0]]->Add(h_cemc_hits_trig1[i],1);
     }
+    i++;
   }
 
-  TH2 *h_cemc_hits_trig2[nSEBs];
+  TH2 *h_cemc_hits_trig2[m_ServerSet.size()];
   start[1] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_cemc_hits_trig2[i] = (TH2*) cl->getHisto(Form("CEMCMON_%d",i),"h2_cemc_hits_trig2");
+    h_cemc_hits_trig2[i] = (TH2*) cl->getHisto(*server,"h2_cemc_hits_trig2");
     if(h_cemc_hits_trig2[i] && start[1] == -1) start[1] = i;
     if(start[1] > -1 && h_cemc_hits_trig2[i])
     {
       h_cemc_hits_trig2[i]->SetName(Form("h_cemc_hits_trig2_%d",i));
       if(start[1] != i) h_cemc_hits_trig2[start[1]]->Add(h_cemc_hits_trig2[i],1);
     }
+    i++;
   }
 
-  TH2 *h_cemc_hits_trig3[nSEBs];
+  TH2 *h_cemc_hits_trig3[m_ServerSet.size()];
   start[2] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_cemc_hits_trig3[i] = (TH2*) cl->getHisto(Form("CEMCMON_%d",i),"h2_cemc_hits_trig3");
+    h_cemc_hits_trig3[i] = (TH2*) cl->getHisto(*server,"h2_cemc_hits_trig3");
     if(h_cemc_hits_trig3[i] && start[2] == -1) start[2] = i;
     if(start[2] > -1 && h_cemc_hits_trig3[i])
     {
       h_cemc_hits_trig3[i]->SetName(Form("h_cemc_hits_trig3_%d",i));
       if(start[2] != i) h_cemc_hits_trig3[start[2]]->Add(h_cemc_hits_trig3[i],1);
     }
+    i++;
   }
 
-  TH2 *h_cemc_hits_trig4[nSEBs];
+  TH2 *h_cemc_hits_trig4[m_ServerSet.size()];
   start[3] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_cemc_hits_trig4[i] = (TH2*) cl->getHisto(Form("CEMCMON_%d",i),"h2_cemc_hits_trig4");
+    h_cemc_hits_trig4[i] = (TH2*) cl->getHisto(*server,"h2_cemc_hits_trig4");
     if(h_cemc_hits_trig4[i] && start[3] == -1) start[3] = i;
     if(start[3] > -1 && h_cemc_hits_trig4[i])
     {
       h_cemc_hits_trig4[i]->SetName(Form("h_cemc_hits_trig4_%d",i));
       if(start[3] != i) h_cemc_hits_trig4[start[3]]->Add(h_cemc_hits_trig4[i],1);
     }
+    i++;
   }
 
-  TH1 *h_cemc_trig[nSEBs];
+  TH1 *h_cemc_trig[m_ServerSet.size()];
   start[4] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_cemc_trig[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_cemc_trig");
+    h_cemc_trig[i] = (TH1*) cl->getHisto(*server,"h1_cemc_trig");
     if(h_cemc_trig[i] && start[4] == -1) start[4] = i;
     if(start[4] > -1 && h_cemc_trig[i])
     {
       h_cemc_trig[i]->SetName(Form("h_cemc_trig_%d",i));
       if(start[4] != i) h_cemc_trig[start[4]]->Add(h_cemc_trig[i],1);
     }
+    i++;
   }
 
   TProfile *h_evtRec;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_evtRec = (TProfile*)cl->getHisto(Form("CEMCMON_%d",i),"h_evtRec");
+    h_evtRec = (TProfile*)cl->getHisto(*server,"h_evtRec");
     if(h_evtRec)
     {
       break;

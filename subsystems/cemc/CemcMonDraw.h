@@ -39,17 +39,16 @@ class CemcMonDraw : public OnlMonDraw
   std::vector<int>  getBadPackets(TH1 *hist, int what, float cutoff);
 
 
-  const int nTowersEta = 96;
-  const int nTowersPhi = 256;
-  const int templateDepth=10000;
-  int save = 0;
-  TCanvas *TC[9] = {nullptr};
-  TPad *transparent[9] = {nullptr};
-  TPad *Pad[18] = {nullptr};
-  TPad *warning[18] = {nullptr};
-  TGraphErrors *gr[2] = {nullptr};
-  TStyle* cemcStyle = nullptr;
-  const int nSEBs = 16;
+  const int nTowersEta {96};
+  const int nTowersPhi {256};
+  const int templateDepth {10000};
+  int save {0};
+  TCanvas *TC[9] {nullptr};
+  TPad *transparent[9] {nullptr};
+  TPad *Pad[18] {nullptr};
+  TPad *warning[18] {nullptr};
+  TGraphErrors *gr[2] {nullptr};
+  TStyle* cemcStyle {nullptr};
 };
 
 #endif /* CEMC_CEMCMONDRAW_H */
