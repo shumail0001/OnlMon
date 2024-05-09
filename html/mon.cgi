@@ -583,10 +583,28 @@ sub select_run {
       dirlist("junk",$runrange);
       print "</td>\n";
   }
+  if (-d "laser")
+  {
+      print "<td>\n";
+      dirlist("laser",$runrange);
+      print "</td>\n";
+  }
   if (-d "led")
   {
       print "<td>\n";
       dirlist("led",$runrange);
+      print "</td>\n";
+  }
+  if (-d "local_junk")
+  {
+      print "<td>\n";
+      dirlist("local_junk",$runrange);
+      print "</td>\n";
+  }
+  if (-d "pedestal")
+  {
+      print "<td>\n";
+      dirlist("pedestal",$runrange);
       print "</td>\n";
   }
   if (-d "physics")
