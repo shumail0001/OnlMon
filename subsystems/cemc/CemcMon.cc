@@ -353,7 +353,8 @@ int CemcMon::process_event(Event *e  /* evt */)
         {
           bool trig_decision = ((triggervec & 0x1U) == 0x1U);
           trig_bools.push_back(trig_decision);
-          if (trig_decision) h1_cemc_trig->Fill(i);
+          if (trig_decision) { h1_cemc_trig->Fill(i);
+}
           triggervec = (triggervec >> 1U) & 0xffffffffU;
         }
         trig1_fire = trig_bools[trig1];
@@ -405,7 +406,8 @@ int CemcMon::process_event(Event *e  /* evt */)
 	      float pedestalFast = resultFast.at(2);
 
 	      h1_waveform_pedestal->Fill(pedestalFast);
-	      if(signalFast<hit_threshold) continue;
+	      if(signalFast<hit_threshold) { continue;
+}
 
 		for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
 		  {
@@ -429,7 +431,8 @@ int CemcMon::process_event(Event *e  /* evt */)
 	      h2_cemc_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
 
 	      //create beginning of run template
-	      if(eventCounter < templateDepth)h2_cemc_mean->SetBinContent(bin, h2_cemc_mean->GetBinContent(bin) + signalFast);
+	      if(eventCounter < templateDepth) {h2_cemc_mean->SetBinContent(bin, h2_cemc_mean->GetBinContent(bin) + signalFast);
+}
 
 	      h1_cemc_adc ->Fill(signalFast);
 

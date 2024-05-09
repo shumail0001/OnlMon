@@ -81,7 +81,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
       warning[0] = new TPad("warning0", "hot tower warnings", 0, 0, 1, 0.2);
       warning[0]->SetFillStyle(4000);
       warning[0]->Draw();
-      TC[0]->SetEditable(0);
+      TC[0]->SetEditable(false);
     }
   else if (name == "CemcMon2")
     {
@@ -103,7 +103,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
       warning[1] = new TPad("warning1","packet warnings",0.5,0,1,1);
       warning[1] -> SetFillStyle(4000);
       warning[1] -> Draw();
-      TC[1]->SetEditable(0);
+      TC[1]->SetEditable(false);
     }
   else if (name == "CemcMon3")
     {
@@ -119,7 +119,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
       transparent[2] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
       transparent[2]->SetFillStyle(4000);
       transparent[2]->Draw();
-      TC[2]->SetEditable(0);
+      TC[2]->SetEditable(false);
     }
   else if (name == "CemcMon4")
     {
@@ -135,7 +135,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
       transparent[3] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
       transparent[3]->SetFillStyle(4000);
       transparent[3]->Draw();
-      TC[3]->SetEditable(0);
+      TC[3]->SetEditable(false);
     }
     else if (name == "CemcMon5")
     {
@@ -155,7 +155,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
       transparent[4] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
       transparent[4]->SetFillStyle(4000);
       transparent[4]->Draw();
-      TC[4]->SetEditable(0);
+      TC[4]->SetEditable(false);
     }
       else if (name == "CemcMon6")
     {
@@ -165,7 +165,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
       transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
       transparent[5]->SetFillStyle(4000);
       transparent[5]->Draw();
-      TC[5]->SetEditable(0);
+      TC[5]->SetEditable(false);
     }
 
   return 0;
@@ -230,11 +230,13 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
       hist1[i] = (TH2*)cl->getHisto(*server,"h2_cemc_rm");
-      if(hist1[i] && start[0] == -1) start[0] = i;
+      if(hist1[i] && start[0] == -1) { start[0] = i;
+}
       if(start[0] > -1 && hist1[i])
 	{
 	  hist1[i] -> SetName(Form("h2_cemc_rm_%d",i));
-	  if(i != start[0])hist1[start[0]] -> Add(hist1[i],1);
+	  if(i != start[0]) {hist1[start[0]] -> Add(hist1[i],1);
+}
 	}
       i++;
     }
@@ -246,11 +248,13 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
       h2_cemc_mean[i] = (TH2*)cl->getHisto(*server,"h2_cemc_mean");
-      if( h2_cemc_mean[i] && start[1] == -1) start[1] = i;
+      if( h2_cemc_mean[i] && start[1] == -1) { start[1] = i;
+}
       if(start[1] > -1 && h2_cemc_mean[i])
 	{
 	  h2_cemc_mean[i] -> SetName(Form("h2_cemc_mean_%d",i));
-	  if(i != start[1])h2_cemc_mean[start[1]] -> Add(h2_cemc_mean[i],1);
+	  if(i != start[1]) {h2_cemc_mean[start[1]] -> Add(h2_cemc_mean[i],1);
+}
 	}
       i++;
     }
@@ -263,7 +267,8 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
       h_eventSource[i] = cl->getHisto(*server,"h1_event");
-      if(h_eventSource[i] && start[2] == -1) start[2] = i;
+      if(h_eventSource[i] && start[2] == -1) { start[2] = i;
+}
       if(start[2] > -1 && h_eventSource[i])
 	{
 	  h_event[i] = (TH1*)h_eventSource[i] -> Clone();
@@ -281,7 +286,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   if (start[0] < 0)
     {
       DrawDeadServer(transparent[0]);
-      TC[0]->SetEditable(0);
+      TC[0]->SetEditable(false);
       return -1;
     }
 
@@ -294,11 +299,13 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
     {
       adcCount[i] = cl->getHisto(*server,"h1_cemc_adc");
 
-      if(adcCount[i] && start[3] == -1) start[3] = i;
+      if(adcCount[i] && start[3] == -1) { start[3] = i;
+}
       if(start[3] > -1 && adcCount[i])
 	{
 	  adcCount[i] -> SetName(Form("h1_cemc_adc_%d",i));
-	  if(i != start[3])adcCount[start[3]] -> Add(adcCount[i],1);
+	  if(i != start[3]) {adcCount[start[3]] -> Add(adcCount[i],1);
+}
 	}
     }
 
@@ -311,24 +318,28 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   if(maxEvent > 0)
     {
 
-      if(maxEvent > templateDepth)h2_cemc_mean[start[1]]->Scale(1./templateDepth);
-      else h2_cemc_mean[start[1]]->Scale(1./maxEvent);
+      if(maxEvent > templateDepth) {h2_cemc_mean[start[1]]->Scale(1./templateDepth);
+      } else { h2_cemc_mean[start[1]]->Scale(1./maxEvent);
+}
 
 
       //hist1[start[0]] -> Divide(h2_cemc_mean[start[1]]);
       //hist1[start[0]] -> Scale(1./hist1[start[0]] -> GetMean());
       //hist1[start[0]] -> Scale(1/10.);
-      if(adcCount[start[3]]->GetMean())h2_cemc_mean[start[1]]->Scale(1./adcCount[start[3]]->GetMean());
+      if(adcCount[start[3]]->GetMean()) {h2_cemc_mean[start[1]]->Scale(1./adcCount[start[3]]->GetMean());
+}
 
-      if(adcCount[start[3]]->GetMean())hist1[start[0]] -> Scale(1./adcCount[start[3]]->GetMean());
+      if(adcCount[start[3]]->GetMean()) {hist1[start[0]] -> Scale(1./adcCount[start[3]]->GetMean());
+}
 
       for(int k = 0; k < nTowersEta; k++)
       	{
       	  for(int j = 0; j < nTowersPhi; j++)
       	    {
       	      //if(k < 8) continue;
-      	      if(h2_cemc_mean[start[1]]-> GetBinContent(k+1, j+1) < 0.75 && hist1[start[0]] -> GetBinContent(k+1, j+1) < 0.75) hist1[start[0]]->SetBinContent(k+1, j+1, h2_cemc_mean[start[1]] -> GetBinContent(k+1, j+1));
-      	      else hist1[start[0]] -> SetBinContent(k+1, j+1, hist1[start[0]]->GetBinContent(k+1,j+1)/h2_cemc_mean[start[1]]->GetBinContent(k+1,j+1));
+      	      if(h2_cemc_mean[start[1]]-> GetBinContent(k+1, j+1) < 0.75 && hist1[start[0]] -> GetBinContent(k+1, j+1) < 0.75) { hist1[start[0]]->SetBinContent(k+1, j+1, h2_cemc_mean[start[1]] -> GetBinContent(k+1, j+1));
+      	      } else { hist1[start[0]] -> SetBinContent(k+1, j+1, hist1[start[0]]->GetBinContent(k+1,j+1)/h2_cemc_mean[start[1]]->GetBinContent(k+1,j+1));
+}
       	    }
       	}
     }
@@ -353,7 +364,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
 
 
 
-  TC[0]->SetEditable(1);
+  TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   Pad[0]->cd();
 
@@ -395,7 +406,8 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
     l_board[il-1]->SetLineColor(1);
     l_board[il-1]->SetLineWidth(1);
     l_board[il-1]->SetLineStyle(1);
-    if(il==6) l_board[il-1]->SetLineWidth(2);
+    if(il==6) { l_board[il-1]->SetLineWidth(2);
+}
   }
 
   gPad->SetTopMargin(0.08);
@@ -417,8 +429,10 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   gStyle -> SetOptStat(0);
   hist1[start[0]]->DrawCopy("colz");
   //h2_cemc_mean[start[1]]->DrawCopy("colz");
-  for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
-  for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
+  for(auto & i_line : line_sector) { i_line->Draw();
+}
+  for(auto & il : l_board) { il->Draw();
+}
 
   FindHotTower(warning[0],hist1[start[0]]);
   TText PrintRun;
@@ -441,8 +455,9 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
 
   TC[0]->Update();
   TC[0]->Show();
-  TC[0]->SetEditable(0);
-  if(save)TC[0] -> SaveAs("plots/towerHits.pdf");
+  TC[0]->SetEditable(false);
+  if(save) {TC[0] -> SaveAs("plots/towerHits.pdf");
+}
   return 0;
 }
 
@@ -462,7 +477,8 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
       h_eventSource[i] = cl->getHisto(*server,"h1_event");
-      if(h_eventSource[i] && start[0] == -1) start[0] = i;
+      if(h_eventSource[i] && start[0] == -1) { start[0] = i;
+}
       if(start[0] > -1 && h_eventSource[i])
 	{
 	  h_event[i] = (TH1*)h_eventSource[i] -> Clone();
@@ -482,11 +498,13 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
       h1_packet_number[i] = cl->getHisto(*server,"h1_packet_number");
-      if(h1_packet_number[i] && start[1] == -1) start[1] = i;
+      if(h1_packet_number[i] && start[1] == -1) { start[1] = i;
+}
       if(start[1] > -1 && h1_packet_number[i])
 	{
 	  h1_packet_number[i] -> SetName(Form("h1_papcket_number_%d",i));
-	  if(i != start[1])h1_packet_number[start[1]] -> Add(h1_packet_number[i],1);
+	  if(i != start[1]) {h1_packet_number[start[1]] -> Add(h1_packet_number[i],1);
+}
 	}
       i++;
     }
@@ -497,11 +515,13 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
       h1_packet_length[i] = cl->getHisto(*server,"h1_packet_length");
-      if(h1_packet_length[i] && start[2] == -1) start[2] = i;
+      if(h1_packet_length[i] && start[2] == -1) { start[2] = i;
+}
       if(start[2] > -1 && h1_packet_length[i])
 	{
 	  h1_packet_length[i] -> SetName(Form("h1_papcket_length_%d",i));
-	  if(i != start[2])h1_packet_length[start[2]] -> Add(h1_packet_length[i],1);
+	  if(i != start[2]) {h1_packet_length[start[2]] -> Add(h1_packet_length[i],1);
+}
 	}
       i++;
     }
@@ -513,11 +533,13 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
       h1_packet_chans[i] = (TH1*) cl->getHisto(*server,"h1_packet_chans");
-      if(h1_packet_chans[i] && start[3] == -1) start[3] = i;
+      if(h1_packet_chans[i] && start[3] == -1) { start[3] = i;
+}
       if(start[3] > -1 && h1_packet_chans[i])
 	{
 	  h1_packet_chans[i] -> SetName(Form("h1_papcket_chans_%d",i));
-	  if(i != start[3])h1_packet_chans[start[3]] -> Add(h1_packet_chans[i],1);
+	  if(i != start[3]) {h1_packet_chans[start[3]] -> Add(h1_packet_chans[i],1);
+}
 	}
       i++;
     }
@@ -525,7 +547,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
     if (start[0] < 0  || start[1] < 0 || start[2] < 0)
     {
       DrawDeadServer(transparent[1]);
-      TC[1]->SetEditable(0);
+      TC[1]->SetEditable(false);
       return -1;
     }
 
@@ -546,7 +568,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
       MakeCanvas("CemcMon2");
     }
 
-  TC[1]->SetEditable(1);
+  TC[1]->SetEditable(true);
   TC[1]->Clear("D");
 
   TLine *one = new TLine(6000.5,1,6128.5,1);
@@ -682,7 +704,8 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 	    {
 	      //there's most certainly a better way to do this but it's 5:00 on day 5 of owl shift
 	      //just want to prevent a packet showing up multiple times and crowding the screen
-	      if(badPackets[k][j] == 0) continue;//need this to prevent seg faulting
+	      if(badPackets[k][j] == 0) { continue;//need this to prevent seg faulting
+}
 
 	      if(k == 0)
 		{
@@ -744,8 +767,9 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   PrintRun.DrawText(0.5, .966, runstring.c_str());
   TC[1]->Update();
   TC[1]->Show();
-  TC[1]->SetEditable(0);
-  if(save)TC[1] -> SaveAs("plots/packets.pdf");
+  TC[1]->SetEditable(false);
+  if(save) {TC[1] -> SaveAs("plots/packets.pdf");
+}
   return 0;
 }
 
@@ -762,7 +786,8 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
       h2_waveform_twrAvg[i] = (TH2*) cl->getHisto(*server,"h2_waveform_twrAvg");
-      if(h2_waveform_twrAvg[i] && start[0] == -1) start[0] = i;
+      if(h2_waveform_twrAvg[i] && start[0] == -1) { start[0] = i;
+}
       if(start[0] > -1 && h2_waveform_twrAvg[i])
 	{
 	  h2_waveform_twrAvg[i] -> SetName(Form("h2_waveform_twrAvg_%d",i));
@@ -776,7 +801,8 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
       h1_waveform_time[i] = (TH1*) cl->getHisto(*server,"h1_waveform_time");
-      if(h1_waveform_time[i] && start[1] == -1) start[1] = i;
+      if(h1_waveform_time[i] && start[1] == -1) { start[1] = i;
+}
       if(start[1] > -1 && h1_waveform_time[i])
 	{
 	  h1_waveform_time[i] -> SetName(Form("h1_waveform_time_%d",i));
@@ -792,7 +818,8 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
     {
       h1_waveform_pedestal[i] = (TH1*) cl->getHisto(*server,"h1_waveform_pedestal");
 
-      if(h1_waveform_pedestal[i] && start[2] == -1) start[2] = i;
+      if(h1_waveform_pedestal[i] && start[2] == -1) { start[2] = i;
+}
       if(start[2] > -1 && h1_waveform_pedestal[i])
 	{
 	  h1_waveform_pedestal[i] -> SetName(Form("h1_waveform_pedestal_%d",i));
@@ -806,13 +833,13 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
       MakeCanvas("CemcMon3");
     }
 
-  TC[2]->SetEditable(1);
+  TC[2]->SetEditable(true);
   TC[2]->Clear("D");
   Pad[4]->cd();
   if (start[0] < 0 || start[1] < 0|| start[2] < 0)
     {
       DrawDeadServer(transparent[2]);
-      TC[2]->SetEditable(0);
+      TC[2]->SetEditable(false);
       return -1;
     }
 
@@ -885,7 +912,8 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   h1_waveform_time[start[1]]->GetXaxis()->SetTitleOffset(1.0);
   h1_waveform_time[start[1]]->GetYaxis()->SetTitleOffset(.85);
 
-  if(h1_waveform_time[start[1]]->GetEntries())h1_waveform_time[start[1]] -> Scale(1./h1_waveform_time[start[1]]->GetEntries());
+  if(h1_waveform_time[start[1]]->GetEntries()) {h1_waveform_time[start[1]] -> Scale(1./h1_waveform_time[start[1]]->GetEntries());
+}
   h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0,1.);
 
   TLine *windowLow2 = new TLine(4,0,4,1);
@@ -914,7 +942,8 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   h1_waveform_pedestal[start[2]]->GetYaxis()->SetTitleSize(tsize2);
   h1_waveform_pedestal[start[2]]->GetXaxis()->SetTitleOffset(1);
   h1_waveform_pedestal[start[2]]->GetYaxis()->SetTitleOffset(0.85);
-  if(h1_waveform_pedestal[start[2]]->GetEntries())h1_waveform_pedestal[start[2]] -> Scale(1./h1_waveform_pedestal[start[2]]->GetEntries());
+  if(h1_waveform_pedestal[start[2]]->GetEntries()) {h1_waveform_pedestal[start[2]] -> Scale(1./h1_waveform_pedestal[start[2]]->GetEntries());
+}
   //h1_waveform_pedestal -> GetXaxis() -> SetRangeUser(1000,2000);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
@@ -926,7 +955,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   gStyle -> SetOptStat(0);
 
   h1_waveform_pedestal[start[2]]->DrawCopy("hist");
-  h1_waveform_pedestal[start[2]]->SetStats(0);
+  h1_waveform_pedestal[start[2]]->SetStats(false);
   gStyle -> SetOptStat(0);
 
   TC[2]->Update();
@@ -935,10 +964,11 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   TC[2]->Show();
   gStyle -> SetOptStat(0);
 
-  TC[2]->SetEditable(0);
+  TC[2]->SetEditable(false);
   gStyle -> SetOptStat(0);
 
-  if(save)TC[2] -> SaveAs("plots/waveform.pdf");
+  if(save) {TC[2] -> SaveAs("plots/waveform.pdf");
+}
   gStyle -> SetOptStat(0);
 
   return 0;
@@ -956,7 +986,8 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
       h_waveform_sigDiff[i] = (TH1*) cl->getHisto(*server,"h1_fitting_sigDiff");
-      if(h_waveform_sigDiff[i] && start[0] == -1) start[0] = i;
+      if(h_waveform_sigDiff[i] && start[0] == -1) { start[0] = i;
+}
       if(start[0] > -1 && h_waveform_sigDiff[i])
 	{
 	  h_waveform_sigDiff[i] -> SetName(Form("h_fitting_sigDiff_%d",i));
@@ -971,7 +1002,8 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
       h_waveform_pedDiff[i] = (TH1*) cl->getHisto(*server,"h1_fitting_pedDiff");
-      if(h_waveform_pedDiff[i] && start[1] == -1) start[1] = i;
+      if(h_waveform_pedDiff[i] && start[1] == -1) { start[1] = i;
+}
       if(start[1] > -1 && h_waveform_pedDiff[i])
 	{
 	  h_waveform_pedDiff[i] -> SetName(Form("h_fitting_pedDiff_%d",i));
@@ -986,7 +1018,8 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
       h_waveform_timeDiff[i] = (TH1*) cl->getHisto(*server,"h1_fitting_timeDiff");
-      if(h_waveform_timeDiff[i] && start[2] == -1) start[2] = i;
+      if(h_waveform_timeDiff[i] && start[2] == -1) { start[2] = i;
+}
       if(start[2] > -1 && h_waveform_timeDiff[i])
 	{
 	  h_waveform_timeDiff[i] -> SetName(Form("h_fitting_timeDiff_%d",i));
@@ -1000,12 +1033,12 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
       MakeCanvas("CemcMon4");
     }
 
-  TC[3]->SetEditable(1);
+  TC[3]->SetEditable(true);
   TC[3]->Clear("D");
   if(start[0] < 0|| start[1] < 0 || start[2] < 0)
     {
       DrawDeadServer(transparent[3]);
-      TC[3]->SetEditable(0);
+      TC[3]->SetEditable(false);
       return -1;
     }
 
@@ -1049,7 +1082,8 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_sigDiff[start[0]]->GetYaxis()->SetTitleSize(tsize2-.01);
   h_waveform_sigDiff[start[0]]->GetXaxis()->SetTitleOffset(.9);
   h_waveform_sigDiff[start[0]]->GetYaxis()->SetTitleOffset(1.1);
-  if(h_waveform_sigDiff[start[0]] -> GetEntries())h_waveform_sigDiff[start[0]] -> Scale(1./h_waveform_sigDiff[start[0]] -> GetEntries());
+  if(h_waveform_sigDiff[start[0]] -> GetEntries()) {h_waveform_sigDiff[start[0]] -> Scale(1./h_waveform_sigDiff[start[0]] -> GetEntries());
+}
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1072,7 +1106,8 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_pedDiff[start[1]]->GetYaxis()->SetTitleSize(tsize2);
   h_waveform_pedDiff[start[1]]->GetXaxis()->SetTitleOffset(0.9);
   h_waveform_pedDiff[start[1]]->GetYaxis()->SetTitleOffset(0.9);
-  if(h_waveform_pedDiff[start[1]] -> GetEntries())h_waveform_pedDiff[start[1]] -> Scale(1./ h_waveform_pedDiff[start[1]] -> GetEntries());
+  if(h_waveform_pedDiff[start[1]] -> GetEntries()) {h_waveform_pedDiff[start[1]] -> Scale(1./ h_waveform_pedDiff[start[1]] -> GetEntries());
+}
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1093,7 +1128,8 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_timeDiff[start[2]]->GetYaxis()->SetTitleSize(tsize2);
   h_waveform_timeDiff[start[2]]->GetXaxis()->SetTitleOffset(0.9);
   h_waveform_timeDiff[start[2]]->GetYaxis()->SetTitleOffset(0.9);
-  if(h_waveform_timeDiff[start[2]]->GetEntries())h_waveform_timeDiff[start[2]] -> Scale(1./ h_waveform_timeDiff[start[2]]->GetEntries());
+  if(h_waveform_timeDiff[start[2]]->GetEntries()) {h_waveform_timeDiff[start[2]] -> Scale(1./ h_waveform_timeDiff[start[2]]->GetEntries());
+}
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1105,9 +1141,10 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
 
   TC[3]->Update();
   TC[3]->Show();
-  TC[3]->SetEditable(0);
+  TC[3]->SetEditable(false);
   gStyle->SetOptStat(0);
-  if(save)TC[3] -> SaveAs("plots/waveformExpert.pdf");
+  if(save) {TC[3] -> SaveAs("plots/waveformExpert.pdf");
+}
   return 0;
 }
 
@@ -1122,11 +1159,13 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
     h_cemc_hits_trig1[i] = (TH2*) cl->getHisto(*server,"h2_cemc_hits_trig1");
-    if(h_cemc_hits_trig1[i] && start[0] == -1) start[0] = i;
+    if(h_cemc_hits_trig1[i] && start[0] == -1) { start[0] = i;
+}
     if(start[0] > -1 && h_cemc_hits_trig1[i])
     {
       h_cemc_hits_trig1[i]->SetName(Form("h_cemc_hits_trig1_%d",i));
-      if(start[0] != i) h_cemc_hits_trig1[start[0]]->Add(h_cemc_hits_trig1[i],1);
+      if(start[0] != i) { h_cemc_hits_trig1[start[0]]->Add(h_cemc_hits_trig1[i],1);
+}
     }
     i++;
   }
@@ -1137,11 +1176,13 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
     h_cemc_hits_trig2[i] = (TH2*) cl->getHisto(*server,"h2_cemc_hits_trig2");
-    if(h_cemc_hits_trig2[i] && start[1] == -1) start[1] = i;
+    if(h_cemc_hits_trig2[i] && start[1] == -1) { start[1] = i;
+}
     if(start[1] > -1 && h_cemc_hits_trig2[i])
     {
       h_cemc_hits_trig2[i]->SetName(Form("h_cemc_hits_trig2_%d",i));
-      if(start[1] != i) h_cemc_hits_trig2[start[1]]->Add(h_cemc_hits_trig2[i],1);
+      if(start[1] != i) { h_cemc_hits_trig2[start[1]]->Add(h_cemc_hits_trig2[i],1);
+}
     }
     i++;
   }
@@ -1152,11 +1193,13 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
     h_cemc_hits_trig3[i] = (TH2*) cl->getHisto(*server,"h2_cemc_hits_trig3");
-    if(h_cemc_hits_trig3[i] && start[2] == -1) start[2] = i;
+    if(h_cemc_hits_trig3[i] && start[2] == -1) { start[2] = i;
+}
     if(start[2] > -1 && h_cemc_hits_trig3[i])
     {
       h_cemc_hits_trig3[i]->SetName(Form("h_cemc_hits_trig3_%d",i));
-      if(start[2] != i) h_cemc_hits_trig3[start[2]]->Add(h_cemc_hits_trig3[i],1);
+      if(start[2] != i) { h_cemc_hits_trig3[start[2]]->Add(h_cemc_hits_trig3[i],1);
+}
     }
     i++;
   }
@@ -1167,11 +1210,13 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
     h_cemc_hits_trig4[i] = (TH2*) cl->getHisto(*server,"h2_cemc_hits_trig4");
-    if(h_cemc_hits_trig4[i] && start[3] == -1) start[3] = i;
+    if(h_cemc_hits_trig4[i] && start[3] == -1) { start[3] = i;
+}
     if(start[3] > -1 && h_cemc_hits_trig4[i])
     {
       h_cemc_hits_trig4[i]->SetName(Form("h_cemc_hits_trig4_%d",i));
-      if(start[3] != i) h_cemc_hits_trig4[start[3]]->Add(h_cemc_hits_trig4[i],1);
+      if(start[3] != i) { h_cemc_hits_trig4[start[3]]->Add(h_cemc_hits_trig4[i],1);
+}
     }
     i++;
   }
@@ -1182,11 +1227,13 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
     h_cemc_trig[i] = (TH1*) cl->getHisto(*server,"h1_cemc_trig");
-    if(h_cemc_trig[i] && start[4] == -1) start[4] = i;
+    if(h_cemc_trig[i] && start[4] == -1) { start[4] = i;
+}
     if(start[4] > -1 && h_cemc_trig[i])
     {
       h_cemc_trig[i]->SetName(Form("h_cemc_trig_%d",i));
-      if(start[4] != i) h_cemc_trig[start[4]]->Add(h_cemc_trig[i],1);
+      if(start[4] != i) { h_cemc_trig[start[4]]->Add(h_cemc_trig[i],1);
+}
     }
     i++;
   }
@@ -1207,12 +1254,12 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
     MakeCanvas("CemcMon5");
   }
 
-  TC[4]->SetEditable(1);
+  TC[4]->SetEditable(true);
   TC[4]->Clear("D");
   if (!h_cemc_hits_trig1[start[0]] || !h_cemc_hits_trig2[start[1]] || !h_cemc_hits_trig3[start[2]] || !h_cemc_hits_trig4[start[3]] || !h_cemc_trig[start[4]])
   {
     DrawDeadServer(transparent[4]);
-    TC[4]->SetEditable(0);
+    TC[4]->SetEditable(false);
     return -1;
   }
 
@@ -1355,7 +1402,7 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
 
   TC[4]->Update();
   TC[4]->Show();
-  TC[4]->SetEditable(0);
+  TC[4]->SetEditable(false);
 
   return 0;
 
@@ -1371,14 +1418,18 @@ int CemcMonDraw::FindHotTower(TPad *warningpad,TH2* hhit){
   for(int ieta=0; ieta<nTowersEta; ieta++){
     for(int iphi=0; iphi<nTowersPhi; iphi++){
 
-      if(ieta < 8 && ((iphi >= 40) && (iphi <= 87 ))) continue;//uninstrumented
-      if(hhit -> GetBinContent(ieta+1, iphi+1) == 0)continue;
+      if(ieta < 8 && ((iphi >= 40) && (iphi <= 87 ))) { continue;//uninstrumented
+}
+      if(hhit -> GetBinContent(ieta+1, iphi+1) == 0) {continue;
+}
       double nhit = hhit->GetBinContent(ieta+1, iphi+1);
 
-      if(nhit > hot_threshold)	nhott++;
+      if(nhit > hot_threshold) {	nhott++;
+}
 
 
-      if(nhit < dead_threshold)	ndeadt++;
+      if(nhit < dead_threshold) {	ndeadt++;
+}
 
     }
   }
@@ -1535,7 +1586,7 @@ int CemcMonDraw::DrawServerStats()
       MakeCanvas("CemcMon6");
     }
   TC[5]->Clear("D");
-  TC[5]->SetEditable(1);
+  TC[5]->SetEditable(true);
   transparent[5]->cd();
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -1548,7 +1599,7 @@ int CemcMonDraw::DrawServerStats()
 	PrintRun.SetTextSize(0.02);
   double vdist = 0.05;
   double vpos = 0.9;
-  for (auto server: m_ServerSet)
+  for (const auto& server: m_ServerSet)
     {
       std::ostringstream txt;
   auto servermapiter = cl->GetServerMap(server);
@@ -1569,7 +1620,7 @@ int CemcMonDraw::DrawServerStats()
     }
   TC[5]->Update();
   TC[5]->Show();
-  TC[5]->SetEditable(0);
+  TC[5]->SetEditable(false);
 
   return 0;
 }
