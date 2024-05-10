@@ -29,10 +29,10 @@ class DaqMonDraw : public OnlMonDraw
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
+  int DrawServerStats();
   time_t getTime();
 //  int DrawHistory(const std::string &what = "ALL");
   int TimeOffsetTicks = -1;
-  const int nSEB = 20;
   TCanvas *TC[3] = {nullptr};
   TPad *transparent[3] = {nullptr};
   TPad *Pad[6] = {nullptr};

@@ -83,7 +83,7 @@ int DaqMonDraw::MakeCanvas(const std::string &name)
     TC[0]->SetEditable(false);
     gStyle->SetOptStat(0);
   }
-  if (name == "DaqMon2")
+  else if (name == "DaqMon2")
   {
     gStyle->SetOptStat(0);
     TC[1] = new TCanvas(name.c_str(), "Calo ADC System Clock Check Capture", -1, 0, xsize / 2, ysize);
@@ -94,6 +94,17 @@ int DaqMonDraw::MakeCanvas(const std::string &name)
     transparent[1]->SetFillStyle(4000);
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
+    gStyle->SetOptStat(0);
+  }
+  else if (name == "DaqMon3")
+  {
+    gStyle->SetOptStat(0);
+    TC[2] = new TCanvas(name.c_str(), "Calo ADC System Clock Check Capture", -1, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
+    TC[2]->SetEditable(false);
     gStyle->SetOptStat(0);
   }
   return 0;
@@ -111,6 +122,11 @@ int DaqMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SECOND")
   {
     iret += DrawSecond(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "SERVERSTATS")
+  {
+    iret += DrawServerStats();
     idraw++;
   }
   if (!idraw)
@@ -138,10 +154,11 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   Pad[0]->SetGrid(1,1);
   
   int start=-1;
-  TH2* h_gl1_clock_diff[nSEB];
-  for(int i = 0; i < nSEB; i++) 
+  TH2* h_gl1_clock_diff[m_ServerSet.size()];
+  int i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {    
-      h_gl1_clock_diff[i]= (TH2*) cl->getHisto(Form("DAQMON_%d",i),"h_gl1_clock_diff");
+      h_gl1_clock_diff[i]= (TH2*) cl->getHisto(*server,"h_gl1_clock_diff");
       if(!h_gl1_clock_diff[i]) continue;
       h_gl1_clock_diff[i]->GetXaxis()->SetTitleSize(0);
 
@@ -151,13 +168,14 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
               if(content < 10) h_gl1_clock_diff[i]->SetBinContent(ibinx,ibiny,0);
           }
       }
-
+  
       if(start==-1){
           start = i;
       }
       else if(i > start){
           h_gl1_clock_diff[start]->Add(h_gl1_clock_diff[i],1);
       }
+      i++;
   }    
   if (start < 0) return 0;
 
@@ -245,9 +263,10 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   Pad[1]->SetGridy(1);
   
   int start=-1;
-  TH2* h_gl1_clock_diff_capture[nSEB];
-  for(int i = 0; i < nSEB; i++) 
-  {    
+  TH2* h_gl1_clock_diff_capture[m_ServerSet.size()];
+  int i=0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
       h_gl1_clock_diff_capture[i]= (TH2*) cl->getHisto(Form("DAQMON_%d",i),"h_gl1_clock_diff_capture");
       if(!h_gl1_clock_diff_capture[i]) continue;
       if(start==-1){
@@ -256,6 +275,7 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
       else if(i > start){
           h_gl1_clock_diff_capture[start]->Add(h_gl1_clock_diff_capture[i],1);
       }
+      i++;
   }    
   if (start < 0) return 0;
 
@@ -379,4 +399,51 @@ time_t DaqMonDraw::getTime()
   OnlMonClient *cl = OnlMonClient::instance();
   time_t currtime = cl->EventTime("CURRENT");
   return currtime;
+}
+
+int DaqMonDraw::DrawServerStats()
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("DaqMon3"))
+  {
+    MakeCanvas("DaqMon3");
+  }
+  TC[2]->Clear("D");
+  TC[2]->SetEditable(true);
+  transparent[2]->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  for (const auto &server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = cl->GetServerMap(server);
+    txt << "Server " << server
+        << ", run number " << std::get<1>(servermapiter->second)
+        << ", event count: " << std::get<2>(servermapiter->second)
+        << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+    if (std::get<0>(servermapiter->second))
+    {
+      PrintRun.SetTextColor(3);
+    }
+    else
+    {
+      PrintRun.SetTextColor(2);
+    }
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+  TC[2]->Update();
+  TC[2]->Show();
+  TC[2]->SetEditable(false);
+
+  return 0;
 }
