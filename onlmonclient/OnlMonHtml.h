@@ -29,7 +29,7 @@ class OnlMonHtml
 
   /** Generate filenames, to be used to produce e.g. gif or html files.
    *  @param drawer the OnlMonDraw child class for which filename must be built
-   *  @param basefilename the beginning of the filename 
+   *  @param basefilename the beginning of the filename
    *  (will be completed e.g. with the run number by this method)
    *  @param ext the extension of the file (e.g. gif or html)
    *  @return fullfilename = path+filename of the generated filename.
@@ -41,14 +41,14 @@ class OnlMonHtml
              std::string& filename);
 
   /** Generate a full filename from specified pieces, *and* register
-    * the file to the navigation menu
-    * @param drawer the OnlMonDraw child class for which filename must be built
-    * @param path the path that will be used in the *navigation menu*
-    * @param basefilename the beginning of the filename 
-    * (will be completed e.g. with the run number by this method)
-    * @param ext the extension of the file (e.g. gif or html)
-    * @return the full filename (i.e. full path + filename)
-    */
+   * the file to the navigation menu
+   * @param drawer the OnlMonDraw child class for which filename must be built
+   * @param path the path that will be used in the *navigation menu*
+   * @param basefilename the beginning of the filename
+   * (will be completed e.g. with the run number by this method)
+   * @param ext the extension of the file (e.g. gif or html)
+   * @return the full filename (i.e. full path + filename)
+   */
   std::string registerPage(const std::string& header,
                            const std::string& path,
                            const std::string& basefilename,

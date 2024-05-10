@@ -3,9 +3,9 @@
 
 #include <onlmon/OnlMonDraw.h>
 
-#include <string>  // for allocator, string
 #include <TH2.h>
 #include <TStyle.h>
+#include <string>  // for allocator, string
 
 class TCanvas;
 class TGraphErrors;
@@ -35,27 +35,31 @@ class CemcMonDraw : public OnlMonDraw
   int DrawFifth(const std::string &what = "ALL");
   int DrawSixth(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
-  int FindHotTower(TPad *warn,TH2* );
+  int DrawServerStats();
+
+  int FindHotTower(TPad *warn, TH2 *);
   time_t getTime();
   std::vector<int>  getBadPackets(TH1 *hist, int what, float cutoff);
 
+  const int nTowersEta{96};
+  const int nTowersPhi{256};
+  const int templateDepth{10000};
+  const int nSEBs{1};//16;
+  int save{0};
 
-  const int nTowersEta = 96;
-  const int nTowersPhi = 256;
-  const int templateDepth=10000;
-  int save = 0;
-  TCanvas *TC[9] = {nullptr};
-  TCanvas *PopUpCanvas=nullptr;
-  TPad *transparent[9] = {nullptr};
-  TPad *Pad[18] = {nullptr};
-  TPad *warning[18] = {nullptr};
-  TPad ***PopUpPad=nullptr;
-  TPad *PopUpTransparent=nullptr;
-  TGraphErrors *gr[2] = {nullptr};
+  TCanvas *TC[9]{nullptr};
+  TCanvas *PopUpCanvas{nullptr};
+  TPad *transparent[9]{nullptr};
+  TPad *Pad[18]{nullptr};
+  TPad *warning[18]{nullptr};
+
+  TPad ***PopUpPad{nullptr};
+  TPad *PopUpTransparent{nullptr};
+  TGraphErrors *gr[2]{nullptr};
   TStyle* cemcStyle = nullptr;
-  TProfile*** summedProfile=nullptr;
-  TProfile*** AllProfiles=nullptr;
-  const int nSEBs = 1;//16;
+  TProfile*** summedProfile{nullptr};
+  TProfile*** AllProfiles{nullptr};
+  TStyle *cemcStyle{nullptr};
 };
 
 #endif /* CEMC_CEMCMONDRAW_H */
