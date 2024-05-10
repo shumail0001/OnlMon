@@ -47,9 +47,15 @@ int InttMonDraw::Init()
 
 int InttMonDraw::Draw(const std::string& what)
 {
-  bool b = false;
   bool found = false;
 
+  if (what == "ALL" || what == "SERVERSTATS")
+  {
+    DrawServerStats();
+    found = true;
+  }
+
+  bool b = false;
   std::string temp = "";
   for (char s : what)
   {
@@ -2036,4 +2042,79 @@ void InttMonDraw::PrepLocalChipHists_Hitmap(std::string const& option, TH2D** cl
 
     ++felix;
   }
+}
+
+int InttMonDraw::MakeCanvas(const std::string &name)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  int xsize = cl->GetDisplaySizeX();
+  int ysize = cl->GetDisplaySizeY();
+  if (name == "InttMon_ServerStats")
+  {
+    TC[1] = new TCanvas(name.c_str(), "InttMon Server Stats", xsize / 2, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[1]->SetFillStyle(4000);
+    transparent[1]->Draw();
+    TC[1]->SetEditable(false);
+    TC[1]->SetTopMargin(0.05);
+    TC[1]->SetBottomMargin(0.05);
+  }
+  return 0;
+}
+
+int InttMonDraw::DrawServerStats()
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("InttMon_ServerStats"))
+  {
+    MakeCanvas("InttMon_ServerStats");
+  }
+  TC[1]->Clear("D");
+  TC[1]->SetEditable(true);
+  transparent[1]->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  for (const auto &server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = cl->GetServerMap(server);
+    if (servermapiter == cl->GetServerMapEnd())
+    {
+      txt << "Server " << server
+          << " is dead ";
+      PrintRun.SetTextColor(2);
+    }
+    else
+    {
+      txt << "Server " << server
+          << ", run number " << std::get<1>(servermapiter->second)
+          << ", event count: " << std::get<2>(servermapiter->second)
+          << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+      if (std::get<0>(servermapiter->second))
+      {
+        PrintRun.SetTextColor(3);
+      }
+      else
+      {
+        PrintRun.SetTextColor(2);
+      }
+    }
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+  TC[1]->Update();
+  TC[1]->Show();
+  TC[1]->SetEditable(false);
+
+  return 0;
 }

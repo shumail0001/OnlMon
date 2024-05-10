@@ -81,6 +81,10 @@ class InttMonDraw : public OnlMonDraw
   static void PrepLocalChipHists_Hitmap(std::string const&, TH2D**, struct INTT::Indexes_s&);
 
  private:
+  int MakeCanvas(const std::string &name);
+    int DrawServerStats();
+  TCanvas *TC[1] = {nullptr};
+  TPad *transparent[1] = {nullptr};
   //===  Constants for Drawing  ===//
   static constexpr double NUM_SIG = 2.0;
 
