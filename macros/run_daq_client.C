@@ -10,34 +10,37 @@ R__LOAD_LIBRARY(libonldaqmon_client.so)
 void daqDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
+  OnlMonDraw *daqmon = new DaqMonDraw("DAQMONDRAW");  // create Drawing Object
 
   for(int serverid = 0; serverid < 20; serverid++)
   {
-      cl->registerHisto("h_gl1_clock_diff", Form("DAQMON_%d",serverid));
-      cl->registerHisto("h_gl1_clock_diff_capture", Form("DAQMON_%d",serverid));
-//      cl->registerHisto("h_unlock_hist",Form("DAQMON_%d",serverid));
-//      cl->registerHisto("h_unlock_clock",Form("DAQMON_%d",serverid));
+      std::string servername = "DAQMON_" + std::to_string(serverid);
+      daqmon->AddServer(servername);
+      cl->registerHisto("h_gl1_clock_diff", servername.c_str());
+      cl->registerHisto("h_gl1_clock_diff_capture", servername.c_str());
+//      cl->registerHisto("h_unlock_hist",servername.c_str());
+//      cl->registerHisto("h_unlock_clock",servername.c_str());
   }
       
    // for local host, just call daqDrawInit(2)
   CreateSubsysHostlist("daq_hosts.list", online);
 
-  for(int serverid = 0; serverid < 20; serverid++)
-  {
-      cl->requestHistoBySubSystem(Form("DAQMON_%d",serverid), 1);
-  }
+  for(auto iter = daqmon->ServerBegin(); iter !=  daqmon->ServerEnd(); ++iter)
+     {
+       cl->requestHistoBySubSystem(iter->c_str(), 1);
+     }
 
-  OnlMonDraw *daqmon = new DaqMonDraw("DAQMONDRAW");  // create Drawing Object
   cl->registerDrawer(daqmon);             // register with client framework
 }
 
 void daqDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  for(int serverid = 0; serverid < 20; serverid++)
-  {
-      cl->requestHistoBySubSystem(Form("DAQMON_%d",serverid), 1);
-  }
+  OnlMonDraw *daqmon = cl->GetDrawer("DAQMONDRAW"); // get pointer to this drawer
+  for(auto iter = daqmon->ServerBegin(); iter !=  daqmon->ServerEnd(); ++iter)
+    {
+      cl->requestHistoBySubSystem(iter->c_str(), 1);
+    }
   cl->Draw("DAQMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 
