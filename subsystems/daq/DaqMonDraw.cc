@@ -99,7 +99,7 @@ int DaqMonDraw::MakeCanvas(const std::string &name)
   else if (name == "DaqMon3")
   {
     gStyle->SetOptStat(0);
-    TC[2] = new TCanvas(name.c_str(), "Calo ADC System Clock Check Capture", -1, 0, xsize / 2, ysize);
+    TC[2] = new TCanvas(name.c_str(), "DaqMon Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
     transparent[2]->SetFillStyle(4000);
@@ -447,8 +447,11 @@ int DaqMonDraw::DrawServerStats()
 
   PrintRun.SetTextSize(0.02);
   double vdist = 0.05;
-  double vpos = 0.9;
-  for (const auto &server : m_ServerSet)
+  double vstart = 0.9;
+  double vpos = vstart;
+  double hpos = 0.25;
+  int i = 0;
+ for (const auto &server : m_ServerSet)
   {
     std::ostringstream txt;
     auto servermapiter = cl->GetServerMap(server);
@@ -473,8 +476,16 @@ int DaqMonDraw::DrawServerStats()
 	PrintRun.SetTextColor(2);
       }
     }
-    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+        if (i > 10)
+      {
+	hpos = 0.75;
+	vpos = vstart;
+	i = 0;
+      }
+
+    PrintRun.DrawText(hpos, vpos, txt.str().c_str());
     vpos -= vdist;
+    i++;
   }
   TC[2]->Update();
   TC[2]->Show();
