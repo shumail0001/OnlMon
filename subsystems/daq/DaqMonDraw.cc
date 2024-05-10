@@ -452,17 +452,26 @@ int DaqMonDraw::DrawServerStats()
   {
     std::ostringstream txt;
     auto servermapiter = cl->GetServerMap(server);
-    txt << "Server " << server
-        << ", run number " << std::get<1>(servermapiter->second)
-        << ", event count: " << std::get<2>(servermapiter->second)
-        << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
-    if (std::get<0>(servermapiter->second))
+    if (servermapiter == cl->GetServerMapEnd())
     {
-      PrintRun.SetTextColor(3);
+      txt << "Server " << server
+          << " is dead ";
+      PrintRun.SetTextColor(2);
     }
     else
     {
-      PrintRun.SetTextColor(2);
+      txt << "Server " << server
+	  << ", run number " << std::get<1>(servermapiter->second)
+	  << ", event count: " << std::get<2>(servermapiter->second)
+	  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+      if (std::get<0>(servermapiter->second))
+      {
+	PrintRun.SetTextColor(3);
+      }
+      else
+      {
+	PrintRun.SetTextColor(2);
+      }
     }
     PrintRun.DrawText(0.5, vpos, txt.str().c_str());
     vpos -= vdist;
