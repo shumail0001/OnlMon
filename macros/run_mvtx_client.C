@@ -4,7 +4,7 @@
 
 #include <onlmon/OnlMonClient.h>
 
-const std::string DrawerName = "MVTXMONDRAW";
+//const std::string DrawerName = "MVTXMONDRAW";
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlmvtxmon_client.so)
@@ -12,7 +12,7 @@ R__LOAD_LIBRARY(libonlmvtxmon_client.so)
 void mvtxDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  OnlMonDraw *mvtxmon = new MvtxMonDraw(DrawerName);  // create Drawing Object
+  OnlMonDraw *mvtxmon = new MvtxMonDraw("MVTXMONDRAW");  // create Drawing Object
   // register histos we want with monitor name
   std::string mLaneStatusFlag[3] = {"WARNING", "ERROR", "FAULT"};
   const int NStaves[3] = {12, 16, 20};
@@ -95,24 +95,24 @@ void mvtxDrawInit(const int online = 0)
 void mvtxDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();         // get pointer to framewrk
-  OnlMonDraw *mvtxmon = cl->GetDrawer(DrawerName);  // get pointer to this drawer
+  OnlMonDraw *mvtxmon = cl->GetDrawer("MVTXMONDRAW");  // get pointer to this drawer
   for (auto iter = mvtxmon->ServerBegin(); iter != mvtxmon->ServerEnd(); ++iter)
   {
     cl->requestHistoBySubSystem(iter->c_str(), 1);
   }
-  cl->Draw(DrawerName, what);  // Draw Histos of registered Drawers
+  cl->Draw("MVTXMONDRAW", what);  // Draw Histos of registered Drawers
 }
 
 void mvtxSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->SavePlot(DrawerName);                  // Save Plots
+  cl->SavePlot("MVTXMONDRAW");                  // Save Plots
   return;
 }
 
 void mvtxHtml()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeHtml(DrawerName);                  // Create html output
+  cl->MakeHtml("MVTXMONDRAW");                  // Create html output
   return;
 }
