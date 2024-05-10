@@ -188,6 +188,16 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     transparent[4]->Draw();
     TC[4]->SetEditable(false);
   }
+  else if (name == "HcalMon6")
+  {
+    TC[5] = new TCanvas(name.c_str(), "HcalMon6 Server Stats", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    gSystem->ProcessEvents();
+    // this one is used to plot the run number on the canvas
+    transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
+    transparent[5]->SetFillStyle(4000);
+    transparent[5]->Draw();
+    TC[5]->SetEditable(false);
+  }
   return 0;
 }
 
@@ -241,6 +251,15 @@ int HcalMonDraw::Draw(const std::string& what)
       isuccess++;
     }
     idraw++;
+  }
+  if (what == "ALL" || what == "SERVERSTATS")
+  {
+    int retcode = DrawServerStats();
+     if (!retcode)
+    {
+      isuccess++;
+    }
+   idraw++;
   }
   if (!idraw)
   {
@@ -1830,4 +1849,51 @@ time_t HcalMonDraw::getTime()
   OnlMonClient* cl = OnlMonClient::instance();
   time_t currtime = cl->EventTime("CURRENT");
   return currtime;
+}
+
+int HcalMonDraw::DrawServerStats()
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("HcalMon6"))
+  {
+    MakeCanvas("HcalMon6");
+  }
+  TC[5]->Clear("D");
+  TC[5]->SetEditable(true);
+  transparent[5]->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  for (const auto &server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = cl->GetServerMap(server);
+    txt << "Server " << server
+        << ", run number " << std::get<1>(servermapiter->second)
+        << ", event count: " << std::get<2>(servermapiter->second)
+        << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+    if (std::get<0>(servermapiter->second))
+    {
+      PrintRun.SetTextColor(3);
+    }
+    else
+    {
+      PrintRun.SetTextColor(2);
+    }
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+  TC[5]->Update();
+  TC[5]->Show();
+  TC[5]->SetEditable(false);
+
+  return 0;
 }
