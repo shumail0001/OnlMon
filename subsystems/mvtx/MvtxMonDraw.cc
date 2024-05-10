@@ -389,7 +389,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   const int canvasID = 1;
   const int padID = 1;
 
-  TH2Poly* mvtxmon_LaneStatusOverview[3][NFlx+1] = {nullptr};  
+  TH2Poly* mvtxmon_LaneStatusOverview[3][NFlx+1] = {{nullptr}};  
   TH2Poly* mvtxmon_mGeneralOccupancy[NFlx+1] = {nullptr}; 
   TH1D* mvtxmon_mGeneralErrorPlots[NFlx+1]  = {nullptr}; 
   TH2D* mvtxmon_mGeneralErrorFile[NFlx+1]  = {nullptr}; 
@@ -597,9 +597,9 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   TH2I* mTriggerVsFeeId[NFlx+1] = {nullptr}; 
   TH1I* mTrigger[NFlx+1] ={nullptr}; 
   //TH2I* mLaneInfo[NFlx+1] = {nullptr}; 
-  TH2I* mLaneStatus[3][NFlx+1] = {nullptr}; 
-  TH2I* mLaneStatusCumulative[3][NFlx+1] = {nullptr}; 
-  TH1I* mLaneStatusSummary[3][NFlx+1] = {nullptr}; 
+  TH2I* mLaneStatus[3][NFlx+1] = {{nullptr}}; 
+  TH2I* mLaneStatusCumulative[3][NFlx+1] = {{nullptr}}; 
+  TH1I* mLaneStatusSummary[3][NFlx+1] = {{nullptr}}; 
   TH1I* mLaneStatusSummaryIB[NFlx+1] = {nullptr}; 
 
   for (int iFelix = 0; iFelix <NFlx; iFelix++){
@@ -732,8 +732,8 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
   const int canvasID = 3;
   const int padID = 3;
 
-  TH1D* hOccupancyPlot[3][NFlx+1] = {nullptr};
-  TH2D* hChipStaveOccupancy[3][NFlx+1] = {nullptr};
+  TH1D* hOccupancyPlot[3][NFlx+1] = {{nullptr}};
+  TH2D* hChipStaveOccupancy[3][NFlx+1] = {{nullptr}};
   TH1D *mvtxmon_ChipStave1D[NFlx+1] = {nullptr};
   TH1D *mvtxmon_ChipFiredHis[NFlx+1] = {nullptr};
   TH1I *hChipStrobes[NFlx+1] = {nullptr};
@@ -913,10 +913,10 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
   const int canvasID = 4;
   const int padID = 4;
 
-  TH2D* mDeadChipPos[3][NFlx+1] = {nullptr};
-  TH2D* mAliveChipPos[3][NFlx+1] = {nullptr};
+  TH2D* mDeadChipPos[3][NFlx+1] = {{nullptr}};
+  TH2D* mAliveChipPos[3][NFlx+1] = {{nullptr}};
   //TH2D* mChipStaveOccupancy[3][NFlx];
-  TH1D* mOccupancyPlot[3][NFlx+1] = {nullptr};
+  TH1D* mOccupancyPlot[3][NFlx+1] = {{nullptr}};
   
   TH2I* mErrorVsFeeid[NFlx+1] = {nullptr}; 
   TH2Poly* mGeneralOccupancy[NFlx+1] = {nullptr}; 
@@ -928,7 +928,7 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
 
   TH1I *mRCDAQevt[NFlx+1] = {nullptr};
 
-  TH2D* mChipStaveNoisy[3][NFlx+1]; 
+  TH2D* mChipStaveNoisy[3][NFlx+1]{{nullptr}}; 
 
   int nFLX[3]= {0};
 

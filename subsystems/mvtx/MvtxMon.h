@@ -64,7 +64,7 @@ class MvtxMon : public OnlMon
   TH1	*mvtxmon_ChipFiredHis= nullptr;
   TH1	*mvtxmon_EvtHitChip= nullptr;
   TH1 *mvtxmon_EvtHitDis= nullptr;
-  TH2 *mvtxmon_HitMap[NSTAVE][NCHIP] = {nullptr}; 
+  TH2 *mvtxmon_HitMap[NSTAVE][NCHIP] = {{nullptr}}; 
   TH2Poly* mvtxmon_GeneralOccupancy = nullptr;
   TH2Poly* mvtxmon_LaneStatusOverview[NFlags] = {nullptr}; 
 
@@ -104,9 +104,9 @@ class MvtxMon : public OnlMon
   TH2D* hChipStaveNoisy[NLAYERS] = {nullptr};
 
   float mOccupancyCutForNoisyPixel = 0.2;
-  int mNoisyPixelNumber[3][20][9] = { { 0 } };
+  int mNoisyPixelNumber[3][20][9] = {{ { 0 } }};
 
-  int mStatusFlagNumber[3][3][20][9] = { { 0 } };
+  int mStatusFlagNumber[3][3][20][9] = {{{ { 0 } }}};
 
   static constexpr int NError = 29;
   static constexpr int NErrorExtended = 19;
