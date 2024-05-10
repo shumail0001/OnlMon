@@ -255,11 +255,11 @@ int HcalMonDraw::Draw(const std::string& what)
   if (what == "ALL" || what == "SERVERSTATS")
   {
     int retcode = DrawServerStats();
-     if (!retcode)
+    if (!retcode)
     {
       isuccess++;
     }
-   idraw++;
+    idraw++;
   }
   if (!idraw)
   {
@@ -1674,7 +1674,6 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TH2F* h2_hcal_hits_trig3_2 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits_trig3");
   TH2F* h2_hcal_hits_trig4_2 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits_trig4");
 
-
   TH2F* h2_hcal_hits = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
   TH2F* h_evtRec = (TH2F*) cl->getHisto(HCALMON_0, "h_evtRec");
   TH1F* h_hcal_trig = (TH1F*) cl->getHisto(HCALMON_0, "h_hcal_trig");
@@ -1688,7 +1687,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TC[6]->SetEditable(true);
   TC[6]->Clear("D");
   Pad[16]->cd();
-  if (!h2_hcal_hits_trig4 || !h2_hcal_hits_trig3 || !h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2 || !h_evtRec || !h2_hcal_hits_trig4_2 || !h2_hcal_hits_trig3_2 || !h2_hcal_hits_trig1_2 || !h2_hcal_hits_trig2_2 )
+  if (!h2_hcal_hits_trig4 || !h2_hcal_hits_trig3 || !h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2 || !h_evtRec || !h2_hcal_hits_trig4_2 || !h2_hcal_hits_trig3_2 || !h2_hcal_hits_trig1_2 || !h2_hcal_hits_trig2_2)
   {
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(false);
@@ -1707,7 +1706,6 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
 
   Pad[16]->cd();
   gStyle->SetTitleFontSize(0.03);
-
 
   float tsize = 0.06;
   h2_hcal_hits_trig1->Draw("colz");
@@ -1812,12 +1810,10 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   gPad->SetTicky();
   gPad->SetTickx();
 
-
-
   Pad[18]->cd();
   gStyle->SetTitleFontSize(0.06);
 
-  h_hcal_trig->SetTitle(Form("Receiving %0.3f of events from event reciever", h_evtRec->GetBinContent(1)));
+  h_hcal_trig->SetTitle(Form("Receiving %0.3f of events from event receiver", h_evtRec->GetBinContent(1)));
   tsize2 = 0.1;
   h_hcal_trig->Draw("hist");
   h_hcal_trig->GetXaxis()->SetNdivisions(510, kTRUE);
@@ -1853,7 +1849,7 @@ time_t HcalMonDraw::getTime()
 
 int HcalMonDraw::DrawServerStats()
 {
-  OnlMonClient *cl = OnlMonClient::instance();
+  OnlMonClient* cl = OnlMonClient::instance();
   if (!gROOT->FindObject("HcalMon6"))
   {
     MakeCanvas("HcalMon6");
@@ -1872,7 +1868,7 @@ int HcalMonDraw::DrawServerStats()
   PrintRun.SetTextSize(0.02);
   double vdist = 0.05;
   double vpos = 0.9;
-  for (const auto &server : m_ServerSet)
+  for (const auto& server : m_ServerSet)
   {
     std::ostringstream txt;
     auto servermapiter = cl->GetServerMap(server);
