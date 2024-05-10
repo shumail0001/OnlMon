@@ -127,7 +127,7 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     Pad[1]->Draw();
     // Pad[7]->Divide(4,2);
     //  this one is used to plot the run number on the canvas
-    transparent[1] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
     transparent[1]->SetFillStyle(4000);
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
@@ -143,7 +143,7 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     Pad[2]->Draw();
 
     // this one is used to plot the run number on the canvas
-    transparent[2] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
     transparent[2]->SetFillStyle(4000);
     transparent[2]->Draw();
     TC[2]->SetEditable(false);
@@ -158,7 +158,7 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     Pad[3]->Draw();
 
     // this one is used to plot the run number on the canvas
-    transparent[3] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[3] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
     transparent[3]->SetFillStyle(4000);
     transparent[3]->Draw();
     TC[3]->SetEditable(false);
@@ -173,7 +173,7 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     Pad[4]->Draw();
 
     // this one is used to plot the run number on the canvas
-    transparent[4] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[4] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
     transparent[4]->SetFillStyle(4000);
     transparent[4]->Draw();
     TC[4]->SetEditable(false);
@@ -187,7 +187,7 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     Pad[5] = new TPad("mvtxpad5", "who needs this?", 0.1, 0.1, 0.9, 0.9, 0);
     // Pad[6] = new TPad("mvtxpad7", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
     Pad[5]->Draw();
-    transparent[5] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
     transparent[5]->SetFillStyle(4000);
     transparent[5]->Draw();
     TC[5]->SetEditable(false);
@@ -204,7 +204,7 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
   {
     TC[6] = new TCanvas(name.c_str(), "MvtxMon Server Stats", xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    transparent[6] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
     transparent[6]->SetFillStyle(4000);
     transparent[6]->Draw();
     TC[6]->SetEditable(false);

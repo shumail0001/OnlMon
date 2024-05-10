@@ -325,6 +325,18 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[21]->Draw();
     TC[22]->SetEditable(false);
   }      
+  else if (name == "TpcMon_ServerStats")
+  {
+    TC[22] = new TCanvas(name.c_str(), "TpcMon Server Stats", 0, 0, xsize, ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    transparent[22] = new TPad("transparent22", "this does not show", 0, 0, 1, 1);
+    transparent[22]->SetFillStyle(4000);
+    transparent[22]->Draw();
+    TC[22]->SetEditable(false);
+    TC[22]->SetTopMargin(0.05);
+    TC[22]->SetBottomMargin(0.05);
+  }      
   return 0;
 }
 
@@ -332,16 +344,6 @@ int TpcMonDraw::Draw(const std::string &what)
 {
   int iret = 0;
   int idraw = 0;
-  if (what == "ALL" || what == "FIRST")
-  {
-    iret += DrawFirst(what);
-    idraw++;
-  }
-  if (what == "ALL" || what == "SECOND")
-  {
-    iret += DrawSecond(what);
-    idraw++;
-  }
   if (what == "ALL" || what == "TPCMODULE")
   {
     iret += DrawTPCModules(what);
@@ -442,107 +444,17 @@ int TpcMonDraw::Draw(const std::string &what)
     iret += DrawTPCXYlaserclusters(what);
     idraw++;
   }
+  if (what == "ALL" || what == "SERVERSTATS")
+  {
+    iret += DrawServerStats();
+    idraw++;
+  }
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
     iret = -1;
   }
   return iret;
-}
-
-int TpcMonDraw::DrawFirst(const std::string & /* what */)
-{
-  OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *tpcmon_hist1 =  cl->getHisto("TPCMON_0","tpcmon_hist1");
-  TH1 *tpcmon_hist2 =  cl->getHisto("TPCMON_0","tpcmon_hist1");
-
-  if (!gROOT->FindObject("TpcMon1"))
-  {
-    MakeCanvas("TpcMon1");
-  }
-  TC[0]->SetEditable(true);
-  TC[0]->Clear("D");
-  Pad[0]->cd();
-  if (tpcmon_hist1)
-  {
-    tpcmon_hist1->DrawCopy();
-  }
-  else
-  {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
-    return -1;
-  }
-  Pad[1]->cd();
-  if (tpcmon_hist2)
-  {
-    tpcmon_hist2->DrawCopy();
-  }
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
-  // fill run number and event time into string
-  runnostream << ThisName << "_1 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
-  runstring = runnostream.str();
-  transparent[0]->cd();
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[0]->Update();
-  TC[0]->Show();
-  TC[0]->SetEditable(false);
-  return 0;
-}
-
-int TpcMonDraw::DrawSecond(const std::string & /* what */)
-{
-  OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *tpcmon_hist1 =  cl->getHisto("TPCMON_0","tpcmon_hist2");
-  TH1 *tpcmon_hist2 =  cl->getHisto("TPCMON_0","tpcmon_hist2");
-  if (!gROOT->FindObject("TpcMon2"))
-  {
-    MakeCanvas("TpcMon2");
-  }
-  TC[1]->SetEditable(true);
-  TC[1]->Clear("D");
-  Pad[2]->cd();
-  if (tpcmon_hist1)
-  {
-    tpcmon_hist1->DrawCopy();
-  }
-  else
-  {
-    DrawDeadServer(transparent[1]);
-    TC[1]->SetEditable(false);
-    return -1;
-  }
-  Pad[3]->cd();
-  if (tpcmon_hist2)
-  {
-    tpcmon_hist2->DrawCopy();
-  }
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
-  // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
-  runstring = runnostream.str();
-  transparent[1]->cd();
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[1]->Update();
-  TC[1]->Show();
-  TC[1]->SetEditable(false);
-  return 0;
 }
 
 int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
@@ -2396,4 +2308,70 @@ time_t TpcMonDraw::getTime()
     i++;
   }
   return currtime;
+}
+
+int TpcMonDraw::DrawServerStats()
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("TpcMon_ServerStats"))
+  {
+    MakeCanvas("TpcMon_ServerStats");
+  }
+  TC[22]->Clear("D");
+  TC[22]->SetEditable(true);
+  transparent[22]->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vstart = 0.9;
+  double vpos = vstart;
+  double hpos = 0.25;
+  int i = 0;
+  for (const auto &server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = cl->GetServerMap(server);
+    if (servermapiter == cl->GetServerMapEnd())
+    {
+      txt << "Server " << server
+          << " is dead ";
+      PrintRun.SetTextColor(2);
+    }
+    else
+    {
+      txt << "Server " << server
+          << ", run number " << std::get<1>(servermapiter->second)
+          << ", event count: " << std::get<2>(servermapiter->second)
+          << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+      if (std::get<0>(servermapiter->second))
+      {
+        PrintRun.SetTextColor(3);
+      }
+      else
+      {
+        PrintRun.SetTextColor(2);
+      }
+    }
+    if (i > 12)
+      {
+	hpos = 0.75;
+	vpos = vstart;
+	i = 0;
+      }
+	PrintRun.DrawText(hpos, vpos, txt.str().c_str());
+    vpos -= vdist;
+    i++;
+  }
+  TC[22]->Update();
+  TC[22]->Show();
+  TC[22]->SetEditable(false);
+
+  return 0;
 }
