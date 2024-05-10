@@ -11,8 +11,8 @@ void ohcalDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   OnlMonDraw *hcalmon = new HcalMonDraw("OHCALMONDRAW");  // create Drawing Object
-  // register histos we want with monitor name
-   for (int serverid = 0; serverid < 2; serverid++)
+                                                          // register histos we want with monitor name
+  for (int serverid = 0; serverid < 2; serverid++)
   {
     std::string servername = "OHCALMON_" + std::to_string(serverid);
     hcalmon->AddServer(servername);
@@ -57,35 +57,35 @@ void ohcalDrawInit(const int online = 0)
   CreateSubsysHostlist("hcal_hosts.list", online);
 
   // says I know they are all on the same node
-  for(auto iter = hcalmon->ServerBegin(); iter !=  hcalmon->ServerEnd(); ++iter)
-     {
-       cl->requestHistoBySubSystem(iter->c_str(), 1);
-     }
-  
-  cl->registerDrawer(hcalmon);                           // register with client framework
+  for (auto iter = hcalmon->ServerBegin(); iter != hcalmon->ServerEnd(); ++iter)
+  {
+    cl->requestHistoBySubSystem(iter->c_str(), 1);
+  }
+
+  cl->registerDrawer(hcalmon);  // register with client framework
 }
 
 void ohcalDraw(const char *what = "ALL")
 {
-  OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  OnlMonDraw *hcalmon = cl->GetDrawer("OHCALMONDRAW"); // get pointer to this drawer
-  for(auto iter = hcalmon->ServerBegin(); iter !=  hcalmon->ServerEnd(); ++iter)
-     {
-       cl->requestHistoBySubSystem(iter->c_str(), 1);
-     }
+  OnlMonClient *cl = OnlMonClient::instance();          // get pointer to framewrk
+  OnlMonDraw *hcalmon = cl->GetDrawer("OHCALMONDRAW");  // get pointer to this drawer
+  for (auto iter = hcalmon->ServerBegin(); iter != hcalmon->ServerEnd(); ++iter)
+  {
+    cl->requestHistoBySubSystem(iter->c_str(), 1);
+  }
   cl->Draw("OHCALMONDRAW", what);  // Draw Histos of registered Drawers
 }
 
 void ohcalSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->SavePlot("OHCALMONDRAW");                    // Save Plots
+  cl->SavePlot("OHCALMONDRAW");                 // Save Plots
   return;
 }
 
 void ohcalHtml()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeHtml("OHCALMONDRAW");                  // Create html output
+  cl->MakeHtml("OHCALMONDRAW");                 // Create html output
   return;
 }

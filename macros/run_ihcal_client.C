@@ -54,35 +54,35 @@ void ihcalDrawInit(const int online = 0)
   CreateSubsysHostlist("hcal_hosts.list", online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
-  for(auto iter = hcalmon->ServerBegin(); iter !=  hcalmon->ServerEnd(); ++iter)
-     {
-       cl->requestHistoBySubSystem(iter->c_str(), 1);
-     }
-  
-  cl->registerDrawer(hcalmon);                           // register with client framework
+  for (auto iter = hcalmon->ServerBegin(); iter != hcalmon->ServerEnd(); ++iter)
+  {
+    cl->requestHistoBySubSystem(iter->c_str(), 1);
+  }
+
+  cl->registerDrawer(hcalmon);  // register with client framework
 }
 
 void ihcalDraw(const char *what = "ALL")
 {
-  OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  OnlMonDraw *hcalmon = cl->GetDrawer("IHCALMONDRAW"); // get pointer to this drawer
-  for(auto iter = hcalmon->ServerBegin(); iter !=  hcalmon->ServerEnd(); ++iter)
-     {
-       cl->requestHistoBySubSystem(iter->c_str(), 1);
-     }
+  OnlMonClient *cl = OnlMonClient::instance();          // get pointer to framewrk
+  OnlMonDraw *hcalmon = cl->GetDrawer("IHCALMONDRAW");  // get pointer to this drawer
+  for (auto iter = hcalmon->ServerBegin(); iter != hcalmon->ServerEnd(); ++iter)
+  {
+    cl->requestHistoBySubSystem(iter->c_str(), 1);
+  }
   cl->Draw("IHCALMONDRAW", what);  // Draw Histos of registered Drawers
 }
 
 void ihcalSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->SavePlot("IHCALMONDRAW");                    // Save Plots
+  cl->SavePlot("IHCALMONDRAW");                 // Save Plots
   return;
 }
 
 void ihcalHtml()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeHtml("IHCALMONDRAW");                  // Create html output
+  cl->MakeHtml("IHCALMONDRAW");                 // Create html output
   return;
 }
