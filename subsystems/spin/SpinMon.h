@@ -40,7 +40,7 @@ class SpinMon : public OnlMon
 
   bool success = 0;
   // default xingshift
-  int defaultxingshift = 3;
+  int defaultxingshift = 0;
   // for additional xingshift
   int xingshift = 0;
   int addxingshift = -999;
