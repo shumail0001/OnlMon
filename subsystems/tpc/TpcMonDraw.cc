@@ -327,7 +327,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }      
   else if (name == "TpcMon_ServerStats")
   {
-    TC[22] = new TCanvas(name.c_str(), "TpcMon Server Stats", 0, 0, xsize, ysize);
+    TC[22] = new TCanvas(name.c_str(), "TpcMon Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     transparent[22] = new TPad("transparent22", "this does not show", 0, 0, 1, 1);
