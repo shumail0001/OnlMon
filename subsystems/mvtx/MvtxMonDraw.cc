@@ -126,9 +126,9 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     Pad[1]->Draw();
     //Pad[7]->Divide(4,2);  
     // this one is used to plot the run number on the canvas
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
+    transparent[1] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[1]->SetFillStyle(4000);
+    transparent[1]->Draw();
     TC[1]->SetEditable(false);
     TC[1]->SetTopMargin(0.05);
     TC[1]->SetBottomMargin(0.05);
@@ -142,9 +142,9 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     Pad[2]->Draw();
     
     // this one is used to plot the run number on the canvas
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
+    transparent[2] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
     TC[2]->SetEditable(false);
     TC[2]->SetTopMargin(0.05);
     TC[2]->SetBottomMargin(0.05);
@@ -157,9 +157,9 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     Pad[3]->Draw();
     
     // this one is used to plot the run number on the canvas
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
+    transparent[3] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[3]->SetFillStyle(4000);
+    transparent[3]->Draw();
     TC[3]->SetEditable(false);
     TC[3]->SetTopMargin(0.05);
     TC[3]->SetBottomMargin(0.05);
@@ -172,9 +172,9 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     Pad[4]->Draw();
     
     // this one is used to plot the run number on the canvas
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
+    transparent[4] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[4]->SetFillStyle(4000);
+    transparent[4]->Draw();
     TC[4]->SetEditable(false);
     TC[4]->SetTopMargin(0.05);
     TC[4]->SetBottomMargin(0.05);
@@ -186,12 +186,29 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     Pad[5] = new TPad("mvtxpad5", "who needs this?", 0.1, 0.1, 0.9, 0.9, 0);
     //Pad[6] = new TPad("mvtxpad7", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
     Pad[5]->Draw();
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
+    transparent[5] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[5]->SetFillStyle(4000);
+    transparent[5]->Draw();
     TC[5]->SetEditable(false);
     TC[5]->SetTopMargin(0.05);
     TC[5]->SetBottomMargin(0.05);
+    //Pad[6]->Draw();
+    // this one is used to plot the run number on the canvas
+    //        transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+    //        transparent[2]->SetFillStyle(4000);
+    //        transparent[2]->Draw();
+    //      TC[2]->SetEditable(0);
+  }
+  else if (name == "MvtxMon_ServerStats")
+  {
+    TC[6] = new TCanvas(name.c_str(), "MvtxMon Server Stats", xsize / 2, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    transparent[6] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
+    TC[6]->SetEditable(false);
+    TC[6]->SetTopMargin(0.05);
+    TC[6]->SetBottomMargin(0.05);
     //Pad[6]->Draw();
     // this one is used to plot the run number on the canvas
     //        transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
@@ -229,6 +246,11 @@ int MvtxMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "FHR")
   {
     iret += DrawFHR(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "SERVERSTATS")
+  {
+    iret += DrawServerStats();
     idraw++;
   }
   if (what == "HISTORY")
@@ -352,7 +374,8 @@ int MvtxMonDraw::DrawHitMap(const std::string &what )
   if (what == "L2R" || what == "L2R") ptlayer->AddText("Layer 2");
   ptlayer->Draw();
 
-  PublishStatistics(TC[canvasID],cl);
+  // PublishStatistics(TC[canvasID],cl);
+PublishStatistics(canvasID,cl);
 
   //TC[canvasID]->Modified();
   TC[canvasID]->Update();
@@ -560,7 +583,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
     pt->AddText(serverStatus.c_str());
   }
   pt->Draw();
-  PublishStatistics(TC[canvasID],cl);
+  PublishStatistics(canvasID,cl);
   TC[canvasID]->SetEditable(false);
   return returnCode < 0 ? -1 : 0;
 }
@@ -698,7 +721,7 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   returnCode += PublishHistogram(Pad[padID],10,mLaneStatusSummary[2][NFlx]);
   returnCode += PublishHistogram(Pad[padID],9,mLaneStatusSummaryIB[NFlx]);
   
-  PublishStatistics(TC[canvasID],cl);
+  PublishStatistics(canvasID,cl);
   TC[canvasID]->SetEditable(false);
   return returnCode < 0 ? -1 : 0;
 }
@@ -879,7 +902,7 @@ for (int iLayer = 0; iLayer < 3; iLayer++) {
   Pad[padID]->cd(11);
   pt->Draw();
 
-  PublishStatistics(TC[canvasID],cl);
+  PublishStatistics(canvasID,cl);
   TC[canvasID]->SetEditable(false);
   return returnCode < 0 ? -1 : 0;
 }
@@ -1022,7 +1045,7 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
   //returnCode += PublishHistogram(Pad[11],17,mTotalAliveChipPos[NFlx],"COL");
 
   
-  PublishStatistics(TC[canvasID],cl);
+  PublishStatistics(canvasID,cl);
   TC[canvasID]->SetEditable(false);
   return returnCode < 0 ? -1 : 0;
 }
@@ -1284,8 +1307,8 @@ int MvtxMonDraw::MergeServers(T *h){
   return bitset;
 }
 
-void MvtxMonDraw::PublishStatistics(TCanvas *c,OnlMonClient *cl){
-  c->cd();
+void MvtxMonDraw::PublishStatistics(int canvasID ,OnlMonClient *cl){
+  TC[canvasID]->cd();
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);
@@ -1298,10 +1321,10 @@ void MvtxMonDraw::PublishStatistics(TCanvas *c,OnlMonClient *cl){
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
-  transparent[0]->cd();
+  transparent[canvasID]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
-  c->Update();
-  c->Show();
+  TC[canvasID]->Update();
+  TC[canvasID]->Show();
 }
 
 void MvtxMonDraw::formatPaveText(TPaveText* aPT, float aTextSize, Color_t aTextColor, short aTextAlign, const char* aText)
@@ -1436,4 +1459,60 @@ time_t MvtxMonDraw::getTime()
   OnlMonClient *cl = OnlMonClient::instance();
   time_t currtime = cl->EventTime("CURRENT");
   return currtime;
+}
+
+int MvtxMonDraw::DrawServerStats()
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("MvtxMon_ServerStats"))
+  {
+    MakeCanvas("MvtxMon_ServerStats");
+  }
+  TC[6]->Clear("D");
+  TC[6]->SetEditable(true);
+  transparent[6]->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  for (const auto &server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = cl->GetServerMap(server);
+    if (servermapiter == cl->GetServerMapEnd())
+      {
+    txt << "Server " << server
+        << " is dead ";
+PrintRun.SetTextColor(2);
+      }
+    else
+      {
+    txt << "Server " << server
+        << ", run number " << std::get<1>(servermapiter->second)
+        << ", event count: " << std::get<2>(servermapiter->second)
+        << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+    if (std::get<0>(servermapiter->second))
+    {
+      PrintRun.SetTextColor(3);
+    }
+    else
+    {
+      PrintRun.SetTextColor(2);
+    }
+      }
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+  TC[6]->Update();
+  TC[6]->Show();
+  TC[6]->SetEditable(false);
+
+  return 0;
 }
