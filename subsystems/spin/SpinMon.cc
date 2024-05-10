@@ -456,7 +456,7 @@ int SpinMon::process_event(Event *e /* evt */)
 
     //========================//
 
-    if (!success && evtcnt > 4999 && evtcnt % 5000 == 0)
+    if (evtcnt > 4999 && evtcnt % 5000 == 0)
     {
       CalculateCrossingShift(xingshift, scalercounts, success);
 
@@ -513,7 +513,12 @@ int SpinMon::CalculateCrossingShift(int &xing, uint64_t counts[NTRIG][NBUNCHES],
       long long abort_sum = 0;
       for (int iabortbunch = NBUNCHES - 9; iabortbunch < NBUNCHES; iabortbunch++)
       {
-        abort_sum += counts[itrig][(iabortbunch + ishift) % NBUNCHES];
+	int shiftbunch = iabortbunch - ishift;
+	if (shiftbunch < 0)
+	{
+	  shiftbunch = 120 + shiftbunch;
+	}
+        abort_sum += counts[itrig][(shiftbunch) % NBUNCHES];
       }
       if (abort_sum < abort_sum_prev)
       {
