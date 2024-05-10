@@ -1245,6 +1245,10 @@ int OnlMonClient::GetServerInfo()
   int runno = -9999;
   for (const auto &frwrkiter : m_MonitorFetchedSet)
   {
+    if (m_ServerStatsMap.find(frwrkiter) == m_ServerStatsMap.end())
+	{
+	  m_ServerStatsMap[frwrkiter] = std::make_tuple(false, -1, -1, 0);
+	}
     TH1 *frameworkvars = getHisto(frwrkiter, "FrameWorkVars");
     if (frameworkvars)
     {
@@ -1260,18 +1264,11 @@ int OnlMonClient::GetServerInfo()
       }
       runno = std::max(runno, runnumber);
       server_runmap[frwrkiter] = runnumber;
-      if (m_ServerStatsMap.find(frwrkiter) == m_ServerStatsMap.end())
-      {
-        m_ServerStatsMap[frwrkiter] = std::make_tuple(true, runnumber, eventcounter, currtime);
-      }
-      else
-      {
         auto &statsiter = m_ServerStatsMap[frwrkiter];
         std::get<0>(statsiter) = true;
         std::get<1>(statsiter) = runnumber;
         std::get<2>(statsiter) = eventcounter;
         std::get<3>(statsiter) = currtime;
-      }
     }
   }
   for (auto const &iter : server_runmap)
