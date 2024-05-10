@@ -15,4 +15,4 @@ namespace INTT_Felix
   int FelixMap(int const&, int const&, struct Ladder_s&);
 };  // namespace INTT_Felix
 
-#endif  //FELIX_MAP_H
+#endif  // FELIX_MAP_H

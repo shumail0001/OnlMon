@@ -54,37 +54,37 @@ class InttMonDraw : public OnlMonDraw
   typedef std::map<std::string, struct Option_s> Options_t;
   static Options_t OPTIONS;
 
-  //BCO histograms
+  // BCO histograms
   static void DrawBcoDiff(std::string const&);
 
-  //GlobalChip-Channel idiom
+  // GlobalChip-Channel idiom
   static void GlobalChipLocalChannelHead(std::string const&);
   static void DrawGlobalChipMap(std::string const&);
   static void InttGlobalChipExec(const std::string&, int);
   static void DrawLocalChannelMap(std::string const&, struct INTT::Indexes_s);
   static void InttLocalChannelExec(const std::string&, int, int, int, int);
 
-  //GlobalLadder-Chip idiom
+  // GlobalLadder-Chip idiom
   static void GlobalLadderLocalChipHead(std::string const&);
   static void DrawGlobalLadderMap(std::string const&);
   static void InttGlobalLadderExec(const std::string&, int);
   static void DrawLocalChipMap(std::string const&, struct INTT::Indexes_s);
   static void InttLocalChipExec(const std::string&, int, int, int);
 
-  //GlobalChip-Channel methods
+  // GlobalChip-Channel methods
   static void PrepGlobalChipHists_Hitmap(std::string const&, TH2D**);
   static void PrepLocalChannelHists_Hitmap(std::string const&, TH2D**, struct INTT::Indexes_s&);
   static void PrepGlobalChipHists_NLL(std::string const&, TH2D**);
 
-  //GlobalLadder-Chip methods
+  // GlobalLadder-Chip methods
   static void PrepGlobalLadderHists_Interface(std::string const&, TH2D**);
   static void PrepLocalChipHists_Hitmap(std::string const&, TH2D**, struct INTT::Indexes_s&);
 
  private:
-  int MakeCanvas(const std::string &name);
-    int DrawServerStats();
-  TCanvas *TC[1] = {nullptr};
-  TPad *transparent[1] = {nullptr};
+  int MakeCanvas(const std::string& name);
+  int DrawServerStats();
+  TCanvas* TC[1] = {nullptr};
+  TPad* transparent[1] = {nullptr};
   //===  Constants for Drawing  ===//
   static constexpr double NUM_SIG = 2.0;
 
