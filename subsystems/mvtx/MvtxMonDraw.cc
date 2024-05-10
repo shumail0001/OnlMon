@@ -369,9 +369,12 @@ int MvtxMonDraw::DrawHitMap(const std::string &what )
   ptlayer->SetFillColor(4000);
   ptlayer->SetLineColor(0);
   ptlayer->SetBorderSize(1);
-  if (what == "L0R" || what == "L0R"|| what == "ALL") ptlayer->AddText("Layer 0");
-  if (what == "L1R" || what == "L1R") ptlayer->AddText("Layer 1");
-  if (what == "L2R" || what == "L2R") ptlayer->AddText("Layer 2");
+  if (what == "L0R" || what == "L0R"|| what == "ALL") { ptlayer->AddText("Layer 0");
+}
+  if (what == "L1R" || what == "L1R") { ptlayer->AddText("Layer 1");
+}
+  if (what == "L2R" || what == "L2R") { ptlayer->AddText("Layer 2");
+}
   ptlayer->Draw();
 
   // PublishStatistics(TC[canvasID],cl);
@@ -423,21 +426,23 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   bitset = MergeServers<TH2D*>(mvtxmon_mGeneralErrorFile);
   bitsetOR |= bitset; bitsetAND &= bitset;
   
-  for(int i = 0; i < 3; i++){
-    if(mvtxmon_LaneStatusOverview[i][NFlx]){
-      mvtxmon_LaneStatusOverview[i][NFlx]->SetStats(0);
-      mvtxmon_LaneStatusOverview[i][NFlx]->GetYaxis()->SetTitleOffset(0.6);
-      mvtxmon_LaneStatusOverview[i][NFlx]->SetMinimum(0);
-      mvtxmon_LaneStatusOverview[i][NFlx]->SetMaximum(1);
+  for(auto & i : mvtxmon_LaneStatusOverview){
+    if(i[NFlx]){
+      i[NFlx]->SetStats(false);
+      i[NFlx]->GetYaxis()->SetTitleOffset(0.6);
+      i[NFlx]->SetMinimum(0);
+      i[NFlx]->SetMaximum(1);
       //mvtxmon_LaneStatusOverview[i][NFlx]->SetBit(TH1::kIsAverage);
     }
   }
-  if(mvtxmon_mGeneralOccupancy[NFlx]) mvtxmon_mGeneralOccupancy[NFlx]->GetYaxis()->SetTitleOffset(0.6);
+  if(mvtxmon_mGeneralOccupancy[NFlx]) { mvtxmon_mGeneralOccupancy[NFlx]->GetYaxis()->SetTitleOffset(0.6);
+}
 
   if(mvtxmon_mGeneralErrorFile[NFlx]){
     for(int bin = 1; bin < mvtxmon_mGeneralErrorFile[NFlx]->GetNbinsX()+1;bin++ ){
-      if(bin <= 12 )mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetBinLabel(bin,Form("%d",(bin-1)%2));
-      else mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetBinLabel(bin,"");
+      if(bin <= 12 ) {mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetBinLabel(bin,Form("%d",(bin-1)%2));
+      } else { mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetBinLabel(bin,"");
+}
     }
     mvtxmon_mGeneralErrorFile[NFlx]->GetXaxis()->SetTitleSize(0.045);
     mvtxmon_mGeneralErrorFile[NFlx]->GetYaxis()->SetTitleSize(0.045);
@@ -532,25 +537,38 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   }
 
   if(status.at(9) == Quality::Medium || status.at(10) == Quality::Medium || status.at(11) == Quality::Medium){
-    if(status.at(9) == Quality::Medium) ptt4->AddText("#color[808]{QA Layer 0 Medium}");
-    if(status.at(10) == Quality::Medium) ptt4->AddText("#color[808]{QA Layer 1 Medium}");
-    if(status.at(11) == Quality::Medium) ptt4->AddText("#color[808]{QA Layer 2 Medium}");
+    if(status.at(9) == Quality::Medium) { ptt4->AddText("#color[808]{QA Layer 0 Medium}");
+}
+    if(status.at(10) == Quality::Medium) { ptt4->AddText("#color[808]{QA Layer 1 Medium}");
+}
+    if(status.at(11) == Quality::Medium) { ptt4->AddText("#color[808]{QA Layer 2 Medium}");
+}
     bulb->SetFillColor(kYellow);
     bulb->Draw();
     bulbYellow->Draw("same");
   }
 
   if(status.at(9) == Quality::Bad || status.at(10) == Quality::Bad || status.at(11) == Quality::Bad ||status.at(12) == Quality::Bad||status.at(13) == Quality::Bad||status.at(14) == Quality::Bad||status.at(15) == Quality::Bad||status.at(16) == Quality::Bad||status.at(17) == Quality::Bad ||(bitsetAND & 0x3F) != 0x3F){
-    if(status.at(9) == Quality::Bad) ptt4->AddText("#color[2]{QA Layer 0 Bad}");
-    if(status.at(10) == Quality::Bad) ptt4->AddText("#color[2]{QA Layer 1 Bad}");
-    if(status.at(11) == Quality::Bad) ptt4->AddText("#color[2]{QA Layer 2 Bad}");
-    if(status.at(12) == Quality::Bad) ptt4->AddText("#color[2]{Felix 0 Decoder Errors}");
-    if(status.at(13) == Quality::Bad) ptt4->AddText("#color[2]{Felix 1 Decoder Errors}");
-    if(status.at(14) == Quality::Bad) ptt4->AddText("#color[2]{Felix 2 Decoder Errors}");
-    if(status.at(15) == Quality::Bad) ptt4->AddText("#color[2]{Felix 3 Decoder Errors}");
-    if(status.at(16) == Quality::Bad) ptt4->AddText("#color[2]{Felix 4 Decoder Errors}");
-    if(status.at(17) == Quality::Bad) ptt4->AddText("#color[2]{Felix 5 Decoder Errors}");
-    if((bitsetAND & 0x3F) != 0x3F) ptt4->AddText("#color[2]{Some Servers are Offline or in Error}");
+    if(status.at(9) == Quality::Bad) { ptt4->AddText("#color[2]{QA Layer 0 Bad}");
+}
+    if(status.at(10) == Quality::Bad) { ptt4->AddText("#color[2]{QA Layer 1 Bad}");
+}
+    if(status.at(11) == Quality::Bad) { ptt4->AddText("#color[2]{QA Layer 2 Bad}");
+}
+    if(status.at(12) == Quality::Bad) { ptt4->AddText("#color[2]{Felix 0 Decoder Errors}");
+}
+    if(status.at(13) == Quality::Bad) { ptt4->AddText("#color[2]{Felix 1 Decoder Errors}");
+}
+    if(status.at(14) == Quality::Bad) { ptt4->AddText("#color[2]{Felix 2 Decoder Errors}");
+}
+    if(status.at(15) == Quality::Bad) { ptt4->AddText("#color[2]{Felix 3 Decoder Errors}");
+}
+    if(status.at(16) == Quality::Bad) { ptt4->AddText("#color[2]{Felix 4 Decoder Errors}");
+}
+    if(status.at(17) == Quality::Bad) { ptt4->AddText("#color[2]{Felix 5 Decoder Errors}");
+}
+    if((bitsetAND & 0x3F) != 0x3F) { ptt4->AddText("#color[2]{Some Servers are Offline or in Error}");
+}
     bulb->SetFillColor(kRed);
     bulb->Draw();
     bulbRed->Draw("same");
@@ -577,9 +595,12 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   pt->AddText("Online Monitoring Server Status");
   for (int iFelix = 0; iFelix < NFlx; iFelix++){
     std::string serverStatus = "Felix " + std::to_string(iFelix);
-    if((bitsetOR & (1<<iFelix)) == 1<<iFelix && (bitsetAND & (1<<iFelix)) == 1<<iFelix) serverStatus += " #color[418]{ONLINE} ";
-    if((bitsetOR & (1<<iFelix)) == 0 && (bitsetAND & (1<<iFelix)) == 0) serverStatus += " #color[2]{OFFLINE}";
-    if((bitsetOR & (1<<iFelix)) == 1<<iFelix && (bitsetAND & (1<<iFelix)) == 0) serverStatus += " #color[2]{ERROR}";
+    if((bitsetOR & (1<<iFelix)) == 1<<iFelix && (bitsetAND & (1<<iFelix)) == 1<<iFelix) { serverStatus += " #color[418]{ONLINE} ";
+}
+    if((bitsetOR & (1<<iFelix)) == 0 && (bitsetAND & (1<<iFelix)) == 0) { serverStatus += " #color[2]{OFFLINE}";
+}
+    if((bitsetOR & (1<<iFelix)) == 1<<iFelix && (bitsetAND & (1<<iFelix)) == 0) { serverStatus += " #color[2]{ERROR}";
+}
     pt->AddText(serverStatus.c_str());
   }
   pt->Draw();
@@ -705,17 +726,23 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   returnCode += PublishHistogram(Pad[padID],5,mTrigger[NFlx]);
   //returnCode += PublishHistogram(Pad[9],3,mLaneInfo[NFlx]);
   returnCode += PublishHistogram(Pad[padID],3,mLaneStatus[0][NFlx],"lcol");
-  for(int i = 0;i<3;i++)tlayer[i]->Draw();
+  for(auto & i : tlayer) {i->Draw();
+}
   returnCode += PublishHistogram(Pad[padID],7,mLaneStatus[1][NFlx],"lcol");
-  for(int i = 0;i<3;i++)tlayer[i]->Draw();
+  for(auto & i : tlayer) {i->Draw();
+}
   returnCode += PublishHistogram(Pad[padID],11,mLaneStatus[2][NFlx],"lcol");
-  for(int i = 0;i<3;i++)tlayer[i]->Draw();
+  for(auto & i : tlayer) {i->Draw();
+}
   returnCode += PublishHistogram(Pad[padID],4,mLaneStatusCumulative[0][NFlx],"lcol");
-  for(int i = 0;i<3;i++)tlayer[i]->Draw();
+  for(auto & i : tlayer) {i->Draw();
+}
   returnCode += PublishHistogram(Pad[padID],8,mLaneStatusCumulative[1][NFlx],"lcol");
-  for(int i = 0;i<3;i++)tlayer[i]->Draw();
+  for(auto & i : tlayer) {i->Draw();
+}
   returnCode += PublishHistogram(Pad[padID],12,mLaneStatusCumulative[2][NFlx],"lcol");
-  for(int i = 0;i<3;i++)tlayer[i]->Draw();
+  for(auto & i : tlayer) {i->Draw();
+}
   returnCode += PublishHistogram(Pad[padID],2,mLaneStatusSummary[0][NFlx]);
   returnCode += PublishHistogram(Pad[padID],6,mLaneStatusSummary[1][NFlx]);
   returnCode += PublishHistogram(Pad[padID],10,mLaneStatusSummary[2][NFlx]);
@@ -816,8 +843,10 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
       for (int iChip = 0; iChip < 9; iChip++) {      
         //double occ = hChipStaveOccupancy[iLayer][NFlx]->GetBinContent(iChip+1,iStave+1)/(hChipStrobes[NFlx]->GetBinContent((StaveBoundary[iLayer]+iStave)*9+iChip+1)*1024*512);
         double occ = hChipStaveOccupancy[iLayer][NFlx]->GetBinContent(iChip+1,iStave+1)/(hChipStrobes[NFlx]->GetBinContent((StaveBoundary[iLayer]+iStave)*9+iChip+1)*1024*512);
-        if(occ > 10e-50)hChipStaveOccupancy[iLayer][NFlx]->SetBinContent(iChip+1,iStave+1,occ);
-        if(occ > 10e-50)avr_occ[iLayer]+=occ;
+        if(occ > 10e-50) {hChipStaveOccupancy[iLayer][NFlx]->SetBinContent(iChip+1,iStave+1,occ);
+}
+        if(occ > 10e-50) {avr_occ[iLayer]+=occ;
+}
       }
     }
   }
@@ -827,8 +856,9 @@ for (int iLayer = 0; iLayer < 3; iLayer++) {
     for (int iStave = 0; iStave < NStaves[iLayer]; iStave++) {
       for (int iChip = 0; iChip < 9; iChip++) {      
         double occ = hChipStaveOccupancy[iLayer][NFlx]->GetBinContent(iChip+1,iStave+1);
-        if(occ <0.01* avr_occ[iLayer]) hChipStaveOccupancy_low[iLayer]->SetBinContent(iChip+1,iStave+1,1);
-	else hChipStaveOccupancy_low[iLayer]->SetBinContent(iChip+1,iStave+1,0);
+        if(occ <0.01* avr_occ[iLayer]) { hChipStaveOccupancy_low[iLayer]->SetBinContent(iChip+1,iStave+1,1);
+	} else { hChipStaveOccupancy_low[iLayer]->SetBinContent(iChip+1,iStave+1,0);
+}
       }
     }
   }
@@ -943,7 +973,8 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
     mRCDAQevt[iFelix] = dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"RCDAQ_evt"));
     for (int mLayer = 0; mLayer < 3; mLayer++) {
       mDeadChipPos[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Occupancy_Layer%d_Layer%dDeadChipPos", mLayer, mLayer)));
-      if(mDeadChipPos[mLayer][iFelix]) nFLX[mLayer]++;
+      if(mDeadChipPos[mLayer][iFelix]) { nFLX[mLayer]++;
+}
       mAliveChipPos[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Occupancy_Layer%d_Layer%dAliveChipPos", mLayer, mLayer)));
      // mChipStaveOccupancy[mLayer][iFelix] =  dynamic_cast<TH2D*>(cl->getHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dChipStaveC", mLayer, mLayer)));
       mOccupancyPlot[mLayer][iFelix] =  dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),Form("MVTXMON_Occupancy_Layer%dOccupancy_LOG", mLayer)));
@@ -954,11 +985,14 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
 
   for (int iFelix = 0; iFelix < NFlx; iFelix++) {
     for (int mLayer = 0; mLayer < 3; mLayer++) {
-	if(mAliveChipPos[mLayer][iFelix] && mRCDAQevt[iFelix]) mAliveChipPos[mLayer][iFelix]->Scale(1./mRCDAQevt[iFelix]->Integral());       
+	if(mAliveChipPos[mLayer][iFelix] && mRCDAQevt[iFelix]) { mAliveChipPos[mLayer][iFelix]->Scale(1./mRCDAQevt[iFelix]->Integral());       
+}
 
-     if(mChipStaveNoisy[mLayer][iFelix] && mRCDAQevt[iFelix]) mChipStaveNoisy[mLayer][iFelix]->Scale(1./mRCDAQevt[iFelix]->Integral());       
+     if(mChipStaveNoisy[mLayer][iFelix] && mRCDAQevt[iFelix]) { mChipStaveNoisy[mLayer][iFelix]->Scale(1./mRCDAQevt[iFelix]->Integral());       
+}
     }
-    if(mGeneralNoisyPixel[iFelix] && mRCDAQevt[iFelix]) mGeneralNoisyPixel[iFelix]->Scale(1./mRCDAQevt[iFelix]->Integral());
+    if(mGeneralNoisyPixel[iFelix] && mRCDAQevt[iFelix]) { mGeneralNoisyPixel[iFelix]->Scale(1./mRCDAQevt[iFelix]->Integral());
+}
   }
 
   for (int mLayer = 0; mLayer < 3; mLayer++) {
@@ -1287,15 +1321,16 @@ int MvtxMonDraw::PublishHistogram(TPad *p, TH1 *h, const char* opt ){
 template <typename T>
 int MvtxMonDraw::MergeServers(T *h){
   bool cloned = false;
-  int bitset = 0;
-  for (int iFelix = 0; iFelix < NFlx; iFelix++){
+  unsigned int bitset = 0;
+  for (unsigned int iFelix = 0; iFelix < NFlx; iFelix++){
     if (cloned == false){
       if(h[iFelix]){
         h[NFlx] = dynamic_cast<T>(h[iFelix]->Clone());
         bitset |= (1U << (iFelix));
         cloned = true;
       }
-      else continue;
+      else { continue;
+}
     }
     else {
       if(h[iFelix]){
@@ -1352,9 +1387,12 @@ std::vector<MvtxMonDraw::Quality> MvtxMonDraw::analyseForError(TH2Poly* over1, T
           for (int ibin = StaveBoundary[ilayer] + 1; ibin <= StaveBoundary[ilayer + 1]; ++ibin) {
             badStave[iflag][ibin-1] = false;
             double bincontent = 0;
-            if(iflag==0 && over1) bincontent = over1->GetBinContent(ibin);
-            if(iflag==1 && over2) bincontent = over2->GetBinContent(ibin);
-            if(iflag==2 && over3) bincontent = over3->GetBinContent(ibin);
+            if(iflag==0 && over1) { bincontent = over1->GetBinContent(ibin);
+}
+            if(iflag==1 && over2) { bincontent = over2->GetBinContent(ibin);
+}
+            if(iflag==2 && over3) { bincontent = over3->GetBinContent(ibin);
+}
             if (bincontent/*hp[iflag][NFlx]->GetBinContent(ibin)*/ > maxbadchips / 9.) {
               badStave[iflag][ibin-1] = true;
               //std::cout<<"bad stave"<<std::endl;
@@ -1385,10 +1423,12 @@ std::vector<MvtxMonDraw::Quality> MvtxMonDraw::analyseForError(TH2Poly* over1, T
 
       for (int iflx = 0; iflx < 6; iflx++) {
         if(decErr){
-          if(decErr->Integral(6*iflx+1,6*iflx+7)>0) result.at(12+iflx) = Quality::Bad;
-          else result.at(12+iflx) = Quality::Good;
+          if(decErr->Integral(6*iflx+1,6*iflx+7)>0) { result.at(12+iflx) = Quality::Bad;
+          } else { result.at(12+iflx) = Quality::Good;
+}
         }
-        else result.at(12+iflx) = Quality::Good;
+        else { result.at(12+iflx) = Quality::Good;
+}
       }
       
       return result;
@@ -1443,13 +1483,20 @@ void MvtxMonDraw::DrawPave(std::vector<MvtxMonDraw::Quality> status, int positio
   pt->SetFillColor(0);
   pt->SetLineColor(0);
   pt->SetBorderSize(1);
-  if(status.at(position) == Quality::Good && status.at(position+1) == Quality::Good && status.at(position+2) == Quality::Good) pt->AddText("#color[418]{QA OK}");
-  if(status.at(position) == Quality::Medium) pt->AddText("#color[808]{QA Layer 0 Medium}");
-  if(status.at(position+1) == Quality::Medium) pt->AddText("#color[808]{QA Layer 1 Medium}");
-  if(status.at(position+2) == Quality::Medium) pt->AddText("#color[808]{QA Layer 2 Medium}");
-  if(status.at(position) == Quality::Bad) pt->AddText("#color[2]{QA Layer 0 Bad}");
-  if(status.at(position+1) == Quality::Bad) pt->AddText("#color[2]{QA Layer 1 Bad}");
-  if(status.at(position+2) == Quality::Bad) pt->AddText("#color[2]{QA Layer 2 Bad}");
+  if(status.at(position) == Quality::Good && status.at(position+1) == Quality::Good && status.at(position+2) == Quality::Good) { pt->AddText("#color[418]{QA OK}");
+}
+  if(status.at(position) == Quality::Medium) { pt->AddText("#color[808]{QA Layer 0 Medium}");
+}
+  if(status.at(position+1) == Quality::Medium) { pt->AddText("#color[808]{QA Layer 1 Medium}");
+}
+  if(status.at(position+2) == Quality::Medium) { pt->AddText("#color[808]{QA Layer 2 Medium}");
+}
+  if(status.at(position) == Quality::Bad) { pt->AddText("#color[2]{QA Layer 0 Bad}");
+}
+  if(status.at(position+1) == Quality::Bad) { pt->AddText("#color[2]{QA Layer 1 Bad}");
+}
+  if(status.at(position+2) == Quality::Bad) { pt->AddText("#color[2]{QA Layer 2 Bad}");
+}
   pt->Draw();
 
 }
