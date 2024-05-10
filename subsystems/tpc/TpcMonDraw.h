@@ -26,8 +26,6 @@ class TpcMonDraw : public OnlMonDraw
 
  protected:
   int MakeCanvas(const std::string &name);
-  int DrawFirst(const std::string &what = "ALL");
-  int DrawSecond(const std::string &what = "ALL");
   int DrawTPCModules(const std::string &what = "ALL");
   int DrawTPCSampleSize(const std::string &what = "ALL");
   int DrawTPCCheckSum(const std::string &what = "ALL");
@@ -48,6 +46,7 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCZYclusters_unweighted(const std::string &what = "ALL");
   int DrawTPCchannelphi_layer_weighted(const std::string &what = "ALL");
   int DrawTPCNEventsvsEBDC(const std::string &wht = "ALL");
+  int DrawServerStats();
   time_t getTime();
   
   TCanvas *TC[23] = {nullptr};

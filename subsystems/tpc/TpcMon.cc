@@ -74,9 +74,6 @@ int TpcMon::Init()
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("doing the Init\n");
-  tpchist1 = new TH1F("tpcmon_hist1", "test 1d histo", 101, 0., 100.);
-  tpchist2 = new TH2F("tpcmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
-
   //TPC GEM Module Displays
   NorthSideADC = new TH2F("NorthSideADC" , "ADC Counts North Side", N_thBins, -TMath::Pi()/12. , 23.*TMath::Pi()/12. , N_rBins , rBin_edges );
   SouthSideADC = new TH2F("SouthSideADC" , "ADC Counts South Side", N_thBins, -TMath::Pi()/12. , 23.*TMath::Pi()/12. , N_rBins , rBin_edges );
@@ -386,8 +383,6 @@ int TpcMon::Init()
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
-  se->registerHisto(this, tpchist1);  // uses the TH1->GetName() as key
-  se->registerHisto(this, tpchist2);
   se->registerHisto(this, NorthSideADC);
   se->registerHisto(this, SouthSideADC);
   se->registerHisto(this, sample_size_hist);
@@ -755,10 +750,7 @@ int TpcMon::process_event(Event *evt/* evt */)
   // one can do in principle directly se->getHisto("tpchist1")->Fill()
   // but the search in the histogram Map is somewhat expensive and slows
   // things down if you make more than one operation on a histogram
-  tpchist1->Fill((float) idummy);
-  tpchist2->Fill((float) idummy, (float) idummy, 1.);
-
-  //fill the TPC module displays
+ //fill the TPC module displays
   float r, theta;
 
   //dummy data

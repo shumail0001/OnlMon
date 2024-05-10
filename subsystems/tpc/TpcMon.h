@@ -80,9 +80,6 @@ class TpcMon : public OnlMon
   TH2 *NorthSideADC_clusterZY_unw = nullptr;
   TH2 *SouthSideADC_clusterZY_unw = nullptr;
 
-  TH1 *tpchist1 = nullptr;
-  TH2 *tpchist2 = nullptr;
-  
   TH2 *NorthSideADC = nullptr;
   TH2 *SouthSideADC = nullptr;
 
