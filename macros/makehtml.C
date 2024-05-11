@@ -45,6 +45,9 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   OnlMonDraw *drawer = nullptr;
+  std::cout << "If used with root.exe, use root.exe -q makehtml.C" << endl;
+  std::cout << "If you use -q it is batch which does not have an Xserver" 
+	    << " to create gifs/png and this macro will fail miserably" << std::endl;
   if (subsystem == "BBCMON")
   {
     drawer = new BbcMonDraw("BBCMONDRAW");
@@ -113,7 +116,7 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
     std::string line;
     while (std::getline(listfile, line)) 
     {
-      cl->ReadHistogramsFromFile(line);
+      cl->ReadHistogramsFromFile(line, drawer);
     }
     listfile.close();
   }

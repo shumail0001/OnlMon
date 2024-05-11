@@ -43,7 +43,7 @@ class OnlMonClient : public OnlMonBase
 
   void AddServerHost(const std::string &hostname);
   void registerDrawer(OnlMonDraw *Drawer);
-  int ReadHistogramsFromFile(const std::string &filename);
+  int ReadHistogramsFromFile(const std::string &filename, OnlMonDraw *drawer);
   int Draw(const char *who = "ALL", const char *what = "ALL");
   int MakePS(const char *who = "ALL", const char *what = "ALL");
   int MakeHtml(const char *who = "ALL", const char *what = "ALL");
@@ -83,7 +83,7 @@ class OnlMonClient : public OnlMonBase
   void FindAllMonitors();
   int FindMonitor(const std::string &name);
   int IsMonitorRunning(const std::string &name);
-  std::string ExtractSubsystem(const std::string &filename);
+  std::string ExtractSubsystem(const std::string &filename, OnlMonDraw *drawer);
   int GetServerInfo();
   std::map<std::string, std::tuple<bool, int, int, time_t>>::const_iterator GetServerMap(const std::string subsys) { return m_ServerStatsMap.find(subsys); }
   std::map<std::string, std::tuple<bool, int, int, time_t>>::const_iterator GetServerMapEnd() { return m_ServerStatsMap.end(); }

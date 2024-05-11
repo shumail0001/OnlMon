@@ -100,10 +100,8 @@ int InttMonDraw::MakeHtml(const std::string& what)
   {
     return 1;
   }
-
   TSeqCollection* canvases = gROOT->GetListOfCanvases();
-  TCanvas* canvas = nullptr;
-  std::string pngfile;
+  TCanvas* canv = nullptr;
 
   bool b = false;
   bool found = false;
@@ -134,7 +132,7 @@ int InttMonDraw::MakeHtml(const std::string& what)
 
     found = true;
 
-    canvas = nullptr;
+    canv = nullptr;
     name = Form("Intt_%s_Global_Canvas", (itr.first).c_str());
     for (TIter t_itr = canvases->begin(); t_itr != canvases->end(); ++t_itr)
     {
@@ -143,17 +141,17 @@ int InttMonDraw::MakeHtml(const std::string& what)
         continue;
       }
 
-      canvas = (TCanvas*) (*t_itr);
+      canv = (TCanvas*) (*t_itr);
       break;
     }
 
-    if (!canvas)
+    if (!canv)
     {
       continue;
     }
 
-    pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), itr.first, "png");
-    cl->CanvasToPng(canvas, pngfile);
+    std::string pngfl = cl->htmlRegisterPage(*this, canv->GetTitle(), itr.first, "png");
+    cl->CanvasToPng(canv, pngfl);
   }
 
   if (!found)
@@ -164,6 +162,22 @@ int InttMonDraw::MakeHtml(const std::string& what)
     {
       std::cout << "\t" << itr.first << std::endl;
     }
+  }
+
+// this code must not be modified
+  Draw("SERVERSTATS");
+
+  int icnt = 0;
+  for (TCanvas *canvas : TC)
+  {
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    icnt++;
+   // Register the canvas png file to the menu and produces the png file.
+    std::string pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), std::to_string(icnt), "png");
+    cl->CanvasToPng(canvas, pngfile);
   }
 
   return 0;
