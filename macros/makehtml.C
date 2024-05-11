@@ -113,7 +113,7 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
     std::string line;
     while (std::getline(listfile, line)) 
     {
-      cl->ReadHistogramsFromFile(line);
+      cl->ReadHistogramsFromFile(line, drawer);
     }
     listfile.close();
   }
