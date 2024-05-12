@@ -281,7 +281,7 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
 	hframe->GetXaxis()->SetLabelSize(0.06);
 	hframe->GetXaxis()->SetLabelOffset(0.025);
 	
-	hframe->GetYaxis()->SetTitle("Asymmetry");
+	hframe->GetYaxis()->SetTitle("Fwd Asymmetry");
 	hframe->GetYaxis()->SetTitleSize(0.06);
 	hframe->GetYaxis()->SetTitleOffset(1.1);
 	hframe->GetYaxis()->CenterTitle(true);
@@ -304,7 +304,7 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
 	hscrambleframe->GetXaxis()->SetLabelSize(0.06);
 	hscrambleframe->GetXaxis()->SetLabelOffset(0.025);
 	
-	hscrambleframe->GetYaxis()->SetTitle("Fake Asymmetry");
+	hscrambleframe->GetYaxis()->SetTitle("Bwd Asymmetry");
 	hscrambleframe->GetYaxis()->SetTitleSize(0.06);
 	hscrambleframe->GetYaxis()->SetTitleOffset(1.1);
 	hscrambleframe->GetYaxis()->CenterTitle(true);
@@ -384,7 +384,7 @@ int LocalPolMonDraw::DrawSecond(const std::string & /* what */)
   TProfile* h_times=(TProfile*)cl->getHisto("LOCALPOLMON_0","h_times");
   if(!h_times)IsGood=false;
   if(!IsGood){
-    DrawDeadServer(transparent[0]);
+    DrawDeadServer(transparent[1]);
     TC[1]->SetEditable(false);
     return -1;
   }
@@ -415,8 +415,8 @@ int LocalPolMonDraw::DrawSecond(const std::string & /* what */)
   	g_Polar[ibeam][method]->SetPointError(i+1,etheta,eradius);
       }
       Pad[1][2*method+ibeam]->cd();
-      if(gPad->FindObject("polargram"))   std::cout<<"polargram found\n";
-      if(gPad->FindObject("locpolpolargram")) std::cout<<"mypolagram found\n";
+      //if(gPad->FindObject("polargram"))   std::cout<<"polargram found\n";
+      //if(gPad->FindObject("locpolpolargram")) std::cout<<"mypolagram found\n";
       g_Polar[ibeam][method]->GetPolargram()->Draw();
       g_Polar[ibeam][method]->Draw("epsame");
       PrintTitle.DrawText(0.15,0.98,Form("%s %s",BeamName[ibeam].Data(),MethodName[method].Data()));

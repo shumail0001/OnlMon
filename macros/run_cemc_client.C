@@ -6,8 +6,7 @@
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlcemcmon_client.so)
-const int nServers = 1;
-// int nserver = 16;
+const int nServers = 16;
 void cemcDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -45,8 +44,8 @@ void cemcDrawInit(const int online = 0)
 	}
       }
     }
-  cl->AddServerHost("localhost");  // check local host first
-  //CreateSubsysHostlist("cemc_hosts.list", online);
+  //cl->AddServerHost("localhost");  // check local host first
+  CreateSubsysHostlist("cemc_hosts.list", online);
   //  get my histos from server, the second parameter = 1
   //  says I know they are all on the same node
   for (auto iter = cemcmon->ServerBegin(); iter != cemcmon->ServerEnd(); ++iter)

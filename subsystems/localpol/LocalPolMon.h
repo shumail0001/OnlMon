@@ -42,6 +42,9 @@ class LocalPolMon : public OnlMon
   const int BLUE=0;
   const int YELLOW=1;
 
+  const int  ZDCN2=10;
+  const int  ZDCS2=2;
+
   const float nchannelsY=8.0;
   const float nchannelsX=7.0;
   const float PI=3.14159;
@@ -62,6 +65,9 @@ class LocalPolMon : public OnlMon
   int  ConversionSign[14]={1,-1,1,1};//NorthY (bottom to top), NorthX (left to righ from IR->ZDC, while x points outside the ring), SouthY (bottom to top), SouthX (left to right from IR->ZDC and x points outside ring)
   float smd_north_rgain[16]={0.};
   float smd_south_rgain[16]={0.};
+  float signalZDCN2=0;
+  float signalZDCS2=0;
+  
   float ZeroPosition[4]={0.,0.,0.,0.};//from config
   
   std::map<int, int> SpinPatterns[2];

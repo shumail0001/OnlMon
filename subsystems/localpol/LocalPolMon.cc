@@ -103,14 +103,14 @@ int LocalPolMon::Init()
       if(!val.IsDigit()){
 	std::cout<<key<<": expecting 0/1 for true or false\n Keep false as default.\n";
 	fake=false;
-	//erc = new eventReceiverClient("gl1daq");
+	erc = new eventReceiverClient("gl1daq");
       }
       else{
 	int ival=val.Atoi();
 	if(ival!=0 && ival!=1){
 	  std::cout<<key<<": expecting 0/1 for true or false\n Keep false as default.\n";
 	  fake=false;
-	  //erc = new eventReceiverClient("gl1daq");
+	  erc = new eventReceiverClient("gl1daq");
 	}
 	else{
 	  if(ival==1){
@@ -118,7 +118,7 @@ int LocalPolMon::Init()
 	    erc = nullptr;
 	  }
 	  else fake=false;
-	  //erc = new eventReceiverClient("gl1daq");
+	  erc = new eventReceiverClient("gl1daq");
 	}
       }
     }
@@ -304,7 +304,7 @@ int LocalPolMon::Init()
       h_AsymScramble[beam][method]=new TH1D*[2];
       for(int orient=0; orient<2; orient++){
 	h_Asym[beam][method][orient]         = new TH1D(Form("h_Asym%s%s%s",BeamName[beam].Data(),MethodName[method].Data(),Orientation[orient].Data()),Form("Fwd %s %s %s Asym.",BeamName[beam].Data(),Orientation[orient].Data(),MethodName[method].Data()),5000,-0.5,4999.5);
-	h_AsymScramble[beam][method][orient] = new TH1D(Form("h_AsymScramble%s%s%s",BeamName[beam].Data(),MethodName[method].Data(),Orientation[orient].Data()),Form("Bck %s %s %s Asym.",BeamName[beam].Data(),Orientation[orient].Data(),MethodName[method].Data()),5000,-0.5,4999.5);
+	h_AsymScramble[beam][method][orient] = new TH1D(Form("h_AsymScramble%s%s%s",BeamName[beam].Data(),MethodName[method].Data(),Orientation[orient].Data()),Form("Bwk %s %s %s Asym.",BeamName[beam].Data(),Orientation[orient].Data(),MethodName[method].Data()),5000,-0.5,4999.5);
 
 	se->registerHisto(this,h_Asym[beam][method][orient]);
 	se->registerHisto(this,h_AsymScramble[beam][method][orient]);
@@ -424,9 +424,9 @@ int LocalPolMon::process_event(Event *e /* evt */)
     for(int i=0; i<16; i++){
       if(!goodtrigger[i]) continue;
       std::map<int, long long> tmpmap=gl1_counter[i];
-      for(std::map<int,long long>::iterator ittest=tmpmap.begin(); ittest!=tmpmap.end(); ++ittest){
-	std::cout<<ittest->second<<" ";
-      }
+      //for(std::map<int,long long>::iterator ittest=tmpmap.begin(); ittest!=tmpmap.end(); ++ittest){
+      //	std::cout<<ittest->second<<" ";
+      //}
       for(int emptyfill=0; emptyfill<9; emptyfill++){
 	int myminimum=min_element(tmpmap.begin(),tmpmap.end(),[](const std::pair<int,long long>&lhs, const std::pair<int,long long>& rhs){return lhs.second<rhs.second;})->first;
 	if(myminimum<111)gap[i].push_back(120+myminimum);
@@ -466,25 +466,32 @@ int LocalPolMon::process_event(Event *e /* evt */)
 	ptmpgl1=nullptr;
       }
       else{
-	std::cout<<"Failed grabing gl1 from event receiver"<<std::endl;
+	if(verbosity){
+	  std::cout<<"Failed grabing gl1 from event receiver, Bunch number unknown"<<std::endl;
+	}
       }
       delete egl1;
       egl1=nullptr;
     }
-    else{
-      std::map<int,int>::iterator it;
-      it=stored_gl1p_files.find(e->getEvtSequence());
-      if(it!=stored_gl1p_files.end()) {
-	bunchnr=it->second;
-	std::cout<<bunchnr<<std::endl;
-      }
-      else {
-	bunchnr=0;
-	std::cout<<"Trick also failed to retrieve bunch number"<<std::endl;
-      }
-    }
+    //else{
+    //  std::map<int,int>::iterator it;
+    //  it=stored_gl1p_files.find(e->getEvtSequence());
+    //  if(it!=stored_gl1p_files.end()) {
+    //	bunchnr=it->second;
+    //	std::cout<<bunchnr<<std::endl;
+    //  }
+    //  else {
+    //	bunchnr=0;
+    //	std::cout<<"Trick also failed to retrieve bunch number"<<std::endl;
+    //  }
+    //}
     
     if(fake) bunchnr +=15+myRandomBunch->Integer(4);
+
+    //get minimum on ZDC second module
+    signalZDCN2=anaWaveformFast(psmd, ZDCN2); 
+    signalZDCS2=anaWaveformFast(psmd, ZDCS2); 
+
 
     for(int ch=16; ch<47; ch++){//according to mapping in ZDC logbook entry #85 March 9th 2024 
       float signalFast = anaWaveformFast(psmd, ch);  // fast waveform fitting
@@ -493,6 +500,7 @@ int LocalPolMon::process_event(Event *e /* evt */)
       if(ch<32) smd_adc[ch-16]=signalFast*smd_north_rgain[ch-16];
       else smd_adc[ch-16]=signalFast*smd_south_rgain[ch-32];
     }
+    if(signalZDCN2<65 && signalZDCS2<65) return 0;
     float Weights[4]={0};
     memset(Weights, 0, sizeof(Weights));
     float AveragePosition[4]={0};
@@ -516,7 +524,7 @@ int LocalPolMon::process_event(Event *e /* evt */)
       //else AveragePosition[i]=0.;
       else continue;//most likely the most appropriate
 
-      if(AveragePosition[i]<ZeroPosition[i]){
+      if(AveragePosition[i]<ZeroPosition[i]-0.5){
 	// (i/2)=0 for blue beam, =1 for yellow beam
 	if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)>0) h_Counts[i]->Fill(3);//Right for pointing up
 	else if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)<0) h_Counts[i]->Fill(1);//Left for pointing down
@@ -525,7 +533,7 @@ int LocalPolMon::process_event(Event *e /* evt */)
 	if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)>0) h_CountsScramble[i]->Fill(3);//Right for pointing up
 	else if(SpinPatterns[i/2==0?1:0].at((120+bunchnr+CrossingShift)%120)<0) h_CountsScramble[i]->Fill(1);//Left for pointing down
       }
-      else{
+      else if(AveragePosition[i]>ZeroPosition[i]+0.5){
 	// (i/2)=0 for blue beam, =1 for yellow beam   
 	if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)>0) h_Counts[i]->Fill(0);//Left for pointing up
 	else if(SpinPatterns[i/2].at((120+bunchnr+CrossingShift)%120)<0) h_Counts[i]->Fill(2);//Right for pointing down
@@ -536,15 +544,13 @@ int LocalPolMon::process_event(Event *e /* evt */)
       }
     }
     h_time->Fill(iPoint,e->getTime());
+    evtcnt++;
   }
   else{
     if(verbosity){
-      std::cout<<"Did not retrieve all the information to enter the magic part of the code"<<std::endl;
       std::cout<<"Missing ZDC/SMD packet "<<packetid_smd<<std::endl;
-      if(!pgl1) std::cout<<"Missing GL1 packet "<<packetid_gl1<<std::endl;
     }
   }
-  evtcnt++;
 
   /**** Compute asymmetries if we have enough events ****************/
   if(evtcnt%EventsAsymmetryNewPoint==0){
@@ -556,9 +562,9 @@ int LocalPolMon::process_event(Event *e /* evt */)
 	double R_D = h_Counts[2*ibeam+orient]->GetBinContent(2);
 	double L_D = h_Counts[2*ibeam+orient]->GetBinContent(3);
 	double R_U = h_Counts[2*ibeam+orient]->GetBinContent(4);
-	if(L_U<0){
-	  std::cout<<iPoint<<" "<<evtcnt<<" "<<h_Counts[2*ibeam+orient]->GetEntries()<<" "<<std::endl;
-	}
+	//if(L_U<0){
+	//  std::cout<<iPoint<<" "<<evtcnt<<" "<<h_Counts[2*ibeam+orient]->GetEntries()<<" "<<std::endl;
+	//}
 	double* asymresult = ComputeAsymmetries(L_U, R_D, L_D, R_U);
 	
 	h_Asym[ibeam][0][orient]->SetBinContent(iPoint+1,asymresult[0]);
