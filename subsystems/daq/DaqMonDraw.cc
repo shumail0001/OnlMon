@@ -151,7 +151,7 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->SetLeftMargin(0.1);
   Pad[0]->cd();
   Pad[0]->SetTicks(1, 1);
-  Pad[0]->SetGrid(1, 1);
+  Pad[0]->SetGrid(1, 0);
 
   int start = -1;
   TH2 *h_gl1_clock_diff[m_ServerSet.size()];
@@ -218,7 +218,6 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   h_gl1_clock_diff[start]->Draw("col");
   TLine line(h_gl1_clock_diff[start]->GetXaxis()->GetXmin(), 0.5, h_gl1_clock_diff[start]->GetXaxis()->GetXmax(), 0.5);
   line.SetLineColor(kBlack);
-  line.Draw();
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.025);
@@ -233,6 +232,7 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   runstring = runnostream.str();
   transparent[0]->cd();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+  line.Draw();
 
   //  TC[0]->Show();
   TC[0]->SetEditable(false);
@@ -282,12 +282,12 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   Pad[1]->SetGridy(1);
 
   int start = -1;
-  TH2 *h_gl1_clock_diff_capture[m_ServerSet.size()];
+  TH2 *h_fem_match[m_ServerSet.size()];
   int i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_gl1_clock_diff_capture[i] = (TH2 *) cl->getHisto(Form("DAQMON_%d", i), "h_gl1_clock_diff_capture");
-    if (!h_gl1_clock_diff_capture[i])
+    h_fem_match[i] = (TH2 *) cl->getHisto(Form("DAQMON_%d", i), "h_fem_match");
+    if (!h_fem_match[i])
     {
       continue;
     }
@@ -297,7 +297,7 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
     }
     else if (i > start)
     {
-      h_gl1_clock_diff_capture[start]->Add(h_gl1_clock_diff_capture[i], 1);
+      h_fem_match[start]->Add(h_fem_match[i], 1);
     }
     i++;
   }
@@ -311,7 +311,7 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   color[1] = kGreen;
   gStyle->SetPalette(2, color);
   gStyle->SetOptStat(0);
-  h_gl1_clock_diff_capture[start]->Draw("col");
+  h_fem_match[start]->Draw("col");
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -322,12 +322,19 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   std::string runstring;
   time_t evttime = getTime();
   // fill run number and event time into string
-  runnostream << ThisName << ": Calo-GL1 Lock Snapshot, Run" << cl->RunNumber()
+  runnostream << ThisName << ": Calo ADC FEM Check, Run" << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[1]->cd();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
+  std::string femstatusstring = (h_fem_match[start]->GetEntries() > 0) ? "#bf{Calo FEM Mismatch!! Stop the run now!}" : "#bf{FEMs are all locked properly! Continue data taking}";
+  TLatex latex;
+  latex.SetNDC();
+  latex.SetTextFont(62);
+  latex.SetTextSize(0.025);
+  latex.DrawLatex(0.3,0.5,femstatusstring.c_str());
+    
   TC[1]->SetEditable(false);
   gStyle->SetOptStat(0);
   /*
