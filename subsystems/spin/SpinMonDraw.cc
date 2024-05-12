@@ -556,6 +556,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   xingshiftstring = xingshiftstream.str();
   t_xingshift.DrawText(0.15, 0.3, xingshiftstring.c_str());
 
+  /*
   std::string addxingshiftstring;
   if (hxingshift->GetBinContent(2) != -999)
   {
@@ -569,7 +570,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     addxingshiftstring = "Additional crossing shift: Unknown";
     t_xingshift.DrawText(0.15, 0.25, addxingshiftstring.c_str());
   }
-
+  */
   //================================================
 
   gStyle->SetTitleFontSize(0.06);
