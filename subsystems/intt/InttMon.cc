@@ -4,7 +4,7 @@
 InttMon::InttMon(const std::string &name)
   : OnlMon(name)
 {
-  //leaving fairly empty
+  // leaving fairly empty
   return;
 }
 
@@ -17,11 +17,11 @@ int InttMon::Init()
 {
   OnlMonServer *se = OnlMonServer::instance();
 
-  //dbvars
+  // dbvars
   dbvars = new OnlMonDB(ThisName);
   DBVarInit();
 
-  //histograms
+  // histograms
   NumEvents = new TH1D(Form("InttNumEvents"), Form("InttNumEvents"), 1, 0, 1);
   HitMap = new TH1D(Form("InttMap"), Form("InttMap"), INTT::ADCS, 0, INTT::ADCS);
   BcoDiffMap = new TH1D(Form("InttBcoDiffMap"), Form("InttBcoDiffMap"), INTT::BCOS, 0, INTT::BCOS);
@@ -32,7 +32,7 @@ int InttMon::Init()
   se->registerHisto(this, BcoDiffMap);
   //...
 
-  //Read in calibrartion data from InttMonData.dat
+  // Read in calibrartion data from InttMonData.dat
   const char *inttcalib = getenv("INTTCALIB");
   if (!inttcalib)
   {
@@ -41,8 +41,8 @@ int InttMon::Init()
   }
   std::string fullfile = std::string(inttcalib) + "/" + "InttMonData.dat";
   std::ifstream calib(fullfile);
-  //probably need to do stuff here (maybe write to expectation maps)
-  //or reimplment in BeginRun()
+  // probably need to do stuff here (maybe write to expectation maps)
+  // or reimplment in BeginRun()
   calib.close();
 
   // for testing/debugging without unpacker, remove later
@@ -56,7 +56,7 @@ int InttMon::Init()
 
 int InttMon::BeginRun(const int /* run_num */)
 {
-  //per-run calibrations; don't think we need to do anything here yet
+  // per-run calibrations; don't think we need to do anything here yet
 
   return 0;
 }
@@ -87,8 +87,8 @@ int InttMon::process_event(Event *evt)
 
     N = p->iValue(0, "NR_HITS");
 
-    //p->identify();
-    //if(N)std::cout << N << std::endl;
+    // p->identify();
+    // if(N)std::cout << N << std::endl;
 
     for (n = 0; n < N; ++n)
     {
@@ -104,12 +104,12 @@ int InttMon::process_event(Event *evt)
       indexes.chn = p->iValue(n, "CHANNEL_ID");
       indexes.adc = p->iValue(n, "ADC");
 
-      //std::cout << "\t" << indexes.lyr << std::endl;
-      //std::cout << "\t" << indexes.ldr << std::endl;
-      //std::cout << "\t" << indexes.arm << std::endl;
-      //std::cout << "\t" << indexes.chp << std::endl;
-      //std::cout << "\t" << indexes.chn << std::endl;
-      //std::cout << std::endl;
+      // std::cout << "\t" << indexes.lyr << std::endl;
+      // std::cout << "\t" << indexes.ldr << std::endl;
+      // std::cout << "\t" << indexes.arm << std::endl;
+      // std::cout << "\t" << indexes.chp << std::endl;
+      // std::cout << "\t" << indexes.chn << std::endl;
+      // std::cout << std::endl;
 
       INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
       if (bin < 0)
@@ -127,12 +127,12 @@ int InttMon::process_event(Event *evt)
       }
       HitMap->AddBinContent(bin);
 
-	  bco_data.pid = pid;
-	  bco_data.fee = p->iValue(n, "FEE");
-	  bco_data.bco = ((0x7f & p->lValue(n, "BCO")) - p->iValue(n, "FPHX_BCO") + 128) % 128;
-	  INTT::GetBcoBin(bco_bin, bco_data);
+      bco_data.pid = pid;
+      bco_data.fee = p->iValue(n, "FEE");
+      bco_data.bco = ((0x7f & p->lValue(n, "BCO")) - p->iValue(n, "FPHX_BCO") + 128) % 128;
+      INTT::GetBcoBin(bco_bin, bco_data);
 
-	  BcoDiffMap->AddBinContent(bco_bin);
+      BcoDiffMap->AddBinContent(bco_bin);
     }
 
     delete p;
@@ -147,10 +147,10 @@ int InttMon::process_event(Event *evt)
 
 int InttMon::Reset()
 {
-  //reset our DBVars
+  // reset our DBVars
   evtcnt = 0;
 
-  //clear our histogram entries
+  // clear our histogram entries
   NumEvents->Reset();
   HitMap->Reset();
 
@@ -302,20 +302,20 @@ int InttMon::CheckBcoRoundTrip()
   bco_data.pid = 3001;
   bco_data.fee = 0;
   bco_data.bco = 0;
-  while(true)
+  while (true)
   {
     INTT::GetBcoBin(b, bco_data);
-	INTT::GetBcoIndexes(b, bco_data_check);
+    INTT::GetBcoIndexes(b, bco_data_check);
 
-	bool flag = false;
-	flag = flag || (bco_data.pid != bco_data_check.pid);
-	flag = flag || (bco_data.fee != bco_data_check.fee);
-	flag = flag || (bco_data.bco != bco_data_check.bco);
+    bool flag = false;
+    flag = flag || (bco_data.pid != bco_data_check.pid);
+    flag = flag || (bco_data.fee != bco_data_check.fee);
+    flag = flag || (bco_data.bco != bco_data_check.bco);
 
-	if(flag)
-	{
-	  std::cout << "Mismatch (BcoData_s -> Bin -> BcoData_s)" << std::endl;
-	  std::cout << "From:"
+    if (flag)
+    {
+      std::cout << "Mismatch (BcoData_s -> Bin -> BcoData_s)" << std::endl;
+      std::cout << "From:"
                 << "\t" << bco_data.pid << "\n"
                 << "\t" << bco_data.fee << "\n"
                 << "\t" << bco_data.bco << "\n"
@@ -323,30 +323,30 @@ int InttMon::CheckBcoRoundTrip()
                 << "\t" << bco_data_check.pid << "\n"
                 << "\t" << bco_data_check.fee << "\n"
                 << "\t" << bco_data_check.bco << "\n"
-				<< "Bin: " << b << "\n"
-				<< std::endl;
+                << "Bin: " << b << "\n"
+                << std::endl;
       break;
-	}
+    }
 
-	if(++bco_data.bco < INTT::BCO)continue;
-	bco_data.bco = 0;
-	if(++bco_data.fee < INTT::FELIX)continue;
-	bco_data.fee = 0;
-	if(++bco_data.pid < 3009)continue;
+    if (++bco_data.bco < INTT::BCO) continue;
+    bco_data.bco = 0;
+    if (++bco_data.fee < INTT::FELIX) continue;
+    bco_data.fee = 0;
+    if (++bco_data.pid < 3009) continue;
 
     break;
   }
 
-  for(b = 1; b < INTT::BCOS; ++b)
+  for (b = 1; b < INTT::BCOS; ++b)
   {
     INTT::GetBcoIndexes(b, bco_data);
-	INTT::GetBcoBin(b_check, bco_data);
+    INTT::GetBcoBin(b_check, bco_data);
 
-	if(b != b_check)
-	{
-	  std::cout << "Mismatch (Bin -> BcoData_s -> Bin)" << std::endl;
-	  break;
-	}
+    if (b != b_check)
+    {
+      std::cout << "Mismatch (Bin -> BcoData_s -> Bin)" << std::endl;
+      break;
+    }
   }
 
   return 0;

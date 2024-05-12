@@ -7,12 +7,13 @@
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlcemcmon_client.so)
 const int nServers = 1;
+// int nserver = 16;
 void cemcDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  cl -> Verbosity(0);
+  cl->Verbosity(0);
   CemcMonDraw *cemcmon = new CemcMonDraw("CEMCMONDRAW");  // create Drawing Object
-  cemcmon -> setSave(0);
+  cemcmon->setSave(0);
   // register histos we want with monitor name
   for(int serverid = 0; serverid < nServers; serverid++)
     {
@@ -48,34 +49,34 @@ void cemcDrawInit(const int online = 0)
   //CreateSubsysHostlist("cemc_hosts.list", online);
   //  get my histos from server, the second parameter = 1
   //  says I know they are all on the same node
-  for(auto iter = cemcmon->ServerBegin(); iter !=  cemcmon->ServerEnd(); ++iter)
-     {
-       cl->requestHistoBySubSystem(iter->c_str(), 1);
-     }
-  cl->registerDrawer(cemcmon);              // register with client framework
+  for (auto iter = cemcmon->ServerBegin(); iter != cemcmon->ServerEnd(); ++iter)
+  {
+    cl->requestHistoBySubSystem(iter->c_str(), 1);
+  }
+  cl->registerDrawer(cemcmon);  // register with client framework
 }
 
 void cemcDraw(const char *what = "ALL")
 {
-  OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  OnlMonDraw *cemcmon = cl->GetDrawer("CEMCMONDRAW"); // get pointer to this drawer
-  for(auto iter = cemcmon->ServerBegin(); iter !=  cemcmon->ServerEnd(); ++iter)
-     {
-       cl->requestHistoBySubSystem(iter->c_str(), 1);
-     }
+  OnlMonClient *cl = OnlMonClient::instance();         // get pointer to framewrk
+  OnlMonDraw *cemcmon = cl->GetDrawer("CEMCMONDRAW");  // get pointer to this drawer
+  for (auto iter = cemcmon->ServerBegin(); iter != cemcmon->ServerEnd(); ++iter)
+  {
+    cl->requestHistoBySubSystem(iter->c_str(), 1);
+  }
   cl->Draw("CEMCMONDRAW", what);  // Draw Histos of registered Drawers
 }
 
 void cemcSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->SavePlot("CEMCMONDRAW");                         // Save Plots
+  cl->SavePlot("CEMCMONDRAW");                  // Save Plots
   return;
 }
 
 void cemcHtml()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeHtml("CEMCMONDRAW");                      // Create html output
+  cl->MakeHtml("CEMCMONDRAW");                  // Create html output
   return;
 }

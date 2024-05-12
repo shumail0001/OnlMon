@@ -1,8 +1,8 @@
 #ifndef DAQ_DAQMON_H
 #define DAQ_DAQMON_H
 
-#include <onlmon/OnlMon.h>
 #include <TH2D.h>
+#include <onlmon/OnlMon.h>
 
 #include <vector>
 class Event;
@@ -18,15 +18,14 @@ class DaqMon : public OnlMon
   DaqMon(const std::string &name);
   virtual ~DaqMon();
 
-  int process_event(Event* evt);
+  int process_event(Event *evt);
   int Init();
   int BeginRun(const int runno);
   int Reset();
   int CaloPacketMap(int pnum);
-          
+
   uint32_t previousdiff[200] = {0};
   uint32_t clockdiff[200] = {0};
-
 
  protected:
   Long64_t evtcnt = 0;
@@ -34,7 +33,7 @@ class DaqMon : public OnlMon
   int binindex = 0;
   int previndex = 0;
 
-  long long int nEventsCapture=10000000;
+  long long int nEventsCapture = 10000000;
   int idummy = 0;
   int packetlow = 6001;
   int packethigh = 12001;
@@ -49,20 +48,20 @@ class DaqMon : public OnlMon
   int packet_sepd_low = 9001;
   int packet_sepd_high = 9006;
   int packet_zdc = 12001;
-  
+
   int npackets_emcal = 128;
   int npackets_ihcal = 8;
   int npackets_ohcal = 8;
-  int npackets_sepd= 6;
-  int npackets_mbd= 2;
-  int npackets_zdc= 1;
+  int npackets_sepd = 6;
+  int npackets_mbd = 2;
+  int npackets_zdc = 1;
 
   TH1 *daqhist1 = nullptr;
   TH2 *daqhist2 = nullptr;
-  TH2D* h_gl1_clock_diff= nullptr;
-  TH2D* h_gl1_clock_diff_capture= nullptr;
-  //TH1D* h_unlock_hist = nullptr;
-  //TH2* h_unlock_clock = nullptr;
+  TH2D *h_gl1_clock_diff = nullptr;
+  TH2D *h_gl1_clock_diff_capture = nullptr;
+  // TH1D* h_unlock_hist = nullptr;
+  // TH2* h_unlock_clock = nullptr;
 
   eventReceiverClient *erc = {nullptr};
 };

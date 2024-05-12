@@ -188,6 +188,16 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     transparent[4]->Draw();
     TC[4]->SetEditable(false);
   }
+  else if (name == "HcalMon6")
+  {
+    TC[5] = new TCanvas(name.c_str(), "HcalMon6 Server Stats", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    gSystem->ProcessEvents();
+    // this one is used to plot the run number on the canvas
+    transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
+    transparent[5]->SetFillStyle(4000);
+    transparent[5]->Draw();
+    TC[5]->SetEditable(false);
+  }
   return 0;
 }
 
@@ -236,6 +246,15 @@ int HcalMonDraw::Draw(const std::string& what)
   if (what == "ALL" || what == "FIFTH")
   {
     int retcode = DrawFifth(what);
+    if (!retcode)
+    {
+      isuccess++;
+    }
+    idraw++;
+  }
+  if (what == "ALL" || what == "SERVERSTATS")
+  {
+    int retcode = DrawServerStats();
     if (!retcode)
     {
       isuccess++;
@@ -1655,7 +1674,6 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TH2F* h2_hcal_hits_trig3_2 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits_trig3");
   TH2F* h2_hcal_hits_trig4_2 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits_trig4");
 
-
   TH2F* h2_hcal_hits = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
   TH2F* h_evtRec = (TH2F*) cl->getHisto(HCALMON_0, "h_evtRec");
   TH1F* h_hcal_trig = (TH1F*) cl->getHisto(HCALMON_0, "h_hcal_trig");
@@ -1669,7 +1687,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TC[6]->SetEditable(true);
   TC[6]->Clear("D");
   Pad[16]->cd();
-  if (!h2_hcal_hits_trig4 || !h2_hcal_hits_trig3 || !h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2 || !h_evtRec || !h2_hcal_hits_trig4_2 || !h2_hcal_hits_trig3_2 || !h2_hcal_hits_trig1_2 || !h2_hcal_hits_trig2_2 )
+  if (!h2_hcal_hits_trig4 || !h2_hcal_hits_trig3 || !h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2 || !h_evtRec || !h2_hcal_hits_trig4_2 || !h2_hcal_hits_trig3_2 || !h2_hcal_hits_trig1_2 || !h2_hcal_hits_trig2_2)
   {
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(false);
@@ -1688,7 +1706,6 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
 
   Pad[16]->cd();
   gStyle->SetTitleFontSize(0.03);
-
 
   float tsize = 0.06;
   h2_hcal_hits_trig1->Draw("colz");
@@ -1793,12 +1810,10 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   gPad->SetTicky();
   gPad->SetTickx();
 
-
-
   Pad[18]->cd();
   gStyle->SetTitleFontSize(0.06);
 
-  h_hcal_trig->SetTitle(Form("Receiving %0.3f of events from event reciever", h_evtRec->GetBinContent(1)));
+  h_hcal_trig->SetTitle(Form("Receiving %0.3f of events from event receiver", h_evtRec->GetBinContent(1)));
   tsize2 = 0.1;
   h_hcal_trig->Draw("hist");
   h_hcal_trig->GetXaxis()->SetNdivisions(510, kTRUE);
@@ -1830,4 +1845,60 @@ time_t HcalMonDraw::getTime()
   OnlMonClient* cl = OnlMonClient::instance();
   time_t currtime = cl->EventTime("CURRENT");
   return currtime;
+}
+
+int HcalMonDraw::DrawServerStats()
+{
+  OnlMonClient* cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("HcalMon6"))
+  {
+    MakeCanvas("HcalMon6");
+  }
+  TC[5]->Clear("D");
+  TC[5]->SetEditable(true);
+  transparent[5]->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  for (const auto& server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = cl->GetServerMap(server);
+    if (servermapiter == cl->GetServerMapEnd())
+    {
+      txt << "Server " << server
+          << " is dead ";
+      PrintRun.SetTextColor(2);
+    }
+    else
+    {
+      txt << "Server " << server
+	  << ", run number " << std::get<1>(servermapiter->second)
+	  << ", event count: " << std::get<2>(servermapiter->second)
+	  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+      if (std::get<0>(servermapiter->second))
+      {
+	PrintRun.SetTextColor(3);
+      }
+      else
+      {
+	PrintRun.SetTextColor(2);
+      }
+    }
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+  TC[5]->Update();
+  TC[5]->Show();
+  TC[5]->SetEditable(false);
+
+  return 0;
 }

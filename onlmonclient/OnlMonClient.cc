@@ -469,6 +469,7 @@ int OnlMonClient::MakePS(const char *who, const char *what)
 
 int OnlMonClient::MakeHtml(const char *who, const char *what)
 {
+  GetServerInfo();
   mode_t old_umask;
   int runno = RunNumber();
   if (runno <= 0)
@@ -1245,6 +1246,10 @@ int OnlMonClient::GetServerInfo()
   int runno = -9999;
   for (const auto &frwrkiter : m_MonitorFetchedSet)
   {
+    if (m_ServerStatsMap.find(frwrkiter) == m_ServerStatsMap.end())
+	{
+	  m_ServerStatsMap[frwrkiter] = std::make_tuple(false, -1, -1, 0);
+	}
     TH1 *frameworkvars = getHisto(frwrkiter, "FrameWorkVars");
     if (frameworkvars)
     {
@@ -1260,18 +1265,11 @@ int OnlMonClient::GetServerInfo()
       }
       runno = std::max(runno, runnumber);
       server_runmap[frwrkiter] = runnumber;
-      if (m_ServerStatsMap.find(frwrkiter) == m_ServerStatsMap.end())
-      {
-        m_ServerStatsMap[frwrkiter] = std::make_tuple(true, runnumber, eventcounter, currtime);
-      }
-      else
-      {
         auto &statsiter = m_ServerStatsMap[frwrkiter];
         std::get<0>(statsiter) = true;
         std::get<1>(statsiter) = runnumber;
         std::get<2>(statsiter) = eventcounter;
         std::get<3>(statsiter) = currtime;
-      }
     }
   }
   for (auto const &iter : server_runmap)
@@ -1357,9 +1355,9 @@ time_t OnlMonClient::EventTime(const std::string &servername, const std::string 
   return (tret);
 }
 
-int OnlMonClient::ReadHistogramsFromFile(const std::string &filename)
+int OnlMonClient::ReadHistogramsFromFile(const std::string &filename, OnlMonDraw *drawer)
 {
-  std::string subsys = ExtractSubsystem(filename);
+  std::string subsys = ExtractSubsystem(filename, drawer);
   TDirectory *save = gDirectory;  // save current dir (which will be overwritten by the following fileopen)
   TFile *histofile = new TFile(filename.c_str(), "READ");
   if (!histofile)
@@ -1768,12 +1766,13 @@ int OnlMonClient::IsMonitorRunning(const std::string &name)
   return iret;
 }
 
-std::string OnlMonClient::ExtractSubsystem(const std::string &fullfilename)
+std::string OnlMonClient::ExtractSubsystem(const std::string &fullfilename, OnlMonDraw *drawer)
 {
   std::string subsys = std::filesystem::path(fullfilename).filename();
   subsys = subsys.substr(subsys.find('-') + 1);
   subsys = subsys.substr(0, subsys.find(".root"));
   m_MonitorFetchedSet.insert(subsys);
+  drawer->AddServer(subsys);
   return subsys;
 }
 
