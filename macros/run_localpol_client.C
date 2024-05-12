@@ -27,6 +27,7 @@ void localpolDrawInit(const int online = 0)
   }
   cl->registerHisto("h_times","LOCALPOLMON_0");
   // for local host, just call localpolDrawInit(2)
+  cl->AddServerHost("localhost");  // check local host first
   //CreateSubsysHostlist("localpol_hosts.list", online);
 
 // says I know they are all on the same node

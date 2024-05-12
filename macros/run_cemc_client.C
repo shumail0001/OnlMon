@@ -6,7 +6,7 @@
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlcemcmon_client.so)
-//int nserver = 0;
+const int nServers = 1;
 void cemcDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -14,7 +14,7 @@ void cemcDrawInit(const int online = 0)
   CemcMonDraw *cemcmon = new CemcMonDraw("CEMCMONDRAW");  // create Drawing Object
   cemcmon -> setSave(0);
   // register histos we want with monitor name
-  for(int serverid = 0; serverid < 16; serverid++)
+  for(int serverid = 0; serverid < nServers; serverid++)
     {
       std::string servername = "CEMCMON_" + std::to_string(serverid);
       cemcmon->AddServer(servername);
@@ -44,7 +44,8 @@ void cemcDrawInit(const int online = 0)
 	}
       }
     }
-  CreateSubsysHostlist("cemc_hosts.list", online);
+  cl->AddServerHost("localhost");  // check local host first
+  //CreateSubsysHostlist("cemc_hosts.list", online);
   //  get my histos from server, the second parameter = 1
   //  says I know they are all on the same node
   for(auto iter = cemcmon->ServerBegin(); iter !=  cemcmon->ServerEnd(); ++iter)

@@ -104,7 +104,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "CemcMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "CemcMon2 Packet Information", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[1] = new TCanvas(name.c_str(), "CemcMon2 Packet Information Expert", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     Pad[1] = new TPad("cemcpad1", "packet event check", 0.0, 0.6, 1.0 / 2, 0.95, 0);
     Pad[2] = new TPad("cemcpad2", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
@@ -157,7 +157,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcMon5")
   {
-    TC[4] = new TCanvas(name.c_str(), "CemcMon5 Trigger Info", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[4] = new TCanvas(name.c_str(), "CemcMon5 Trigger Info Expert", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     Pad[10] = new TPad("cemcpad10", "who needs this?", 0.0, 0.6, 0.5, 0.95, 0);
     Pad[11] = new TPad("cemcpad11", "who needs this?", 0.5, 0.6, 1.0, 0.95, 0);
@@ -186,7 +186,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     TC[5]->SetEditable(false);
   }
   else if (name == "CemcPopup"){
-    PopUpCanvas = new TCanvas(name.c_str(),"Waveforms",-xsize-0.3,0,xsize*0.3,ysize*0.9);
+    PopUpCanvas = new TCanvas(name.c_str(),"Waveforms Expert",-xsize-0.3,0,xsize*0.3,ysize*0.9);
     gSystem->ProcessEvents();
     double step=1./8;
     for(int i=0; i<8; i++){
@@ -961,8 +961,8 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   float windowSize = 5000;
   h2_waveform_twrAvg[start[0]]->GetYaxis()->SetRangeUser(0, windowSize);
 
-  TLine *windowLow1 = new TLine(4, 0, 4, windowSize);
-  TLine *windowHigh1 = new TLine(10, 0, 10, windowSize);
+  TLine *windowLow1 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, windowSize);
+  TLine *windowHigh1 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, windowSize);
   gStyle->SetOptStat(0);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);
@@ -1017,8 +1017,8 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   }
   h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0, 1.);
 
-  TLine *windowLow2 = new TLine(4, 0, 4, 1);
-  TLine *windowHigh2 = new TLine(10, 0, 10, 1);
+  TLine *windowLow2 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, 1);
+  TLine *windowHigh2 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, 1);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1724,7 +1724,7 @@ void CemcMonDraw::HandleEvent(int event, int x, int y, TObject* sel){
       return;//we do not want draw from there
     }
     else if(strcmp(sel->GetName(),"transparent6")==0){
-      canvas=TC[5];
+      canvas=TC[6];
       if(canvas->AbsPixeltoX(x)<0.5){
 	if(canvas->AbsPixeltoY(y)<0.475){
 	  mypad=Pad[17];
@@ -1774,7 +1774,9 @@ void CemcMonDraw::HandleEvent(int event, int x, int y, TObject* sel){
 	  std::cout<<"no valid popuppad"<<std::endl;
 	}
 	if(summedProfile[i][j]){
+	  //summedProfile[i][j]->SetMaximum(pow(2,14));//screew up the 2D histo
 	  summedProfile[i][j]->Draw();
+	  summedProfile[i][j]->GetYaxis()->SetRangeUser(0.1,pow(2,14));
 	  PopUpPad[i][j]->Update();
 	  PopUpPad[i][j]->Paint();
 	}
@@ -1799,7 +1801,7 @@ int CemcMonDraw::DrawSixth(const std::string & /*what*/ ){
   TH2D* h2_saturating;
 
   if(!gROOT->FindObject("h2_maxima")){
-    h2_maxima = new TH2D("h2_maxima","ADC counts for the peak",96,0,96,256,0,256);
+    h2_maxima = new TH2D("h2_maxima","ADC counts at peak position",96,0,96,256,0,256);
     h2_maxima->SetStats(kFALSE);
     h2_maxima->GetXaxis()->SetNdivisions(12,kFALSE);
     h2_maxima->GetYaxis()->SetNdivisions(32,kFALSE);
@@ -1811,7 +1813,7 @@ int CemcMonDraw::DrawSixth(const std::string & /*what*/ ){
     h2_maxima->Reset();
   }
   if(!gROOT->FindObject("h2_timeOfMax")){
-    h2_timeofMax=new TH2D("h2_timeOfMax","Location of peak position",96,0,96,256,0,256);
+    h2_timeofMax=new TH2D("h2_timeOfMax","Waveform peak position",96,0,96,256,0,256);
     h2_timeofMax->SetStats(kFALSE);
     h2_timeofMax->GetXaxis()->SetNdivisions(12,kFALSE);
     h2_timeofMax->GetYaxis()->SetNdivisions(32,kFALSE);

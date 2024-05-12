@@ -197,9 +197,9 @@ int CemcMon::Init()
   for(int iphi=0; iphi<nPhiIndex; iphi++){
     h2_waveform[iphi]=new TProfile*[nEtaIndex];
     for(int ieta=0; ieta<nEtaIndex; ieta++){
-      h2_waveform[iphi][ieta]=new TProfile(Form("h2_waveform_phi%d_eta%d",iphi,ieta),Form("Profiled raw waveform for #phi %d and #eta %d",iphi,ieta),34, -0.5, 16.5, "s");
+      h2_waveform[iphi][ieta]=new TProfile(Form("h2_waveform_phi%d_eta%d",iphi,ieta),Form("Profiled raw waveform for #phi %d and #eta %d",iphi,ieta),12, -0.5, 11.5, "s");
       h2_waveform[iphi][ieta]->GetXaxis()->SetTitle("sample #");
-      h2_waveform[iphi][ieta]->GetYaxis()->SetTitle("ADC channel");
+      h2_waveform[iphi][ieta]->GetYaxis()->SetTitle("ADC counts");
       h2_waveform[iphi][ieta]->SetStats(false);
       se->registerHisto(this, (TH1*)h2_waveform[iphi][ieta]);
     }
@@ -409,6 +409,13 @@ int CemcMon::process_event(Event *e /* evt */)
 	  {
 	    h2_waveform[phi_bin][eta_bin]->Fill(s,p->iValue(s,c));//for the moment only for good packet and with signal (potentially also bad packet later, not sure for zero suppressed)
 	  }
+	////Uninstrumented area
+	//if ((packet==6019)||(packet==6073)){
+	//  if(c>63&&c<128) continue;
+	//}
+	//if (packet==6030){
+	//  if(c>127)continue;
+	//}
 
         std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
         float signalFast = resultFast.at(0);

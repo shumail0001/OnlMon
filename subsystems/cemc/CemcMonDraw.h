@@ -45,18 +45,19 @@ class CemcMonDraw : public OnlMonDraw
   const int nTowersPhi{256};
   const int templateDepth{10000};
   const int nSEBs{1};//16;
+  const double SampleLowBoundary{4.5};
+  const double SampleHighBoundary{7.5};
   int save{0};
 
   TCanvas *TC[9]{nullptr};
   TCanvas *PopUpCanvas{nullptr};
   TPad *transparent[9]{nullptr};
-  TPad *Pad[18]{nullptr};
-  TPad *warning[18]{nullptr};
+  TPad *Pad[19]{nullptr};
+  TPad *warning[19]{nullptr};
 
   TPad ***PopUpPad{nullptr};
   TPad *PopUpTransparent{nullptr};
   TGraphErrors *gr[2]{nullptr};
-  TStyle* cemcStyle = nullptr;
   TProfile*** summedProfile{nullptr};
   TProfile*** AllProfiles{nullptr};
   TStyle *cemcStyle{nullptr};
