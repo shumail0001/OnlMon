@@ -559,15 +559,15 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
 
   TPaveText *bulbRed = new TPaveText(0.1, 0.82, 0.9, 0.92, "NDC");
   bulbRed->SetName("BulbRed");
-  formatPaveText(bulbRed, 0.05, kRed, 12, "#color[2]{It's Burning! Call The Expert!!!}");
+  formatPaveText(bulbRed, 0.05, kRed, 12, "#color[2]{MVTX has errors}");
 
   TPaveText *bulbYellow = new TPaveText(0.1, 0.82, 0.9, 0.92, "NDC");
   bulbYellow->SetName("BulbYellow");
-  formatPaveText(bulbYellow, 0.05, kRed, 12, "#color[808]{Did you break it? Call The Expert!}");
+  formatPaveText(bulbYellow, 0.05, kRed, 12, "#color[808]{MVTX has minor errors}");
 
   TPaveText *bulbGreen = new TPaveText(0.1, 0.82, 0.9, 0.92, "NDC");
   bulbGreen->SetName("BulbGreen");
-  formatPaveText(bulbGreen, 0.05, kGreen, 12, "#color[418]{Chill, Have Some Coffee}");
+  formatPaveText(bulbGreen, 0.05, kGreen, 12, "#color[418]{MVTX is OK}");
 
   TPaveText *bulb = new TPaveText(0.05, 0.05, 0.95, 0.95, "NDC");
 
