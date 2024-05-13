@@ -327,15 +327,25 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }      
   else if (name == "TpcMon_ServerStats")
   {
-    TC[22] = new TCanvas(name.c_str(), "TpcMon Server Stats", -1, 0, xsize, ysize);
+    TC[23] = new TCanvas(name.c_str(), "TpcMon Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     transparent[22] = new TPad("transparent22", "this does not show", 0, 0, 1, 1);
     transparent[22]->SetFillStyle(4000);
     transparent[22]->Draw();
-    TC[22]->SetEditable(false);
-    TC[22]->SetTopMargin(0.05);
-    TC[22]->SetBottomMargin(0.05);
+    TC[23]->SetEditable(false);
+    TC[23]->SetTopMargin(0.05);
+    TC[23]->SetBottomMargin(0.05);
+  }
+  else if (name == "TPCStuckChannels")
+  {
+    TC[24] = new TCanvas(name.c_str(), "TPC Stuck Channels in Events", -1, 0, xsize , ysize );
+    gSystem->ProcessEvents();
+    TC[24]->Divide(4,7);
+    transparent[23] = new TPad("transparent23", "this does not show", 0, 0, 1, 1);
+    transparent[23]->SetFillStyle(4000);
+    transparent[23]->Draw();
+    TC[24]->SetEditable(false);
   }      
   return 0;
 }
@@ -353,6 +363,11 @@ int TpcMonDraw::Draw(const std::string &what)
   {
     iret += DrawTPCSampleSize(what);
     idraw++;
+  }
+  if (what == "ALL" || what == "TPCSTUCKCHANNELS")
+  {
+    iret += DrawTPCStuckChannels(what);
+    idraw++; 
   }
   if (what == "ALL" || what == "TPCCHECKSUMERROR")
   {
@@ -731,7 +746,7 @@ int TpcMonDraw::DrawTPCCheckSum(const std::string & /* what */)
       TC[5]->cd(i+5);
 
       tpcmon_checksumerror[i]->Divide(tpcmon_checksums[i]);
-      tpcmon_checksumerror[i]->GetYaxis()->SetRangeUser(0.0001,1);
+      tpcmon_checksumerror[i]->GetYaxis()->SetRangeUser(0.0001,1.2);
       tpcmon_checksumerror[i]->DrawCopy("HIST");
     }
   }
@@ -2122,7 +2137,7 @@ int TpcMonDraw::DrawTPCXYlaserclusters(const std::string & /* what */)
     MakeCanvas("TPCClusterXY_laser");
   }  
 
-  TC[22]->SetEditable(true);
+  TC[22]->SetEditable(true); //after Chris' change need to skip 22
   TC[22]->Clear("D");
 
   TText PrintRun;
@@ -2231,6 +2246,68 @@ int TpcMonDraw::DrawTPCXYlaserclusters(const std::string & /* what */)
   return 0;
 }
 
+int TpcMonDraw::DrawTPCStuckChannels(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  
+  TH1 *tpcmon_stuckchannels[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_stuckchannels[i] = (TH1*) cl->getHisto(TPCMON_STR,"Stuck_Channels");
+    //if( !tpcmon_stuckchannels[i] ){std::cout<<"Not able to get stuck channel histo # "<<i<<std::endl;}
+  }
+
+  if (!gROOT->FindObject("TPCStuckChannels"))
+  {
+    MakeCanvas("TPCStuckChannels");
+  }
+
+  TC[24]->SetEditable(true);
+  TC[24]->Clear("D");
+  TC[24]->cd(1);
+
+  for( int i=0; i<24; i++ )
+  {
+    if( tpcmon_stuckchannels[i] )
+    {
+      TC[24]->cd(i+5);
+
+      tpcmon_stuckchannels[i]->GetYaxis()->SetRangeUser(0.01,300);
+      tpcmon_stuckchannels[i]->DrawCopy("HIST");
+
+      gPad->SetLogy(kTRUE);
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_StuckChannel Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[23]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  TC[24]->Update();
+  //TC[24]->SetLogy();
+  TC[24]->Show();
+  TC[24]->SetEditable(false);
+
+
+  return 0;
+}
+
+
 int TpcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
 
@@ -2317,8 +2394,8 @@ int TpcMonDraw::DrawServerStats()
   {
     MakeCanvas("TpcMon_ServerStats");
   }
-  TC[22]->Clear("D");
-  TC[22]->SetEditable(true);
+  TC[23]->Clear("D");
+  TC[23]->SetEditable(true);
   transparent[22]->cd();
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -2369,9 +2446,9 @@ int TpcMonDraw::DrawServerStats()
     vpos -= vdist;
     i++;
   }
-  TC[22]->Update();
-  TC[22]->Show();
-  TC[22]->SetEditable(false);
+  TC[23]->Update();
+  TC[23]->Show();
+  TC[23]->SetEditable(false);
 
   return 0;
 }

@@ -53,6 +53,7 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("sample_size_hist",servername);
     cl->registerHisto("Check_Sum_Error",servername);
     cl->registerHisto("Check_Sums",servername);
+    cl->registerHisto("Stuck_Channels",servername);
     cl->registerHisto("ADC_vs_SAMPLE",servername); 
     cl->registerHisto("ADC_vs_SAMPLE_large",servername);
     cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE",servername);
