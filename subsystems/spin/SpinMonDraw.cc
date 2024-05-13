@@ -544,7 +544,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   latPol->SetTextSize(textsize);
   latPol->SetTextColor(kBlack);
   latPol->SetNDC();
-  latPol->DrawLatex(0.15, 0.5, "CNI POLARIZATION");
+  latPol->DrawLatex(0.15, 0.5, "CNI POLARIZATION (%)");
 
   TLatex *t_PolBlue = new TLatex();
   t_PolBlue->SetTextFont(62);
