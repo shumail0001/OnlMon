@@ -55,11 +55,11 @@ class CemcMonDraw : public OnlMonDraw
   TPad *Pad[29]{nullptr};
   TPad *warning[29]{nullptr};
 
-  TPad ***PopUpPad{nullptr};
+  TPad *PopUpPad[8][8] {{nullptr}};
   TPad *PopUpTransparent{nullptr};
   TGraphErrors *gr[2]{nullptr};
-  TProfile*** summedProfile{nullptr};
-  TProfile*** AllProfiles{nullptr};
+  TProfile *summedProfile[8][8]{{nullptr}};
+  TProfile *AllProfiles[256][96]{{nullptr}};
   TStyle *cemcStyle{nullptr};
 };
 

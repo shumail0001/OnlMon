@@ -53,25 +53,6 @@ int CemcMonDraw::Init()
   gROOT->SetStyle("cemcStyle");
   gROOT->ForceStyle();
 
-  summedProfile=new TProfile**[8];
-  PopUpPad=new TPad**[8];
-  for(int i=0; i<8; i++){
-    summedProfile[i]=new TProfile*[8];
-    PopUpPad[i]=new TPad*[8];
-    for(int j=0; j<8; j++){
-      summedProfile[i][j]=nullptr;
-      PopUpPad[i][j]=nullptr;
-    }
-  }
-
-  AllProfiles = new TProfile**[256];
-  for(int i=0; i<256; i++){
-    AllProfiles[i]=new TProfile*[96];
-    for(int j=0; j<96; j++){
-      AllProfiles[i][j]=nullptr;
-    }
-  }
-
   return 0;
 }
 
@@ -282,6 +263,10 @@ int CemcMonDraw::Draw(const std::string &what)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
     iret = -1;
+  }
+  if (std::fabs(iret) != idraw) // at least one succeeded
+  {
+    return 0;
   }
   return iret;
 }
