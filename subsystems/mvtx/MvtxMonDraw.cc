@@ -724,8 +724,8 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
   }
  
   for (int iFelix = 0; iFelix <NFlx; iFelix++){
-    mvtxmon_ChipStave1D[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_RawData_ChipStave1D"));
-    mvtxmon_ChipFiredHis[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON_RawData_ChipFiredHis"));
+    mvtxmon_ChipStave1D[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"OCC_ChipStave1D"));
+    mvtxmon_ChipFiredHis[iFelix] = dynamic_cast<TH1D*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"OCC_ChipFiredHis"));
     hChipStrobes[iFelix] = dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"hChipStrobes"));
     hChipL1[iFelix] = dynamic_cast<TH1I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"hChipL1"));
   }

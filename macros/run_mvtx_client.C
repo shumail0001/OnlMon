@@ -20,8 +20,8 @@ void mvtxDrawInit(const int online = 0)
   {
     std::string instanceName = "MVTXMON_" + std::to_string(iflx);
     std::cout << instanceName << std::endl;
-    cl->registerHisto("MVTXMON_RawData_ChipStaveOcc", instanceName);
-    cl->registerHisto("MVTXMON_RawData_ChipStave1D", instanceName);
+    cl->registerHisto("OCC_ChipStaveOcc", instanceName);
+    cl->registerHisto("OCC_ChipStave1D", instanceName);
     cl->registerHisto("MVTXMON_RawData_ChipFiredHis", instanceName);
     cl->registerHisto("MVTXMON_RawData_EvtHitChip", instanceName);
     cl->registerHisto("MVTXMON_RawData_EvtHitDis", instanceName);

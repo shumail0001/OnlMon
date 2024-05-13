@@ -54,7 +54,7 @@ class MvtxMon : public OnlMon
 
   int mMaxGeneralAxisRange = -3;  // the range of TH2Poly plots z axis range, pow(10, mMinGeneralAxisRange) ~ pow(10, mMaxGeneralAxisRange)
   int mMinGeneralAxisRange = -12;
-  std::string mLaneStatusFlag[NFlags] = { "WARNING", "ERROR", "FAULT" };
+  std::string mLaneStatusFlag[NFlags] = { "WARNING", "ERROR", "FAULT" ,"PROBLEM"};
 
   const int StaveBoundary[4] = { 0, 12, 28, 48};
   const int LayerBoundaryFEE[NLAYERS - 1] = { 35, 83};
@@ -66,7 +66,7 @@ class MvtxMon : public OnlMon
   TH1 *mvtxmon_EvtHitDis= nullptr;
   TH2 *mvtxmon_HitMap[NSTAVE][NCHIP] = {nullptr}; 
   TH2Poly* mvtxmon_GeneralOccupancy = nullptr;
-  TH2Poly* mvtxmon_LaneStatusOverview[NFlags] = {nullptr}; 
+  TH2Poly* mvtxmon_LaneStatusOverview[NFlags+1] = {nullptr}; 
 
   TH1I* mRCDAQevt= nullptr;
 
