@@ -2,22 +2,22 @@
 
 Color_t INTT::GetFeeColor(int fee)
 {
-  switch(fee % 7)
+  switch (fee % 7)
   {
-	case 0:
-	  return (fee / 7) ? kGray + 3 : kBlack;
-    case 1:
-      return kRed + 3 * (fee / 7);
-    case 2:
-      return kYellow + 3 * (fee / 7);
-    case 3:
-      return kGreen + 3 * (fee / 7);
-    case 4:
-      return kCyan + 3 * (fee / 7);
-    case 5:
-      return kBlue + 3 * (fee / 7);
-    case 6:
-      return kMagenta + 3 * (fee / 7);
+  case 0:
+    return (fee / 7) ? kGray + 3 : kBlack;
+  case 1:
+    return kRed + 3 * (fee / 7);
+  case 2:
+    return kYellow + 3 * (fee / 7);
+  case 3:
+    return kGreen + 3 * (fee / 7);
+  case 4:
+    return kCyan + 3 * (fee / 7);
+  case 5:
+    return kBlue + 3 * (fee / 7);
+  case 6:
+    return kMagenta + 3 * (fee / 7);
   }
   return kBlack;
 }

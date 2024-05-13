@@ -21,7 +21,7 @@ class TStyle;
 
 class OnlMonClient : public OnlMonBase
 {
-public:
+ public:
   static OnlMonClient *instance();
   ~OnlMonClient() override;
   using OnlMonBase::Verbosity;
@@ -40,10 +40,10 @@ public:
   void registerHisto(const std::string &hname, const std::string &subsys);
   void Print(const char *what = "ALL");
   void PrintHistos(const std::string &what = "ALL");
-  
+
   void AddServerHost(const std::string &hostname);
   void registerDrawer(OnlMonDraw *Drawer);
-  int ReadHistogramsFromFile(const std::string &filename);
+  int ReadHistogramsFromFile(const std::string &filename, OnlMonDraw *drawer);
   int Draw(const char *who = "ALL", const char *what = "ALL");
   int MakePS(const char *who = "ALL", const char *what = "ALL");
   int MakeHtml(const char *who = "ALL", const char *what = "ALL");
@@ -83,10 +83,13 @@ public:
   void FindAllMonitors();
   int FindMonitor(const std::string &name);
   int IsMonitorRunning(const std::string &name);
-  std::string ExtractSubsystem(const std::string &filename);
+  std::string ExtractSubsystem(const std::string &filename, OnlMonDraw *drawer);
   int GetServerInfo();
-		    
-private:
+  std::map<std::string, std::tuple<bool, int, int, time_t>>::const_iterator GetServerMap(const std::string subsys) { return m_ServerStatsMap.find(subsys); }
+  std::map<std::string, std::tuple<bool, int, int, time_t>>::const_iterator GetServerMapEnd() { return m_ServerStatsMap.end(); }
+  OnlMonDraw *GetDrawer(const std::string &name);
+
+ private:
   OnlMonClient(const std::string &name = "ONLMONCLIENT");
   int DoSomething(const std::string &who, const std::string &what, const std::string &opt);
   void InitAll();
@@ -109,7 +112,7 @@ private:
   std::map<const std::string, ClientHistoList *> Histo;
   std::map<const std::string, OnlMonDraw *> DrawerList;
   std::vector<std::string> MonitorHosts;
-  std::map<std::string, std::tuple<bool, int, int>> m_ServerStats;
+  std::map<std::string, std::tuple<bool, int, int, time_t>> m_ServerStatsMap;
 };
 
 #endif /* ONLMONCLIENT_ONLMONCLIENT_H */

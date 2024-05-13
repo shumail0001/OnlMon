@@ -1,10 +1,15 @@
 #ifndef DAQ_DAQMON_H
 #define DAQ_DAQMON_H
 
-#include <onlmon/OnlMon.h>
 #include <TH2D.h>
+#include <onlmon/OnlMon.h>
 
 #include <vector>
+#include <fstream>
+#include <sstream>
+#include <map>
+#include <string>
+
 class Event;
 class TH1;
 class TH2;
@@ -18,15 +23,19 @@ class DaqMon : public OnlMon
   DaqMon(const std::string &name);
   virtual ~DaqMon();
 
-  int process_event(Event* evt);
+  int process_event(Event *evt);
   int Init();
   int BeginRun(const int runno);
   int Reset();
   int CaloPacketMap(int pnum);
+  void loadpacketMapping(const std::string& filename);
+  int getmapping(int packetid);
           
   uint32_t previousdiff[200] = {0};
   uint32_t clockdiff[200] = {0};
 
+ private:
+  std::map<int, int> packetMap;
 
  protected:
   Long64_t evtcnt = 0;
@@ -34,7 +43,6 @@ class DaqMon : public OnlMon
   int binindex = 0;
   int previndex = 0;
 
-  long long int nEventsCapture=10000000;
   int idummy = 0;
   int packetlow = 6001;
   int packethigh = 12001;
@@ -59,12 +67,36 @@ class DaqMon : public OnlMon
 
   TH1 *daqhist1 = nullptr;
   TH2 *daqhist2 = nullptr;
-  TH2D* h_gl1_clock_diff= nullptr;
-  TH2D* h_gl1_clock_diff_capture= nullptr;
+  TH2* h_gl1_clock_diff= nullptr;
+  TH2* h_fem_match= nullptr;
   //TH1D* h_unlock_hist = nullptr;
   //TH2* h_unlock_clock = nullptr;
 
   eventReceiverClient *erc = {nullptr};
 };
+
+void DaqMon::loadpacketMapping(const std::string& filename) {
+    std::ifstream file(filename);
+    std::string line;
+    int packetId, seb;
+    std::getline(file, line);
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        if (iss >> packetId >> seb) {
+            packetMap[packetId] = seb;
+        }
+    }
+    file.close();
+}
+
+int DaqMon::getmapping(int packetid) {
+    auto it = packetMap.find(packetid);
+    if (it != packetMap.end()) {
+        return it->second;
+    } else {
+        std::cerr << "Packet ID not found in the mapping." << std::endl;
+        return -1; 
+    }
+}
 
 #endif /* DAQ_DAQMON_H */

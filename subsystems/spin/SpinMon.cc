@@ -285,6 +285,7 @@ int SpinMon::process_event(Event *e /* evt */)
       int numbluefill = 0;
       for (int i = 0; i < 360; i += 3)
       {
+	blueFillPattern[i / 3] = pBlueIntPattern->iValue(i);
         if (pBlueIntPattern->iValue(i))
         {
           blueSpinPattern[i / 3] = pBluePolPattern->iValue(i);
@@ -321,6 +322,7 @@ int SpinMon::process_event(Event *e /* evt */)
       int numyellfill = 0;
       for (int i = 0; i < 360; i += 3)
       {
+	yellFillPattern[i / 3] = pYellIntPattern->iValue(i);
         if (pYellIntPattern->iValue(i))
         {
           yellSpinPattern[i / 3] = pYellPolPattern->iValue(i);
@@ -456,7 +458,7 @@ int SpinMon::process_event(Event *e /* evt */)
 
     //========================//
 
-    if (!success && evtcnt > 4999 && evtcnt % 5000 == 0)
+    if (evtcnt > 4999 && evtcnt % 5000 == 0)
     {
       CalculateCrossingShift(xingshift, scalercounts, success);
 
@@ -511,9 +513,18 @@ int SpinMon::CalculateCrossingShift(int &xing, uint64_t counts[NTRIG][NBUNCHES],
     for (int ishift = 0; ishift < NBUNCHES; ishift++)
     {
       long long abort_sum = 0;
-      for (int iabortbunch = NBUNCHES - 9; iabortbunch < NBUNCHES; iabortbunch++)
+      for (int iunfillbunch = 0; iunfillbunch < NBUNCHES; iunfillbunch++)
       {
-        abort_sum += counts[itrig][(iabortbunch + ishift) % NBUNCHES];
+	if (blueFillPattern[iunfillbunch] && yellFillPattern[iunfillbunch])
+	{
+	  continue;
+	}
+	int shiftbunch = iunfillbunch - ishift;
+	if (shiftbunch < 0)
+	{
+	  shiftbunch = 120 + shiftbunch;
+	}
+        abort_sum += counts[itrig][(shiftbunch) % NBUNCHES];
       }
       if (abort_sum < abort_sum_prev)
       {

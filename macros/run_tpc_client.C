@@ -4,81 +4,82 @@
 
 #include <onlmon/OnlMonClient.h>
 
+//const std::string DrawerName = "TPCMONDRAW";
+
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpcmon_client.so)
 
 void tpcDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
+  OnlMonDraw *tpcmon = new TpcMonDraw("TPCMONDRAW");  // create Drawing Object
   // register histos we want with monitor name
-  cl->registerHisto("tpcmon_hist1", "TPCMON_0");
-  cl->registerHisto("tpcmon_hist2", "TPCMON_0");
 
-  char TPCMON_STR[100];
   // TPC ADC pie chart
-  for( int i=0; i<24; i++ )
-  //for( int i: {1,20} )
+  for (int serverid = 0; serverid < 24; serverid++)
   {
-    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    std::string servername = "TPCMON_" + std::to_string(serverid);
+    tpcmon->AddServer(servername);
     //std::cout<<"You registered the NSIDEADC/SSIDEADC "<<i<<" histo"<<std::endl;
 
-    cl->registerHisto("NorthSideADC", TPCMON_STR);
+    cl->registerHisto("NorthSideADC", servername);
 
-    cl->registerHisto("NorthSideADC_clusterXY_R1", TPCMON_STR);
-    cl->registerHisto("NorthSideADC_clusterXY_R2", TPCMON_STR);
-    cl->registerHisto("NorthSideADC_clusterXY_R3", TPCMON_STR);
+    cl->registerHisto("NorthSideADC_clusterXY_R1", servername);
+    cl->registerHisto("NorthSideADC_clusterXY_R2", servername);
+    cl->registerHisto("NorthSideADC_clusterXY_R3", servername);
 
-    cl->registerHisto("NorthSideADC_clusterXY_R1_LASER", TPCMON_STR);
-    cl->registerHisto("NorthSideADC_clusterXY_R2_LASER", TPCMON_STR);
-    cl->registerHisto("NorthSideADC_clusterXY_R3_LASER", TPCMON_STR);
+    cl->registerHisto("NorthSideADC_clusterXY_R1_LASER", servername);
+    cl->registerHisto("NorthSideADC_clusterXY_R2_LASER", servername);
+    cl->registerHisto("NorthSideADC_clusterXY_R3_LASER", servername);
 
-    cl->registerHisto("NorthSideADC_clusterXY_R1_unw", TPCMON_STR);
-    cl->registerHisto("NorthSideADC_clusterXY_R2_unw", TPCMON_STR);
-    cl->registerHisto("NorthSideADC_clusterXY_R3_unw", TPCMON_STR);
+    cl->registerHisto("NorthSideADC_clusterXY_R1_unw", servername);
+    cl->registerHisto("NorthSideADC_clusterXY_R2_unw", servername);
+    cl->registerHisto("NorthSideADC_clusterXY_R3_unw", servername);
 
-    cl->registerHisto("SouthSideADC", TPCMON_STR);
+    cl->registerHisto("SouthSideADC", servername);
 
-    cl->registerHisto("SouthSideADC_clusterXY_R1", TPCMON_STR);
-    cl->registerHisto("SouthSideADC_clusterXY_R2", TPCMON_STR);
-    cl->registerHisto("SouthSideADC_clusterXY_R3", TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterXY_R1", servername);
+    cl->registerHisto("SouthSideADC_clusterXY_R2", servername);
+    cl->registerHisto("SouthSideADC_clusterXY_R3", servername);
 
-    cl->registerHisto("SouthSideADC_clusterXY_R1_LASER", TPCMON_STR);
-    cl->registerHisto("SouthSideADC_clusterXY_R2_LASER", TPCMON_STR);
-    cl->registerHisto("SouthSideADC_clusterXY_R3_LASER", TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterXY_R1_LASER", servername);
+    cl->registerHisto("SouthSideADC_clusterXY_R2_LASER", servername);
+    cl->registerHisto("SouthSideADC_clusterXY_R3_LASER", servername);
 
-    cl->registerHisto("SouthSideADC_clusterXY_R1_unw", TPCMON_STR);
-    cl->registerHisto("SouthSideADC_clusterXY_R2_unw", TPCMON_STR);
-    cl->registerHisto("SouthSideADC_clusterXY_R3_unw", TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterXY_R1_unw", servername);
+    cl->registerHisto("SouthSideADC_clusterXY_R2_unw", servername);
+    cl->registerHisto("SouthSideADC_clusterXY_R3_unw", servername);
 
-    cl->registerHisto("sample_size_hist",TPCMON_STR);
-    cl->registerHisto("Check_Sum_Error",TPCMON_STR);
-    cl->registerHisto("Check_Sums",TPCMON_STR);
-    cl->registerHisto("ADC_vs_SAMPLE",TPCMON_STR); 
-    cl->registerHisto("ADC_vs_SAMPLE_large",TPCMON_STR);
-    cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE",TPCMON_STR);
-    cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE_R1",TPCMON_STR);
-    cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE_R2",TPCMON_STR);
-    cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE_R3",TPCMON_STR);
-    cl->registerHisto("MAXADC",TPCMON_STR);
+    cl->registerHisto("sample_size_hist",servername);
+    cl->registerHisto("Check_Sum_Error",servername);
+    cl->registerHisto("Check_Sums",servername);
+    cl->registerHisto("Stuck_Channels",servername);
+    cl->registerHisto("ADC_vs_SAMPLE",servername); 
+    cl->registerHisto("ADC_vs_SAMPLE_large",servername);
+    cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE",servername);
+    cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE_R1",servername);
+    cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE_R2",servername);
+    cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE_R3",servername);
+    cl->registerHisto("MAXADC",servername);
 
-    cl->registerHisto("RAWADC_1D_R1",TPCMON_STR);
-    cl->registerHisto("MAXADC_1D_R1",TPCMON_STR);
-    cl->registerHisto("PEDEST_SUB_1D_R1",TPCMON_STR);
-    cl->registerHisto("RAWADC_1D_R2",TPCMON_STR);
-    cl->registerHisto("MAXADC_1D_R2",TPCMON_STR);
-    cl->registerHisto("PEDEST_SUB_1D_R2",TPCMON_STR);
-    cl->registerHisto("RAWADC_1D_R3",TPCMON_STR);
-    cl->registerHisto("MAXADC_1D_R3",TPCMON_STR);
-    cl->registerHisto("PEDEST_SUB_1D_R3",TPCMON_STR);
+    cl->registerHisto("RAWADC_1D_R1",servername);
+    cl->registerHisto("MAXADC_1D_R1",servername);
+    cl->registerHisto("PEDEST_SUB_1D_R1",servername);
+    cl->registerHisto("RAWADC_1D_R2",servername);
+    cl->registerHisto("MAXADC_1D_R2",servername);
+    cl->registerHisto("PEDEST_SUB_1D_R2",servername);
+    cl->registerHisto("RAWADC_1D_R3",servername);
+    cl->registerHisto("MAXADC_1D_R3",servername);
+    cl->registerHisto("PEDEST_SUB_1D_R3",servername);
 
-    cl->registerHisto("NorthSideADC_clusterZY", TPCMON_STR);
-    cl->registerHisto("SouthSideADC_clusterZY", TPCMON_STR);
+    cl->registerHisto("NorthSideADC_clusterZY", servername);
+    cl->registerHisto("SouthSideADC_clusterZY", servername);
 
-    cl->registerHisto("NorthSideADC_clusterZY_unw",TPCMON_STR);
-    cl->registerHisto("SouthSideADC_clusterZY_unw",TPCMON_STR);
+    cl->registerHisto("NorthSideADC_clusterZY_unw",servername);
+    cl->registerHisto("SouthSideADC_clusterZY_unw",servername);
 
-    cl->registerHisto("Layer_ChannelPhi_ADC_weighted",TPCMON_STR);
-    cl->registerHisto("NEvents_vs_EBDC",TPCMON_STR);
+    cl->registerHisto("Layer_ChannelPhi_ADC_weighted",servername);
+    cl->registerHisto("NEvents_vs_EBDC",servername);
   } //
 
 
@@ -89,31 +90,22 @@ void tpcDrawInit(const int online = 0)
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
 
-  for( int i=0; i<24; i++ )
-  //for( int i: {1,20} )
+   for (auto iter = tpcmon->ServerBegin(); iter != tpcmon->ServerEnd(); ++iter)
   {
-    sprintf(TPCMON_STR,"TPCMON_%i",i);
-    cl->requestHistoBySubSystem(TPCMON_STR, 1);
+    cl->requestHistoBySubSystem(iter->c_str(), 1);
   }
 
-  OnlMonDraw *tpcmon = new TpcMonDraw("TPCMONDRAW");  // create Drawing Object
   cl->registerDrawer(tpcmon);             // register with client framework
 }
 
 void tpcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-
-  char TPCMON_STR[100];
-
-  for( int i=0; i<24; i++ )
-  //for( int i: {1,20} )
+  OnlMonDraw *mvtxmon = cl->GetDrawer("TPCMONDRAW");  // get pointer to this drawer
+  for (auto iter = mvtxmon->ServerBegin(); iter != mvtxmon->ServerEnd(); ++iter)
   {
-    sprintf(TPCMON_STR,"TPCMON_%i",i);
-    cl->requestHistoBySubSystem(TPCMON_STR, 1);
+    cl->requestHistoBySubSystem(iter->c_str(), 1);
   }
-
-
   cl->Draw("TPCMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 

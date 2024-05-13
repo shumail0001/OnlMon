@@ -80,9 +80,6 @@ class TpcMon : public OnlMon
   TH2 *NorthSideADC_clusterZY_unw = nullptr;
   TH2 *SouthSideADC_clusterZY_unw = nullptr;
 
-  TH1 *tpchist1 = nullptr;
-  TH2 *tpchist2 = nullptr;
-  
   TH2 *NorthSideADC = nullptr;
   TH2 *SouthSideADC = nullptr;
 
@@ -96,6 +93,7 @@ class TpcMon : public OnlMon
   TH1 *sample_size_hist = nullptr;
   TH1 *Check_Sum_Error = nullptr;
   TH1 *Check_Sums = nullptr;
+  TH1 *Stuck_Channels = nullptr;
 
   TH2 *MAXADC = nullptr;
 
@@ -121,6 +119,8 @@ class TpcMon : public OnlMon
   int current_BCOBIN;
 
   int serverid;
+
+  int stuck_channel_count [256][26] = {0}; // array for counting # of times a unique channel get stuck
 
   void Locate(int id, float *rbin, float *thbin);
   int Index_from_Module(int sec_id, int fee_id);

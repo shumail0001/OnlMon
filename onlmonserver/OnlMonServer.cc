@@ -336,7 +336,7 @@ OnlMonServer::getHistoName(const unsigned int ihisto) const
         << ihisto << ", maximum number is " << size;
     send_message(MSG_SEV_ERROR, msg.str(), 6);
   }
-  return nullptr;
+  return "";
 }
 
 TH1 *OnlMonServer::getHisto(const std::string &subsys, const std::string &hname) const
