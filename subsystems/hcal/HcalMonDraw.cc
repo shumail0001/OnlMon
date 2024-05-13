@@ -326,6 +326,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   h2_hcal_time->Add(h2_hcal_time_1);
   // h_event->Add(h_event_1);
 
+
   // h2_hcal_mean->Scale(1. / h_event->GetEntries());
   // hist1->Divide(h2_hcal_mean);
 
@@ -1673,6 +1674,8 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TH2F* h2_hcal_hits_trig2_2 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits_trig2");
   TH2F* h2_hcal_hits_trig3_2 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits_trig3");
   TH2F* h2_hcal_hits_trig4_2 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits_trig4");
+  TH2F* pr_zsFrac_etaphi_1 = (TH2F*) cl->getHisto(HCALMON_1, "pr_zsFrac_etaphi");
+  TH2F* pr_zsFrac_etaphi   = (TH2F*) cl->getHisto(HCALMON_0, "pr_zsFrac_etaphi");
 
   TH2F* h2_hcal_hits = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
   TH2F* h_evtRec = (TH2F*) cl->getHisto(HCALMON_0, "h_evtRec");
@@ -1687,7 +1690,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TC[6]->SetEditable(true);
   TC[6]->Clear("D");
   Pad[16]->cd();
-  if (!h2_hcal_hits_trig4 || !h2_hcal_hits_trig3 || !h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2 || !h_evtRec || !h2_hcal_hits_trig4_2 || !h2_hcal_hits_trig3_2 || !h2_hcal_hits_trig1_2 || !h2_hcal_hits_trig2_2)
+  if (!h2_hcal_hits_trig4 || !h2_hcal_hits_trig3 || !h2_hcal_hits_trig1 || !h2_hcal_hits || !h_hcal_trig || !h_caloPack_gl1_clock_diff || !h2_hcal_hits_trig2 || !h_evtRec || !h2_hcal_hits_trig4_2 || !h2_hcal_hits_trig3_2 || !h2_hcal_hits_trig1_2 || !h2_hcal_hits_trig2_2 || !pr_zsFrac_etaphi || !pr_zsFrac_etaphi_1) 
   {
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(false);
@@ -1703,6 +1706,8 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   h2_hcal_hits_trig2->Add(h2_hcal_hits_trig2_2);
   h2_hcal_hits_trig3->Add(h2_hcal_hits_trig3_2);
   h2_hcal_hits_trig4->Add(h2_hcal_hits_trig4_2);
+
+  pr_zsFrac_etaphi->Add(pr_zsFrac_etaphi_1);
 
   Pad[16]->cd();
   gStyle->SetTitleFontSize(0.03);
@@ -1793,15 +1798,24 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   gStyle->SetTitleFontSize(0.06);
 
   h2_hcal_hits_trig4->Draw("colz");
+  //h2_hcal_hits_trig4->GetXaxis()->SetNdivisions(510, kTRUE);
+  //h2_hcal_hits_trig4->GetXaxis()->SetTitle("trig 4 req  ieta");
+  //h2_hcal_hits_trig4->GetYaxis()->SetTitle("iphi");
+  //h2_hcal_hits_trig4->GetXaxis()->SetLabelSize(tsize2);
+  //h2_hcal_hits_trig4->GetYaxis()->SetLabelSize(tsize2);
+  //h2_hcal_hits_trig4->GetXaxis()->SetTitleSize(tsize2);
+  //h2_hcal_hits_trig4->GetYaxis()->SetTitleSize(tsize2);
+  //h2_hcal_hits_trig4->GetXaxis()->SetTitleOffset(1.0);
+  //h2_hcal_hits_trig4->GetYaxis()->SetTitleOffset(0.85);
   h2_hcal_hits_trig4->GetXaxis()->SetNdivisions(510, kTRUE);
-  h2_hcal_hits_trig4->GetXaxis()->SetTitle("trig 4 req  ieta");
-  h2_hcal_hits_trig4->GetYaxis()->SetTitle("iphi");
-  h2_hcal_hits_trig4->GetXaxis()->SetLabelSize(tsize2);
-  h2_hcal_hits_trig4->GetYaxis()->SetLabelSize(tsize2);
-  h2_hcal_hits_trig4->GetXaxis()->SetTitleSize(tsize2);
-  h2_hcal_hits_trig4->GetYaxis()->SetTitleSize(tsize2);
-  h2_hcal_hits_trig4->GetXaxis()->SetTitleOffset(1.0);
-  h2_hcal_hits_trig4->GetYaxis()->SetTitleOffset(0.85);
+  pr_zsFrac_etaphi->GetXaxis()->SetTitle("unsuppressed fraction ieta");
+  pr_zsFrac_etaphi->GetYaxis()->SetTitle("iphi");
+  pr_zsFrac_etaphi->GetXaxis()->SetLabelSize(tsize2);
+  pr_zsFrac_etaphi->GetYaxis()->SetLabelSize(tsize2);
+  pr_zsFrac_etaphi->GetXaxis()->SetTitleSize(tsize2);
+  pr_zsFrac_etaphi->GetYaxis()->SetTitleSize(tsize2);
+  pr_zsFrac_etaphi->GetXaxis()->SetTitleOffset(1.0);
+  pr_zsFrac_etaphi->GetYaxis()->SetTitleOffset(0.85);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);

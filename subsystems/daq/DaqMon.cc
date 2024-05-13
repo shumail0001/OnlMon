@@ -36,22 +36,17 @@ enum
 DaqMon::DaqMon(const std::string &name)
   : OnlMon(name)
 {
-  // leave ctor fairly empty, its hard to debug if code crashes already
-  // during a new DaqMon()
-
   return;
 }
 
 DaqMon::~DaqMon()
 {
-  // you can delete NULL pointers it results in a NOOP (No Operation)
   return;
 }
 
 int DaqMon::Init()
 {
   gRandom->SetSeed(rand());
-  // read our calibrations from DaqMonData.dat
   const char *daqcalib = getenv("DAQCALIB");
   if (!daqcalib)
   {
@@ -61,60 +56,54 @@ int DaqMon::Init()
   std::string fullfile = std::string(daqcalib) + "/" + "DaqMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
-  // use printf for stuff which should go the screen but not into the message
-  // system (all couts are redirected)
   printf("doing the Init\n");
 
-  h_gl1_clock_diff = new TH2D("h_gl1_clock_diff", "", 6, 0, 6, 2, -0.5, 1.5);
-  h_gl1_clock_diff_capture = new TH2D("h_gl1_clock_diff_capture", "", 200, 0, nEventsCapture, 6, 0, 6);
+  h_gl1_clock_diff = new TH2F("h_gl1_clock_diff","", 6, 0,6, 2, -0.5, 1.5);
   h_gl1_clock_diff->GetXaxis()->SetTitleSize(0);
   h_gl1_clock_diff->GetYaxis()->SetNdivisions(202);
   h_gl1_clock_diff->GetXaxis()->SetNdivisions(101);
-  h_gl1_clock_diff->GetYaxis()->SetBinLabel(1, "#bf{Unlocked}");
-  h_gl1_clock_diff->GetYaxis()->SetBinLabel(2, "#bf{Locked}");
-  h_gl1_clock_diff->GetXaxis()->SetBinLabel(1, "#bf{MBD}");
-  h_gl1_clock_diff->GetXaxis()->SetBinLabel(2, "#bf{EMCal}");
-  h_gl1_clock_diff->GetXaxis()->SetBinLabel(3, "#bf{IHCal}");
-  h_gl1_clock_diff->GetXaxis()->SetBinLabel(4, "#bf{OHCal}");
-  h_gl1_clock_diff->GetXaxis()->SetBinLabel(5, "#bf{sEPD}");
-  h_gl1_clock_diff->GetXaxis()->SetBinLabel(6, "#bf{ZDC}");
-  h_gl1_clock_diff_capture->GetXaxis()->SetTitle("Latest 1M events");
-  h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(1, "#bf{MBD}");
-  h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(2, "#bf{EMCal}");
-  h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(3, "#bf{IHCal}");
-  h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(4, "#bf{OHCal}");
-  h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(5, "#bf{sEPD}");
-  h_gl1_clock_diff_capture->GetYaxis()->SetBinLabel(6, "#bf{ZDC}");
+  h_gl1_clock_diff->GetYaxis()->SetBinLabel(1,"#bf{Unlocked}");
+  h_gl1_clock_diff->GetYaxis()->SetBinLabel(2,"#bf{Locked}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(1,"#bf{MBD}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(2,"#bf{EMCal}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(3,"#bf{IHCal}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(4,"#bf{OHCal}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(5,"#bf{sEPD}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(6,"#bf{ZDC}");
 
-  // int nbins = packet_zdc-packet_mbd_low + 1;
-  // h_unlock_hist = new TH1D("h_unlock_hist",";packet number;",nbins,packet_mbd_low-0.5,packet_zdc+0.5);
-  // h_unlock_clock = new TH2F("h_unlock_clock",";Type;Clock",2,0,2,42949672,0,42949672);
-
+  h_fem_match = new TH2F("h_fem_match","", 20, -0.5,19.5, 1, 0.5, 1.5);
+  h_fem_match->GetXaxis()->SetTitle("Latest 1M events");
+  for(int is=0;is<10;is++){
+      h_fem_match->GetXaxis()->SetBinLabel(is+1,Form("seb0%d",is));
+  }
+  for(int is=10;is<19;is++){
+      h_fem_match->GetXaxis()->SetBinLabel(is+1,Form("seb%d",is));
+  }
+  h_fem_match->GetXaxis()->SetBinLabel(20,"seb20");
+  
   OnlMonServer *se = OnlMonServer::instance();
-  // register histograms with server otherwise client won't get them
-  se->registerHisto(this, h_gl1_clock_diff);
-  se->registerHisto(this, h_gl1_clock_diff_capture);
-  //  se->registerHisto(this, h_unlock_hist);
-  //  se->registerHisto(this, h_unlock_clock);
+  se->registerHisto(this, h_gl1_clock_diff);  
+  se->registerHisto(this, h_fem_match); 
   Reset();
   erc = new eventReceiverClient("gl1daq");
+
+  loadpacketMapping("packetid_seb_mapping.txt");
+
   return 0;
 }
 
 int DaqMon::BeginRun(const int /* runno */)
 {
-  // if you need to read calibrations on a run by run basis
-  // this is the place to do it
   return 0;
 }
 
 int DaqMon::process_event(Event *e /* evt */)
 {
-  if (e->getEvtType() >= 8)  /// special event where we do not read out the calorimeters
-  {
-    return 0;
-  }
-
+    if (e->getEvtType() >= 8) 
+    {
+        return 0;
+    }
+  
   int evtnr = e->getEvtSequence();
   if (evtnr < 3)
   {
@@ -122,16 +111,6 @@ int DaqMon::process_event(Event *e /* evt */)
   }
 
   evtcnt++;
-
-  if (gevtcnt < nEventsCapture)
-  {
-    binindex = (gevtcnt * 200) / nEventsCapture + 1;
-    gevtcnt++;
-    if (gevtcnt == nEventsCapture)
-    {
-      gevtcnt = 0;
-    }
-  }
   long int gl1_clock = 0;
   Event *gl1Event = erc->getEvent(evtnr);
 
@@ -148,38 +127,33 @@ int DaqMon::process_event(Event *e /* evt */)
   delete gl1Event;
 
   Packet *plist[100];
-  int npackets = e->getPacketList(plist, 100);
-  for (int ipacket = 0; ipacket < npackets; ipacket++)
-  {
-    Packet *p = plist[ipacket];
-    if (p != nullptr)
-    {
-      int pnum = p->getIdentifier();
-      int calomapid = CaloPacketMap(pnum);
-      long int packet_clock = p->lValue(0, "CLOCK");
-      clockdiff[ipacket] = gl1_clock - packet_clock;
-      int fdiff = (clockdiff[ipacket] != previousdiff[ipacket]) ? 0 : 1;
-      if (gevtcnt > 1 && evtcnt > 3)
-      {
-        if (binindex > previndex || fdiff == 0)
-        {
-          h_gl1_clock_diff_capture->SetBinContent(binindex, calomapid + 1, fdiff);
-        }
-        previndex = binindex;
+  int npackets = e->getPacketList(plist,100);
+  for (int ipacket = 0; ipacket < npackets; ipacket++) {
+      Packet * p = plist[ipacket];
+      if (p) {
+          int pnum = p->getIdentifier();
+          int calomapid = CaloPacketMap(pnum);
+          long int packet_clock = p->lValue(0,"CLOCK");
+          clockdiff[ipacket] = gl1_clock  - packet_clock;
+          int fdiff = (clockdiff[ipacket] != previousdiff[ipacket]) ? 0 : 1;
+          previousdiff[ipacket] = clockdiff[ipacket];
+          
+          int nADCs = p->iValue(0,"NRMODULES");
+          int femevt = 0;
+          int femclk = 0;
+          bool mismatchfem = true;
+          for(int iadc = 0; iadc<nADCs ; iadc++){
+              femevt = p->iValue(iadc,"FEMEVTNR");
+              femclk = p->iValue(iadc,"FEMCLOCK");
+              if(femevt != p->iValue(0,"FEMEVTNR") || fabs(femclk - p->iValue(0,"FEMCLOCK"))>2) mismatchfem = false;
+          }
+          
+          int sebid = getmapping(pnum);
+          if(mismatchfem == false) h_fem_match->Fill(sebid,1);
+          if(evtcnt>3) h_gl1_clock_diff->Fill(calomapid,fdiff);
+          
       }
-      if (evtcnt > 3)
-      {
-        h_gl1_clock_diff->Fill(calomapid, fdiff);
-      }
-      //          if(fdiff==0){
-      //              h_unlock_hist ->Fill(pnum);
-      //              h_unlock_clock -> Fill(0., gl1_clock);
-      //              h_unlock_clock -> Fill(1., packet_clock);
-      //          }
-
-      previousdiff[ipacket] = clockdiff[ipacket];
-    }
-    delete p;
+      delete p;
   }
 
   return 0;
@@ -187,8 +161,7 @@ int DaqMon::process_event(Event *e /* evt */)
 
 int DaqMon::Reset()
 {
-  // reset our internal counters
-  // evtcnt = 0;
+  evtcnt = 0;
   idummy = 0;
   return 0;
 }
