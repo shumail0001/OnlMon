@@ -72,6 +72,8 @@ class MvtxMon : public OnlMon
 
   TH1I* hChipStrobes = nullptr;
   TH1I* hChipL1 = nullptr;
+  TH1I* hfeeidStrobes = nullptr;
+  TH1I* hfeeidL1 = nullptr;
   // fee
   TH2I* mTriggerVsFeeId = nullptr;
   TH1I* mTrigger = nullptr;
@@ -96,9 +98,9 @@ class MvtxMon : public OnlMon
   TH2Poly* mGeneralOccupancy = nullptr;
   TH2Poly* mGeneralNoisyPixel = nullptr;
   TH2D* mDeadChipPos[NLAYERS] = {nullptr};
-  TH2D* mAliveChipPos[NLAYERS] = {nullptr};
-  TH2D* mTotalDeadChipPos = nullptr;
-  TH2D* mTotalAliveChipPos = nullptr;
+  //TH2D* mAliveChipPos[NLAYERS] = {nullptr};
+  //TH2D* mTotalDeadChipPos = nullptr;
+  //TH2D* mTotalAliveChipPos = nullptr;
   TH2D* mChipStaveOccupancy[NLAYERS] = {nullptr};
   TH1D* mOccupancyPlot[NLAYERS] = {nullptr};
   TH2D* hChipStaveNoisy[NLAYERS] = {nullptr};

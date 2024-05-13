@@ -306,21 +306,13 @@ int MvtxMon::Init()
     mDeadChipPos[mLayer]->GetXaxis()->SetTitle("Chip Number");
     mDeadChipPos[mLayer]->GetYaxis()->SetTitle("Stave Number");
     mDeadChipPos[mLayer]->SetStats(false);
-    mAliveChipPos[mLayer] = new TH2D(Form("MVTXMON_Occupancy_Layer%d_Layer%dAliveChipPos", mLayer, mLayer), Form("Fraction of RCDAQ events a chip received data on Layer %d", mLayer), 9, -0.5, 9 - 0.5, NStaves[mLayer], -0.5, NStaves[mLayer] - 0.5);
-    mAliveChipPos[mLayer]->GetXaxis()->SetTitle("Chip Number");
-    mAliveChipPos[mLayer]->GetYaxis()->SetTitle("Stave Number");
-    mAliveChipPos[mLayer]->SetStats(false);
+    //mAliveChipPos[mLayer] = new TH2D(Form("MVTXMON_Occupancy_Layer%d_Layer%dAliveChipPos", mLayer, mLayer), Form("Fraction of RCDAQ events a chip received data on Layer %d", mLayer), 9, -0.5, 9 - 0.5, NStaves[mLayer], -0.5, NStaves[mLayer] - 0.5);
+    //mAliveChipPos[mLayer]->GetXaxis()->SetTitle("Chip Number");
+    //mAliveChipPos[mLayer]->GetYaxis()->SetTitle("Stave Number");
+    //mAliveChipPos[mLayer]->SetStats(false);
 
     mDeadChipPos[mLayer]->SetStats(false);
-    mAliveChipPos[mLayer]->SetStats(false);
-
-    for (int binx = 0; binx < mDeadChipPos[mLayer]->GetNbinsX(); binx++)
-    {
-      for (int biny = 0; biny < mDeadChipPos[mLayer]->GetNbinsY(); biny++)
-      {
-        mDeadChipPos[mLayer]->SetBinContent(binx + 1, biny + 1, 1);
-      }
-    }
+    //mAliveChipPos[mLayer]->SetStats(false);
 
     mOccupancyPlot[mLayer] = new TH1D(Form("MVTXMON_Occupancy_Layer%dOccupancy_LOG", mLayer), Form("MVTX Layer %d Noise pixels occupancy distribution", mLayer), 301, -3, 0.05);
     mOccupancyPlot[mLayer]->GetXaxis()->SetTitle("log(Occupancy)");
@@ -331,7 +323,7 @@ int MvtxMon::Init()
     se->registerHisto(this, mOccupancyPlot[mLayer]);
   }
 
-  mTotalDeadChipPos = new TH2D(Form("MVTXMON_Occupancy_TotalDeadChipPos"), Form("TotalDeadChipPos "), 9, -0.5, 9 - 0.5, NStaves[2], -0.5, NStaves[2] - 0.5);
+  /*mTotalDeadChipPos = new TH2D(Form("MVTXMON_Occupancy_TotalDeadChipPos"), Form("TotalDeadChipPos "), 9, -0.5, 9 - 0.5, NStaves[2], -0.5, NStaves[2] - 0.5);
   mTotalDeadChipPos->GetXaxis()->SetTitle("Chip Number");
   mTotalDeadChipPos->GetYaxis()->SetTitle("Stave Number");
   se->registerHisto(this, mTotalDeadChipPos);
@@ -339,7 +331,7 @@ int MvtxMon::Init()
   mTotalAliveChipPos = new TH2D(Form("MVTXMON_Occupancy_TotalAliveChipPos"), Form("TotalAliveChipPos "), 9, -0.5, 9 - 0.5, NStaves[2], -0.5, NStaves[2] - 0.5);
   mTotalAliveChipPos->GetXaxis()->SetTitle("Chip Number");
   mTotalAliveChipPos->GetYaxis()->SetTitle("Stave Number");
-  se->registerHisto(this, mTotalAliveChipPos);
+  se->registerHisto(this, mTotalAliveChipPos);*/
 
   Reset();
   return 0;
@@ -356,12 +348,12 @@ int MvtxMon::process_event(Event* evt)
 {
   evtcnt++;
   mRCDAQevt->Fill(this->MonitorServerId());
-  std::cout << "Processing Event " << evtcnt << std::endl;
+
   OnlMonServer* se = OnlMonServer::instance();
 
   plist = new Packet*[2];
-  // SingleMvtxInput *reader = new SingleMvtxInput("onlmonreader");
 
+  //per event resets
   for (int l = 0; l < NLAYERS; l++)
   {
     for (int i = 0; i < NStaves[l]; i++)
@@ -386,7 +378,7 @@ int MvtxMon::process_event(Event* evt)
 
   if (npackets > 2)
   {
-    exit(1);
+    return 0;
   }
 
   for (int i = 0; i < npackets; i++)
@@ -418,16 +410,15 @@ int MvtxMon::process_event(Event* evt)
         for (int iL1 = 0; iL1 < num_L1Trgs; ++iL1)
         {
           // auto l1Trg_bco = plist[i]->lValue(feeId, iL1, "L1_IR_BCO");
-          hChipL1->Fill((StaveBoundary[link.layer] + link.stave) * 9 + 3 * link.gbtid + 0);  // same for chip id 0 1 and 2
-          hChipL1->Fill((StaveBoundary[link.layer] + link.stave) * 9 + 3 * link.gbtid + 1);
-          hChipL1->Fill((StaveBoundary[link.layer] + link.stave) * 9 + 3 * link.gbtid + 2);
+          hChipL1->Fill((StaveBoundary[link.layer] + link.stave % 20) * 9 + 3 * link.gbtid + 0);  // same for chip id 0 1 and 2
+          hChipL1->Fill((StaveBoundary[link.layer] + link.stave % 20) * 9 + 3 * link.gbtid + 1);
+          hChipL1->Fill((StaveBoundary[link.layer] + link.stave % 20) * 9 + 3 * link.gbtid + 2);
+          hfeeidL1->Fill((StaveBoundary[link.layer] + link.stave % 20) * 3 + link.gbtid);
         }
 
-        // m_FeeStrobeMap[feeId] += num_strobes;
         for (int i_strb{0}; i_strb < num_strobes; ++i_strb)
         {
           auto strb_bco = plist[i]->lValue(feeId, i_strb, "TRG_IR_BCO");
-          // auto strb_bc  = plist[i]->iValue(feeId, i_strb, "TRG_IR_BC");
           auto num_hits = plist[i]->iValue(feeId, i_strb, "TRG_NR_HITS");
           if (Verbosity() > 4)
           {
@@ -449,7 +440,6 @@ int MvtxMon::process_event(Event* evt)
 
           for (int i_hit{0}; i_hit < num_hits; ++i_hit)
           {
-            // auto chip_bc = plist[i]->iValue(feeId, i_strb, i_hit, "HIT_BC");
             auto chip_id = plist[i]->iValue(feeId, i_strb, i_hit, "HIT_CHIP_ID");
             auto chip_row = plist[i]->iValue(feeId, i_strb, i_hit, "HIT_ROW");
             auto chip_col = plist[i]->iValue(feeId, i_strb, i_hit, "HIT_COL");
@@ -459,10 +449,6 @@ int MvtxMon::process_event(Event* evt)
             hChipStaveOccupancy[link.layer]->Fill(3 * link.gbtid + chip_id, link.stave % 20);
             hChipHitmap_evt->Fill(chip_col, chip_row, (StaveBoundary[link.layer] + link.stave % 20) * 9 + 3 * link.gbtid + chip_id);
           }
-
-          // m_BeamClockFEE[strb_bco].insert(feeId);
-          // m_BclkStack.insert(strb_bco);
-          // m_FEEBclkMap[feeId] = strb_bco;
         }
 
         int ifee_plot = 3 * StaveBoundary[link.layer] + 3 * link.stave + link.gbtid;
@@ -496,11 +482,13 @@ int MvtxMon::process_event(Event* evt)
         auto decoder_error = plist[i]->lValue(feeId, "decoder_error");
         while (decoder_error != -1)
         {
-          // int chip = (decoder_error & 0xFFFFFFFF00000000ULL) >> 32;
+         
           int error = decoder_error & 0xFFFFFFFF;
-          // std::cout<<"feeid: "<<feeId<<" chip "<<chip<<" decoder error: "<<error<<std::endl;
-          hErrorPlots->Fill(error);
-          hErrorFile->Fill((this->MonitorServerId() * 2) + i + 0.5, error);
+          if(error > 1) //ignore error ID = 1
+          {
+            hErrorPlots->Fill(error);
+            hErrorFile->Fill((this->MonitorServerId() * 2) + i + 0.5, error);
+          }
           decoder_error = plist[i]->lValue(feeId, "decoder_error");
         }
       }
@@ -532,7 +520,7 @@ int MvtxMon::process_event(Event* evt)
   mvtxmon_ChipFiredHis->Fill(firedChips);
   mvtxmon_EvtHitDis->Fill((double) firedPixels / ((double) sumstrobes / (double) nstrobes));
 
-  double pixelOccupancy, chipOccupancy;
+  double pixelOccupancy, chipOccupancy = 0;
   for (int iLayer = 0; iLayer < 3; iLayer++)
   {
     for (int iStave = 0; iStave < NStaves[iLayer]; iStave++)
@@ -558,12 +546,13 @@ int MvtxMon::process_event(Event* evt)
             pixelOccupancy = hChipHitmap_evt->GetBinContent(iCol + 1, iRow + 1, (StaveBoundary[iLayer] + iStave) * 9 + iChip + 1);
             if (pixelOccupancy > 0)
             {
+              hOccupancyPlot[iLayer]->Fill(pixelOccupancy / (double)(hChipStrobes->GetBinContent((StaveBoundary[iLayer] + iStave) * 9 + iChip + 1)));
               if (pixelOccupancy / (double) nTrg > mOccupancyCutForNoisyPixel)
               {
                 mNoisyPixelNumber[iLayer][iStave][iChip]++;
                 mOccupancyPlot[iLayer]->Fill(log10(pixelOccupancy / (double) nTrg));
               }
-              hOccupancyPlot[iLayer]->Fill(log10(pixelOccupancy / (double) nTrg));
+              //hOccupancyPlot[iLayer]->Fill(log10(pixelOccupancy / (double) nTrg));
             }
           }
         }
@@ -651,6 +640,17 @@ int MvtxMon::Reset()
 {
 
   hChipHitmap->Reset("ICESM");
+
+  for (int mLayer = 0; mLayer < 3; mLayer++)
+  {
+    for (int binx = 0; binx < mDeadChipPos[mLayer]->GetNbinsX(); binx++)
+    {
+      for (int biny = 0; biny < mDeadChipPos[mLayer]->GetNbinsY(); biny++)
+      {
+        mDeadChipPos[mLayer]->SetBinContent(binx + 1, biny + 1, 1);
+      }
+    }
+  }
   // reset our internal counters
   /*for (int iLayer = 0; iLayer < 3; iLayer++) {
     for (int iStave = 0; iStave < NStaves[iLayer]; iStave++) {
