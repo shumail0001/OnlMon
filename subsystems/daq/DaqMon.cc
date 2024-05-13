@@ -47,7 +47,7 @@ DaqMon::~DaqMon()
 int DaqMon::Init()
 {
   gRandom->SetSeed(rand());
- t const char *daqcalib = getenv("DAQCALIB");
+  const char *daqcalib = getenv("DAQCALIB");
   if (!daqcalib)
   {
     std::cout << "DAQCALIB environment variable not set" << std::endl;
