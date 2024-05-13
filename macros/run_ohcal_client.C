@@ -39,6 +39,7 @@ void ohcalDrawInit(const int online = 0)
     cl->registerHisto("h2_hcal_hits_trig3", servername);
     cl->registerHisto("h2_hcal_hits_trig4", servername);
     cl->registerHisto("h_hcal_trig", servername);
+    cl->registerHisto("pr_zsFrac_etaphi", servername);
 
     for (int ih = 0; ih < 32; ih++)
     {
