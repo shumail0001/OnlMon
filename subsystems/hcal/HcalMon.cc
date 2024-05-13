@@ -20,6 +20,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TProfile.h>
+#include <TProfile2D.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -128,6 +129,7 @@ int HcalMon::Init()
   h2_hcal_hits_trig2 = new TH2F("h2_hcal_hits_trig2", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_hits_trig3 = new TH2F("h2_hcal_hits_trig3", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_hits_trig4 = new TH2F("h2_hcal_hits_trig4", "", 24, 0, 24, 64, 0, 64);
+  pr_zsFrac_etaphi = new TProfile2D("pr_zsFrac_etaphi", "", 24, 0, 24, 64, 0, 64);
   h_hcal_trig = new TH1F("h_hcal_trig", "", 64, 0, 64);
   h2_hcal_rm = new TH2F("h2_hcal_rm", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_mean = new TH2F("h2_hcal_mean", "", 24, 0, 24, 64, 0, 64);
@@ -185,6 +187,7 @@ int HcalMon::Init()
   se->registerHisto(this, h2_hcal_hits_trig2);
   se->registerHisto(this, h2_hcal_hits_trig3);
   se->registerHisto(this, h2_hcal_hits_trig4);
+  se->registerHisto(this, pr_zsFrac_etaphi);
   se->registerHisto(this, h_hcal_trig);
   se->registerHisto(this, h_evtRec);
   se->registerHisto(this, h_caloPack_gl1_clock_diff);
@@ -274,10 +277,20 @@ std::vector<float> HcalMon::getSignal(Packet* p, const int channel)
 std::vector<float> HcalMon::anaWaveform(Packet* p, const int channel)
 {
   std::vector<float> waveform;
-  waveform.reserve(p->iValue(0, "SAMPLES"));
-  for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+  //waveform.reserve(p->iValue(0, "SAMPLES"));
+  float supppressed = 1;
+  if (p->iValue(channel, "SUPPRESSED"))
   {
-    waveform.push_back(p->iValue(s, channel));
+    waveform.push_back(p->iValue(channel, "PRE"));
+    waveform.push_back(p->iValue(channel, "POST"));
+  }
+  else
+  {
+    supppressed = 0;
+    for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+    {
+      waveform.push_back(p->iValue(s, channel));
+    }
   }
   std::vector<std::vector<float>> multiple_wfs;
   multiple_wfs.push_back(waveform);
@@ -288,6 +301,7 @@ std::vector<float> HcalMon::anaWaveform(Packet* p, const int channel)
 
   std::vector<float> result;
   result = fitresults_ohcal.at(0);
+  result.push_back(supppressed);
 
   return result;
 }
@@ -421,6 +435,7 @@ int HcalMon::process_event(Event* e /* evt */)
         float signal = result.at(0);
         float time = result.at(1);
         float pedestal = result.at(2);
+        float suppressed = result.at(result.size()-1);
         if (signal > 15 && signal < 15000)
         {
           energy1 += signal;
@@ -437,6 +452,13 @@ int HcalMon::process_event(Event* e /* evt */)
           rm_vector_twrTime[towerNumber - 1]->Add(&time);
         }
         h_waveform_pedestal->Fill(pedestal);
+
+        if (suppressed==1){
+          pr_zsFrac_etaphi->Fill(eta_bin,phi_bin,0);
+        }
+        else {
+          pr_zsFrac_etaphi->Fill(eta_bin,phi_bin,1);
+        }
 
         sectorAvg[sectorNumber - 1] += signal;
 
