@@ -11,6 +11,7 @@ class Event;
 class TH1;
 class TH2;
 class TProfile;
+class TProfile2D;
 class Packet;
 class runningMean;
 class eventReceiverClient;
@@ -70,6 +71,7 @@ class CemcMon : public OnlMon
   TH1* h1_packet_event = nullptr;
   TH2* h2_caloPack_gl1_clock_diff = nullptr;
   TProfile* h_evtRec = nullptr;
+  TProfile2D* p2_zsFrac_etaphi=nullptr;
 
   TH1* h1_packet_chans = nullptr;
   TH1* h1_packet_length = nullptr;

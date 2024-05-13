@@ -34,6 +34,7 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"FOURTH\")", "Wave vs Fast Fitting [Expert]");
   subsys->AddAction("cemcDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("cemcDraw(\"SIXTH\")", "All waveform summary [Expert]");
+  subsys->AddAction("cemcDraw(\"SEVENTH\")", "Zero-suppression info [Expert]");
   subsys->AddAction("cemcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);

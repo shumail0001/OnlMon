@@ -20,6 +20,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TProfile.h>
+#include <TProfile2D.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -91,6 +92,7 @@ int CemcMon::Init()
   h2_cemc_hits_trig2 = new TH2F("h2_cemc_hits_trig2", "", 96, 0, 96, 256, 0, 256);
   h2_cemc_hits_trig3 = new TH2F("h2_cemc_hits_trig3", "", 96, 0, 96, 256, 0, 256);
   h2_cemc_hits_trig4 = new TH2F("h2_cemc_hits_trig4", "", 96, 0, 96, 256, 0, 256);
+  p2_zsFrac_etaphi   = new TProfile2D("p2_zsFrac_etaphi","",96,0,96,256,0,256);
   h1_cemc_trig = new TH1F("h1_cemc_trig", "", 64, 0, 64);
   h1_packet_event = new TH1F("h1_packet_event", "", 8, packetlow - 0.5, packethigh + 0.5);
   h2_caloPack_gl1_clock_diff = new TH2F("h2_caloPack_gl1_clock_diff", "", 8, packetlow - 0.5, packethigh + 0.5, 65536, 0, 65536);
@@ -167,6 +169,7 @@ int CemcMon::Init()
   se->registerHisto(this, h2_cemc_hits_trig2);
   se->registerHisto(this, h2_cemc_hits_trig3);
   se->registerHisto(this, h2_cemc_hits_trig4);
+  se->registerHisto(this, p2_zsFrac_etaphi);
   se->registerHisto(this, h1_cemc_trig);
   se->registerHisto(this, h1_packet_event);
   se->registerHisto(this, h2_caloPack_gl1_clock_diff);
@@ -286,15 +289,25 @@ std::vector<float> CemcMon::anaWaveformFast(Packet *p, const int channel)
 {
   std::vector<float> waveform;
 
-  int nSamples = p->iValue(0, "SAMPLES");
-  waveform.reserve(nSamples);
-  for (int s = 0; s < nSamples; s++)
-  {
-    waveform.push_back(p->iValue(s, channel));
-  }
+  //int nSamples = p->iValue(0, "SAMPLES");
+  //waveform.reserve(nSamples);
+  if (p->iValue(channel, "SUPPRESSED"))
+    {
+      waveform.push_back(p->iValue(channel, "PRE"));
+      waveform.push_back(p->iValue(channel, "POST"));
+    }
+  else
+    {
+      int nSamples = p->iValue(0, "SAMPLES");
+      for (int s = 0; s < nSamples; s++)
+	{
+	  waveform.push_back(p->iValue(s, channel));
+	}
+    }
+  
   std::vector<std::vector<float>> multiple_wfs;
   multiple_wfs.push_back(waveform);
-
+  
   std::vector<std::vector<float>> fitresults_cemc;
   fitresults_cemc = WaveformProcessingFast->calo_processing_fast(multiple_wfs);
 
@@ -307,11 +320,19 @@ std::vector<float> CemcMon::anaWaveformTemp(Packet *p, const int channel)
 {
   std::vector<float> waveform;
 
-  waveform.reserve(p->iValue(0, "SAMPLES"));
-  for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
-  {
-    waveform.push_back(p->iValue(s, channel));
-  }
+  //waveform.reserve(p->iValue(0, "SAMPLES"));
+  if (p->iValue(channel, "SUPPRESSED"))
+    {
+      waveform.push_back(p->iValue(channel, "PRE"));
+      waveform.push_back(p->iValue(channel, "POST"));
+    }
+  else
+    {
+      for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+	{
+	  waveform.push_back(p->iValue(s, channel));
+	}
+    }
   std::vector<std::vector<float>> multiple_wfs;
   multiple_wfs.push_back(waveform);
 
@@ -320,7 +341,6 @@ std::vector<float> CemcMon::anaWaveformTemp(Packet *p, const int channel)
 
   std::vector<float> result;
   result = fitresults_cemc.at(0);
-
   return result;
 }
 
@@ -422,6 +442,14 @@ int CemcMon::process_event(Event *e /* evt */)
         float timeFast = resultFast.at(1);
         float pedestalFast = resultFast.at(2);
 
+	if(p->iValue(c,"SUPPRESSED")){
+	  p2_zsFrac_etaphi->Fill(eta_bin,phi_bin,0);
+	}
+	else{
+	  p2_zsFrac_etaphi->Fill(eta_bin,phi_bin,1);
+	}
+	  
+	
         h1_waveform_pedestal->Fill(pedestalFast);
         if (signalFast < hit_threshold)
         {

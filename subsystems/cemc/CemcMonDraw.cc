@@ -13,6 +13,7 @@
 #include <TPad.h>
 #include <TPaveText.h>
 #include <TProfile.h>
+#include <TProfile2D.h>
 #include <TQObject.h>
 #include <TROOT.h>
 #include <TStyle.h>
@@ -201,7 +202,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     PopUpCanvas->SetEditable(false);
   }
   else if (name == "CemcMon7" ){
-    TC[6] = new TCanvas(name.c_str(),"Basic waveform summary", -xsize/3 , 0, xsize/3, ysize*0.9);
+    TC[6] = new TCanvas(name.c_str(),"Basic waveform summary Expert", -xsize/3 , 0, xsize/3, ysize*0.9);
     gSystem->ProcessEvents();
     Pad[15]=new TPad("cemcpad15","who needs this?",0.0,0.475,0.5,0.950);
     Pad[15]->SetRightMargin(0.15);
@@ -217,6 +218,17 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     transparent[6]->SetFillStyle(4000);
     transparent[6]->Draw();
     TC[6]->SetEditable(0);
+  }
+  else if (name == "CemcMon8" ){
+    TC[7] = new TCanvas(name.c_str(),"Channel unsuppressed event fraction Expert", -xsize/3 , 0, xsize/3, ysize*0.9);
+    gSystem->ProcessEvents();
+    Pad[19]=new TPad("cemcpad19","who needs this?",0.00,0.00,1.00,0.95);
+    Pad[19]->SetRightMargin(0.15);
+    Pad[19]->Draw();
+    transparent[7] = new TPad("transparent7", "this does not show", 0, 0, 1, 1);
+    transparent[7]->SetFillStyle(4000);
+    transparent[7]->Draw();
+    TC[7]->SetEditable(0);
   }
 
   return 0;
@@ -256,6 +268,11 @@ int CemcMonDraw::Draw(const std::string &what)
     iret += DrawSixth(what);
     idraw++;
   }
+  if (what == "ALL" || what == "SEVENTH")
+    {
+      iret += DrawSeventh(what);
+      idraw++;
+    }
   if (what == "ALL" || what == "SERVERSTATS")
   {
     iret += DrawServerStats();
@@ -970,6 +987,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   gPad->SetLeftMargin(0.15);
   gPad->SetTicky();
   gPad->SetTickx();
+  gStyle->SetPalette(kBird);
   h2_waveform_twrAvg[start[0]]->DrawCopy("colz");
   windowLow1->Draw("same");
   windowHigh1->Draw("same");
@@ -1862,12 +1880,14 @@ int CemcMonDraw::DrawSixth(const std::string & /*what*/ ){
       int nSaturated=0;
       bool init=false;
       TProfile* ptmp=nullptr;
-      for(int iseb=0;iseb<nSEBs; iseb++){
-	ptmp=(TProfile*)cl->getHisto(Form("CEMCMON_%d",iseb),Form("h2_waveform_phi%d_eta%d",i,j));
+      for (auto server = ServerBegin(); server != ServerEnd(); ++server){
+	//for(int iseb=0;iseb<nSEBs; iseb++){
+	//ptmp=(TProfile*)cl->getHisto(Form("CEMCMON_%d",iseb),Form("h2_waveform_phi%d_eta%d",i,j));
+	ptmp=(TProfile*)cl->getHisto(*server,Form("h2_waveform_phi%d_eta%d",i,j));
 	if(ptmp){
 	  if(!init){
 	    if(!gROOT->FindObject(Form("Combined%s",ptmp->GetName()))){
-	      AllProfiles[i][j] = new TProfile(*(TProfile*)ptmp);//Is it really necessary? Most likely I am missing something
+	      AllProfiles[i][j] = new TProfile(*(TProfile*)ptmp);//Is it really necessary? Most likely not
 	      AllProfiles[i][j]->SetName(Form("Combined%s",ptmp->GetName()));
 	      init=true;
 	    }
@@ -1882,7 +1902,7 @@ int CemcMonDraw::DrawSixth(const std::string & /*what*/ ){
 	  }
 	}
 	else{
-	  std::cout<<"Could not retrieve "<<Form("h2_waveform_phi%d_eta%d",i,j)<<" from CEMCMON_"<<iseb<<std::endl;
+	  std::cout<<"Could not retrieve "<<Form("h2_waveform_phi%d_eta%d",i,j)<<" from "<<*server<<std::endl;
 	}
       }
       if(AllProfiles[i][j]){
@@ -1934,19 +1954,23 @@ int CemcMonDraw::DrawSixth(const std::string & /*what*/ ){
   TC[6]->SetEditable(1);
   TC[6]->Clear("D");
   Pad[15]->cd();
-  h2_maxima->Draw("colz");
+  gStyle->SetPalette(kBird);
+  h2_maxima->DrawCopy("colz");
   for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
   for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
   Pad[16]->cd();
-  h2_timeofMax->Draw("colz");
+  gStyle->SetPalette(kBird);
+  h2_timeofMax->DrawCopy("colz");
   for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
   for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
   Pad[17]->cd();
-  h2_pedestal->Draw("colz");
+  gStyle->SetPalette(kBird);
+  h2_pedestal->DrawCopy("colz");
   for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
   for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
   Pad[18]->cd();
-  h2_saturating->Draw("colz");
+  gStyle->SetPalette(kBird);
+  h2_saturating->DrawCopy("colz");
   for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
   for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
   
@@ -2024,5 +2048,80 @@ int CemcMonDraw::DrawServerStats()
   TC[5]->Show();
   TC[5]->SetEditable(false);
 
+  return 0;
+}
+
+int CemcMonDraw::DrawSeventh(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  // watch the absolute insanity as we merge all these
+  // histograms from across seven different machines
+
+  TProfile2D* p2_zsFrac_etaphiCombined=nullptr;
+  TProfile2D* proftmp;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+    {
+      proftmp=(TProfile2D*)cl->getHisto(*server, "p2_zsFrac_etaphi");
+      if(proftmp){
+	if(p2_zsFrac_etaphiCombined){
+	  p2_zsFrac_etaphiCombined->Add(proftmp);
+	}
+	else{
+	  p2_zsFrac_etaphiCombined=proftmp;
+	}
+      }
+    }
+
+  if (!gROOT->FindObject("CemcMon8"))
+  {
+    MakeCanvas("CemcMon8");
+  }
+  TC[7]->SetEditable(true);
+  TC[7]->Clear("D");
+  if(!p2_zsFrac_etaphiCombined){
+    DrawDeadServer(transparent[7]);
+    TC[7]->SetEditable(false);
+    return -1;
+  }
+
+  Pad[19]->cd();
+  gPad->SetTopMargin(0.02);
+  gPad->SetBottomMargin(0.12);
+  gPad->SetLeftMargin(0.12);
+  gPad->SetRightMargin(0.12);
+  gStyle->SetTitleFontSize(0.06);
+  gStyle->SetPalette(kBird);
+  p2_zsFrac_etaphiCombined->GetXaxis()->SetTitle("eta index");
+  p2_zsFrac_etaphiCombined->GetYaxis()->SetTitle("phi index");
+  p2_zsFrac_etaphiCombined->GetXaxis()->SetLabelSize(0.05);
+  p2_zsFrac_etaphiCombined->GetYaxis()->SetLabelSize(0.05);
+  p2_zsFrac_etaphiCombined->GetXaxis()->SetTitleSize(0.05);
+  p2_zsFrac_etaphiCombined->GetYaxis()->SetTitleSize(0.05);
+  p2_zsFrac_etaphiCombined->GetXaxis()->SetTitleOffset(1.0);
+  p2_zsFrac_etaphiCombined->GetYaxis()->SetTitleOffset(1.0);
+  p2_zsFrac_etaphiCombined->SetMinimum(0);
+  p2_zsFrac_etaphiCombined->SetMaximum(1);
+  p2_zsFrac_etaphiCombined->SetStats(kFALSE);
+  p2_zsFrac_etaphiCombined->DrawCopy("colz");
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.03);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();
+  // fill run number and event time into string
+  runnostream << ThisName << ": Unsuppressed event fraction, Run" << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[7]->cd();
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+
+  TC[7]->Update();
+  TC[7]->Show();
+  TC[7]->SetEditable(0);
+  if(save)TC[7] -> SaveAs("plots/UnsuppressedEventFraction.pdf");
   return 0;
 }
