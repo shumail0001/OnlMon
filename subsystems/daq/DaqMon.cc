@@ -47,7 +47,7 @@ DaqMon::~DaqMon()
 int DaqMon::Init()
 {
   gRandom->SetSeed(rand());
-  const char *daqcalib = getenv("DAQCALIB");
+ t const char *daqcalib = getenv("DAQCALIB");
   if (!daqcalib)
   {
     std::cout << "DAQCALIB environment variable not set" << std::endl;
@@ -87,7 +87,9 @@ int DaqMon::Init()
   Reset();
   erc = new eventReceiverClient("gl1daq");
 
-  loadpacketMapping("packetid_seb_mapping.txt");
+
+  std::string mappingfile = std::string(daqcalib) + "/" + "packetid_seb_mapping.txt";
+  loadpacketMapping(mappingfile.c_str());
 
   return 0;
 }
@@ -111,8 +113,9 @@ int DaqMon::process_event(Event *e /* evt */)
   }
 
   evtcnt++;
-  long int gl1_clock = 0;
-  Event *gl1Event = erc->getEvent(evtnr);
+  long long int gl1_clock = 0;
+  Event *gl1Event = erc->getEvent(evtnr+1);
+  int gl1evtnr = gl1Event->getEvtSequence();
 
   if (!gl1Event)
   {
@@ -137,7 +140,7 @@ int DaqMon::process_event(Event *e /* evt */)
           clockdiff[ipacket] = gl1_clock  - packet_clock;
           int fdiff = (clockdiff[ipacket] != previousdiff[ipacket]) ? 0 : 1;
           previousdiff[ipacket] = clockdiff[ipacket];
-          
+
           int nADCs = p->iValue(0,"NRMODULES");
           int femevt = 0;
           int femclk = 0;
