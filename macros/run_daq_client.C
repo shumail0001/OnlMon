@@ -17,7 +17,7 @@ void daqDrawInit(const int online = 0)
     std::string servername = "DAQMON_" + std::to_string(serverid);
     daqmon->AddServer(servername);
     cl->registerHisto("h_gl1_clock_diff", servername.c_str());
-    cl->registerHisto("h_gl1_clock_diff_capture", servername.c_str());
+    cl->registerHisto("h_fem_match", servername.c_str());
     //      cl->registerHisto("h_unlock_hist",servername.c_str());
     //      cl->registerHisto("h_unlock_clock",servername.c_str());
   }
