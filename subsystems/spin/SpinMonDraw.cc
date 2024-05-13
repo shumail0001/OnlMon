@@ -474,21 +474,21 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     int spin_cdev_yell = hspinpatternYellow->GetBinContent(crossing + 1);
     int spin_pC_yell = hpCspinpatternYellow->GetBinContent(crossing + 1);
 
-    // if(spin_pC_blue==-1 || spin_pC_blue==1)
-    //{
-    if (spin_cdev_blue != spin_pC_blue && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
+    if(spin_pC_blue==-1 || spin_pC_blue==1)
     {
-      mismatches += 1;
+      if (spin_cdev_blue != spin_pC_blue && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
+      {
+	mismatches += 1;
+      }
     }
-    //}
 
-    // if(spin_pC_yell==-1 || spin_pC_yell==1)
-    //{
-    if (spin_cdev_yell != spin_pC_yell && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
+    if(spin_pC_yell==-1 || spin_pC_yell==1)
     {
-      mismatches += 1;
+      if (spin_cdev_yell != spin_pC_yell && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
+      {
+	mismatches += 1;
+      }
     }
-    //}
   }
 
   TText t_PatternMatch;
