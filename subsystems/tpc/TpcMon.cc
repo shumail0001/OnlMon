@@ -178,6 +178,40 @@ int TpcMon::Init()
 
   //____________________________________________________________________//
 
+  //TPC 5 event "cluster" XY heat maps WEIGHTED
+  //NorthSideADC_clusterXY_R1 = new TH2F("NorthSideADC_clusterXY_R1" , "ADC Peaks North Side", N_phi_binx_XY_R1, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
+  NorthSideADC_clusterXY_R1_u5 = new TH2F("NorthSideADC_clusterXY_R1_u5" , "(ADC-Pedestal) > 5#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R1_u5->SetXTitle("X [mm]");
+  NorthSideADC_clusterXY_R1_u5->SetYTitle("Y [mm]");
+
+  //NorthSideADC_clusterXY_R2 = new TH2F("NorthSideADC_clusterXY_R2" , "ADC Peaks North Side", N_phi_binx_XY_R2, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
+  NorthSideADC_clusterXY_R2_u5 = new TH2F("NorthSideADC_clusterXY_R2_u5" , "(ADC-Pedestal) > 5#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R2_u5->SetXTitle("X [mm]");
+  NorthSideADC_clusterXY_R2_u5->SetYTitle("Y [mm]");
+
+  //NorthSideADC_clusterXY_R3 = new TH2F("NorthSideADC_clusterXY_R3" , "ADC Peaks North Side", N_phi_binx_XY_R3, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
+  NorthSideADC_clusterXY_R3_u5 = new TH2F("NorthSideADC_clusterXY_R3_u5" , "(ADC-Pedestal) > 5#sigma North Side", 400, -800, 800, 400, -800, 800);
+  NorthSideADC_clusterXY_R3_u5->SetXTitle("X [mm]");
+  NorthSideADC_clusterXY_R3_u5->SetYTitle("Y [mm]");
+
+  //SouthSideADC_clusterXY_R1 = new TH2F("SouthSideADC_clusterXY_R1" , "ADC Peaks South Side", N_phi_binx_XY_R1, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
+  SouthSideADC_clusterXY_R1_u5 = new TH2F("SouthSideADC_clusterXY_R1_u5" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R1_u5->SetXTitle("X [mm]");
+  SouthSideADC_clusterXY_R1_u5->SetYTitle("Y [mm]");
+
+  //SouthSideADC_clusterXY_R2 = new TH2F("SouthSideADC_clusterXY_R2" , "ADC Peaks South Side", N_phi_binx_XY_R2, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);
+  SouthSideADC_clusterXY_R2_u5 = new TH2F("SouthSideADC_clusterXY_R2_u5" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R2_u5->SetXTitle("X [mm]");
+  SouthSideADC_clusterXY_R2_u5->SetYTitle("Y [mm]");
+
+  //SouthSideADC_clusterXY_R3 = new TH2F("SouthSideADC_clusterXY_R3" , "ADC Peaks South Side", N_phi_binx_XY_R3, -TMath::Pi(), TMath::Pi(), N_rBins_XY, r_bins);  
+  SouthSideADC_clusterXY_R3_u5 = new TH2F("SouthSideADC_clusterXY_R3_u5" , "(ADC-Pedestal) > 5#sigma South Side", 400, -800, 800, 400, -800, 800);
+  SouthSideADC_clusterXY_R3_u5->SetXTitle("X [mm]");
+  SouthSideADC_clusterXY_R3_u5->SetYTitle("Y [mm]");
+
+  //____________________________________________________________________//
+
+
   //TPC "cluster" ZY heat maps WEIGHTED
    NorthSideADC_clusterZY = new TH2F("NorthSideADC_clusterZY" , "(ADC-Pedestal) > 5#sigma North Side", 206, -1030, 1030, 400, -800, 800);
    SouthSideADC_clusterZY = new TH2F("SouthSideADC_clusterZY" , "(ADC-Pedestal) > 5#sigma South Side", 206, -1030, 1030, 400, -800, 800);
@@ -543,6 +577,14 @@ int TpcMon::Init()
   se->registerHisto(this, SouthSideADC_clusterXY_R2_LASER);
   se->registerHisto(this, SouthSideADC_clusterXY_R3_LASER);
 
+  se->registerHisto(this, NorthSideADC_clusterXY_R1_u5);
+  se->registerHisto(this, NorthSideADC_clusterXY_R2_u5);
+  se->registerHisto(this, NorthSideADC_clusterXY_R3_u5);
+
+  se->registerHisto(this, SouthSideADC_clusterXY_R1_u5);
+  se->registerHisto(this, SouthSideADC_clusterXY_R2_u5);
+  se->registerHisto(this, SouthSideADC_clusterXY_R3_u5);
+
   se->registerHisto(this, NorthSideADC_clusterZY);
   se->registerHisto(this, SouthSideADC_clusterZY);
 
@@ -611,7 +653,8 @@ int TpcMon::process_event(Event *evt/* evt */)
 
   NEvents_vs_EBDC->Fill(MonitorServerId());
   //std::cout<<"Event #"<< evtcnt <<std::endl;
-  
+
+  //  if( evtcnt >= 1200 ){ //evtcnt debug  
   for( int packet = firstpacket; packet < lastpacket; packet++) //packet 4001 or 4002 = Sec 00, packet 4231 or 4232 = Sec 23
   {
     Packet* p = evt->getPacket(packet);
@@ -853,6 +896,21 @@ int TpcMon::process_event(Event *evt/* evt */)
           else if(Module_ID(fee)==2){SouthSideADC_clusterXY_R3_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R3
         }
         //________________________________________________________________________________
+        //5 event displays
+        if( (serverid < 12 && (pedest_sub_wf_max) > std::max(5.0*noise,20.)) && layer != 0 )
+        {
+          if(Module_ID(fee)==0){NorthSideADC_clusterXY_R1_u5->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R1
+          else if(Module_ID(fee)==1){NorthSideADC_clusterXY_R2_u5->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
+          else if(Module_ID(fee)==2){NorthSideADC_clusterXY_R3_u5->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
+        }
+        if( (serverid < 12 && (pedest_sub_wf_max) > std::max(5.0*noise,20.)) && layer != 0 )
+        {
+          if(Module_ID(fee)==0){SouthSideADC_clusterXY_R1_u5->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R1
+          else if(Module_ID(fee)==1){SouthSideADC_clusterXY_R2_u5->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
+          else if(Module_ID(fee)==2){SouthSideADC_clusterXY_R3_u5->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
+        }
+        //________________________________________________________________________________
+
 
         is_channel_stuck = 0; //reset after looping through waveform samples
 
@@ -868,8 +926,23 @@ int TpcMon::process_event(Event *evt/* evt */)
     } // if packet exists
     //std::cout<<"MADE IT TO END OF PACKET LOOP, EVENT # "<<evtcnt<<std::endl;
   } //end of packet loop
-
+  //} //debug if evt >=1203
   evtcnt++;
+  if(evtcnt5 < 5) //increment 5 event counter for 5 events
+  { 
+    evtcnt5++;
+  }
+  else if(evtcnt5 >= 5) // reset to to 0 when get to event 5 (6th event starting from 0)
+  {
+    evtcnt5 = 0;
+    NorthSideADC_clusterXY_R1_u5->Reset();
+    NorthSideADC_clusterXY_R2_u5->Reset();
+    NorthSideADC_clusterXY_R3_u5->Reset();
+
+    SouthSideADC_clusterXY_R1_u5->Reset();
+    SouthSideADC_clusterXY_R2_u5->Reset();
+    SouthSideADC_clusterXY_R3_u5->Reset();    
+  }
 
   // get temporary pointers to histograms
   // one can do in principle directly se->getHisto("tpchist1")->Fill()
