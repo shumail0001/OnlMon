@@ -45,6 +45,7 @@ class HcalMonDraw : public OnlMonDraw
   TPad* transparent[19] = {nullptr};
   TPad* Pad[29] = {nullptr};
   TPad* warning[28] = {nullptr};
+  TH2F* h2_mean_template = nullptr;
   //  TGraphErrors* gr[2] = {nullptr};
   TStyle* hcalStyle = nullptr;
 };

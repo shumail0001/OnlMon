@@ -18,6 +18,7 @@
 #include <TStyle.h>
 #include <TSystem.h>
 #include <TText.h>
+#include <TFile.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -63,7 +64,25 @@ int HcalMonDraw::Init()
   hcalStyle->SetPadTickY(1);
   gROOT->SetStyle("hcalStyle");
   gROOT->ForceStyle();
+  char TEMPFILENAME[100];
 
+  sprintf(TEMPFILENAME, "../subsystems/hcal/%s_40747.root", prefix.c_str());
+
+  TFile* tempfile = new TFile(TEMPFILENAME, "READ");
+  if (!tempfile->IsOpen())
+  {
+    std::cout << "HcalMonDraw::Init() ERROR: Could not open file " << TEMPFILENAME << std::endl;
+    exit(1);
+  }
+  h2_mean_template = (TH2F*) tempfile->Get("h2_mean_template");
+
+  if (!h2_mean_template)
+  {
+    std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_mean_template in file " << TEMPFILENAME << std::endl;
+    exit(1);
+  }
+
+  
   return 0;
 }
 
@@ -314,16 +333,17 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
 
   h2_hcal_mean->Scale(1. / h_event->GetEntries());
   h2_hcal_hits->Scale(1. / h_event->GetEntries());
-  hist1->Divide(h2_hcal_mean);
+  //hist1->Divide(h2_hcal_mean);
 
   h2_hcal_mean_1->Scale(1. / h_event_1->GetEntries());
   h2_hcal_hits_1->Scale(1. / h_event_1->GetEntries());
-  hist1_1->Divide(h2_hcal_mean_1);
+  //hist1_1->Divide(h2_hcal_mean_1);
 
   hist1->Add(hist1_1);
   h2_hcal_mean->Add(h2_hcal_mean_1);
   h2_hcal_hits->Add(h2_hcal_hits_1);
   h2_hcal_time->Add(h2_hcal_time_1);
+  hist1->Divide(h2_mean_template);
   // h_event->Add(h_event_1);
 
 
