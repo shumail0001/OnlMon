@@ -64,6 +64,8 @@ void zdcDrawInit(const int online = 0)
   // south smd
   cl->registerHisto("smd_hor_south", "ZDCMON_0");
   cl->registerHisto("smd_ver_south", "ZDCMON_0");
+  cl->registerHisto("smd_hor_south_good", "ZDCMON_0");
+  cl->registerHisto("smd_ver_south_good", "ZDCMON_0");
   cl->registerHisto("smd_sum_hor_south", "ZDCMON_0");
   cl->registerHisto("smd_sum_ver_south", "ZDCMON_0");
   // smd values
@@ -73,6 +75,7 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("smd_xy_north", "ZDCMON_0");
   cl->registerHisto("smd_xy_south", "ZDCMON_0");
 
+  //cl->AddServerHost("localhost");  // check local host first
   CreateSubsysHostlist("zdc_hosts.list", online);
 
   // get my histos from server, the second parameter = 1 

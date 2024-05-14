@@ -382,7 +382,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       else
       {
 	if(resultFast.at(1)<9&&c<32) signal=0;//quick and durty for now
-	else if(resultFast.at(1)>6&&c>31) signal=0;//quick and durty for now
+	else if((resultFast.at(1)<7||resultFast.at(1)>12)&&c>31) signal=0;//quick and durty for now
         smd_adc[c - 16] = signal;
       }
 
