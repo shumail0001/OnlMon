@@ -29,6 +29,7 @@ class TpcMon : public OnlMon
 
  protected:
   int evtcnt = 0;
+  int evtcnt5 = 0;
   int idummy = 0;
   int weird_counter = 0;
 
@@ -65,6 +66,14 @@ class TpcMon : public OnlMon
   TH2 *SouthSideADC_clusterXY_R1_LASER = nullptr;
   TH2 *SouthSideADC_clusterXY_R2_LASER = nullptr;
   TH2 *SouthSideADC_clusterXY_R3_LASER = nullptr;
+
+  TH2 *NorthSideADC_clusterXY_R1_u5 = nullptr;
+  TH2 *NorthSideADC_clusterXY_R2_u5 = nullptr;
+  TH2 *NorthSideADC_clusterXY_R3_u5 = nullptr;
+
+  TH2 *SouthSideADC_clusterXY_R1_u5 = nullptr;
+  TH2 *SouthSideADC_clusterXY_R2_u5 = nullptr;
+  TH2 *SouthSideADC_clusterXY_R3_u5 = nullptr;
 
   TH2 *NorthSideADC_clusterXY_R1_unw = nullptr;
   TH2 *NorthSideADC_clusterXY_R2_unw = nullptr;
