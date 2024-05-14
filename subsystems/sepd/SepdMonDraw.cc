@@ -895,6 +895,10 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
                                                     (int)h1_packet_event->GetBinContent(i)) );
       PacketWarn.SetTextColor(kBlack);
     }
+  if ( badPackets.size() == 0 )
+    {
+      PacketWarn.DrawText(0.01, 0.30, Form("No bad packets, everything okay"));
+    }
   if ( badPackets.size() == 1 )
     {
       PacketWarn.SetTextColor(kRed);
