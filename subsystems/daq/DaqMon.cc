@@ -72,7 +72,6 @@ int DaqMon::Init()
   h_gl1_clock_diff->GetXaxis()->SetBinLabel(6,"#bf{ZDC}");
 
   h_fem_match = new TH2F("h_fem_match","", 20, -0.5,19.5, 1, 0.5, 1.5);
-  h_fem_match->GetXaxis()->SetTitle("Latest 1M events");
   for(int is=0;is<10;is++){
       h_fem_match->GetXaxis()->SetBinLabel(is+1,Form("seb0%d",is));
   }
