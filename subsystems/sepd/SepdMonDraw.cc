@@ -740,6 +740,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   warnLineChans->SetLineStyle(7);
   warnLineChans->SetLineColor(2);
 
+
   // --- this one is okay
   Pad[10]->cd();
   //float tsize = 0.08;
@@ -814,6 +815,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   double ymin = h1_packet_event->GetMinimum();
 
   // --- this one seems okay
+  h1_packet_event->GetXaxis()->SetNdivisions(6);
   h1_packet_event->GetYaxis()->SetRangeUser(ymin - 0.3 * (ymax - ymin + 30), ymax + 0.3 * (ymax - ymin + 30));
   h1_packet_event->GetXaxis()->SetTitle("Packet #");
   h1_packet_event->GetYaxis()->SetTitle("clock offset");
@@ -837,7 +839,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
 
 
   std::vector<int> badPackets;
-  std::vector<std::string> whatswrong;
+  std::string list_of_bad_packets;
   bool packet_is_bad[7];
   for (int i = 1; i <= 6; i++)
   {
@@ -865,86 +867,43 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
     //if (badnumber || badlength || badchans || missing)
     if (badnumber || badchans || missing)
     {
+      int the_bad_packet = (int)h1_packet_number->GetBinCenter(i);
       packet_is_bad[i] = true;
-      badPackets.push_back((int) h1_packet_number->GetBinCenter(i));
-      std::string reason = "";
-      if (missing)
-      {
-        reason += "packet lost! ";
-      }
-      else
-      {
-        if (badnumber)
-        {
-          reason += "some events are missing, ";
-        }
-        // if (badlength)
-        // {
-        //   reason += "too short, ";
-        // }
-        if (badchans)
-        {
-          reason += "too few channels, ";
-        }
-        // remove the last two characters
-        reason = reason.substr(0, reason.size() - 2);
-        //reason += ".";
-      }
-      whatswrong.push_back(reason);
+      badPackets.push_back(the_bad_packet);
+      list_of_bad_packets += std::to_string(the_bad_packet);
+      list_of_bad_packets += ", ";
     }
   }
-  bool mismatch = false;
-  for (int i = 1; i <= h1_packet_event->GetNbinsX(); i++)
-  {
-    if (h1_packet_event->GetBinContent(i) != 0)
-    {
-      mismatch = true;
-    }
-  }
-  // draw the mismatch warning on the pad
-  TText mismatchWarn;
-  mismatchWarn.SetTextFont(62);
-  mismatchWarn.SetTextSize(0.06);
-  mismatchWarn.SetTextColor(2);
-  mismatchWarn.SetNDC();
-  mismatchWarn.SetTextAlign(23);
-  if (mismatch)
-  {
-    mismatchWarn.DrawText(0.5, 0.95, "Packet misaligned!");
-  }
+  // remove the final comma and space
+  list_of_bad_packets = list_of_bad_packets.substr(0, list_of_bad_packets.size() - 2);
 
-  mismatchWarn.SetTextColor(1);
-  mismatchWarn.SetTextSize(0.05);
-
-  // draw the bad packet warning here
-  // --- need to determine correct packet size
+  // --- draw the packet information
   TText PacketWarn;
-  //PacketWarn.SetTextFont(62);
-  PacketWarn.SetTextSize(0.03);
+  PacketWarn.SetTextFont(42);
+  PacketWarn.SetTextSize(0.04);
   PacketWarn.SetTextColor(kBlack);
-  //if ( badPackets.size() > 0 ) PacketWarn.SetTextColor(kRed);
   PacketWarn.SetNDC();
-  PacketWarn.SetTextAlign(23);
-  //PacketWarn.DrawText(0.5, 0.75, "Bad Packets (disregard if it says too short):");
-  // if ( badPackets.size() > 0 )
-  //   {
-  //     PacketWarn.DrawText(0.5, 0.75, "Bad Packets:");
-  //     for (int i = 0; i < (int) badPackets.size(); i++)
-  //       {
-  //         PacketWarn.DrawText(0.5, 0.7 - 0.05 * i, Form("%i: %s", badPackets[i], whatswrong[i].c_str()));
-  //       }
-  //   }
-  packet_is_bad[3] = true; // TEST!!!
-  PacketWarn.DrawText(0.5, 0.75, "Packet Status: (black means okay, red means bad)");
+  //PacketWarn.SetTextAlign(23);
+  PacketWarn.DrawText(0.01, 0.75, "Packet Status:");
   for (int i = 1; i <= 6; i++)
     {
       if ( packet_is_bad[i] ) PacketWarn.SetTextColor(kRed);
-      PacketWarn.DrawText(0.5, 0.7 - 0.05 * i, Form("%d: %d%% events, %d size, %d channels, %d offset", i+9000,
-                                                    int(100*h1_packet_number->GetBinContent(i)),
+      PacketWarn.DrawText(0.01, 0.7 - 0.05 * i, Form("%d: %d%% events, %d size, %d channels, %d offset", i+9000,
+                                                    int(100*h1_packet_number->GetBinContent(i)+0.5),
                                                     (int)h1_packet_length->GetBinContent(i),
                                                     (int)h1_packet_chans->GetBinContent(i),
                                                     (int)h1_packet_event->GetBinContent(i)) );
       PacketWarn.SetTextColor(kBlack);
+    }
+  if ( badPackets.size() == 1 )
+    {
+      PacketWarn.SetTextColor(kRed);
+      PacketWarn.DrawText(0.01, 0.30, Form("%d bad packet: %s",(int)badPackets.size(),list_of_bad_packets.c_str()));
+    }
+  if ( badPackets.size() > 1 )
+    {
+      PacketWarn.SetTextColor(kRed);
+      PacketWarn.DrawText(0.01, 0.30, Form("%d bad packets: %s",(int)badPackets.size(),list_of_bad_packets.c_str()));
     }
 
 
