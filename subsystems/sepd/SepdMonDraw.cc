@@ -61,7 +61,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // xpos negative: do not draw menu bar
     //TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1200, 600);
-    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1600, 800);
+    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - EXPERT - ADC Distributions", 1600, 800);
     gSystem->ProcessEvents();
     for ( int i = 0; i < 32; ++i )
       {
@@ -527,10 +527,27 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   Pad[6]->cd();
   gStyle->SetTitleFontSize(0.03);
   float ymaxp = h2_sepd_waveform->ProfileX()->GetMaximum();
-  h2_sepd_waveform->GetYaxis()->SetRangeUser(0, ymaxp * 20);
+  float ymaxdraw = ymaxp * 10; // was originally 20, but that is too much
+  h2_sepd_waveform->GetYaxis()->SetRangeUser(0,ymaxdraw);
   h2_sepd_waveform->GetXaxis()->SetRangeUser(0, 11);
-
   h2_sepd_waveform->Draw("colz");
+  // --- add a profile on top
+  TProfile* tp1f_sepd_waveform = h2_sepd_waveform->ProfileX();
+  tp1f_sepd_waveform->SetLineColor(kBlack);
+  tp1f_sepd_waveform->SetLineWidth(2);
+  tp1f_sepd_waveform->Draw("same");
+  // --- draw vertical lines where the waveform should be
+  // x1 y1 x2 y2
+  TLine* lineleft = new TLine(5.0,0,5.0,ymaxdraw);
+  TLine* lineright = new TLine(7.0,0,7.0,ymaxdraw);
+  lineleft->SetLineColor(kBlack);
+  lineleft->SetLineWidth(2);
+  lineleft->SetLineStyle(2);
+  lineleft->Draw();
+  lineright->SetLineColor(kBlack);
+  lineright->SetLineWidth(2);
+  lineright->SetLineStyle(2);
+  lineright->Draw();
 
   float tsize = 0.09;
   h2_sepd_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
@@ -572,6 +589,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
   h_waveform_time->GetXaxis()->SetRangeUser(0,11);
   h_waveform_time->Draw("hist");
+  // ---
   h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
   h_waveform_time->GetYaxis()->SetTitle("Counts");
@@ -581,6 +599,22 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_time->GetYaxis()->SetTitleSize(tsize);
   h_waveform_time->GetXaxis()->SetTitleOffset(1.0);
   h_waveform_time->GetYaxis()->SetTitleOffset(1.25);
+  // ---
+  // --- draw vertical lines where the waveform should be
+  float min = h_waveform_time->GetMinimum();
+  float max = h_waveform_time->GetMaximum();
+  // x1 y1 x2 y2
+  TLine* lineleft2 = new TLine(5.0,min,5.0,max);
+  TLine* lineright2 = new TLine(7.0,min,7.0,max);
+  lineleft2->SetLineColor(kBlack);
+  lineleft2->SetLineWidth(2);
+  lineleft2->SetLineStyle(2);
+  lineleft2->Draw();
+  lineright2->SetLineColor(kBlack);
+  lineright2->SetLineWidth(2);
+  lineright2->SetLineStyle(2);
+  lineright2->Draw();
+  // ---
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
