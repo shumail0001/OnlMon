@@ -5,6 +5,7 @@
 
 #include <onlmon/OnlMon.h>
 #include <cmath>
+#include <map>
 #include <vector>
 
 class CaloWaveformFitting;
@@ -29,6 +30,7 @@ class ZdcMon : public OnlMon
  protected:
   std::vector<float> anaWaveformFast(Packet *p, const int channel);
   CaloWaveformFitting *WaveformProcessingFast = nullptr;
+  std::map<int, int> Chmapping;
 
   double PI = 3.14159;
   int evtcnt = 0;

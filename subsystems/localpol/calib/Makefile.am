@@ -5,4 +5,5 @@ localpoldatadir = $(pkgdatadir)/localpol
 
 localpoldata_DATA = \
   LocalPolMonData.dat \
-  LocPolConfig.dat
+  LocPolConfig.dat\
+  ChannelMapping.txt

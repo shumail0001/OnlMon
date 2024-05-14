@@ -72,6 +72,7 @@ class LocalPolMon : public OnlMon
   
   std::map<int, int> SpinPatterns[2];
   std::map<int, long long> gl1_counter[16];
+  std::map<int, int> Chmapping;
 
   TH1D **h_Counts                 = nullptr;
   TH1D **h_CountsScramble         = nullptr;

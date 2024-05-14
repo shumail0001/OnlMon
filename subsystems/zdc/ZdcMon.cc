@@ -25,6 +25,7 @@
 #include <cstdio>  // for printf
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
 
@@ -67,6 +68,23 @@ int ZdcMon::Init()
   std::string fullfile = std::string(zdccalib) + "/" + "ZdcMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
+
+  std::string mappingfilename=std::string(zdccalib)+"/"+"ChannelMapping.dat";
+  std::ifstream mapping(mappingfilename);
+  std::ostringstream msg_mapping(mappingfilename);
+
+  if(!mapping){
+    msg_mapping<<mappingfilename<<" could not be opened.";
+    OnlMonServer *se = OnlMonServer::instance();
+    se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL,msg_mapping.str(),2);
+    exit(1);
+  }
+  int adc, array;
+  std::string ChannelName;
+  for(int i=0; i<128; i++){
+    mapping>>adc>>array>>ChannelName;
+    Chmapping[adc]=array;
+  }
 
   //getting gains
   float col1, col2, col3;
@@ -275,22 +293,26 @@ int ZdcMon::process_event(Event *e /* evt */)
   if (p)
   {
       
-    for (int j = 0; j < p->iValue(0, "CHANNELS"); j++)
+      //for (int j = 0; j < p->iValue(0, "CHANNELS"); j++)
+    for(std::map<int,int>::iterator it=Chmapping.begin(); it!=Chmapping.end(); ++it)//new mapping for ZDC/SMD/Veto with 2 ADC boards//May 13th 2024
     {
+      if(it->second<0) continue;
+      if(it->second>51) continue;
+      int j=it->second;
         double baseline = 0.;
         double baseline_low = 0.;
         double baseline_high = 0.;
 
        for(int s = 0; s < 3; s++)
         {
-         baseline_low += p->iValue(s, j);
+         baseline_low += p->iValue(s, it->first);
         }
           
         baseline_low /= 3.;
 
         for (int s = p->iValue(0, "SAMPLES")-3; s < p->iValue(0, "SAMPLES"); s++)
         {
-          baseline_high += p->iValue(s,j);
+          baseline_high += p->iValue(s,it->first);
         }
          
         baseline_high /=3.;
@@ -300,40 +322,43 @@ int ZdcMon::process_event(Event *e /* evt */)
 
         for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
         {
-             h_waveformAll->Fill(s, p->iValue(s, j) - baseline);
+             h_waveformAll->Fill(s, p->iValue(s, it->first) - baseline);
 
               if (j < 16) //-->(0,15)
               {
-                  h_waveformZDC->Fill(s, p->iValue(s, j) - baseline);
+                  h_waveformZDC->Fill(s, p->iValue(s, it->first) - baseline);
               }
               
              if ((j > 15) && (j < 32)) //-->(16,31)
               {
-                  h_waveformSMD_North->Fill(s, p->iValue(s, j) - baseline);
+                  h_waveformSMD_North->Fill(s, p->iValue(s, it->first) - baseline);
               }
             
               if ((j > 31) && (j < 48)) //-->(32,47)
               {
-                  h_waveformSMD_South->Fill(s, p->iValue(s, j) - baseline);
+                  h_waveformSMD_South->Fill(s, p->iValue(s, it->first) - baseline);
               }
               
               if ((j > 47) && (j < 50)) //-->(48,49)
                {
-                   h_waveformVeto_North->Fill(s, p->iValue(s, j) - baseline);
+                   h_waveformVeto_North->Fill(s, p->iValue(s, it->first) - baseline);
 
                }
                
               if ((j > 49) && (j < 52)) //-->(50,51)
               {
-                  h_waveformVeto_South->Fill(s, p->iValue(s, j) - baseline);
+                  h_waveformVeto_South->Fill(s, p->iValue(s, it->first) - baseline);
               }
            }
-      } // waveform hists
+    } // waveform hists
       
-    for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
+    //for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
+    for(std::map<int,int>::iterator it=Chmapping.begin(); it!=Chmapping.end(); ++it)//new mapping for ZDC/SMD/Veto with 2 ADC boards//May 13th 2024
     {
-        
-      std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
+      int c = it->second;
+      if(it->second<0) continue;
+      if(it->second>47) continue;
+      std::vector<float> resultFast = anaWaveformFast(p, it->first);  // fast waveform fitting
       float signalFast = resultFast.at(0);
       float signal = signalFast;
      
