@@ -313,7 +313,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime)
+              << " - UNDER CONSTRUCTION";
   runstring = runnostream.str();
   transparent[0]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
@@ -411,7 +412,8 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime)
+              << " - EXPERT ONLY! DON'T WORRY, BE HAPPY!";
   runstring = runnostream.str();
   transparent[1]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
