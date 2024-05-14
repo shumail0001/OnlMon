@@ -163,12 +163,12 @@ int process_event(Event *evt)
 #ifdef USE_MUTEX
     pthread_mutex_lock(&mutex);
 #endif
-    FrameWorkVars->SetBinContent(EORTIMEBIN, (Stat_t) eorticks);  // set EOR time
+    FrameWorkVars->SetBinContent(EORTIMEBIN, eorticks);  // set EOR time
     se->EndRun(oldrun);
     se->WriteHistoFile();
     se->Reset();  // reset all monitors
     int newrun = evt->getRunNumber();
-    FrameWorkVars->SetBinContent(RUNNUMBERBIN, (Stat_t) newrun);
+    FrameWorkVars->SetBinContent(RUNNUMBERBIN, newrun);
     eorticks = tmpticks;  // initialize eorticks
     se->BadEvents(0);
     se->RunNumber(newrun);
@@ -179,7 +179,7 @@ int process_event(Event *evt)
     se->CurrentTicks(tmpticks);
     se->BeginRun(newrun);
     borticks = se->BorTicks();
-    FrameWorkVars->SetBinContent(BORTIMEBIN, (Stat_t) borticks);
+    FrameWorkVars->SetBinContent(BORTIMEBIN,  borticks);
     eventcnt = 0;
 #ifdef USE_MUTEX
     pthread_mutex_unlock(&mutex);
@@ -199,7 +199,7 @@ int process_event(Event *evt)
     if (tmpticks < savetmpticks)
     {
       savetmpticks = tmpticks;
-      FrameWorkVars->SetBinContent(EARLYEVENTTIMEBIN, (Stat_t) tmpticks);
+      FrameWorkVars->SetBinContent(EARLYEVENTTIMEBIN, tmpticks);
     }
 #ifdef USE_MUTEX
     pthread_mutex_unlock(&mutex);
@@ -224,8 +224,10 @@ int process_event(Event *evt)
 #ifdef USE_MUTEX
   pthread_mutex_lock(&mutex);
 #endif
-  FrameWorkVars->SetBinContent(CURRENTTIMEBIN, (Stat_t) se->CurrentTicks());
+  FrameWorkVars->SetBinContent(CURRENTTIMEBIN, se->CurrentTicks());
   se->EventNumber(evt->getEvtSequence());
+  se->IncrementEventCounter();
+  FrameWorkVars->SetBinContent(EVENTCOUNTERBIN,se->EventCounter());
   se->process_event(evt);
 #ifdef USE_MUTEX
   pthread_mutex_unlock(&mutex);

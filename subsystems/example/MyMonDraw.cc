@@ -26,7 +26,7 @@ MyMonDraw::MyMonDraw(const std::string &name)
   // this TimeOffsetTicks is neccessary to get the time axis right
   TDatime T0(2003, 01, 01, 00, 00, 00);
   TimeOffsetTicks = T0.Convert();
-  dbvars = new OnlMonDB(ThisName);
+  dbvars = new OnlMonDB("MyMon");//"ThisName);
   return;
 }
 

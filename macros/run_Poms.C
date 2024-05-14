@@ -29,9 +29,13 @@ void StartPoms()
 
   subsys = new SubSystem("CEMC", "cemc");
   subsys->AddAction("cemcDraw(\"FIRST\")", "Towers");
-  subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Health");
+  subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Health [Expert]");
   subsys->AddAction("cemcDraw(\"THIRD\")", "Wave Forms");
-  subsys->AddAction("cemcDraw(\"FOURTH\")", "Wave vs Fast Fitting");
+  subsys->AddAction("cemcDraw(\"FOURTH\")", "Wave vs Fast Fitting [Expert]");
+  subsys->AddAction("cemcDraw(\"FIFTH\")", "Trigger [Expert]");
+  subsys->AddAction("cemcDraw(\"SIXTH\")", "All waveform summary [Expert]");
+  subsys->AddAction("cemcDraw(\"SEVENTH\")", "Zero-suppression info [Expert]");
+  subsys->AddAction("cemcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -39,6 +43,7 @@ void StartPoms()
   subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
   subsys->AddAction("daqDraw(\"SECOND\")", "Calo-GL1 Snapshot");
   // subsys->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
+   subsys->AddAction("daqDraw(\"SERVERSTATS\")", "Server Stats");
    subsys->AddAction(new SubSystemActionSavePlot(subsys));
    pmf->RegisterSubSystem(subsys);
 
@@ -47,6 +52,7 @@ void StartPoms()
   subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average [Expert]");
   subsys->AddAction("ihcalDraw(\"THIRD\")", "Wave Form");
   subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health [Expert]");
+  subsys->AddAction("ihcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -56,6 +62,7 @@ void StartPoms()
   subsys->AddAction("ohcalDraw(\"THIRD\")", "Wave Form");
   subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ohcalDraw(\"FIFTH\")", "Trigger [Expert]");
+  subsys->AddAction("ohcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -64,6 +71,7 @@ void StartPoms()
   subsys->AddAction("inttDraw(\"ladder_hitmap\")", "Ladder Hitmap");
   subsys->AddAction("inttDraw(\"chip_nll\")", "Chip NLL");
   subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff");
+  subsys->AddAction("inttDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -83,6 +91,7 @@ void StartPoms()
   subsys->AddAction("mvtxDraw(\"FEE\")", "FEE");
   subsys->AddAction("mvtxDraw(\"FHR\")", "FHR");
   subsys->AddAction("mvtxDraw(\"OCC\")", "OCC");
+  subsys->AddAction("mvtxDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -122,6 +131,7 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R1\")", "TPC Pedest Sub. ADC vs Sample R1 ONLY");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R2\")", "TPC Pedest Sub. ADC vs Sample R2 ONLY");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R3\")", "TPC Pedest Sub. ADC vs Sample R3 ONLY");
+  subsys->AddAction("tpcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -147,9 +157,15 @@ void StartPoms()
   subsys->AddAction("zdcDraw(\"SMD_N_IND\")", "SMD North Individual");
   subsys->AddAction("zdcDraw(\"SMD_S_IND\")", "SMD South Individual");
   subsys->AddAction("zdcDraw(\"SMD_MULTIPLICITIES\")", "SMD Multiplicities");
-
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
+
+  subsys = new SubSystem("LOCALPOL", "localpol");
+  subsys->AddAction("localpolDraw(\"FIRST\")", "Asymmetries");
+  subsys->AddAction("localpolDraw(\"SECOND\")", "Polarisation direction");
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
+
 
   pmf->Draw();
 }

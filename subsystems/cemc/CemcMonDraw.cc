@@ -8,15 +8,17 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TH2D.h>
+#include <TLegend.h>
+#include <TLine.h>
 #include <TPad.h>
+#include <TPaveText.h>
+#include <TProfile.h>
+#include <TProfile2D.h>
+#include <TQObject.h>
 #include <TROOT.h>
+#include <TStyle.h>
 #include <TSystem.h>
 #include <TText.h>
-#include <TStyle.h>
-#include <TLine.h>
-#include <TPaveText.h>
-#include <TLegend.h>
-#include <TProfile.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -26,9 +28,8 @@
 #include <vector>  // for vector
 
 CemcMonDraw::CemcMonDraw(const std::string &name)
-: OnlMonDraw(name)
+  : OnlMonDraw(name)
 {
-
   return;
 }
 
@@ -36,15 +37,15 @@ int CemcMonDraw::Init()
 {
   std::cout << "initializing" << std::endl;
 
-  cemcStyle = new TStyle("cemcStyle","cemcStyle");
+  cemcStyle = new TStyle("cemcStyle", "cemcStyle");
   gStyle->SetOptStat(0);
-  Int_t font=42; // Helvetica
-  cemcStyle->SetLabelFont(font,"x");
-  cemcStyle->SetTitleFont(font,"x");
-  cemcStyle->SetLabelFont(font,"y");
-  cemcStyle->SetTitleFont(font,"y");
-  cemcStyle->SetLabelFont(font,"z");
-  cemcStyle->SetTitleFont(font,"z");
+  Int_t font = 42;  // Helvetica
+  cemcStyle->SetLabelFont(font, "x");
+  cemcStyle->SetTitleFont(font, "x");
+  cemcStyle->SetLabelFont(font, "y");
+  cemcStyle->SetTitleFont(font, "y");
+  cemcStyle->SetLabelFont(font, "z");
+  cemcStyle->SetTitleFont(font, "z");
   cemcStyle->SetOptStat(0);
   cemcStyle->SetPadTickX(1);
   cemcStyle->SetPadTickY(1);
@@ -55,279 +56,390 @@ int CemcMonDraw::Init()
   return 0;
 }
 
-
 int CemcMonDraw::MakeCanvas(const std::string &name)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
   if (name == "CemcMon1")
-    {
-      // xpos (-1) negative: do not draw menu bar
-      TC[0] = new TCanvas(name.c_str(), "CemcMon Tower Hits",  xsize/3 , 0, xsize/3, ysize*0.9);
-      // root is pathetic, whenever a new TCanvas is created root piles up
-      // 6kb worth of X11 events which need to be cleared with
-      // gSystem->ProcessEvents(), otherwise your process will grow and
-      // grow and grow but will not show a definitely lost memory leak
-      gSystem->ProcessEvents();
-      Pad[0] = new TPad("cemcpad0","hit map",0.,0.2,1.,1.);
-      Pad[0]->Draw();
-      // this one is used to plot the run number on the canvas
-      transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-      transparent[0]->SetFillStyle(4000);
-      transparent[0]->Draw();
+  {
+    // xpos (-1) negative: do not draw menu bar
+    TC[0] = new TCanvas(name.c_str(), "CemcMon Tower Hits", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    // root is pathetic, whenever a new TCanvas is created root piles up
+    // 6kb worth of X11 events which need to be cleared with
+    // gSystem->ProcessEvents(), otherwise your process will grow and
+    // grow and grow but will not show a definitely lost memory leak
+    gSystem->ProcessEvents();
+    Pad[0] = new TPad("cemcpad0", "hit map", 0., 0.2, 1., 1.);
+    Pad[0]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[0]->SetFillStyle(4000);
+    transparent[0]->Draw();
 
-      // warning
-      warning[0] = new TPad("warning0", "hot tower warnings", 0, 0, 1, 0.2);
-      warning[0]->SetFillStyle(4000);
-      warning[0]->Draw();
-      TC[0]->SetEditable(0);
-    }
+    // warning
+    warning[0] = new TPad("warning0", "hot tower warnings", 0, 0, 1, 0.2);
+    warning[0]->SetFillStyle(4000);
+    warning[0]->Draw();
+    TC[0]->SetEditable(false);
+  }
   else if (name == "CemcMon2")
-    {
-      // xpos negative: do not draw menu bar
-      TC[1] = new TCanvas(name.c_str(), "CemcMon2 Packet Information",  2*xsize /3, 0,2*xsize / 3, ysize*0.9);
-      gSystem->ProcessEvents();
-      Pad[1] = new TPad("cemcpad1", "packet event check", 0.0, 0.6, 1.0/2, 0.95, 0);
-      Pad[2] = new TPad("cemcpad2", "packet size", 0.0, 0.3, 1.0/2, 0.6, 0);
-      Pad[3] = new TPad("cemcpad3", "packet channels", 0.0, 0.0, 1.0/2, 0.3, 0);
-      Pad[1]->Draw();
-      Pad[2]->Draw();
-      Pad[3]->Draw();
-      // this one is used to plot the run number on the canvas
-      transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
-      transparent[1]->SetFillStyle(4000);
-      transparent[1]->Draw();
+  {
+    // xpos negative: do not draw menu bar
+    TC[1] = new TCanvas(name.c_str(), "CemcMon2 Packet Information Expert", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    gSystem->ProcessEvents();
+    Pad[1] = new TPad("cemcpad1", "packet event check", 0.0, 0.6, 1.0 / 2, 0.95, 0);
+    Pad[2] = new TPad("cemcpad2", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
+    Pad[3] = new TPad("cemcpad3", "packet channels", 0.0, 0.0, 1.0 / 2, 0.3, 0);
+    Pad[1]->Draw();
+    Pad[2]->Draw();
+    Pad[3]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
+    transparent[1]->SetFillStyle(4000);
+    transparent[1]->Draw();
 
-      //packet warnings
-      warning[1] = new TPad("warning1","packet warnings",0.5,0,1,1);
-      warning[1] -> SetFillStyle(4000);
-      warning[1] -> Draw();
-      TC[1]->SetEditable(0);
-    }
+    // packet warnings
+    warning[1] = new TPad("warning1", "packet warnings", 0.5, 0, 1, 1);
+    warning[1]->SetFillStyle(4000);
+    warning[1]->Draw();
+    TC[1]->SetEditable(false);
+  }
   else if (name == "CemcMon3")
-    {
-      TC[2] = new TCanvas(name.c_str(), "CemcMon Waveform Processing", xsize/3 , 0, xsize/3, ysize*0.9);
-      gSystem->ProcessEvents();
-      Pad[4] = new TPad("cemcpad4", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
-      Pad[5] = new TPad("cemcpad5", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
-      Pad[6] = new TPad("cemcpad6", "who needs this?", 0.0, 0.0, 1.0, 0.3, 0);
-      Pad[4]->Draw();
-      Pad[5]->Draw();
-      Pad[6]->Draw();
-      // this one is used to plot the run number on the canvas
-      transparent[2] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
-      transparent[2]->SetFillStyle(4000);
-      transparent[2]->Draw();
-      TC[2]->SetEditable(0);
-    }
+  {
+    TC[2] = new TCanvas(name.c_str(), "CemcMon Waveform Processing", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    gSystem->ProcessEvents();
+    Pad[4] = new TPad("cemcpad4", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
+    Pad[5] = new TPad("cemcpad5", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
+    Pad[6] = new TPad("cemcpad6", "who needs this?", 0.0, 0.0, 1.0, 0.3, 0);
+    Pad[4]->Draw();
+    Pad[5]->Draw();
+    Pad[6]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[2] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
+    TC[2]->SetEditable(false);
+  }
   else if (name == "CemcMon4")
-    {
-      TC[3] = new TCanvas(name.c_str(), "CemcMon Waveform Processing Expert", xsize / 3, 0, xsize / 3, ysize*0.9);
-      gSystem->ProcessEvents();
-      Pad[7] = new TPad("cemcpad7", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
-      Pad[8] = new TPad("cemcpad8", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
-      Pad[9] = new TPad("cemcpad9", "who needs this?", 0.0, 0.0, 1.0, 0.3, 0);
-      Pad[7]->Draw();
-      Pad[8]->Draw();
-      Pad[9]->Draw();
-      // this one is used to plot the run number on the canvas
-      transparent[3] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
-      transparent[3]->SetFillStyle(4000);
-      transparent[3]->Draw();
-      TC[3]->SetEditable(0);
+  {
+    TC[3] = new TCanvas(name.c_str(), "CemcMon Waveform Processing Expert", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    gSystem->ProcessEvents();
+    Pad[7] = new TPad("cemcpad7", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
+    Pad[8] = new TPad("cemcpad8", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
+    Pad[9] = new TPad("cemcpad9", "who needs this?", 0.0, 0.0, 1.0, 0.3, 0);
+    Pad[7]->Draw();
+    Pad[8]->Draw();
+    Pad[9]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[3] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
+    transparent[3]->SetFillStyle(4000);
+    transparent[3]->Draw();
+    TC[3]->SetEditable(false);
+  }
+  else if (name == "CemcMon5")
+  {
+    TC[4] = new TCanvas(name.c_str(), "CemcMon5 Trigger Info Expert", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    gSystem->ProcessEvents();
+    Pad[10] = new TPad("cemcpad10", "who needs this?", 0.0, 0.6, 0.5, 0.95, 0);
+    Pad[11] = new TPad("cemcpad11", "who needs this?", 0.5, 0.6, 1.0, 0.95, 0);
+    Pad[12] = new TPad("cemcpad12", "who needs this?", 0.0, 0.3, 0.5, 0.6, 0);
+    Pad[13] = new TPad("cemcpad13", "who needs this?", 0.5, 0.3, 1.0, 0.6, 0);
+    Pad[14] = new TPad("cemcpad14", "who needs this?", 0.0, 0.0, 1.0, 0.3, 0);
+    Pad[10]->Draw();
+    Pad[11]->Draw();
+    Pad[12]->Draw();
+    Pad[13]->Draw();
+    Pad[14]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[4] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
+    transparent[4]->SetFillStyle(4000);
+    transparent[4]->Draw();
+    TC[4]->SetEditable(false);
+  }
+  else if (name == "CemcMon6")
+  {
+    TC[5] = new TCanvas(name.c_str(), "CemcMon6 Server Stats", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    gSystem->ProcessEvents();
+    // this one is used to plot the run number on the canvas
+    transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
+    transparent[5]->SetFillStyle(4000);
+    transparent[5]->Draw();
+    TC[5]->SetEditable(false);
+  }
+  else if (name == "CemcPopup"){
+    PopUpCanvas = new TCanvas(name.c_str(),"Waveforms Expert",-xsize-0.3,0,xsize*0.3,ysize*0.9);
+    gSystem->ProcessEvents();
+    double step=1./8;
+    for(int i=0; i<8; i++){
+      for(int j=0; j<8; j++){
+    	PopUpPad[i][j]=new TPad(Form("PopUpPad%d_%d",i,j),"this does not show",i*step,j*step,(i+1)*step,(j+1)*step);
+	PopUpPad[i][j]->Draw();
+      }
     }
-    else if (name == "CemcMon5")
-    {
-      TC[4] = new TCanvas(name.c_str(), "CemcMon5 Trigger Info", xsize / 3, 0, xsize / 3, ysize*0.9);
-      gSystem->ProcessEvents();
-      Pad[10] = new TPad("cemcpad10", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
-      Pad[11] = new TPad("cemcpad11", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
-      Pad[12] = new TPad("cemcpad12", "who needs this?", 0.0, 0.0, 1.0, 0.3, 0);
-      Pad[10]->Draw();
-      Pad[11]->Draw();
-      Pad[12]->Draw();
-      // this one is used to plot the run number on the canvas
-      transparent[4] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
-      transparent[4]->SetFillStyle(4000);
-      transparent[4]->Draw();
-      TC[4]->SetEditable(0);
-    }
+    PopUpTransparent=new TPad("PopUpTransparent","this does not show",0,0,1,1);
+    PopUpTransparent->SetFillStyle(4000);
+    PopUpTransparent->Draw();
+    PopUpCanvas->SetEditable(false);
+  }
+  else if (name == "CemcMon7" ){
+    TC[6] = new TCanvas(name.c_str(),"Basic waveform summary Expert", -xsize/3 , 0, xsize/3, ysize*0.9);
+    gSystem->ProcessEvents();
+    Pad[15]=new TPad("cemcpad15","who needs this?",0.0,0.475,0.5,0.950);
+    Pad[15]->SetRightMargin(0.15);
+    Pad[15]->Draw();
+    Pad[16]=new TPad("cemcpad16","who needs this?",0.5,0.475,1.0,0.950);
+    Pad[16]->Draw();
+    Pad[17]=new TPad("cemcpad17","who needs this?",0.0,0.0,0.5,0.475);
+    Pad[17]->SetRightMargin(0.15);
+    Pad[17]->Draw();
+    Pad[18]=new TPad("cemcpad18","who needs this?",0.5,0.0,1.0,0.475);
+    Pad[18]->Draw();
+    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
+    TC[6]->SetEditable(0);
+  }
+  else if (name == "CemcMon8" ){
+    TC[7] = new TCanvas(name.c_str(),"Channel unsuppressed event fraction Expert", -xsize/3 , 0, xsize/3, ysize*0.9);
+    gSystem->ProcessEvents();
+    Pad[19]=new TPad("cemcpad19","who needs this?",0.00,0.00,1.00,0.95);
+    Pad[19]->SetRightMargin(0.15);
+    Pad[19]->Draw();
+    transparent[7] = new TPad("transparent7", "this does not show", 0, 0, 1, 1);
+    transparent[7]->SetFillStyle(4000);
+    transparent[7]->Draw();
+    TC[7]->SetEditable(0);
+  }
 
   return 0;
 }
-
-
 
 int CemcMonDraw::Draw(const std::string &what)
 {
   int iret = 0;
   int idraw = 0;
   if (what == "ALL" || what == "FIRST")
-    {
-      iret += DrawFirst(what);
-      idraw++;
-    }
+  {
+    iret += DrawFirst(what);
+    idraw++;
+  }
   if (what == "ALL" || what == "SECOND")
-    {
-      iret += DrawSecond(what);
-      idraw++;
-    }
+  {
+    iret += DrawSecond(what);
+    idraw++;
+  }
   if (what == "ALL" || what == "THIRD")
-    {
-      iret += DrawThird(what);
-      idraw++;
-    }
+  {
+    iret += DrawThird(what);
+    idraw++;
+  }
   if (what == "ALL" || what == "FOURTH")
-    {
-      iret += DrawFourth(what);
-      idraw++;
-    }
+  {
+    iret += DrawFourth(what);
+    idraw++;
+  }
   if (what == "ALL" || what == "FIFTH")
+  {
+    iret += DrawFifth(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "SIXTH")
+  {
+    iret += DrawSixth(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "SEVENTH")
     {
-      iret += DrawFifth(what);
+      iret += DrawSeventh(what);
       idraw++;
     }
+  if (what == "ALL" || what == "SERVERSTATS")
+  {
+    iret += DrawServerStats();
+    idraw++;
+  }
   if (!idraw)
-    {
-      std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
-      iret = -1;
-    }
+  {
+    std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
+    iret = -1;
+  }
+  if (std::fabs(iret) != idraw) // at least one succeeded
+  {
+    return 0;
+  }
   return iret;
 }
-
-
 
 int CemcMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  //watch the absolute insanity as we merge all these
-  //histograms from across seven different machines
-  TH2* hist1[nSEBs];
+  // watch the absolute insanity as we merge all these
+  // histograms from across seven different machines
+  TH2 *hist1[m_ServerSet.size()];
   const int nHists = 4;
   int start[nHists];
   start[0] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  int i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    hist1[i] = (TH2 *) cl->getHisto(*server, "h2_cemc_rm");
+    if (hist1[i] && start[0] == -1)
     {
-      hist1[i] = (TH2*)cl->getHisto(Form("CEMCMON_%d",i),"h2_cemc_rm");
-      if(hist1[i] && start[0] == -1) start[0] = i;
-      if(start[0] > -1 && hist1[i])
-	{
-	  hist1[i] -> SetName(Form("h2_cemc_rm_%d",i));
-	  if(i != start[0])hist1[start[0]] -> Add(hist1[i],1);
-	}
+      start[0] = i;
     }
+    if (start[0] > -1 && hist1[i])
+    {
+      hist1[i]->SetName(Form("h2_cemc_rm_%d", i));
+      if (i != start[0])
+      {
+        hist1[start[0]]->Add(hist1[i], 1);
+      }
+    }
+    i++;
+  }
 
-
-  TH2* h2_cemc_mean[nSEBs];
+  TH2 *h2_cemc_mean[m_ServerSet.size()];
   start[1] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h2_cemc_mean[i] = (TH2 *) cl->getHisto(*server, "h2_cemc_mean");
+    if (h2_cemc_mean[i] && start[1] == -1)
     {
-      h2_cemc_mean[i] = (TH2*)cl->getHisto(Form("CEMCMON_%d",i),"h2_cemc_mean");
-      if( h2_cemc_mean[i] && start[1] == -1) start[1] = i;
-      if(start[1] > -1 && h2_cemc_mean[i])
-	{
-	  h2_cemc_mean[i] -> SetName(Form("h2_cemc_mean_%d",i));
-	  if(i != start[1])h2_cemc_mean[start[1]] -> Add(h2_cemc_mean[i],1);
-	}
+      start[1] = i;
     }
+    if (start[1] > -1 && h2_cemc_mean[i])
+    {
+      h2_cemc_mean[i]->SetName(Form("h2_cemc_mean_%d", i));
+      if (i != start[1])
+      {
+        h2_cemc_mean[start[1]]->Add(h2_cemc_mean[i], 1);
+      }
+    }
+    i++;
+  }
 
-  TH1* h_event[nSEBs];
-  TH1* h_eventSource[nSEBs];
+  TH1 *h_event[m_ServerSet.size()];
+  TH1 *h_eventSource[m_ServerSet.size()];
   start[2] = -1;
   float maxEvent = 1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h_eventSource[i] = cl->getHisto(*server, "h1_event");
+    if (h_eventSource[i] && start[2] == -1)
     {
-      h_eventSource[i] = (TH1*)cl->getHisto(Form("CEMCMON_%d",i),"h1_event");
-      if(h_eventSource[i] && start[2] == -1) start[2] = i;
-      if(start[2] > -1 && h_eventSource[i])
-	{
-	  h_event[i] = (TH1*)h_eventSource[i] -> Clone();
-
-	  h_event[i] -> SetName(Form("h1_event_%d",i));
-	  if(/*i != start[2]*/h_event[i] -> GetEntries() > maxEvent)
-	    {
-	      //h_event[start[2]] -> Add(h_event[i],1);
-	      maxEvent = h_event[i] -> GetEntries();
-	    }
-	}
+      start[2] = i;
     }
-
-  if (start[0] < 0)
+    if (start[2] > -1 && h_eventSource[i])
     {
-      DrawDeadServer(transparent[0]);
-      TC[0]->SetEditable(0);
-      return -1;
+      h_event[i] = (TH1 *) h_eventSource[i]->Clone();
+
+      h_event[i]->SetName(Form("h1_event_%d", i));
+      if (/*i != start[2]*/ h_event[i]->GetEntries() > maxEvent)
+      {
+        // h_event[start[2]] -> Add(h_event[i],1);
+        maxEvent = h_event[i]->GetEntries();
+      }
     }
-
-  //h_event[start[2]] -> Scale(1./divisor);
-
-  TH1* adcCount[nSEBs];
-  start[3] = -1;
-  for(int i = 0; i < nSEBs; i++)
-    {
-      adcCount[i] = (TH1*)cl->getHisto(Form("CEMCMON_%i",i),"h1_cemc_adc");
-
-      if(adcCount[i] && start[3] == -1) start[3] = i;
-      if(start[3] > -1 && adcCount[i])
-	{
-	  adcCount[i] -> SetName(Form("h1_cemc_adc_%d",i));
-	  if(i != start[3])adcCount[start[3]] -> Add(adcCount[i],1);
-	}
-    }
+    i++;
+  }
 
   if (!gROOT->FindObject("CemcMon1"))
+  {
+    MakeCanvas("CemcMon1");
+  }
+
+  if (start[0] < 0)
+  {
+    DrawDeadServer(transparent[0]);
+    TC[0]->SetEditable(false);
+    return -1;
+  }
+
+  // h_event[start[2]] -> Scale(1./divisor);
+
+  TH1 *adcCount[m_ServerSet.size()];
+  start[3] = -1;
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    adcCount[i] = cl->getHisto(*server, "h1_cemc_adc");
+
+    if (adcCount[i] && start[3] == -1)
     {
-      MakeCanvas("CemcMon1");
+      start[3] = i;
+    }
+    if (start[3] > -1 && adcCount[i])
+    {
+      adcCount[i]->SetName(Form("h1_cemc_adc_%d", i));
+      if (i != start[3])
+      {
+        adcCount[start[3]]->Add(adcCount[i], 1);
+      }
+    }
+  }
+
+
+  if (maxEvent > 0)
+  {
+    if (maxEvent > templateDepth)
+    {
+      h2_cemc_mean[start[1]]->Scale(1. / templateDepth);
+    }
+    else
+    {
+      h2_cemc_mean[start[1]]->Scale(1. / maxEvent);
     }
 
-
-  if(maxEvent > 0)
+    // hist1[start[0]] -> Divide(h2_cemc_mean[start[1]]);
+    // hist1[start[0]] -> Scale(1./hist1[start[0]] -> GetMean());
+    // hist1[start[0]] -> Scale(1/10.);
+    if (adcCount[start[3]]->GetMean())
     {
-
-      if(maxEvent > templateDepth)h2_cemc_mean[start[1]]->Scale(1./templateDepth);
-      else h2_cemc_mean[start[1]]->Scale(1./maxEvent);
-
-
-      //hist1[start[0]] -> Divide(h2_cemc_mean[start[1]]);
-      //hist1[start[0]] -> Scale(1./hist1[start[0]] -> GetMean());
-      //hist1[start[0]] -> Scale(1/10.);
-      if(adcCount[start[3]]->GetMean())h2_cemc_mean[start[1]]->Scale(1./adcCount[start[3]]->GetMean());
-
-      if(adcCount[start[3]]->GetMean())hist1[start[0]] -> Scale(1./adcCount[start[3]]->GetMean());
-
-      for(int i = 0; i < nTowersEta; i++)
-      	{
-      	  for(int j = 0; j < nTowersPhi; j++)
-      	    {
-      	      //if(i < 8) continue;
-      	      if(h2_cemc_mean[start[1]]-> GetBinContent(i+1, j+1) < 0.75 && hist1[start[0]] -> GetBinContent(i+1, j+1) < 0.75) hist1[start[0]]->SetBinContent(i+1, j+1, h2_cemc_mean[start[1]] -> GetBinContent(i+1, j+1));
-      	      else hist1[start[0]] -> SetBinContent(i+1, j+1, hist1[start[0]]->GetBinContent(i+1,j+1)/h2_cemc_mean[start[1]]->GetBinContent(i+1,j+1));
-      	    }
-      	}
+      h2_cemc_mean[start[1]]->Scale(1. / adcCount[start[3]]->GetMean());
     }
+
+    if (adcCount[start[3]]->GetMean())
+    {
+      hist1[start[0]]->Scale(1. / adcCount[start[3]]->GetMean());
+    }
+
+    for (int k = 0; k < nTowersEta; k++)
+    {
+      for (int j = 0; j < nTowersPhi; j++)
+      {
+        // if(k < 8) continue;
+        if (h2_cemc_mean[start[1]]->GetBinContent(k + 1, j + 1) < 0.75 && hist1[start[0]]->GetBinContent(k + 1, j + 1) < 0.75)
+        {
+          hist1[start[0]]->SetBinContent(k + 1, j + 1, h2_cemc_mean[start[1]]->GetBinContent(k + 1, j + 1));
+        }
+        else
+        {
+          hist1[start[0]]->SetBinContent(k + 1, j + 1, hist1[start[0]]->GetBinContent(k + 1, j + 1) / h2_cemc_mean[start[1]]->GetBinContent(k + 1, j + 1));
+        }
+      }
+    }
+  }
   else
+  {
+    for (int k = 0; k < nTowersEta; k++)
     {
-      for(int i = 0; i < nTowersEta; i++)
-	{
-	  for(int j = 0; j < nTowersPhi; j++)
-	    {
+      for (int j = 0; j < nTowersPhi; j++)
+      {
+        // if(k < 8) continue;
 
-	      //if(i < 8) continue;
-	     
-	      hist1[start[0]]->SetBinContent(i+1, j+1, 0);
-	    }
-	}
+        hist1[start[0]]->SetBinContent(k + 1, j + 1, 0);
+      }
     }
-  //hist1 = (TH2D*)hist1 -> Divide(h2_cemc_mean);
-  //TH1 *temp = (TH1*)h2_cemc_mean -> Clone();
-  //temp -> GetXaxis() -> SetRangeUser(8,temp -> GetNbinsX());//accounts for the fact that we're missing
-  //adc boards on the south side.
+  }
+  // hist1 = (TH2D*)hist1 -> Divide(h2_cemc_mean);
+  // TH1 *temp = (TH1*)h2_cemc_mean -> Clone();
+  // temp -> GetXaxis() -> SetRangeUser(8,temp -> GetNbinsX());//accounts for the fact that we're missing
+  // adc boards on the south side.
 
-
-
-
-  TC[0]->SetEditable(1);
+  TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   Pad[0]->cd();
 
@@ -337,8 +449,8 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   hist1[start[0]]->GetXaxis()->CenterTitle();
   hist1[start[0]]->GetYaxis()->CenterTitle();
   hist1[start[0]]->GetZaxis()->CenterTitle();
-  hist1[start[0]]->GetXaxis()->SetNdivisions(12,kFALSE);
-  hist1[start[0]]->GetYaxis()->SetNdivisions(32,kFALSE);
+  hist1[start[0]]->GetXaxis()->SetNdivisions(12, kFALSE);
+  hist1[start[0]]->GetYaxis()->SetNdivisions(32, kFALSE);
 
   float tsize = 0.03;
   hist1[start[0]]->GetXaxis()->SetLabelSize(tsize);
@@ -349,27 +461,30 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   hist1[start[0]]->GetYaxis()->SetTitleSize(tsize);
   hist1[start[0]]->GetXaxis()->SetTickLength(0.02);
 
-  //hist1->GetZaxis()->SetRangeUser(0,2);
+  // hist1->GetZaxis()->SetRangeUser(0,2);
 
   TLine *line_sector[32];
-  for(int i_line=0;i_line<32;i_line++)
-    {
-      line_sector[i_line] = new TLine(0,(i_line+1)*8,96,(i_line+1)*8);
-      line_sector[i_line]->SetLineColor(1);
-      line_sector[i_line]->SetLineWidth(1);
-      line_sector[i_line]->SetLineStyle(1);
-    }
-
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line] = new TLine(0, (i_line + 1) * 8, 96, (i_line + 1) * 8);
+    line_sector[i_line]->SetLineColor(1);
+    line_sector[i_line]->SetLineWidth(1);
+    line_sector[i_line]->SetLineStyle(1);
+  }
 
   const int numVertDiv = 12;
-  int dEI = 96/numVertDiv;
-  TLine *l_board[numVertDiv-1];
-  for(int il=1; il<numVertDiv; il++){
-    l_board[il-1] = new TLine(dEI*il,0,dEI*il,256);
-    l_board[il-1]->SetLineColor(1);
-    l_board[il-1]->SetLineWidth(1);
-    l_board[il-1]->SetLineStyle(1);
-    if(il==6) l_board[il-1]->SetLineWidth(2);
+  int dEI = 96 / numVertDiv;
+  TLine *l_board[numVertDiv - 1];
+  for (int il = 1; il < numVertDiv; il++)
+  {
+    l_board[il - 1] = new TLine(dEI * il, 0, dEI * il, 256);
+    l_board[il - 1]->SetLineColor(1);
+    l_board[il - 1]->SetLineWidth(1);
+    l_board[il - 1]->SetLineStyle(1);
+    if (il == 6)
+    {
+      l_board[il - 1]->SetLineWidth(2);
+    }
   }
 
   gPad->SetTopMargin(0.08);
@@ -377,24 +492,28 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   gPad->SetLeftMargin(0.08);
   gPad->SetRightMargin(0.12);
 
-
-
   // modify palette to black, green, and red
-  Int_t palette[3] = {kGray+2,8,2};
-  cemcStyle->SetPalette(3,palette);
+  Int_t palette[3] = {kGray + 2, 8, 2};
+  cemcStyle->SetPalette(3, palette);
   gROOT->SetStyle("cemcStyle");
   gROOT->ForceStyle();
-  gStyle->SetPalette(3,palette);
-  double_t levels[4] = {0,0.75,1.25,2};
-  hist1[start[0]] -> GetZaxis() -> SetRangeUser(0,2);
-  hist1[start[0]] ->SetContour(4,levels);
-  gStyle -> SetOptStat(0);
+  gStyle->SetPalette(3, palette);
+  double_t levels[4] = {0, 0.75, 1.25, 2};
+  hist1[start[0]]->GetZaxis()->SetRangeUser(0, 2);
+  hist1[start[0]]->SetContour(4, levels);
+  gStyle->SetOptStat(0);
   hist1[start[0]]->DrawCopy("colz");
-  //h2_cemc_mean[start[1]]->DrawCopy("colz");
-  for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
-  for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
+  // h2_cemc_mean[start[1]]->DrawCopy("colz");
+  for (auto &i_line : line_sector)
+  {
+    i_line->Draw();
+  }
+  for (auto &il : l_board)
+  {
+    il->Draw();
+  }
 
-  FindHotTower(warning[0],hist1[start[0]]);
+  FindHotTower(warning[0], hist1[start[0]]);
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);
@@ -405,7 +524,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream  << "Running mean of Tower Hits Normalized by All Towers " ;
+  runnostream << "Running mean of Tower Hits Normalized by All Towers ";
   runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
   transparent[0]->cd();
   runstring = runnostream.str();
@@ -413,165 +532,197 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   runstring = runnostream2.str();
   PrintRun.DrawText(0.5, 0.966, runstring.c_str());
 
+
+  //TC[0]->Connect("ProcessedEvent(int, int, int, TObject*)","CemcMonDraw",this,"HandleEvent(int, int, int, TObject*)");//Kept to potentially show running mean evolution
+
+
   TC[0]->Update();
   TC[0]->Show();
-  TC[0]->SetEditable(0);
-  if(save)TC[0] -> SaveAs("plots/towerHits.pdf");
+  TC[0]->SetEditable(false);
+  if (save)
+  {
+    TC[0]->SaveAs("plots/towerHits.pdf");
+  }
   return 0;
 }
 
-
-
 int CemcMonDraw::DrawSecond(const std::string & /* what */)
 {
-
   OnlMonClient *cl = OnlMonClient::instance();
-  gStyle -> SetOptStat(0);
-  TH1* h_event[nSEBs];
-  TH1* h_eventSource[nSEBs];
+  gStyle->SetOptStat(0);
+  TH1 *h_event[m_ServerSet.size()];
+  TH1 *h_eventSource[m_ServerSet.size()];
   int start[4];
   start[0] = -1;
   float maxEvent = -1;
-  for(int i = 0; i < nSEBs; i++)
+  int i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h_eventSource[i] = cl->getHisto(*server, "h1_event");
+    if (h_eventSource[i] && start[0] == -1)
     {
-      h_eventSource[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_event");
-      if(h_eventSource[i] && start[0] == -1) start[0] = i;
-      if(start[0] > -1 && h_eventSource[i])
-	{
-	  h_event[i] = (TH1*)h_eventSource[i] -> Clone();
-	  h_event[i] -> SetName(Form("h1_event_%d",i));
-	  if(/*i != start[0] &&*/ h_event[i] -> GetEntries() > maxEvent)
-	    {
-	      //h_event[start[0]] -> Add(h_event[i],1);
-	      maxEvent = h_event[i] -> GetEntries();
-	    }
-	}
+      start[0] = i;
     }
+    if (start[0] > -1 && h_eventSource[i])
+    {
+      h_event[i] = (TH1 *) h_eventSource[i]->Clone();
+      h_event[i]->SetName(Form("h1_event_%d", i));
+      if (/*i != start[0] &&*/ h_event[i]->GetEntries() > maxEvent)
+      {
+        // h_event[start[0]] -> Add(h_event[i],1);
+        maxEvent = h_event[i]->GetEntries();
+      }
+    }
+    i++;
+  }
 
-  TH1* h1_packet_number[nSEBs];
+  TH1 *h1_packet_number[m_ServerSet.size()];
   start[1] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h1_packet_number[i] = cl->getHisto(*server, "h1_packet_number");
+    if (h1_packet_number[i] && start[1] == -1)
     {
-      h1_packet_number[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_packet_number");
-      if(h1_packet_number[i] && start[1] == -1) start[1] = i;
-      if(start[1] > -1 && h1_packet_number[i])
-	{
-	  h1_packet_number[i] -> SetName(Form("h1_papcket_number_%d",i));
-	  if(i != start[1])h1_packet_number[start[1]] -> Add(h1_packet_number[i],1);
-	}
+      start[1] = i;
     }
+    if (start[1] > -1 && h1_packet_number[i])
+    {
+      h1_packet_number[i]->SetName(Form("h1_papcket_number_%d", i));
+      if (i != start[1])
+      {
+        h1_packet_number[start[1]]->Add(h1_packet_number[i], 1);
+      }
+    }
+    i++;
+  }
 
-  TH1* h1_packet_length[nSEBs];
+  TH1 *h1_packet_length[m_ServerSet.size()];
   start[2] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h1_packet_length[i] = cl->getHisto(*server, "h1_packet_length");
+    if (h1_packet_length[i] && start[2] == -1)
     {
-      h1_packet_length[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_packet_length");
-      if(h1_packet_length[i] && start[2] == -1) start[2] = i;
-      if(start[2] > -1 && h1_packet_length[i])
-	{
-	  h1_packet_length[i] -> SetName(Form("h1_papcket_length_%d",i));
-	  if(i != start[2])h1_packet_length[start[2]] -> Add(h1_packet_length[i],1);
-	}
+      start[2] = i;
     }
+    if (start[2] > -1 && h1_packet_length[i])
+    {
+      h1_packet_length[i]->SetName(Form("h1_papcket_length_%d", i));
+      if (i != start[2])
+      {
+        h1_packet_length[start[2]]->Add(h1_packet_length[i], 1);
+      }
+    }
+    i++;
+  }
 
-
-  TH1* h1_packet_chans[nSEBs];
+  TH1 *h1_packet_chans[m_ServerSet.size()];
   start[3] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h1_packet_chans[i] = (TH1 *) cl->getHisto(*server, "h1_packet_chans");
+    if (h1_packet_chans[i] && start[3] == -1)
     {
-      h1_packet_chans[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_packet_chans");
-      if(h1_packet_chans[i] && start[3] == -1) start[3] = i;
-      if(start[3] > -1 && h1_packet_chans[i])
-	{
-	  h1_packet_chans[i] -> SetName(Form("h1_papcket_chans_%d",i));
-	  if(i != start[3])h1_packet_chans[start[3]] -> Add(h1_packet_chans[i],1);
-	}
+      start[3] = i;
     }
-
-    if (start[0] < 0  || start[1] < 0 || start[2] < 0)
+    if (start[3] > -1 && h1_packet_chans[i])
     {
-      DrawDeadServer(transparent[1]);
-      TC[1]->SetEditable(0);
-      return -1;
+      h1_packet_chans[i]->SetName(Form("h1_papcket_chans_%d", i));
+      if (i != start[3])
+      {
+        h1_packet_chans[start[3]]->Add(h1_packet_chans[i], 1);
+      }
     }
+    i++;
+  }
 
-    //h_event[start[0]] -> Scale(1./divisor);
+  if (start[0] < 0 || start[1] < 0 || start[2] < 0)
+  {
+    DrawDeadServer(transparent[1]);
+    TC[1]->SetEditable(false);
+    return -1;
+  }
 
-  if(maxEvent > 0)
-    {
-      // h1_packet_number[start[1]] -> Scale(1./h_event[start[0]] -> GetBinContent(1));
-      // h1_packet_length[start[2]] -> Scale(1./h_event[start[0]] -> GetBinContent(1));
-      // h1_packet_chans[start[3]] -> Scale(1./h_event[start[0]] -> GetBinContent(1));
-      h1_packet_number[start[1]] -> Scale(1./maxEvent);
-      h1_packet_length[start[2]] -> Scale(1./maxEvent);
-      h1_packet_chans[start[3]] -> Scale(1./maxEvent);
-    }
+  // h_event[start[0]] -> Scale(1./divisor);
+
+  if (maxEvent > 0)
+  {
+    // h1_packet_number[start[1]] -> Scale(1./h_event[start[0]] -> GetBinContent(1));
+    // h1_packet_length[start[2]] -> Scale(1./h_event[start[0]] -> GetBinContent(1));
+    // h1_packet_chans[start[3]] -> Scale(1./h_event[start[0]] -> GetBinContent(1));
+    h1_packet_number[start[1]]->Scale(1. / maxEvent);
+    h1_packet_length[start[2]]->Scale(1. / maxEvent);
+    h1_packet_chans[start[3]]->Scale(1. / maxEvent);
+  }
 
   if (!gROOT->FindObject("CemcMon2"))
-    {
-      MakeCanvas("CemcMon2");
-    }
+  {
+    MakeCanvas("CemcMon2");
+  }
 
-  TC[1]->SetEditable(1);
+  TC[1]->SetEditable(true);
   TC[1]->Clear("D");
 
-  TLine *one = new TLine(6000.5,1,6128.5,1);
-  one -> SetLineStyle(7);
+  TLine *one = new TLine(6000.5, 1, 6128.5, 1);
+  one->SetLineStyle(7);
 
-  TLine *goodSize = new TLine(6000.5,1565,6128.5,1565);
-  goodSize -> SetLineStyle(7);
+  TLine *goodSize = new TLine(6000.5, 1565, 6128.5, 1565);
+  goodSize->SetLineStyle(7);
 
-  TLine *goodChans = new TLine(6000.5,192,6128.5,192);
-  goodChans -> SetLineStyle(7);
+  TLine *goodChans = new TLine(6000.5, 192, 6128.5, 192);
+  goodChans->SetLineStyle(7);
 
   float param = 0.95;
-  //float param = 0.99;
+  // float param = 0.99;
 
-  TLegend *leg = new TLegend(0.3,0.20,0.95,0.50);
-  leg -> SetFillStyle(0);
-  leg -> SetBorderSize(0);
+  TLegend *leg = new TLegend(0.3, 0.20, 0.95, 0.50);
+  leg->SetFillStyle(0);
+  leg->SetBorderSize(0);
 
-  TLine *warnLineOne = new TLine(6000.5,param*1,6128.5,param*1);
-  warnLineOne -> SetLineStyle(7);
-  warnLineOne -> SetLineColor(2);
+  TLine *warnLineOne = new TLine(6000.5, param * 1, 6128.5, param * 1);
+  warnLineOne->SetLineStyle(7);
+  warnLineOne->SetLineColor(2);
 
-  leg -> AddEntry(warnLineOne,Form("%g%% Threshold",param*100),"l");
+  leg->AddEntry(warnLineOne, Form("%g%% Threshold", param * 100), "l");
 
-  TLine *warnLineOneS = new TLine(6000.5,param*1,6128.5,param*1);
-  warnLineOneS -> SetLineStyle(10);
-  warnLineOneS -> SetLineColor(2);
+  TLine *warnLineOneS = new TLine(6000.5, param * 1, 6128.5, param * 1);
+  warnLineOneS->SetLineStyle(10);
+  warnLineOneS->SetLineColor(2);
 
-  leg -> AddEntry(warnLineOneS,Form("%g%% Threshold, High Eta, South",100*param),"l");
+  leg->AddEntry(warnLineOneS, Form("%g%% Threshold, High Eta, South", 100 * param), "l");
 
-  TLine *warnLineSize = new TLine(6000.5,param*5981.,6128.5,param*5981.);
-  warnLineSize -> SetLineStyle(7);
-  warnLineSize -> SetLineColor(2);
+  TLine *warnLineSize = new TLine(6000.5, param * 5981., 6128.5, param * 5981.);
+  warnLineSize->SetLineStyle(7);
+  warnLineSize->SetLineColor(2);
 
-  TLine *warnLineSizeS = new TLine(6000.5,param*3991.,6128.5,param*3991.);
-  warnLineSizeS -> SetLineStyle(10);
-  warnLineSizeS -> SetLineColor(2);
+  TLine *warnLineSizeS = new TLine(6000.5, param * 3991., 6128.5, param * 3991.);
+  warnLineSizeS->SetLineStyle(10);
+  warnLineSizeS->SetLineColor(2);
 
-  TLine *warnLineChans = new TLine(6000.5,param*192.,6128.5,param*192.);
-  warnLineChans -> SetLineStyle(7);
-  warnLineChans -> SetLineColor(2);
+  TLine *warnLineChans = new TLine(6000.5, param * 192., 6128.5, param * 192.);
+  warnLineChans->SetLineStyle(7);
+  warnLineChans->SetLineColor(2);
 
-  TLine *warnLineChansS = new TLine(6000.5,param*128.,6128.5,param*128.);
-  warnLineChansS -> SetLineStyle(10);
-  warnLineChansS -> SetLineColor(2);
+  TLine *warnLineChansS = new TLine(6000.5, param * 128., 6128.5, param * 128.);
+  warnLineChansS->SetLineStyle(10);
+  warnLineChansS->SetLineColor(2);
 
   Pad[1]->cd();
   float tsize = 0.08;
-  h1_packet_number[start[1]] -> GetYaxis() -> SetRangeUser(0.0,1.3);
+  h1_packet_number[start[1]]->GetYaxis()->SetRangeUser(0.0, 1.3);
   std::vector<std::vector<int>> badPackets;
-  badPackets.push_back(getBadPackets(h1_packet_number[start[1]],0,param));
+  badPackets.push_back(getBadPackets(h1_packet_number[start[1]], 0, param));
 
-  h1_packet_number[start[1]]->GetXaxis()->SetNdivisions(510,kTRUE);
+  h1_packet_number[start[1]]->GetXaxis()->SetNdivisions(510, kTRUE);
   h1_packet_number[start[1]]->GetXaxis()->SetTitle("packet #");
   h1_packet_number[start[1]]->GetYaxis()->SetTitle("% Of Events Present");
-  h1_packet_number[start[1]]->GetXaxis()->SetLabelSize(tsize-0.01);
-  h1_packet_number[start[1]]->GetYaxis()->SetLabelSize(tsize-0.01);
-  h1_packet_number[start[1]]->GetXaxis()->SetTitleSize(tsize-0.01);
-  h1_packet_number[start[1]]->GetYaxis()->SetTitleSize(tsize-0.01);
+  h1_packet_number[start[1]]->GetXaxis()->SetLabelSize(tsize - 0.01);
+  h1_packet_number[start[1]]->GetYaxis()->SetLabelSize(tsize - 0.01);
+  h1_packet_number[start[1]]->GetXaxis()->SetTitleSize(tsize - 0.01);
+  h1_packet_number[start[1]]->GetYaxis()->SetTitleSize(tsize - 0.01);
   h1_packet_number[start[1]]->GetXaxis()->SetTitleOffset(1);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);
@@ -579,46 +730,44 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   gPad->SetLeftMargin(0.15);
   gPad->SetTicky();
   gPad->SetTickx();
-  h1_packet_number[start[1]] -> DrawCopy("hist");
-  one -> Draw("same");
-  warnLineOne -> Draw("same");
-  leg -> Draw("same");
+  h1_packet_number[start[1]]->DrawCopy("hist");
+  one->Draw("same");
+  warnLineOne->Draw("same");
+  leg->Draw("same");
 
   Pad[2]->cd();
-  badPackets.push_back(getBadPackets(h1_packet_length[start[2]],1,0));//Not cutting on packet length anymore because of zero suppression
+  badPackets.push_back(getBadPackets(h1_packet_length[start[2]], 1, 0));  // Not cutting on packet length anymore because of zero suppression
 
-  h1_packet_length[start[2]]->GetXaxis()->SetNdivisions(510,kTRUE);
+  h1_packet_length[start[2]]->GetXaxis()->SetNdivisions(510, kTRUE);
   h1_packet_length[start[2]]->GetXaxis()->SetTitle("packet #");
   h1_packet_length[start[2]]->GetYaxis()->SetTitle("Average Packet Size");
-  h1_packet_length[start[2]]->GetXaxis()->SetLabelSize(tsize-.01);
+  h1_packet_length[start[2]]->GetXaxis()->SetLabelSize(tsize - .01);
   h1_packet_length[start[2]]->GetYaxis()->SetLabelSize(tsize);
-  h1_packet_length[start[2]]->GetXaxis()->SetTitleSize(tsize-.01);
+  h1_packet_length[start[2]]->GetXaxis()->SetTitleSize(tsize - .01);
   h1_packet_length[start[2]]->GetYaxis()->SetTitleSize(tsize);
   h1_packet_length[start[2]]->GetXaxis()->SetTitleOffset(1);
   h1_packet_length[start[2]]->GetYaxis()->SetTitleOffset(0.9);
-  h1_packet_length[start[2]]->GetYaxis()->SetRangeUser(0,4000);
+  h1_packet_length[start[2]]->GetYaxis()->SetRangeUser(0, 4000);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);
   gPad->SetRightMargin(0.05);
   gPad->SetLeftMargin(0.15);
   gPad->SetTicky();
   gPad->SetTickx();
-  h1_packet_length[start[2]] -> DrawCopy("hist");
-  goodSize -> Draw("same");
-  //warnLineSize -> Draw("same");
-  //warnLineSizeS -> Draw("same");
-
-
+  h1_packet_length[start[2]]->DrawCopy("hist");
+  goodSize->Draw("same");
+  // warnLineSize -> Draw("same");
+  // warnLineSizeS -> Draw("same");
 
   Pad[3]->cd();
-  h1_packet_chans[start[3]] -> GetYaxis() -> SetRangeUser(0,212);
-  badPackets.push_back(getBadPackets(h1_packet_chans[start[3]],2,param));
-  h1_packet_chans[start[3]]->GetXaxis()->SetNdivisions(510,kTRUE);
+  h1_packet_chans[start[3]]->GetYaxis()->SetRangeUser(0, 212);
+  badPackets.push_back(getBadPackets(h1_packet_chans[start[3]], 2, param));
+  h1_packet_chans[start[3]]->GetXaxis()->SetNdivisions(510, kTRUE);
   h1_packet_chans[start[3]]->GetXaxis()->SetTitle("packet #");
   h1_packet_chans[start[3]]->GetYaxis()->SetTitle("Average # of Channels");
-  h1_packet_chans[start[3]]->GetXaxis()->SetLabelSize(tsize-.01);
+  h1_packet_chans[start[3]]->GetXaxis()->SetLabelSize(tsize - .01);
   h1_packet_chans[start[3]]->GetYaxis()->SetLabelSize(tsize);
-  h1_packet_chans[start[3]]->GetXaxis()->SetTitleSize(tsize-.01);
+  h1_packet_chans[start[3]]->GetXaxis()->SetTitleSize(tsize - .01);
   h1_packet_chans[start[3]]->GetYaxis()->SetTitleSize(tsize);
   h1_packet_chans[start[3]]->GetXaxis()->SetTitleOffset(0.8);
   h1_packet_chans[start[3]]->GetYaxis()->SetTitleOffset(0.8);
@@ -628,66 +777,69 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   gPad->SetLeftMargin(0.15);
   gPad->SetTicky();
   gPad->SetTickx();
-  h1_packet_chans[start[3]] -> DrawCopy("hist");
-  goodChans -> Draw("same");
-  warnLineChans -> Draw("same");
-  warnLineChansS -> Draw("same");
+  h1_packet_chans[start[3]]->DrawCopy("hist");
+  goodChans->Draw("same");
+  warnLineChans->Draw("same");
+  warnLineChansS->Draw("same");
 
-  warning[1] -> cd();
-  TLegend *badPacks = new TLegend(0,1/4.,1,0.9);
-  TPaveText *title = new TPaveText(0,0.9,1,0.95);
-  title -> AddText("Bad Packets");
-  badPacks -> SetNColumns(8);
-  badPacks -> SetTextSize(0.03);
+  warning[1]->cd();
+  TLegend *badPacks = new TLegend(0, 1 / 4., 1, 0.9);
+  TPaveText *title = new TPaveText(0, 0.9, 1, 0.95);
+  title->AddText("Bad Packets");
+  badPacks->SetNColumns(8);
+  badPacks->SetTextSize(0.03);
   float badboys = 0;
-  if(maxEvent > 0)
+  if (maxEvent > 0)
+  {
+    for (int k = 0; k < 3; k++)
     {
-      for(int i = 0; i < 3; i++)
-	{
-	  for(int j = 0; j < (int)badPackets[i].size(); j++)
-	    {
-	      //there's most certainly a better way to do this but it's 5:00 on day 5 of owl shift
-	      //just want to prevent a packet showing up multiple times and crowding the screen
-	      if(badPackets[i][j] == 0) continue;//need this to prevent seg faulting
+      for (int j = 0; j < (int) badPackets[k].size(); j++)
+      {
+        // there's most certainly a better way to do this but it's 5:00 on day 5 of owl shift
+        // just want to prevent a packet showing up multiple times and crowding the screen
+        if (badPackets[k][j] == 0)
+        {
+          continue;  // need this to prevent seg faulting
+        }
 
-	      if(i == 0)
-		{
-		  badPacks -> AddEntry("",Form("%d",badPackets[i][j]),"");
-		  badboys++;
-		}
-	      else if(i == 1)
-		{
-		  if(!(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j])))
-		    {
-		      badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
-		      badboys++;
-		    }
-		}
-	      else if(i == 2)
-		{
-		  if(!(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j])))
-		    {
-		      badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
-		      badboys++;
-		    }
-		  if(!(std::count(badPackets[i-2].begin(),badPackets[i-2].end(),badPackets[i][j])) && !(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j])))
-		    {
-		      badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
-		      badboys++;
-		    }
-		}
-	    }
-	}
+        if (k == 0)
+        {
+          badPacks->AddEntry("", Form("%d", badPackets[k][j]), "");
+          badboys++;
+        }
+        else if (k == 1)
+        {
+          if (!(std::count(badPackets[k - 1].begin(), badPackets[k - 1].end(), badPackets[k][j])))
+          {
+            badPacks->AddEntry("", Form("%d", badPackets[k].at(j)), "");
+            badboys++;
+          }
+        }
+        else if (k == 2)
+        {
+          if (!(std::count(badPackets[k - 1].begin(), badPackets[k - 1].end(), badPackets[k][j])))
+          {
+            badPacks->AddEntry("", Form("%d", badPackets[k].at(j)), "");
+            badboys++;
+          }
+          if (!(std::count(badPackets[k - 2].begin(), badPackets[k - 2].end(), badPackets[k][j])) && !(std::count(badPackets[k - 1].begin(), badPackets[k - 1].end(), badPackets[k][j])))
+          {
+            badPacks->AddEntry("", Form("%d", badPackets[k].at(j)), "");
+            badboys++;
+          }
+        }
+      }
     }
-  badPacks -> Draw();
-  title -> Draw();
-  TPaveText *desc = new TPaveText(0,0,1,0.25);
-  desc -> AddText(Form("Currently %.2g%% of packets are reporting a problem",badboys/128.*100));
-  desc -> AddText("Packets will be reported bad as above for the following reasons:" );
-  desc -> AddText(Form("A packet appears in less than %g %% of events",param*100));
-  //desc -> AddText(Form("A packet is less than %g %% of size 5981",param*100));
-  desc -> AddText(Form("A packet sees fewer than %g %% of 192 channels",param*100));
-  desc -> Draw();
+  }
+  badPacks->Draw();
+  title->Draw();
+  TPaveText *desc = new TPaveText(0, 0, 1, 0.25);
+  desc->AddText(Form("Currently %.2g%% of packets are reporting a problem", badboys / 128. * 100));
+  desc->AddText("Packets will be reported bad as above for the following reasons:");
+  desc->AddText(Form("A packet appears in less than %g %% of events", param * 100));
+  // desc -> AddText(Form("A packet is less than %g %% of size 5981",param*100));
+  desc->AddText(Form("A packet sees fewer than %g %% of 192 channels", param * 100));
+  desc->Draw();
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.02);
@@ -704,83 +856,97 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   transparent[1]->cd();
 
   runstring = runnostream.str();
-  PrintRun.DrawText(0.5,.99, runstring.c_str());
+  PrintRun.DrawText(0.5, .99, runstring.c_str());
 
   runstring = runnostream2.str();
   PrintRun.DrawText(0.5, .966, runstring.c_str());
   TC[1]->Update();
   TC[1]->Show();
-  TC[1]->SetEditable(0);
-  if(save)TC[1] -> SaveAs("plots/packets.pdf");
+  TC[1]->SetEditable(false);
+  if (save)
+  {
+    TC[1]->SaveAs("plots/packets.pdf");
+  }
   return 0;
 }
-
-
 
 int CemcMonDraw::DrawThird(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH2* h2_waveform_twrAvg[nSEBs];
+  TH2 *h2_waveform_twrAvg[m_ServerSet.size()];
   int start[3];
   start[0] = -1;
-
-  for(int i = 0; i < nSEBs; i++)
+  int i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h2_waveform_twrAvg[i] = (TH2 *) cl->getHisto(*server, "h2_waveform_twrAvg");
+    if (h2_waveform_twrAvg[i] && start[0] == -1)
     {
-      h2_waveform_twrAvg[i] = (TH2*) cl->getHisto(Form("CEMCMON_%d",i),"h2_waveform_twrAvg");
-      if(h2_waveform_twrAvg[i] && start[0] == -1) start[0] = i;
-      if(start[0] > -1 && h2_waveform_twrAvg[i])
-	{
-	  h2_waveform_twrAvg[i] -> SetName(Form("h2_waveform_twrAvg_%d",i));
-	  h2_waveform_twrAvg[start[0]] -> Add(h2_waveform_twrAvg[i],1);
-	}
+      start[0] = i;
     }
+    if (start[0] > -1 && h2_waveform_twrAvg[i])
+    {
+      h2_waveform_twrAvg[i]->SetName(Form("h2_waveform_twrAvg_%d", i));
+      h2_waveform_twrAvg[start[0]]->Add(h2_waveform_twrAvg[i], 1);
+    }
+  }
 
-  TH1* h1_waveform_time[nSEBs];
+  TH1 *h1_waveform_time[m_ServerSet.size()];
   start[1] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h1_waveform_time[i] = (TH1 *) cl->getHisto(*server, "h1_waveform_time");
+    if (h1_waveform_time[i] && start[1] == -1)
     {
-      h1_waveform_time[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_waveform_time");
-      if(h1_waveform_time[i] && start[1] == -1) start[1] = i;
-      if(start[1] > -1 && h1_waveform_time[i])
-	{
-	  h1_waveform_time[i] -> SetName(Form("h1_waveform_time_%d",i));
-	  h1_waveform_time[start[1]] -> Add(h1_waveform_time[i],1);
-	}
+      start[1] = i;
     }
+    if (start[1] > -1 && h1_waveform_time[i])
+    {
+      h1_waveform_time[i]->SetName(Form("h1_waveform_time_%d", i));
+      h1_waveform_time[start[1]]->Add(h1_waveform_time[i], 1);
+    }
+    i++;
+  }
 
-  TH1* h1_waveform_pedestal[nSEBs];
+  TH1 *h1_waveform_pedestal[m_ServerSet.size()];
   start[2] = -1;
-  for(int i = 0; i < nSEBs; i++)
-    {
-      h1_waveform_pedestal[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_waveform_pedestal");
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h1_waveform_pedestal[i] = (TH1 *) cl->getHisto(*server, "h1_waveform_pedestal");
 
-      if(h1_waveform_pedestal[i] && start[2] == -1) start[2] = i;
-      if(start[2] > -1 && h1_waveform_pedestal[i])
-	{
-	  h1_waveform_pedestal[i] -> SetName(Form("h1_waveform_pedestal_%d",i));
-	  h1_waveform_pedestal[start[2]] -> Add(h1_waveform_pedestal[i],1);
-	}
+    if (h1_waveform_pedestal[i] && start[2] == -1)
+    {
+      start[2] = i;
     }
+    if (start[2] > -1 && h1_waveform_pedestal[i])
+    {
+      h1_waveform_pedestal[i]->SetName(Form("h1_waveform_pedestal_%d", i));
+      h1_waveform_pedestal[start[2]]->Add(h1_waveform_pedestal[i], 1);
+    }
+    i++;
+  }
 
   if (!gROOT->FindObject("CemcMon3"))
-    {
-      MakeCanvas("CemcMon3");
-    }
+  {
+    MakeCanvas("CemcMon3");
+  }
 
-  TC[2]->SetEditable(1);
+  TC[2]->SetEditable(true);
   TC[2]->Clear("D");
   Pad[4]->cd();
-  if (start[0] < 0 || start[1] < 0|| start[2] < 0)
-    {
-      DrawDeadServer(transparent[2]);
-      TC[2]->SetEditable(0);
-      return -1;
-    }
+  if (start[0] < 0 || start[1] < 0 || start[2] < 0)
+  {
+    DrawDeadServer(transparent[2]);
+    TC[2]->SetEditable(false);
+    return -1;
+  }
 
   gStyle->SetTitleFontSize(0.03);
-  //float ymaxp = h2_waveform_twrAvg[start[0]]->ProfileX()->GetMaximum();
-  //h2_waveform_twrAvg[start[0]] -> GetYaxis() -> SetRangeUser(0,ymaxp*10);
+  // float ymaxp = h2_waveform_twrAvg[start[0]]->ProfileX()->GetMaximum();
+  // h2_waveform_twrAvg[start[0]] -> GetYaxis() -> SetRangeUser(0,ymaxp*10);
 
   float tsize = 0.06;
   float tsize2 = 0.08;
@@ -789,28 +955,29 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   h2_waveform_twrAvg[start[0]]->GetXaxis()->SetTitle("sample #");
   h2_waveform_twrAvg[start[0]]->GetYaxis()->SetTitle("Waveform ADC [ADC]");
   h2_waveform_twrAvg[start[0]]->GetXaxis()->SetLabelSize(tsize2);
-  h2_waveform_twrAvg[start[0]]->GetYaxis()->SetLabelSize(tsize2-.01);
+  h2_waveform_twrAvg[start[0]]->GetYaxis()->SetLabelSize(tsize2 - .01);
   h2_waveform_twrAvg[start[0]]->GetXaxis()->SetTitleSize(tsize2);
   h2_waveform_twrAvg[start[0]]->GetYaxis()->SetTitleSize(tsize);
   h2_waveform_twrAvg[start[0]]->GetXaxis()->SetTitleOffset(1.);
   h2_waveform_twrAvg[start[0]]->GetYaxis()->SetTitleOffset(1.25);
   float windowSize = 5000;
-  h2_waveform_twrAvg[start[0]]->GetYaxis() -> SetRangeUser(0,windowSize);
+  h2_waveform_twrAvg[start[0]]->GetYaxis()->SetRangeUser(0, windowSize);
 
-  TLine *windowLow1 = new TLine(4,0,4,windowSize);
-  TLine *windowHigh1 = new TLine(10,0,10,windowSize);
-  gStyle -> SetOptStat(0);
+  TLine *windowLow1 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, windowSize);
+  TLine *windowHigh1 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, windowSize);
+  gStyle->SetOptStat(0);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);
   gPad->SetRightMargin(0.05);
   gPad->SetLeftMargin(0.15);
   gPad->SetTicky();
   gPad->SetTickx();
+  gStyle->SetPalette(kBird);
   h2_waveform_twrAvg[start[0]]->DrawCopy("colz");
-  windowLow1 -> Draw("same");
-  windowHigh1 -> Draw("same");
-  gStyle -> SetPalette(57);
-  gPad -> SetLogz();
+  windowLow1->Draw("same");
+  windowHigh1->Draw("same");
+  gStyle->SetPalette(57);
+  gPad->SetLogz();
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -823,7 +990,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << "Waveform fitting";
-  runnostream2 <<"Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
+  runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
 
   transparent[2]->cd();
 
@@ -847,21 +1014,24 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   h1_waveform_time[start[1]]->GetXaxis()->SetTitleOffset(1.0);
   h1_waveform_time[start[1]]->GetYaxis()->SetTitleOffset(.85);
 
-  if(h1_waveform_time[start[1]]->GetEntries())h1_waveform_time[start[1]] -> Scale(1./h1_waveform_time[start[1]]->GetEntries());
-  h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0,1.);
+  if (h1_waveform_time[start[1]]->GetEntries())
+  {
+    h1_waveform_time[start[1]]->Scale(1. / h1_waveform_time[start[1]]->GetEntries());
+  }
+  h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0, 1.);
 
-  TLine *windowLow2 = new TLine(4,0,4,1);
-  TLine *windowHigh2 = new TLine(10,0,10,1);
+  TLine *windowLow2 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, 1);
+  TLine *windowHigh2 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, 1);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
-  gStyle -> SetOptStat(0);
+  gStyle->SetOptStat(0);
   gPad->SetLeftMargin(0.15);
   gPad->SetTicky();
   gPad->SetTickx();
   h1_waveform_time[start[1]]->DrawCopy("hist");
-  windowLow2 -> Draw("same");
-  windowHigh2 -> Draw("same");
+  windowLow2->Draw("same");
+  windowHigh2->Draw("same");
 
   Pad[6]->cd();
 
@@ -876,97 +1046,116 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   h1_waveform_pedestal[start[2]]->GetYaxis()->SetTitleSize(tsize2);
   h1_waveform_pedestal[start[2]]->GetXaxis()->SetTitleOffset(1);
   h1_waveform_pedestal[start[2]]->GetYaxis()->SetTitleOffset(0.85);
-  if(h1_waveform_pedestal[start[2]]->GetEntries())h1_waveform_pedestal[start[2]] -> Scale(1./h1_waveform_pedestal[start[2]]->GetEntries());
-  //h1_waveform_pedestal -> GetXaxis() -> SetRangeUser(1000,2000);
+  if (h1_waveform_pedestal[start[2]]->GetEntries())
+  {
+    h1_waveform_pedestal[start[2]]->Scale(1. / h1_waveform_pedestal[start[2]]->GetEntries());
+  }
+  // h1_waveform_pedestal -> GetXaxis() -> SetRangeUser(1000,2000);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
-  gStyle -> SetOptStat(0);
+  gStyle->SetOptStat(0);
   gPad->SetLeftMargin(0.15);
   gPad->SetTicky();
   gPad->SetTickx();
-  gStyle -> SetOptStat(0);
+  gStyle->SetOptStat(0);
 
   h1_waveform_pedestal[start[2]]->DrawCopy("hist");
-  h1_waveform_pedestal[start[2]]->SetStats(0);
-  gStyle -> SetOptStat(0);
+  h1_waveform_pedestal[start[2]]->SetStats(false);
+  gStyle->SetOptStat(0);
 
   TC[2]->Update();
-  gStyle -> SetOptStat(0);
+  gStyle->SetOptStat(0);
 
   TC[2]->Show();
-  gStyle -> SetOptStat(0);
+  gStyle->SetOptStat(0);
 
-  TC[2]->SetEditable(0);
-  gStyle -> SetOptStat(0);
+  TC[2]->SetEditable(false);
+  gStyle->SetOptStat(0);
 
-  if(save)TC[2] -> SaveAs("plots/waveform.pdf");
-  gStyle -> SetOptStat(0);
+  if (save)
+  {
+    TC[2]->SaveAs("plots/waveform.pdf");
+  }
+  gStyle->SetOptStat(0);
 
   return 0;
 }
 
 int CemcMonDraw::DrawFourth(const std::string & /* what */)
 {
-
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *h_waveform_sigDiff[nSEBs];
+  TH1 *h_waveform_sigDiff[m_ServerSet.size()];
   int start[3];
   start[0] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  int i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h_waveform_sigDiff[i] = (TH1 *) cl->getHisto(*server, "h1_fitting_sigDiff");
+    if (h_waveform_sigDiff[i] && start[0] == -1)
     {
-      h_waveform_sigDiff[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_fitting_sigDiff");
-      if(h_waveform_sigDiff[i] && start[0] == -1) start[0] = i;
-      if(start[0] > -1 && h_waveform_sigDiff[i])
-	{
-	  h_waveform_sigDiff[i] -> SetName(Form("h_fitting_sigDiff_%d",i));
-	  h_waveform_sigDiff[start[0]] -> Add(h_waveform_sigDiff[i],1);
-	}
+      start[0] = i;
     }
+    if (start[0] > -1 && h_waveform_sigDiff[i])
+    {
+      h_waveform_sigDiff[i]->SetName(Form("h_fitting_sigDiff_%d", i));
+      h_waveform_sigDiff[start[0]]->Add(h_waveform_sigDiff[i], 1);
+    }
+    i++;
+  }
 
-  TH1 *h_waveform_pedDiff[nSEBs];
+  TH1 *h_waveform_pedDiff[m_ServerSet.size()];
   start[1] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h_waveform_pedDiff[i] = (TH1 *) cl->getHisto(*server, "h1_fitting_pedDiff");
+    if (h_waveform_pedDiff[i] && start[1] == -1)
     {
-      h_waveform_pedDiff[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_fitting_pedDiff");
-      if(h_waveform_pedDiff[i] && start[1] == -1) start[1] = i;
-      if(start[1] > -1 && h_waveform_pedDiff[i])
-	{
-	  h_waveform_pedDiff[i] -> SetName(Form("h_fitting_pedDiff_%d",i));
-	  h_waveform_pedDiff[start[1]] -> Add(h_waveform_pedDiff[i],1);
-	}
+      start[1] = i;
     }
+    if (start[1] > -1 && h_waveform_pedDiff[i])
+    {
+      h_waveform_pedDiff[i]->SetName(Form("h_fitting_pedDiff_%d", i));
+      h_waveform_pedDiff[start[1]]->Add(h_waveform_pedDiff[i], 1);
+    }
+    i++;
+  }
 
-  TH1 *h_waveform_timeDiff[nSEBs];
+  TH1 *h_waveform_timeDiff[m_ServerSet.size()];
   start[2] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h_waveform_timeDiff[i] = (TH1 *) cl->getHisto(*server, "h1_fitting_timeDiff");
+    if (h_waveform_timeDiff[i] && start[2] == -1)
     {
-      h_waveform_timeDiff[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_fitting_timeDiff");
-      if(h_waveform_timeDiff[i] && start[2] == -1) start[2] = i;
-      if(start[2] > -1 && h_waveform_timeDiff[i])
-	{
-	  h_waveform_timeDiff[i] -> SetName(Form("h_fitting_timeDiff_%d",i));
-	  h_waveform_timeDiff[start[2]] -> Add(h_waveform_timeDiff[i],1);
-	}
+      start[2] = i;
     }
-
-  if(!gROOT -> FindObject("CemcMon4"))
+    if (start[2] > -1 && h_waveform_timeDiff[i])
     {
-      MakeCanvas("CemcMon4");
+      h_waveform_timeDiff[i]->SetName(Form("h_fitting_timeDiff_%d", i));
+      h_waveform_timeDiff[start[2]]->Add(h_waveform_timeDiff[i], 1);
     }
+    i++;
+  }
 
-  TC[3]->SetEditable(1);
+  if (!gROOT->FindObject("CemcMon4"))
+  {
+    MakeCanvas("CemcMon4");
+  }
+
+  TC[3]->SetEditable(true);
   TC[3]->Clear("D");
-  if(start[0] < 0|| start[1] < 0 || start[2] < 0)
-    {
-      DrawDeadServer(transparent[3]);
-      TC[3]->SetEditable(0);
-      return -1;
-    }
+  if (start[0] < 0 || start[1] < 0 || start[2] < 0)
+  {
+    DrawDeadServer(transparent[3]);
+    TC[3]->SetEditable(false);
+    return -1;
+  }
 
   gStyle->SetTitleFontSize(0.03);
-
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -986,10 +1175,8 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   runstring = runnostream.str();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
-
   runstring = runnostream2.str();
   PrintRun.DrawText(0.5, 0.966, runstring.c_str());
-
 
   Pad[7]->cd();
 
@@ -999,13 +1186,16 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_sigDiff[start[0]]->GetXaxis()->SetNdivisions(16);
   h_waveform_sigDiff[start[0]]->GetXaxis()->SetTitle("Fast ADC/Template ADC");
   h_waveform_sigDiff[start[0]]->GetYaxis()->SetTitle("Fraction of Towers");
-  h_waveform_sigDiff[start[0]]->GetXaxis()->SetLabelSize(tsize2-.01);
-  h_waveform_sigDiff[start[0]]->GetYaxis()->SetLabelSize(tsize2-.01);
-  h_waveform_sigDiff[start[0]]->GetXaxis()->SetTitleSize(tsize2-.01);
-  h_waveform_sigDiff[start[0]]->GetYaxis()->SetTitleSize(tsize2-.01);
+  h_waveform_sigDiff[start[0]]->GetXaxis()->SetLabelSize(tsize2 - .01);
+  h_waveform_sigDiff[start[0]]->GetYaxis()->SetLabelSize(tsize2 - .01);
+  h_waveform_sigDiff[start[0]]->GetXaxis()->SetTitleSize(tsize2 - .01);
+  h_waveform_sigDiff[start[0]]->GetYaxis()->SetTitleSize(tsize2 - .01);
   h_waveform_sigDiff[start[0]]->GetXaxis()->SetTitleOffset(.9);
   h_waveform_sigDiff[start[0]]->GetYaxis()->SetTitleOffset(1.1);
-  if(h_waveform_sigDiff[start[0]] -> GetEntries())h_waveform_sigDiff[start[0]] -> Scale(1./h_waveform_sigDiff[start[0]] -> GetEntries());
+  if (h_waveform_sigDiff[start[0]]->GetEntries())
+  {
+    h_waveform_sigDiff[start[0]]->Scale(1. / h_waveform_sigDiff[start[0]]->GetEntries());
+  }
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1028,7 +1218,10 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_pedDiff[start[1]]->GetYaxis()->SetTitleSize(tsize2);
   h_waveform_pedDiff[start[1]]->GetXaxis()->SetTitleOffset(0.9);
   h_waveform_pedDiff[start[1]]->GetYaxis()->SetTitleOffset(0.9);
-  if(h_waveform_pedDiff[start[1]] -> GetEntries())h_waveform_pedDiff[start[1]] -> Scale(1./ h_waveform_pedDiff[start[1]] -> GetEntries());
+  if (h_waveform_pedDiff[start[1]]->GetEntries())
+  {
+    h_waveform_pedDiff[start[1]]->Scale(1. / h_waveform_pedDiff[start[1]]->GetEntries());
+  }
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1049,7 +1242,10 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_timeDiff[start[2]]->GetYaxis()->SetTitleSize(tsize2);
   h_waveform_timeDiff[start[2]]->GetXaxis()->SetTitleOffset(0.9);
   h_waveform_timeDiff[start[2]]->GetYaxis()->SetTitleOffset(0.9);
-  if(h_waveform_timeDiff[start[2]]->GetEntries())h_waveform_timeDiff[start[2]] -> Scale(1./ h_waveform_timeDiff[start[2]]->GetEntries());
+  if (h_waveform_timeDiff[start[2]]->GetEntries())
+  {
+    h_waveform_timeDiff[start[2]]->Scale(1. / h_waveform_timeDiff[start[2]]->GetEntries());
+  }
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1058,12 +1254,14 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   gPad->SetTickx();
   h_waveform_timeDiff[start[2]]->DrawCopy("hist");
 
-
   TC[3]->Update();
   TC[3]->Show();
-  TC[3]->SetEditable(0);
+  TC[3]->SetEditable(false);
   gStyle->SetOptStat(0);
-  if(save)TC[3] -> SaveAs("plots/waveformExpert.pdf");
+  if (save)
+  {
+    TC[3]->SaveAs("plots/waveformExpert.pdf");
+  }
   return 0;
 }
 
@@ -1071,67 +1269,134 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH2 *h_cemc_hits_trig1[nSEBs];
-  int start[3];
+  TH2 *h_cemc_hits_trig1[m_ServerSet.size()];
+  int start[5];
   start[0] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  int i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_cemc_hits_trig1[i] = (TH2*) cl->getHisto(Form("CEMCMON_%d",i),"h2_cemc_hits_trig1");
-    if(h_cemc_hits_trig1[i] && start[0] == -1) start[0] = i;
-    if(start[0] > -1 && h_cemc_hits_trig1[i])
+    h_cemc_hits_trig1[i] = (TH2 *) cl->getHisto(*server, "h2_cemc_hits_trig1");
+    if (h_cemc_hits_trig1[i] && start[0] == -1)
     {
-      h_cemc_hits_trig1[i]->SetName(Form("h_cemc_hits_trig1_%d",i));
-      if(start[0] != i) h_cemc_hits_trig1[start[0]]->Add(h_cemc_hits_trig1[i],1);
+      start[0] = i;
     }
+    if (start[0] > -1 && h_cemc_hits_trig1[i])
+    {
+      h_cemc_hits_trig1[i]->SetName(Form("h_cemc_hits_trig1_%d", i));
+      if (start[0] != i)
+      {
+        h_cemc_hits_trig1[start[0]]->Add(h_cemc_hits_trig1[i], 1);
+      }
+    }
+    i++;
   }
 
-  TH2 *h_cemc_hits_trig2[nSEBs];
+  TH2 *h_cemc_hits_trig2[m_ServerSet.size()];
   start[1] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_cemc_hits_trig2[i] = (TH2*) cl->getHisto(Form("CEMCMON_%d",i),"h2_cemc_hits_trig2");
-    if(h_cemc_hits_trig2[i] && start[1] == -1) start[1] = i;
-    if(start[1] > -1 && h_cemc_hits_trig2[i])
+    h_cemc_hits_trig2[i] = (TH2 *) cl->getHisto(*server, "h2_cemc_hits_trig2");
+    if (h_cemc_hits_trig2[i] && start[1] == -1)
     {
-      h_cemc_hits_trig2[i]->SetName(Form("h_cemc_hits_trig2_%d",i));
-      if(start[1] != i) h_cemc_hits_trig2[start[1]]->Add(h_cemc_hits_trig2[i],1);
+      start[1] = i;
     }
+    if (start[1] > -1 && h_cemc_hits_trig2[i])
+    {
+      h_cemc_hits_trig2[i]->SetName(Form("h_cemc_hits_trig2_%d", i));
+      if (start[1] != i)
+      {
+        h_cemc_hits_trig2[start[1]]->Add(h_cemc_hits_trig2[i], 1);
+      }
+    }
+    i++;
   }
 
-  TH1 *h_cemc_trig[nSEBs];
+  TH2 *h_cemc_hits_trig3[m_ServerSet.size()];
   start[2] = -1;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_cemc_trig[i] = (TH1*) cl->getHisto(Form("CEMCMON_%d",i),"h1_cemc_trig");
-    if(h_cemc_trig[i] && start[2] == -1) start[2] = i;
-    if(start[2] > -1 && h_cemc_trig[i])
+    h_cemc_hits_trig3[i] = (TH2 *) cl->getHisto(*server, "h2_cemc_hits_trig3");
+    if (h_cemc_hits_trig3[i] && start[2] == -1)
     {
-      h_cemc_trig[i]->SetName(Form("h_cemc_trig_%d",i));
-      if(start[2] != i) h_cemc_trig[start[2]]->Add(h_cemc_trig[i],1);
+      start[2] = i;
     }
+    if (start[2] > -1 && h_cemc_hits_trig3[i])
+    {
+      h_cemc_hits_trig3[i]->SetName(Form("h_cemc_hits_trig3_%d", i));
+      if (start[2] != i)
+      {
+        h_cemc_hits_trig3[start[2]]->Add(h_cemc_hits_trig3[i], 1);
+      }
+    }
+    i++;
+  }
+
+  TH2 *h_cemc_hits_trig4[m_ServerSet.size()];
+  start[3] = -1;
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h_cemc_hits_trig4[i] = (TH2 *) cl->getHisto(*server, "h2_cemc_hits_trig4");
+    if (h_cemc_hits_trig4[i] && start[3] == -1)
+    {
+      start[3] = i;
+    }
+    if (start[3] > -1 && h_cemc_hits_trig4[i])
+    {
+      h_cemc_hits_trig4[i]->SetName(Form("h_cemc_hits_trig4_%d", i));
+      if (start[3] != i)
+      {
+        h_cemc_hits_trig4[start[3]]->Add(h_cemc_hits_trig4[i], 1);
+      }
+    }
+    i++;
+  }
+
+  TH1 *h_cemc_trig[m_ServerSet.size()];
+  start[4] = -1;
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    h_cemc_trig[i] = (TH1 *) cl->getHisto(*server, "h1_cemc_trig");
+    if (h_cemc_trig[i] && start[4] == -1)
+    {
+      start[4] = i;
+    }
+    if (start[4] > -1 && h_cemc_trig[i])
+    {
+      h_cemc_trig[i]->SetName(Form("h_cemc_trig_%d", i));
+      if (start[4] != i)
+      {
+        h_cemc_trig[start[4]]->Add(h_cemc_trig[i], 1);
+      }
+    }
+    i++;
   }
 
   TProfile *h_evtRec;
-  for(int i = 0; i < nSEBs; i++)
+  i = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_evtRec = (TProfile*)cl->getHisto(Form("CEMCMON_%d",i),"h_evtRec");
-    if(h_evtRec)
+    h_evtRec = (TProfile *) cl->getHisto(*server, "h_evtRec");
+    if (h_evtRec)
     {
       break;
     }
   }
 
-  if(!gROOT -> FindObject("CemcMon5"))
+  if (!gROOT->FindObject("CemcMon5"))
   {
     MakeCanvas("CemcMon5");
   }
 
-  TC[4]->SetEditable(1);
+  TC[4]->SetEditable(true);
   TC[4]->Clear("D");
-  if (!h_cemc_hits_trig1[start[0]] || !h_cemc_hits_trig2[start[1]] || !h_cemc_trig[start[2]])
+  if (!h_cemc_hits_trig1[start[0]] || !h_cemc_hits_trig2[start[1]] || !h_cemc_hits_trig3[start[2]] || !h_cemc_hits_trig4[start[3]] || !h_cemc_trig[start[4]])
   {
     DrawDeadServer(transparent[4]);
-    TC[4]->SetEditable(0);
+    TC[4]->SetEditable(false);
     return -1;
   }
 
@@ -1177,7 +1442,6 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   Pad[11]->cd();
   gStyle->SetTitleFontSize(0.06);
 
-
   h_cemc_hits_trig2[start[1]]->GetXaxis()->SetNdivisions(510, kTRUE);
   h_cemc_hits_trig2[start[1]]->GetXaxis()->SetTitle("trig2 req  ieta");
   h_cemc_hits_trig2[start[1]]->GetYaxis()->SetTitle("iphi");
@@ -1201,23 +1465,69 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   Pad[12]->cd();
   gStyle->SetTitleFontSize(0.06);
 
+  h_cemc_hits_trig3[start[2]]->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_cemc_hits_trig3[start[2]]->GetXaxis()->SetTitle("trig3 req  ieta");
+  h_cemc_hits_trig3[start[2]]->GetYaxis()->SetTitle("iphi");
+  h_cemc_hits_trig3[start[2]]->GetXaxis()->SetLabelSize(tsize);
+  h_cemc_hits_trig3[start[2]]->GetYaxis()->SetLabelSize(tsize);
+  h_cemc_hits_trig3[start[2]]->GetXaxis()->SetTitleSize(tsize);
+  h_cemc_hits_trig3[start[2]]->GetYaxis()->SetTitleSize(tsize);
+  h_cemc_hits_trig3[start[2]]->GetXaxis()->SetTitleOffset(1.2);
+  h_cemc_hits_trig3[start[2]]->GetYaxis()->SetTitleOffset(0.75);
+  gPad->SetLogz();
+  gPad->SetTopMargin(0.06);
+  gPad->SetBottomMargin(0.18);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.15);
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57);
+  gPad->SetTicky();
+  gPad->SetTickx();
+  h_cemc_hits_trig3[start[2]]->DrawCopy("colz");
+
+  Pad[13]->cd();
+  gStyle->SetTitleFontSize(0.06);
+
+  h_cemc_hits_trig4[start[3]]->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_cemc_hits_trig4[start[3]]->GetXaxis()->SetTitle("trig4 req  ieta");
+  h_cemc_hits_trig4[start[3]]->GetYaxis()->SetTitle("iphi");
+  h_cemc_hits_trig4[start[3]]->GetXaxis()->SetLabelSize(tsize);
+  h_cemc_hits_trig4[start[3]]->GetYaxis()->SetLabelSize(tsize);
+  h_cemc_hits_trig4[start[3]]->GetXaxis()->SetTitleSize(tsize);
+  h_cemc_hits_trig4[start[3]]->GetYaxis()->SetTitleSize(tsize);
+  h_cemc_hits_trig4[start[3]]->GetXaxis()->SetTitleOffset(1.2);
+  h_cemc_hits_trig4[start[3]]->GetYaxis()->SetTitleOffset(0.75);
+  gPad->SetLogz();
+  gPad->SetTopMargin(0.06);
+  gPad->SetBottomMargin(0.18);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.15);
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57);
+  gPad->SetTicky();
+  gPad->SetTickx();
+  h_cemc_hits_trig4[start[3]]->DrawCopy("colz");
+
+  Pad[14]->cd();
+  gStyle->SetTitleFontSize(0.06);
+
   float nEvtRec = 0.;
 
-  if(h_evtRec)
+  if (h_evtRec)
   {
     nEvtRec = h_evtRec->GetBinContent(1);
   }
 
-  h_cemc_trig[start[2]]->SetTitle(Form("Receiving %0.3f of events from event reciever",nEvtRec));
-  h_cemc_trig[start[2]]->GetXaxis()->SetNdivisions(510, kTRUE);
-  h_cemc_trig[start[2]]->GetXaxis()->SetTitle("trigger index");
-  h_cemc_trig[start[2]]->GetYaxis()->SetTitle("events");
-  h_cemc_trig[start[2]]->GetXaxis()->SetLabelSize(tsize);
-  h_cemc_trig[start[2]]->GetYaxis()->SetLabelSize(tsize);
-  h_cemc_trig[start[2]]->GetXaxis()->SetTitleSize(tsize);
-  h_cemc_trig[start[2]]->GetYaxis()->SetTitleSize(tsize);
-  h_cemc_trig[start[2]]->GetXaxis()->SetTitleOffset(0.9);
-  h_cemc_trig[start[2]]->GetYaxis()->SetTitleOffset(0.85);
+  h_cemc_trig[start[4]]->SetTitle(Form("Receiving %0.3f of events from event reciever", nEvtRec));
+  h_cemc_trig[start[4]]->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_cemc_trig[start[4]]->GetXaxis()->SetTitle("trigger index");
+  h_cemc_trig[start[4]]->GetYaxis()->SetTitle("events");
+  h_cemc_trig[start[4]]->GetXaxis()->SetLabelSize(tsize);
+  h_cemc_trig[start[4]]->GetYaxis()->SetLabelSize(tsize);
+  h_cemc_trig[start[4]]->GetXaxis()->SetTitleSize(tsize);
+  h_cemc_trig[start[4]]->GetYaxis()->SetTitleSize(tsize);
+  h_cemc_trig[start[4]]->GetXaxis()->SetTitleOffset(0.9);
+  h_cemc_trig[start[4]]->GetYaxis()->SetTitleOffset(0.85);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1225,75 +1535,83 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   gStyle->SetOptStat(0);
   gPad->SetTicky();
   gPad->SetTickx();
-  h_cemc_trig[start[2]]->DrawCopy("histo");
+  h_cemc_trig[start[4]]->DrawCopy("histo");
 
   TC[4]->Update();
   TC[4]->Show();
-  TC[4]->SetEditable(0);
+  TC[4]->SetEditable(false);
 
   return 0;
-
 }
 
-
-int CemcMonDraw::FindHotTower(TPad *warningpad,TH2* hhit){
+int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit)
+{
   float nhott = 0;
   float ndeadt = 0;
-  float hot_threshold  = 1.25;
+  float hot_threshold = 1.25;
   float dead_threshold = 0.75;
-  float nTowerTotal = 24576.-384.;// to account for the non-functioning towers at the edge of the south
-  for(int ieta=0; ieta<nTowersEta; ieta++){
-    for(int iphi=0; iphi<nTowersPhi; iphi++){
+  float nTowerTotal = 24576. - 384.;  // to account for the non-functioning towers at the edge of the south
+  for (int ieta = 0; ieta < nTowersEta; ieta++)
+  {
+    for (int iphi = 0; iphi < nTowersPhi; iphi++)
+    {
+      if (ieta < 8 && ((iphi >= 40) && (iphi <= 87)))
+      {
+        continue;  // uninstrumented
+      }
+      if (hhit->GetBinContent(ieta + 1, iphi + 1) == 0)
+      {
+        continue;
+      }
+      double nhit = hhit->GetBinContent(ieta + 1, iphi + 1);
 
-      if(ieta < 8 && ((iphi >= 40) && (iphi <= 87 ))) continue;//uninstrumented
-      if(hhit -> GetBinContent(ieta+1, iphi+1) == 0)continue;
-      double nhit = hhit->GetBinContent(ieta+1, iphi+1);
+      if (nhit > hot_threshold)
+      {
+        nhott++;
+      }
 
-      if(nhit > hot_threshold)	nhott++;
-
-
-      if(nhit < dead_threshold)	ndeadt++;
-
+      if (nhit < dead_threshold)
+      {
+        ndeadt++;
+      }
     }
   }
 
-  //draw warning here
+  // draw warning here
   warningpad->cd();
-  TPaveText *dead = new TPaveText(0.01,0.7,0.33,1);
-  dead -> SetFillColor(kGray+2);
-  dead -> SetTextColor(kWhite);
-  dead -> AddText(Form("Cold towers: %.3g%%",100*ndeadt/nTowerTotal));
+  TPaveText *dead = new TPaveText(0.01, 0.7, 0.33, 1);
+  dead->SetFillColor(kGray + 2);
+  dead->SetTextColor(kWhite);
+  dead->AddText(Form("Cold towers: %.3g%%", 100 * ndeadt / nTowerTotal));
   // if(100*ndeadt/nTowerTotal > 2.5)
   //   {
   //     dead -> AddText("");
   //   }
-  TPaveText *good = new TPaveText(0.33,0.7,0.66,1);
-  good -> SetFillColor(kGreen+1);
-  good -> AddText(Form("Good towers: %.3g%%",100*(nTowerTotal-ndeadt-nhott)/nTowerTotal));
-  TPaveText *hot = new TPaveText(0.66,0.7,1,1);
-  hot -> SetFillColor(kRed-9);
-  hot -> AddText(Form("Hot towers: %.3g%%",100*nhott/nTowerTotal));
+  TPaveText *good = new TPaveText(0.33, 0.7, 0.66, 1);
+  good->SetFillColor(kGreen + 1);
+  good->AddText(Form("Good towers: %.3g%%", 100 * (nTowerTotal - ndeadt - nhott) / nTowerTotal));
+  TPaveText *hot = new TPaveText(0.66, 0.7, 1, 1);
+  hot->SetFillColor(kRed - 9);
+  hot->AddText(Form("Hot towers: %.3g%%", 100 * nhott / nTowerTotal));
   // if(100*nhott/nTowerTotal > 3.5)
   //   {
   //     hot -> AddText("");
   //   }
-  TPaveText *warn = new TPaveText(0.01,0.1,1,0.7);
-  warn -> SetTextSize(0.1);
-  warn -> AddText("Helpful Numbers: 1 Box = Interface Board (IB)");
-  warn -> AddText("3 Boxes (horiz) = 1 Packet; 6 Boxes (horiz) = 1 Sector");
-  //warn -> AddText("Inform Expert if Number of Dead Towers Exceeds: 2.5%");
-  //warn -> AddText("Inform Expert if Number of Hot Towers Exceeds: 3.5%");
-  warn -> AddText("For now, watch for entire IB's or sectors going dead");
-  dead -> Draw();
-  good -> Draw();
+  TPaveText *warn = new TPaveText(0.01, 0.1, 1, 0.7);
+  warn->SetTextSize(0.1);
+  warn->AddText("Helpful Numbers: 1 Box = Interface Board (IB)");
+  warn->AddText("3 Boxes (horiz) = 1 Packet; 6 Boxes (horiz) = 1 Sector");
+  // warn -> AddText("Inform Expert if Number of Dead Towers Exceeds: 2.5%");
+  // warn -> AddText("Inform Expert if Number of Hot Towers Exceeds: 3.5%");
+  warn->AddText("For now, watch for entire IB's or sectors going dead");
+  dead->Draw();
+  good->Draw();
 
-  hot -> Draw();
-  warn -> Draw();
+  hot->Draw();
+  warn->Draw();
   warningpad->Update();
   return 0;
 }
-
-
 
 int CemcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
@@ -1301,7 +1619,7 @@ int CemcMonDraw::SavePlot(const std::string &what, const std::string &type)
   int iret = Draw(what);
   if (iret)  // on error no png files please
   {
-      return iret;
+    return iret;
   }
   int icnt = 0;
   for (TCanvas *canvas : TC)
@@ -1312,7 +1630,7 @@ int CemcMonDraw::SavePlot(const std::string &what, const std::string &type)
     }
     icnt++;
     std::string filename = ThisName + "_" + std::to_string(icnt) + "_" +
-      std::to_string(cl->RunNumber()) + "." + type;
+                           std::to_string(cl->RunNumber()) + "." + type;
     cl->CanvasToPng(canvas, filename);
   }
   return 0;
@@ -1359,37 +1677,35 @@ int CemcMonDraw::MakeHtml(const std::string &what)
   return 0;
 }
 
-
 std::vector<int> CemcMonDraw::getBadPackets(TH1 *hist, int what, float cutoff)
 {
   float params[3] = {1., 5981., 192.};
   float params2[3] = {1., 3991., 128.};
-  //float cutoff = 0.75;
-  std::vector<int> badpacks ={0};
-  std::vector<int> uninPackets = {6022,6026,6030,6034,6038,6042};
-  //6022, 6026, 6030, 6034, 6038, 6042
-  for(int i = 1; i < hist -> GetNbinsX(); i++)
+  // float cutoff = 0.75;
+  std::vector<int> badpacks = {0};
+  std::vector<int> uninPackets = {6022, 6026, 6030, 6034, 6038, 6042};
+  // 6022, 6026, 6030, 6034, 6038, 6042
+  for (int i = 1; i < hist->GetNbinsX(); i++)
+  {
+    if (std::count(uninPackets.begin(), uninPackets.end(), i + 6000))
     {
-      if(std::count(uninPackets.begin(), uninPackets.end(), i+6000))
-	{
-	  if((hist -> GetBinContent(i) < params2[what]*cutoff ||  hist -> GetBinContent(i) > params2[what]))
-	    {
-	      badpacks.push_back(i+6000);
-	    }
-	}
-      else
-	{
-	  if((hist -> GetBinContent(i) < params[what]*cutoff ||  hist -> GetBinContent(i) > params[what]))
-	    {
-	      badpacks.push_back(i+6000);
-	    }
-	}
-
+      if ((hist->GetBinContent(i) < params2[what] * cutoff || hist->GetBinContent(i) > params2[what]))
+      {
+        badpacks.push_back(i + 6000);
+      }
     }
+    else
+    {
+      if ((hist->GetBinContent(i) < params[what] * cutoff || hist->GetBinContent(i) > params[what]))
+      {
+        badpacks.push_back(i + 6000);
+      }
+    }
+  }
 
-  //if((hist -> GetBinContent(i) < params[what]*cutoff ||  hist -> GetBinContent(i) > params[what]) &&  !(((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
+  // if((hist -> GetBinContent(i) < params[what]*cutoff ||  hist -> GetBinContent(i) > params[what]) &&  !(((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
 
-      //else if((hist -> GetBinContent(i) < params2[what]*cutoff || hist -> GetBinContent(i) > params2[what]) &&  (((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
+  // else if((hist -> GetBinContent(i) < params2[what]*cutoff || hist -> GetBinContent(i) > params2[what]) &&  (((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
 
   return badpacks;
 }
@@ -1399,4 +1715,398 @@ time_t CemcMonDraw::getTime()
   OnlMonClient *cl = OnlMonClient::instance();
   time_t currtime = cl->EventTime("CURRENT");
   return currtime;
+}
+
+void CemcMonDraw::HandleEvent(int event, int x, int y, TObject* sel){
+  if(event==1){
+    TCanvas* canvas=nullptr;
+    TPad *mypad=nullptr;
+    if(strcmp(sel->GetName(),"transparent0")==0){
+      //canvas=TC[0];
+      //mypad=Pad[0];
+      return;//we do not want draw from there
+    }
+    else if(strcmp(sel->GetName(),"transparent6")==0){
+      canvas=TC[6];
+      if(canvas->AbsPixeltoX(x)<0.5){
+	if(canvas->AbsPixeltoY(y)<0.475){
+	  mypad=Pad[17];
+	}
+	else{
+	  mypad=Pad[15];
+	}
+      }
+      else{
+	if(canvas->AbsPixeltoY(y)<0.475){
+	  mypad=Pad[18];
+	}
+	else{
+	  mypad=Pad[16];
+	}
+      }
+	
+    }
+    else return;//dummy to avoid the unused warning
+    
+    double xeta=mypad->PadtoX(mypad->AbsPixeltoX(x));
+    double yphi=mypad->PadtoY(mypad->AbsPixeltoY(y));
+    int ieta=(int) xeta;
+    int iphi=(int) yphi;
+    if(ieta<0||ieta>96) return;
+    if(iphi<0||iphi>256) return;
+    int iphi_begin=(iphi/8)*8;
+    int ieta_begin=(ieta/8)*8;
+    if(!gROOT->FindObject("CemcPopup")) MakeCanvas("CemcPopup");
+    PopUpCanvas->SetEditable(true);
+    PopUpCanvas->Clear("D");
+    for(int i=0; i<8; i++){
+      for(int j=0; j<8; j++){
+	if(!gROOT->FindObject(Form("Combinedh2_waveform_phi%d_eta%d",j+iphi_begin,i+ieta_begin))){
+	  return ;
+	  PopUpCanvas->Update();
+	  PopUpCanvas->Show();
+	  PopUpCanvas->SetEditable(false);
+	}
+	else{
+	  summedProfile[i][j]=(TProfile*)gROOT->FindObject(Form("Combinedh2_waveform_phi%d_eta%d",j+iphi_begin,i+ieta_begin));
+	}
+	if(PopUpPad[i][j]){
+	  PopUpPad[i][j]->cd();
+	}
+	else{
+	  std::cout<<"no valid popuppad"<<std::endl;
+	}
+	if(summedProfile[i][j]){
+	  //summedProfile[i][j]->SetMaximum(pow(2,14));//screew up the 2D histo
+	  summedProfile[i][j]->Draw();
+	  summedProfile[i][j]->GetYaxis()->SetRangeUser(0.1,pow(2,14));
+	  PopUpPad[i][j]->Update();
+	  PopUpPad[i][j]->Paint();
+	}
+	else{
+	  DrawDeadServer(PopUpTransparent);
+	  PopUpCanvas->SetEditable(false);
+	  return;
+	}
+      }
+    }
+    PopUpCanvas->Update();
+    PopUpCanvas->Show();
+    PopUpCanvas->SetEditable(false);
+  } 
+}
+
+int CemcMonDraw::DrawSixth(const std::string & /*what*/ ){
+  
+  TH2D* h2_maxima;
+  TH2D* h2_timeofMax;
+  TH2D* h2_pedestal;
+  TH2D* h2_saturating;
+
+  if(!gROOT->FindObject("h2_maxima")){
+    h2_maxima = new TH2D("h2_maxima","ADC counts at peak position",96,0,96,256,0,256);
+    h2_maxima->SetStats(kFALSE);
+    h2_maxima->GetXaxis()->SetNdivisions(12,kFALSE);
+    h2_maxima->GetYaxis()->SetNdivisions(32,kFALSE);
+    h2_maxima->GetXaxis()->SetTitle("eta index");
+    h2_maxima->GetYaxis()->SetTitle("phi index");
+  }
+  else {
+    h2_maxima=(TH2D*)gROOT->FindObject("h2_maxima");
+    h2_maxima->Reset();
+  }
+  if(!gROOT->FindObject("h2_timeOfMax")){
+    h2_timeofMax=new TH2D("h2_timeOfMax","Waveform peak position",96,0,96,256,0,256);
+    h2_timeofMax->SetStats(kFALSE);
+    h2_timeofMax->GetXaxis()->SetNdivisions(12,kFALSE);
+    h2_timeofMax->GetYaxis()->SetNdivisions(32,kFALSE);
+    h2_timeofMax->GetXaxis()->SetTitle("eta index");
+    h2_timeofMax->GetYaxis()->SetTitle("phi index");
+  }
+  else{
+    h2_timeofMax=(TH2D*)gROOT->FindObject("h2_timeOfMax");
+    h2_timeofMax->Reset();
+  }
+  if(!gROOT->FindObject("h2_pedestal")){
+    h2_pedestal=new TH2D("h2_pedestal","ADC counts for pedestal",96,0,96,256,0,256);
+    h2_pedestal->SetStats(kFALSE);
+    h2_pedestal->GetXaxis()->SetNdivisions(12,kFALSE);
+    h2_pedestal->GetYaxis()->SetNdivisions(32,kFALSE);
+    h2_pedestal->GetXaxis()->SetTitle("eta index");
+    h2_pedestal->GetYaxis()->SetTitle("phi index");
+  }
+  else{
+    h2_pedestal=(TH2D*)gROOT->FindObject("h2_pedestal");
+    h2_pedestal->Reset();
+  }
+  if(!gROOT->FindObject("h2_saturating")){
+    h2_saturating=new TH2D("h2_saturating","Tower with saturated signals",96,0,96,256,0,256);
+    h2_saturating->SetStats(kFALSE);
+    h2_saturating->GetXaxis()->SetNdivisions(12,kFALSE);
+    h2_saturating->GetYaxis()->SetNdivisions(32,kFALSE);
+    h2_saturating->GetXaxis()->SetTitle("eta index");
+    h2_saturating->GetYaxis()->SetTitle("phi index");
+  }
+  else{
+    h2_saturating=(TH2D*)gROOT->FindObject("h2_saturating");
+    h2_saturating->Reset();
+  }
+  
+  if (!gROOT->FindObject("CemcMon7"))
+    {
+      MakeCanvas("CemcMon7");
+    }
+  OnlMonClient *cl = OnlMonClient::instance();
+  for(int i=0; i<256; i++){
+    for(int j=0; j<96; j++){
+      double mean=0;
+      int Nmean=0;
+      bool unsat=true;
+      int nSaturated=0;
+      bool init=false;
+      TProfile* ptmp=nullptr;
+      for (auto server = ServerBegin(); server != ServerEnd(); ++server){
+	//for(int iseb=0;iseb<nSEBs; iseb++){
+	//ptmp=(TProfile*)cl->getHisto(Form("CEMCMON_%d",iseb),Form("h2_waveform_phi%d_eta%d",i,j));
+	ptmp=(TProfile*)cl->getHisto(*server,Form("h2_waveform_phi%d_eta%d",i,j));
+	if(ptmp){
+	  if(!init){
+	    if(!gROOT->FindObject(Form("Combined%s",ptmp->GetName()))){
+	      AllProfiles[i][j] = new TProfile(*(TProfile*)ptmp);//Is it really necessary? Most likely not
+	      AllProfiles[i][j]->SetName(Form("Combined%s",ptmp->GetName()));
+	      init=true;
+	    }
+	    else{
+	      AllProfiles[i][j]->Reset();
+	      AllProfiles[i][j]->Add(ptmp);
+	      init=true;
+	    }
+	  }
+	  else{
+	    AllProfiles[i][j]->Add(ptmp);
+	  }
+	}
+	else{
+	  std::cout<<"Could not retrieve "<<Form("h2_waveform_phi%d_eta%d",i,j)<<" from "<<*server<<std::endl;
+	}
+      }
+      if(AllProfiles[i][j]){
+	h2_maxima->Fill(j,i,AllProfiles[i][j]->GetMaximum());
+	h2_timeofMax->Fill(j,i,AllProfiles[i][j]->GetXaxis()->GetBinCenter(AllProfiles[i][j]->GetMaximumBin()));
+	if(AllProfiles[i][j]->GetBinError(AllProfiles[i][j]->GetMaximumBin())==0 && AllProfiles[i][j]->GetBinContent(AllProfiles[i][j]->GetMaximumBin())>0){
+	  unsat=false;
+	  nSaturated++;
+	}
+	for(int ibin=0; ibin<AllProfiles[i][j]->GetNbinsX(); ibin++){
+	  if(ibin+1==AllProfiles[i][j]->GetMaximumBin())continue;
+	  if(AllProfiles[i][j]->GetBinContent(ibin+1)/AllProfiles[i][j]->GetMaximum()>0.95&&AllProfiles[i][j]->GetBinContent(ibin+1)>10000){
+	    unsat=false;
+	    nSaturated++;
+	  }
+	}
+	for(int Rmean=1; Rmean<7; Rmean++){
+	  if(AllProfiles[i][j]->GetBinContent(Rmean)){
+	    mean+=AllProfiles[i][j]->GetBinContent(Rmean);
+	    Nmean++;
+	  }
+	}
+	h2_pedestal->Fill(j,i,Nmean>0?mean/Nmean:0);//AllProfiles[i][j]->GetBinContent(2));
+	if(!unsat)h2_saturating->Fill(j,i,nSaturated);
+      }
+    }
+  }
+  TLine *line_sector[32];
+  for(int i_line=0;i_line<32;i_line++)
+    {
+      line_sector[i_line] = new TLine(0,(i_line+1)*8,96,(i_line+1)*8);
+      line_sector[i_line]->SetLineColor(1);
+      line_sector[i_line]->SetLineWidth(1);
+      line_sector[i_line]->SetLineStyle(1);
+    }
+
+
+  const int numVertDiv = 12;
+  int dEI = 96/numVertDiv;
+  TLine *l_board[numVertDiv-1];
+  for(int il=1; il<numVertDiv; il++){
+    l_board[il-1] = new TLine(dEI*il,0,dEI*il,256);
+    l_board[il-1]->SetLineColor(1);
+    l_board[il-1]->SetLineWidth(1);
+    l_board[il-1]->SetLineStyle(1);
+    if(il==6) l_board[il-1]->SetLineWidth(2);
+  }
+  
+  TC[6]->SetEditable(1);
+  TC[6]->Clear("D");
+  Pad[15]->cd();
+  gStyle->SetPalette(kBird);
+  h2_maxima->DrawCopy("colz");
+  for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
+  for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
+  Pad[16]->cd();
+  gStyle->SetPalette(kBird);
+  h2_timeofMax->DrawCopy("colz");
+  for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
+  for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
+  Pad[17]->cd();
+  gStyle->SetPalette(kBird);
+  h2_pedestal->DrawCopy("colz");
+  for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
+  for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
+  Pad[18]->cd();
+  gStyle->SetPalette(kBird);
+  h2_saturating->DrawCopy("colz");
+  for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
+  for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
+  
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  runnostream << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[6]->cd();
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+
+  TC[6]->Update();
+  TC[6]->Show();
+  TC[6]->SetEditable(0);
+  TC[6]->Connect("ProcessedEvent(int, int, int, TObject*)","CemcMonDraw",this,"HandleEvent(int, int, int, TObject*)");
+  if(save)TC[6] -> SaveAs("plots/Test.pdf");
+  return 0;
+}
+
+int CemcMonDraw::DrawServerStats()
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("CemcMon6"))
+  {
+    MakeCanvas("CemcMon6");
+  }
+  TC[5]->Clear("D");
+  TC[5]->SetEditable(true);
+  transparent[5]->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  for (const auto &server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = cl->GetServerMap(server);
+    if (servermapiter == cl->GetServerMapEnd())
+    {
+      txt << "Server " << server
+          << " is dead ";
+      PrintRun.SetTextColor(2);
+    }
+    else
+    {
+      txt << "Server " << server
+	  << ", run number " << std::get<1>(servermapiter->second)
+	  << ", event count: " << std::get<2>(servermapiter->second)
+	  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+      if (std::get<0>(servermapiter->second))
+      {
+	PrintRun.SetTextColor(3);
+      }
+      else
+      {
+	PrintRun.SetTextColor(2);
+      }
+    }
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+  TC[5]->Update();
+  TC[5]->Show();
+  TC[5]->SetEditable(false);
+
+  return 0;
+}
+
+int CemcMonDraw::DrawSeventh(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  // watch the absolute insanity as we merge all these
+  // histograms from across seven different machines
+
+  TProfile2D* p2_zsFrac_etaphiCombined=nullptr;
+  TProfile2D* proftmp;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+    {
+      proftmp=(TProfile2D*)cl->getHisto(*server, "p2_zsFrac_etaphi");
+      if(proftmp){
+	if(p2_zsFrac_etaphiCombined){
+	  p2_zsFrac_etaphiCombined->Add(proftmp);
+	}
+	else{
+	  p2_zsFrac_etaphiCombined=proftmp;
+	}
+      }
+    }
+
+  if (!gROOT->FindObject("CemcMon8"))
+  {
+    MakeCanvas("CemcMon8");
+  }
+  TC[7]->SetEditable(true);
+  TC[7]->Clear("D");
+  if(!p2_zsFrac_etaphiCombined){
+    DrawDeadServer(transparent[7]);
+    TC[7]->SetEditable(false);
+    return -1;
+  }
+
+  Pad[19]->cd();
+  gPad->SetTopMargin(0.02);
+  gPad->SetBottomMargin(0.12);
+  gPad->SetLeftMargin(0.12);
+  gPad->SetRightMargin(0.12);
+  gStyle->SetTitleFontSize(0.06);
+  gStyle->SetPalette(kBird);
+  p2_zsFrac_etaphiCombined->GetXaxis()->SetTitle("eta index");
+  p2_zsFrac_etaphiCombined->GetYaxis()->SetTitle("phi index");
+  p2_zsFrac_etaphiCombined->GetXaxis()->SetLabelSize(0.05);
+  p2_zsFrac_etaphiCombined->GetYaxis()->SetLabelSize(0.05);
+  p2_zsFrac_etaphiCombined->GetXaxis()->SetTitleSize(0.05);
+  p2_zsFrac_etaphiCombined->GetYaxis()->SetTitleSize(0.05);
+  p2_zsFrac_etaphiCombined->GetXaxis()->SetTitleOffset(1.0);
+  p2_zsFrac_etaphiCombined->GetYaxis()->SetTitleOffset(1.0);
+  p2_zsFrac_etaphiCombined->SetMinimum(0);
+  p2_zsFrac_etaphiCombined->SetMaximum(1);
+  p2_zsFrac_etaphiCombined->SetStats(kFALSE);
+  p2_zsFrac_etaphiCombined->DrawCopy("colz");
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.03);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();
+  // fill run number and event time into string
+  runnostream << ThisName << ": Unsuppressed event fraction, Run" << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[7]->cd();
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+
+  TC[7]->Update();
+  TC[7]->Show();
+  TC[7]->SetEditable(0);
+  if(save)TC[7] -> SaveAs("plots/UnsuppressedEventFraction.pdf");
+  return 0;
 }

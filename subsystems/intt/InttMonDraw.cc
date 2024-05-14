@@ -4,28 +4,22 @@
 
 InttMonDraw::Options_t InttMonDraw::OPTIONS =
     {
-        //Chip-Channel
+        // Chip-Channel
         {"chip_hitmap", (struct Option_s){
                             .head = &InttMonDraw::GlobalChipLocalChannelHead,
                             .global = &InttMonDraw::PrepGlobalChipHists_Hitmap,
                             .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
 
-        {"chip_nll", (struct Option_s){
-                            .head = &InttMonDraw::GlobalChipLocalChannelHead,
-                            .global = &InttMonDraw::PrepGlobalChipHists_NLL,
-                            .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
+        {"chip_nll", (struct Option_s){.head = &InttMonDraw::GlobalChipLocalChannelHead, .global = &InttMonDraw::PrepGlobalChipHists_NLL, .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
 
-        //Ladder-Chip
-        {"ladder_hitmap", (struct Option_s){
-                            .head = &InttMonDraw::GlobalLadderLocalChipHead,
-                            .global = &InttMonDraw::PrepGlobalLadderHists_Interface,
-                            .local = &InttMonDraw::PrepLocalChipHists_Hitmap}},
+        // Ladder-Chip
+        {"ladder_hitmap", (struct Option_s){.head = &InttMonDraw::GlobalLadderLocalChipHead, .global = &InttMonDraw::PrepGlobalLadderHists_Interface, .local = &InttMonDraw::PrepLocalChipHists_Hitmap}},
 
-    //Bco Diffs
-    {"bco_diff", (struct Option_s){ // Does not follow same recursive structure; everything is done in the head function
-                            .head = &InttMonDraw::DrawBcoDiff,
-                            .global = nullptr,
-                            .local = nullptr}},
+        // Bco Diffs
+        {"bco_diff", (struct Option_s){// Does not follow same recursive structure; everything is done in the head function
+                                       .head = &InttMonDraw::DrawBcoDiff,
+                                       .global = nullptr,
+                                       .local = nullptr}},
 };
 
 InttMonDraw::InttMonDraw(const std::string& name)
@@ -47,9 +41,15 @@ int InttMonDraw::Init()
 
 int InttMonDraw::Draw(const std::string& what)
 {
-  bool b = false;
   bool found = false;
 
+  if (what == "ALL" || what == "SERVERSTATS")
+  {
+    DrawServerStats();
+    found = true;
+  }
+
+  bool b = false;
   std::string temp = "";
   for (char s : what)
   {
@@ -100,10 +100,8 @@ int InttMonDraw::MakeHtml(const std::string& what)
   {
     return 1;
   }
-
   TSeqCollection* canvases = gROOT->GetListOfCanvases();
-  TCanvas* canvas = nullptr;
-  std::string pngfile;
+  TCanvas* canv = nullptr;
 
   bool b = false;
   bool found = false;
@@ -134,7 +132,7 @@ int InttMonDraw::MakeHtml(const std::string& what)
 
     found = true;
 
-    canvas = nullptr;
+    canv = nullptr;
     name = Form("Intt_%s_Global_Canvas", (itr.first).c_str());
     for (TIter t_itr = canvases->begin(); t_itr != canvases->end(); ++t_itr)
     {
@@ -143,17 +141,17 @@ int InttMonDraw::MakeHtml(const std::string& what)
         continue;
       }
 
-      canvas = (TCanvas*) (*t_itr);
+      canv = (TCanvas*) (*t_itr);
       break;
     }
 
-    if (!canvas)
+    if (!canv)
     {
       continue;
     }
 
-    pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), itr.first, "png");
-    cl->CanvasToPng(canvas, pngfile);
+    std::string pngfl = cl->htmlRegisterPage(*this, canv->GetTitle(), itr.first, "png");
+    cl->CanvasToPng(canv, pngfl);
   }
 
   if (!found)
@@ -164,6 +162,22 @@ int InttMonDraw::MakeHtml(const std::string& what)
     {
       std::cout << "\t" << itr.first << std::endl;
     }
+  }
+
+// this code must not be modified
+  Draw("SERVERSTATS");
+
+  int icnt = 0;
+  for (TCanvas *canvas : TC)
+  {
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    icnt++;
+   // Register the canvas png file to the menu and produces the png file.
+    std::string pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), std::to_string(icnt), "png");
+    cl->CanvasToPng(canvas, pngfile);
   }
 
   return 0;
@@ -247,7 +261,7 @@ int InttMonDraw::SavePlot(std::string const& what, std::string const& type)
 
 void InttMonDraw::DrawPad(TPad* base, TPad* pad)
 {
-  pad->SetFillStyle(4000);  //transparent
+  pad->SetFillStyle(4000);  // transparent
   pad->Range(0.0, 0.0, 1.0, 1.0);
   pad->SetTopMargin(T_MARGIN);
   pad->SetBottomMargin(B_MARGIN);
@@ -259,7 +273,7 @@ void InttMonDraw::DrawPad(TPad* base, TPad* pad)
   pad->cd();
 }
 
-//BCO histograms
+// BCO histograms
 void InttMonDraw::DrawBcoDiff(std::string const& option)
 {
   int bin;
@@ -301,7 +315,7 @@ void InttMonDraw::DrawBcoDiff(std::string const& option)
         0,
         CNVS_WIDTH,
         CNVS_HEIGHT);
-    //cnvs->...
+    // cnvs->...
     //...
   }
 
@@ -312,10 +326,10 @@ void InttMonDraw::DrawBcoDiff(std::string const& option)
     disp_pad = new TPad(
         name.c_str(),
         name.c_str(),
-		x_lower,
-		0.0,
-		x_upper,
-		y_lower);
+        x_lower,
+        0.0,
+        x_upper,
+        y_lower);
     DrawPad(cnvs, disp_pad);
   }
   disp_pad->cd();
@@ -348,47 +362,47 @@ void InttMonDraw::DrawBcoDiff(std::string const& option)
     legend_pad = new TPad(
         name.c_str(),
         name.c_str(),
-		x_upper,
-		y_lower,
-		1.0,
-		y_upper - DISP_FRAC);
+        x_upper,
+        y_lower,
+        1.0,
+        y_upper - DISP_FRAC);
     DrawPad(cnvs, legend_pad);
   }
   legend_pad->cd();
-  for(int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
+  for (int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
   {
     double x[4] = {0.2, 0.3, 0.3, 0.2};
-	double y[4] = {y_lower + (y_upper - y_lower) / (2 * INTT::FELIX_CHANNEL) * (2 * fee + 1)};
-	for(int i = 0; i < 4; ++i)
-	{
+    double y[4] = {y_lower + (y_upper - y_lower) / (2 * INTT::FELIX_CHANNEL) * (2 * fee + 1)};
+    for (int i = 0; i < 4; ++i)
+    {
       y[i] = y[0];
-	}
+    }
 
-	TText* legend_text = new TText(
-      0.5,
-	  y[0],
-      Form("fee%2d", fee));
-  	legend_text->SetName(Form("Intt_%s_%01d_Legend_Text", option.c_str(), fee));
+    TText* legend_text = new TText(
+        0.5,
+        y[0],
+        Form("fee%2d", fee));
+    legend_text->SetName(Form("Intt_%s_%01d_Legend_Text", option.c_str(), fee));
     legend_text->SetTextAlign(22);
     legend_text->SetTextSize(LEGEND_TEXT_SIZE);
-	// legend_text->SetTextColor(INTT::GetFeeColor(fee));
-	legend_text->SetTextColor(kBlack);
-	legend_text->Draw();
+    // legend_text->SetTextColor(INTT::GetFeeColor(fee));
+    legend_text->SetTextColor(kBlack);
+    legend_text->Draw();
 
-	y[0] -= 0.025;
-	y[1] -= 0.025;
-	y[2] += 0.025;
-	y[3] += 0.025;
+    y[0] -= 0.025;
+    y[1] -= 0.025;
+    y[2] += 0.025;
+    y[3] += 0.025;
 
-	TPolyLine* box = new TPolyLine(4, x, y);
-	box->SetFillColor(INTT::GetFeeColor(fee));
-	box->SetLineColor(kBlack);
-	box->SetLineWidth(1);
-	box->Draw("f");
+    TPolyLine* box = new TPolyLine(4, x, y);
+    box->SetFillColor(INTT::GetFeeColor(fee));
+    box->SetLineColor(kBlack);
+    box->SetLineWidth(1);
+    box->Draw("f");
   }
 
   struct INTT::BcoData_s bco_data;
-  for(int i = 0; i < INTT::FELIX; ++i)
+  for (int i = 0; i < INTT::FELIX; ++i)
   {
     name = Form("Intt_%s_%01d_pad", option.c_str(), i);
     hist_pad[i] = (TPad*) gROOT->FindObject(name.c_str());
@@ -410,21 +424,20 @@ void InttMonDraw::DrawBcoDiff(std::string const& option)
     hist_pad[i]->SetLogy();
     hist_pad[i]->cd();
 
-	int max_count = 0;
-	bco_data.pid = i + 3001;
-	for(int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
-	{
+    int max_count = 0;
+    bco_data.pid = i + 3001;
+    for (int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
+    {
       name = Form("Intt_%s_%01d_%02d_hist", option.c_str(), i, fee);
       hist[i][fee] = (TH1D*) gROOT->FindObject(name.c_str());
-      if(!hist[i][fee])
+      if (!hist[i][fee])
       {
         hist[i][fee] = new TH1D(
-          name.c_str(),
-          name.c_str(),
-          128,
-          0,
-          127
-        );
+            name.c_str(),
+            name.c_str(),
+            128,
+            0,
+            127);
         hist[i][fee]->GetXaxis()->SetNdivisions(16, true);
         // hist[i][fee]->GetXaxis()->SetLabelSize(0.0);
         // hist[i][fee]->GetXaxis()->SetLabelSize(0.0);
@@ -432,41 +445,41 @@ void InttMonDraw::DrawBcoDiff(std::string const& option)
       hist[i][fee]->Reset();
 
       TH1D* server_hist = (TH1D*) cl->getHisto(Form("INTTMON_%d", i), "InttBcoDiffMap");
-      if(!server_hist)
+      if (!server_hist)
       {
         std::cerr << "InttMonDraw::DrawBcoDiff\n"
                   << "\tCould not get \"InttBcoDiffMap\" from " << Form("INTTMON_%d", i) << std::endl;
         continue;
       }
 
-	  // Fill
-	  bco_data.fee = fee;
-	  for(int bco = 0; bco < INTT::BCO; ++bco)
-	  {
-		  bco_data.bco = bco;
-		  INTT::GetBcoBin(bin, bco_data);
-		  bin = server_hist->GetBinContent(bin); // reuse the index as the value in that bin
-		  if(max_count < bin)max_count = bin;
-		  hist[i][fee]->SetBinContent(bco + 1, bin); // + 1 is b/c the 0th bin is an underflow bin
-	  }
-	}
-	for(int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
-	{
+      // Fill
+      bco_data.fee = fee;
+      for (int bco = 0; bco < INTT::BCO; ++bco)
+      {
+        bco_data.bco = bco;
+        INTT::GetBcoBin(bin, bco_data);
+        bin = server_hist->GetBinContent(bin);  // reuse the index as the value in that bin
+        if (max_count < bin) max_count = bin;
+        hist[i][fee]->SetBinContent(bco + 1, bin);  // + 1 is b/c the 0th bin is an underflow bin
+      }
+    }
+    for (int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
+    {
       hist[i][fee]->GetYaxis()->SetRangeUser(1, max_count ? max_count * 10 : 10);
-	  hist[i][fee]->SetLineColor(INTT::GetFeeColor(fee));
-      if(fee)
-	  {
-		  hist[i][fee]->Draw("same");
-	  }
-	  else
-	  {
-		  hist[i][fee]->Draw();
-	  }
-	}
+      hist[i][fee]->SetLineColor(INTT::GetFeeColor(fee));
+      if (fee)
+      {
+        hist[i][fee]->Draw("same");
+      }
+      else
+      {
+        hist[i][fee]->Draw();
+      }
+    }
   }
 }
 
-//GlobalChip-Channel idiom
+// GlobalChip-Channel idiom
 void InttMonDraw::GlobalChipLocalChannelHead(std::string const& option)
 {
   DrawGlobalChipMap(option);
@@ -517,7 +530,7 @@ void InttMonDraw::DrawGlobalChipMap(std::string const& option)
         0,
         CNVS_WIDTH,
         CNVS_HEIGHT);
-    //cnvs->...
+    // cnvs->...
     //...
   }
 
@@ -762,7 +775,7 @@ void InttMonDraw::InttGlobalChipExec(std::string const& option, int layer)
 
   if (gPad->GetEvent() != 11)
   {
-    return;  //left click
+    return;  // left click
   }
 
   DrawLocalChannelMap(option, indexes);
@@ -962,7 +975,7 @@ void InttMonDraw::InttLocalChannelExec(const std::string& option, int layer, int
   }
 }
 
-//GlobalLadder-Chip idiom
+// GlobalLadder-Chip idiom
 void InttMonDraw::GlobalLadderLocalChipHead(std::string const& option)
 {
   DrawGlobalLadderMap(option);
@@ -1013,7 +1026,7 @@ void InttMonDraw::DrawGlobalLadderMap(std::string const& option)
         0,
         CNVS_WIDTH,
         CNVS_HEIGHT);
-    //cnvs->...
+    // cnvs->...
     //...
   }
 
@@ -1256,7 +1269,7 @@ void InttMonDraw::InttGlobalLadderExec(std::string const& option, int layer)
 
   if (gPad->GetEvent() != 11)
   {
-    return;  //left click
+    return;  // left click
   }
 
   DrawLocalChipMap(option, indexes);
@@ -1439,8 +1452,8 @@ void InttMonDraw::InttLocalChipExec(const std::string& option, int layer, int la
   indexes.ldr = ladder;
   indexes.arm = arm;
   INTT::GetIndexesFromLocalChipBinXY(bin_x, bin_y, indexes);
-  //indexes.chp = indexes.arm * (INTT::CHIP / 2 - 1) - (2 * indexes.arm - 1) * bin_y + ((indexes.arm + bin_x / INTT::CHANNEL) % 2) * (INTT::CHIP / 2);
-  //indexes.chn = bin_x % INTT::CHANNEL;
+  // indexes.chp = indexes.arm * (INTT::CHIP / 2 - 1) - (2 * indexes.arm - 1) * bin_y + ((indexes.arm + bin_x / INTT::CHANNEL) % 2) * (INTT::CHIP / 2);
+  // indexes.chn = bin_x % INTT::CHANNEL;
 
   name = Form("Intt_%s_Local_DispText_Lyr%02d_Ldr%02d_Arm%02d", option.c_str(), indexes.lyr, indexes.ldr, indexes.arm);
   TText* disp_text = (TText*) gROOT->FindObject(name.c_str());
@@ -1457,8 +1470,8 @@ void InttMonDraw::InttLocalChipExec(const std::string& option, int layer, int la
   }
 }
 
-//idiom specific methods/implementations
-//GlobalChip/LocalChannel methods/implementations
+// idiom specific methods/implementations
+// GlobalChip/LocalChannel methods/implementations
 void InttMonDraw::PrepGlobalChipHists_Hitmap(std::string const& option, TH2D** client_hists)
 {
   int bin;
@@ -1533,13 +1546,13 @@ void InttMonDraw::PrepGlobalChipHists_Hitmap(std::string const& option, TH2D** c
     indexes.arm = felix / 4;
     INTT::GetGlobalChipBinXYFromIndexes(bin_x, bin_y, indexes);
 
-    //for debugging
-    //if(server_hist)temp = 0;
-    //temp = indexes.chp + 1;
-    //bin = client_hists[indexes.lyr]->GetBin(bin_x, bin_y);
-    //client_hists[indexes.lyr]->SetBinContent(bin, temp);
+    // for debugging
+    // if(server_hist)temp = 0;
+    // temp = indexes.chp + 1;
+    // bin = client_hists[indexes.lyr]->GetBin(bin_x, bin_y);
+    // client_hists[indexes.lyr]->SetBinContent(bin, temp);
 
-    //actual implementation
+    // actual implementation
     INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
     temp = server_hist ? server_hist->GetBinContent(bin) : 0;
     bin = client_hists[indexes.lyr]->GetBin(bin_x, bin_y);
@@ -1658,9 +1671,9 @@ void InttMonDraw::PrepLocalChannelHists_Hitmap(std::string const& option, TH2D**
     {
       INTT::GetLocalChannelBinXYFromIndexes(bin_x, bin_y, indexes);
 
-      //for debugging
-      //client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.chn);
-      //client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.adc);
+      // for debugging
+      // client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.chn);
+      // client_hist->SetBinContent(client_hist->GetBin(bin_x, bin_y), indexes.adc);
 
       INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
       temp = server_hist ? server_hist->GetBinContent(bin) : 0;
@@ -1830,7 +1843,7 @@ void InttMonDraw::PrepGlobalChipHists_NLL(std::string const& option, TH2D** clie
     INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
     temp = server_hist ? server_hist->GetBinContent(bin) : 0;
 
-    //NLL of having temp counts from a poisson distribution with expectation adc_counts[indexes.adc]
+    // NLL of having temp counts from a poisson distribution with expectation adc_counts[indexes.adc]
     temp = adc_counts[indexes.adc] ? lgamma(temp + 1) - temp * log(adc_counts[indexes.adc]) + adc_counts[indexes.adc] : 0;
 
     bin = client_hists[indexes.lyr]->GetBin(bin_x, bin_y);
@@ -1887,7 +1900,7 @@ void InttMonDraw::PrepGlobalChipHists_NLL(std::string const& option, TH2D** clie
   }
 }
 
-//GlobalLadder/LocalChip methods/implementations
+// GlobalLadder/LocalChip methods/implementations
 void InttMonDraw::PrepGlobalLadderHists_Interface(std::string const& option, TH2D** client_hists)
 {
   struct INTT::Indexes_s indexes;
@@ -1994,9 +2007,9 @@ void InttMonDraw::PrepLocalChipHists_Hitmap(std::string const& option, TH2D** cl
     {
       INTT::GetLocalChipBinXYFromIndexes(bin_x, bin_y, indexes);
 
-      //for debugging
-      //temp = server_hist ? server_hist->GetBinContent(bin) : 0;
-      //client_hists[0]->SetBinContent(client_hists[0]->GetBin(bin_x, bin_y), indexes.chp);
+      // for debugging
+      // temp = server_hist ? server_hist->GetBinContent(bin) : 0;
+      // client_hists[0]->SetBinContent(client_hists[0]->GetBin(bin_x, bin_y), indexes.chp);
 
       INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
       temp = server_hist ? server_hist->GetBinContent(bin) : 0;
@@ -2036,4 +2049,79 @@ void InttMonDraw::PrepLocalChipHists_Hitmap(std::string const& option, TH2D** cl
 
     ++felix;
   }
+}
+
+int InttMonDraw::MakeCanvas(const std::string& name)
+{
+  OnlMonClient* cl = OnlMonClient::instance();
+  int xsize = cl->GetDisplaySizeX();
+  int ysize = cl->GetDisplaySizeY();
+  if (name == "InttMon_ServerStats")
+  {
+    TC[0] = new TCanvas(name.c_str(), "InttMon Server Stats", xsize / 2, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    transparent[0] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[0]->SetFillStyle(4000);
+    transparent[0]->Draw();
+    TC[0]->SetEditable(false);
+    TC[0]->SetTopMargin(0.05);
+    TC[0]->SetBottomMargin(0.05);
+  }
+  return 0;
+}
+
+int InttMonDraw::DrawServerStats()
+{
+  OnlMonClient* cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("InttMon_ServerStats"))
+  {
+    MakeCanvas("InttMon_ServerStats");
+  }
+  TC[0]->Clear("D");
+  TC[0]->SetEditable(true);
+  transparent[0]->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  for (const auto& server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = cl->GetServerMap(server);
+    if (servermapiter == cl->GetServerMapEnd())
+    {
+      txt << "Server " << server
+          << " is dead ";
+      PrintRun.SetTextColor(2);
+    }
+    else
+    {
+      txt << "Server " << server
+          << ", run number " << std::get<1>(servermapiter->second)
+          << ", event count: " << std::get<2>(servermapiter->second)
+          << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+      if (std::get<0>(servermapiter->second))
+      {
+        PrintRun.SetTextColor(3);
+      }
+      else
+      {
+        PrintRun.SetTextColor(2);
+      }
+    }
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+  TC[0]->Update();
+  TC[0]->Show();
+  TC[0]->SetEditable(false);
+
+  return 0;
 }
