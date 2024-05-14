@@ -41,7 +41,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // --- this is called by int DrawFirst(string&)
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - Average ADC vs Tile", 1200, 600);
+    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - Hits/Event vs Tile", 1200, 600);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -275,8 +275,6 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   tarm.SetNDC();
   tarm.SetTextFont(42);
   tarm.SetTextSize(0.05);
-  //if ( arm == 0 ) tring.DrawText(0.55,0.6,"South");
-  //if ( arm == 1 ) tring.DrawText(0.55,0.6,"North");
 
   gStyle->SetOptStat(0);
   // ---
@@ -295,13 +293,14 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   Pad[1]->cd();
   polar_histN->GetZaxis()->SetRangeUser(zmin,zmax);
   polar_histN01->GetZaxis()->SetRangeUser(zmin,zmax);
-  gPad->SetLeftMargin(0.0);
-  gPad->SetRightMargin(0.2);
+  gPad->SetLeftMargin(0.05);
+  gPad->SetRightMargin(0.15);
   gPad->SetTicks(1,1);
   gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
   polar_histN->Draw("same colz pol AH");
   polar_histN01->Draw("same col pol AH");
-  tarm.DrawText(0.35,0.91,"North");
+  tarm.DrawText(0.40,0.91,"North");
+  //tarm.DrawText(0.35,0.91,"North");
   //tarm.DrawText(0.45,0.91,"North");
   gStyle->SetPalette(57);
 
