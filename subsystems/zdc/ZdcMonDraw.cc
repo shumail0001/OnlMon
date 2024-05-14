@@ -621,10 +621,13 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   TH1 *smd_hor_north = cl->getHisto("ZDCMON_0", "smd_hor_north");
   TH1 *smd_ver_north = cl->getHisto("ZDCMON_0", "smd_ver_north");
 
-  TH1 *smd_hor_north_small = cl->getHisto("ZDCMON_0", "smd_hor_north_small");
-  TH1 *smd_ver_north_small = cl->getHisto("ZDCMON_0", "smd_ver_north_small");
+  //TH1 *smd_hor_north_small = cl->getHisto("ZDCMON_0", "smd_hor_north_small");
+  //TH1 *smd_ver_north_small = cl->getHisto("ZDCMON_0", "smd_ver_north_small");
   TH1 *smd_hor_north_good = cl->getHisto("ZDCMON_0", "smd_hor_north_good");
   TH1 *smd_ver_north_good = cl->getHisto("ZDCMON_0", "smd_ver_north_good");
+  TH1 *smd_hor_south_good = cl->getHisto("ZDCMON_0", "smd_hor_south_good");
+  TH1 *smd_ver_south_good = cl->getHisto("ZDCMON_0", "smd_ver_south_good");
+
 
   TH1 *smd_sum_hor_south = cl->getHisto("ZDCMON_0", "smd_sum_hor_south");
   TH1 *smd_sum_ver_south = cl->getHisto("ZDCMON_0", "smd_sum_ver_south");
@@ -660,15 +663,25 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   {
     smd_hor_north_good->DrawCopy();
   }
+  //Pad[15]->cd();
+  //if (smd_ver_north_small)
+  //{
+  //  smd_ver_north_small->DrawCopy();
+  //}
+  //Pad[16]->cd();
+  //if (smd_hor_north_small)
+  //{
+  //  smd_hor_north_small->DrawCopy();
+  //}
   Pad[15]->cd();
-  if (smd_ver_north_small)
+  if (smd_ver_south_good)
   {
-    smd_ver_north_small->DrawCopy();
+    smd_ver_south_good->DrawCopy();
   }
   Pad[16]->cd();
-  if (smd_hor_north_small)
+  if (smd_hor_south_good)
   {
-    smd_hor_north_small->DrawCopy();
+    smd_hor_south_good->DrawCopy();
   }
 
   // VERTICAL AND HORIZONTAL NORTH
