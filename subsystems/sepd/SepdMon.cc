@@ -97,7 +97,7 @@ int SepdMon::Init()
   // waveform processing
   h1_waveform_twrAvg = new TH1F("h1_waveform_twrAvg", "", n_samples_show, 0.5, n_samples_show + 0.5);
   h1_waveform_time = new TH1F("h1_waveform_time", "", n_samples_show, 0.5, n_samples_show + 0.5);
-  h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 25, 1.2e3, 1.8e3);
+  h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 42, 1.0e3, 2.0e3);
   h2_sepd_waveform = new TH2F("h2_sepd_waveform", "", n_samples_show, 0.5, n_samples_show + 0.5, 1000, 0, 15000);
 
   // waveform processing, template vs. fast interpolation
