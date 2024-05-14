@@ -1359,7 +1359,8 @@ int OnlMonClient::ReadHistogramsFromFile(const std::string &filename, OnlMonDraw
 {
   std::string subsys = ExtractSubsystem(filename, drawer);
   TDirectory *save = gDirectory;  // save current dir (which will be overwritten by the following fileopen)
-  TFile *histofile = new TFile(filename.c_str(), "READ");
+  std::cout << "Reading histos from " << filename << std::endl;
+  TFile *histofile = TFile::Open(filename.c_str(), "READ");
   if (!histofile)
   {
     std::cout << "Can't open " << filename << std::endl;
@@ -1389,8 +1390,10 @@ int OnlMonClient::ReadHistogramsFromFile(const std::string &filename, OnlMonDraw
       }
     }
   }
-  delete histofile;
   delete titer;
+// this is a fast way to close a file, if you call TFile->Close() it deletes all
+// histograms which can take a really long time (hours)
+  gROOT->GetListOfFiles()->Remove( histofile );
   return 0;
 }
 
