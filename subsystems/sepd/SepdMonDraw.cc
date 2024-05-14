@@ -445,7 +445,7 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   }
   // --- rebin histograms
   h_ADC_corr->Rebin2D(5,5);
-  h_hits_corr->Rebin2D(5,5);
+  //h_hits_corr->Rebin2D(5,5);
   // ---
   TC[2]->SetEditable(true);
   TC[2]->Clear("D");
