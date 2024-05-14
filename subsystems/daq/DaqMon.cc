@@ -129,6 +129,9 @@ int DaqMon::process_event(Event *e /* evt */)
 
   Packet *plist[100];
   int npackets = e->getPacketList(plist,100);
+  bool mismatchfem = true;
+  int femevtref = 0;
+  int femclkref = 0;
   for (int ipacket = 0; ipacket < npackets; ipacket++) {
       Packet * p = plist[ipacket];
       if (p) {
@@ -140,22 +143,19 @@ int DaqMon::process_event(Event *e /* evt */)
           previousdiff[ipacket] = clockdiff[ipacket];
 
           int nADCs = p->iValue(0,"NRMODULES");
-          int femevt = 0;
-          int femclk = 0;
-          bool mismatchfem = true;
           for(int iadc = 0; iadc<nADCs ; iadc++){
-              femevt = p->iValue(iadc,"FEMEVTNR");
-              femclk = p->iValue(iadc,"FEMCLOCK");
-              if(femevt != p->iValue(0,"FEMEVTNR") || fabs(femclk - p->iValue(0,"FEMCLOCK"))>2) mismatchfem = false;
+              if(ipacket==0 && iadc==0){ femevtref = p->iValue(iadc,"FEMEVTNR"); femclkref = p->iValue(iadc,"FEMCLOCK");}
+
+              if(femevtref !=  p->iValue(iadc,"FEMEVTNR") || fabs(femclkref - p->iValue(0,"FEMCLOCK"))>2) mismatchfem = false;
           }
           
           int sebid = getmapping(pnum);
-          if(mismatchfem == false) h_fem_match->Fill(sebid,1);
           if(evtcnt>3) h_gl1_clock_diff->Fill(calomapid,fdiff);
           
       }
       delete p;
   }
+  if(mismatchfem == false) h_fem_match->Fill(sebid,1);
 
   return 0;
 }

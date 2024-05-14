@@ -86,7 +86,7 @@ int DaqMonDraw::MakeCanvas(const std::string &name)
   else if (name == "DaqMon2")
   {
     gStyle->SetOptStat(0);
-    TC[1] = new TCanvas(name.c_str(), "Calo ADC System Clock Check Capture", -1, 0, xsize / 2, ysize);
+    TC[1] = new TCanvas(name.c_str(), "Calo ADC FEM Check", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     Pad[1] = new TPad("pad2", "pad2", 0., 0.2, 1., 1.);
     Pad[1]->Draw();
