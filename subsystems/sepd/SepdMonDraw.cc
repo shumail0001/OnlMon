@@ -193,8 +193,8 @@ int SepdMonDraw::Draw(const std::string &what)
 int SepdMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1F *h_ADC_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
-  //TH1F *h_hits_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_hits_all_channel");
+  //TH1F *h_ADC_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
+  TH1F *h_hits_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_hits_all_channel");
   TH1 *h_event = (TH1*)cl->getHisto("SEPDMON_0", "h_event");
   time_t evttime = cl->EventTime("CURRENT");
 
@@ -205,7 +205,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
 
-  if (!h_ADC_all_channel)
+  //if (!h_ADC_all_channel)
+  if (!h_hits_all_channel)
   {
     DrawDeadServer(transparent[0]);
     TC[0]->SetEditable(false);
@@ -236,12 +237,13 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   // --- normalize
   //h_ADC_all_channel->Divide(h_hits_all_channel);
   int nevt = h_event->GetEntries();
-  h_ADC_all_channel->Scale(1.0/nevt);
+  //h_ADC_all_channel->Scale(1.0/nevt);
+  h_hits_all_channel->Scale(1.0/nevt);
   for ( int i = 0; i < 768; ++i )
     {
       int adc_channel = i;
-      float adc_signal = h_ADC_all_channel->GetBinContent(i+1);
-      if ( adc_signal <= 0.01 ) adc_signal = 0.01;
+      float adc_signal = h_hits_all_channel->GetBinContent(i+1);
+      if ( adc_signal <= 0.0001 ) adc_signal = 0.0001;
       int tile = returnTile(i);
       int odd = (tile+1)%2;
       //int ring = returnRing(adc_channel);
@@ -265,25 +267,42 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 
   // --- may need to update these depending on whether there are "hot" tiles
   double zmin = 0.0;
-  double zmax = 300;
+  double zmax = 1.0;
+  //double zmax = 300;
   //double zmax = 1.1*h_ADC_all_channel->GetMaximum();
+
+  TText tarm;
+  tarm.SetNDC();
+  tarm.SetTextFont(42);
+  tarm.SetTextSize(0.05);
+  //if ( arm == 0 ) tring.DrawText(0.55,0.6,"South");
+  //if ( arm == 1 ) tring.DrawText(0.55,0.6,"North");
 
   gStyle->SetOptStat(0);
   // ---
   Pad[0]->cd();
   polar_histS->GetZaxis()->SetRangeUser(zmin,zmax);
   polar_histS01->GetZaxis()->SetRangeUser(zmin,zmax);
+  // gPad->SetLeftMargin(0.2);
+  // gPad->SetRightMargin(0.0);
+  gPad->SetTicks(1,1);
   gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
-  polar_histS->Draw("same colz pol AH");
+  polar_histS->Draw("same col pol AH");
   polar_histS01->Draw("same col pol AH");
+  tarm.DrawText(0.45,0.91,"South");
   gStyle->SetPalette(57);
   // ---
   Pad[1]->cd();
   polar_histN->GetZaxis()->SetRangeUser(zmin,zmax);
   polar_histN01->GetZaxis()->SetRangeUser(zmin,zmax);
+  gPad->SetLeftMargin(0.0);
+  gPad->SetRightMargin(0.2);
+  gPad->SetTicks(1,1);
   gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
-  polar_histN->Draw("same col pol AH");
+  polar_histN->Draw("same colz pol AH");
   polar_histN01->Draw("same col pol AH");
+  tarm.DrawText(0.35,0.91,"North");
+  //tarm.DrawText(0.45,0.91,"North");
   gStyle->SetPalette(57);
 
   TText PrintRun;
@@ -447,6 +466,8 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   Pad[5]->cd();
   h_hits_corr->GetYaxis()->SetNdivisions(505);
   h_hits_corr->GetXaxis()->SetNdivisions(505);
+  h_hits_corr->GetYaxis()->SetRangeUser(0,200);
+  h_hits_corr->GetXaxis()->SetRangeUser(0,200);
   h_hits_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
