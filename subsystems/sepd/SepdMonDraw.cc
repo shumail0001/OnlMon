@@ -550,7 +550,8 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   lineright->Draw();
 
   float tsize = 0.09;
-  h2_sepd_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
+  //h2_sepd_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_sepd_waveform->GetXaxis()->SetNdivisions(-12);
   h2_sepd_waveform->GetXaxis()->SetTitle("Sample #");
   h2_sepd_waveform->GetYaxis()->SetTitle("Waveform [ADC]");
   h2_sepd_waveform->GetXaxis()->SetLabelSize(tsize/1.15);
@@ -590,7 +591,8 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_time->GetXaxis()->SetRangeUser(0,11);
   h_waveform_time->Draw("hist");
   // ---
-  h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
+  //h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_waveform_time->GetXaxis()->SetNdivisions(-12);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
   h_waveform_time->GetYaxis()->SetTitle("Counts");
   h_waveform_time->GetXaxis()->SetLabelSize(tsize);
@@ -627,7 +629,8 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
   gStyle->SetTitleFontSize(0.06);
 
-  h_waveform_pedestal->GetXaxis()->SetRangeUser(0,11);
+  // x-axis range is 1200 to 1800 in SepdMon.cc, need to change there if want a wider range
+  //h_waveform_pedestal->GetXaxis()->SetRangeUser(0,11);
   h_waveform_pedestal->Draw("hist");
   h_waveform_pedestal->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
