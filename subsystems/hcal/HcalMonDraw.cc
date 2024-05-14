@@ -19,6 +19,7 @@
 #include <TSystem.h>
 #include <TText.h>
 #include <TFile.h>
+#include <TFrame.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -628,6 +629,11 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h_waveform_pedestal->Add(hwaveform_pedestal_1);
   h2_hcal_waveform->Add(h2_hcal_waveform_1);
 
+  //Tprofie of h2_hcal_waveform 
+  TProfile* h_waveform_profile = h2_hcal_waveform->ProfileX();
+  // closed circle
+ 
+
   Pad[6]->cd();
   gStyle->SetTitleFontSize(0.03);
   float ymaxp = h2_hcal_waveform->ProfileX()->GetMaximum();
@@ -646,6 +652,23 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h2_hcal_waveform->GetYaxis()->SetTitleSize(tsize);
   h2_hcal_waveform->GetXaxis()->SetTitleOffset(1.2);
   h2_hcal_waveform->GetYaxis()->SetTitleOffset(0.75);
+  //over lay the profile draw only the marker
+   h_waveform_profile->SetMarkerStyle(20);
+  h_waveform_profile->SetMarkerSize(1);
+  h_waveform_profile->Draw("EX0 same");
+
+  //draw two black lines for the okay timing range
+  TLine* line1 = new TLine(4.5, 0, 4.5, ymaxp * 20);
+  line1->SetLineColor(1);
+  line1->SetLineWidth(3);
+  line1->SetLineStyle(1);
+  line1->Draw();
+  TLine* line2 = new TLine(7.5, 0, 7.5, ymaxp * 20);
+  line2->SetLineColor(1);
+  line2->SetLineWidth(3);
+  line2->SetLineStyle(1);
+  line2->Draw();
+
   gPad->SetLogz();
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.2);
@@ -655,6 +678,8 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   gStyle->SetPalette(57);
   gPad->SetTicky();
   gPad->SetTickx();
+
+
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -687,6 +712,27 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h_waveform_time->GetYaxis()->SetTitleSize(tsize2);
   h_waveform_time->GetXaxis()->SetTitleOffset(1.0);
   h_waveform_time->GetYaxis()->SetTitleOffset(0.85);
+  h_waveform_time->GetYaxis()->SetRange(0, h_waveform_time->GetMaximum() * 1.1);
+  gPad->Update();
+  //draw two black lines for the okay timing range
+  TLine* line3 = new TLine(4.5, 0, 4.5,  gPad->GetFrame()->GetY2());
+  line3->SetLineColor(1);
+  line3->SetLineWidth(3);
+  line3->SetLineStyle(1);
+  line3->Draw();
+  TLine* line4 = new TLine(7.5, 0, 7.5,  gPad->GetFrame()->GetY2());
+  line4->SetLineColor(1);
+  line4->SetLineWidth(3);
+  line4->SetLineStyle(1);
+  line4->Draw();
+  //draw a red line at mean x
+  TLine* line5 = new TLine(h_waveform_time->GetMean(), 0, h_waveform_time->GetMean(),  gPad->GetFrame()->GetY2());
+  line5->SetLineColor(2);
+  line5->SetLineWidth(3);
+  line5->SetLineStyle(1);
+  line5->Draw();
+
+
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -700,7 +746,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   gStyle->SetTitleFontSize(0.06);
 
   h_waveform_pedestal->Draw("hist");
-  h_waveform_pedestal->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_waveform_pedestal->GetXaxis()->SetNdivisions(505, kTRUE);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
   h_waveform_pedestal->GetYaxis()->SetTitle("Towers");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize2);
