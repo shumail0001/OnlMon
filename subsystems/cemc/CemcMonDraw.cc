@@ -137,13 +137,13 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcMon5")
   {
-    TC[4] = new TCanvas(name.c_str(), "CemcMon5 Trigger Info", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[4] = new TCanvas(name.c_str(), "CemcMon5 Trigger Info Expert", xsize*(2./3.), 0, xsize*(2./3.), ysize * 0.9);
     gSystem->ProcessEvents();
-    Pad[10] = new TPad("cemcpad10", "who needs this?", 0.0, 0.6, 0.5, 0.95, 0);
-    Pad[11] = new TPad("cemcpad11", "who needs this?", 0.5, 0.6, 1.0, 0.95, 0);
-    Pad[12] = new TPad("cemcpad12", "who needs this?", 0.0, 0.3, 0.5, 0.6, 0);
-    Pad[13] = new TPad("cemcpad13", "who needs this?", 0.5, 0.3, 1.0, 0.6, 0);
-    Pad[14] = new TPad("cemcpad14", "who needs this?", 0.0, 0.0, 1.0, 0.3, 0);
+    Pad[10] = new TPad("cemcpad10", "who needs this?", 0.0, 0.6, 0.45, 0.95, 0);
+    Pad[11] = new TPad("cemcpad11", "who needs this?", 0.45, 0.6, 0.9, 0.95, 0);
+    Pad[12] = new TPad("cemcpad12", "who needs this?", 0.0, 0.3, 0.45, 0.6, 0);
+    Pad[13] = new TPad("cemcpad13", "who needs this?", 0.45, 0.3, 0.9, 0.6, 0);
+    Pad[14] = new TPad("cemcpad14", "who needs this?", 0.0, 0.0, 0.9, 0.3, 0);
     Pad[10]->Draw();
     Pad[11]->Draw();
     Pad[12]->Draw();
@@ -1203,107 +1203,47 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH2 *h_cemc_hits_trig1[m_ServerSet.size()];
-  int start[5];
-  start[0] = -1;
+  TH2 *h_cemc_hits_trig[64][m_ServerSet.size()];
+  int start_trig[64] = {-1};
   int i = 0;
-  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  for(int itrig = 0; itrig < 64; itrig++)
   {
-    h_cemc_hits_trig1[i] = (TH2 *) cl->getHisto(*server, "h2_cemc_hits_trig1");
-    if (h_cemc_hits_trig1[i] && start[0] == -1)
+    i = 0;
+    for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
-      start[0] = i;
-    }
-    if (start[0] > -1 && h_cemc_hits_trig1[i])
-    {
-      h_cemc_hits_trig1[i]->SetName(Form("h_cemc_hits_trig1_%d", i));
-      if (start[0] != i)
+      h_cemc_hits_trig[itrig][i] = (TH2 *) cl->getHisto(*server, Form("h2_cemc_hits_trig_bit_%d", itrig));
+      if (h_cemc_hits_trig[itrig][i] && start_trig[itrig] == -1)
       {
-        h_cemc_hits_trig1[start[0]]->Add(h_cemc_hits_trig1[i], 1);
+        start_trig[itrig] = i;
       }
-    }
-    i++;
-  }
-
-  TH2 *h_cemc_hits_trig2[m_ServerSet.size()];
-  start[1] = -1;
-  i = 0;
-  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
-  {
-    h_cemc_hits_trig2[i] = (TH2 *) cl->getHisto(*server, "h2_cemc_hits_trig2");
-    if (h_cemc_hits_trig2[i] && start[1] == -1)
-    {
-      start[1] = i;
-    }
-    if (start[1] > -1 && h_cemc_hits_trig2[i])
-    {
-      h_cemc_hits_trig2[i]->SetName(Form("h_cemc_hits_trig2_%d", i));
-      if (start[1] != i)
+      if (start_trig[itrig] > -1 && h_cemc_hits_trig[itrig][i])
       {
-        h_cemc_hits_trig2[start[1]]->Add(h_cemc_hits_trig2[i], 1);
+        h_cemc_hits_trig[itrig][i]->SetName(Form("h_cemc_hits_trig_bit_%d_%d", itrig, i));
+        if (start_trig[itrig] != i)
+        {
+          h_cemc_hits_trig[itrig][start_trig[itrig]]->Add(h_cemc_hits_trig[itrig][i], 1);
+        }
       }
+      i++;
     }
-    i++;
-  }
-
-  TH2 *h_cemc_hits_trig3[m_ServerSet.size()];
-  start[2] = -1;
-  i = 0;
-  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
-  {
-    h_cemc_hits_trig3[i] = (TH2 *) cl->getHisto(*server, "h2_cemc_hits_trig3");
-    if (h_cemc_hits_trig3[i] && start[2] == -1)
-    {
-      start[2] = i;
-    }
-    if (start[2] > -1 && h_cemc_hits_trig3[i])
-    {
-      h_cemc_hits_trig3[i]->SetName(Form("h_cemc_hits_trig3_%d", i));
-      if (start[2] != i)
-      {
-        h_cemc_hits_trig3[start[2]]->Add(h_cemc_hits_trig3[i], 1);
-      }
-    }
-    i++;
-  }
-
-  TH2 *h_cemc_hits_trig4[m_ServerSet.size()];
-  start[3] = -1;
-  i = 0;
-  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
-  {
-    h_cemc_hits_trig4[i] = (TH2 *) cl->getHisto(*server, "h2_cemc_hits_trig4");
-    if (h_cemc_hits_trig4[i] && start[3] == -1)
-    {
-      start[3] = i;
-    }
-    if (start[3] > -1 && h_cemc_hits_trig4[i])
-    {
-      h_cemc_hits_trig4[i]->SetName(Form("h_cemc_hits_trig4_%d", i));
-      if (start[3] != i)
-      {
-        h_cemc_hits_trig4[start[3]]->Add(h_cemc_hits_trig4[i], 1);
-      }
-    }
-    i++;
   }
 
   TH1 *h_cemc_trig[m_ServerSet.size()];
-  start[4] = -1;
+  int start = -1;
   i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
     h_cemc_trig[i] = (TH1 *) cl->getHisto(*server, "h1_cemc_trig");
-    if (h_cemc_trig[i] && start[4] == -1)
+    if (h_cemc_trig[i] && start == -1)
     {
-      start[4] = i;
+      start = i;
     }
-    if (start[4] > -1 && h_cemc_trig[i])
+    if (start > -1 && h_cemc_trig[i])
     {
       h_cemc_trig[i]->SetName(Form("h_cemc_trig_%d", i));
-      if (start[4] != i)
+      if (start != i)
       {
-        h_cemc_trig[start[4]]->Add(h_cemc_trig[i], 1);
+        h_cemc_trig[start]->Add(h_cemc_trig[i], 1);
       }
     }
     i++;
@@ -1327,11 +1267,61 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
 
   TC[4]->SetEditable(true);
   TC[4]->Clear("D");
-  if (!h_cemc_hits_trig1[start[0]] || !h_cemc_hits_trig2[start[1]] || !h_cemc_hits_trig3[start[2]] || !h_cemc_hits_trig4[start[3]] || !h_cemc_trig[start[4]])
+  if (!h_cemc_trig[start])
   {
     DrawDeadServer(transparent[4]);
     TC[4]->SetEditable(false);
     return -1;
+  }
+
+  for(int itrig = 0; itrig < 64; itrig++)
+  {
+    if(!h_cemc_hits_trig[itrig][start_trig[itrig]])
+    {
+      DrawDeadServer(transparent[4]);
+      TC[4]->SetEditable(false);
+      return -1;
+    }
+  }
+
+  //vector of pairs (Number of entries, Trigger bit)
+  std::vector<std::pair<float, int>> n_entries;
+
+  for(int itrig = 0; itrig < 64; itrig++)
+  {
+    n_entries.push_back(std::make_pair(h_cemc_hits_trig[itrig][start_trig[itrig]]->GetEntries(), itrig));
+  }
+
+  //Sort it in ascending order of entries
+  std::sort(n_entries.begin(), n_entries.end());
+  //Reverse it to get the vector in descending order
+  std::reverse(n_entries.begin(), n_entries.end());
+
+  //Get the 4 priority trigger bits to be displayed
+  std::vector<int> priority_triggers;
+
+  for(int itrig = 0; itrig < 64; itrig++)
+  {
+    //Priority to the bits between 16 and 31
+    if(n_entries[itrig].second >= 16 && n_entries[itrig].second <= 31)
+    {
+      if(n_entries[itrig].first > 0. && priority_triggers.size() < 4)
+      {
+        priority_triggers.push_back(n_entries[itrig].second);
+      }
+    }
+  }
+
+  //If trigger bits from 16 to 31 do not have 4 with entries, plot the others
+  if(priority_triggers.size() < 4)
+  {
+    for(int itrig = 0; itrig < 64; itrig++)
+    {
+      if(priority_triggers.size() < 4)
+      {
+        priority_triggers.push_back(n_entries[itrig].second);
+      }
+    }
   }
 
   TText PrintRun;
@@ -1353,15 +1343,15 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   gStyle->SetTitleFontSize(0.06);
 
   float tsize = 0.08;
-  h_cemc_hits_trig1[start[0]]->GetXaxis()->SetNdivisions(510, kTRUE);
-  h_cemc_hits_trig1[start[0]]->GetXaxis()->SetTitle("trig1 req  ieta");
-  h_cemc_hits_trig1[start[0]]->GetYaxis()->SetTitle("iphi");
-  h_cemc_hits_trig1[start[0]]->GetXaxis()->SetLabelSize(tsize);
-  h_cemc_hits_trig1[start[0]]->GetYaxis()->SetLabelSize(tsize);
-  h_cemc_hits_trig1[start[0]]->GetXaxis()->SetTitleSize(tsize);
-  h_cemc_hits_trig1[start[0]]->GetYaxis()->SetTitleSize(tsize);
-  h_cemc_hits_trig1[start[0]]->GetXaxis()->SetTitleOffset(1.2);
-  h_cemc_hits_trig1[start[0]]->GetYaxis()->SetTitleOffset(0.75);
+  h_cemc_hits_trig[priority_triggers[0]][start_trig[priority_triggers[0]]]->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_cemc_hits_trig[priority_triggers[0]][start_trig[priority_triggers[0]]]->GetXaxis()->SetTitle(Form("(trigger bit %d)  ieta", priority_triggers[0]));
+  h_cemc_hits_trig[priority_triggers[0]][start_trig[priority_triggers[0]]]->GetYaxis()->SetTitle("iphi");
+  h_cemc_hits_trig[priority_triggers[0]][start_trig[priority_triggers[0]]]->GetXaxis()->SetLabelSize(tsize);
+  h_cemc_hits_trig[priority_triggers[0]][start_trig[priority_triggers[0]]]->GetYaxis()->SetLabelSize(tsize);
+  h_cemc_hits_trig[priority_triggers[0]][start_trig[priority_triggers[0]]]->GetXaxis()->SetTitleSize(tsize);
+  h_cemc_hits_trig[priority_triggers[0]][start_trig[priority_triggers[0]]]->GetYaxis()->SetTitleSize(tsize);
+  h_cemc_hits_trig[priority_triggers[0]][start_trig[priority_triggers[0]]]->GetXaxis()->SetTitleOffset(1.2);
+  h_cemc_hits_trig[priority_triggers[0]][start_trig[priority_triggers[0]]]->GetYaxis()->SetTitleOffset(0.75);
   gPad->SetLogz();
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
@@ -1371,20 +1361,20 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   gStyle->SetPalette(57);
   gPad->SetTicky();
   gPad->SetTickx();
-  h_cemc_hits_trig1[start[0]]->DrawCopy("colz");
+  h_cemc_hits_trig[priority_triggers[0]][start_trig[priority_triggers[0]]]->Draw("colz");
 
   Pad[11]->cd();
   gStyle->SetTitleFontSize(0.06);
 
-  h_cemc_hits_trig2[start[1]]->GetXaxis()->SetNdivisions(510, kTRUE);
-  h_cemc_hits_trig2[start[1]]->GetXaxis()->SetTitle("trig2 req  ieta");
-  h_cemc_hits_trig2[start[1]]->GetYaxis()->SetTitle("iphi");
-  h_cemc_hits_trig2[start[1]]->GetXaxis()->SetLabelSize(tsize);
-  h_cemc_hits_trig2[start[1]]->GetYaxis()->SetLabelSize(tsize);
-  h_cemc_hits_trig2[start[1]]->GetXaxis()->SetTitleSize(tsize);
-  h_cemc_hits_trig2[start[1]]->GetYaxis()->SetTitleSize(tsize);
-  h_cemc_hits_trig2[start[1]]->GetXaxis()->SetTitleOffset(1.2);
-  h_cemc_hits_trig2[start[1]]->GetYaxis()->SetTitleOffset(0.75);
+  h_cemc_hits_trig[priority_triggers[1]][start_trig[priority_triggers[1]]]->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_cemc_hits_trig[priority_triggers[1]][start_trig[priority_triggers[1]]]->GetXaxis()->SetTitle(Form("(trigger bit %d)  ieta", priority_triggers[1]));
+  h_cemc_hits_trig[priority_triggers[1]][start_trig[priority_triggers[1]]]->GetYaxis()->SetTitle("iphi");
+  h_cemc_hits_trig[priority_triggers[1]][start_trig[priority_triggers[1]]]->GetXaxis()->SetLabelSize(tsize);
+  h_cemc_hits_trig[priority_triggers[1]][start_trig[priority_triggers[1]]]->GetYaxis()->SetLabelSize(tsize);
+  h_cemc_hits_trig[priority_triggers[1]][start_trig[priority_triggers[1]]]->GetXaxis()->SetTitleSize(tsize);
+  h_cemc_hits_trig[priority_triggers[1]][start_trig[priority_triggers[1]]]->GetYaxis()->SetTitleSize(tsize);
+  h_cemc_hits_trig[priority_triggers[1]][start_trig[priority_triggers[1]]]->GetXaxis()->SetTitleOffset(1.2);
+  h_cemc_hits_trig[priority_triggers[1]][start_trig[priority_triggers[1]]]->GetYaxis()->SetTitleOffset(0.75);
   gPad->SetLogz();
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
@@ -1394,20 +1384,20 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   gStyle->SetPalette(57);
   gPad->SetTicky();
   gPad->SetTickx();
-  h_cemc_hits_trig2[start[1]]->DrawCopy("colz");
+  h_cemc_hits_trig[priority_triggers[1]][start_trig[priority_triggers[1]]]->Draw("colz");
 
   Pad[12]->cd();
   gStyle->SetTitleFontSize(0.06);
 
-  h_cemc_hits_trig3[start[2]]->GetXaxis()->SetNdivisions(510, kTRUE);
-  h_cemc_hits_trig3[start[2]]->GetXaxis()->SetTitle("trig3 req  ieta");
-  h_cemc_hits_trig3[start[2]]->GetYaxis()->SetTitle("iphi");
-  h_cemc_hits_trig3[start[2]]->GetXaxis()->SetLabelSize(tsize);
-  h_cemc_hits_trig3[start[2]]->GetYaxis()->SetLabelSize(tsize);
-  h_cemc_hits_trig3[start[2]]->GetXaxis()->SetTitleSize(tsize);
-  h_cemc_hits_trig3[start[2]]->GetYaxis()->SetTitleSize(tsize);
-  h_cemc_hits_trig3[start[2]]->GetXaxis()->SetTitleOffset(1.2);
-  h_cemc_hits_trig3[start[2]]->GetYaxis()->SetTitleOffset(0.75);
+  h_cemc_hits_trig[priority_triggers[2]][start_trig[priority_triggers[2]]]->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_cemc_hits_trig[priority_triggers[2]][start_trig[priority_triggers[2]]]->GetXaxis()->SetTitle(Form("(trigger bit %d)  ieta", priority_triggers[2]));
+  h_cemc_hits_trig[priority_triggers[2]][start_trig[priority_triggers[2]]]->GetYaxis()->SetTitle("iphi");
+  h_cemc_hits_trig[priority_triggers[2]][start_trig[priority_triggers[2]]]->GetXaxis()->SetLabelSize(tsize);
+  h_cemc_hits_trig[priority_triggers[2]][start_trig[priority_triggers[2]]]->GetYaxis()->SetLabelSize(tsize);
+  h_cemc_hits_trig[priority_triggers[2]][start_trig[priority_triggers[2]]]->GetXaxis()->SetTitleSize(tsize);
+  h_cemc_hits_trig[priority_triggers[2]][start_trig[priority_triggers[2]]]->GetYaxis()->SetTitleSize(tsize);
+  h_cemc_hits_trig[priority_triggers[2]][start_trig[priority_triggers[2]]]->GetXaxis()->SetTitleOffset(1.2);
+  h_cemc_hits_trig[priority_triggers[2]][start_trig[priority_triggers[2]]]->GetYaxis()->SetTitleOffset(0.75);
   gPad->SetLogz();
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
@@ -1417,20 +1407,20 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   gStyle->SetPalette(57);
   gPad->SetTicky();
   gPad->SetTickx();
-  h_cemc_hits_trig3[start[2]]->DrawCopy("colz");
+  h_cemc_hits_trig[priority_triggers[2]][start_trig[priority_triggers[2]]]->Draw("colz");
 
   Pad[13]->cd();
   gStyle->SetTitleFontSize(0.06);
 
-  h_cemc_hits_trig4[start[3]]->GetXaxis()->SetNdivisions(510, kTRUE);
-  h_cemc_hits_trig4[start[3]]->GetXaxis()->SetTitle("trig4 req  ieta");
-  h_cemc_hits_trig4[start[3]]->GetYaxis()->SetTitle("iphi");
-  h_cemc_hits_trig4[start[3]]->GetXaxis()->SetLabelSize(tsize);
-  h_cemc_hits_trig4[start[3]]->GetYaxis()->SetLabelSize(tsize);
-  h_cemc_hits_trig4[start[3]]->GetXaxis()->SetTitleSize(tsize);
-  h_cemc_hits_trig4[start[3]]->GetYaxis()->SetTitleSize(tsize);
-  h_cemc_hits_trig4[start[3]]->GetXaxis()->SetTitleOffset(1.2);
-  h_cemc_hits_trig4[start[3]]->GetYaxis()->SetTitleOffset(0.75);
+  h_cemc_hits_trig[priority_triggers[3]][start_trig[priority_triggers[3]]]->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_cemc_hits_trig[priority_triggers[3]][start_trig[priority_triggers[3]]]->GetXaxis()->SetTitle(Form("(trigger bit %d)  ieta", priority_triggers[3]));
+  h_cemc_hits_trig[priority_triggers[3]][start_trig[priority_triggers[3]]]->GetYaxis()->SetTitle("iphi");
+  h_cemc_hits_trig[priority_triggers[3]][start_trig[priority_triggers[3]]]->GetXaxis()->SetLabelSize(tsize);
+  h_cemc_hits_trig[priority_triggers[3]][start_trig[priority_triggers[3]]]->GetYaxis()->SetLabelSize(tsize);
+  h_cemc_hits_trig[priority_triggers[3]][start_trig[priority_triggers[3]]]->GetXaxis()->SetTitleSize(tsize);
+  h_cemc_hits_trig[priority_triggers[3]][start_trig[priority_triggers[3]]]->GetYaxis()->SetTitleSize(tsize);
+  h_cemc_hits_trig[priority_triggers[3]][start_trig[priority_triggers[3]]]->GetXaxis()->SetTitleOffset(1.2);
+  h_cemc_hits_trig[priority_triggers[3]][start_trig[priority_triggers[3]]]->GetYaxis()->SetTitleOffset(0.75);
   gPad->SetLogz();
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
@@ -1440,7 +1430,7 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   gStyle->SetPalette(57);
   gPad->SetTicky();
   gPad->SetTickx();
-  h_cemc_hits_trig4[start[3]]->DrawCopy("colz");
+  h_cemc_hits_trig[priority_triggers[3]][start_trig[priority_triggers[3]]]->Draw("colz");
 
   Pad[14]->cd();
   gStyle->SetTitleFontSize(0.06);
@@ -1452,16 +1442,16 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
     nEvtRec = h_evtRec->GetBinContent(1);
   }
 
-  h_cemc_trig[start[4]]->SetTitle(Form("Receiving %0.3f of events from event reciever", nEvtRec));
-  h_cemc_trig[start[4]]->GetXaxis()->SetNdivisions(510, kTRUE);
-  h_cemc_trig[start[4]]->GetXaxis()->SetTitle("trigger index");
-  h_cemc_trig[start[4]]->GetYaxis()->SetTitle("events");
-  h_cemc_trig[start[4]]->GetXaxis()->SetLabelSize(tsize);
-  h_cemc_trig[start[4]]->GetYaxis()->SetLabelSize(tsize);
-  h_cemc_trig[start[4]]->GetXaxis()->SetTitleSize(tsize);
-  h_cemc_trig[start[4]]->GetYaxis()->SetTitleSize(tsize);
-  h_cemc_trig[start[4]]->GetXaxis()->SetTitleOffset(0.9);
-  h_cemc_trig[start[4]]->GetYaxis()->SetTitleOffset(0.85);
+  h_cemc_trig[start]->SetTitle(Form("Receiving %0.3f of events from event reciever", nEvtRec));
+  h_cemc_trig[start]->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_cemc_trig[start]->GetXaxis()->SetTitle("trigger index");
+  h_cemc_trig[start]->GetYaxis()->SetTitle("events");
+  h_cemc_trig[start]->GetXaxis()->SetLabelSize(tsize);
+  h_cemc_trig[start]->GetYaxis()->SetLabelSize(tsize);
+  h_cemc_trig[start]->GetXaxis()->SetTitleSize(tsize);
+  h_cemc_trig[start]->GetYaxis()->SetTitleSize(tsize);
+  h_cemc_trig[start]->GetXaxis()->SetTitleOffset(0.9);
+  h_cemc_trig[start]->GetYaxis()->SetTitleOffset(0.85);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1469,7 +1459,7 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   gStyle->SetOptStat(0);
   gPad->SetTicky();
   gPad->SetTickx();
-  h_cemc_trig[start[4]]->DrawCopy("histo");
+  h_cemc_trig[start]->Draw("histo");
 
   TC[4]->Update();
   TC[4]->Show();
