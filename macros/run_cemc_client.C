@@ -14,14 +14,15 @@ void cemcDrawInit(const int online = 0)
   CemcMonDraw *cemcmon = new CemcMonDraw("CEMCMONDRAW");  // create Drawing Object
   cemcmon->setSave(0);
   // register histos we want with monitor name
+  
   for(int serverid = 0; serverid < nServers; serverid++)
     {
       std::string servername = "CEMCMON_" + std::to_string(serverid);
       cemcmon->AddServer(servername);
-      cl->registerHisto("h2_cemc_hits_trig1", servername.c_str());
-      cl->registerHisto("h2_cemc_hits_trig2", servername.c_str());
-      cl->registerHisto("h2_cemc_hits_trig3", servername.c_str());
-      cl->registerHisto("h2_cemc_hits_trig4", servername.c_str());
+      for(int itrig = 0; itrig < 64; itrig++)
+      {
+        cl->registerHisto(Form("h2_cemc_hits_trig_bit_%d", itrig), servername.c_str());
+      }
       cl->registerHisto("p2_zsFrac_etaphi"  , servername.c_str());
       cl->registerHisto("h1_cemc_trig", servername.c_str());
       cl->registerHisto("h_evtRec", servername.c_str());
