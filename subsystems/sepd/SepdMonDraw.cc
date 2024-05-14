@@ -41,7 +41,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // --- this is called by int DrawFirst(string&)
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - Average ADC vs Tile", 1200, 600);
+    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - Hits/Event vs Tile", 1200, 600);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -61,7 +61,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // xpos negative: do not draw menu bar
     //TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1200, 600);
-    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1600, 800);
+    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - EXPERT - ADC Distributions", 1600, 800);
     gSystem->ProcessEvents();
     for ( int i = 0; i < 32; ++i )
       {
@@ -193,8 +193,8 @@ int SepdMonDraw::Draw(const std::string &what)
 int SepdMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1F *h_ADC_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
-  //TH1F *h_hits_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_hits_all_channel");
+  //TH1F *h_ADC_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
+  TH1F *h_hits_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_hits_all_channel");
   TH1 *h_event = (TH1*)cl->getHisto("SEPDMON_0", "h_event");
   time_t evttime = cl->EventTime("CURRENT");
 
@@ -205,7 +205,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
 
-  if (!h_ADC_all_channel)
+  //if (!h_ADC_all_channel)
+  if (!h_hits_all_channel)
   {
     DrawDeadServer(transparent[0]);
     TC[0]->SetEditable(false);
@@ -236,12 +237,13 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   // --- normalize
   //h_ADC_all_channel->Divide(h_hits_all_channel);
   int nevt = h_event->GetEntries();
-  h_ADC_all_channel->Scale(1.0/nevt);
+  //h_ADC_all_channel->Scale(1.0/nevt);
+  h_hits_all_channel->Scale(1.0/nevt);
   for ( int i = 0; i < 768; ++i )
     {
       int adc_channel = i;
-      float adc_signal = h_ADC_all_channel->GetBinContent(i+1);
-      if ( adc_signal <= 0.01 ) adc_signal = 0.01;
+      float adc_signal = h_hits_all_channel->GetBinContent(i+1);
+      if ( adc_signal <= 0.0001 ) adc_signal = 0.0001;
       int tile = returnTile(i);
       int odd = (tile+1)%2;
       //int ring = returnRing(adc_channel);
@@ -265,25 +267,41 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 
   // --- may need to update these depending on whether there are "hot" tiles
   double zmin = 0.0;
-  double zmax = 300;
+  double zmax = 1.0;
+  //double zmax = 300;
   //double zmax = 1.1*h_ADC_all_channel->GetMaximum();
+
+  TText tarm;
+  tarm.SetNDC();
+  tarm.SetTextFont(42);
+  tarm.SetTextSize(0.05);
 
   gStyle->SetOptStat(0);
   // ---
   Pad[0]->cd();
   polar_histS->GetZaxis()->SetRangeUser(zmin,zmax);
   polar_histS01->GetZaxis()->SetRangeUser(zmin,zmax);
+  // gPad->SetLeftMargin(0.2);
+  // gPad->SetRightMargin(0.0);
+  gPad->SetTicks(1,1);
   gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
-  polar_histS->Draw("same colz pol AH");
+  polar_histS->Draw("same col pol AH");
   polar_histS01->Draw("same col pol AH");
+  tarm.DrawText(0.45,0.91,"South");
   gStyle->SetPalette(57);
   // ---
   Pad[1]->cd();
   polar_histN->GetZaxis()->SetRangeUser(zmin,zmax);
   polar_histN01->GetZaxis()->SetRangeUser(zmin,zmax);
+  gPad->SetLeftMargin(0.05);
+  gPad->SetRightMargin(0.15);
+  gPad->SetTicks(1,1);
   gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
-  polar_histN->Draw("same col pol AH");
+  polar_histN->Draw("same colz pol AH");
   polar_histN01->Draw("same col pol AH");
+  tarm.DrawText(0.40,0.91,"North");
+  //tarm.DrawText(0.35,0.91,"North");
+  //tarm.DrawText(0.45,0.91,"North");
   gStyle->SetPalette(57);
 
   TText PrintRun;
@@ -295,7 +313,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime)
+              << " - UNDER CONSTRUCTION";
   runstring = runnostream.str();
   transparent[0]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
@@ -393,7 +412,8 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime)
+              << " - EXPERT ONLY! DON'T WORRY, BE HAPPY!";
   runstring = runnostream.str();
   transparent[1]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
@@ -426,7 +446,7 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   }
   // --- rebin histograms
   h_ADC_corr->Rebin2D(5,5);
-  h_hits_corr->Rebin2D(5,5);
+  //h_hits_corr->Rebin2D(5,5);
   // ---
   TC[2]->SetEditable(true);
   TC[2]->Clear("D");
@@ -447,6 +467,8 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   Pad[5]->cd();
   h_hits_corr->GetYaxis()->SetNdivisions(505);
   h_hits_corr->GetXaxis()->SetNdivisions(505);
+  h_hits_corr->GetYaxis()->SetRangeUser(0,200);
+  h_hits_corr->GetXaxis()->SetRangeUser(0,200);
   h_hits_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
@@ -507,13 +529,31 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   Pad[6]->cd();
   gStyle->SetTitleFontSize(0.03);
   float ymaxp = h2_sepd_waveform->ProfileX()->GetMaximum();
-  h2_sepd_waveform->GetYaxis()->SetRangeUser(0, ymaxp * 20);
+  float ymaxdraw = ymaxp * 10; // was originally 20, but that is too much
+  h2_sepd_waveform->GetYaxis()->SetRangeUser(0,ymaxdraw);
   h2_sepd_waveform->GetXaxis()->SetRangeUser(0, 11);
-
   h2_sepd_waveform->Draw("colz");
+  // --- add a profile on top
+  TProfile* tp1f_sepd_waveform = h2_sepd_waveform->ProfileX();
+  tp1f_sepd_waveform->SetLineColor(kBlack);
+  tp1f_sepd_waveform->SetLineWidth(2);
+  tp1f_sepd_waveform->Draw("same");
+  // --- draw vertical lines where the waveform should be
+  // x1 y1 x2 y2
+  TLine* lineleft = new TLine(5.0,0,5.0,ymaxdraw);
+  TLine* lineright = new TLine(7.0,0,7.0,ymaxdraw);
+  lineleft->SetLineColor(kBlack);
+  lineleft->SetLineWidth(2);
+  lineleft->SetLineStyle(2);
+  lineleft->Draw();
+  lineright->SetLineColor(kBlack);
+  lineright->SetLineWidth(2);
+  lineright->SetLineStyle(2);
+  lineright->Draw();
 
   float tsize = 0.09;
-  h2_sepd_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
+  //h2_sepd_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_sepd_waveform->GetXaxis()->SetNdivisions(12);
   h2_sepd_waveform->GetXaxis()->SetTitle("Sample #");
   h2_sepd_waveform->GetYaxis()->SetTitle("Waveform [ADC]");
   h2_sepd_waveform->GetXaxis()->SetLabelSize(tsize/1.15);
@@ -552,7 +592,9 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
   h_waveform_time->GetXaxis()->SetRangeUser(0,11);
   h_waveform_time->Draw("hist");
-  h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
+  // ---
+  //h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_waveform_time->GetXaxis()->SetNdivisions(12);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
   h_waveform_time->GetYaxis()->SetTitle("Counts");
   h_waveform_time->GetXaxis()->SetLabelSize(tsize);
@@ -561,6 +603,22 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_time->GetYaxis()->SetTitleSize(tsize);
   h_waveform_time->GetXaxis()->SetTitleOffset(1.0);
   h_waveform_time->GetYaxis()->SetTitleOffset(1.25);
+  // ---
+  // --- draw vertical lines where the waveform should be
+  float min = h_waveform_time->GetMinimum();
+  float max = h_waveform_time->GetMaximum();
+  // x1 y1 x2 y2
+  TLine* lineleft2 = new TLine(5.0,min,5.0,max);
+  TLine* lineright2 = new TLine(7.0,min,7.0,max);
+  lineleft2->SetLineColor(kBlack);
+  lineleft2->SetLineWidth(2);
+  lineleft2->SetLineStyle(2);
+  lineleft2->Draw();
+  lineright2->SetLineColor(kBlack);
+  lineright2->SetLineWidth(2);
+  lineright2->SetLineStyle(2);
+  lineright2->Draw();
+  // ---
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -573,9 +631,9 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
   gStyle->SetTitleFontSize(0.06);
 
-  h_waveform_pedestal->GetXaxis()->SetRangeUser(0,11);
+  // x-axis range is set in SepdMon.cc, need to change there if want a wider range
   h_waveform_pedestal->Draw("hist");
-  h_waveform_pedestal->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_waveform_pedestal->GetXaxis()->SetNdivisions(505);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
   h_waveform_pedestal->GetYaxis()->SetTitle("Counts");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize);

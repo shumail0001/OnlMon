@@ -97,7 +97,7 @@ int SepdMon::Init()
   // waveform processing
   h1_waveform_twrAvg = new TH1F("h1_waveform_twrAvg", "", n_samples_show, 0.5, n_samples_show + 0.5);
   h1_waveform_time = new TH1F("h1_waveform_time", "", n_samples_show, 0.5, n_samples_show + 0.5);
-  h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 25, 1.2e3, 1.8e3);
+  h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 42, 1.0e3, 2.0e3);
   h2_sepd_waveform = new TH2F("h2_sepd_waveform", "", n_samples_show, 0.5, n_samples_show + 0.5, 1000, 0, 15000);
 
   // waveform processing, template vs. fast interpolation
@@ -301,11 +301,20 @@ int SepdMon::process_event(Event *e /* evt */)
         ChannelNumber++;
         int ch = ChannelNumber-1;
 
+        // -- bit flipped ADC channels
+        bool reject_this_channel = false;
+        if ( ( packet == 9001 || packet == 9002 || packet == 9006 ) && c == 30 )
+          reject_this_channel = true;
+
+        if ( reject_this_channel ) continue;
+
         // std::vector result =  getSignal(p,c); // simple peak extraction
         std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
         float signalFast = resultFast.at(0);
         float timeFast = resultFast.at(1);
         float pedestalFast = resultFast.at(2);
+
+        bool is_good_hit = ( signalFast > 50 && signalFast < 3000 );
 
         // std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
         // float signalTemp = resultTemp.at(0);
@@ -326,7 +335,7 @@ int SepdMon::process_event(Event *e /* evt */)
             // --- total ADC vs channel number
             h_ADC_all_channel->Fill(ch,signalFast);
             // --- total hits vs channel number
-            h_hits_all_channel->Fill(ch);
+            if ( is_good_hit ) h_hits_all_channel->Fill(ch);
             // --- 1d waveform
             h1_waveform_time->Fill(timeFast);
             h1_waveform_pedestal->Fill(pedestalFast);
@@ -341,12 +350,12 @@ int SepdMon::process_event(Event *e /* evt */)
         if ( ch >= 384 && ch <= 767 ) z_bin = 0;
         if ( ch <= 383 && ch >= 0 ) z_bin = 1;
 
-        if (z_bin == 0)
+        if ( z_bin == 0 && is_good_hit )
         {
           sumhit_s++;
           sumADC_s += signalFast;
         }
-        if (z_bin == 1)
+        if ( z_bin == 1 && is_good_hit )
         {
           sumhit_n++;
           sumADC_n += signalFast;

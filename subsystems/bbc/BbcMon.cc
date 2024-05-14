@@ -137,6 +137,7 @@ int BbcMon::Init()
   }
   else if ( useGL1==2 )
   {
+    std::cout << "Connecting to eventserver on localhost" << std::endl;
     erc = new eventReceiverClient("localhost");
   }
 
@@ -531,14 +532,17 @@ int BbcMon::process_event(Event *evt)
   if ( useGL1 )
   {
     triggervec = 0UL;
+    triginput = 0UL;
     Event *gl1Event = erc->getEvent(f_evt);
     if (gl1Event)
     {
+      //std::cout << "Found gl1event " << f_evt << std::endl;
       Packet* p_gl1 = gl1Event->getPacket(14001);
       if (p_gl1)
       {
-        gl1_bco = p_gl1->lValue(0,"BCO");
+        //gl1_bco = p_gl1->lValue(0,"BCO");
         triggervec = static_cast<uint64_t>( p_gl1->lValue(0,"TriggerVector") );
+        triginput = static_cast<uint64_t>( p_gl1->lValue(0,"TriggerInput") );
         //std::cout << "trig " << std::hex << triggervec << std::dec << std::endl;
         for (int itrig = 0; itrig < 64; itrig++ )
         {
@@ -574,7 +578,10 @@ int BbcMon::process_event(Event *evt)
   // (Can use any trigger for sampmax calib, in principle)
   if ( (triggervec&trigmask) == 0UL )
   {
-    std::cout << "skipping " << f_evt << std::endl;
+    if ( f_evt%1000 == 0 )
+    {
+      std::cout << "skipping " << f_evt << "\t" << std::hex << triggervec << std::dec << std::endl;
+    }
     return 0;
   }
 
@@ -601,15 +608,15 @@ int BbcMon::process_event(Event *evt)
   {
     bbc_zvertex_ns->Fill(zvtx);
   }
-  if ( triggervec&mbdnsvtx10 )
+  if ( triginput&mbdnsvtx10 )
   {
     bbc_zvertex_10->Fill(zvtx);
   }
-  if ( triggervec&mbdnsvtx30 )
+  if ( triginput&mbdnsvtx30 )
   {
     bbc_zvertex_30->Fill(zvtx);
   }
-  if ( triggervec&mbdnsvtx60 )
+  if ( triginput&mbdnsvtx60 )
   {
     bbc_zvertex_60->Fill(zvtx);
   }

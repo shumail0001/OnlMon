@@ -13,6 +13,8 @@
 #include <TPad.h>
 #include <TPaveText.h>
 #include <TProfile.h>
+#include <TProfile2D.h>
+#include <TQObject.h>
 #include <TROOT.h>
 #include <TStyle.h>
 #include <TSystem.h>
@@ -84,7 +86,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "CemcMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "CemcMon2 Packet Information", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[1] = new TCanvas(name.c_str(), "CemcMon2 Packet Information Expert", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     Pad[1] = new TPad("cemcpad1", "packet event check", 0.0, 0.6, 1.0 / 2, 0.95, 0);
     Pad[2] = new TPad("cemcpad2", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
@@ -137,7 +139,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcMon5")
   {
-    TC[4] = new TCanvas(name.c_str(), "CemcMon5 Trigger Info Expert", xsize*(2./3.), 0, xsize*(2./3.), ysize * 0.9);
+    TC[4] = new TCanvas(name.c_str(), "CemcMon5 Trigger Info Expert", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     Pad[10] = new TPad("cemcpad10", "who needs this?", 0.0, 0.6, 0.45, 0.95, 0);
     Pad[11] = new TPad("cemcpad11", "who needs this?", 0.45, 0.6, 0.9, 0.95, 0);
@@ -164,6 +166,50 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     transparent[5]->SetFillStyle(4000);
     transparent[5]->Draw();
     TC[5]->SetEditable(false);
+  }
+  else if (name == "CemcPopup"){
+    PopUpCanvas = new TCanvas(name.c_str(),"Waveforms Expert",-xsize-0.3,0,xsize*0.3,ysize*0.9);
+    gSystem->ProcessEvents();
+    double step=1./8;
+    for(int i=0; i<8; i++){
+      for(int j=0; j<8; j++){
+    	PopUpPad[i][j]=new TPad(Form("PopUpPad%d_%d",i,j),"this does not show",i*step,j*step,(i+1)*step,(j+1)*step);
+	PopUpPad[i][j]->Draw();
+      }
+    }
+    PopUpTransparent=new TPad("PopUpTransparent","this does not show",0,0,1,1);
+    PopUpTransparent->SetFillStyle(4000);
+    PopUpTransparent->Draw();
+    PopUpCanvas->SetEditable(false);
+  }
+  else if (name == "CemcMon7" ){
+    TC[6] = new TCanvas(name.c_str(),"Basic waveform summary Expert", -xsize/3 , 0, xsize/3, ysize*0.9);
+    gSystem->ProcessEvents();
+    Pad[15]=new TPad("cemcpad15","who needs this?",0.0,0.475,0.5,0.950);
+    Pad[15]->SetRightMargin(0.15);
+    Pad[15]->Draw();
+    Pad[16]=new TPad("cemcpad16","who needs this?",0.5,0.475,1.0,0.950);
+    Pad[16]->Draw();
+    Pad[17]=new TPad("cemcpad17","who needs this?",0.0,0.0,0.5,0.475);
+    Pad[17]->SetRightMargin(0.15);
+    Pad[17]->Draw();
+    Pad[18]=new TPad("cemcpad18","who needs this?",0.5,0.0,1.0,0.475);
+    Pad[18]->Draw();
+    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
+    TC[6]->SetEditable(0);
+  }
+  else if (name == "CemcMon8" ){
+    TC[7] = new TCanvas(name.c_str(),"Channel unsuppressed event fraction Expert", -xsize/3 , 0, xsize/3, ysize*0.9);
+    gSystem->ProcessEvents();
+    Pad[19]=new TPad("cemcpad19","who needs this?",0.00,0.00,1.00,0.95);
+    Pad[19]->SetRightMargin(0.15);
+    Pad[19]->Draw();
+    transparent[7] = new TPad("transparent7", "this does not show", 0, 0, 1, 1);
+    transparent[7]->SetFillStyle(4000);
+    transparent[7]->Draw();
+    TC[7]->SetEditable(0);
   }
 
   return 0;
@@ -198,6 +244,16 @@ int CemcMonDraw::Draw(const std::string &what)
     iret += DrawFifth(what);
     idraw++;
   }
+  if (what == "ALL" || what == "SIXTH")
+  {
+    iret += DrawSixth(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "SEVENTH")
+    {
+      iret += DrawSeventh(what);
+      idraw++;
+    }
   if (what == "ALL" || what == "SERVERSTATS")
   {
     iret += DrawServerStats();
@@ -207,6 +263,10 @@ int CemcMonDraw::Draw(const std::string &what)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
     iret = -1;
+  }
+  if (std::fabs(iret) != idraw) // at least one succeeded
+  {
+    return 0;
   }
   return iret;
 }
@@ -286,6 +346,11 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
     i++;
   }
 
+  if (!gROOT->FindObject("CemcMon1"))
+  {
+    MakeCanvas("CemcMon1");
+  }
+
   if (start[0] < 0)
   {
     DrawDeadServer(transparent[0]);
@@ -316,10 +381,6 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
     }
   }
 
-  if (!gROOT->FindObject("CemcMon1"))
-  {
-    MakeCanvas("CemcMon1");
-  }
 
   if (maxEvent > 0)
   {
@@ -470,6 +531,10 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
   runstring = runnostream2.str();
   PrintRun.DrawText(0.5, 0.966, runstring.c_str());
+
+
+  //TC[0]->Connect("ProcessedEvent(int, int, int, TObject*)","CemcMonDraw",this,"HandleEvent(int, int, int, TObject*)");//Kept to potentially show running mean evolution
+
 
   TC[0]->Update();
   TC[0]->Show();
@@ -898,8 +963,8 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   float windowSize = 5000;
   h2_waveform_twrAvg[start[0]]->GetYaxis()->SetRangeUser(0, windowSize);
 
-  TLine *windowLow1 = new TLine(4, 0, 4, windowSize);
-  TLine *windowHigh1 = new TLine(10, 0, 10, windowSize);
+  TLine *windowLow1 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, windowSize);
+  TLine *windowHigh1 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, windowSize);
   gStyle->SetOptStat(0);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);
@@ -907,6 +972,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   gPad->SetLeftMargin(0.15);
   gPad->SetTicky();
   gPad->SetTickx();
+  gStyle->SetPalette(kBird);
   h2_waveform_twrAvg[start[0]]->DrawCopy("colz");
   windowLow1->Draw("same");
   windowHigh1->Draw("same");
@@ -954,8 +1020,8 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   }
   h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0, 1.);
 
-  TLine *windowLow2 = new TLine(4, 0, 4, 1);
-  TLine *windowHigh2 = new TLine(10, 0, 10, 1);
+  TLine *windowLow2 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, 1);
+  TLine *windowHigh2 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, 1);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1641,6 +1707,269 @@ time_t CemcMonDraw::getTime()
   return currtime;
 }
 
+void CemcMonDraw::HandleEvent(int event, int x, int y, TObject* sel){
+  if(event==1){
+    TCanvas* canvas=nullptr;
+    TPad *mypad=nullptr;
+    if(strcmp(sel->GetName(),"transparent0")==0){
+      //canvas=TC[0];
+      //mypad=Pad[0];
+      return;//we do not want draw from there
+    }
+    else if(strcmp(sel->GetName(),"transparent6")==0){
+      canvas=TC[6];
+      if(canvas->AbsPixeltoX(x)<0.5){
+	if(canvas->AbsPixeltoY(y)<0.475){
+	  mypad=Pad[17];
+	}
+	else{
+	  mypad=Pad[15];
+	}
+      }
+      else{
+	if(canvas->AbsPixeltoY(y)<0.475){
+	  mypad=Pad[18];
+	}
+	else{
+	  mypad=Pad[16];
+	}
+      }
+	
+    }
+    else return;//dummy to avoid the unused warning
+    
+    double xeta=mypad->PadtoX(mypad->AbsPixeltoX(x));
+    double yphi=mypad->PadtoY(mypad->AbsPixeltoY(y));
+    int ieta=(int) xeta;
+    int iphi=(int) yphi;
+    if(ieta<0||ieta>96) return;
+    if(iphi<0||iphi>256) return;
+    int iphi_begin=(iphi/8)*8;
+    int ieta_begin=(ieta/8)*8;
+    if(!gROOT->FindObject("CemcPopup")) MakeCanvas("CemcPopup");
+    PopUpCanvas->SetEditable(true);
+    PopUpCanvas->Clear("D");
+    for(int i=0; i<8; i++){
+      for(int j=0; j<8; j++){
+	if(!gROOT->FindObject(Form("Combinedh2_waveform_phi%d_eta%d",j+iphi_begin,i+ieta_begin))){
+	  return ;
+	  PopUpCanvas->Update();
+	  PopUpCanvas->Show();
+	  PopUpCanvas->SetEditable(false);
+	}
+	else{
+	  summedProfile[i][j]=(TProfile*)gROOT->FindObject(Form("Combinedh2_waveform_phi%d_eta%d",j+iphi_begin,i+ieta_begin));
+	}
+	if(PopUpPad[i][j]){
+	  PopUpPad[i][j]->cd();
+	}
+	else{
+	  std::cout<<"no valid popuppad"<<std::endl;
+	}
+	if(summedProfile[i][j]){
+	  //summedProfile[i][j]->SetMaximum(pow(2,14));//screew up the 2D histo
+	  summedProfile[i][j]->Draw();
+	  summedProfile[i][j]->GetYaxis()->SetRangeUser(0.1,pow(2,14));
+	  PopUpPad[i][j]->Update();
+	  PopUpPad[i][j]->Paint();
+	}
+	else{
+	  DrawDeadServer(PopUpTransparent);
+	  PopUpCanvas->SetEditable(false);
+	  return;
+	}
+      }
+    }
+    PopUpCanvas->Update();
+    PopUpCanvas->Show();
+    PopUpCanvas->SetEditable(false);
+  } 
+}
+
+int CemcMonDraw::DrawSixth(const std::string & /*what*/ ){
+  
+  TH2D* h2_maxima;
+  TH2D* h2_timeofMax;
+  TH2D* h2_pedestal;
+  TH2D* h2_saturating;
+
+  if(!gROOT->FindObject("h2_maxima")){
+    h2_maxima = new TH2D("h2_maxima","ADC counts at peak position",96,0,96,256,0,256);
+    h2_maxima->SetStats(kFALSE);
+    h2_maxima->GetXaxis()->SetNdivisions(12,kFALSE);
+    h2_maxima->GetYaxis()->SetNdivisions(32,kFALSE);
+    h2_maxima->GetXaxis()->SetTitle("eta index");
+    h2_maxima->GetYaxis()->SetTitle("phi index");
+  }
+  else {
+    h2_maxima=(TH2D*)gROOT->FindObject("h2_maxima");
+    h2_maxima->Reset();
+  }
+  if(!gROOT->FindObject("h2_timeOfMax")){
+    h2_timeofMax=new TH2D("h2_timeOfMax","Waveform peak position",96,0,96,256,0,256);
+    h2_timeofMax->SetStats(kFALSE);
+    h2_timeofMax->GetXaxis()->SetNdivisions(12,kFALSE);
+    h2_timeofMax->GetYaxis()->SetNdivisions(32,kFALSE);
+    h2_timeofMax->GetXaxis()->SetTitle("eta index");
+    h2_timeofMax->GetYaxis()->SetTitle("phi index");
+  }
+  else{
+    h2_timeofMax=(TH2D*)gROOT->FindObject("h2_timeOfMax");
+    h2_timeofMax->Reset();
+  }
+  if(!gROOT->FindObject("h2_pedestal")){
+    h2_pedestal=new TH2D("h2_pedestal","ADC counts for pedestal",96,0,96,256,0,256);
+    h2_pedestal->SetStats(kFALSE);
+    h2_pedestal->GetXaxis()->SetNdivisions(12,kFALSE);
+    h2_pedestal->GetYaxis()->SetNdivisions(32,kFALSE);
+    h2_pedestal->GetXaxis()->SetTitle("eta index");
+    h2_pedestal->GetYaxis()->SetTitle("phi index");
+  }
+  else{
+    h2_pedestal=(TH2D*)gROOT->FindObject("h2_pedestal");
+    h2_pedestal->Reset();
+  }
+  if(!gROOT->FindObject("h2_saturating")){
+    h2_saturating=new TH2D("h2_saturating","Tower with saturated signals",96,0,96,256,0,256);
+    h2_saturating->SetStats(kFALSE);
+    h2_saturating->GetXaxis()->SetNdivisions(12,kFALSE);
+    h2_saturating->GetYaxis()->SetNdivisions(32,kFALSE);
+    h2_saturating->GetXaxis()->SetTitle("eta index");
+    h2_saturating->GetYaxis()->SetTitle("phi index");
+  }
+  else{
+    h2_saturating=(TH2D*)gROOT->FindObject("h2_saturating");
+    h2_saturating->Reset();
+  }
+  
+  if (!gROOT->FindObject("CemcMon7"))
+    {
+      MakeCanvas("CemcMon7");
+    }
+  OnlMonClient *cl = OnlMonClient::instance();
+  for(int i=0; i<256; i++){
+    for(int j=0; j<96; j++){
+      double mean=0;
+      int Nmean=0;
+      bool unsat=true;
+      int nSaturated=0;
+      bool init=false;
+      TProfile* ptmp=nullptr;
+      for (auto server = ServerBegin(); server != ServerEnd(); ++server){
+	//for(int iseb=0;iseb<nSEBs; iseb++){
+	//ptmp=(TProfile*)cl->getHisto(Form("CEMCMON_%d",iseb),Form("h2_waveform_phi%d_eta%d",i,j));
+	ptmp=(TProfile*)cl->getHisto(*server,Form("h2_waveform_phi%d_eta%d",i,j));
+	if(ptmp){
+	  if(!init){
+	    if(!gROOT->FindObject(Form("Combined%s",ptmp->GetName()))){
+	      AllProfiles[i][j] = new TProfile(*(TProfile*)ptmp);//Is it really necessary? Most likely not
+	      AllProfiles[i][j]->SetName(Form("Combined%s",ptmp->GetName()));
+	      init=true;
+	    }
+	    else{
+	      AllProfiles[i][j]->Reset();
+	      AllProfiles[i][j]->Add(ptmp);
+	      init=true;
+	    }
+	  }
+	  else{
+	    AllProfiles[i][j]->Add(ptmp);
+	  }
+	}
+	else{
+	  std::cout<<"Could not retrieve "<<Form("h2_waveform_phi%d_eta%d",i,j)<<" from "<<*server<<std::endl;
+	}
+      }
+      if(AllProfiles[i][j]){
+	h2_maxima->Fill(j,i,AllProfiles[i][j]->GetMaximum());
+	h2_timeofMax->Fill(j,i,AllProfiles[i][j]->GetXaxis()->GetBinCenter(AllProfiles[i][j]->GetMaximumBin()));
+	if(AllProfiles[i][j]->GetBinError(AllProfiles[i][j]->GetMaximumBin())==0 && AllProfiles[i][j]->GetBinContent(AllProfiles[i][j]->GetMaximumBin())>0){
+	  unsat=false;
+	  nSaturated++;
+	}
+	for(int ibin=0; ibin<AllProfiles[i][j]->GetNbinsX(); ibin++){
+	  if(ibin+1==AllProfiles[i][j]->GetMaximumBin())continue;
+	  if(AllProfiles[i][j]->GetBinContent(ibin+1)/AllProfiles[i][j]->GetMaximum()>0.95&&AllProfiles[i][j]->GetBinContent(ibin+1)>10000){
+	    unsat=false;
+	    nSaturated++;
+	  }
+	}
+	for(int Rmean=1; Rmean<7; Rmean++){
+	  if(AllProfiles[i][j]->GetBinContent(Rmean)){
+	    mean+=AllProfiles[i][j]->GetBinContent(Rmean);
+	    Nmean++;
+	  }
+	}
+	h2_pedestal->Fill(j,i,Nmean>0?mean/Nmean:0);//AllProfiles[i][j]->GetBinContent(2));
+	if(!unsat)h2_saturating->Fill(j,i,nSaturated);
+      }
+    }
+  }
+  TLine *line_sector[32];
+  for(int i_line=0;i_line<32;i_line++)
+    {
+      line_sector[i_line] = new TLine(0,(i_line+1)*8,96,(i_line+1)*8);
+      line_sector[i_line]->SetLineColor(1);
+      line_sector[i_line]->SetLineWidth(1);
+      line_sector[i_line]->SetLineStyle(1);
+    }
+
+
+  const int numVertDiv = 12;
+  int dEI = 96/numVertDiv;
+  TLine *l_board[numVertDiv-1];
+  for(int il=1; il<numVertDiv; il++){
+    l_board[il-1] = new TLine(dEI*il,0,dEI*il,256);
+    l_board[il-1]->SetLineColor(1);
+    l_board[il-1]->SetLineWidth(1);
+    l_board[il-1]->SetLineStyle(1);
+    if(il==6) l_board[il-1]->SetLineWidth(2);
+  }
+  
+  TC[6]->SetEditable(1);
+  TC[6]->Clear("D");
+  Pad[15]->cd();
+  gStyle->SetPalette(kBird);
+  h2_maxima->DrawCopy("colz");
+  for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
+  for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
+  Pad[16]->cd();
+  gStyle->SetPalette(kBird);
+  h2_timeofMax->DrawCopy("colz");
+  for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
+  for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
+  Pad[17]->cd();
+  gStyle->SetPalette(kBird);
+  h2_pedestal->DrawCopy("colz");
+  for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
+  for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
+  Pad[18]->cd();
+  gStyle->SetPalette(kBird);
+  h2_saturating->DrawCopy("colz");
+  for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
+  for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
+  
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  runnostream << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[6]->cd();
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+
+  TC[6]->Update();
+  TC[6]->Show();
+  TC[6]->SetEditable(0);
+  TC[6]->Connect("ProcessedEvent(int, int, int, TObject*)","CemcMonDraw",this,"HandleEvent(int, int, int, TObject*)");
+  if(save)TC[6] -> SaveAs("plots/Test.pdf");
+  return 0;
+}
+
 int CemcMonDraw::DrawServerStats()
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -1694,5 +2023,80 @@ int CemcMonDraw::DrawServerStats()
   TC[5]->Show();
   TC[5]->SetEditable(false);
 
+  return 0;
+}
+
+int CemcMonDraw::DrawSeventh(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  // watch the absolute insanity as we merge all these
+  // histograms from across seven different machines
+
+  TProfile2D* p2_zsFrac_etaphiCombined=nullptr;
+  TProfile2D* proftmp;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+    {
+      proftmp=(TProfile2D*)cl->getHisto(*server, "p2_zsFrac_etaphi");
+      if(proftmp){
+	if(p2_zsFrac_etaphiCombined){
+	  p2_zsFrac_etaphiCombined->Add(proftmp);
+	}
+	else{
+	  p2_zsFrac_etaphiCombined=proftmp;
+	}
+      }
+    }
+
+  if (!gROOT->FindObject("CemcMon8"))
+  {
+    MakeCanvas("CemcMon8");
+  }
+  TC[7]->SetEditable(true);
+  TC[7]->Clear("D");
+  if(!p2_zsFrac_etaphiCombined){
+    DrawDeadServer(transparent[7]);
+    TC[7]->SetEditable(false);
+    return -1;
+  }
+
+  Pad[19]->cd();
+  gPad->SetTopMargin(0.02);
+  gPad->SetBottomMargin(0.12);
+  gPad->SetLeftMargin(0.12);
+  gPad->SetRightMargin(0.12);
+  gStyle->SetTitleFontSize(0.06);
+  gStyle->SetPalette(kBird);
+  p2_zsFrac_etaphiCombined->GetXaxis()->SetTitle("eta index");
+  p2_zsFrac_etaphiCombined->GetYaxis()->SetTitle("phi index");
+  p2_zsFrac_etaphiCombined->GetXaxis()->SetLabelSize(0.05);
+  p2_zsFrac_etaphiCombined->GetYaxis()->SetLabelSize(0.05);
+  p2_zsFrac_etaphiCombined->GetXaxis()->SetTitleSize(0.05);
+  p2_zsFrac_etaphiCombined->GetYaxis()->SetTitleSize(0.05);
+  p2_zsFrac_etaphiCombined->GetXaxis()->SetTitleOffset(1.0);
+  p2_zsFrac_etaphiCombined->GetYaxis()->SetTitleOffset(1.0);
+  p2_zsFrac_etaphiCombined->SetMinimum(0);
+  p2_zsFrac_etaphiCombined->SetMaximum(1);
+  p2_zsFrac_etaphiCombined->SetStats(kFALSE);
+  p2_zsFrac_etaphiCombined->DrawCopy("colz");
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.03);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();
+  // fill run number and event time into string
+  runnostream << ThisName << ": Unsuppressed event fraction, Run" << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[7]->cd();
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+
+  TC[7]->Update();
+  TC[7]->Show();
+  TC[7]->SetEditable(0);
+  if(save)TC[7] -> SaveAs("plots/UnsuppressedEventFraction.pdf");
   return 0;
 }

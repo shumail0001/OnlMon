@@ -305,6 +305,10 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   {
     return 0;
   }
+  h_fem_match[start]->GetXaxis()->SetTitleSize(0);
+  h_fem_match[start]->GetYaxis()->SetTitleSize(0);
+  h_fem_match[start]->GetYaxis()->SetNdivisions(100);
+  h_fem_match[start]->GetYaxis()->SetLabelSize(0);
 
   Int_t color[2];
   color[0] = kRed;
@@ -328,12 +332,20 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   transparent[1]->cd();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
-  std::string femstatusstring = (h_fem_match[start]->GetEntries() > 0) ? "#bf{Calo FEM Mismatch!! Stop the run now!}" : "#bf{FEMs are all locked properly! Continue data taking}";
+  std::string femstatusstring = (h_fem_match[start]->GetEntries() > 0) ? "#bf{Calo FEM Mismatch!! Stop the run now!}" : "#bf{FEMs are all locked Continue data taking}";
   TLatex latex;
   latex.SetNDC();
   latex.SetTextFont(62);
-  latex.SetTextSize(0.025);
-  latex.DrawLatex(0.3,0.5,femstatusstring.c_str());
+  latex.SetTextSize(0.028);
+
+  if(h_fem_match[start]->GetEntries() > 0){
+      latex.SetTextColor(kRed);
+      latex.DrawLatex(0.25,0.95,femstatusstring.c_str());
+  }
+  else{
+      latex.SetTextColor(kGreen);
+      latex.DrawLatex(0.25,0.6,femstatusstring.c_str());
+  }
     
   TC[1]->SetEditable(false);
   gStyle->SetOptStat(0);

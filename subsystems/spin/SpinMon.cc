@@ -386,7 +386,7 @@ int SpinMon::process_event(Event *e /* evt */)
           else if (bluebot <= 0 && bluetop >= 0)
           {
             hpCspinpatternBlue->SetBinContent((i / 3) + 1, 0);
-            pCspin_patternBlueUnpol->Fill(i / 3, 1);
+            // pCspin_patternBlueUnpol->Fill(i / 3, 1);
           }
         }
         else
@@ -422,7 +422,7 @@ int SpinMon::process_event(Event *e /* evt */)
           else if (yellbot <= 0 && yelltop >= 0)
           {
             hpCspinpatternYellow->SetBinContent((i / 3) + 1, 0);
-            pCspin_patternYellowUnpol->Fill(i / 3, 2);
+            // pCspin_patternYellowUnpol->Fill(i / 3, 2);
           }
         }
         else

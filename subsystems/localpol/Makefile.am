@@ -19,6 +19,8 @@ libonllocalpolmon_server_la_LIBADD = \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
   -lonlmonutils \
+  -lcalo_io \
+  -lcalo_reco \
   -lonlmondb
 
 libonllocalpolmon_client_la_LIBADD = \
