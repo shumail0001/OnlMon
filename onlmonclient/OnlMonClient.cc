@@ -87,7 +87,7 @@ void OnlMonClient::InitAll()
                 << displaystring << std::endl;
       if (displaystring.find("unix") != std::string::npos)
       {
-        utsname ThisNode;
+        utsname ThisNode{};
         uname(&ThisNode);
         std::cout << "presumably the virtual framebuffer is not running on " << ThisNode.nodename
                   << ", check if process /usr/X11R6/bin/Xvfb is alive" << std::endl;
@@ -209,14 +209,14 @@ void OnlMonClient::registerHisto(const std::string &hname, const std::string &su
 
 int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
 {
-  std::string mysubsys = subsys.substr(0,subsys.find('_'));
-  for (auto frwrkiter : m_MonitorFetchedSet)
+  std::string mysubsys = subsys.substr(0, subsys.find('_'));
+  for (const auto &frwrkiter : m_MonitorFetchedSet)
   {
     if (frwrkiter.find(mysubsys) == std::string::npos)
-      {
-	m_MonitorFetchedSet.clear();
-	break;
-      }
+    {
+      m_MonitorFetchedSet.clear();
+      break;
+    }
   }
   int iret = 0;
   std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
@@ -324,13 +324,13 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
       }
     }
     std::list<std::string>::const_iterator liter;
-    for (auto listiter = transferlist.begin(); listiter != transferlist.end(); ++listiter)
+    for (auto &listiter : transferlist)
     {
-      std::list<std::string> hlist = listiter->second;
-      auto hostportiter = MonitorHostPorts.find(listiter->first);
+      std::list<std::string> hlist = listiter.second;
+      auto hostportiter = MonitorHostPorts.find(listiter.first);
       if (hostportiter == MonitorHostPorts.end())
       {
-        std::cout << __PRETTY_FUNCTION__ << "Cannot find MonitorHostPorts entry for " << listiter->first << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << "Cannot find MonitorHostPorts entry for " << listiter.first << std::endl;
         std::cout << "existing hosts: " << std::endl;
         for (auto &hport : MonitorHostPorts)
         {
@@ -339,7 +339,7 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
         }
         continue;
       }
-      if (requestHistoList(listiter->first, hostportiter->second.first, hostportiter->second.second, hlist) != 0)
+      if (requestHistoList(listiter.first, hostportiter->second.first, hostportiter->second.second, hlist) != 0)
       {
         for (liter = hlist.begin(); liter != hlist.end(); ++liter)
         {
@@ -437,6 +437,7 @@ void OnlMonClient::registerDrawer(OnlMonDraw *Drawer)
 
 int OnlMonClient::Draw(const char *who, const char *what)
 {
+  GetServerInfo();
   int iret = DoSomething(who, what, "DRAW");
   //  gSystem->ProcessEvents();
   return iret;
@@ -468,6 +469,7 @@ int OnlMonClient::MakePS(const char *who, const char *what)
 
 int OnlMonClient::MakeHtml(const char *who, const char *what)
 {
+  GetServerInfo();
   mode_t old_umask;
   int runno = RunNumber();
   if (runno <= 0)
@@ -520,6 +522,7 @@ int OnlMonClient::DoSomething(const std::string &who, const std::string &what, c
           std::cout << __PRETTY_FUNCTION__ << " creating html output for "
                     << iter->second->Name() << std::endl;
         }
+        iter->second->isHtml(true);
         if (iter->second->MakeHtml(what))
         {
           std::cout << "subsystem " << iter->second->Name()
@@ -561,6 +564,7 @@ int OnlMonClient::DoSomething(const std::string &who, const std::string &what, c
                     << iter->second->Name() << std::endl;
         }
         gROOT->Reset();
+        iter->second->isHtml(true);
         int iret = iter->second->MakeHtml(what);
         if (iret)
         {
@@ -1025,11 +1029,13 @@ void OnlMonClient::Print(const char *what)
         std::cout << " on port " << subiter->second.second << std::endl;
       }
       for (auto &histos : subs.second)
+      {
         std::cout << histos.first << " @ " << subs.first
                   << " Address " << histos.second->Histo()
                   << " on host " << histos.second->ServerHost()
                   << " port " << histos.second->ServerPort()
                   << ", subsystem " << histos.second->SubSystem() << std::endl;
+      }
     }
     std::cout << std::endl;
   }
@@ -1054,6 +1060,39 @@ void OnlMonClient::Print(const char *what)
     }
     std::cout << std::endl;
   }
+  return;
+}
+
+void OnlMonClient::PrintHistos(const std::string &what)
+{
+  std::cout << "--------------------------------------" << std::endl
+            << std::endl;
+  std::cout << "List of Histograms in OnlMonClient:" << std::endl;
+  auto iter = SubsysHisto.find(what);
+  if (iter == SubsysHisto.end())
+  {
+    std::cout << "subsystem " << what << " not found, available: " << std::endl;
+    for (auto &subs : SubsysHisto)
+    {
+      std::cout << subs.first << std::endl;
+    }
+    return;
+  }
+  auto subiter = MonitorHostPorts.find(iter->first);
+  if (subiter != MonitorHostPorts.end())
+  {
+    std::cout << "Subsystem " << iter->first << " runs on " << subiter->second.first;
+    std::cout << " on port " << subiter->second.second << std::endl;
+  }
+  for (auto &histos : iter->second)
+  {
+    std::cout << histos.first << " @ " << iter->first
+              << " Address " << histos.second->Histo()
+              << " on host " << histos.second->ServerHost()
+              << " port " << histos.second->ServerPort()
+              << ", subsystem " << histos.second->SubSystem() << std::endl;
+  }
+  std::cout << std::endl;
   return;
 }
 
@@ -1190,7 +1229,7 @@ int OnlMonClient::LocateHistogram(const std::string &hname, const std::string &s
 int OnlMonClient::RunNumber()
 {
   int runno = -9999;
-  for (auto frwrkiter : m_MonitorFetchedSet)
+  for (const auto &frwrkiter : m_MonitorFetchedSet)
   {
     TH1 *frameworkvars = getHisto(frwrkiter, "FrameWorkVars");
     if (frameworkvars)
@@ -1201,12 +1240,74 @@ int OnlMonClient::RunNumber()
   return (runno);
 }
 
+int OnlMonClient::GetServerInfo()
+{
+  std::map<std::string, int> server_runmap;
+  int runno = -9999;
+  for (const auto &frwrkiter : m_MonitorFetchedSet)
+  {
+    if (m_ServerStatsMap.find(frwrkiter) == m_ServerStatsMap.end())
+	{
+	  m_ServerStatsMap[frwrkiter] = std::make_tuple(false, -1, -1, 0);
+	}
+    TH1 *frameworkvars = getHisto(frwrkiter, "FrameWorkVars");
+    if (frameworkvars)
+    {
+      int runnumber = frameworkvars->GetBinContent(RUNNUMBERBIN);
+      time_t currtime = frameworkvars->GetBinContent(CURRENTTIMEBIN);
+      int eventcounter = frameworkvars->GetBinContent(EVENTCOUNTERBIN);
+      if (Verbosity() > 0)
+      {
+        std::cout << "Run number for " << frwrkiter << " is "
+                  << runnumber
+                  << " events take: " << eventcounter
+                  << " time is " << ctime(&currtime);  // ctime adds eol
+      }
+      runno = std::max(runno, runnumber);
+      server_runmap[frwrkiter] = runnumber;
+        auto &statsiter = m_ServerStatsMap[frwrkiter];
+        std::get<0>(statsiter) = true;
+        std::get<1>(statsiter) = runnumber;
+        std::get<2>(statsiter) = eventcounter;
+        std::get<3>(statsiter) = currtime;
+    }
+  }
+  for (auto const &iter : server_runmap)
+  {
+    if (iter.second != runno)
+    {
+      std::cout << "server " << iter.first << " has bad run " << iter.second << std::endl;
+      std::cout << "Resetting histos for " << iter.first << std::endl;
+      std::get<0>(m_ServerStatsMap[iter.first]) = false;
+      auto subsysiter = SubsysHisto.find(iter.first);
+      if (subsysiter == SubsysHisto.end())
+      {
+        std::cout << "could not find " << iter.first << " in SubsysHisto map" << std::endl;
+      }
+      else
+      {
+        for (auto &hiter : subsysiter->second)
+        {
+          if (hiter.first != "FrameWorkVars")
+          {
+            if (hiter.second->Histo())
+            {
+              hiter.second->Histo()->Reset();
+            }
+          }
+        }
+      }
+    }
+  }
+  return (runno);
+}
+
 time_t OnlMonClient::EventTime(const std::string &which)
 {
   time_t tret = 0;
-  for (auto frwrkiter : m_MonitorFetchedSet)
+  for (const auto &frwrkiter : m_MonitorFetchedSet)
   {
-    tret = std::max(tret, EventTime(frwrkiter,which));
+    tret = std::max(tret, EventTime(frwrkiter, which));
   }
 
   if (verbosity > 0)
@@ -1254,17 +1355,16 @@ time_t OnlMonClient::EventTime(const std::string &servername, const std::string 
   return (tret);
 }
 
-int OnlMonClient::ReadHistogramsFromFile(const std::string &filename)
+int OnlMonClient::ReadHistogramsFromFile(const std::string &filename, OnlMonDraw *drawer)
 {
-  std::string subsys = ExtractSubsystem(filename);
-  TDirectory *save = gDirectory;  // save current dir (which will be overwritten by the following fileopen)
-  TFile *histofile = new TFile(filename.c_str(), "READ");
+  std::string subsys = ExtractSubsystem(filename, drawer);
+  std::cout << "Reading histos from " << filename << std::endl;
+  TFile *histofile = TFile::Open(filename.c_str(), "READ");
   if (!histofile)
   {
     std::cout << "Can't open " << filename << std::endl;
     return -1;
   }
-  save->cd();
   TIterator *titer = histofile->GetListOfKeys()->MakeIterator();
   TObject *obj;
   TH1 *histo, *histoptr;
@@ -1279,7 +1379,11 @@ int OnlMonClient::ReadHistogramsFromFile(const std::string &filename)
     histofile->GetObject(obj->GetName(), histoptr);
     if (histoptr)
     {
-      histo = static_cast<TH1 *>(histoptr->Clone());
+// this is hokey but it seems to work, the SetDirectory(0) disconnects
+// the histo from the TFile and the static cast makes it work with our
+// histomap (otherwise something throws an exception)
+      histoptr->SetDirectory(0);
+      histo = dynamic_cast<TH1 *>(histoptr);
       updateHistoMap(subsys, histo->GetName(), histo);
       if (verbosity > 0)
       {
@@ -1288,8 +1392,10 @@ int OnlMonClient::ReadHistogramsFromFile(const std::string &filename)
       }
     }
   }
-  delete histofile;
   delete titer;
+// this is a fast way to close a file, if you call TFile->Close() it deletes all
+// histograms which can take a really long time (hours)
+  gROOT->GetListOfFiles()->Remove( histofile );
   return 0;
 }
 
@@ -1665,11 +1771,23 @@ int OnlMonClient::IsMonitorRunning(const std::string &name)
   return iret;
 }
 
-std::string OnlMonClient::ExtractSubsystem(const std::string &fullfilename)
+std::string OnlMonClient::ExtractSubsystem(const std::string &fullfilename, OnlMonDraw *drawer)
 {
   std::string subsys = std::filesystem::path(fullfilename).filename();
   subsys = subsys.substr(subsys.find('-') + 1);
   subsys = subsys.substr(0, subsys.find(".root"));
   m_MonitorFetchedSet.insert(subsys);
+  drawer->AddServer(subsys);
   return subsys;
+}
+
+OnlMonDraw *OnlMonClient::GetDrawer(const std::string &name)
+{
+  auto iter = DrawerList.find(name);
+  if (iter != DrawerList.end())
+  {
+    return iter->second;
+  }
+  std::cout << "Cannot locate Drawer " << name << " in my list" << std::endl;
+  return nullptr;
 }

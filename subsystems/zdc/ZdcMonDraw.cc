@@ -260,8 +260,20 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     // gSystem->ProcessEvents(), otherwise your process will grow and
     // grow and grow but will not show a definitely lost memory leak
     gSystem->ProcessEvents();
-    Pad[55] = new TPad("zdc waveform", "who needs this?", 0.05, 0.5, 0.5, 0.9, 0);
+    Pad[55] = new TPad("zdc waveform", "who needs this?", 0.05, 0.65, 0.35, 0.95, 0);
+    Pad[56] = new TPad("smd north waveform", "who needs this?", 0.35, 0.65, 0.65, 0.95, 0);
+    Pad[57] = new TPad("smd south waveform", "who needs this?", 0.65, 0.65, 0.95, 0.95, 0);
+    Pad[58] = new TPad("veto north waveform", "who needs this?", 0.05, 0.35, 0.35, 0.65, 0);
+    Pad[59] = new TPad("veto south waveform", "who needs this?", 0.35, 0.35, 0.65, 0.65, 0);
+    Pad[60] = new TPad("all channels waveform", "who needs this?", 0.65, 0.35, 0.95, 0.65, 0);
+
     Pad[55]->Draw();
+    Pad[56]->Draw();
+    Pad[57]->Draw();
+    Pad[58]->Draw();
+    Pad[59]->Draw();
+    Pad[60]->Draw();
+
     // this one is used to plot the run number on the canvas
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
     transparent[0]->SetFillStyle(4000);
@@ -274,15 +286,15 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     // xpos negative: do not draw menu bar
     TC[8] = new TCanvas(name.c_str(), "SMD ADC Mean Values Per Channel", -xsize / 2, -ysize / 2, xsize / 2, ysize / 2);
     gSystem->ProcessEvents();
-    Pad[56] = new TPad("smd_adc_n_hor_means", "SMD ADC for North-Horizontal Channels", 0.05, 0.5, 0.5, 0.98, 0);
-    Pad[57] = new TPad("smd_adc_s_hor_means", "SMD ADC for South-Horizontal Channels", 0.5, 0.5, 0.98, 0.98, 0);
-    Pad[58] = new TPad("smd_adc_n_ver_means", "SMD ADC for North-Vertical Channels", 0.05, 0.05, 0.5, 0.5, 0);
-    Pad[59] = new TPad("smd_adc_s_ver_means", "SMD ADC for South-Vertical Channels", 0.5, 0.05, 0.95, 0.5, 0);
+    Pad[61] = new TPad("smd_adc_n_hor_means", "SMD ADC for North-Horizontal Channels", 0.05, 0.5, 0.5, 0.98, 0);
+    Pad[62] = new TPad("smd_adc_s_hor_means", "SMD ADC for South-Horizontal Channels", 0.5, 0.5, 0.98, 0.98, 0);
+    Pad[63] = new TPad("smd_adc_n_ver_means", "SMD ADC for North-Vertical Channels", 0.05, 0.05, 0.5, 0.5, 0);
+    Pad[64] = new TPad("smd_adc_s_ver_means", "SMD ADC for South-Vertical Channels", 0.5, 0.05, 0.95, 0.5, 0);
 
-    Pad[56]->Draw();
-    Pad[57]->Draw();
-    Pad[58]->Draw();
-    Pad[59]->Draw();
+    Pad[61]->Draw();
+    Pad[62]->Draw();
+    Pad[63]->Draw();
+    Pad[64]->Draw();
 
     // this one is used to plot the run number on the canvas
     transparent[8] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
@@ -350,11 +362,15 @@ int ZdcMonDraw::Draw(const std::string &what)
     iret += DrawSmdAdcMeans(what);
     idraw++;
   }
-
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
-    iret = -1;
+    iret--;
+    idraw++;
+  }
+  if (std::fabs(iret) != idraw) // at least one succeeded
+  {
+    return 0;
   }
   return iret;
 }
@@ -379,12 +395,19 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   if (zdc_adc_south)
   {
     //zdc_adc_south->Scale(1 / zdc_adc_south->Integral(), "width");
+    zdc_adc_south->SetXTitle("ZDC South ADC Distribution");
+    zdc_adc_south->SetYTitle("Counts");
     zdc_adc_south->DrawCopy();
   }
   else
   {
     DrawDeadServer(transparent[0]);
     TC[0]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[0];
+      TC[0] = nullptr;
+    }
     return -1;
   }
   Pad[1]->cd();
@@ -393,17 +416,24 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
   if (zdc_adc_north)
   {
     //zdc_adc_north->Scale(1 / zdc_adc_north->Integral(), "width");
+    zdc_adc_north->SetXTitle("ZDC North ADC Distribution");
+    zdc_adc_north->SetYTitle("Counts");
     zdc_adc_north->DrawCopy();
   }
 
   Pad[2]->cd();
   if (smd_xy_south)
   {
+    smd_xy_south->SetXTitle("SMD south hit position in x [cm]");
+    smd_xy_south->SetYTitle("SMD south hit position in y [cm]");
     smd_xy_south->DrawCopy("colz");
+
   }
   Pad[3]->cd();
   if (smd_xy_north)
   {
+    smd_xy_north->SetXTitle("SMD north hit position in x [cm]");
+    smd_xy_north->SetYTitle("SMD north hit position in y [cm]");
     smd_xy_north->DrawCopy("colz");
   }
 
@@ -450,12 +480,19 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   if (zdc_S1)
   {
     //zdc_S1->Scale(1 / zdc_S1->Integral(), "width");
+    zdc_S1->SetXTitle("ZDC South First Module ADC Distribution");
+    zdc_S1->SetYTitle("Counts");
     zdc_S1->DrawCopy();
   }
   else
   {
     DrawDeadServer(transparent[1]);
     TC[1]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[1];
+      TC[1] = nullptr;
+    }
     return -1;
   }
 
@@ -465,6 +502,8 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   if (zdc_S2)
   {
     //zdc_S2->Scale(1 / zdc_S2->Integral(), "width");
+    zdc_S2->SetXTitle("ZDC South Second Module ADC Distribution");
+    zdc_S2->SetYTitle("Counts");
     zdc_S2->DrawCopy();
   }
   Pad[6]->cd();
@@ -473,6 +512,8 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   if (zdc_S3)
   {
     //zdc_S3->Scale(1 / zdc_S3->Integral(), "width");
+    zdc_S3->SetXTitle("ZDC South Third Module ADC Distribution");
+    zdc_S3->SetYTitle("Counts");
     zdc_S3->DrawCopy();
   }
 
@@ -482,6 +523,8 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   if (zdc_N1)
   {
     //zdc_N1->Scale(1 / zdc_N1->Integral(), "width");
+    zdc_N1->SetXTitle("ZDC North First Module ADC Distribution");
+    zdc_N1->SetYTitle("Counts");   
     zdc_N1->DrawCopy();
   }
 
@@ -491,6 +534,8 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   if (zdc_N2)
   {
     //zdc_N2->Scale(1 / zdc_N2->Integral(), "width");
+    zdc_N2->SetXTitle("ZDC North Second Module ADC Distribution");
+    zdc_N2->SetYTitle("Counts");
     zdc_N2->DrawCopy();
   }
 
@@ -500,8 +545,11 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
   if (zdc_N3)
   {
     //zdc_N3->Scale(1 / zdc_N3->Integral(), "width");
+    zdc_N3->SetXTitle("ZDC North Third Module ADC Distribution");
+    zdc_N3->SetYTitle("Counts");
     zdc_N3->DrawCopy();
   }
+
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);
@@ -539,12 +587,20 @@ int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
   Pad[10]->cd();
   if (smd_value)
   {
+    smd_value->SetXTitle("ADC");
+    smd_value->SetYTitle("Channels");
     smd_value->DrawCopy();
+  
   }
   else
   {
     DrawDeadServer(transparent[2]);
     TC[2]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[2];
+      TC[2] = nullptr;
+    }
     return -1;
   }
 
@@ -552,11 +608,15 @@ int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
   if (smd_value_good)
   {
     smd_value_good->DrawCopy();
+    smd_value_good->SetXTitle("ADC");
+    smd_value_good->SetYTitle("Channels");
   }
   Pad[12]->cd();
   if (smd_value_small)
   {
     smd_value_small->DrawCopy();
+    smd_value_small->SetXTitle("ADC");
+    smd_value_small->SetYTitle("Channels");
   }
 
   TText PrintRun;
@@ -590,10 +650,13 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   TH1 *smd_hor_north = cl->getHisto("ZDCMON_0", "smd_hor_north");
   TH1 *smd_ver_north = cl->getHisto("ZDCMON_0", "smd_ver_north");
 
-  TH1 *smd_hor_north_small = cl->getHisto("ZDCMON_0", "smd_hor_north_small");
-  TH1 *smd_ver_north_small = cl->getHisto("ZDCMON_0", "smd_ver_north_small");
+  //TH1 *smd_hor_north_small = cl->getHisto("ZDCMON_0", "smd_hor_north_small");
+  //TH1 *smd_ver_north_small = cl->getHisto("ZDCMON_0", "smd_ver_north_small");
   TH1 *smd_hor_north_good = cl->getHisto("ZDCMON_0", "smd_hor_north_good");
   TH1 *smd_ver_north_good = cl->getHisto("ZDCMON_0", "smd_ver_north_good");
+  TH1 *smd_hor_south_good = cl->getHisto("ZDCMON_0", "smd_hor_south_good");
+  TH1 *smd_ver_south_good = cl->getHisto("ZDCMON_0", "smd_ver_south_good");
+
 
   TH1 *smd_sum_hor_south = cl->getHisto("ZDCMON_0", "smd_sum_hor_south");
   TH1 *smd_sum_ver_south = cl->getHisto("ZDCMON_0", "smd_sum_ver_south");
@@ -611,39 +674,66 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   // VERTICAL AND HORIZONTAL NORTH (good and small)
   if (smd_ver_north_good)
   {
+    smd_ver_north_good->SetXTitle("SMD North ADC weighted hit position x [cm]");
+    smd_ver_north_good->SetYTitle("Counts");
     smd_ver_north_good->DrawCopy();
   }
   else
   {
     DrawDeadServer(transparent[3]);
     TC[3]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[3];
+      TC[3] = nullptr;
+    }
     return -1;
   }
   Pad[14]->cd();
   if (smd_hor_north_good)
   {
+    smd_hor_north_good->SetXTitle("SMD North ADC weighted hit position y [cm]");
+    smd_hor_north_good->SetYTitle("Counts");
     smd_hor_north_good->DrawCopy();
   }
+  //Pad[15]->cd();
+  //if (smd_ver_north_small)
+  //{
+  //  smd_ver_north_small->DrawCopy();
+  //}
+  //Pad[16]->cd();
+  //if (smd_hor_north_small)
+  //{
+  //  smd_hor_north_small->DrawCopy();
+  //}
   Pad[15]->cd();
-  if (smd_ver_north_small)
+  if (smd_ver_south_good)
   {
-    smd_ver_north_small->DrawCopy();
+    smd_ver_south_good->SetXTitle("SMD South ADC weighted hit position x [cm]");
+    smd_ver_south_good->SetYTitle("Counts");
+    smd_ver_south_good->DrawCopy();
   }
   Pad[16]->cd();
-  if (smd_hor_north_small)
+  if (smd_hor_south_good)
   {
-    smd_hor_north_small->DrawCopy();
+    smd_hor_south_good->SetXTitle("SMD South ADC weighted hit position y [cm]");
+    smd_hor_south_good->SetYTitle("Counts");
+    smd_hor_south_good->DrawCopy();
   }
 
   // VERTICAL AND HORIZONTAL NORTH
   Pad[17]->cd();
   if (smd_ver_north)
   {
+    smd_ver_north->SetXTitle("No selection: SMD North ADC weighted hit position x [cm]");
+    smd_ver_north->SetYTitle("Counts");
     smd_ver_north->DrawCopy();
   }
   Pad[18]->cd();
   if (smd_hor_north)
   {
+    smd_hor_north->SetXTitle("No selection: SMD North ADC weighted hit position y [cm]");
+    smd_hor_north->SetYTitle("Counts");
     smd_hor_north->DrawCopy();
   }
 
@@ -651,11 +741,15 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   Pad[19]->cd();
   if (smd_ver_south)
   {
+    smd_ver_south->SetXTitle("No selection: SMD North ADC weighted hit position x [cm]");
+    smd_ver_south->SetYTitle("Counts");
     smd_ver_south->DrawCopy();
   }
   Pad[20]->cd();
   if (smd_hor_south)
   {
+    smd_hor_south->SetXTitle("No selection: SMD North ADC weighted hit position y [cm]");
+    smd_hor_south->SetYTitle("Counts");
     smd_hor_south->DrawCopy();
   }
 
@@ -663,21 +757,29 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   Pad[21]->cd();
   if (smd_sum_ver_north)
   {
+    smd_sum_ver_north->SetXTitle("SMD x-sum North ADC distribution");
+    smd_sum_ver_north->SetYTitle("Counts");
     smd_sum_ver_north->DrawCopy();
   }
   Pad[22]->cd();
   if (smd_sum_hor_north)
   {
+    smd_sum_hor_north->SetXTitle("SMD y-sum North ADC distribution");
+    smd_sum_hor_north->SetYTitle("Counts");
     smd_sum_hor_north->DrawCopy();
   }
   Pad[23]->cd();
   if (smd_sum_ver_south)
   {
+    smd_sum_ver_south->SetXTitle("SMD x-sum North ADC distribution");
+    smd_sum_ver_south->SetYTitle("Counts");
     smd_sum_ver_south->DrawCopy();
   }
   Pad[24]->cd();
   if (smd_sum_hor_north)
   {
+    smd_sum_ver_south->SetXTitle("SMD y-sum North ADC distribution");
+    smd_sum_ver_south->SetYTitle("Counts");
     smd_sum_hor_south->DrawCopy();
   }
 
@@ -738,6 +840,11 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   {
     DrawDeadServer(transparent[4]);
     TC[4]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[4];
+      TC[4] = nullptr;
+    }
     return -1;
   }
 
@@ -817,6 +924,11 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
   {
     DrawDeadServer(transparent[5]);
     TC[5]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[5];
+      TC[5] = nullptr;
+    }
     return -1;
   }
 
@@ -884,6 +996,11 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
   {
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[6];
+      TC[6] = nullptr;
+    }
     return -1;
   }
 
@@ -927,7 +1044,12 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
 int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *h_waveform = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveform");
+  TH2 *h_waveformZDC = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveformZDC");
+  TH2 *h_waveformSMD_North = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveformSMD_North");
+  TH2 *h_waveformSMD_South = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveformSMD_South");
+  TH2 *h_waveformVeto_North = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveformVeto_North");
+  TH2 *h_waveformVeto_South = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveformVeto_South");
+  TH2 *h_waveformAll = (TH2 *) cl->getHisto("ZDCMON_0", "h_waveformAll");
 
   if (!gROOT->FindObject("waveform"))
   {
@@ -935,17 +1057,36 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   }
   TC[7]->SetEditable(true);
   TC[7]->Clear("D");
-  if (!h_waveform)
+  if (!h_waveformZDC)
   {
     DrawDeadServer(transparent[0]);
     TC[7]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[7];
+      TC[7] = nullptr;
+    }
     return -1;
   }
+  
   Pad[55]->cd();
   gPad->SetLogz();
-  h_waveform->SetXTitle("Sample Number");
-  h_waveform->SetYTitle("Amplitude");
-  h_waveform->DrawCopy("colz");
+  h_waveformZDC->DrawCopy("colz");
+  Pad[56]->cd();
+  gPad->SetLogz();
+  h_waveformSMD_North->DrawCopy("colz");
+   Pad[57]->cd();
+  gPad->SetLogz();
+  h_waveformSMD_South->DrawCopy("colz");
+  Pad[58]->cd();
+  gPad->SetLogz();
+  h_waveformVeto_North->DrawCopy("colz");
+  Pad[59]->cd();
+  gPad->SetLogz();
+  h_waveformVeto_South->DrawCopy("colz");
+  Pad[60]->cd();
+  gPad->SetLogz();
+  h_waveformAll->DrawCopy("colz");
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -972,6 +1113,11 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   
+  if (!gROOT->FindObject("SmdAdcMeans"))
+  {
+    MakeCanvas("SmdAdcMeans");
+  }
+
   // Array that holds pointer to the histogram of each channel
   TH1 *smd_adc_n_hor_ind[8];
   TH1 *smd_adc_n_ver_ind[7];
@@ -989,6 +1135,17 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
     int j = i + 2;
     smd_adc_n_hor_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_n_hor_ind%d", i));  // north horizontal individual histograms
     smd_adc_s_hor_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_s_hor_ind%d", i));  // south horizontal individual histograms
+    if (!smd_adc_n_hor_ind[i] || !smd_adc_s_hor_ind[i])
+    {
+      DrawDeadServer(transparent[8]);
+      TC[8]->SetEditable(false);
+      if (isHtml())
+      {
+	delete TC[8];
+	TC[8] = nullptr;
+      }
+      return -1;
+    }
     smd_adc_n_hor_means->SetBinContent(j, smd_adc_n_hor_ind[i]->GetMean()); // means of north horizontal
     smd_adc_s_hor_means->SetBinContent(j, smd_adc_s_hor_ind[i]->GetMean()); // means of south horizontal
   }
@@ -1003,14 +1160,10 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
     smd_adc_s_ver_means->SetBinContent(j, smd_adc_s_ver_ind[i]->GetMean()); // mean of each
   }
 
-  if (!gROOT->FindObject("SmdAdcMeans"))
-  {
-    MakeCanvas("SmdAdcMeans");
-  }
 
   TC[8]->SetEditable(true);
   TC[8]->Clear("D");
-  Pad[56]->cd();
+  Pad[61]->cd();
   if (smd_adc_n_hor_means)
   {
     smd_adc_n_hor_means->DrawCopy();
@@ -1019,20 +1172,25 @@ int ZdcMonDraw::DrawSmdAdcMeans(const std::string & /* what */)
   {
     DrawDeadServer(transparent[8]);
     TC[8]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[8];
+      TC[8] = nullptr;
+    }
     return -1;
   }
 
-  Pad[57]->cd();
+  Pad[62]->cd();
   if (smd_adc_s_hor_means)
   {
     smd_adc_s_hor_means->DrawCopy();
   }
-  Pad[58]->cd();
+  Pad[63]->cd();
   if (smd_adc_n_ver_means)
   {
     smd_adc_n_ver_means->DrawCopy();
   }
-  Pad[59]->cd();
+  Pad[64]->cd();
   if (smd_adc_s_ver_means)
   {
     smd_adc_s_ver_means->DrawCopy();
@@ -1092,55 +1250,26 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
 
   OnlMonClient *cl = OnlMonClient::instance();
 
-  // Register the 1st canvas png file to the menu and produces the png file.
-  std::string pngfile = cl->htmlRegisterPage(*this, TC[0]->GetTitle(), "1", "png");
-  cl->CanvasToPng(TC[0], pngfile);
+  int icnt = 0;
+  std::set <int> expert_indices; // these canvases end up under expert
+  expert_indices.insert(2);
+  expert_indices.insert(4);
+  expert_indices.insert(5);
 
-  // idem for 2nd canvas.
-  pngfile = cl->htmlRegisterPage(*this, TC[1]->GetTitle(), "2", "png");
-  cl->CanvasToPng(TC[1], pngfile);
-
-  //SMD North and South vertical/horizontal ADC sums
-  pngfile = cl->htmlRegisterPage(*this, TC[3]->GetTitle(), "3", "png");
-  cl->CanvasToPng(TC[3], pngfile);
-
-  //SMD hit multiplicities
-  pngfile = cl->htmlRegisterPage(*this, TC[6]->GetTitle(), "4", "png");
-  cl->CanvasToPng(TC[6], pngfile);
-
-  //SMD ADC Mean Values
-  pngfile = cl->htmlRegisterPage(*this, TC[8]->GetTitle(), "8", "png");
-  cl->CanvasToPng(TC[8], pngfile);
-
-  // Now register also EXPERTS html pages, under the EXPERTS subfolder.
-
-  //SMD North ADC Individual channels
-  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s", TC[2]->GetTitle()), "5", "png");
-  cl->CanvasToPng(TC[2], pngfile);
-
-  //SMD South ADC Individual channels
-  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s", TC[4]->GetTitle()), "6", "png");
-  cl->CanvasToPng(TC[4], pngfile);
-
-  //2d hist of SMD ADC vs. channel number
-  pngfile = cl->htmlRegisterPage(*this, Form("EXPERTS/%s", TC[5]->GetTitle()), "7", "png");
-  cl->CanvasToPng(TC[5], pngfile);
-
-  /*
-  std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream out(logfile.c_str());
-  out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << std::endl;
-  out << "<P>Some log file output would go here." << std::endl;
-  out.close();
-
-  std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
-  std::ofstream out2(status.c_str());
-  out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
-       << "</TITLE></HEAD>" << std::endl;
-  out2 << "<P>Some status output would go here." << std::endl;
-  out2.close();
-  cl->SaveLogFile(*this);
-  */
+  for (TCanvas* canvas : TC)
+  {
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    std::string title = canvas->GetTitle();
+    if (expert_indices.find(icnt) != expert_indices.end())
+    {
+      title = "EXPERTS/" + title;
+    }
+    std::string pngfile = cl->htmlRegisterPage(*this, title, std::to_string(icnt), "png");
+    cl->CanvasToPng(canvas, pngfile);
+    icnt++;
+  }
   return 0;
 }

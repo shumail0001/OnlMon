@@ -1,7 +1,10 @@
 # OnlMon
 
+
 [![Build Status](https://web.sdcc.bnl.gov/jenkins-sphenix/buildStatus/icon?job=sPHENIX%2FsPHENIX_OnlMon_MasterBranch)](https://web.sdcc.bnl.gov/jenkins-sphenix/job/sPHENIX/job/sPHENIX_OnlMon_MasterBranch/)
 
+You need to use our online enviroment (online/Debian), not offline. Further 
+instructions are in our wiki
 
 To build it, create a build area and run
 

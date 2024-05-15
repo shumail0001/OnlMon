@@ -1,0 +1,9 @@
+trigger 1024
+testfake 1
+sphenixgap 117
+threshold 6000
+X0north 0.0
+Y0north 0.0
+X0south 0.0
+Y0south 0.0
+verbosity 0

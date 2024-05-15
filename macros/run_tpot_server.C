@@ -10,7 +10,7 @@ R__LOAD_LIBRARY(libonltpotmon_server.so)
 void run_tpot_server(
   const std::string &name = "TPOTMON",
   unsigned int serverid = 0,
-  const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/TPOT/junk/TPOT_ebdc39_junk-00020121-0000.prdf"
+  const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/TPOT/junk/TPOT_ebdc39_junk-00041227-0000.evt"
   )
 {
   // create subsystem Monitor object

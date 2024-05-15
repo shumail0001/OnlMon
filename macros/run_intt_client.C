@@ -10,35 +10,37 @@ void inttDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
+  OnlMonDraw *inttmon = new InttMonDraw("INTTMONDRAW");    // create Drawing Object
+
+
+  for (int serverid = 0; serverid < INTT::FELIX; serverid++)
+  {
+    std::string servername = "INTTMON_" + std::to_string(serverid);
+    inttmon->AddServer(servername);
+    cl->registerHisto("InttNumEvents",servername);
+    cl->registerHisto("InttMap",servername);
+    cl->registerHisto("InttBcoDiffMap",servername);
+  }
 
   // for local host, just call inttDrawInit(2)
   CreateSubsysHostlist("intt_hosts.list", online);
 
-  for(int felix = 0; felix < INTT::FELIX; ++felix)
-  {
-    cl->registerHisto("InttNumEvents",  Form("INTTMON_%d", felix));
-    cl->registerHisto("InttMap",        Form("INTTMON_%d", felix));
-    cl->registerHisto("InttBcoDiffMap", Form("INTTMON_%d", felix));
-  }
-  //cl->registerHisto("InttHitMapRef",	"INTTMON_0");
-
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
-  for(int felix = 0; felix < INTT::FELIX; ++felix)
+   for (auto iter = inttmon->ServerBegin(); iter != inttmon->ServerEnd(); ++iter)
   {
-    cl->requestHistoBySubSystem(Form("INTTMON_%d", felix), 1);
+    cl->requestHistoBySubSystem(iter->c_str(), 1);
   }
-  OnlMonDraw *inttmon = new InttMonDraw("INTTMONDRAW");    // create Drawing Object
-  inttmon->Init(); //registers the hists it will need to the OnlMonClient
   cl->registerDrawer(inttmon);              // register with client framework
 }
 
 void inttDraw(const char *what="ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();		// get pointer to framewrk
-  for(int felix = 0; felix < INTT::FELIX; ++felix)	// update histos
+  OnlMonDraw *inttmon = cl->GetDrawer("INTTMONDRAW");  // get pointer to this drawer
+  for (auto iter = inttmon->ServerBegin(); iter != inttmon->ServerEnd(); ++iter)
   {
-    cl->requestHistoBySubSystem(Form("INTTMON_%d", felix),1);
+    cl->requestHistoBySubSystem(iter->c_str(), 1);
   }
   cl->Draw("INTTMONDRAW",what);				// Draw Histos of registered Drawers
 }

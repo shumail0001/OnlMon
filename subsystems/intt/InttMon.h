@@ -35,7 +35,7 @@ class InttMon : public OnlMon
   int process_event(Event*);
   int Reset();
 
-  //for testing/debugging without unpacker, remove later
+  // for testing/debugging without unpacker, remove later
   int MiscDebug();
   int CheckBcoRoundTrip();
   void RandomEvent(int);
@@ -43,7 +43,7 @@ class InttMon : public OnlMon
  private:
   //// for testing/debugging without unpacker, remove later
   TRandom* rng = nullptr;
-  //int InitExpectationHists();
+  // int InitExpectationHists();
   ////~for testing/debugging without unpacker, remove later
 
   int DBVarInit();

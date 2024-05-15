@@ -1,8 +1,8 @@
 #ifndef INTT_MON_CONSTANTS_H
 #define INTT_MON_CONSTANTS_H
 
-#include <iostream>
 #include <TROOT.h>
+#include <iostream>
 
 namespace INTT
 {
@@ -57,8 +57,8 @@ namespace INTT
   struct BcoData_s
   {
     int pid = 0;
-	int fee = 0;
-	int bco = 0; // bco difference
+    int fee = 0;
+    int bco = 0;  // bco difference
   };
 
   void GetBcoBin(int&, struct BcoData_s const&);

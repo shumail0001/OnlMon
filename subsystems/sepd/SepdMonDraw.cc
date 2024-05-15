@@ -41,7 +41,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // --- this is called by int DrawFirst(string&)
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - Average ADC vs Tile", 1200, 600);
+    TC[0] = new TCanvas(name.c_str(), "UNDER CONSTRUCTION - sEPD Monitor 1 - Hits/Event vs Tile", 1200, 600);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -61,7 +61,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // xpos negative: do not draw menu bar
     //TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1200, 600);
-    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1600, 800);
+    TC[1] = new TCanvas(name.c_str(), "EXPERT - sEPD Monitor 2 - ADC Distributions", 1600, 800);
     gSystem->ProcessEvents();
     for ( int i = 0; i < 32; ++i )
       {
@@ -193,8 +193,8 @@ int SepdMonDraw::Draw(const std::string &what)
 int SepdMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH1F *h_ADC_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
-  //TH1F *h_hits_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_hits_all_channel");
+  //TH1F *h_ADC_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
+  TH1F *h_hits_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_hits_all_channel");
   TH1 *h_event = (TH1*)cl->getHisto("SEPDMON_0", "h_event");
   time_t evttime = cl->EventTime("CURRENT");
 
@@ -205,7 +205,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
 
-  if (!h_ADC_all_channel)
+  //if (!h_ADC_all_channel)
+  if (!h_hits_all_channel)
   {
     DrawDeadServer(transparent[0]);
     TC[0]->SetEditable(false);
@@ -236,12 +237,13 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   // --- normalize
   //h_ADC_all_channel->Divide(h_hits_all_channel);
   int nevt = h_event->GetEntries();
-  h_ADC_all_channel->Scale(1.0/nevt);
+  //h_ADC_all_channel->Scale(1.0/nevt);
+  h_hits_all_channel->Scale(1.0/nevt);
   for ( int i = 0; i < 768; ++i )
     {
       int adc_channel = i;
-      float adc_signal = h_ADC_all_channel->GetBinContent(i+1);
-      if ( adc_signal <= 0.01 ) adc_signal = 0.01;
+      float adc_signal = h_hits_all_channel->GetBinContent(i+1);
+      if ( adc_signal <= 0.0001 ) adc_signal = 0.0001;
       int tile = returnTile(i);
       int odd = (tile+1)%2;
       //int ring = returnRing(adc_channel);
@@ -265,25 +267,41 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 
   // --- may need to update these depending on whether there are "hot" tiles
   double zmin = 0.0;
-  double zmax = 300;
+  double zmax = 1.0;
+  //double zmax = 300;
   //double zmax = 1.1*h_ADC_all_channel->GetMaximum();
+
+  TText tarm;
+  tarm.SetNDC();
+  tarm.SetTextFont(42);
+  tarm.SetTextSize(0.05);
 
   gStyle->SetOptStat(0);
   // ---
   Pad[0]->cd();
   polar_histS->GetZaxis()->SetRangeUser(zmin,zmax);
   polar_histS01->GetZaxis()->SetRangeUser(zmin,zmax);
+  // gPad->SetLeftMargin(0.2);
+  // gPad->SetRightMargin(0.0);
+  gPad->SetTicks(1,1);
   gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
-  polar_histS->Draw("same colz pol AH");
+  polar_histS->Draw("same col pol AH");
   polar_histS01->Draw("same col pol AH");
+  tarm.DrawText(0.45,0.91,"South");
   gStyle->SetPalette(57);
   // ---
   Pad[1]->cd();
   polar_histN->GetZaxis()->SetRangeUser(zmin,zmax);
   polar_histN01->GetZaxis()->SetRangeUser(zmin,zmax);
+  gPad->SetLeftMargin(0.05);
+  gPad->SetRightMargin(0.15);
+  gPad->SetTicks(1,1);
   gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
-  polar_histN->Draw("same col pol AH");
+  polar_histN->Draw("same colz pol AH");
   polar_histN01->Draw("same col pol AH");
+  tarm.DrawText(0.40,0.91,"North");
+  //tarm.DrawText(0.35,0.91,"North");
+  //tarm.DrawText(0.45,0.91,"North");
   gStyle->SetPalette(57);
 
   TText PrintRun;
@@ -294,7 +312,7 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   // fill run number and event time into string
-  runnostream << ThisName << "_1 Run " << cl->RunNumber()
+  runnostream << "UNDER CONSTRUCTION " << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[0]->cd();
@@ -370,7 +388,7 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
           h_ADC_channel[i]->GetXaxis()->SetNdivisions(505);
           h_ADC_channel[i]->GetXaxis()->SetRangeUser(0,500);
           h_ADC_channel[i]->SetMinimum(0.0);
-          h_ADC_channel[i]->SetMaximum(0.01);
+          h_ADC_channel[i]->SetMaximum(0.003);
           h_ADC_channel[i]->SetLineColor(color);
           //h_ADC_channel[i]->SetFillColor(color);
           h_ADC_channel[i]->Draw("same hist");
@@ -392,7 +410,7 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+  runnostream << "EXPERT ONLY " << ThisName << "_2 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[1]->cd();
@@ -426,7 +444,7 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   }
   // --- rebin histograms
   h_ADC_corr->Rebin2D(5,5);
-  h_hits_corr->Rebin2D(5,5);
+  //h_hits_corr->Rebin2D(5,5);
   // ---
   TC[2]->SetEditable(true);
   TC[2]->Clear("D");
@@ -447,6 +465,8 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   Pad[5]->cd();
   h_hits_corr->GetYaxis()->SetNdivisions(505);
   h_hits_corr->GetXaxis()->SetNdivisions(505);
+  h_hits_corr->GetYaxis()->SetRangeUser(0,200);
+  h_hits_corr->GetXaxis()->SetRangeUser(0,200);
   h_hits_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
@@ -507,13 +527,31 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   Pad[6]->cd();
   gStyle->SetTitleFontSize(0.03);
   float ymaxp = h2_sepd_waveform->ProfileX()->GetMaximum();
-  h2_sepd_waveform->GetYaxis()->SetRangeUser(0, ymaxp * 20);
+  float ymaxdraw = ymaxp * 10; // was originally 20, but that is too much
+  h2_sepd_waveform->GetYaxis()->SetRangeUser(0,ymaxdraw);
   h2_sepd_waveform->GetXaxis()->SetRangeUser(0, 11);
-
   h2_sepd_waveform->Draw("colz");
+  // --- add a profile on top
+  TProfile* tp1f_sepd_waveform = h2_sepd_waveform->ProfileX();
+  tp1f_sepd_waveform->SetLineColor(kBlack);
+  tp1f_sepd_waveform->SetLineWidth(2);
+  tp1f_sepd_waveform->Draw("same");
+  // --- draw vertical lines where the waveform should be
+  // x1 y1 x2 y2
+  TLine* lineleft = new TLine(5.0,0,5.0,ymaxdraw);
+  TLine* lineright = new TLine(7.0,0,7.0,ymaxdraw);
+  lineleft->SetLineColor(kBlack);
+  lineleft->SetLineWidth(2);
+  lineleft->SetLineStyle(2);
+  lineleft->Draw();
+  lineright->SetLineColor(kBlack);
+  lineright->SetLineWidth(2);
+  lineright->SetLineStyle(2);
+  lineright->Draw();
 
   float tsize = 0.09;
-  h2_sepd_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
+  //h2_sepd_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_sepd_waveform->GetXaxis()->SetNdivisions(12);
   h2_sepd_waveform->GetXaxis()->SetTitle("Sample #");
   h2_sepd_waveform->GetYaxis()->SetTitle("Waveform [ADC]");
   h2_sepd_waveform->GetXaxis()->SetLabelSize(tsize/1.15);
@@ -552,7 +590,9 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
   h_waveform_time->GetXaxis()->SetRangeUser(0,11);
   h_waveform_time->Draw("hist");
-  h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
+  // ---
+  //h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_waveform_time->GetXaxis()->SetNdivisions(12);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
   h_waveform_time->GetYaxis()->SetTitle("Counts");
   h_waveform_time->GetXaxis()->SetLabelSize(tsize);
@@ -561,6 +601,22 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_time->GetYaxis()->SetTitleSize(tsize);
   h_waveform_time->GetXaxis()->SetTitleOffset(1.0);
   h_waveform_time->GetYaxis()->SetTitleOffset(1.25);
+  // ---
+  // --- draw vertical lines where the waveform should be
+  float min = h_waveform_time->GetMinimum();
+  float max = h_waveform_time->GetMaximum();
+  // x1 y1 x2 y2
+  TLine* lineleft2 = new TLine(5.0,min,5.0,max);
+  TLine* lineright2 = new TLine(7.0,min,7.0,max);
+  lineleft2->SetLineColor(kBlack);
+  lineleft2->SetLineWidth(2);
+  lineleft2->SetLineStyle(2);
+  lineleft2->Draw();
+  lineright2->SetLineColor(kBlack);
+  lineright2->SetLineWidth(2);
+  lineright2->SetLineStyle(2);
+  lineright2->Draw();
+  // ---
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -573,9 +629,9 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
   gStyle->SetTitleFontSize(0.06);
 
-  h_waveform_pedestal->GetXaxis()->SetRangeUser(0,11);
+  // x-axis range is set in SepdMon.cc, need to change there if want a wider range
   h_waveform_pedestal->Draw("hist");
-  h_waveform_pedestal->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_waveform_pedestal->GetXaxis()->SetNdivisions(505);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
   h_waveform_pedestal->GetYaxis()->SetTitle("Counts");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize);
@@ -653,8 +709,8 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   TLine *goodSize = new TLine(xmin, PACKET_SIZE, xmax, PACKET_SIZE);
   goodSize->SetLineStyle(7);
 
-  // --- 768 channels but 744 tiles
-  int N_CHANNELS = 744;
+  // --- 128 channels per packet
+  int N_CHANNELS = 128;
   TLine *goodChans = new TLine(xmin, N_CHANNELS, xmax, N_CHANNELS);
   goodChans->SetLineStyle(7);
 
@@ -672,15 +728,16 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   warnLineOne->SetLineColor(2);
   leg->AddEntry(warnLineOne, "95% Threshold", "l");
 
-  // --- need to know what packet size should be...
+  // --- packet size is 1047 NZS
   TLine *warnLineSize = new TLine(xmin, param * PACKET_SIZE, xmax, param * PACKET_SIZE);
   warnLineSize->SetLineStyle(7);
   warnLineSize->SetLineColor(2);
 
-  // --- N_CHANNELS channels (though only 744 tiles)
+  // --- 128 channels per packet
   TLine *warnLineChans = new TLine(xmin, param * N_CHANNELS, xmax, param * N_CHANNELS);
   warnLineChans->SetLineStyle(7);
   warnLineChans->SetLineColor(2);
+
 
   // --- this one is okay
   Pad[10]->cd();
@@ -690,7 +747,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   one->Draw("same");
   warnLineOne->Draw("same");
   leg->Draw("same");
-  h1_packet_number->GetXaxis()->SetNdivisions(510, kTRUE);
+  h1_packet_number->GetXaxis()->SetNdivisions(6);
   h1_packet_number->GetXaxis()->SetTitle("Packet #");
   h1_packet_number->GetYaxis()->SetTitle("% Of Events Present");
   // the sizing is funny on this pad...
@@ -706,13 +763,13 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   gPad->SetTicky();
   gPad->SetTickx();
 
-  // --- this one needs to be checked
+  // --- this one is okay (1047 for NZS, variable for ZS)
   Pad[11]->cd();
   h1_packet_length->Draw("hist");
   h1_packet_length->GetYaxis()->SetRangeUser(0, 1200);
   goodSize->Draw("same");
   warnLineSize->Draw("same");
-  h1_packet_length->GetXaxis()->SetNdivisions(510, kTRUE);
+  h1_packet_length->GetXaxis()->SetNdivisions(6);
   h1_packet_length->GetXaxis()->SetTitle("Packet #");
   h1_packet_length->GetYaxis()->SetTitle("Average Packet Size");
   h1_packet_length->GetXaxis()->SetLabelSize(tsize);
@@ -728,13 +785,13 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   gPad->SetTicky();
   gPad->SetTickx();
 
-  // --- this one is okay
+  // --- this one needs to be checked
   Pad[12]->cd();
   h1_packet_chans->Draw("hist");
-  h1_packet_chans->GetYaxis()->SetRangeUser(0, 1000);
+  h1_packet_chans->GetYaxis()->SetRangeUser(0, 150);
   goodChans->Draw("same");
   warnLineChans->Draw("same");
-  h1_packet_chans->GetXaxis()->SetNdivisions(510, kTRUE);
+  h1_packet_chans->GetXaxis()->SetNdivisions(6);
   h1_packet_chans->GetXaxis()->SetTitle("Packet #");
   h1_packet_chans->GetYaxis()->SetTitle("Average # of Channels");
   h1_packet_chans->GetXaxis()->SetLabelSize(tsize);
@@ -756,6 +813,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   double ymin = h1_packet_event->GetMinimum();
 
   // --- this one seems okay
+  h1_packet_event->GetXaxis()->SetNdivisions(6);
   h1_packet_event->GetYaxis()->SetRangeUser(ymin - 0.3 * (ymax - ymin + 30), ymax + 0.3 * (ymax - ymin + 30));
   h1_packet_event->GetXaxis()->SetTitle("Packet #");
   h1_packet_event->GetYaxis()->SetTitle("clock offset");
@@ -779,9 +837,11 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
 
 
   std::vector<int> badPackets;
-  std::vector<std::string> whatswrong;
+  std::string list_of_bad_packets;
+  bool packet_is_bad[7];
   for (int i = 1; i <= 6; i++)
   {
+    packet_is_bad[i] = false;
     bool missing = false;
     bool badnumber = false;
     //bool badlength = false;
@@ -805,73 +865,49 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
     //if (badnumber || badlength || badchans || missing)
     if (badnumber || badchans || missing)
     {
-      badPackets.push_back((int) h1_packet_number->GetBinCenter(i));
-      std::string reason = "";
-      if (missing)
-      {
-        reason += "packet lost! ";
-      }
-      else
-      {
-        if (badnumber)
-        {
-          reason += "some events are missing, ";
-        }
-        // if (badlength)
-        // {
-        //   reason += "too short, ";
-        // }
-        if (badchans)
-        {
-          reason += "too few channels, ";
-        }
-        // remove the last two characters
-        reason = reason.substr(0, reason.size() - 2);
-        //reason += ".";
-      }
-      whatswrong.push_back(reason);
+      int the_bad_packet = (int)h1_packet_number->GetBinCenter(i);
+      packet_is_bad[i] = true;
+      badPackets.push_back(the_bad_packet);
+      list_of_bad_packets += std::to_string(the_bad_packet);
+      list_of_bad_packets += ", ";
     }
   }
-  bool mismatch = false;
-  for (int i = 1; i <= h1_packet_event->GetNbinsX(); i++)
-  {
-    if (h1_packet_event->GetBinContent(i) != 0)
-    {
-      mismatch = true;
-    }
-  }
-  // draw the mismatch warning on the pad
-  TText mismatchWarn;
-  mismatchWarn.SetTextFont(62);
-  mismatchWarn.SetTextSize(0.06);
-  mismatchWarn.SetTextColor(2);
-  mismatchWarn.SetNDC();
-  mismatchWarn.SetTextAlign(23);
-  if (mismatch)
-  {
-    mismatchWarn.DrawText(0.5, 0.95, "Packet misaligned!");
-  }
+  // remove the final comma and space
+  list_of_bad_packets = list_of_bad_packets.substr(0, list_of_bad_packets.size() - 2);
 
-  mismatchWarn.SetTextColor(1);
-  mismatchWarn.SetTextSize(0.05);
-
-  // draw the bad packet warning here
-  // --- need to determine correct packet size
+  // --- draw the packet information
   TText PacketWarn;
-  //PacketWarn.SetTextFont(62);
-  PacketWarn.SetTextSize(0.05);
-  PacketWarn.SetTextColor(1);
+  PacketWarn.SetTextFont(42);
+  PacketWarn.SetTextSize(0.04);
+  PacketWarn.SetTextColor(kBlack);
   PacketWarn.SetNDC();
-  PacketWarn.SetTextAlign(23);
-  //PacketWarn.DrawText(0.5, 0.75, "Bad Packets (disregard if it says too short):");
-  if ( badPackets.size() > 0 )
+  //PacketWarn.SetTextAlign(23);
+  PacketWarn.DrawText(0.01, 0.75, "Packet Status:");
+  for (int i = 1; i <= 6; i++)
     {
-      PacketWarn.DrawText(0.5, 0.75, "Bad Packets:");
-      for (int i = 0; i < (int) badPackets.size(); i++)
-        {
-          PacketWarn.DrawText(0.5, 0.7 - 0.05 * i, Form("%i: %s", badPackets[i], whatswrong[i].c_str()));
-        }
+      if ( packet_is_bad[i] ) PacketWarn.SetTextColor(kRed);
+      PacketWarn.DrawText(0.01, 0.7 - 0.05 * i, Form("%d: %d%% events, %d size, %d channels, %d offset", i+9000,
+                                                    int(100*h1_packet_number->GetBinContent(i)+0.5),
+                                                    (int)h1_packet_length->GetBinContent(i),
+                                                    (int)h1_packet_chans->GetBinContent(i),
+                                                    (int)h1_packet_event->GetBinContent(i)) );
+      PacketWarn.SetTextColor(kBlack);
     }
+  if ( badPackets.size() == 0 )
+    {
+      PacketWarn.DrawText(0.01, 0.30, Form("No bad packets, everything okay"));
+    }
+  if ( badPackets.size() == 1 )
+    {
+      PacketWarn.SetTextColor(kRed);
+      PacketWarn.DrawText(0.01, 0.30, Form("%d bad packet: %s",(int)badPackets.size(),list_of_bad_packets.c_str()));
+    }
+  if ( badPackets.size() > 1 )
+    {
+      PacketWarn.SetTextColor(kRed);
+      PacketWarn.DrawText(0.01, 0.30, Form("%d bad packets: %s",(int)badPackets.size(),list_of_bad_packets.c_str()));
+    }
+
 
   TText PrintRun;
   PrintRun.SetTextFont(62);

@@ -82,7 +82,7 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
   if (name == "SpinMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "SpinMon Shift Crew", -1, 0, xsize / 2, ysize);
+    TC[0] = new TCanvas(name.c_str(), "SpinMon Shift Crew", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -90,7 +90,7 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
     gSystem->ProcessEvents();
     Pad[0] = new TPad("spinpad1", "who needs this?", 0.01, 0.8, 0.99, 0.95, 0);
     Pad[1] = new TPad("spinpad2", "who needs this?", 0.01, 0.65, 0.99, 0.8, 0);
-    Pad[2] = new TPad("spinpad3", "who needs this?", 0.7, 0.05, 0.95, 0.6, 0);
+    Pad[2] = new TPad("spinpad3", "who needs this?", 0.65, 0.05, 0.95, 0.6, 0);
     Pad[3] = new TPad("spinpad4", "who needs this?", 0.05, 0.35, 0.35, 0.65, 0);
     Pad[4] = new TPad("spinpad5", "who needs this?", 0.35, 0.35, 0.65, 0.65, 0);
     Pad[5] = new TPad("spinpad6", "who needs this?", 0.05, 0.05, 0.35, 0.35, 0);
@@ -113,7 +113,7 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SpinMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "SpinMon Experts", -xsize / 2, 0, xsize / 2, ysize);
+    TC[1] = new TCanvas(name.c_str(), "SpinMon Experts", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
     gSystem->ProcessEvents();
 
     Pad[7] = new TPad("spinpad8", "who needs this?", 0.05, 0.725, 0.35, 0.95, 0);
@@ -247,18 +247,48 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     }
   }
 
+  double agrat[4] = {-999,-999,-999,-999};
+  
   gl1ptriggers["MBD_NS"] = gl1_counter[MBD_NS];
   gl1ptriggers["MBD_NS"]->SetTitle("gl1p MBD NS");
+  double mbdns_int_fill = gl1ptriggers["MBD_NS"]->Integral();
+  double mbdns_int_ag = gl1ptriggers["MBD_NS"]->Integral(112, 120);
+  if (gl1ptriggers["MBD_NS"]->GetSumOfWeights() != 0)
+  {
+    agrat[0] = mbdns_int_ag / mbdns_int_fill;
+  }
+  
   gl1ptriggers["MBD_VTX"] = gl1_counter[MBD_VTX];
   gl1ptriggers["MBD_VTX"]->SetTitle("gl1p MBD VTX");
+  double mbdvtx_int_fill = gl1ptriggers["MBD_VTX"]->Integral();
+  double mbdvtx_int_ag = gl1ptriggers["MBD_VTX"]->Integral(112, 120);
+
+  if (gl1ptriggers["MBD_VTX"]->GetSumOfWeights() != 0)
+  {
+    agrat[1] = mbdvtx_int_ag / mbdvtx_int_fill;
+  }
   gl1ptriggers["MBD_10cm_VTX"] = gl1_counter[MBD_10cm_VTX];
   gl1ptriggers["MBD_10cm_VTX"]->SetTitle("gl1p MBD +/-10cm VTX");
+  double mbd10cm_int_fill = gl1ptriggers["MBD_10cm_VTX"]->Integral();
+  double mbd10cm_int_ag = gl1ptriggers["MBD_10cm_VTX"]->Integral(112, 120);
+
+  if (gl1ptriggers["MBD_10cm_VTX"]->GetSumOfWeights() != 0)
+  {
+    agrat[2] = mbd10cm_int_ag / mbd10cm_int_fill;
+  }
   gl1ptriggers["MBD_S"] = gl1_counter[MBD_S];
   gl1ptriggers["MBD_S"]->SetTitle("gl1p MBD S");
   gl1ptriggers["MBD_N"] = gl1_counter[MBD_N];
   gl1ptriggers["MBD_N"]->SetTitle("gl1p MBD N");
   gl1ptriggers["ZDC_NS"] = gl1_counter[ZDC_NS];
   gl1ptriggers["ZDC_NS"]->SetTitle("gl1p ZDC NS");
+  double zdcns_int_fill = gl1ptriggers["ZDC_NS"]->Integral();
+  double zdcns_int_ag = gl1ptriggers["ZDC_NS"]->Integral(112, 120);
+
+  if (gl1ptriggers["ZDC_NS"]->GetSumOfWeights() != 0)
+  {
+    agrat[3] = zdcns_int_ag / zdcns_int_fill;
+  }
   gl1ptriggers["ZDC_S"] = gl1_counter[ZDC_S];
   gl1ptriggers["ZDC_S"]->SetTitle("gl1p ZDC S");
   gl1ptriggers["ZDC_N"] = gl1_counter[ZDC_N];
@@ -350,8 +380,8 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     TText t_pCSpinPatt;
     t_pCSpinPatt.SetTextFont(62);
     t_pCSpinPatt.SetTextSize(0.2);
-    t_pCSpinPatt.SetNDC();          // set to normalized coordinates
-    t_pCSpinPatt.SetTextAlign(23);  // center/top alignment
+    t_pCSpinPatt.SetNDC();
+    t_pCSpinPatt.SetTextAlign(23);
     std::string pCSPstring = "Measured Spin Pattern (pC)";
     t_pCSpinPatt.DrawText(0.5, 1, pCSPstring.c_str());
   }
@@ -401,8 +431,8 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     TText t_SpinPatt;
     t_SpinPatt.SetTextFont(62);
     t_SpinPatt.SetTextSize(0.2);
-    t_SpinPatt.SetNDC();          // set to normalized coordinates
-    t_SpinPatt.SetTextAlign(23);  // center/top alignment
+    t_SpinPatt.SetNDC();
+    t_SpinPatt.SetTextAlign(23);
     std::string SPstring = "Intended Spin Pattern (CDEV)";
     t_SpinPatt.DrawText(0.5, 1, SPstring.c_str());
   }
@@ -415,8 +445,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   TText t_FillNumber;
   t_FillNumber.SetTextFont(62);
   t_FillNumber.SetTextSize(textsize);
-  t_FillNumber.SetNDC();  // set to normalized coordinates
-  // Pattern.SetTextAlign(23);  // center/top alignment
+  t_FillNumber.SetNDC();
   std::string fillnumberstring;
   if (hfillnumber->GetBinContent(1) == hfillnumber->GetBinContent(2) && hfillnumber->GetBinContent(1) != 0)
   {
@@ -434,8 +463,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   TText t_FillType;
   t_FillType.SetTextFont(62);
   t_FillType.SetTextSize(textsize);
-  t_FillType.SetNDC();  // set to normalized coordinates
-  // Pattern.SetTextAlign(23);  // center/top alignment
+  t_FillType.SetNDC();
   std::ostringstream filltypestream;
   filltypestream << "Fill type: " << hfilltypeBlue->GetBinContent(1) << "x" << hfilltypeYellow->GetBinContent(1);
   std::string filltypestring = filltypestream.str();
@@ -457,8 +485,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   TText t_Pattern;
   t_Pattern.SetTextFont(62);
   t_Pattern.SetTextSize(textsize);
-  t_Pattern.SetNDC();  // set to normalized coordinates
-  // Pattern.SetTextAlign(23);  // center/top alignment
+  t_Pattern.SetNDC();
   std::ostringstream patternstream;
   std::string patternstring;
   patternstream << "Pattern: " << pattern_name;
@@ -474,28 +501,27 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     int spin_cdev_yell = hspinpatternYellow->GetBinContent(crossing + 1);
     int spin_pC_yell = hpCspinpatternYellow->GetBinContent(crossing + 1);
 
-    // if(spin_pC_blue==-1 || spin_pC_blue==1)
-    //{
-    if (spin_cdev_blue != spin_pC_blue && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
+    if(spin_pC_blue==-1 || spin_pC_blue==1)
     {
-      mismatches += 1;
+      if (spin_cdev_blue != spin_pC_blue && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
+      {
+	mismatches += 1;
+      }
     }
-    //}
 
-    // if(spin_pC_yell==-1 || spin_pC_yell==1)
-    //{
-    if (spin_cdev_yell != spin_pC_yell && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
+    if(spin_pC_yell==-1 || spin_pC_yell==1)
     {
-      mismatches += 1;
+      if (spin_cdev_yell != spin_pC_yell && !(spin_cdev_blue == 0 && spin_pC_blue == 10))
+      {
+	mismatches += 1;
+      }
     }
-    //}
   }
 
   TText t_PatternMatch;
   t_PatternMatch.SetTextFont(62);
   t_PatternMatch.SetTextSize(textsize);
-  t_PatternMatch.SetNDC();  // set to normalized coordinates
-  // t_PatternMatch.SetTextAlign(23);  // center/top alignment
+  t_PatternMatch.SetNDC();
 
   if (!mismatches)
   {
@@ -523,7 +549,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   TLatex *t_PolBlue = new TLatex();
   t_PolBlue->SetTextFont(62);
   t_PolBlue->SetTextSize(textsize);
-  t_PolBlue->SetNDC();  // set to normalized coordinates
+  t_PolBlue->SetNDC();
   t_PolBlue->SetTextColor(kBlue);
   t_PolBlue->DrawLatex(0.15, 0.45, "BLUE");
   std::ostringstream polbluestream;
@@ -536,7 +562,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   TLatex *t_PolYellow = new TLatex();
   t_PolYellow->SetTextFont(62);
   t_PolYellow->SetTextSize(textsize);
-  t_PolYellow->SetNDC();  // set to normalized coordinates
+  t_PolYellow->SetNDC();
   t_PolYellow->SetTextColor(kOrange);
   t_PolYellow->DrawLatex(0.15, 0.4, "YELLOW");
   std::ostringstream polyellowstream;
@@ -549,18 +575,59 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   TText t_xingshift;
   t_xingshift.SetTextFont(62);
   t_xingshift.SetTextSize(textsize);
-  t_xingshift.SetNDC();  // set to normalized coordinates
+  t_xingshift.SetNDC();
   std::ostringstream xingshiftstream;
   std::string xingshiftstring;
   xingshiftstream << "Default crossing shift: " << hxingshift->GetBinContent(1);
   xingshiftstring = xingshiftstream.str();
   t_xingshift.DrawText(0.15, 0.3, xingshiftstring.c_str());
-  std::ostringstream addxingshiftstream;
-  std::string addxingshiftstring;
-  addxingshiftstream << "Additional crossing shift: " << hxingshift->GetBinContent(2);
-  addxingshiftstring = addxingshiftstream.str();
-  t_xingshift.DrawText(0.15, 0.25, addxingshiftstring.c_str());
 
+  /*
+  std::string addxingshiftstring;
+  if (hxingshift->GetBinContent(2) != -999)
+  {
+    std::ostringstream addxingshiftstream;
+    addxingshiftstream << "Additional crossing shift: " << hxingshift->GetBinContent(2);
+    addxingshiftstring = addxingshiftstream.str();
+    t_xingshift.DrawText(0.15, 0.25, addxingshiftstring.c_str());
+  }
+  else
+  {
+    addxingshiftstring = "Additional crossing shift: Unknown";
+    t_xingshift.DrawText(0.15, 0.25, addxingshiftstring.c_str());
+  }
+  */
+
+  TText t_agrat;
+  t_agrat.SetTextFont(62);
+  t_agrat.SetTextSize(textsize);
+  t_agrat.SetNDC(); 
+  t_agrat.DrawText(0.15, 0.2, "Abort gap scalers (keep below 3%)");
+  t_agrat.DrawText(0.075, 0.125, "MBD_NS");
+  t_agrat.DrawText(0.308, 0.125, "MBD_VTX");
+  t_agrat.DrawText(0.541, 0.125, "MBD_10");
+  t_agrat.DrawText(0.75, 0.125, "ZDC_NS");
+  
+  std::ostringstream agratstream[4];
+  std::string agratstring[4] = {"N/A","N/A","N/A","N/A"};
+  for (int i = 0; i < 4; i++)
+  {
+    t_agrat.SetTextColor(kBlack);
+    float agrat_pct = std::round((agrat[i]*100) * 100.0) / 100.0;
+    agratstream[i] << agrat_pct << "%";
+    if (agrat_pct > 3)
+    {
+      t_agrat.SetTextColor(kRed);
+      agratstring[i] = agratstream[i].str();
+    }
+    else if (agrat_pct >= 0)
+    {
+      t_agrat.SetTextColor(kBlack);
+      agratstring[i] = agratstream[i].str();
+    }
+    float x = 0.075+(0.7/3)*i;
+    t_agrat.DrawText(x, 0.075, agratstring[i].c_str());
+  }
   //================================================
 
   gStyle->SetTitleFontSize(0.06);

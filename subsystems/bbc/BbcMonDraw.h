@@ -145,12 +145,11 @@ class BbcMonDraw : public OnlMonDraw
   TLatex *TextBbcSummaryTrigRate = nullptr;
 
   TH1 *Zvtx = nullptr;
-  TH1 *Zvtx_bbll1 = nullptr;
-  //  TH1 * Zvtx_zdc = nullptr;
-  //  TH1 * Zvtx_zdc_scale3 = nullptr;
-  TH1 *Zvtx_bbll1_novtx = nullptr;
-  TH1 *Zvtx_bbll1_narrowvtx = nullptr;
-  //  TH1 * Zvtx_bbll1_zdc = nullptrNor;
+  TH1 *Zvtx_ns{nullptr};
+  TH1 *Zvtx_10{nullptr};
+  TH1 *Zvtx_30{nullptr};
+  TH1 *Zvtx_60{nullptr};
+  TH1 *Zvtx_zdcns{nullptr};
   TPad *PadZvtx = nullptr;
   TF1 *FitZvtx = nullptr;
   TLine *LineZvtx[2] = {};

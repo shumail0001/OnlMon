@@ -10,6 +10,7 @@ class TowerInfoContainer;
 class Event;
 class TH1;
 class TProfile;
+class TProfile2D;
 class TH2;
 class Packet;
 class runningMean;
@@ -58,6 +59,7 @@ class HcalMon : public OnlMon
   TH2* h2_hcal_hits_trig2 = nullptr;
   TH2* h2_hcal_hits_trig3 = nullptr;
   TH2* h2_hcal_hits_trig4 = nullptr;
+  TProfile2D* pr_zsFrac_etaphi = nullptr;
   TH1* h_waveform_twrAvg = nullptr;
   TH1* h_waveform_time = nullptr;
   TH1* h_waveform_pedestal = nullptr;
@@ -86,6 +88,7 @@ class HcalMon : public OnlMon
 
   std::vector<runningMean*> rm_vector_sectAvg;
   std::vector<runningMean*> rm_vector_twr;
+  std::vector<runningMean*> rm_vector_twrhit;
   std::vector<runningMean*> rm_vector_twrTime;
   std::vector<runningMean*> rm_packet_number;
   std::vector<runningMean*> rm_packet_length;

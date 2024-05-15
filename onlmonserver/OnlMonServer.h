@@ -43,6 +43,8 @@ class OnlMonServer : public OnlMonBase
   void RunNumber(const int irun);
   int EventNumber() const { return eventnumber; }
   void EventNumber(const int iev) { eventnumber = iev; }
+  int EventCounter() const {return eventcounter;}
+  void IncrementEventCounter() {eventcounter++;}
   int PortNumber() const { return portnumber; }
   void PortNumber(const int i) { portnumber = i; }
   void Print(const std::string &what = "ALL", std::ostream& os = std::cout) const;
@@ -59,10 +61,10 @@ class OnlMonServer : public OnlMonBase
   int EndRun(const int runno);
   int WriteHistoFile();
 
-  uint64_t CurrentTicks() const { return currentticks; }
-  void CurrentTicks(const uint64_t ival) { currentticks = ival; }
-  uint64_t BorTicks() const { return borticks; }
-  void BorTicks(const uint64_t ival) { borticks = ival; }
+  time_t CurrentTicks() const { return currentticks; }
+  void CurrentTicks(const time_t ival) { currentticks = ival; }
+  time_t BorTicks() const { return borticks; }
+  void BorTicks(const time_t ival) { borticks = ival; }
 
   int BadEvents() const { return badevents; }
   void AddBadEvent() { badevents++; }
@@ -108,10 +110,11 @@ class OnlMonServer : public OnlMonBase
   static OnlMonServer *__instance;
   int runnumber = -1;
   int eventnumber = 0;
+  int eventcounter {0};
   int portnumber = OnlMonDefs::MONIPORT;
   int badevents = 0;
-  uint64_t currentticks = 0;
-  uint64_t borticks = 0;
+  time_t currentticks = 0;
+  time_t borticks = 0;
   int activepacketsinit = 0;
   unsigned int scaledtrigmask = 0xFFFFFFFF;
   int scaledtrigmask_used = 0;

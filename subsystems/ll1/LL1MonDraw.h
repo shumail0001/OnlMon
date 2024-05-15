@@ -4,6 +4,8 @@
 #include <onlmon/OnlMonDraw.h>
 
 #include <string>  // for allocator, string
+#include <TLatex.h>
+#include <tuple>
 
 class TCanvas;
 class TGraphErrors;

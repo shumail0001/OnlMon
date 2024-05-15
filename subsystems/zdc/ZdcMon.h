@@ -5,6 +5,7 @@
 
 #include <onlmon/OnlMon.h>
 #include <cmath>
+#include <map>
 #include <vector>
 
 class CaloWaveformFitting;
@@ -29,6 +30,7 @@ class ZdcMon : public OnlMon
  protected:
   std::vector<float> anaWaveformFast(Packet *p, const int channel);
   CaloWaveformFitting *WaveformProcessingFast = nullptr;
+  std::map<int, int> Chmapping;
 
   double PI = 3.14159;
   int evtcnt = 0;
@@ -38,8 +40,6 @@ class ZdcMon : public OnlMon
   TH1 *zdc_adc_north = nullptr;
   TH1 *zdc_adc_south = nullptr;
 
-  // //waveform
-  // TH2 *h_waveform = nullptr;
 
   TH1 *zdc_N1 = nullptr;
   TH1 *zdc_N2 = nullptr;
@@ -49,7 +49,13 @@ class ZdcMon : public OnlMon
   TH1 *zdc_S3 = nullptr;
 
   // //waveform
-  TH2 *h_waveform = nullptr;
+  TH2 *h_waveformZDC = nullptr;
+  TH2 *h_waveformSMD_North = nullptr;
+  TH2 *h_waveformSMD_South = nullptr;
+  TH2 *h_waveformVeto_North = nullptr;
+  TH2 *h_waveformVeto_South = nullptr;
+  TH2 *h_waveformAll = nullptr;
+    
   // smd
   // Individual Channels
   TH1 *smd_adc_n_hor_ind[8] = {nullptr};
@@ -75,6 +81,8 @@ class ZdcMon : public OnlMon
   // south smd
   TH1 *smd_hor_south = nullptr;
   TH1 *smd_ver_south = nullptr;
+  TH1 *smd_hor_south_good = nullptr;
+  TH1 *smd_ver_south_good = nullptr;
   TH1 *smd_sum_hor_south = nullptr;
   TH1 *smd_sum_ver_south = nullptr;
   // smd values

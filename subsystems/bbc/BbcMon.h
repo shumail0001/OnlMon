@@ -27,14 +27,24 @@ class BbcMon : public OnlMon
   int EndRun(const int runno) override;    // Done at the end of every run
   int Reset() override;
 
+  void set_GL1(const int g) { useGL1 = g; }
+
  protected:
   int DBVarInit();
 
   MbdEvent *bevt{nullptr};
 
-  int useGL1{0};    // whether to use the GL1 data
+  int useGL1{1};    // whether to use the GL1 data
   uint64_t triggervec{0};
-  uint64_t gl1_bco{0};
+  uint64_t triginput{0};
+  //uint64_t gl1_bco{0};
+  uint64_t trigmask{0};       // accepted triggers
+  uint64_t mbdtrig{0};        // main mbd trigger
+  uint64_t mbdns{0};          // mbdns n>=1 or 2 bit
+  uint64_t mbdnsvtx10{0};     // mbdns vtx<10 bit
+  uint64_t mbdnsvtx30{0};     // mbdns vtx<30 bit
+  uint64_t mbdnsvtx60{0};     // mbdns vtx<60 bit
+  uint64_t zdcns{0};          // zdcns
   eventReceiverClient *erc{nullptr};
 
   int evtcnt{0};
@@ -54,9 +64,13 @@ class BbcMon : public OnlMon
   TH2 *bbc_tdc_armhittime{nullptr};
   TH1 *bbc_nevent_counter{nullptr};
 
-  TH1 *bbc_zvertex{nullptr};
-  TH1 *bbc_zvertex_bbll1{nullptr};
+  TH1 *bbc_zvertex{nullptr};        // whatever primary trigger is
   TH1 *bbc_zvertex_short{nullptr};  // Used for short time scales
+  TH1 *bbc_zvertex_ns{nullptr};     // no vtx cut
+  TH1 *bbc_zvertex_10{nullptr};     // 10 cm cut
+  TH1 *bbc_zvertex_30{nullptr};
+  TH1 *bbc_zvertex_60{nullptr};
+  TH1 *bbc_zvertex_zdcns{nullptr};  // ZDCNS triggers
   TF1 *f_zvtx{nullptr};             // Used for fitting central vertex peak
   // TH1 *bbc_zvertex_bbll1_novtx = nullptr;
   // TH1 *bbc_zvertex_bbll1_narrowvtx = nullptr;  // Run11 pp

@@ -35,7 +35,7 @@ void ll1setup(Event *evt, LL1HEADER *&ll1h)
     {
       ll1h->runnumber = evt->getRunNumber();
       ll1h->evtnr = p->iValue(0,"EVTNR");
-      ll1h->clock = p->iValue(0,"CLOCK");
+      ll1h->clock = p->lValue(0,"CLOCK");
       ll1h->monitor = p->iValue(0,"MONITOR");
       ll1h->nsamples = p->iValue(0,"SAMPLES");
 
