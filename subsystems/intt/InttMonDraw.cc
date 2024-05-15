@@ -506,10 +506,10 @@ void InttMonDraw::DrawBcoDiff(std::string const& option)
   TText* run_text = new TText(
       0.5,
       0.50,
-      Form("Run: %08d (%02d/%02d/%4d) (%d Events)",
+      Form("Run: %08d, Events: %d, Date: %02d/%02d/%4d",
 		  cl->RunNumber(),
-		  time_s->tm_mon + 1, time_s->tm_mday, time_s->tm_year + 1900,
-		  (int)nevt_hist->GetBinContent(1)));
+		  (int)nevt_hist->GetBinContent(1),
+		  time_s->tm_mon + 1, time_s->tm_mday, time_s->tm_year + 1900));
   run_text->SetName(Form("Intt_%s_DispText", option.c_str()));
   run_text->SetTextAlign(22);
   run_text->SetTextSize(DISP_TEXT_SIZE);
