@@ -145,7 +145,7 @@ int InttMonDraw::MakeHtml(const std::string& what)
     found = true;
 
     canv = nullptr;
-    name = Form("Intt_%s_Global_Canvas", (itr.first).c_str());
+    name = Form("Intt_%s", (itr.first).c_str());
     for (TIter t_itr = canvases->begin(); t_itr != canvases->end(); ++t_itr)
     {
       if (std::string((*t_itr)->GetName()).find(name) == std::string::npos)
@@ -237,7 +237,7 @@ int InttMonDraw::SavePlot(std::string const& what, std::string const& type)
     found = true;
 
     canvas = nullptr;
-    name = Form("Intt_%s_Global_Canvas", (itr.first).c_str());
+    name = Form("Intt_%s", (itr.first).c_str());
     for (TIter t_itr = canvases->begin(); t_itr != canvases->end(); ++t_itr)
     {
       if (std::string((*t_itr)->GetName()).find(name) == std::string::npos)
