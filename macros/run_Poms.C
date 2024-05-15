@@ -128,6 +128,7 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCCLUSTERSZYWEIGTHED\")", "TPC Cluster ZY MaxADC-Pedestal,w");
   subsys->AddAction("tpcDraw(\"TPCCLUSTERSZYUNWEIGTHED\")", "TPC Cluster ZY MaxADC-Pedestal,u");
   subsys->AddAction("tpcDraw(\"TPCLASERCLUSTERSXYWEIGTHED\")", "TPC DIFF. LASER Cluster XY MaxADC-Pedestal,w");
+  subsys->AddAction("tpcDraw(\"TPCCLUSTERS5EXYUNWEIGTHED\")", "TPC Cluster XY <= 5 Events MaxADC-Pedestal,u");
   subsys->AddAction("tpcDraw(\"TPCCHANNELPHI_LAYER_WEIGHTED\")", "TPC ChannelPhi vs Layer vs Pedest Sub. ADC,w");
   subsys->AddAction("tpcDraw(\"TPCNEVENTSEBDC\")", "TPC NEvents vs EBDC");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE\")", "TPC Pedest Sub. ADC vs Sample");
@@ -135,6 +136,8 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R2\")", "TPC Pedest Sub. ADC vs Sample R2 ONLY");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R3\")", "TPC Pedest Sub. ADC vs Sample R3 ONLY");
   subsys->AddAction("tpcDraw(\"TPCSTUCKCHANNELS\")", "TPC Stuck Channels in FEE");
+  subsys->AddAction("tpcDraw(\"TPCCHANSINPACKETNS\")", "TPC NS Chan. Per Packet per RCDAQ EVENT");
+  subsys->AddAction("tpcDraw(\"TPCCHANSINPACKETSS\")", "TPC SS Chan. Per Packet per RCDAQ EVENT");
   subsys->AddAction("tpcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
