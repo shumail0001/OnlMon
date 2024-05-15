@@ -88,6 +88,7 @@ class HcalMon : public OnlMon
 
   std::vector<runningMean*> rm_vector_sectAvg;
   std::vector<runningMean*> rm_vector_twr;
+  std::vector<runningMean*> rm_vector_twrhit;
   std::vector<runningMean*> rm_vector_twrTime;
   std::vector<runningMean*> rm_packet_number;
   std::vector<runningMean*> rm_packet_length;

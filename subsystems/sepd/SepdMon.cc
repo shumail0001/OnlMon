@@ -97,7 +97,7 @@ int SepdMon::Init()
   // waveform processing
   h1_waveform_twrAvg = new TH1F("h1_waveform_twrAvg", "", n_samples_show, 0.5, n_samples_show + 0.5);
   h1_waveform_time = new TH1F("h1_waveform_time", "", n_samples_show, 0.5, n_samples_show + 0.5);
-  h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 25, 1.2e3, 1.8e3);
+  h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 42, 1.0e3, 2.0e3);
   h2_sepd_waveform = new TH2F("h2_sepd_waveform", "", n_samples_show, 0.5, n_samples_show + 0.5, 1000, 0, 15000);
 
   // waveform processing, template vs. fast interpolation
@@ -142,7 +142,7 @@ int SepdMon::Init()
   //for (int ichannel = 0; ichannel < nChannels; ichannel++)
   for (int ichannel = 0; ichannel < 768; ichannel++)
   {
-    h_ADC_channel[ichannel] = new TH1F(Form("h_ADC_channel_%d", ichannel), ";ADC;Counts", 1000, 0, 15e3);
+    h_ADC_channel[ichannel] = new TH1F(Form("h_ADC_channel_%d", ichannel), ";ADC;Counts", 1000, 0, 1000);
     se->registerHisto(this, h_ADC_channel[ichannel]);
   }
 
@@ -287,25 +287,36 @@ int SepdMon::process_event(Event *e /* evt */)
       {
         return -1;  // packet is corrupted, reports too many channels
       }
-      else
-      {
-        rm_packet_chans[packet - packetlow]->Add(&nChannels);
-        h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet - packetlow]->getMean(0));
-      }
+      // else
+      // {
+      //   rm_packet_chans[packet - packetlow]->Add(&nChannels);
+      //   h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet - packetlow]->getMean(0));
+      // }
+      int channel_counter = 0;
       for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
       {
         // msg << "Filling channel: " << c << " for packet: " << packet << std::endl;
         // se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
         //  record waveform to show the average waveform
+        channel_counter++;
 
         ChannelNumber++;
         int ch = ChannelNumber-1;
+
+        // -- bit flipped ADC channels
+        bool reject_this_channel = false;
+        if ( ( packet == 9001 || packet == 9002 || packet == 9006 ) && c == 30 )
+          reject_this_channel = true;
+
+        if ( reject_this_channel ) continue;
 
         // std::vector result =  getSignal(p,c); // simple peak extraction
         std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
         float signalFast = resultFast.at(0);
         float timeFast = resultFast.at(1);
         float pedestalFast = resultFast.at(2);
+
+        bool is_good_hit = ( signalFast > 50 && signalFast < 3000 );
 
         // std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
         // float signalTemp = resultTemp.at(0);
@@ -326,7 +337,7 @@ int SepdMon::process_event(Event *e /* evt */)
             // --- total ADC vs channel number
             h_ADC_all_channel->Fill(ch,signalFast);
             // --- total hits vs channel number
-            h_hits_all_channel->Fill(ch);
+            if ( is_good_hit ) h_hits_all_channel->Fill(ch);
             // --- 1d waveform
             h1_waveform_time->Fill(timeFast);
             h1_waveform_pedestal->Fill(pedestalFast);
@@ -341,18 +352,20 @@ int SepdMon::process_event(Event *e /* evt */)
         if ( ch >= 384 && ch <= 767 ) z_bin = 0;
         if ( ch <= 383 && ch >= 0 ) z_bin = 1;
 
-        if (z_bin == 0)
+        if ( z_bin == 0 && is_good_hit )
         {
           sumhit_s++;
           sumADC_s += signalFast;
         }
-        if (z_bin == 1)
+        if ( z_bin == 1 && is_good_hit )
         {
           sumhit_n++;
           sumADC_n += signalFast;
         }
 
       }  // channel loop end
+    rm_packet_chans[packet - packetlow]->Add(&channel_counter);
+    h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet - packetlow]->getMean(0));
     }    //  if packet good
     else
     {

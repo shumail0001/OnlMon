@@ -88,12 +88,12 @@ int CemcMon::Init()
   printf("CemcMon::Init()\n");
   // Histograms definitions
   // Trigger histograms
-  h2_cemc_hits_trig1 = new TH2F("h2_cemc_hits_trig1", "", 96, 0, 96, 256, 0, 256);
-  h2_cemc_hits_trig2 = new TH2F("h2_cemc_hits_trig2", "", 96, 0, 96, 256, 0, 256);
-  h2_cemc_hits_trig3 = new TH2F("h2_cemc_hits_trig3", "", 96, 0, 96, 256, 0, 256);
-  h2_cemc_hits_trig4 = new TH2F("h2_cemc_hits_trig4", "", 96, 0, 96, 256, 0, 256);
+  for(int itrig = 0; itrig < 64; itrig++)
+  {
+    h2_cemc_hits_trig[itrig] = new TH2F(Form("h2_cemc_hits_trig_bit_%d", itrig), "", 96, 0, 96, 256, 0, 256);
+  }
   p2_zsFrac_etaphi   = new TProfile2D("p2_zsFrac_etaphi","",96,0,96,256,0,256);
-  h1_cemc_trig = new TH1F("h1_cemc_trig", "", 64, 0, 64);
+  h1_cemc_trig = new TH1F("h1_cemc_trig", "", 64, -0.5, 63.5);
   h1_packet_event = new TH1F("h1_packet_event", "", 8, packetlow - 0.5, packethigh + 0.5);
   h2_caloPack_gl1_clock_diff = new TH2F("h2_caloPack_gl1_clock_diff", "", 8, packetlow - 0.5, packethigh + 0.5, 65536, 0, 65536);
   h_evtRec = new TProfile("h_evtRec", "", 1, 0, 1);
@@ -165,10 +165,10 @@ int CemcMon::Init()
   se->registerHisto(this, cemc_runningmean);  // uses the TH1->GetName() as key
 
   // Trigger histograms
-  se->registerHisto(this, h2_cemc_hits_trig1);
-  se->registerHisto(this, h2_cemc_hits_trig2);
-  se->registerHisto(this, h2_cemc_hits_trig3);
-  se->registerHisto(this, h2_cemc_hits_trig4);
+  for(int itrig = 0; itrig < 64; itrig++)
+  {
+    se->registerHisto(this, h2_cemc_hits_trig[itrig]);
+  }
   se->registerHisto(this, p2_zsFrac_etaphi);
   se->registerHisto(this, h1_cemc_trig);
   se->registerHisto(this, h1_packet_event);
@@ -349,18 +349,17 @@ int CemcMon::process_event(Event *e /* evt */)
   float sectorAvg[Nsector] = {0};
   unsigned int towerNumber = 0;
 
-  bool trig1_fire = false;
-  bool trig2_fire = false;
-  bool trig3_fire = false;
-  bool trig4_fire = false;
   std::vector<bool> trig_bools;
+  trig_bools.resize(64);
   long long int gl1_clock = 0;
+  bool have_gl1 = false;
   if (anaGL1)
   {
     int evtnr = e->getEvtSequence();
     Event *gl1Event = erc->getEvent(evtnr);
     if (gl1Event)
     {
+      have_gl1 = true;
       Packet *p = gl1Event->getPacket(14001);
       h_evtRec->Fill(0.0, 1.0);
       if (p)
@@ -370,17 +369,13 @@ int CemcMon::process_event(Event *e /* evt */)
         for (int i = 0; i < 64; i++)
         {
           bool trig_decision = ((triggervec & 0x1U) == 0x1U);
-          trig_bools.push_back(trig_decision);
+          trig_bools[i] = trig_decision;
           if (trig_decision)
           {
             h1_cemc_trig->Fill(i);
           }
           triggervec = (triggervec >> 1U) & 0xffffffffU;
         }
-        trig1_fire = trig_bools[trig1];
-        trig2_fire = trig_bools[trig2];
-        trig3_fire = trig_bools[trig3];
-        trig4_fire = trig_bools[trig4];
         delete p;
       }
       delete gl1Event;
@@ -406,10 +401,12 @@ int CemcMon::process_event(Event *e /* evt */)
 
       h1_packet_event->SetBinContent(packet - 6000, p->lValue(0, "CLOCK"));
 
-      long long int p_clock = p->lValue(0, "CLOCK");
-      long long int diff = (p_clock - gl1_clock) % 65536;
-      h2_caloPack_gl1_clock_diff->Fill(packet, diff);
-
+      if (have_gl1)
+      {
+	long long int p_clock = p->lValue(0, "CLOCK");
+	long long int diff = (p_clock - gl1_clock) % 65536;
+	h2_caloPack_gl1_clock_diff->Fill(packet, diff);
+      }
       int nChannels = p->iValue(0, "CHANNELS");
       if (nChannels > m_nChannels)
       {
@@ -451,6 +448,7 @@ int CemcMon::process_event(Event *e /* evt */)
 	  
 	
         h1_waveform_pedestal->Fill(pedestalFast);
+
         if (signalFast < hit_threshold)
         {
           continue;
@@ -491,23 +489,16 @@ int CemcMon::process_event(Event *e /* evt */)
         if (signalFast > hit_threshold)
         {
           h2_cemc_hits->SetBinContent(bin, h2_cemc_hits->GetBinContent(bin) + signalFast);
-
-          if (trig1_fire)
-          {
-            h2_cemc_hits_trig1->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          }
-          if (trig2_fire)
-          {
-            h2_cemc_hits_trig2->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          }
-          if (trig3_fire)
-          {
-            h2_cemc_hits_trig3->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          }
-          if (trig4_fire)
-          {
-            h2_cemc_hits_trig4->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          }
+	  if (have_gl1)
+	  {
+	    for(int itrig = 0; itrig < 64; itrig++)
+	    {
+	      if(trig_bools[itrig])
+	      {
+		h2_cemc_hits_trig[itrig]->Fill(eta_bin + 0.5, phi_bin + 0.5);
+	      }
+	    }
+	  }
         }
       }  // channel loop
       if (nChannels < m_nChannels)

@@ -32,6 +32,10 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("NorthSideADC_clusterXY_R2_LASER", servername);
     cl->registerHisto("NorthSideADC_clusterXY_R3_LASER", servername);
 
+    cl->registerHisto("NorthSideADC_clusterXY_R1_u5", servername);
+    cl->registerHisto("NorthSideADC_clusterXY_R2_u5", servername);
+    cl->registerHisto("NorthSideADC_clusterXY_R3_u5", servername);
+
     cl->registerHisto("NorthSideADC_clusterXY_R1_unw", servername);
     cl->registerHisto("NorthSideADC_clusterXY_R2_unw", servername);
     cl->registerHisto("NorthSideADC_clusterXY_R3_unw", servername);
@@ -46,6 +50,10 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("SouthSideADC_clusterXY_R2_LASER", servername);
     cl->registerHisto("SouthSideADC_clusterXY_R3_LASER", servername);
 
+    cl->registerHisto("SouthSideADC_clusterXY_R1_u5", servername);
+    cl->registerHisto("SouthSideADC_clusterXY_R2_u5", servername);
+    cl->registerHisto("SouthSideADC_clusterXY_R3_u5", servername);
+
     cl->registerHisto("SouthSideADC_clusterXY_R1_unw", servername);
     cl->registerHisto("SouthSideADC_clusterXY_R2_unw", servername);
     cl->registerHisto("SouthSideADC_clusterXY_R3_unw", servername);
@@ -54,6 +62,8 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("Check_Sum_Error",servername);
     cl->registerHisto("Check_Sums",servername);
     cl->registerHisto("Stuck_Channels",servername);
+    cl->registerHisto("Channels_in_Packet",servername);
+    cl->registerHisto("Channels_Always",servername);
     cl->registerHisto("ADC_vs_SAMPLE",servername); 
     cl->registerHisto("ADC_vs_SAMPLE_large",servername);
     cl->registerHisto( "PEDEST_SUB_ADC_vs_SAMPLE",servername);
