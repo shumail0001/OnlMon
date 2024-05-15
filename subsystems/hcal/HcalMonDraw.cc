@@ -66,8 +66,9 @@ int HcalMonDraw::Init()
   gROOT->SetStyle("hcalStyle");
   gROOT->ForceStyle();
   char TEMPFILENAME[100];
+  const char *hcalcalib = getenv("HCALCALIB");
 
-  sprintf(TEMPFILENAME, "../subsystems/hcal/%s_40747.root", prefix.c_str());
+  sprintf(TEMPFILENAME, "%s/%s_40747.root",hcalcalib, prefix.c_str());
 
   TFile* tempfile = new TFile(TEMPFILENAME, "READ");
   if (!tempfile->IsOpen())
