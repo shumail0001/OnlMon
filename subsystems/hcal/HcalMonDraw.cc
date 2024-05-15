@@ -66,8 +66,9 @@ int HcalMonDraw::Init()
   gROOT->SetStyle("hcalStyle");
   gROOT->ForceStyle();
   char TEMPFILENAME[100];
+  const char *hcalcalib = getenv("HCALCALIB");
 
-  sprintf(TEMPFILENAME, "../subsystems/hcal/%s_40747.root", prefix.c_str());
+  sprintf(TEMPFILENAME, "%s/%s_40747.root",hcalcalib, prefix.c_str());
 
   TFile* tempfile = new TFile(TEMPFILENAME, "READ");
   if (!tempfile->IsOpen())
@@ -231,15 +232,15 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     transparent[4]->Draw();
     TC[4]->SetEditable(false);
   }
-  else if (name == "HcalMon6")
+  else if (name == "HcalServerStats")
   {
-    TC[5] = new TCanvas(name.c_str(), "HcalMon6 Server Stats", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[8] = new TCanvas(name.c_str(), "HcalMon Server Stats", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
-    transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
-    transparent[5]->SetFillStyle(4000);
-    transparent[5]->Draw();
-    TC[5]->SetEditable(false);
+    transparent[8] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
+    transparent[8]->SetFillStyle(4000);
+    transparent[8]->Draw();
+    TC[8]->SetEditable(false);
   }
   return 0;
 }
@@ -2249,13 +2250,13 @@ time_t HcalMonDraw::getTime()
 int HcalMonDraw::DrawServerStats()
 {
   OnlMonClient* cl = OnlMonClient::instance();
-  if (!gROOT->FindObject("HcalMon6"))
+  if (!gROOT->FindObject("HcalServerStats"))
   {
-    MakeCanvas("HcalMon6");
+    MakeCanvas("HcalServerStats");
   }
-  TC[5]->Clear("D");
-  TC[5]->SetEditable(true);
-  transparent[5]->cd();
+  TC[8]->Clear("D");
+  TC[8]->SetEditable(true);
+  transparent[8]->cd();
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetNDC();          // set to normalized coordinates
@@ -2295,9 +2296,9 @@ int HcalMonDraw::DrawServerStats()
     PrintRun.DrawText(0.5, vpos, txt.str().c_str());
     vpos -= vdist;
   }
-  TC[5]->Update();
-  TC[5]->Show();
-  TC[5]->SetEditable(false);
+  TC[8]->Update();
+  TC[8]->Show();
+  TC[8]->SetEditable(false);
 
   return 0;
 }
