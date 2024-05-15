@@ -485,10 +485,13 @@ int CemcMon::process_event(Event *e /* evt */)
         {
           h2_cemc_hits->SetBinContent(bin, h2_cemc_hits->GetBinContent(bin) + signalFast);
 
-          for(int itrig = 0; itrig < 64; itrig++)
+          //for(int itrig = 0; itrig < 64; itrig++)
+          for(std::vector<bool>::iterator it=trig_bools.begin(); it!=trig_bools.end(); ++it)
           {
-            if(trig_bools[itrig])
+            //if(trig_bools[itrig])
+            if(*it)
             {
+	      int itrig=std::distance(trig_bools.begin(),it);
               h2_cemc_hits_trig[itrig]->Fill(eta_bin + 0.5, phi_bin + 0.5);
             }
           }
