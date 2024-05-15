@@ -674,6 +674,8 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   // VERTICAL AND HORIZONTAL NORTH (good and small)
   if (smd_ver_north_good)
   {
+    smd_ver_north_good->SetXTitle("SMD North ADC weighted hit position x [cm]");
+    smd_ver_north_good->SetYTitle("Counts");
     smd_ver_north_good->DrawCopy();
   }
   else
@@ -690,6 +692,8 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   Pad[14]->cd();
   if (smd_hor_north_good)
   {
+    smd_hor_north_good->SetXTitle("SMD North ADC weighted hit position y [cm]");
+    smd_hor_north_good->SetYTitle("Counts");
     smd_hor_north_good->DrawCopy();
   }
   //Pad[15]->cd();
@@ -705,11 +709,15 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   Pad[15]->cd();
   if (smd_ver_south_good)
   {
+    smd_ver_south_good->SetXTitle("SMD South ADC weighted hit position x [cm]");
+    smd_ver_south_good->SetYTitle("Counts");
     smd_ver_south_good->DrawCopy();
   }
   Pad[16]->cd();
   if (smd_hor_south_good)
   {
+    smd_hor_south_good->SetXTitle("SMD South ADC weighted hit position y [cm]");
+    smd_hor_south_good->SetYTitle("Counts");
     smd_hor_south_good->DrawCopy();
   }
 
@@ -717,11 +725,15 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   Pad[17]->cd();
   if (smd_ver_north)
   {
+    smd_ver_north->SetXTitle("No selection: SMD North ADC weighted hit position x [cm]");
+    smd_ver_north->SetYTitle("Counts");
     smd_ver_north->DrawCopy();
   }
   Pad[18]->cd();
   if (smd_hor_north)
   {
+    smd_hor_north->SetXTitle("No selection: SMD North ADC weighted hit position y [cm]");
+    smd_hor_north->SetYTitle("Counts");
     smd_hor_north->DrawCopy();
   }
 
@@ -729,11 +741,15 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   Pad[19]->cd();
   if (smd_ver_south)
   {
+    smd_ver_south->SetXTitle("No selection: SMD North ADC weighted hit position x [cm]");
+    smd_ver_south->SetYTitle("Counts");
     smd_ver_south->DrawCopy();
   }
   Pad[20]->cd();
   if (smd_hor_south)
   {
+    smd_hor_south->SetXTitle("No selection: SMD North ADC weighted hit position y [cm]");
+    smd_hor_south->SetYTitle("Counts");
     smd_hor_south->DrawCopy();
   }
 
@@ -741,21 +757,29 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   Pad[21]->cd();
   if (smd_sum_ver_north)
   {
+    smd_sum_ver_north->SetXTitle("SMD x-sum North ADC distribution");
+    smd_sum_ver_north->SetYTitle("Counts");
     smd_sum_ver_north->DrawCopy();
   }
   Pad[22]->cd();
   if (smd_sum_hor_north)
   {
+    smd_sum_hor_north->SetXTitle("SMD y-sum North ADC distribution");
+    smd_sum_hor_north->SetYTitle("Counts");
     smd_sum_hor_north->DrawCopy();
   }
   Pad[23]->cd();
   if (smd_sum_ver_south)
   {
+    smd_sum_ver_south->SetXTitle("SMD x-sum North ADC distribution");
+    smd_sum_ver_south->SetYTitle("Counts");
     smd_sum_ver_south->DrawCopy();
   }
   Pad[24]->cd();
   if (smd_sum_hor_north)
   {
+    smd_sum_ver_south->SetXTitle("SMD y-sum North ADC distribution");
+    smd_sum_ver_south->SetYTitle("Counts");
     smd_sum_hor_south->DrawCopy();
   }
 
