@@ -88,6 +88,10 @@ HcalMon::~HcalMon()
   {
     delete iter;
   }
+  for (auto iter : rm_vector_twrhit)
+  {
+    delete iter;
+  }
 
   if (erc)
   {
@@ -97,12 +101,12 @@ HcalMon::~HcalMon()
   return;
 }
 
-const int depth = 10000;
+const int depth = 20000;
 const int packet_depth = 1000;
 const int historyLength = 100;
 const int historyScaleDown = 100;
 // const int n_channel = 48;
-const float hit_threshold = 100;
+const float hit_threshold = 30;
 const int n_samples_show = 31;
 
 int HcalMon::Init()
@@ -159,7 +163,7 @@ int HcalMon::Init()
   {
     for (int iphi = 0; iphi < 64; iphi++)
     {
-      h_rm_tower[ieta][iphi] = new TH1F(Form("h_rm_tower_%d_%d", ieta, iphi), Form("running mean of tower ieta=%d, iphi=%d", ieta, iphi), historyLength, 0, historyLength * historyScaleDown);
+      h_rm_tower[ieta][iphi] = new TH1F(Form("h_rm_tower_%d_%d", ieta, iphi), Form("multiplicity running mean of tower ieta=%d, iphi=%d", ieta, iphi), historyLength, 0, historyLength * historyScaleDown);
     }
   }
   // make the per-packet running mean objects
@@ -172,6 +176,7 @@ int HcalMon::Init()
   {
     rm_vector_twr.push_back(new pseudoRunningMean(1, depth));
     rm_vector_twrTime.push_back(new pseudoRunningMean(1, depth));
+    rm_vector_twrhit.push_back(new pseudoRunningMean(1, depth));
   }
   for (int i = 0; i < 8; i++)
   {
@@ -336,6 +341,10 @@ int HcalMon::BeginRun(const int /* runno */)
   {
     (*rm_it)->Reset();
   }
+  for (rm_it = rm_vector_twrhit.begin(); rm_it != rm_vector_twrhit.end(); ++rm_it)
+  {
+    (*rm_it)->Reset();
+  }
   return 0;
 }
 
@@ -401,10 +410,12 @@ int HcalMon::process_event(Event* e /* evt */)
   for (int packet = packetlow; packet <= packethigh; packet++)
   {
     Packet* p = e->getPacket(packet);
+    int zero[1] = {0};
+    int one[1] = {1};
     int packet_bin = packet - packetlow + 1;
     if (p)
     {
-      int one[1] = {1};
+      
       rm_packet_number[packet - packetlow]->Add(one);
       int packet_length[1] = {p->getLength()};
       rm_packet_length[packet - packetlow]->Add(packet_length);
@@ -450,6 +461,11 @@ int HcalMon::process_event(Event* e /* evt */)
         {
           h_waveform_time->Fill(time);
           rm_vector_twrTime[towerNumber - 1]->Add(&time);
+          rm_vector_twrhit[towerNumber - 1]->Add(one);
+        }
+        else
+        {
+          rm_vector_twrhit[towerNumber - 1]->Add(zero);
         }
         h_waveform_pedestal->Fill(pedestal);
 
@@ -466,7 +482,7 @@ int HcalMon::process_event(Event* e /* evt */)
 
         int bin = h2_hcal_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
         h2_hcal_mean->SetBinContent(bin, h2_hcal_mean->GetBinContent(bin) + signal);
-        h2_hcal_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
+        h2_hcal_rm->SetBinContent(bin, rm_vector_twrhit[towerNumber - 1]->getMean(0));
         h2_hcal_time->SetBinContent(bin, rm_vector_twrTime[towerNumber - 1]->getMean(0));
 
         // fill tower_rm here
@@ -475,7 +491,7 @@ int HcalMon::process_event(Event* e /* evt */)
           // only fill every scaledown event
           if (evtcnt % historyScaleDown == 0)
           {
-            h_rm_tower[eta_bin][phi_bin]->SetBinContent(evtcnt / historyScaleDown, rm_vector_twr[towerNumber - 1]->getMean(0));
+            h_rm_tower[eta_bin][phi_bin]->SetBinContent(evtcnt / historyScaleDown, rm_vector_twrhit[towerNumber - 1]->getMean(0));
           }
         }
         else
@@ -487,7 +503,7 @@ int HcalMon::process_event(Event* e /* evt */)
             {
               h_rm_tower[eta_bin][phi_bin]->SetBinContent(ib, h_rm_tower[eta_bin][phi_bin]->GetBinContent(ib + 1));
             }
-            h_rm_tower[eta_bin][phi_bin]->SetBinContent(historyLength, rm_vector_twr[towerNumber - 1]->getMean(0));
+            h_rm_tower[eta_bin][phi_bin]->SetBinContent(historyLength, rm_vector_twrhit[towerNumber - 1]->getMean(0));
           }
         }
 
@@ -528,7 +544,6 @@ int HcalMon::process_event(Event* e /* evt */)
     else
     {
       towerNumber += 192;
-      int zero[1] = {0};
       rm_packet_number[packet - packetlow]->Add(zero);
     }
     h1_packet_number->SetBinContent(packet_bin, rm_packet_number[packet - packetlow]->getMean(0));
