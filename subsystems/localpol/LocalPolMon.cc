@@ -65,7 +65,7 @@ int LocalPolMon::Init()
   std::ostringstream msg_config(lpconfigfilename);
 
   if(!config){
-    msg_config<<lpconfigfilename<<" could not be openeds.";
+    msg_config<<lpconfigfilename<<" could not be opened.";
     se->send_message(this, MSG_SOURCE_LOCALPOL, MSG_SEV_FATAL,msg_config.str(),2);
     exit(1);
   }
@@ -245,6 +245,21 @@ int LocalPolMon::Init()
     } 
   }
 
+  std::string lpmappingfilename=std::string(locpolcal)+"/"+"ChannelMapping.txt";
+  std::ifstream mapping(lpmappingfilename);
+  std::ostringstream msg_mapping(lpmappingfilename);
+
+  if(!mapping){
+    msg_mapping<<lpmappingfilename<<" could not be opened.";
+    se->send_message(this, MSG_SOURCE_LOCALPOL, MSG_SEV_FATAL,msg_mapping.str(),2);
+    exit(1);
+  }
+  int adc, array;
+  std::string ChannelName;
+  for(int i=0; i<128; i++){
+    mapping>>adc>>array>>ChannelName;
+    Chmapping[adc]=array;
+  }
   
   const char* zdccalib=getenv("ZDCCALIB");
   if(!zdccalib){
@@ -256,8 +271,8 @@ int LocalPolMon::Init()
   std::ostringstream msg(calibfilename);
 
   if(!calibinput){
-    msg<<calibfilename<<" could not be openeds.";
-    se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL,msg.str(),2);
+    msg<<calibfilename<<" could not be opened.";
+    se->send_message(this, MSG_SOURCE_LOCALPOL, MSG_SEV_FATAL,msg.str(),2);
     exit(1);
   }
   int NS;
@@ -493,9 +508,13 @@ int LocalPolMon::process_event(Event *e /* evt */)
     signalZDCS2=anaWaveformFast(psmd, ZDCS2); 
 
 
-    for(int ch=16; ch<47; ch++){//according to mapping in ZDC logbook entry #85 March 9th 2024 
-      float signalFast = anaWaveformFast(psmd, ch);  // fast waveform fitting
+    //for(int ch=16; ch<47; ch++){//according to mapping in ZDC logbook entry #85 March 9th 2024 
+    for(std::map<int,int>::iterator it=Chmapping.begin(); it!=Chmapping.end(); ++it){//new mapping for ZDC/SMD/Veto with 2 ADC boards//May 13th 2024
+      if(it->second<0) continue;
+      if(it->second>47) continue;
+      float signalFast = anaWaveformFast(psmd, it->first);  // fast waveform fitting
 
+      int ch=it->second;
       //Scale according to relative gain calibration factor
       if(ch<32) smd_adc[ch-16]=signalFast*smd_north_rgain[ch-16];
       else smd_adc[ch-16]=signalFast*smd_south_rgain[ch-32];

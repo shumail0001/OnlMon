@@ -1767,9 +1767,9 @@ void CemcMonDraw::HandleEvent(int event, int x, int y, TObject* sel){
 	  std::cout<<"no valid popuppad"<<std::endl;
 	}
 	if(summedProfile[i][j]){
-	  //summedProfile[i][j]->SetMaximum(pow(2,14));//screew up the 2D histo
-	  summedProfile[i][j]->Draw();
-	  summedProfile[i][j]->GetYaxis()->SetRangeUser(0.1,pow(2,14));
+	  summedProfile[i][j]->SetMaximum(pow(2,14));
+	  summedProfile[i][j]->DrawCopy();
+	  summedProfile[i][j]->SetMaximum(-1111);
 	  PopUpPad[i][j]->Update();
 	  PopUpPad[i][j]->Paint();
 	}
