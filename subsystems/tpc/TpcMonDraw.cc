@@ -358,7 +358,28 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[24]->SetFillStyle(4000);
     transparent[24]->Draw();
     TC[25]->SetEditable(false);
-  }          
+  }     
+  else if (name == "TPCChan_in_Packets_NS")
+  {
+    TC[26] = new TCanvas(name.c_str(), "TPC Channel Fraction Present in Packet in RCDAQ Event, NS ONLY", -1, 0, xsize , ysize );
+    gSystem->ProcessEvents();
+    TC[26]->Divide(2,7);
+    transparent[25] = new TPad("transparent25", "this does not show", 0, 0, 1, 1);
+    transparent[25]->SetFillStyle(4000);
+    transparent[25]->Draw();
+    TC[26]->SetEditable(false);
+  }
+  else if (name == "TPCChan_in_Packets_SS")
+  {
+    TC[27] = new TCanvas(name.c_str(), "TPC Channel Fraction Present in Packet in RCDAQ Event, sS ONLY", -1, 0, xsize , ysize );
+    gSystem->ProcessEvents();
+    TC[27]->Divide(2,7);
+    transparent[26] = new TPad("transparent26", "this does not show", 0, 0, 1, 1);
+    transparent[26]->SetFillStyle(4000);
+    transparent[26]->Draw();
+    TC[27]->SetEditable(false);
+  }
+     
   return 0;
 }
 
@@ -474,6 +495,16 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCCLUSTERS5EXYUNWEIGTHED")
   {
     iret +=  DrawTPCXYclusters5event(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCCHANSINPACKETNS")
+  {
+    iret +=  DrawTPCChansinPacketNS(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCCHANSINPACKETSS")
+  {
+    iret +=  DrawTPCChansinPacketSS(what);
     idraw++;
   }
   if (what == "ALL" || what == "SERVERSTATS")
@@ -2491,7 +2522,191 @@ int TpcMonDraw::DrawTPCXYclusters5event(const std::string & /* what */)
   return 0;
 }
 
+int TpcMonDraw::DrawTPCChansinPacketNS(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
 
+  TH1 *tpcmon_chanpacketNS[12] = {nullptr};
+  TH1 *tpcmon_chanpacketalwaysNS[12] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<12; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_chanpacketNS[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
+    tpcmon_chanpacketalwaysNS[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_Always");
+  }
+
+  if (!gROOT->FindObject("TPCChan_in_Packets_NS"))
+  {
+    MakeCanvas("TPCChan_in_Packets_NS");
+  }
+
+  TLine *t1 = new TLine(); t1->SetLineWidth(2);
+  TLine *t2 = new TLine(); t2->SetLineStyle(2);
+  TText *tt1= new TText(); tt1->SetTextSize(0.05);
+
+  int FEEid[26]={2,4,3,13,17,16, // R1
+                 11,12,19,18,0,1,15,14, // R2
+                 20,22,21,23,25,24,10,9,8,6,7,5 // R3
+                };
+
+  char title[50];
+
+  TC[26]->SetEditable(true);
+  TC[26]->Clear("D");
+  for( int i=0; i<12; i++ ) 
+  {
+    if( tpcmon_chanpacketNS[i] && tpcmon_chanpacketalwaysNS[i] )
+    {
+      TC[26]->cd(i+3);
+      gStyle->SetPadLeftMargin(0.05);
+      gStyle->SetPadRightMargin(0.02);
+      tpcmon_chanpacketNS[i]->Divide(tpcmon_chanpacketalwaysNS[i]);
+      tpcmon_chanpacketNS[i]->GetYaxis()->SetRangeUser(0, 0.32);
+
+      tpcmon_chanpacketNS[i]->SetMarkerColor(4);
+      tpcmon_chanpacketNS[i]->SetLineColor(4);
+      tpcmon_chanpacketNS[i]->DrawCopy("HIST");
+      
+      TC[26]->Update();
+
+      for(int j=0;j<25;j++)
+      {
+        t2->DrawLine((j+1)*256,-0.01,(j+1)*256,0.32);
+      }
+      for(int k=0;k<26;k++)
+      {
+        sprintf(title,"%d",FEEid[k]);
+        tt1->DrawText(k*256+128,0.28,title);
+      }
+      tt1->SetTextSize(0.06);
+      tt1->DrawText(800,0.30,"R1");
+      tt1->DrawText(2500,0.30,"R2");
+      tt1->DrawText(5200,0.30,"R3");
+      tt1->SetTextSize(0.05); 
+
+      t1->DrawLine(1536,0,1536,0.32);
+      t1->DrawLine(3584,0,3584,0.32);
+
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_NS_Channels per Packet per RCDAQ Event Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[25]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  TC[26]->Update();
+  TC[26]->Show();
+  TC[26]->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCChansinPacketSS(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_chanpacketSS[12] = {nullptr};
+  TH1 *tpcmon_chanpacketalwaysSS[12] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=12; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_chanpacketSS[i-12] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
+    tpcmon_chanpacketalwaysSS[i-12] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_Always");
+  }
+
+  if (!gROOT->FindObject("TPCChan_in_Packets_SS"))
+  {
+    MakeCanvas("TPCChan_in_Packets_SS");
+  }
+
+  TLine *t1 = new TLine(); t1->SetLineWidth(2);
+  TLine *t2 = new TLine(); t2->SetLineStyle(2);
+  TText *tt1= new TText(); tt1->SetTextSize(0.05);
+
+  int FEEid[26]={2,4,3,13,17,16, // R1
+                 11,12,19,18,0,1,15,14, // R2
+                 20,22,21,23,25,24,10,9,8,6,7,5 // R3
+                };
+
+  char title[50];
+
+  TC[27]->SetEditable(true);
+  TC[27]->Clear("D");
+  for( int i=0; i<12; i++ ) 
+  {
+    if( tpcmon_chanpacketSS[i] && tpcmon_chanpacketalwaysSS[i] )
+    {
+      TC[27]->cd(i+3);
+      gStyle->SetPadLeftMargin(0.05);
+      gStyle->SetPadRightMargin(0.02);
+      tpcmon_chanpacketSS[i]->Divide(tpcmon_chanpacketalwaysSS[i]);
+      tpcmon_chanpacketSS[i]->GetYaxis()->SetRangeUser(0, 0.32);
+
+      tpcmon_chanpacketSS[i]->SetMarkerColor(4);
+      tpcmon_chanpacketSS[i]->SetLineColor(4);
+      tpcmon_chanpacketSS[i]->DrawCopy("HIST");
+      
+      TC[27]->Update();
+
+      for(int j=0;j<25;j++)
+      {
+        t2->DrawLine((j+1)*256,-0.01,(j+1)*256,0.32);
+      }
+      for(int k=0;k<26;k++)
+      {
+        sprintf(title,"%d",FEEid[k]);
+        tt1->DrawText(k*256+128,0.28,title);
+      }
+      tt1->SetTextSize(0.06);
+      tt1->DrawText(800,0.30,"R1");
+      tt1->DrawText(2500,0.30,"R2");
+      tt1->DrawText(5200,0.30,"R3");
+      tt1->SetTextSize(0.05); 
+
+      t1->DrawLine(1536,0,1536,0.32);
+      t1->DrawLine(3584,0,3584,0.32);
+
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_SS_Channels per Packet per RCDAQ Event Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[26]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  TC[27]->Update();
+  TC[27]->Show();
+  TC[27]->SetEditable(false);
+
+  return 0;
+}
 
 int TpcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
