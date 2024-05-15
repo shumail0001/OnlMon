@@ -361,12 +361,14 @@ int HcalMon::process_event(Event* e /* evt */)
   bool trig4_fire = false;
   std::vector<bool> trig_bools;
   long long int gl1_clock = 0;
+  bool have_gl1 = false;
   if (anaGL1)
   {
     int evtnr = e->getEvtSequence();
     Event* gl1Event = erc->getEvent(evtnr);
     if (gl1Event)
     {
+      have_gl1 = true;
       Packet* p = gl1Event->getPacket(14001);
       h_evtRec->Fill(0.0, 1.0);
       if (p)
@@ -412,9 +414,12 @@ int HcalMon::process_event(Event* e /* evt */)
       h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet - packetlow]->getMean(0));
 
       h1_packet_event->SetBinContent(packet - packetlow + 1, p->lValue(0, "CLOCK"));
-      long long int p_clock = p->lValue(0, "CLOCK");
-      long long int diff = (p_clock - gl1_clock) % 65536;
-      h_caloPack_gl1_clock_diff->Fill(packet, diff);
+      if (have_gl1)
+      {
+	long long int p_clock = p->lValue(0, "CLOCK");
+	long long int diff = (p_clock - gl1_clock) % 65536;
+	h_caloPack_gl1_clock_diff->Fill(packet, diff);
+      }
       int nChannels = p->iValue(0, "CHANNELS");
       if (nChannels > m_nChannels)
       {
