@@ -142,7 +142,7 @@ int SepdMon::Init()
   //for (int ichannel = 0; ichannel < nChannels; ichannel++)
   for (int ichannel = 0; ichannel < 768; ichannel++)
   {
-    h_ADC_channel[ichannel] = new TH1F(Form("h_ADC_channel_%d", ichannel), ";ADC;Counts", 1000, 0, 15e3);
+    h_ADC_channel[ichannel] = new TH1F(Form("h_ADC_channel_%d", ichannel), ";ADC;Counts", 1000, 0, 1000);
     se->registerHisto(this, h_ADC_channel[ichannel]);
   }
 
@@ -287,16 +287,18 @@ int SepdMon::process_event(Event *e /* evt */)
       {
         return -1;  // packet is corrupted, reports too many channels
       }
-      else
-      {
-        rm_packet_chans[packet - packetlow]->Add(&nChannels);
-        h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet - packetlow]->getMean(0));
-      }
+      // else
+      // {
+      //   rm_packet_chans[packet - packetlow]->Add(&nChannels);
+      //   h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet - packetlow]->getMean(0));
+      // }
+      int channel_counter = 0;
       for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
       {
         // msg << "Filling channel: " << c << " for packet: " << packet << std::endl;
         // se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
         //  record waveform to show the average waveform
+        channel_counter++;
 
         ChannelNumber++;
         int ch = ChannelNumber-1;
@@ -362,6 +364,8 @@ int SepdMon::process_event(Event *e /* evt */)
         }
 
       }  // channel loop end
+    rm_packet_chans[packet - packetlow]->Add(&channel_counter);
+    h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet - packetlow]->getMean(0));
     }    //  if packet good
     else
     {

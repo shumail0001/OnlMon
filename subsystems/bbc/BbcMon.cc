@@ -119,7 +119,10 @@ int BbcMon::Init()
           useGL1 = static_cast<int>(trigbit);
       }
 
-      std::cout << "Using trigger " << label << " 0x" << std::hex << trigbit << std::dec << std::endl;
+      if ( label[0] != '#' && label[0] != '/' )
+      {
+        std::cout << "Using trigger " << label << " 0x" << std::hex << trigbit << std::dec << std::endl;
+      }
     }
 
     configfile.close();
@@ -568,7 +571,6 @@ int BbcMon::process_event(Event *evt)
   bevt->Clear();
   bevt->SetRawData(evt,m_mbdpmts);
 
-  bevt->FillSampMaxCalib();
   if (bevt->calib_is_done() == 0)
   {
     return 0;
@@ -708,18 +710,22 @@ int BbcMon::process_event(Event *evt)
     }
 
     // hit map
-    float xcent = _mbdgeom->get_x(ipmt);
-    float ycent = _mbdgeom->get_y(ipmt);
-    int arm = _mbdgeom->get_arm(ipmt);
     float q = m_mbdpmts->get_pmt(ipmt)->get_q();
 
-    if (arm == 0)
+    if ( q>0. )
     {
-      bbc_south_hitmap->Fill(xcent, ycent, q);
-    }
-    else if (arm == 1)
-    {
-      bbc_north_hitmap->Fill(xcent, ycent, q);
+        float xcent = _mbdgeom->get_x(ipmt);
+        float ycent = _mbdgeom->get_y(ipmt);
+        int arm = _mbdgeom->get_arm(ipmt);
+        //std::cout << "q " << arm << "\t" << q << std::endl;
+        if (arm == 0)
+        {
+            bbc_south_hitmap->Fill(xcent, ycent, q);
+        }
+        else if (arm == 1)
+        {
+            bbc_north_hitmap->Fill(xcent, ycent, q);
+        }
     }
   }
 

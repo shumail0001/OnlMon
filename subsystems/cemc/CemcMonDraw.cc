@@ -1383,7 +1383,7 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   {
     for(int itrig = 0; itrig < 64; itrig++)
     {
-      if(priority_triggers.size() < 4)
+      if(priority_triggers.size() < 4 && n_entries[itrig].second < 16)
       {
         priority_triggers.push_back(n_entries[itrig].second);
       }
@@ -1734,10 +1734,10 @@ void CemcMonDraw::HandleEvent(int event, int x, int y, TObject* sel){
 	  mypad=Pad[16];
 	}
       }
-	
+
     }
     else return;//dummy to avoid the unused warning
-    
+
     double xeta=mypad->PadtoX(mypad->AbsPixeltoX(x));
     double yphi=mypad->PadtoY(mypad->AbsPixeltoY(y));
     int ieta=(int) xeta;
@@ -1767,9 +1767,9 @@ void CemcMonDraw::HandleEvent(int event, int x, int y, TObject* sel){
 	  std::cout<<"no valid popuppad"<<std::endl;
 	}
 	if(summedProfile[i][j]){
-	  //summedProfile[i][j]->SetMaximum(pow(2,14));//screew up the 2D histo
-	  summedProfile[i][j]->Draw();
-	  summedProfile[i][j]->GetYaxis()->SetRangeUser(0.1,pow(2,14));
+	  summedProfile[i][j]->SetMaximum(pow(2,14));
+	  summedProfile[i][j]->DrawCopy();
+	  summedProfile[i][j]->SetMaximum(-1111);
 	  PopUpPad[i][j]->Update();
 	  PopUpPad[i][j]->Paint();
 	}
@@ -1783,11 +1783,11 @@ void CemcMonDraw::HandleEvent(int event, int x, int y, TObject* sel){
     PopUpCanvas->Update();
     PopUpCanvas->Show();
     PopUpCanvas->SetEditable(false);
-  } 
+  }
 }
 
 int CemcMonDraw::DrawSixth(const std::string & /*what*/ ){
-  
+
   TH2D* h2_maxima;
   TH2D* h2_timeofMax;
   TH2D* h2_pedestal;
@@ -1841,7 +1841,7 @@ int CemcMonDraw::DrawSixth(const std::string & /*what*/ ){
     h2_saturating=(TH2D*)gROOT->FindObject("h2_saturating");
     h2_saturating->Reset();
   }
-  
+
   if (!gROOT->FindObject("CemcMon7"))
     {
       MakeCanvas("CemcMon7");
@@ -1925,7 +1925,7 @@ int CemcMonDraw::DrawSixth(const std::string & /*what*/ ){
     l_board[il-1]->SetLineStyle(1);
     if(il==6) l_board[il-1]->SetLineWidth(2);
   }
-  
+
   TC[6]->SetEditable(1);
   TC[6]->Clear("D");
   Pad[15]->cd();
@@ -1948,7 +1948,7 @@ int CemcMonDraw::DrawSixth(const std::string & /*what*/ ){
   h2_saturating->DrawCopy("colz");
   for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
   for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
-  
+
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);
