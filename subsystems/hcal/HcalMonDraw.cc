@@ -18,6 +18,8 @@
 #include <TStyle.h>
 #include <TSystem.h>
 #include <TText.h>
+#include <TFile.h>
+#include <TFrame.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -63,7 +65,25 @@ int HcalMonDraw::Init()
   hcalStyle->SetPadTickY(1);
   gROOT->SetStyle("hcalStyle");
   gROOT->ForceStyle();
+  char TEMPFILENAME[100];
 
+  sprintf(TEMPFILENAME, "../subsystems/hcal/%s_40747.root", prefix.c_str());
+
+  TFile* tempfile = new TFile(TEMPFILENAME, "READ");
+  if (!tempfile->IsOpen())
+  {
+    std::cout << "HcalMonDraw::Init() ERROR: Could not open file " << TEMPFILENAME << std::endl;
+    exit(1);
+  }
+  h2_mean_template = (TH2F*) tempfile->Get("h2_hcal_hits_template");
+
+  if (!h2_mean_template)
+  {
+    std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_mean_template in file " << TEMPFILENAME << std::endl;
+    exit(1);
+  }
+
+  
   return 0;
 }
 
@@ -177,6 +197,29 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     transparent[6]->Draw();
     TC[6]->SetEditable(false);
   }
+  else if(name == "HcalMon6")
+  {
+    TC[7] = new TCanvas(name.c_str(), "HcalMon6 Tower Information", xsize , 0, xsize, ysize * 0.9);
+    gSystem->ProcessEvents();
+    Pad[21] = new TPad("hcalpad21", "", 0.0, 0.5, 0.5, 0.95, 0);
+    Pad[22] = new TPad("hcalpad22", "", 0.5, 0.5, 1.0, 0.95, 0);
+    Pad[23] = new TPad("hcalpad23", "", 0.0, 0.0, 0.5, 0.5, 0);
+    Pad[24] = new TPad("hcalpad24", "", 0.5, 0.0, 1.0, 0.5, 0);
+
+    Pad[21]->Draw();
+    Pad[22]->Draw();
+    Pad[23]->Draw();
+    Pad[24]->Draw();
+
+    // this one is used to plot the run number on the canvas
+    transparent[7] = new TPad("transparent7", "this does not show", 0, 0, 1, 1);
+    transparent[7]->SetFillStyle(4000);
+    transparent[7]->Draw();
+    TC[7]->SetEditable(false);
+  }
+
+
+
   else if (name == "HcalPopUp")
   {
     TC[4] = new TCanvas(name.c_str(), "!!!DO NOT CLOSE!!! OR THE CODE WILL CRASH!!!!(Maybe not...)", 2 * xsize / 3, 0, xsize / 2, 2 * ysize / 3);
@@ -234,6 +277,7 @@ int HcalMonDraw::Draw(const std::string& what)
     }
     idraw++;
   }
+  /*
   if (what == "ALL" || what == "FOURTH")
   {
     int retcode = DrawFourth(what);
@@ -243,9 +287,19 @@ int HcalMonDraw::Draw(const std::string& what)
     }
     idraw++;
   }
+  */
   if (what == "ALL" || what == "FIFTH")
   {
     int retcode = DrawFifth(what);
+    if (!retcode)
+    {
+      isuccess++;
+    }
+    idraw++;
+  }
+  if (what == "ALL" || what == "SIXTH")
+  {
+    int retcode = DrawSixth(what);
     if (!retcode)
     {
       isuccess++;
@@ -286,15 +340,8 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
 
   TH2D* hist1 = (TH2D*) cl->getHisto(HCALMON_0, "h2_hcal_rm");
-  TH2F* h2_hcal_mean = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_mean");
-  TH1F* h_event = (TH1F*) cl->getHisto(HCALMON_0, "h_event");
-  TH2F* h2_hcal_hits = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
-  TH2F* h2_hcal_time = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_time");
+ 
   TH2F* hist1_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_rm");
-  TH2F* h2_hcal_mean_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_mean");
-  TH1D* h_event_1 = (TH1D*) cl->getHisto(HCALMON_1, "h_event");
-  TH2F* h2_hcal_hits_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits");
-  TH2F* h2_hcal_time_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_time");
 
   if (!gROOT->FindObject("HcalMon1"))
   {
@@ -312,18 +359,10 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
     return -1;
   }
 
-  h2_hcal_mean->Scale(1. / h_event->GetEntries());
-  h2_hcal_hits->Scale(1. / h_event->GetEntries());
-  hist1->Divide(h2_hcal_mean);
 
-  h2_hcal_mean_1->Scale(1. / h_event_1->GetEntries());
-  h2_hcal_hits_1->Scale(1. / h_event_1->GetEntries());
-  hist1_1->Divide(h2_hcal_mean_1);
 
   hist1->Add(hist1_1);
-  h2_hcal_mean->Add(h2_hcal_mean_1);
-  h2_hcal_hits->Add(h2_hcal_hits_1);
-  h2_hcal_time->Add(h2_hcal_time_1);
+  hist1->Divide(h2_mean_template);
   // h_event->Add(h_event_1);
 
 
@@ -349,7 +388,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   hist1->GetYaxis()->SetTitleSize(tsize);
   hist1->GetXaxis()->SetTickLength(0.02);
 
-  hist1->GetZaxis()->SetRangeUser(0, 2);
+  hist1->GetZaxis()->SetRangeUser(0, 4);
 
   TLine* line_sector[32];
   for (int i_line = 0; i_line < 32; i_line++)
@@ -412,7 +451,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   gROOT->SetStyle("hcalStyle");
   gROOT->ForceStyle();
   gStyle->SetPalette(3, palette);
-  double_t levels[4] = {0, 0.7, 1.3, 2};
+  double_t levels[4] = {0, 0.5, 2, 4};
   hist1->SetContour(4, levels);
 
   FindHotTower(warning[0], hist1);
@@ -426,13 +465,14 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   std::string runstring;
   time_t evttime = getTime();
   // fill run number and event time into string
-  runnostream << ThisName << ": tower running mean divided by template";
+  runnostream << ThisName << ": tower occupancy running mean divided by template";
   runnostream2 << "Run" << cl->RunNumber() << ", Time: " << ctime(&evttime);
   transparent[0]->cd();
   runstring = runnostream.str();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
   runstring = runnostream2.str();
   PrintRun.DrawText(0.5, 0.966, runstring.c_str());
+  /*
   // make a TButton at bottom left to pop up a window with average ADC for all tower
   TButton* but1 = new TButton("Draw Template", "", 0.01, 0.01, 0.5, 0.05);
   but1->SetName("avgenergy");
@@ -444,13 +484,14 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   TButton* but3 = new TButton("Draw Avg. Time", "", 0.01, 0.06, 0.5, 0.1);
   but3->SetName("avgtime");
   but3->Draw();
-
+  */
   // this connects the clicks on TCavas to the HandleEvent method that makes a pop up window
   // and display the running mean history of the tower correponding to the bin you click on
   TC[0]->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", "HcalMonDraw", this,
                  "HandleEvent(int,int,int,TObject*)");
 
   TC[0]->Update();
+  
   TC[0]->Show();
 
   TC[0]->SetEditable(false);
@@ -608,6 +649,11 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h_waveform_pedestal->Add(hwaveform_pedestal_1);
   h2_hcal_waveform->Add(h2_hcal_waveform_1);
 
+  //Tprofie of h2_hcal_waveform 
+  TProfile* h_waveform_profile = h2_hcal_waveform->ProfileX();
+  // closed circle
+ 
+
   Pad[6]->cd();
   gStyle->SetTitleFontSize(0.03);
   float ymaxp = h2_hcal_waveform->ProfileX()->GetMaximum();
@@ -626,6 +672,23 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h2_hcal_waveform->GetYaxis()->SetTitleSize(tsize);
   h2_hcal_waveform->GetXaxis()->SetTitleOffset(1.2);
   h2_hcal_waveform->GetYaxis()->SetTitleOffset(0.75);
+  //over lay the profile draw only the marker
+   h_waveform_profile->SetMarkerStyle(20);
+  h_waveform_profile->SetMarkerSize(1);
+  h_waveform_profile->Draw("EX0 same");
+
+  //draw two black lines for the okay timing range
+  TLine* line1 = new TLine(4.5, 0, 4.5, ymaxp * 20);
+  line1->SetLineColor(1);
+  line1->SetLineWidth(3);
+  line1->SetLineStyle(1);
+  line1->Draw();
+  TLine* line2 = new TLine(7.5, 0, 7.5, ymaxp * 20);
+  line2->SetLineColor(1);
+  line2->SetLineWidth(3);
+  line2->SetLineStyle(1);
+  line2->Draw();
+
   gPad->SetLogz();
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.2);
@@ -635,6 +698,8 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   gStyle->SetPalette(57);
   gPad->SetTicky();
   gPad->SetTickx();
+
+
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -667,6 +732,27 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h_waveform_time->GetYaxis()->SetTitleSize(tsize2);
   h_waveform_time->GetXaxis()->SetTitleOffset(1.0);
   h_waveform_time->GetYaxis()->SetTitleOffset(0.85);
+  h_waveform_time->GetYaxis()->SetRange(0, h_waveform_time->GetMaximum() * 1.1);
+  gPad->Update();
+  //draw two black lines for the okay timing range
+  TLine* line3 = new TLine(4.5, 0, 4.5,  gPad->GetFrame()->GetY2());
+  line3->SetLineColor(1);
+  line3->SetLineWidth(3);
+  line3->SetLineStyle(1);
+  line3->Draw();
+  TLine* line4 = new TLine(7.5, 0, 7.5,  gPad->GetFrame()->GetY2());
+  line4->SetLineColor(1);
+  line4->SetLineWidth(3);
+  line4->SetLineStyle(1);
+  line4->Draw();
+  //draw a red line at mean x
+  TLine* line5 = new TLine(h_waveform_time->GetMean(), 0, h_waveform_time->GetMean(),  gPad->GetFrame()->GetY2());
+  line5->SetLineColor(2);
+  line5->SetLineWidth(3);
+  line5->SetLineStyle(1);
+  line5->Draw();
+
+
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -680,7 +766,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   gStyle->SetTitleFontSize(0.06);
 
   h_waveform_pedestal->Draw("hist");
-  h_waveform_pedestal->GetXaxis()->SetNdivisions(510, kTRUE);
+  h_waveform_pedestal->GetXaxis()->SetNdivisions(505, kTRUE);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
   h_waveform_pedestal->GetYaxis()->SetTitle("Towers");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize2);
@@ -1156,8 +1242,8 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
   // get histogram
   std::ostringstream hottowerlist;
   std::ostringstream deadtowerlist;
-  float hot_threshold = 1.3;
-  float dead_threshold = 0.7;
+  float hot_threshold = 2;
+  float dead_threshold = 0.5;
 
   for (int ieta = 0; ieta < 24; ieta++)
   {
@@ -1192,6 +1278,12 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
   if (ndeadt > displaylimit)
   {
     deadtowerlist << "... " << ndeadt << " total";
+  }
+  if(nhott ==0){
+    hottowerlist << " None";
+  }
+  if(ndeadt ==0){
+    deadtowerlist << " None";
   }
 
   // draw warning here
@@ -1656,6 +1748,9 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
   }
 }
 
+
+
+
 int HcalMonDraw::DrawFifth(const std::string& /* what */)
 {
   OnlMonClient* cl = OnlMonClient::instance();
@@ -1797,7 +1892,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
 
   gStyle->SetTitleFontSize(0.06);
 
-  h2_hcal_hits_trig4->Draw("colz");
+  //h2_hcal_hits_trig4->Draw("colz");
   //h2_hcal_hits_trig4->GetXaxis()->SetNdivisions(510, kTRUE);
   //h2_hcal_hits_trig4->GetXaxis()->SetTitle("trig 4 req  ieta");
   //h2_hcal_hits_trig4->GetYaxis()->SetTitle("iphi");
@@ -1807,7 +1902,8 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   //h2_hcal_hits_trig4->GetYaxis()->SetTitleSize(tsize2);
   //h2_hcal_hits_trig4->GetXaxis()->SetTitleOffset(1.0);
   //h2_hcal_hits_trig4->GetYaxis()->SetTitleOffset(0.85);
-  h2_hcal_hits_trig4->GetXaxis()->SetNdivisions(510, kTRUE);
+  //h2_hcal_hits_trig4->GetXaxis()->SetNdivisions(510, kTRUE);
+  pr_zsFrac_etaphi->Draw("COLZ");
   pr_zsFrac_etaphi->GetXaxis()->SetTitle("unsuppressed fraction ieta");
   pr_zsFrac_etaphi->GetYaxis()->SetTitle("iphi");
   pr_zsFrac_etaphi->GetXaxis()->SetLabelSize(tsize2);
@@ -1816,9 +1912,13 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   pr_zsFrac_etaphi->GetYaxis()->SetTitleSize(tsize2);
   pr_zsFrac_etaphi->GetXaxis()->SetTitleOffset(1.0);
   pr_zsFrac_etaphi->GetYaxis()->SetTitleOffset(0.85);
+
+  pr_zsFrac_etaphi->GetZaxis()->SetRangeUser(0, 1);
+
+  
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
-  gPad->SetRightMargin(0.05);
+  gPad->SetRightMargin(0.2);
   gPad->SetLeftMargin(0.2);
   gStyle->SetOptStat(0);
   gPad->SetTicky();
@@ -1854,6 +1954,291 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   return 0;
 }
 
+
+int HcalMonDraw::DrawSixth(const std::string& /* what */)
+{
+  OnlMonClient* cl = OnlMonClient::instance();
+
+  char HCALMON_0[100];
+  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
+  char HCALMON_1[100];
+  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
+
+  TH2F* pr_zsFrac_etaphi = (TH2F*) cl->getHisto(HCALMON_0, "pr_zsFrac_etaphi");
+  TH2F* pr_zsFrac_etaphi_1 = (TH2F*) cl->getHisto(HCALMON_1, "pr_zsFrac_etaphi");
+
+  TH2F* h2_hcal_mean = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_mean");
+  TH1F* h_event = (TH1F*) cl->getHisto(HCALMON_0, "h_event");
+  TH2F* h2_hcal_hits = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
+  TH2F* h2_hcal_time = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_time");
+  TH2F* h2_hcal_mean_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_mean");
+  TH1D* h_event_1 = (TH1D*) cl->getHisto(HCALMON_1, "h_event");
+  TH2F* h2_hcal_hits_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits");
+  TH2F* h2_hcal_time_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_time");
+
+  if (!gROOT->FindObject("HcalMon6"))
+  {
+    MakeCanvas("HcalMon6");
+  }
+  if (!h2_hcal_mean || !h_event || !h2_hcal_hits || !h2_hcal_time || !h2_hcal_mean_1 || !h_event_1 || !h2_hcal_hits_1 || !h2_hcal_time_1 || !pr_zsFrac_etaphi || !pr_zsFrac_etaphi_1)
+  {
+    DrawDeadServer(transparent[6]);
+    TC[7]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[7];
+      TC[7] = nullptr;
+    }
+    return -1;
+  }
+  h2_hcal_mean->Scale(1. / h_event->GetEntries());
+  h2_hcal_hits->Scale(1. / h_event->GetEntries());
+
+  h2_hcal_mean_1->Scale(1. / h_event_1->GetEntries());
+  h2_hcal_hits_1->Scale(1. / h_event_1->GetEntries());
+
+  h2_hcal_mean->Add(h2_hcal_mean_1);
+  h2_hcal_hits->Add(h2_hcal_hits_1);
+  h2_hcal_time->Add(h2_hcal_time_1);
+  pr_zsFrac_etaphi->Add(pr_zsFrac_etaphi_1);
+
+  float tsize = 0.06;
+
+  TC[7]->SetEditable(true);
+  TC[7]->Clear("D");
+  Pad[21]->cd();
+  gStyle->SetTitleFontSize(0.06);
+
+  h2_hcal_mean->Draw("colz");
+  h2_hcal_mean->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_mean->GetXaxis()->SetTitle("eta index");
+  h2_hcal_mean->GetYaxis()->SetTitle("phi index");
+  h2_hcal_mean->SetTitle("Tower Average Energy[ADC]");
+  h2_hcal_mean->GetXaxis()->SetLabelSize(tsize);
+  h2_hcal_mean->GetYaxis()->SetLabelSize(tsize);
+  h2_hcal_mean->GetXaxis()->SetTitleSize(tsize);
+  h2_hcal_mean->GetYaxis()->SetTitleSize(tsize);
+  h2_hcal_mean->GetXaxis()->SetTitleOffset(1.2);
+  h2_hcal_mean->GetYaxis()->SetTitleOffset(0.75);
+
+  gPad->SetBottomMargin(0.16);
+  gPad->SetLeftMargin(0.15);
+  gPad->SetRightMargin(0.2);
+  gPad->SetTopMargin(0.1);
+  gPad->SetTicky();
+  gPad->SetTickx();
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57);
+
+
+  {
+     // lines
+    TLine* line_sector[32];
+    for (int i_line = 0; i_line < 32; i_line++)
+    {
+     line_sector[i_line] = new TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+    line_sector[i_line]->SetLineColor(1);
+    line_sector[i_line]->SetLineWidth(4);
+    line_sector[i_line]->SetLineStyle(1);
+    }
+    TLine* line_board1 = new TLine(8, 0, 8, 64);
+    line_board1->SetLineColor(1);
+    line_board1->SetLineWidth(4);
+    line_board1->SetLineStyle(1);
+    TLine* line_board2 = new TLine(16, 0, 16, 64);
+    line_board2->SetLineColor(1);
+    line_board2->SetLineWidth(4);
+    line_board2->SetLineStyle(1);
+
+    for (auto& i_line : line_sector)
+    {
+     i_line->Draw();
+    }
+    line_board1->Draw();
+    line_board2->Draw();
+  }
+
+
+  Pad[22]->cd();
+  gStyle->SetTitleFontSize(0.06);
+
+  h2_hcal_hits->Draw("colz");
+  h2_hcal_hits->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_hits->GetXaxis()->SetTitle("eta index");
+  h2_hcal_hits->GetYaxis()->SetTitle("phi index");
+  h2_hcal_hits->SetTitle("Average Multiplicity");
+  h2_hcal_hits->GetXaxis()->SetLabelSize(tsize);
+  h2_hcal_hits->GetYaxis()->SetLabelSize(tsize);
+  h2_hcal_hits->GetXaxis()->SetTitleSize(tsize);
+  h2_hcal_hits->GetYaxis()->SetTitleSize(tsize);
+  h2_hcal_hits->GetXaxis()->SetTitleOffset(1.2);
+  h2_hcal_hits->GetYaxis()->SetTitleOffset(0.75); 
+  gPad->SetBottomMargin(0.16);
+  gPad->SetLeftMargin(0.15);
+  gPad->SetRightMargin(0.2);
+  gPad->SetTopMargin(0.1);
+  gPad->SetTicky();
+  gPad->SetTickx();
+
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57);
+
+  {
+    // lines
+    TLine* line_sector[32];
+    for (int i_line = 0; i_line < 32; i_line++)
+    {
+      line_sector[i_line] = new TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+      line_sector[i_line]->SetLineColor(1);
+      line_sector[i_line]->SetLineWidth(4);
+      line_sector[i_line]->SetLineStyle(1);
+    }
+    TLine* line_board1 = new TLine(8, 0, 8, 64);
+    line_board1->SetLineColor(1);
+    line_board1->SetLineWidth(4);
+    line_board1->SetLineStyle(1);
+    TLine* line_board2 = new TLine(16, 0, 16, 64);
+    line_board2->SetLineColor(1);
+    line_board2->SetLineWidth(4);
+    line_board2->SetLineStyle(1);
+
+    for (auto& i_line : line_sector)
+    {
+      i_line->Draw();
+    }
+    line_board1->Draw();
+    line_board2->Draw();
+  }
+
+  Pad[23]->cd();
+  gStyle->SetTitleFontSize(0.06);
+
+  h2_hcal_time->Draw("colz");
+  h2_hcal_time->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_time->GetXaxis()->SetTitle("eta index");
+  h2_hcal_time->GetYaxis()->SetTitle("phi index");
+  h2_hcal_time->SetTitle("Average Time[samples]");
+  h2_hcal_time->GetXaxis()->SetLabelSize(tsize);
+  h2_hcal_time->GetYaxis()->SetLabelSize(tsize);
+  h2_hcal_time->GetXaxis()->SetTitleSize(tsize);
+  h2_hcal_time->GetYaxis()->SetTitleSize(tsize);
+  h2_hcal_time->GetXaxis()->SetTitleOffset(1.2);
+  h2_hcal_time->GetYaxis()->SetTitleOffset(0.75);
+
+  gPad->SetBottomMargin(0.16);
+  gPad->SetLeftMargin(0.15);
+  gPad->SetRightMargin(0.2);
+  gPad->SetTopMargin(0.1);
+  gPad->SetTicky();
+  gPad->SetTickx();
+
+  gStyle->SetOptStat(0);
+
+  {
+    // lines
+    TLine* line_sector[32];
+    for (int i_line = 0; i_line < 32; i_line++)
+    {
+      line_sector[i_line] = new TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+      line_sector[i_line]->SetLineColor(1);
+      line_sector[i_line]->SetLineWidth(4);
+      line_sector[i_line]->SetLineStyle(1);
+    }
+    TLine* line_board1 = new TLine(8, 0, 8, 64);
+    line_board1->SetLineColor(1);
+    line_board1->SetLineWidth(4);
+    line_board1->SetLineStyle(1);
+    TLine* line_board2 = new TLine(16, 0, 16, 64);
+    line_board2->SetLineColor(1);
+    line_board2->SetLineWidth(4);
+    line_board2->SetLineStyle(1);
+
+    for (auto& i_line : line_sector)
+    {
+      i_line->Draw();
+    }
+    line_board1->Draw();
+    line_board2->Draw();
+  }
+  
+  Pad[24]->cd();
+  gStyle->SetTitleFontSize(0.06);
+ 
+  pr_zsFrac_etaphi->Draw("colz");
+  
+  pr_zsFrac_etaphi->GetXaxis()->SetNdivisions(510, kTRUE);
+  pr_zsFrac_etaphi->GetXaxis()->SetTitle("eta index");
+  pr_zsFrac_etaphi->GetYaxis()->SetTitle("phi index");
+  pr_zsFrac_etaphi->SetTitle("Zero Suppression Fraction");
+  pr_zsFrac_etaphi->GetXaxis()->SetLabelSize(tsize);
+  pr_zsFrac_etaphi->GetYaxis()->SetLabelSize(tsize);
+  pr_zsFrac_etaphi->GetXaxis()->SetTitleSize(tsize);
+  pr_zsFrac_etaphi->GetYaxis()->SetTitleSize(tsize);
+  pr_zsFrac_etaphi->GetXaxis()->SetTitleOffset(1.2);
+  pr_zsFrac_etaphi->GetYaxis()->SetTitleOffset(0.75);
+
+  gPad->SetBottomMargin(0.16);
+  gPad->SetLeftMargin(0.15);
+  gPad->SetRightMargin(0.2);
+  gPad->SetTopMargin(0.1);
+  gPad->SetTicky();
+  gPad->SetTickx();
+  gStyle->SetOptStat(0);
+  
+  {
+    // lines
+    TLine* line_sector[32];
+    for (int i_line = 0; i_line < 32; i_line++)
+    {
+      line_sector[i_line] = new TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+      line_sector[i_line]->SetLineColor(1);
+      line_sector[i_line]->SetLineWidth(4);
+      line_sector[i_line]->SetLineStyle(1);
+    }
+    TLine* line_board1 = new TLine(8, 0, 8, 64);
+    line_board1->SetLineColor(1);
+    line_board1->SetLineWidth(4);
+    line_board1->SetLineStyle(1);
+    TLine* line_board2 = new TLine(16, 0, 16, 64);
+    line_board2->SetLineColor(1);
+    line_board2->SetLineWidth(4);
+    line_board2->SetLineStyle(1);
+
+    for (auto& i_line : line_sector)
+    {
+      i_line->Draw();
+    }
+    line_board1->Draw();
+    line_board2->Draw();
+  }
+  
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.03);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();
+  // fill run number and event time into string
+  runnostream << ThisName << ": Tower status, Run" << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[7]->cd();
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+  
+
+
+  TC[7]->Update();
+  TC[7]->Show();
+  TC[7]->SetEditable(false);
+
+  return 0;
+}
+
+
+
+  
 time_t HcalMonDraw::getTime()
 {
   OnlMonClient* cl = OnlMonClient::instance();
