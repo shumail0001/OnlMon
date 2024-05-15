@@ -5,4 +5,4 @@ MBDNSVTX30  0x2000
 MBDNSVTX60  0x4000
 ZDCNS          0x8
 TRIGMASK    0x8c08
-USEGL1           1
+#USEGL1          1

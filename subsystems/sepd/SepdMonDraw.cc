@@ -41,7 +41,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // --- this is called by int DrawFirst(string&)
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - Hits and Event vs Tile", 1200, 600);
+    TC[0] = new TCanvas(name.c_str(), "UNDER CONSTRUCTION - sEPD Monitor 1 - Hits/Event vs Tile", 1200, 600);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -61,7 +61,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // xpos negative: do not draw menu bar
     //TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1200, 600);
-    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - EXPERT - ADC Distributions", 1600, 800);
+    TC[1] = new TCanvas(name.c_str(), "EXPERT - sEPD Monitor 2 - ADC Distributions", 1600, 800);
     gSystem->ProcessEvents();
     for ( int i = 0; i < 32; ++i )
       {
@@ -312,9 +312,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   // fill run number and event time into string
-  runnostream << ThisName << "_1 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime)
-              << " - UNDER CONSTRUCTION";
+  runnostream << "UNDER CONSTRUCTION " << ThisName << "_1 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[0]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
@@ -389,7 +388,7 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
           h_ADC_channel[i]->GetXaxis()->SetNdivisions(505);
           h_ADC_channel[i]->GetXaxis()->SetRangeUser(0,500);
           h_ADC_channel[i]->SetMinimum(0.0);
-          h_ADC_channel[i]->SetMaximum(0.01);
+          h_ADC_channel[i]->SetMaximum(0.003);
           h_ADC_channel[i]->SetLineColor(color);
           //h_ADC_channel[i]->SetFillColor(color);
           h_ADC_channel[i]->Draw("same hist");
@@ -411,9 +410,8 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime)
-              << " - EXPERT ONLY! DON'T WORRY, BE HAPPY!";
+  runnostream << "EXPERT ONLY " << ThisName << "_2 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[1]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
