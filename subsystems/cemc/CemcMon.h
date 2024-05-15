@@ -31,16 +31,6 @@ class CemcMon : public OnlMon
     anaGL1 = state;
     return;
   }
-  void set_trig1(int val)
-  {
-    trig1 = val;
-    return;
-  }
-  void set_trig2(int val)
-  {
-    trig2 = val;
-    return;
-  }
 
  protected:
   std::vector<float> getSignal(Packet* p, const int channel);
@@ -63,10 +53,7 @@ class CemcMon : public OnlMon
   const int nEtaIndex=96;
   int eventCounter = 0;
 
-  TH2* h2_cemc_hits_trig1 = nullptr;
-  TH2* h2_cemc_hits_trig2 = nullptr;
-  TH2* h2_cemc_hits_trig3 = nullptr;
-  TH2* h2_cemc_hits_trig4 = nullptr;
+  TH2* h2_cemc_hits_trig[64] = {nullptr};
   TH1* h1_cemc_trig = nullptr;
   TH1* h1_packet_event = nullptr;
   TH2* h2_caloPack_gl1_clock_diff = nullptr;
@@ -102,11 +89,6 @@ class CemcMon : public OnlMon
 
   eventReceiverClient* erc = {nullptr};
   bool anaGL1 = true;
-
-  int trig1 = 1;
-  int trig2 = 3;
-  int trig3 = 1;
-  int trig4 = 3;
 
   CaloWaveformFitting* WaveformProcessingFast = nullptr;
   CaloWaveformFitting* WaveformProcessingTemp = nullptr;

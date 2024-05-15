@@ -131,6 +131,7 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R1\")", "TPC Pedest Sub. ADC vs Sample R1 ONLY");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R2\")", "TPC Pedest Sub. ADC vs Sample R2 ONLY");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R3\")", "TPC Pedest Sub. ADC vs Sample R3 ONLY");
+  subsys->AddAction("tpcDraw(\"TPCSTUCKCHANNELS\")", "TPC Stuck Channels in FEE");
   subsys->AddAction("tpcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
