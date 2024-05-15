@@ -2564,7 +2564,10 @@ int TpcMonDraw::DrawTPCChansinPacketNS(const std::string & /* what */)
       gStyle->SetPadLeftMargin(0.05);
       gStyle->SetPadRightMargin(0.02);
       tpcmon_chanpacketNS[i]->Divide(tpcmon_chanpacketalwaysNS[i]);
-      tpcmon_chanpacketNS[i]->GetYaxis()->SetRangeUser(0, 0.32);
+
+      double Yrange_upper = 1.32*tpcmon_chanpacketNS[i]->GetMaximum();
+
+      tpcmon_chanpacketNS[i]->GetYaxis()->SetRangeUser(0, Yrange_upper);
 
       tpcmon_chanpacketNS[i]->SetMarkerColor(4);
       tpcmon_chanpacketNS[i]->SetLineColor(4);
@@ -2574,21 +2577,21 @@ int TpcMonDraw::DrawTPCChansinPacketNS(const std::string & /* what */)
 
       for(int j=0;j<25;j++)
       {
-        t2->DrawLine((j+1)*256,-0.01,(j+1)*256,0.32);
+        t2->DrawLine((j+1)*256,-0.01,(j+1)*256,Yrange_upper);
       }
       for(int k=0;k<26;k++)
       {
         sprintf(title,"%d",FEEid[k]);
-        tt1->DrawText(k*256+128,0.28,title);
+        tt1->DrawText(k*256+128,0.84*Yrange_upper,title);
       }
       tt1->SetTextSize(0.06);
-      tt1->DrawText(800,0.30,"R1");
-      tt1->DrawText(2500,0.30,"R2");
-      tt1->DrawText(5200,0.30,"R3");
+      tt1->DrawText(800,0.92*Yrange_upper,"R1");
+      tt1->DrawText(2450,0.92*Yrange_upper,"R2");
+      tt1->DrawText(5200,0.92*Yrange_upper,"R3");
       tt1->SetTextSize(0.05); 
 
-      t1->DrawLine(1536,0,1536,0.32);
-      t1->DrawLine(3584,0,3584,0.32);
+      t1->DrawLine(1536,0,1536,Yrange_upper);
+      t1->DrawLine(3584,0,3584,Yrange_upper);
 
     }
   }
@@ -2657,7 +2660,8 @@ int TpcMonDraw::DrawTPCChansinPacketSS(const std::string & /* what */)
       gStyle->SetPadLeftMargin(0.05);
       gStyle->SetPadRightMargin(0.02);
       tpcmon_chanpacketSS[i]->Divide(tpcmon_chanpacketalwaysSS[i]);
-      tpcmon_chanpacketSS[i]->GetYaxis()->SetRangeUser(0, 0.32);
+      double Yrange_upper = 1.32*tpcmon_chanpacketSS[i]->GetMaximum();
+      tpcmon_chanpacketSS[i]->GetYaxis()->SetRangeUser(0, Yrange_upper);
 
       tpcmon_chanpacketSS[i]->SetMarkerColor(4);
       tpcmon_chanpacketSS[i]->SetLineColor(4);
@@ -2667,21 +2671,21 @@ int TpcMonDraw::DrawTPCChansinPacketSS(const std::string & /* what */)
 
       for(int j=0;j<25;j++)
       {
-        t2->DrawLine((j+1)*256,-0.01,(j+1)*256,0.32);
+        t2->DrawLine((j+1)*256,-0.01,(j+1)*256,Yrange_upper);
       }
       for(int k=0;k<26;k++)
       {
         sprintf(title,"%d",FEEid[k]);
-        tt1->DrawText(k*256+128,0.28,title);
+        tt1->DrawText(k*256+128,0.84*Yrange_upper,title);
       }
       tt1->SetTextSize(0.06);
-      tt1->DrawText(800,0.30,"R1");
-      tt1->DrawText(2500,0.30,"R2");
-      tt1->DrawText(5200,0.30,"R3");
+      tt1->DrawText(800,0.92*Yrange_upper,"R1");
+      tt1->DrawText(2450,0.92*Yrange_upper,"R2");
+      tt1->DrawText(5200,0.92*Yrange_upper,"R3");
       tt1->SetTextSize(0.05); 
 
-      t1->DrawLine(1536,0,1536,0.32);
-      t1->DrawLine(3584,0,3584,0.32);
+      t1->DrawLine(1536,0,1536,Yrange_upper);
+      t1->DrawLine(3584,0,3584,Yrange_upper);
 
     }
   }
