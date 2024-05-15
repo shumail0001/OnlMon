@@ -6,4 +6,6 @@ localpoldatadir = $(pkgdatadir)/localpol
 localpoldata_DATA = \
   LocalPolMonData.dat \
   LocPolConfig.dat\
-  ChannelMapping.txt
+  ChannelMapping.txt\
+  SMDRelativeGain.dat
+
