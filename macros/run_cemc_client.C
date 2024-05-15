@@ -18,6 +18,7 @@ void cemcDrawInit(const int online = 0)
     {
       std::string servername = "CEMCMON_" + std::to_string(serverid);
       cemcmon->AddServer(servername);
+      cl->registerHisto("h2_cemc_hits", servername.c_str());
       cl->registerHisto("h2_cemc_hits_trig1", servername.c_str());
       cl->registerHisto("h2_cemc_hits_trig2", servername.c_str());
       cl->registerHisto("h2_cemc_hits_trig3", servername.c_str());
