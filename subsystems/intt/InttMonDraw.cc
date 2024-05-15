@@ -3,29 +3,35 @@
 #include <TPolyLine.h>
 
 InttMonDraw::Options_t InttMonDraw::OPTIONS =
-    {
-        //Chip-Channel
-        {"chip_hitmap", (struct Option_s){
-                            .head = &InttMonDraw::GlobalChipLocalChannelHead,
-                            .global = &InttMonDraw::PrepGlobalChipHists_Hitmap,
-                            .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
+{
+    //Chip-Channel
+  {"chip_hitmap", (struct Option_s){
+    .head = &InttMonDraw::GlobalChipLocalChannelHead,
+    .global = &InttMonDraw::PrepGlobalChipHists_Hitmap,
+    .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
 
-        {"chip_nll", (struct Option_s){
-                            .head = &InttMonDraw::GlobalChipLocalChannelHead,
-                            .global = &InttMonDraw::PrepGlobalChipHists_NLL,
-                            .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
+  {"chip_nll", (struct Option_s){
+    .head = &InttMonDraw::GlobalChipLocalChannelHead,
+    .global = &InttMonDraw::PrepGlobalChipHists_NLL,
+    .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
 
-        //Ladder-Chip
-        {"ladder_hitmap", (struct Option_s){
-                            .head = &InttMonDraw::GlobalLadderLocalChipHead,
-                            .global = &InttMonDraw::PrepGlobalLadderHists_Interface,
-                            .local = &InttMonDraw::PrepLocalChipHists_Hitmap}},
+  //Ladder-Chip
+  {"ladder_hitmap", (struct Option_s){
+    .head = &InttMonDraw::GlobalLadderLocalChipHead,
+    .global = &InttMonDraw::PrepGlobalLadderHists_Interface,
+    .local = &InttMonDraw::PrepLocalChipHists_Hitmap}},
 
-    //Bco Diffs
-    {"bco_diff", (struct Option_s){ // Does not follow same recursive structure; everything is done in the head function
-                            .head = &InttMonDraw::DrawBcoDiff,
-                            .global = nullptr,
-                            .local = nullptr}},
+  //hits vs Evt (by packet)
+  {"hits_vs_evt", (struct Option_s){ // Does not follow same recursive structure; everything is done in the head function
+    .head = &InttMonDraw::DrawHitsVsEvt,
+    .global = nullptr,
+    .local = nullptr}},
+
+  //Bco Diffs
+  {"bco_diff", (struct Option_s){ // Does not follow same recursive structure; everything is done in the head function
+    .head = &InttMonDraw::DrawBcoDiff,
+    .global = nullptr,
+    .local = nullptr}},
 };
 
 InttMonDraw::InttMonDraw(const std::string& name)
@@ -259,23 +265,17 @@ void InttMonDraw::DrawPad(TPad* base, TPad* pad)
   pad->cd();
 }
 
-//BCO histograms
-void InttMonDraw::DrawBcoDiff(std::string const& option)
+//Hits vs Evt by packet
+void InttMonDraw::DrawHitsVsEvt(std::string const& option)
 {
-  int bin;
-  double x_lower = 0.0;
-  double y_lower = DISP_FRAC;
-  double x_upper = 1.0 - LEGEND_FRAC;
-  double y_upper = 1.0;
-
   std::string name;
 
   TStyle* style;
   TCanvas* cnvs;
   TPad* disp_pad;
-  TPad* legend_pad;
-  TPad* hist_pad[INTT::FELIX];
-  TH1D* hist[INTT::FELIX][INTT::FELIX_CHANNEL];
+  TPad* hist_pad;
+
+  TH1D* hist[INTT::FELIX];
 
   name = Form("Intt_%s_Global_Style", option.c_str());
   style = (TStyle*) gROOT->FindObject(name.c_str());
@@ -312,10 +312,10 @@ void InttMonDraw::DrawBcoDiff(std::string const& option)
     disp_pad = new TPad(
         name.c_str(),
         name.c_str(),
-		x_lower,
-		0.0,
-		x_upper,
-		y_lower);
+        0.0,
+        0.0,
+        1.0,
+        DISP_FRAC);
     DrawPad(cnvs, disp_pad);
   }
   disp_pad->cd();
@@ -341,6 +341,160 @@ void InttMonDraw::DrawBcoDiff(std::string const& option)
   time_text->SetTextSize(DISP_TEXT_SIZE);
   time_text->Draw();
 
+  name = Form("Intt_%s_hist_pad", option.c_str());
+  hist_pad = (TPad*) gROOT->FindObject(name.c_str());
+  if (!hist_pad)
+  {
+    hist_pad = new TPad(
+        name.c_str(),
+        name.c_str(),
+        0.0,
+		DISP_FRAC,
+        1.0,
+        1.0);
+    DrawPad(cnvs, hist_pad);
+  }
+  hist_pad->cd();
+
+  int max_count = 0;
+  for(int i = 0; i < INTT::FELIX; ++i)
+  {
+    name = Form("Intt_%s_hist_%01d", option.c_str(), i);
+    hist[i] = (TH1D*)gROOT->FindObject(name.c_str());
+	if(!hist[i])
+	{
+      hist[i] = new TH1D(
+        name.c_str(),
+		name.c_str(),
+		INTT::EVT_BUFF_LEN,
+		0,
+		INTT::EVT_BUFF_LEN
+      );
+      hist[i]->GetXaxis()->SetNdivisions(16, true);
+	}
+    hist[i]->Reset();
+
+    TH2D* server_hist = (TH2D*) cl->getHisto(Form("INTTMON_%d", i), "InttHitsVsEvt");
+    if(!server_hist)
+    {
+      std::cerr << "InttMonDraw::DrawHitsVsEvt\n"
+                << "\tCould not get \"InttHitsVsEvt\" from " << Form("INTTMON_%d", i) << std::endl;
+	  continue;
+    }
+    TH1D* nevt_hist = (TH1D*) cl->getHisto(Form("INTTMON_%d", i), "InttNumEvents");
+    if(!server_hist)
+    {
+      std::cerr << "InttMonDraw::DrawHitsVsEvt\n"
+                << "\tCould not get \"InttNumEvents\" from " << Form("INTTMON_%d", i) << std::endl;
+	  continue;
+    }
+	for(int j = 0; j < INTT::EVT_BUFF_LEN; ++j)
+	{
+      int bin = server_hist->GetBin(i + 1, ((int)nevt_hist->GetBinContent(1) - j + INTT::EVT_BUFF_LEN) % INTT::EVT_BUFF_LEN + 1);
+	  bin = (int)server_hist->GetBinContent(bin);
+	  if(max_count < bin)max_count = bin;
+      hist[i]->SetBinContent(INTT::EVT_BUFF_LEN - j + 1, bin);
+	}
+  }
+
+  for(int i = 0; i < INTT::FELIX; ++i)
+  {
+    hist[i]->GetYaxis()->SetRangeUser(0, max_count ? max_count * 1.5 : 10);
+	hist[i]->SetLineColor(INTT::GetFeeColor(i));
+	if(i)
+	{
+      hist[i]->Draw("same");
+	}
+	else
+	{
+      hist[i]->Draw();
+	}
+  }
+}
+
+//BCO histograms
+void InttMonDraw::DrawBcoDiff(std::string const& option)
+{
+  int bin;
+  double x_lower = 0.0;
+  double y_lower = 0.0;
+  double x_upper = 1.0 - LEGEND_FRAC;
+  double y_upper = 1.0 - DISP_FRAC;
+
+  std::string name;
+
+  TStyle* style;
+  TCanvas* cnvs;
+  TPad* disp_pad;
+  TPad* legend_pad;
+  TPad* hist_pad[INTT::FELIX];
+  TH1D* hist[INTT::FELIX][INTT::FELIX_CHANNEL];
+
+  name = Form("Intt_%s_Global_Style", option.c_str());
+  style = (TStyle*) gROOT->FindObject(name.c_str());
+  if (!style)
+  {
+    style = new TStyle(
+        name.c_str(),
+        name.c_str());
+    style->SetOptStat(0);
+    style->SetOptTitle(0);
+    //...
+  }
+  style->cd();
+
+  name = Form("Intt_%s", option.c_str());
+  cnvs = (TCanvas*) gROOT->FindObject(name.c_str());
+  if (!cnvs)
+  {
+    cnvs = new TCanvas(
+        name.c_str(),
+        name.c_str(),
+        0,
+        0,
+        CNVS_WIDTH,
+        CNVS_HEIGHT);
+    //cnvs->...
+    //...
+  }
+
+  name = Form("Intt_%s_disp_pad", option.c_str());
+  disp_pad = (TPad*) gROOT->FindObject(name.c_str());
+  if (!disp_pad)
+  {
+    disp_pad = new TPad(
+        name.c_str(),
+        name.c_str(),
+        x_lower,
+        y_upper,
+        x_upper,
+        1.0);
+    DrawPad(cnvs, disp_pad);
+  }
+  disp_pad->cd();
+
+  OnlMonClient* cl = OnlMonClient::instance();
+  TH1D* nevt_hist = (TH1D*) cl->getHisto(Form("INTTMON_0"), "InttNumEvents");
+  if(!nevt_hist)
+  {
+    std::cerr << "InttMonDraw::DrawBcoDiff\n"
+              << "\tCould not get \"InttNumEvents\" from " << Form("INTTMON_0") << std::endl;
+    return;
+  }
+  std::time_t now = std::time(nullptr);
+  struct std::tm* time_s = std::localtime(&now);
+  TText* run_text = new TText(
+      0.5,
+      0.50,
+      Form("Run: %08d (%02d/%02d/%4d) (%d Events)",
+		  cl->RunNumber(),
+		  time_s->tm_mon + 1, time_s->tm_mday, time_s->tm_year + 1900,
+		  (int)nevt_hist->GetBinContent(1)));
+  run_text->SetName(Form("Intt_%s_DispText", option.c_str()));
+  run_text->SetTextAlign(22);
+  run_text->SetTextSize(DISP_TEXT_SIZE);
+  run_text->Draw();
+
   name = Form("Intt_%s_legend_pad", option.c_str());
   legend_pad = (TPad*) gROOT->FindObject(name.c_str());
   if (!legend_pad)
@@ -348,43 +502,44 @@ void InttMonDraw::DrawBcoDiff(std::string const& option)
     legend_pad = new TPad(
         name.c_str(),
         name.c_str(),
-		x_upper,
-		y_lower,
-		1.0,
-		y_upper - DISP_FRAC);
+        x_upper,
+        y_lower,
+        1.0,
+        y_upper);
     DrawPad(cnvs, legend_pad);
   }
   legend_pad->cd();
   for(int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
   {
     double x[4] = {0.2, 0.3, 0.3, 0.2};
-	double y[4] = {y_lower + (y_upper - y_lower) / (2 * INTT::FELIX_CHANNEL) * (2 * fee + 1)};
-	for(int i = 0; i < 4; ++i)
-	{
+    // double y[4] = {y_lower + (y_upper - y_lower) / (2 * INTT::FELIX_CHANNEL) * (2 * fee + 1)};
+    double y[4] = {1.0 / (2 * INTT::FELIX_CHANNEL) * (2 * fee + 1)};
+    for(int i = 0; i < 4; ++i)
+    {
       y[i] = y[0];
-	}
+    }
 
-	TText* legend_text = new TText(
+    TText* legend_text = new TText(
       0.5,
-	  y[0],
-      Form("fee%2d", fee));
-  	legend_text->SetName(Form("Intt_%s_%01d_Legend_Text", option.c_str(), fee));
+      y[0],
+      Form("FChn%2d", fee));
+      legend_text->SetName(Form("Intt_%s_%01d_Legend_Text", option.c_str(), fee));
     legend_text->SetTextAlign(22);
     legend_text->SetTextSize(LEGEND_TEXT_SIZE);
-	// legend_text->SetTextColor(INTT::GetFeeColor(fee));
-	legend_text->SetTextColor(kBlack);
-	legend_text->Draw();
+    // legend_text->SetTextColor(INTT::GetFeeColor(fee));
+    legend_text->SetTextColor(kBlack);
+    legend_text->Draw();
 
-	y[0] -= 0.025;
-	y[1] -= 0.025;
-	y[2] += 0.025;
-	y[3] += 0.025;
+    y[0] -= 0.025;
+    y[1] -= 0.025;
+    y[2] += 0.025;
+    y[3] += 0.025;
 
-	TPolyLine* box = new TPolyLine(4, x, y);
-	box->SetFillColor(INTT::GetFeeColor(fee));
-	box->SetLineColor(kBlack);
-	box->SetLineWidth(1);
-	box->Draw("f");
+    TPolyLine* box = new TPolyLine(4, x, y);
+    box->SetFillColor(INTT::GetFeeColor(fee));
+    box->SetLineColor(kBlack);
+    box->SetLineWidth(1);
+    box->Draw("f");
   }
 
   struct INTT::BcoData_s bco_data;
@@ -410,10 +565,10 @@ void InttMonDraw::DrawBcoDiff(std::string const& option)
     hist_pad[i]->SetLogy();
     hist_pad[i]->cd();
 
-	int max_count = 0;
-	bco_data.pid = i + 3001;
-	for(int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
-	{
+    int max_count = 0;
+    bco_data.pid = i + 3001;
+    for(int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
+    {
       name = Form("Intt_%s_%01d_%02d_hist", option.c_str(), i, fee);
       hist[i][fee] = (TH1D*) gROOT->FindObject(name.c_str());
       if(!hist[i][fee])
@@ -425,7 +580,7 @@ void InttMonDraw::DrawBcoDiff(std::string const& option)
           0,
           127
         );
-        hist[i][fee]->GetXaxis()->SetNdivisions(16, true);
+        hist[i][fee]->GetXaxis()->SetNdivisions(16);//, true);
         // hist[i][fee]->GetXaxis()->SetLabelSize(0.0);
         // hist[i][fee]->GetXaxis()->SetLabelSize(0.0);
       }
@@ -439,30 +594,33 @@ void InttMonDraw::DrawBcoDiff(std::string const& option)
         continue;
       }
 
-	  // Fill
-	  bco_data.fee = fee;
-	  for(int bco = 0; bco < INTT::BCO; ++bco)
-	  {
-		  bco_data.bco = bco;
-		  INTT::GetBcoBin(bin, bco_data);
-		  bin = server_hist->GetBinContent(bin); // reuse the index as the value in that bin
-		  if(max_count < bin)max_count = bin;
-		  hist[i][fee]->SetBinContent(bco + 1, bin); // + 1 is b/c the 0th bin is an underflow bin
-	  }
-	}
-	for(int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
-	{
+      // Fill
+      bco_data.fee = fee;
+      for(int bco = 0; bco < INTT::BCO; ++bco)
+      {
+          bco_data.bco = bco;
+          INTT::GetBcoBin(bin, bco_data);
+          bin = server_hist->GetBinContent(bin); // reuse the index as the value in that bin
+          if(max_count < bin)max_count = bin;
+          hist[i][fee]->SetBinContent(bco + 1, bin); // + 1 is b/c the 0th bin is an underflow bin
+      }
+    }
+    for(int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee)
+    {
       hist[i][fee]->GetYaxis()->SetRangeUser(1, max_count ? max_count * 10 : 10);
-	  hist[i][fee]->SetLineColor(INTT::GetFeeColor(fee));
+      hist[i][fee]->SetLineColor(INTT::GetFeeColor(fee));
       if(fee)
-	  {
-		  hist[i][fee]->Draw("same");
-	  }
-	  else
-	  {
-		  hist[i][fee]->Draw();
-	  }
-	}
+      {
+          hist[i][fee]->Draw("same");
+      }
+      else
+      {
+		  hist[i][fee]->SetTitle(Form("intt%01d;Felix BCO - FPHX BCO;Counts (Hits)", i));
+          // hist[i][fee]->GetXaxis()->SetLabelSize(1.0);
+          // hist[i][fee]->GetYaxis()->SetLabelSize(1.0);
+          hist[i][fee]->Draw();
+      }
+    }
   }
 }
 

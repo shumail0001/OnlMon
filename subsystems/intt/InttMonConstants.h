@@ -22,6 +22,8 @@ namespace INTT
 
   constexpr int BCO = 128;
 
+  constexpr int EVT_BUFF_LEN = 512;
+
   constexpr int LADDERS_()
   {
     int L = 0;

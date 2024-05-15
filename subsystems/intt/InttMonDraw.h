@@ -54,6 +54,9 @@ class InttMonDraw : public OnlMonDraw
   typedef std::map<std::string, struct Option_s> Options_t;
   static Options_t OPTIONS;
 
+  //hits vs evt
+  static void DrawHitsVsEvt(std::string const&);
+
   //BCO histograms
   static void DrawBcoDiff(std::string const&);
 

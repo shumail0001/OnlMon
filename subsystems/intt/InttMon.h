@@ -55,6 +55,7 @@ class InttMon : public OnlMon
   TH1D* NumEvents = nullptr;
   TH1D* HitMap = nullptr;
   TH1D* BcoDiffMap = nullptr;
+  TH2D* HitsVsEvt = nullptr;
   //...
 };
 
