@@ -27,7 +27,8 @@ void mvtxDrawInit(const int online = 0)
     cl->registerHisto("OCC_HitChipPerStrobe", servername);
     cl->registerHisto("OCC_HitFLXPerStrobe", servername);
     cl->registerHisto("MVTXMON_General_Occupancy", servername);
-    cl->registerHisto("FEE_LaneStatus_Overview_FlaggWARNING", servername);
+    cl->registerHisto("FEE_LaneStatus_Overview_FlagPROBLEM", servername);
+    cl->registerHisto("FEE_LaneStatus_Overview_FlagWARNING", servername);
     cl->registerHisto("FEE_LaneStatus_Overview_FlagERROR", servername);
     cl->registerHisto("FEE_LaneStatus_Overview_FlagFAULT", servername);
 
@@ -41,8 +42,8 @@ void mvtxDrawInit(const int online = 0)
 
     for (int i = 0; i < MvtxMonDraw::NFlags; i++)
     {
-      cl->registerHisto(Form("FEE_LaneStatus_Layer_%s", mLaneStatusFlag[i].c_str()), servername);
-      cl->registerHisto(Form("FEE_LaneStatusFromSOX_Layer_%s", mLaneStatusFlag[i].c_str()), servername);
+      cl->registerHisto(Form("FEE_LaneStatus_Flag_%s", mLaneStatusFlag[i].c_str()), servername);
+      cl->registerHisto(Form("FEE_LaneStatusFromSOX_Flag_%s", mLaneStatusFlag[i].c_str()), servername);
     }
 
     for (int i = 0; i < 3; i++)
