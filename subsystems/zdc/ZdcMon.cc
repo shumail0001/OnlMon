@@ -335,23 +335,23 @@ int ZdcMon::process_event(Event *e /* evt */)
                   h_waveformZDC->Fill(s, p->iValue(s, it->first) - baseline);
               }
               
-             if ((j > 47) && (j < 64)) //-->[48,63]
+	      else if (j<32) //-->[16,31]
               {
                   h_waveformSMD_North->Fill(s, p->iValue(s, it->first) - baseline);
               }
             
-              if ((j > 111) && (j < 128)) //-->[112,127]
+              else if (j < 48) //-->[32,47]
               {
                   h_waveformSMD_South->Fill(s, p->iValue(s, it->first) - baseline);
               }
               
-              if ((j > 15) && (j < 18)) //-->[16,17]
+              else if (j < 50) //-->[48,49]
                {
                    h_waveformVeto_North->Fill(s, p->iValue(s, it->first) - baseline);
 
                }
                
-              if ((j > 79) && (j < 82)) //-->[80,81]
+              else if (j < 52) //-->[50,51]
               {
                   h_waveformVeto_South->Fill(s, p->iValue(s, it->first) - baseline);
               }
