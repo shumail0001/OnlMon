@@ -30,6 +30,8 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCSampleSize(const std::string &what = "ALL");
   int DrawTPCStuckChannels(const std::string &what = "ALL");
   int DrawTPCCheckSum(const std::string &what = "ALL");
+  int DrawTPCChansinPacketNS(const std::string &what = "ALL");
+  int DrawTPCChansinPacketSS(const std::string &what = "ALL");
   int DrawTPCADCSample(const std::string &what = "ALL");
   int DrawTPCPedestSubADCSample(const std::string &what = "ALL");
   int DrawTPCPedestSubADCSample_R1(const std::string &what = "ALL");
@@ -51,8 +53,8 @@ class TpcMonDraw : public OnlMonDraw
   int DrawServerStats();
   time_t getTime();
   
-  TCanvas *TC[26] = {nullptr};
-  TPad *transparent[25] = {nullptr};
+  TCanvas *TC[28] = {nullptr};
+  TPad *transparent[27] = {nullptr};
   TPad *Pad[11] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module

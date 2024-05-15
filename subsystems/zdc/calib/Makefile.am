@@ -5,4 +5,5 @@ zdcdatadir = $(pkgdatadir)/zdc
 
 zdcdata_DATA = \
   ZdcMonData.dat \
-  ZdcCalib.pmtgain
+  ZdcCalib.pmtgain \
+  ChannelMapping.dat

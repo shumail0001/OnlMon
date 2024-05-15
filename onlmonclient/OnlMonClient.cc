@@ -1358,14 +1358,13 @@ time_t OnlMonClient::EventTime(const std::string &servername, const std::string 
 int OnlMonClient::ReadHistogramsFromFile(const std::string &filename, OnlMonDraw *drawer)
 {
   std::string subsys = ExtractSubsystem(filename, drawer);
-  TDirectory *save = gDirectory;  // save current dir (which will be overwritten by the following fileopen)
-  TFile *histofile = new TFile(filename.c_str(), "READ");
+  std::cout << "Reading histos from " << filename << std::endl;
+  TFile *histofile = TFile::Open(filename.c_str(), "READ");
   if (!histofile)
   {
     std::cout << "Can't open " << filename << std::endl;
     return -1;
   }
-  save->cd();
   TIterator *titer = histofile->GetListOfKeys()->MakeIterator();
   TObject *obj;
   TH1 *histo, *histoptr;
@@ -1380,7 +1379,11 @@ int OnlMonClient::ReadHistogramsFromFile(const std::string &filename, OnlMonDraw
     histofile->GetObject(obj->GetName(), histoptr);
     if (histoptr)
     {
-      histo = static_cast<TH1 *>(histoptr->Clone());
+// this is hokey but it seems to work, the SetDirectory(0) disconnects
+// the histo from the TFile and the static cast makes it work with our
+// histomap (otherwise something throws an exception)
+      histoptr->SetDirectory(0);
+      histo = dynamic_cast<TH1 *>(histoptr);
       updateHistoMap(subsys, histo->GetName(), histo);
       if (verbosity > 0)
       {
@@ -1389,8 +1392,10 @@ int OnlMonClient::ReadHistogramsFromFile(const std::string &filename, OnlMonDraw
       }
     }
   }
-  delete histofile;
   delete titer;
+// this is a fast way to close a file, if you call TFile->Close() it deletes all
+// histograms which can take a really long time (hours)
+  gROOT->GetListOfFiles()->Remove( histofile );
   return 0;
 }
 
