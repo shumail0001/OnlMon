@@ -29,6 +29,7 @@ class TpcMon : public OnlMon
 
  protected:
   int evtcnt = 0;
+  int evtcnt5 = 0;
   int idummy = 0;
   int weird_counter = 0;
 
@@ -66,6 +67,14 @@ class TpcMon : public OnlMon
   TH2 *SouthSideADC_clusterXY_R2_LASER = nullptr;
   TH2 *SouthSideADC_clusterXY_R3_LASER = nullptr;
 
+  TH2 *NorthSideADC_clusterXY_R1_u5 = nullptr;
+  TH2 *NorthSideADC_clusterXY_R2_u5 = nullptr;
+  TH2 *NorthSideADC_clusterXY_R3_u5 = nullptr;
+
+  TH2 *SouthSideADC_clusterXY_R1_u5 = nullptr;
+  TH2 *SouthSideADC_clusterXY_R2_u5 = nullptr;
+  TH2 *SouthSideADC_clusterXY_R3_u5 = nullptr;
+
   TH2 *NorthSideADC_clusterXY_R1_unw = nullptr;
   TH2 *NorthSideADC_clusterXY_R2_unw = nullptr;
   TH2 *NorthSideADC_clusterXY_R3_unw = nullptr;
@@ -93,6 +102,7 @@ class TpcMon : public OnlMon
   TH1 *sample_size_hist = nullptr;
   TH1 *Check_Sum_Error = nullptr;
   TH1 *Check_Sums = nullptr;
+  TH1 *Stuck_Channels = nullptr;
 
   TH2 *MAXADC = nullptr;
 
@@ -118,6 +128,8 @@ class TpcMon : public OnlMon
   int current_BCOBIN;
 
   int serverid;
+
+  int stuck_channel_count [256][26] = {0}; // array for counting # of times a unique channel get stuck
 
   void Locate(int id, float *rbin, float *thbin);
   int Index_from_Module(int sec_id, int fee_id);

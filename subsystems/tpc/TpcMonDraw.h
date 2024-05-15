@@ -28,6 +28,7 @@ class TpcMonDraw : public OnlMonDraw
   int MakeCanvas(const std::string &name);
   int DrawTPCModules(const std::string &what = "ALL");
   int DrawTPCSampleSize(const std::string &what = "ALL");
+  int DrawTPCStuckChannels(const std::string &what = "ALL");
   int DrawTPCCheckSum(const std::string &what = "ALL");
   int DrawTPCADCSample(const std::string &what = "ALL");
   int DrawTPCPedestSubADCSample(const std::string &what = "ALL");
@@ -41,6 +42,7 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCPedestSubADC1D(const std::string &what = "ALL");
   int DrawTPCXYclusters(const std::string &what = "ALL");
   int DrawTPCXYlaserclusters(const std::string &what = "ALL");
+  int DrawTPCXYclusters5event(const std::string &what = "ALL");
   int DrawTPCXYclusters_unweighted(const std::string &what = "ALL");
   int DrawTPCZYclusters(const std::string &what = "ALL");
   int DrawTPCZYclusters_unweighted(const std::string &what = "ALL");
@@ -49,8 +51,8 @@ class TpcMonDraw : public OnlMonDraw
   int DrawServerStats();
   time_t getTime();
   
-  TCanvas *TC[23] = {nullptr};
-  TPad *transparent[23] = {nullptr};
+  TCanvas *TC[26] = {nullptr};
+  TPad *transparent[25] = {nullptr};
   TPad *Pad[11] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module
@@ -63,6 +65,9 @@ class TpcMonDraw : public OnlMonDraw
 
   TH2 *dummy_his1_laser_XY = nullptr;
   TH2 *dummy_his2_laser_XY = nullptr;
+
+  TH2 *dummy_his1_u5_XY = nullptr;
+  TH2 *dummy_his2_u5_XY = nullptr;
 
   TH2 *dummy_his1_ZY = nullptr;
 

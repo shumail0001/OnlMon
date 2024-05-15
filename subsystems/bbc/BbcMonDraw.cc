@@ -1340,6 +1340,7 @@ int BbcMonDraw::Draw(const std::string &what)
       Zvtx_ns->GetXaxis()->SetRangeUser(-60, 60);
       Zvtx_ns->Draw("hist");
 
+      /*
       // dirty way to determine if we are using GL1 trig info
       if ( Zvtx_zdcns->GetEntries() != Zvtx_ns->GetEntries() )
       {
@@ -1347,11 +1348,10 @@ int BbcMonDraw::Draw(const std::string &what)
         Zvtx_60->Draw("same");
         Zvtx_30->Draw("same");
         Zvtx_10->Draw("same");
-        /*
-        std::cout << "aaa " << Zvtx_ns->GetEntries() << " " << Zvtx_10->GetEntries() << " " << Zvtx_30->GetEntries() << " "
-        << Zvtx_60->GetEntries() << " " << Zvtx_zdcns->GetEntries() << " " << std::endl;
-        */
+        //std::cout << "aaa " << Zvtx_ns->GetEntries() << " " << Zvtx_10->GetEntries() << " " << Zvtx_30->GetEntries() << " "
+        //<< Zvtx_60->GetEntries() << " " << Zvtx_zdcns->GetEntries() << " " << std::endl;
       }
+      */
     }
 
     /*

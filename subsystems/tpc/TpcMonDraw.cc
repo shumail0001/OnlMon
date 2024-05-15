@@ -327,16 +327,38 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }      
   else if (name == "TpcMon_ServerStats")
   {
-    TC[22] = new TCanvas(name.c_str(), "TpcMon Server Stats", -1, 0, xsize, ysize);
+    TC[23] = new TCanvas(name.c_str(), "TpcMon Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     transparent[22] = new TPad("transparent22", "this does not show", 0, 0, 1, 1);
     transparent[22]->SetFillStyle(4000);
     transparent[22]->Draw();
-    TC[22]->SetEditable(false);
-    TC[22]->SetTopMargin(0.05);
-    TC[22]->SetBottomMargin(0.05);
-  }      
+    TC[23]->SetEditable(false);
+    TC[23]->SetTopMargin(0.05);
+    TC[23]->SetBottomMargin(0.05);
+  }
+  else if (name == "TPCStuckChannels")
+  {
+    TC[24] = new TCanvas(name.c_str(), "TPC Stuck Channels in Events", -1, 0, xsize , ysize );
+    gSystem->ProcessEvents();
+    TC[24]->Divide(4,7);
+    transparent[23] = new TPad("transparent23", "this does not show", 0, 0, 1, 1);
+    transparent[23]->SetFillStyle(4000);
+    transparent[23]->Draw();
+    TC[24]->SetEditable(false);
+  }
+  else if (name == "TPCClusterXY_u5")
+  {
+    TC[25] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, <= 5 EVENTS WEIGHTED", 1350, 700);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[25]->Divide(2,1);
+    // this one is used to plot the run number on the canvas
+    transparent[24] = new TPad("transparent24", "this does not show", 0, 0, 1, 1);
+    transparent[24]->SetFillStyle(4000);
+    transparent[24]->Draw();
+    TC[25]->SetEditable(false);
+  }          
   return 0;
 }
 
@@ -353,6 +375,11 @@ int TpcMonDraw::Draw(const std::string &what)
   {
     iret += DrawTPCSampleSize(what);
     idraw++;
+  }
+  if (what == "ALL" || what == "TPCSTUCKCHANNELS")
+  {
+    iret += DrawTPCStuckChannels(what);
+    idraw++; 
   }
   if (what == "ALL" || what == "TPCCHECKSUMERROR")
   {
@@ -442,6 +469,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCLASERCLUSTERSXYWEIGTHED")
   {
     iret += DrawTPCXYlaserclusters(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCCLUSTERS5EXYUNWEIGTHED")
+  {
+    iret +=  DrawTPCXYclusters5event(what);
     idraw++;
   }
   if (what == "ALL" || what == "SERVERSTATS")
@@ -731,7 +763,7 @@ int TpcMonDraw::DrawTPCCheckSum(const std::string & /* what */)
       TC[5]->cd(i+5);
 
       tpcmon_checksumerror[i]->Divide(tpcmon_checksums[i]);
-      tpcmon_checksumerror[i]->GetYaxis()->SetRangeUser(0.0001,1);
+      tpcmon_checksumerror[i]->GetYaxis()->SetRangeUser(0.0001,1.2);
       tpcmon_checksumerror[i]->DrawCopy("HIST");
     }
   }
@@ -2122,7 +2154,7 @@ int TpcMonDraw::DrawTPCXYlaserclusters(const std::string & /* what */)
     MakeCanvas("TPCClusterXY_laser");
   }  
 
-  TC[22]->SetEditable(true);
+  TC[22]->SetEditable(true); //after Chris' change need to skip 22
   TC[22]->Clear("D");
 
   TText PrintRun;
@@ -2231,6 +2263,236 @@ int TpcMonDraw::DrawTPCXYlaserclusters(const std::string & /* what */)
   return 0;
 }
 
+int TpcMonDraw::DrawTPCStuckChannels(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  
+  TH1 *tpcmon_stuckchannels[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_stuckchannels[i] = (TH1*) cl->getHisto(TPCMON_STR,"Stuck_Channels");
+    //if( !tpcmon_stuckchannels[i] ){std::cout<<"Not able to get stuck channel histo # "<<i<<std::endl;}
+  }
+
+  if (!gROOT->FindObject("TPCStuckChannels"))
+  {
+    MakeCanvas("TPCStuckChannels");
+  }
+
+  TC[24]->SetEditable(true);
+  TC[24]->Clear("D");
+  TC[24]->cd(1);
+
+  for( int i=0; i<24; i++ )
+  {
+    if( tpcmon_stuckchannels[i] )
+    {
+      TC[24]->cd(i+5);
+
+      tpcmon_stuckchannels[i]->GetYaxis()->SetRangeUser(0.01,300);
+      tpcmon_stuckchannels[i]->DrawCopy("HIST");
+
+      gPad->SetLogy(kTRUE);
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_StuckChannel Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[23]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  TC[24]->Update();
+  //TC[24]->SetLogy();
+  TC[24]->Show();
+  TC[24]->SetEditable(false);
+
+
+  return 0;
+}
+int TpcMonDraw::DrawTPCXYclusters5event(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *tpcmon_NSTPC_5e_clusXY[24][3] = {nullptr};
+  TH2 *tpcmon_SSTPC_5e_clusXY[24][3] = {nullptr};
+
+  dummy_his1_u5_XY = new TH2F("dummy_his1_u5_XY", "(ADC-Pedestal) > (5#sigma||20ADC) North Side, <= 5 E , UNWEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
+  dummy_his2_u5_XY = new TH2F("dummy_his2_u5_XY", "(ADC-Pedestal) > (5#sigma||20ADC) South Side, <= 5 E , UNWEIGHTED", 400, -800, 800, 400, -800, 800);
+
+  dummy_his1_u5_XY->SetXTitle("X [mm]");
+  dummy_his1_u5_XY->SetYTitle("Y [mm]");
+  dummy_his1_u5_XY->GetYaxis()->SetTitleSize(0.02);
+
+  dummy_his2_u5_XY->SetXTitle("-X [mm]"); //SS x is flipped from global coordinates
+  dummy_his2_u5_XY->SetYTitle("Y [mm]");
+  dummy_his2_u5_XY->GetYaxis()->SetTitleSize(0.02);
+
+  //the lines are for the sector boundaries
+  Double_t sec_gap_inner = (2*M_PI - 0.5024*12.0)/12.0;
+
+  Double_t sec_gap_outer = (2*M_PI - 0.5097*12.0)/12.0;
+
+  Double_t sec_gap = (sec_gap_inner + sec_gap_outer)/2.0;
+
+  Double_t sec_phi = (0.5024 + 0.5097)/2.0;
+
+  TLine *lines[12];
+
+  for(int ln=0;ln<12;ln++)
+  {
+    lines[ln] = new TLine(311.05*cos((sec_phi+sec_gap)/2.0+ln*(sec_phi+sec_gap)),311.05*sin((sec_phi+sec_gap)/2.0+ln*(sec_phi+sec_gap)),759.11*cos((sec_phi+sec_gap)/2.0+ln*(sec_phi+sec_gap)),759.11*sin((sec_phi+sec_gap)/2.0+ln*(sec_phi+sec_gap)));
+  }
+
+  TEllipse *e1 = new TEllipse(0.0,0.0,311.05,311.05);
+  TEllipse *e2 = new TEllipse(0.0,0.0,(402.49+411.53)/2.0,(402.49+411.53)/2.0);
+  TEllipse *e3 = new TEllipse(0.0,0.0,(583.67+574.75)/2.0,(583.67+574.75)/2.0);
+  TEllipse *e4 = new TEllipse(0.0,0.0,759.11,759.11);
+  //__________________
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);                             
+    tpcmon_NSTPC_5e_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1_u5");
+    tpcmon_NSTPC_5e_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2_u5");
+    tpcmon_NSTPC_5e_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3_u5");
+
+    tpcmon_SSTPC_5e_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1_u5");
+    tpcmon_SSTPC_5e_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2_u5");
+    tpcmon_SSTPC_5e_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3_u5");
+  }
+
+  if (!gROOT->FindObject("TPCClusterXY_u5"))
+  {
+    MakeCanvas("TPCClusterXY_u5");
+  }  
+
+  TC[25]->SetEditable(true); 
+  TC[25]->Clear("D");
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_ADC-Pedestal>(5sigma||20ADC) UNWEIGHTED, <= 5E, Run" << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[24]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  TC[25]->cd(1);
+  gStyle->SetOptStat(kFALSE);
+  gPad->SetTopMargin(0.15);
+  //gPad->SetLogz(kTRUE);
+  dummy_his1_u5_XY->Draw("colzsame");
+
+  float NS_max = 0;
+  for( int i=0; i<12; i++ )
+  {
+    for( int j=0; j<3; j++ )
+    {
+      if( tpcmon_NSTPC_5e_clusXY[i][j] )
+      {
+        TC[25]->cd(1);
+        tpcmon_NSTPC_5e_clusXY[i][j] -> Draw("colzsame");
+        //gStyle->SetLogz(kTRUE);
+        if ( tpcmon_NSTPC_5e_clusXY[i][j]->GetBinContent(tpcmon_NSTPC_5e_clusXY[i][j]->GetMaximumBin()) > NS_max)
+        {
+          NS_max = tpcmon_NSTPC_5e_clusXY[i][j]->GetBinContent(tpcmon_NSTPC_5e_clusXY[i][j]->GetMaximumBin());
+          dummy_his1_u5_XY->SetMaximum( NS_max );
+        }
+        gStyle->SetPalette(57); //kBird CVD friendly
+      }
+
+    }
+  }
+  TC[25]->cd(1);
+  e1->SetFillStyle(0);
+  e2->SetFillStyle(0);
+  e3->SetFillStyle(0);
+  e4->SetFillStyle(0);
+
+  e1->Draw("same");
+  e2->Draw("same");
+  e3->Draw("same");
+  e4->Draw("same");
+  for(int ln2=0;ln2<12;ln2++)
+  {
+    lines[ln2]->Draw("same"); 
+  }
+  TC[25]->Update();
+
+  TC[25]->cd(2);
+  gStyle->SetOptStat(kFALSE);
+  gPad->SetTopMargin(0.15);
+  //gPad->SetLogz(kTRUE);
+  dummy_his2_u5_XY->Draw("colzsame");
+
+  float SS_max = 0;
+  for( int i=0; i<12; i++ )
+  {
+    for( int j=0; j<3; j++ )
+    {
+      if( tpcmon_SSTPC_5e_clusXY[i+12][j] )
+      {
+        //std::cout<<"South Side Custer XY i: "<< i+12 <<", j: "<<j<<std::endl;
+        TC[25]->cd(2);
+        tpcmon_SSTPC_5e_clusXY[i+12][j] -> Draw("colzsame");
+        //gStyle->SetLogz(kTRUE);
+        if ( tpcmon_SSTPC_5e_clusXY[i+12][j]->GetBinContent(tpcmon_SSTPC_5e_clusXY[i+12][j]->GetMaximumBin()) > SS_max)
+        {
+          SS_max = tpcmon_SSTPC_5e_clusXY[i+12][j]->GetBinContent(tpcmon_SSTPC_5e_clusXY[i+12][j]->GetMaximumBin());
+          dummy_his2_u5_XY->SetMaximum( SS_max );
+        }
+        gStyle->SetPalette(57); //kBird CVD friendly
+      }
+    }
+
+  }
+  TC[25]->cd(2);
+  e1->SetFillStyle(0);
+  e2->SetFillStyle(0);
+  e3->SetFillStyle(0);
+  e4->SetFillStyle(0);
+
+  e1->Draw("same");
+  e2->Draw("same");
+  e3->Draw("same");
+  e4->Draw("same");
+  for(int ln2=0;ln2<12;ln2++)
+  {
+    lines[ln2]->Draw("same"); 
+  }
+
+  TC[25]->Update();
+  TC[25]->Show();
+  TC[25]->SetEditable(false);
+
+  return 0;
+}
+
+
+
 int TpcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
 
@@ -2317,8 +2579,8 @@ int TpcMonDraw::DrawServerStats()
   {
     MakeCanvas("TpcMon_ServerStats");
   }
-  TC[22]->Clear("D");
-  TC[22]->SetEditable(true);
+  TC[23]->Clear("D");
+  TC[23]->SetEditable(true);
   transparent[22]->cd();
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -2369,9 +2631,9 @@ int TpcMonDraw::DrawServerStats()
     vpos -= vdist;
     i++;
   }
-  TC[22]->Update();
-  TC[22]->Show();
-  TC[22]->SetEditable(false);
+  TC[23]->Update();
+  TC[23]->Show();
+  TC[23]->SetEditable(false);
 
   return 0;
 }
