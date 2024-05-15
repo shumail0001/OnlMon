@@ -32,6 +32,10 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("NorthSideADC_clusterXY_R2_LASER", servername);
     cl->registerHisto("NorthSideADC_clusterXY_R3_LASER", servername);
 
+    cl->registerHisto("NorthSideADC_clusterXY_R1_u5", servername);
+    cl->registerHisto("NorthSideADC_clusterXY_R2_u5", servername);
+    cl->registerHisto("NorthSideADC_clusterXY_R3_u5", servername);
+
     cl->registerHisto("NorthSideADC_clusterXY_R1_unw", servername);
     cl->registerHisto("NorthSideADC_clusterXY_R2_unw", servername);
     cl->registerHisto("NorthSideADC_clusterXY_R3_unw", servername);
@@ -45,6 +49,10 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("SouthSideADC_clusterXY_R1_LASER", servername);
     cl->registerHisto("SouthSideADC_clusterXY_R2_LASER", servername);
     cl->registerHisto("SouthSideADC_clusterXY_R3_LASER", servername);
+
+    cl->registerHisto("SouthSideADC_clusterXY_R1_u5", servername);
+    cl->registerHisto("SouthSideADC_clusterXY_R2_u5", servername);
+    cl->registerHisto("SouthSideADC_clusterXY_R3_u5", servername);
 
     cl->registerHisto("SouthSideADC_clusterXY_R1_unw", servername);
     cl->registerHisto("SouthSideADC_clusterXY_R2_unw", servername);

@@ -36,6 +36,8 @@ class BbcMon : public OnlMon
 
   int useGL1{1};    // whether to use the GL1 data
   uint64_t triggervec{0};
+  uint64_t triginput{0};
+  //uint64_t gl1_bco{0};
   uint64_t trigmask{0};       // accepted triggers
   uint64_t mbdtrig{0};        // main mbd trigger
   uint64_t mbdns{0};          // mbdns n>=1 or 2 bit
@@ -43,7 +45,6 @@ class BbcMon : public OnlMon
   uint64_t mbdnsvtx30{0};     // mbdns vtx<30 bit
   uint64_t mbdnsvtx60{0};     // mbdns vtx<60 bit
   uint64_t zdcns{0};          // zdcns
-  uint64_t gl1_bco{0};
   eventReceiverClient *erc{nullptr};
 
   int evtcnt{0};

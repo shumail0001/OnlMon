@@ -88,12 +88,12 @@ int CemcMon::Init()
   printf("CemcMon::Init()\n");
   // Histograms definitions
   // Trigger histograms
-  h2_cemc_hits_trig1 = new TH2F("h2_cemc_hits_trig1", "", 96, 0, 96, 256, 0, 256);
-  h2_cemc_hits_trig2 = new TH2F("h2_cemc_hits_trig2", "", 96, 0, 96, 256, 0, 256);
-  h2_cemc_hits_trig3 = new TH2F("h2_cemc_hits_trig3", "", 96, 0, 96, 256, 0, 256);
-  h2_cemc_hits_trig4 = new TH2F("h2_cemc_hits_trig4", "", 96, 0, 96, 256, 0, 256);
+  for(int itrig = 0; itrig < 64; itrig++)
+  {
+    h2_cemc_hits_trig[itrig] = new TH2F(Form("h2_cemc_hits_trig_bit_%d", itrig), "", 96, 0, 96, 256, 0, 256);
+  }
   p2_zsFrac_etaphi   = new TProfile2D("p2_zsFrac_etaphi","",96,0,96,256,0,256);
-  h1_cemc_trig = new TH1F("h1_cemc_trig", "", 64, 0, 64);
+  h1_cemc_trig = new TH1F("h1_cemc_trig", "", 64, -0.5, 63.5);
   h1_packet_event = new TH1F("h1_packet_event", "", 8, packetlow - 0.5, packethigh + 0.5);
   h2_caloPack_gl1_clock_diff = new TH2F("h2_caloPack_gl1_clock_diff", "", 8, packetlow - 0.5, packethigh + 0.5, 65536, 0, 65536);
   h_evtRec = new TProfile("h_evtRec", "", 1, 0, 1);
@@ -165,10 +165,10 @@ int CemcMon::Init()
   se->registerHisto(this, cemc_runningmean);  // uses the TH1->GetName() as key
 
   // Trigger histograms
-  se->registerHisto(this, h2_cemc_hits_trig1);
-  se->registerHisto(this, h2_cemc_hits_trig2);
-  se->registerHisto(this, h2_cemc_hits_trig3);
-  se->registerHisto(this, h2_cemc_hits_trig4);
+  for(int itrig = 0; itrig < 64; itrig++)
+  {
+    se->registerHisto(this, h2_cemc_hits_trig[itrig]);
+  }
   se->registerHisto(this, p2_zsFrac_etaphi);
   se->registerHisto(this, h1_cemc_trig);
   se->registerHisto(this, h1_packet_event);
@@ -349,10 +349,6 @@ int CemcMon::process_event(Event *e /* evt */)
   float sectorAvg[Nsector] = {0};
   unsigned int towerNumber = 0;
 
-  bool trig1_fire = false;
-  bool trig2_fire = false;
-  bool trig3_fire = false;
-  bool trig4_fire = false;
   std::vector<bool> trig_bools;
   long long int gl1_clock = 0;
   if (anaGL1)
@@ -377,10 +373,6 @@ int CemcMon::process_event(Event *e /* evt */)
           }
           triggervec = (triggervec >> 1U) & 0xffffffffU;
         }
-        trig1_fire = trig_bools[trig1];
-        trig2_fire = trig_bools[trig2];
-        trig3_fire = trig_bools[trig3];
-        trig4_fire = trig_bools[trig4];
         delete p;
       }
       delete gl1Event;
@@ -451,6 +443,7 @@ int CemcMon::process_event(Event *e /* evt */)
 	  
 	
         h1_waveform_pedestal->Fill(pedestalFast);
+
         if (signalFast < hit_threshold)
         {
           continue;
@@ -492,21 +485,12 @@ int CemcMon::process_event(Event *e /* evt */)
         {
           h2_cemc_hits->SetBinContent(bin, h2_cemc_hits->GetBinContent(bin) + signalFast);
 
-          if (trig1_fire)
+          for(int itrig = 0; itrig < 64; itrig++)
           {
-            h2_cemc_hits_trig1->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          }
-          if (trig2_fire)
-          {
-            h2_cemc_hits_trig2->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          }
-          if (trig3_fire)
-          {
-            h2_cemc_hits_trig3->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          }
-          if (trig4_fire)
-          {
-            h2_cemc_hits_trig4->Fill(eta_bin + 0.5, phi_bin + 0.5);
+            if(trig_bools[itrig])
+            {
+              h2_cemc_hits_trig[itrig]->Fill(eta_bin + 0.5, phi_bin + 0.5);
+            }
           }
         }
       }  // channel loop
