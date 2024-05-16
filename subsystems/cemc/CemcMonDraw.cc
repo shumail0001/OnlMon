@@ -55,24 +55,27 @@ int CemcMonDraw::Init()
   gROOT->ForceStyle();
 
   const char *CEMCcalib = getenv("CEMCCALIB");
+  TFile* inputTemplate=nullptr;
   if (!CEMCcalib)
   {
-    std::cout << "CEMCCALIB environment variable not set" << std::endl;
-    //exit(1);
-  }
-  //std::string Templatefilename=std::string(CEMCcalib)+"/"+"Template_40929_100ADC_hits.root";
-  //std::string Templatefilename=std::string(CEMCcalib)+"/"+"Template_40929_50ADC_hits.root";
-  std::string Templatefilename=std::string(CEMCcalib)+"/"+"Template_40929_30ADC_hits.root";
-  TFile* inputTemplate=new TFile(Templatefilename.c_str(),"READ");
-  if(!inputTemplate->IsOpen()){
-    std::cout<<Templatefilename<<" could not be opened. Empty reference will be used"<<std::endl;
-    //exit(1);
+    std::cout << "CEMCCALIB environment variable not set, empty refence will be used" << std::endl;
     h2_template_hit=new TH2D("templateHit","",96,0,96,256,0,256);
   }
   else{
-    h2_template_hit=(TH2D*)inputTemplate->Get("h2_cemc_hits_template");
-    if(!h2_template_hit){
+    //std::string Templatefilename=std::string(CEMCcalib)+"/"+"Template_40929_100ADC_hits.root";
+    //std::string Templatefilename=std::string(CEMCcalib)+"/"+"Template_40929_50ADC_hits.root";
+    std::string Templatefilename=std::string(CEMCcalib)+"/"+"Template_40929_30ADC_hits.root";
+    inputTemplate=new TFile(Templatefilename.c_str(),"READ");
+    if(!inputTemplate->IsOpen()){
+      std::cout<<Templatefilename<<" could not be opened. Empty reference will be used"<<std::endl;
       h2_template_hit=new TH2D("templateHit","",96,0,96,256,0,256);
+    }
+    else{
+      h2_template_hit=(TH2D*)inputTemplate->Get("h2_cemc_hits_template");
+      if(!h2_template_hit){
+	std::cout<<"h2_cemc_hits_template could not be retrieved from file. Empty reference will be used"<<std::endl;
+	h2_template_hit=new TH2D("templateHit","",96,0,96,256,0,256);
+      }
     }
   }
 
@@ -1607,7 +1610,7 @@ int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit)
       {
         continue;  // uninstrumented
       }
-      else if ( (ieta < 64 && ieta>=72) && ((iphi >= 32) && (iphi <40)))
+      else if ( (ieta < 72 && ieta>=64) && ((iphi >= 32) && (iphi <40)))
       {
         continue;  // uninstrumented
       }
