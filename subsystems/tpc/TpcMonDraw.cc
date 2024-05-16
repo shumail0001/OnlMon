@@ -474,8 +474,6 @@ int TpcMonDraw::Draw(const std::string &what)
 int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TCanvas *MyTC = TC[0];
-  TPad *TransparentTPad = transparent[0];
   TH2 *tpcmon_NSIDEADC[24] = {nullptr};
   TH2 *tpcmon_SSIDEADC[24] = {nullptr};
 
@@ -497,6 +495,9 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   {
     MakeCanvas("TPCModules");
   }
+
+  TCanvas *MyTC = TC[0];
+  TPad *TransparentTPad = transparent[0];
 
   dummy_his1 = new TH2F("dummy_his1", "ADC Counts North Side", 100, -1.5, 1.5, 100, -1.5, 1.5); //dummy histos for titles
   dummy_his2 = new TH2F("dummy_his2", "ADC Counts South Side", 100, -1.5, 1.5, 100, -1.5, 1.5);
@@ -565,7 +566,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   for( int i=0; i<12; i++ )
   {
     if( tpcmon_NSIDEADC[i] ){
-    TC[3]->cd(1);
+    MyTC->cd(1);
     tpcmon_NSIDEADC[i] -> DrawCopy("colpolzsame");
     if( tpcmon_NSIDEADC[i]->GetBinContent(tpcmon_NSIDEADC[i]->GetMaximumBin()) > NS_max)
     {
