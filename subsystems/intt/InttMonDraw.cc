@@ -2238,9 +2238,9 @@ int InttMonDraw::MakeCanvas(const std::string& name)
 int InttMonDraw::DrawServerStats()
 {
   OnlMonClient* cl = OnlMonClient::instance();
-  if (!gROOT->FindObject("InttMon_ServerStats"))
+  if (!gROOT->FindObject("InttMonServerStats"))
   {
-    MakeCanvas("InttMon_ServerStats");
+    MakeCanvas("InttMonServerStats");
   }
   TC[0]->Clear("D");
   TC[0]->SetEditable(true);
