@@ -25,11 +25,13 @@ int InttMon::Init()
   NumEvents = new TH1D(Form("InttNumEvents"), Form("InttNumEvents"), 1, 0, 1);
   HitMap = new TH1D(Form("InttMap"), Form("InttMap"), INTT::ADCS, 0, INTT::ADCS);
   BcoDiffMap = new TH1D(Form("InttBcoDiffMap"), Form("InttBcoDiffMap"), INTT::BCOS, 0, INTT::BCOS);
+  HitsVsEvt = new TH2D(Form("InttHitsVsEvt"), Form("InttHitsVsEvt"), INTT::FELIX, 0, INTT::FELIX, INTT::EVT_BUFF_LEN, 0, INTT::EVT_BUFF_LEN);
   //...
 
   se->registerHisto(this, NumEvents);
   se->registerHisto(this, HitMap);
   se->registerHisto(this, BcoDiffMap);
+  se->registerHisto(this, HitsVsEvt);
   //...
 
   // Read in calibrartion data from InttMonData.dat
@@ -86,6 +88,8 @@ int InttMon::process_event(Event *evt)
     }
 
     N = p->iValue(0, "NR_HITS");
+	bin = HitsVsEvt->GetBin(pid - 3000, (int)(NumEvents->GetBinContent(1)) % INTT::EVT_BUFF_LEN + 1);
+    HitsVsEvt->SetBinContent(bin, N);
 
     // p->identify();
     // if(N)std::cout << N << std::endl;
