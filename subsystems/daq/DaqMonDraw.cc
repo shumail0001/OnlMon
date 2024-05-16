@@ -332,19 +332,20 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   transparent[1]->cd();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
-  std::string femstatusstring = (h_fem_match[start]->GetEntries() > 0) ? "#bf{Calo FEM Mismatch!! Stop the run now!}" : "#bf{FEMs are all locked Continue data taking}";
   TLatex latex;
   latex.SetNDC();
   latex.SetTextFont(62);
-  latex.SetTextSize(0.028);
 
   if(h_fem_match[start]->GetEntries() > 0){
+      latex.SetTextSize(0.028);
       latex.SetTextColor(kRed);
-      latex.DrawLatex(0.25,0.95,femstatusstring.c_str());
+      latex.DrawLatex(0.25,0.94,"#bf{Calo FEM Mismatch!! Stop the run now!}");
   }
   else{
-      latex.SetTextColor(kGreen);
-      latex.DrawLatex(0.25,0.6,femstatusstring.c_str());
+      latex.SetTextColor(kGreen+1);
+      latex.SetTextSize(0.032);
+      latex.DrawLatex(0.25,0.7,"#bf{Good! FEMs are locked}");
+      latex.DrawLatex(0.25,0.5,"#bf{Continue data taking}");
   }
     
   TC[1]->SetEditable(false);
