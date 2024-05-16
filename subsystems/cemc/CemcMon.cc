@@ -108,7 +108,7 @@ int CemcMon::Init()
   // h2_waveform_twrAvg = new TH2F("h2_waveform_twrAvg", "", 16, 0.5, 16.5, 10000,0,pow(2,14));
   h2_waveform_twrAvg = new TH2F("h2_waveform_twrAvg", "", 12, -0.5, 11.5, 1000, 0, 15000);
   h1_waveform_time = new TH1F("h1_waveform_time", "", 12, -0.5, 11.5);
-  h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 25, 1.3e3, 2.0e3);
+  h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 5000, 1, 5000);
 
   // waveform processing, template vs. fast interpolation
   h1_cemc_fitting_sigDiff = new TH1F("h1_fitting_sigDiff", "", 50, 0, 2);
@@ -416,19 +416,19 @@ int CemcMon::process_event(Event *e /* evt */)
         h1_waveform_pedestal->Fill(pedestalFast);
 
 
-        for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
-        {
-          h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
-        }
 
 
-        h1_waveform_time->Fill(timeFast);
 
         int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
 
         rm_vector_twr[towerNumber - 1]->Add(&signalFast);
         if (signalFast > hit_threshold)
         {
+	  h1_waveform_time->Fill(timeFast);
+	  for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+	    {
+	      h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
+	    }
 	  rm_vector_twrhits[towerNumber - 1]->Add(&one);
           h2_cemc_hits->SetBinContent(bin, h2_cemc_hits->GetBinContent(bin) + 1);
           //h2_cemc_hits->SetBinContent(bin, h2_cemc_hits->GetBinContent(bin) + signalFast);

@@ -6,9 +6,12 @@
 #include <TCanvas.h>
 #include <TGraphErrors.h>
 #include <TFile.h>
+#include <TFrame.h>
+#include <TGraph.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TH2D.h>
+#include <TH2F.h>
 #include <TLegend.h>
 #include <TLine.h>
 #include <TPad.h>
@@ -928,13 +931,13 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH2 *h2_waveform_twrAvg[m_ServerSet.size()];
+  TH2F *h2_waveform_twrAvg[m_ServerSet.size()];
   int start[3];
   start[0] = -1;
   int i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h2_waveform_twrAvg[i] = (TH2 *) cl->getHisto(*server, "h2_waveform_twrAvg");
+    h2_waveform_twrAvg[i] = (TH2F *) cl->getHisto(*server, "h2_waveform_twrAvg");
     if (h2_waveform_twrAvg[i] && start[0] == -1)
     {
       start[0] = i;
@@ -944,6 +947,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
       h2_waveform_twrAvg[i]->SetName(Form("h2_waveform_twrAvg_%d", i));
       h2_waveform_twrAvg[start[0]]->Add(h2_waveform_twrAvg[i], 1);
     }
+    i++;
   }
 
   TH1 *h1_waveform_time[m_ServerSet.size()];
@@ -999,8 +1003,17 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   }
 
   gStyle->SetTitleFontSize(0.03);
-  // float ymaxp = h2_waveform_twrAvg[start[0]]->ProfileX()->GetMaximum();
-  // h2_waveform_twrAvg[start[0]] -> GetYaxis() -> SetRangeUser(0,ymaxp*10);
+  TProfile* profiled=h2_waveform_twrAvg[start[0]]->ProfileX();
+  float ymaxp = profiled->GetMaximum();
+  ymaxp=ymaxp*20>pow(2,14)?pow(2,14):20*ymaxp;
+  h2_waveform_twrAvg[start[0]] -> GetYaxis() -> SetRangeUser(0,ymaxp);
+  TGraph* gavg_waveforms=new TGraph(0);
+  gavg_waveforms->SetMarkerStyle(kFullCircle);
+  gavg_waveforms->SetMarkerSize(1);
+  gavg_waveforms->SetMarkerColor(kBlack);
+  for(int ibin=0; ibin<profiled->GetNbinsX();ibin++){
+    gavg_waveforms->SetPoint(ibin,profiled->GetBinCenter(ibin+1),profiled->GetBinContent(ibin+1));
+  }
 
   float tsize = 0.06;
   float tsize2 = 0.08;
@@ -1014,11 +1027,13 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   h2_waveform_twrAvg[start[0]]->GetYaxis()->SetTitleSize(tsize);
   h2_waveform_twrAvg[start[0]]->GetXaxis()->SetTitleOffset(1.);
   h2_waveform_twrAvg[start[0]]->GetYaxis()->SetTitleOffset(1.25);
-  float windowSize = 5000;
-  h2_waveform_twrAvg[start[0]]->GetYaxis()->SetRangeUser(0, windowSize);
+  //float ymaxp = 5000;
+  h2_waveform_twrAvg[start[0]]->GetYaxis()->SetRangeUser(0, ymaxp);
 
-  TLine *windowLow1 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, windowSize);
-  TLine *windowHigh1 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, windowSize);
+  TLine *windowLow1 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, ymaxp);
+  TLine *windowHigh1 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, ymaxp);
+  windowLow1->SetLineWidth(3);
+  windowHigh1->SetLineWidth(3);
   gStyle->SetOptStat(0);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);
@@ -1028,6 +1043,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   gPad->SetTickx();
   gStyle->SetPalette(kBird);
   h2_waveform_twrAvg[start[0]]->DrawCopy("colz");
+  gavg_waveforms->Draw("psame");
   windowLow1->Draw("same");
   windowHigh1->Draw("same");
   gStyle->SetPalette(57);
@@ -1043,7 +1059,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << "Waveform fitting";
+  runnostream << ThisName << ": Pulse fitting";
   runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
 
   transparent[2]->cd();
@@ -1055,27 +1071,38 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   PrintRun.DrawText(0.5, 0.966, runstring.c_str());
 
   Pad[5]->cd();
+  gPad->SetTopMargin(0.06);
+  gPad->SetBottomMargin(0.18);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.15);
+  gPad->SetTicky();
+  gPad->SetTickx();
 
   gStyle->SetTitleFontSize(0.06);
 
+  h1_waveform_time[start[1]]->SetStats(kFALSE);
+  h1_waveform_time[start[1]]->Draw("hist");
   h1_waveform_time[start[1]]->GetXaxis()->SetNdivisions(16);
-  h1_waveform_time[start[1]]->GetXaxis()->SetTitle("waveform peak position [sample #]");
-  h1_waveform_time[start[1]]->GetYaxis()->SetTitle("Fraction of Towers");
+  h1_waveform_time[start[1]]->GetXaxis()->SetTitle("Sample #");
+  h1_waveform_time[start[1]]->GetYaxis()->SetTitle("Towers");
   h1_waveform_time[start[1]]->GetXaxis()->SetLabelSize(tsize2);
   h1_waveform_time[start[1]]->GetYaxis()->SetLabelSize(tsize2);
   h1_waveform_time[start[1]]->GetXaxis()->SetTitleSize(tsize2);
   h1_waveform_time[start[1]]->GetYaxis()->SetTitleSize(tsize2);
   h1_waveform_time[start[1]]->GetXaxis()->SetTitleOffset(1.0);
   h1_waveform_time[start[1]]->GetYaxis()->SetTitleOffset(.85);
+  h1_waveform_time[start[1]]->SetFillColorAlpha(kBlue,0.1);
+  gPad->Update();
+  //if (h1_waveform_time[start[1]]->GetEntries())
+  //{
+  //  h1_waveform_time[start[1]]->Scale(1. / h1_waveform_time[start[1]]->GetEntries());
+  //}
+  //h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0, 1.);
 
-  if (h1_waveform_time[start[1]]->GetEntries())
-  {
-    h1_waveform_time[start[1]]->Scale(1. / h1_waveform_time[start[1]]->GetEntries());
-  }
-  h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0, 1.);
-
-  TLine *windowLow2 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, 1);
-  TLine *windowHigh2 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, 1);
+  TLine *windowLow2 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, gPad->GetFrame()->GetY2());
+  TLine *windowHigh2 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, gPad->GetFrame()->GetY2());
+  windowLow2->SetLineWidth(3);
+  windowHigh2->SetLineWidth(3);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1083,55 +1110,65 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   gPad->SetLeftMargin(0.15);
   gPad->SetTicky();
   gPad->SetTickx();
-  h1_waveform_time[start[1]]->DrawCopy("hist");
   windowLow2->Draw("same");
   windowHigh2->Draw("same");
 
   Pad[6]->cd();
-
+  gPad->SetTopMargin(0.06);
+  gPad->SetBottomMargin(0.18);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.15);
+  gPad->SetTicky();
+  gPad->SetTickx();
+  
+  gPad->SetLogy(kFALSE);
   gStyle->SetTitleFontSize(0.06);
-
-  h1_waveform_pedestal[start[2]]->GetXaxis()->SetNdivisions(8);
+  h1_waveform_pedestal[start[2]]->SetStats(false);
+  h1_waveform_pedestal[start[2]]->Draw("hist");
+  h1_waveform_pedestal[start[2]]->GetXaxis()->SetNdivisions(505,kTRUE);
   h1_waveform_pedestal[start[2]]->GetXaxis()->SetTitle("ADC Pedestal");
-  h1_waveform_pedestal[start[2]]->GetYaxis()->SetTitle("Fraction of Towers");
+  h1_waveform_pedestal[start[2]]->GetYaxis()->SetTitle("Towers");
   h1_waveform_pedestal[start[2]]->GetXaxis()->SetLabelSize(tsize2);
   h1_waveform_pedestal[start[2]]->GetYaxis()->SetLabelSize(tsize2);
   h1_waveform_pedestal[start[2]]->GetXaxis()->SetTitleSize(tsize2);
   h1_waveform_pedestal[start[2]]->GetYaxis()->SetTitleSize(tsize2);
   h1_waveform_pedestal[start[2]]->GetXaxis()->SetTitleOffset(1);
   h1_waveform_pedestal[start[2]]->GetYaxis()->SetTitleOffset(0.85);
-  if (h1_waveform_pedestal[start[2]]->GetEntries())
-  {
-    h1_waveform_pedestal[start[2]]->Scale(1. / h1_waveform_pedestal[start[2]]->GetEntries());
-  }
-  // h1_waveform_pedestal -> GetXaxis() -> SetRangeUser(1000,2000);
-  gPad->SetTopMargin(0.06);
-  gPad->SetBottomMargin(0.18);
-  gPad->SetRightMargin(0.05);
-  gStyle->SetOptStat(0);
-  gPad->SetLeftMargin(0.15);
-  gPad->SetTicky();
-  gPad->SetTickx();
-  gStyle->SetOptStat(0);
+  h1_waveform_pedestal[start[2]]->SetFillColorAlpha(kBlue,0.1);
+  gPad->Update();
 
-  h1_waveform_pedestal[start[2]]->DrawCopy("hist");
-  h1_waveform_pedestal[start[2]]->SetStats(false);
-  gStyle->SetOptStat(0);
+  TLine *windowLow3 = new TLine(1000, 0, 1000, gPad->GetFrame()->GetY2());
+  TLine *windowHigh3 = new TLine(2000, 0, 2000, gPad->GetFrame()->GetY2());
+  windowLow3->SetLineWidth(3);
+  windowHigh3->SetLineWidth(3);
+  windowLow3 ->Draw("same");
+  windowHigh3->Draw("same");
+  gPad->SetLogy();
+  gPad->Update();
+
+
+  //if (h1_waveform_pedestal[start[2]]->GetEntries())
+  //{
+  //  h1_waveform_pedestal[start[2]]->Scale(1. / h1_waveform_pedestal[start[2]]->GetEntries());
+  //}
+  // h1_waveform_pedestal -> GetXaxis() -> SetRangeUser(1000,2000);
+  //gStyle->SetOptStat(0);
+
 
   TC[2]->Update();
-  gStyle->SetOptStat(0);
+  //gStyle->SetOptStat(0);
 
   TC[2]->Show();
-  gStyle->SetOptStat(0);
+  //gStyle->SetOptStat(0);
 
   TC[2]->SetEditable(false);
-  gStyle->SetOptStat(0);
+  //gStyle->SetOptStat(0);
 
   if (save)
   {
     TC[2]->SaveAs("plots/waveform.pdf");
   }
-  gStyle->SetOptStat(0);
+  //gStyle->SetOptStat(0);
 
   return 0;
 }
