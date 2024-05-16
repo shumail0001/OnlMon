@@ -10,22 +10,22 @@ InttMonDraw::Options_t InttMonDraw::OPTIONS =
     .global = &InttMonDraw::PrepGlobalChipHists_Hitmap,
     .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
 
-  {"chip_nll", (struct Option_s){
-    .head = &InttMonDraw::GlobalChipLocalChannelHead,
-    .global = &InttMonDraw::PrepGlobalChipHists_NLL,
-    .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
-
-  //Ladder-Chip
-  {"ladder_hitmap", (struct Option_s){
-    .head = &InttMonDraw::GlobalLadderLocalChipHead,
-    .global = &InttMonDraw::PrepGlobalLadderHists_Interface,
-    .local = &InttMonDraw::PrepLocalChipHists_Hitmap}},
-
-  //hits vs Evt (by packet)
-  {"hits_vs_evt", (struct Option_s){ // Does not follow same recursive structure; everything is done in the head function
-    .head = &InttMonDraw::DrawHitsVsEvt,
-    .global = nullptr,
-    .local = nullptr}},
+//  {"chip_nll", (struct Option_s){
+//    .head = &InttMonDraw::GlobalChipLocalChannelHead,
+//    .global = &InttMonDraw::PrepGlobalChipHists_NLL,
+//    .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
+//
+//  //Ladder-Chip
+//  {"ladder_hitmap", (struct Option_s){
+//    .head = &InttMonDraw::GlobalLadderLocalChipHead,
+//    .global = &InttMonDraw::PrepGlobalLadderHists_Interface,
+//    .local = &InttMonDraw::PrepLocalChipHists_Hitmap}},
+//
+//  //hits vs Evt (by packet)
+//  {"hits_vs_evt", (struct Option_s){ // Does not follow same recursive structure; everything is done in the head function
+//    .head = &InttMonDraw::DrawHitsVsEvt,
+//    .global = nullptr,
+//    .local = nullptr}},
 
   //Bco Diffs
   {"bco_diff", (struct Option_s){ // Does not follow same recursive structure; everything is done in the head function
