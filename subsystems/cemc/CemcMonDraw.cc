@@ -187,13 +187,13 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     transparent[4]->Draw();
     TC[4]->SetEditable(false);
   }
-  else if (name == "CemcMon6")
+  else if (name == "CemcMonServerStats")
   {
     TC[5] = new TCanvas(name.c_str(), "CemcMon6 Server Stats", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
     transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
-    transparent[5]->SetFillStyle(4000);
+    transparent[5]->SetFillColor(kGray);
     transparent[5]->Draw();
     TC[5]->SetEditable(false);
   }
@@ -1837,9 +1837,9 @@ time_t CemcMonDraw::getTime()
 int CemcMonDraw::DrawServerStats()
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  if (!gROOT->FindObject("CemcMon6"))
+  if (!gROOT->FindObject("CemcMonServerStats"))
   {
-    MakeCanvas("CemcMon6");
+    MakeCanvas("CemcMonServerStats");
   }
   TC[5]->Clear("D");
   TC[5]->SetEditable(true);
@@ -1863,7 +1863,7 @@ int CemcMonDraw::DrawServerStats()
     {
       txt << "Server " << server
           << " is dead ";
-      PrintRun.SetTextColor(2);
+      PrintRun.SetTextColor(kRed);
     }
     else
     {
@@ -1873,11 +1873,11 @@ int CemcMonDraw::DrawServerStats()
 	  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
-	PrintRun.SetTextColor(3);
+	PrintRun.SetTextColor(kGray+2);
       }
       else
       {
-	PrintRun.SetTextColor(2);
+	PrintRun.SetTextColor(kRed);
       }
     }
     PrintRun.DrawText(0.5, vpos, txt.str().c_str());
