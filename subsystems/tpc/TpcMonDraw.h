@@ -53,8 +53,8 @@ class TpcMonDraw : public OnlMonDraw
   int DrawServerStats();
   time_t getTime();
   
-  TCanvas *TC[21] = {nullptr};
-  TPad *transparent[21] = {nullptr};
+  TCanvas *TC[25] = {nullptr};
+  TPad *transparent[25] = {nullptr};
   TPad *Pad[11] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module
