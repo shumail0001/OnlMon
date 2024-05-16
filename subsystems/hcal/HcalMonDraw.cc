@@ -238,8 +238,8 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
     transparent[8] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
-    transparent[8]->SetFillStyle(4000);
     transparent[8]->Draw();
+    transparent[8]->SetFillColor(kGray);
     TC[8]->SetEditable(false);
   }
   return 0;
@@ -2341,7 +2341,7 @@ int HcalMonDraw::DrawServerStats()
     {
       txt << "Server " << server
           << " is dead ";
-      PrintRun.SetTextColor(2);
+      PrintRun.SetTextColor(kRed);
     }
     else
     {
@@ -2351,11 +2351,11 @@ int HcalMonDraw::DrawServerStats()
 	  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
-	PrintRun.SetTextColor(3);
+	PrintRun.SetTextColor(kGray+2);
       }
       else
       {
-	PrintRun.SetTextColor(2);
+	PrintRun.SetTextColor(kRed);
       }
     }
     PrintRun.DrawText(0.5, vpos, txt.str().c_str());

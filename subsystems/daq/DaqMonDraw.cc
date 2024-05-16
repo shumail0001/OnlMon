@@ -96,13 +96,13 @@ int DaqMonDraw::MakeCanvas(const std::string &name)
     TC[1]->SetEditable(false);
     gStyle->SetOptStat(0);
   }
-  else if (name == "DaqMon3")
+  else if (name == "DaqMonServerStats")
   {
     gStyle->SetOptStat(0);
     TC[2] = new TCanvas(name.c_str(), "DaqMon Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
-    transparent[2]->SetFillStyle(4000);
+    transparent[2]->SetFillColor(kGray);
     transparent[2]->Draw();
     TC[2]->SetEditable(false);
     gStyle->SetOptStat(0);
@@ -450,9 +450,9 @@ time_t DaqMonDraw::getTime()
 int DaqMonDraw::DrawServerStats()
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  if (!gROOT->FindObject("DaqMon3"))
+  if (!gROOT->FindObject("DaqMonServerStats"))
   {
-    MakeCanvas("DaqMon3");
+    MakeCanvas("DaqMonServerStats");
   }
   TC[2]->Clear("D");
   TC[2]->SetEditable(true);
@@ -479,7 +479,7 @@ int DaqMonDraw::DrawServerStats()
     {
       txt << "Server " << server
           << " is dead ";
-      PrintRun.SetTextColor(2);
+      PrintRun.SetTextColor(kRed);
     }
     else
     {
@@ -489,11 +489,11 @@ int DaqMonDraw::DrawServerStats()
 	  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
-	PrintRun.SetTextColor(3);
+	PrintRun.SetTextColor(kGray+2);
       }
       else
       {
-	PrintRun.SetTextColor(2);
+	PrintRun.SetTextColor(kRed);
       }
     }
         if (i > 10)
