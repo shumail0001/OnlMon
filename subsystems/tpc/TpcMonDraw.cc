@@ -48,336 +48,287 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
-  if (name == "TpcMon1")
+  if (name == "TPCModules")
   {
-    // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "TpcMon Example Monitor", -1, 0, xsize / 2, ysize);
-    // root is pathetic, whenever a new TCanvas is created root piles up
-    // 6kb worth of X11 events which need to be cleared with
-    // gSystem->ProcessEvents(), otherwise your process will grow and
-    // grow and grow but will not show a definitely lost memory leak
+    TC[0] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1350, 700);
     gSystem->ProcessEvents();
-    Pad[0] = new TPad("tpcpad1", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[1] = new TPad("tpcpad2", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[0]->Draw();
-    Pad[1]->Draw();
+    TC[0]->Divide(2,1);
+    //gStyle->SetPalette(57); //kBird CVD friendly
     // this one is used to plot the run number on the canvas
     transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
     transparent[0]->SetFillStyle(4000);
     transparent[0]->Draw();
     TC[0]->SetEditable(false);
   }
-  else if (name == "TpcMon2")
+  else if (name == "TPCSampleSize")
   {
-    // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "TpcMon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
+    TC[1] = new TCanvas(name.c_str(), "TPC Sample Size Distribution in Events", -1, 0, xsize , ysize );
     gSystem->ProcessEvents();
-    Pad[2] = new TPad("tpcpad3", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[3] = new TPad("tpcpad4", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[2]->Draw();
-    Pad[3]->Draw();
-    // this one is used to plot the run number on the canvas
+    TC[1]->Divide(4,7);
     transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
     transparent[1]->SetFillStyle(4000);
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
   }
-  else if (name == "TpcMon3")
+  else if (name == "TPCCheckSumError")
   {
-    TC[2] = new TCanvas(name.c_str(), "TpcMon3 Example Monitor", xsize / 2, 0, xsize / 2, ysize);
+    TC[2] = new TCanvas(name.c_str(), "TPC CheckSumError Probability in Events",-1, 0, xsize , ysize );
     gSystem->ProcessEvents();
-    Pad[4] = new TPad("tpcpad5", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[5] = new TPad("tpcpad6", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[4]->Draw();
-    Pad[5]->Draw();
-    // this one is used to plot the run number on the canvas
-    //        transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
-    //        transparent[2]->SetFillStyle(4000);
-    //        transparent[2]->Draw();
-    //      TC[2]->SetEditable(0);
-  }
-  else if (name == "TPCModules")
-  {
-    TC[3] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1350, 700);
-    gSystem->ProcessEvents();
-    TC[3]->Divide(2,1);
-    //gStyle->SetPalette(57); //kBird CVD friendly
-    // this one is used to plot the run number on the canvas
+    TC[2]->Divide(4,7);
     transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
     transparent[2]->SetFillStyle(4000);
     transparent[2]->Draw();
-    TC[3]->SetEditable(false);
-  }
-  else if (name == "TPCSampleSize")
-  {
-    TC[4] = new TCanvas(name.c_str(), "TPC Sample Size Distribution in Events", -1, 0, xsize , ysize );
-    gSystem->ProcessEvents();
-    TC[4]->Divide(4,7);
-    transparent[3] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
-    transparent[3]->SetFillStyle(4000);
-    transparent[3]->Draw();
-    TC[4]->SetEditable(false);
-  }
-  else if (name == "TPCCheckSumError")
-  {
-    TC[5] = new TCanvas(name.c_str(), "TPC CheckSumError Probability in Events",-1, 0, xsize , ysize );
-    gSystem->ProcessEvents();
-    TC[5]->Divide(4,7);
-    transparent[4] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
-    transparent[4]->SetFillStyle(4000);
-    transparent[4]->Draw();
-    TC[5]->SetEditable(false);
+    TC[2]->SetEditable(false);
   }
   else if (name == "TPCADCSample")
   {
-    TC[6] = new TCanvas(name.c_str(), "TPC ADC vs Sample in Whole Sector",-1, 0, xsize , ysize);
+    TC[3] = new TCanvas(name.c_str(), "TPC ADC vs Sample in Whole Sector",-1, 0, xsize , ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[6]->Divide(4,7);
-    transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
-    transparent[5]->SetFillStyle(4000);
-    transparent[5]->Draw();
-    TC[6]->SetEditable(false);
+    TC[3]->Divide(4,7);
+    transparent[3] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
+    transparent[3]->SetFillStyle(4000);
+    transparent[3]->Draw();
+    TC[3]->SetEditable(false);
   }
   else if (name == "TPCMaxADCModule")
   {
-    TC[7] = new TCanvas(name.c_str(), "(MAX ADC - pedestal) in SLIDING WINDOW for each Module in Sector", -1, 0, xsize , ysize);
+    TC[4] = new TCanvas(name.c_str(), "(MAX ADC - pedestal) in SLIDING WINDOW for each Module in Sector", -1, 0, xsize , ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[7]->Divide(4,7);
-    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
-    transparent[6]->SetFillStyle(4000);
-    transparent[6]->Draw();
-    TC[7]->SetEditable(false);
+    TC[4]->Divide(4,7);
+    transparent[4] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
+    transparent[4]->SetFillStyle(4000);
+    transparent[4]->Draw();
+    TC[4]->SetEditable(false);
   }
   else if (name == "TPCRawADC1D")
   {
-    TC[8] = new TCanvas(name.c_str(), "TPC RAW ADC 1D distribution", -1, 0, xsize , ysize);
+    TC[5] = new TCanvas(name.c_str(), "TPC RAW ADC 1D distribution", -1, 0, xsize , ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[8]->Divide(4,7);
-    transparent[7] = new TPad("transparent7", "this does not show", 0, 0, 1, 1);
-    transparent[7]->SetFillStyle(4000);
-    transparent[7]->Draw();
-    TC[8]->SetEditable(false);
+    TC[5]->Divide(4,7);
+    transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
+    transparent[5]->SetFillStyle(4000);
+    transparent[5]->Draw();
+    TC[5]->SetEditable(false);
   }
   else if (name == "TPCMaxADC1D")
   {
-    TC[9] = new TCanvas(name.c_str(), "(MAX ADC - pedestal) in SLIDING WINDOW 1D distribution",-1, 0, xsize , ysize);
+    TC[6] = new TCanvas(name.c_str(), "(MAX ADC - pedestal) in SLIDING WINDOW 1D distribution",-1, 0, xsize , ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[9]->Divide(4,7);
-    transparent[8] = new TPad("transparent8", "this does not show", 0, 0, 1, 1);
-    transparent[8]->SetFillStyle(4000);
-    transparent[8]->Draw();
-    TC[9]->SetEditable(false);
+    TC[6]->Divide(4,7);
+    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
+    TC[6]->SetEditable(false);
   }
   else if (name == "TPCClusterXY")
   {
-    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, WEIGHTED", 1350, 700);
+    TC[7] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, WEIGHTED", 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[10]->Divide(2,1);
+    TC[7]->Divide(2,1);
     // this one is used to plot the run number on the canvas
-    transparent[9] = new TPad("transparent9", "this does not show", 0, 0, 1, 1);
-    transparent[9]->SetFillStyle(4000);
-    transparent[9]->Draw();
-    TC[10]->SetEditable(false);
+    transparent[7] = new TPad("transparent7", "this does not show", 0, 0, 1, 1);
+    transparent[7]->SetFillStyle(4000);
+    transparent[7]->Draw();
+    TC[7]->SetEditable(false);
   }
   else if (name == "TPCClusterXY_unw")
   {
-    TC[11] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, UNWEIGHTED", 1350, 700);
+    TC[8] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, UNWEIGHTED", 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[11]->Divide(2,1);
+    TC[8]->Divide(2,1);
     // this one is used to plot the run number on the canvas
-    transparent[10] = new TPad("transparent10", "this does not show", 0, 0, 1, 1);
-    transparent[10]->SetFillStyle(4000);
-    transparent[10]->Draw();
-    TC[11]->SetEditable(false);
+    transparent[8] = new TPad("transparent8", "this does not show", 0, 0, 1, 1);
+    transparent[8]->SetFillStyle(4000);
+    transparent[8]->Draw();
+    TC[8]->SetEditable(false);
   }
   else if (name == "TPCADCSamplelarge")
   {
-    TC[12] = new TCanvas(name.c_str(), "TPC ADC vs Large Sample in Whole Sector",-1, 0, xsize , ysize);
+    TC[9] = new TCanvas(name.c_str(), "TPC ADC vs Large Sample in Whole Sector",-1, 0, xsize , ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[12]->Divide(4,7);
-    transparent[11] = new TPad("transparent11", "this does not show", 0, 0, 1, 1);
-    transparent[11]->SetFillStyle(4000);
-    transparent[11]->Draw();
-    TC[12]->SetEditable(false);
+    TC[9]->Divide(4,7);
+    transparent[9] = new TPad("transparent9", "this does not show", 0, 0, 1, 1);
+    transparent[9]->SetFillStyle(4000);
+    transparent[9]->Draw();
+    TC[9]->SetEditable(false);
   }
 
   else if (name == "TPCClusterZY")
   {
-    TC[13] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, WEIGHTED", 1350, 700);
+    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, WEIGHTED", 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[13]->Divide(1,1);
+    TC[10]->Divide(1,1);
     // this one is used to plot the run number on the canvas
-    transparent[12] = new TPad("transparent12", "this does not show", 0, 0, 1, 1);
-    transparent[12]->SetFillStyle(4000);
-    transparent[12]->Draw();
-    TC[13]->SetEditable(false);
+    transparent[10] = new TPad("transparent10", "this does not show", 0, 0, 1, 1);
+    transparent[10]->SetFillStyle(4000);
+    transparent[10]->Draw();
+    TC[10]->SetEditable(false);
   }
 
   else if (name == "TPCClusterZY_unw")
   {
-    TC[14] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, UNWEIGHTED", 1350, 700);
+    TC[11] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, UNWEIGHTED", 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[14]->Divide(1,1);
+    TC[11]->Divide(1,1);
     // this one is used to plot the run number on the canvas
-    transparent[13] = new TPad("transparent13", "this does not show", 0, 0, 1, 1);
-    transparent[13]->SetFillStyle(4000);
-    transparent[13]->Draw();
-    TC[14]->SetEditable(false);
+    transparent[11] = new TPad("transparent11", "this does not show", 0, 0, 1, 1);
+    transparent[11]->SetFillStyle(4000);
+    transparent[11]->Draw();
+    TC[11]->SetEditable(false);
   }
 
   else if (name == "TPCLayerPhi")
   {
-    TC[15] = new TCanvas(name.c_str(), "Layer vs Channel Phi for NS and SS, WEIGHTED by Sum(ADC-pedestal)",1350,700);
+    TC[12] = new TCanvas(name.c_str(), "Layer vs Channel Phi for NS and SS, WEIGHTED by Sum(ADC-pedestal)",1350,700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[15]->Divide(1,1);
+    TC[12]->Divide(1,1);
+    // this one is used to plot the run number on the canvas
+    transparent[12] = new TPad("transparent12", "this does not show", 0, 0, 1, 1);
+    transparent[12]->SetFillStyle(4000);
+    transparent[12]->Draw();
+    TC[12]->SetEditable(false);
+  }
+  else if (name == "TPCPedestSubADC1D")
+  {
+    TC[13] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC 1D distribution", -1, 0, xsize , ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[13]->Divide(4,7);
+    transparent[13] = new TPad("transparent13", "this does not show", 0, 0, 1, 1);
+    transparent[13]->SetFillStyle(4000);
+    transparent[13]->Draw();
+    TC[13]->SetEditable(false);
+  }
+  else if (name == "TPCNEventsEBDC")
+  {
+    TC[14] = new TCanvas(name.c_str(), "TPC NUMBER EVENTS vs EBDC",1350,700);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[14]->Divide(1,1);
     // this one is used to plot the run number on the canvas
     transparent[14] = new TPad("transparent14", "this does not show", 0, 0, 1, 1);
     transparent[14]->SetFillStyle(4000);
     transparent[14]->Draw();
-    TC[15]->SetEditable(false);
-  }
-  else if (name == "TPCPedestSubADC1D")
-  {
-    TC[16] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC 1D distribution", -1, 0, xsize , ysize);
-    gSystem->ProcessEvents();
-    //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[16]->Divide(4,7);
-    transparent[15] = new TPad("transparent15", "this does not show", 0, 0, 1, 1);
-    transparent[15]->SetFillStyle(4000);
-    transparent[15]->Draw();
-    TC[16]->SetEditable(false);
-  }
-  else if (name == "TPCNEventsEBDC")
-  {
-    TC[17] = new TCanvas(name.c_str(), "TPC NUMBER EVENTS vs EBDC",1350,700);
-    gSystem->ProcessEvents();
-    //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[17]->Divide(1,1);
-    // this one is used to plot the run number on the canvas
-    transparent[16] = new TPad("transparent16", "this does not show", 0, 0, 1, 1);
-    transparent[16]->SetFillStyle(4000);
-    transparent[16]->Draw();
-    TC[17]->SetEditable(false);
+    TC[14]->SetEditable(false);
   }
   else if (name == "TPCPedestSubADCSample")
   {
-    TC[18] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC vs Sample in Whole Sector",-1, 0, xsize , ysize);
+    TC[15] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC vs Sample in Whole Sector",-1, 0, xsize , ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[18]->Divide(4,7);
-    transparent[17] = new TPad("transparent17", "this does not show", 0, 0, 1, 1);
-    transparent[17]->SetFillStyle(4000);
-    transparent[17]->Draw();
-    TC[18]->SetEditable(false);
+    TC[15]->Divide(4,7);
+    transparent[15] = new TPad("transparent15", "this does not show", 0, 0, 1, 1);
+    transparent[15]->SetFillStyle(4000);
+    transparent[15]->Draw();
+    TC[15]->SetEditable(false);
   } 
   else if (name == "TPCPedestSubADCSample_R1")
   {
-    TC[19] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC vs Sample in R1 ONLY",-1, 0, xsize , ysize);
+    TC[16] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC vs Sample in R1 ONLY",-1, 0, xsize , ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[19]->Divide(4,7);
-    transparent[18] = new TPad("transparent18", "this does not show", 0, 0, 1, 1);
-    transparent[18]->SetFillStyle(4000);
-    transparent[18]->Draw();
-    TC[19]->SetEditable(false);
+    TC[16]->Divide(4,7);
+    transparent[16] = new TPad("transparent16", "this does not show", 0, 0, 1, 1);
+    transparent[16]->SetFillStyle(4000);
+    transparent[16]->Draw();
+    TC[16]->SetEditable(false);
   }
   else if (name == "TPCPedestSubADCSample_R2")
   {
-    TC[20] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC vs Sample in R2 ONLY",-1, 0, xsize , ysize);
+    TC[17] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC vs Sample in R2 ONLY",-1, 0, xsize , ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[20]->Divide(4,7);
-    transparent[19] = new TPad("transparent19", "this does not show", 0, 0, 1, 1);
-    transparent[19]->SetFillStyle(4000);
-    transparent[19]->Draw();
-    TC[20]->SetEditable(false);
+    TC[17]->Divide(4,7);
+    transparent[17] = new TPad("transparent17", "this does not show", 0, 0, 1, 1);
+    transparent[17]->SetFillStyle(4000);
+    transparent[17]->Draw();
+    TC[17]->SetEditable(false);
   }   
   else if (name == "TPCPedestSubADCSample_R3")
   {
-    TC[21] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC vs Sample in R3 ONLY",-1, 0, xsize , ysize);
+    TC[18] = new TCanvas(name.c_str(), "TPC PEDEST SUB ADC vs Sample in R3 ONLY",-1, 0, xsize , ysize);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[21]->Divide(4,7);
-    transparent[20] = new TPad("transparent20", "this does not show", 0, 0, 1, 1);
-    transparent[20]->SetFillStyle(4000);
-    transparent[20]->Draw();
-    TC[21]->SetEditable(false);
+    TC[18]->Divide(4,7);
+    transparent[18] = new TPad("transparent18", "this does not show", 0, 0, 1, 1);
+    transparent[18]->SetFillStyle(4000);
+    transparent[18]->Draw();
+    TC[18]->SetEditable(false);
   }
   else if (name == "TPCClusterXY_laser")
   {
-    TC[22] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, LASER FLASH ONLY, WEIGHTED", 1350, 700);
+    TC[19] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, LASER FLASH ONLY, WEIGHTED", 1350, 700);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[19]->Divide(2,1);
+    // this one is used to plot the run number on the canvas
+    transparent[19] = new TPad("transparent19", "this does not show", 0, 0, 1, 1);
+    transparent[19]->SetFillStyle(4000);
+    transparent[19]->Draw();
+    TC[19]->SetEditable(false);
+  }      
+  else if (name == "TpcMonServerStats")
+  {
+    TC[20] = new TCanvas(name.c_str(), "TpcMon Server Stats", -1, 0, xsize, ysize);
+    gSystem->ProcessEvents();
+    transparent[20] = new TPad("transparent20", "this does not show", 0, 0, 1, 1);
+    transparent[20]->Draw();
+    transparent[20]->SetFillColor(kGray);
+    TC[20]->SetEditable(false);
+    TC[20]->SetTopMargin(0.05);
+    TC[20]->SetBottomMargin(0.05);
+  }
+  else if (name == "TPCStuckChannels")
+  {
+    TC[21] = new TCanvas(name.c_str(), "TPC Stuck Channels in Events", -1, 0, xsize , ysize );
+    gSystem->ProcessEvents();
+    TC[21]->Divide(4,7);
+    transparent[21] = new TPad("transparent21", "this does not show", 0, 0, 1, 1);
+    transparent[21]->SetFillStyle(4000);
+    transparent[21]->Draw();
+    TC[21]->SetEditable(false);
+  }
+  else if (name == "TPCClusterXY_u5")
+  {
+    TC[22] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, <= 5 EVENTS WEIGHTED", 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[22]->Divide(2,1);
     // this one is used to plot the run number on the canvas
-    transparent[21] = new TPad("transparent21", "this does not show", 0, 0, 1, 1);
-    transparent[21]->SetFillStyle(4000);
-    transparent[21]->Draw();
-    TC[22]->SetEditable(false);
-  }      
-  else if (name == "TpcMon_ServerStats")
-  {
-    TC[23] = new TCanvas(name.c_str(), "TpcMon Server Stats", -1, 0, xsize, ysize);
-    gSystem->ProcessEvents();
-    //gStyle->SetPalette(57); //kBird CVD friendly
     transparent[22] = new TPad("transparent22", "this does not show", 0, 0, 1, 1);
     transparent[22]->SetFillStyle(4000);
     transparent[22]->Draw();
-    TC[23]->SetEditable(false);
-    TC[23]->SetTopMargin(0.05);
-    TC[23]->SetBottomMargin(0.05);
-  }
-  else if (name == "TPCStuckChannels")
-  {
-    TC[24] = new TCanvas(name.c_str(), "TPC Stuck Channels in Events", -1, 0, xsize , ysize );
-    gSystem->ProcessEvents();
-    TC[24]->Divide(4,7);
-    transparent[23] = new TPad("transparent23", "this does not show", 0, 0, 1, 1);
-    transparent[23]->SetFillStyle(4000);
-    transparent[23]->Draw();
-    TC[24]->SetEditable(false);
-  }
-  else if (name == "TPCClusterXY_u5")
-  {
-    TC[25] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, <= 5 EVENTS WEIGHTED", 1350, 700);
-    gSystem->ProcessEvents();
-    //gStyle->SetPalette(57); //kBird CVD friendly
-    TC[25]->Divide(2,1);
-    // this one is used to plot the run number on the canvas
-    transparent[24] = new TPad("transparent24", "this does not show", 0, 0, 1, 1);
-    transparent[24]->SetFillStyle(4000);
-    transparent[24]->Draw();
-    TC[25]->SetEditable(false);
+    TC[22]->SetEditable(false);
   }     
   else if (name == "TPCChan_in_Packets_NS")
   {
-    TC[26] = new TCanvas(name.c_str(), "TPC Channel Fraction Present in Packet in RCDAQ Event, NS ONLY", -1, 0, xsize , ysize );
+    TC[23] = new TCanvas(name.c_str(), "TPC Channel Fraction Present in Packet in RCDAQ Event, NS ONLY", -1, 0, xsize , ysize );
     gSystem->ProcessEvents();
-    TC[26]->Divide(2,7);
-    transparent[25] = new TPad("transparent25", "this does not show", 0, 0, 1, 1);
-    transparent[25]->SetFillStyle(4000);
-    transparent[25]->Draw();
-    TC[26]->SetEditable(false);
+    TC[23]->Divide(2,7);
+    transparent[23] = new TPad("transparent23", "this does not show", 0, 0, 1, 1);
+    transparent[23]->SetFillStyle(4000);
+    transparent[23]->Draw();
+    TC[23]->SetEditable(false);
   }
   else if (name == "TPCChan_in_Packets_SS")
   {
-    TC[27] = new TCanvas(name.c_str(), "TPC Channel Fraction Present in Packet in RCDAQ Event, sS ONLY", -1, 0, xsize , ysize );
+    TC[24] = new TCanvas(name.c_str(), "TPC Channel Fraction Present in Packet in RCDAQ Event, sS ONLY", -1, 0, xsize , ysize );
     gSystem->ProcessEvents();
-    TC[27]->Divide(2,7);
-    transparent[26] = new TPad("transparent26", "this does not show", 0, 0, 1, 1);
-    transparent[26]->SetFillStyle(4000);
-    transparent[26]->Draw();
-    TC[27]->SetEditable(false);
+    TC[24]->Divide(2,7);
+    transparent[24] = new TPad("transparent24", "this does not show", 0, 0, 1, 1);
+    transparent[24]->SetFillStyle(4000);
+    transparent[24]->Draw();
+    TC[24]->SetEditable(false);
   }
      
   return 0;
@@ -2794,9 +2745,9 @@ time_t TpcMonDraw::getTime()
 int TpcMonDraw::DrawServerStats()
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  if (!gROOT->FindObject("TpcMon_ServerStats"))
+  if (!gROOT->FindObject("TpcMonServerStats"))
   {
-    MakeCanvas("TpcMon_ServerStats");
+    MakeCanvas("TpcMonServerStats");
   }
   TC[23]->Clear("D");
   TC[23]->SetEditable(true);
@@ -2823,7 +2774,7 @@ int TpcMonDraw::DrawServerStats()
     {
       txt << "Server " << server
           << " is dead ";
-      PrintRun.SetTextColor(2);
+      PrintRun.SetTextColor(kRed);
     }
     else
     {
@@ -2833,11 +2784,11 @@ int TpcMonDraw::DrawServerStats()
           << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
-        PrintRun.SetTextColor(3);
+        PrintRun.SetTextColor(kGray+2);
       }
       else
       {
-        PrintRun.SetTextColor(2);
+        PrintRun.SetTextColor(kRed);
       }
     }
     if (i > 12)
