@@ -41,7 +41,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // --- this is called by int DrawFirst(string&)
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "UNDER CONSTRUCTION - sEPD Monitor 1 - Hits/Event vs Tile", 1200, 600);
+    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - UNDER CONSTRUCTION - Hits/Event vs Tile", 1200, 600);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -61,7 +61,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // xpos negative: do not draw menu bar
     //TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1200, 600);
-    TC[1] = new TCanvas(name.c_str(), "EXPERT - sEPD Monitor 2 - ADC Distributions", 1600, 800);
+    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - EXPERT - ADC Distributions", 1600, 800);
     gSystem->ProcessEvents();
     for ( int i = 0; i < 32; ++i )
       {
