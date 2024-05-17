@@ -65,6 +65,7 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("Channels_in_Packet",servername);
     cl->registerHisto("Channels_Always",servername);
     cl->registerHisto("Num_non_ZS_channels_vs_SAMPA",servername);
+    cl->registerHisto("First_ADC_vs_First_Time_Bin",servername);
     cl->registerHisto("ZS_Trigger_ADC_vs_Sample",servername);
     cl->registerHisto("ADC_vs_SAMPLE",servername); 
     cl->registerHisto("ADC_vs_SAMPLE_large",servername);
