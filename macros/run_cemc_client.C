@@ -19,6 +19,7 @@ void cemcDrawInit(const int online = 0)
     {
       std::string servername = "CEMCMON_" + std::to_string(serverid);
       cemcmon->AddServer(servername);
+      cl->registerHisto("h2_cemc_hits", servername.c_str());
       for(int itrig = 0; itrig < 64; itrig++)
       {
         cl->registerHisto(Form("h2_cemc_hits_trig_bit_%d", itrig), servername.c_str());
@@ -27,6 +28,7 @@ void cemcDrawInit(const int online = 0)
       cl->registerHisto("h1_cemc_trig", servername.c_str());
       cl->registerHisto("h_evtRec", servername.c_str());
       cl->registerHisto("h2_cemc_rm", servername.c_str());
+      cl->registerHisto("h2_cemc_rmhits", servername.c_str());
       cl->registerHisto("h2_cemc_mean", servername.c_str());
       cl->registerHisto("h1_event", servername.c_str());
       cl->registerHisto("h2_waveform_twrAvg", servername.c_str());

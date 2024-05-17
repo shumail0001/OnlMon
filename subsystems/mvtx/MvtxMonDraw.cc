@@ -200,12 +200,12 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     //         transparent[2]->Draw();
     //       TC[2]->SetEditable(0);
   }
-  else if (name == "MvtxMon_ServerStats")
+  else if (name == "MvtxMonServerStats")
   {
     TC[6] = new TCanvas(name.c_str(), "MvtxMon Server Stats", xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
-    transparent[6]->SetFillStyle(4000);
+    transparent[6]->SetFillColor(kGray);
     transparent[6]->Draw();
     TC[6]->SetEditable(false);
     TC[6]->SetTopMargin(0.05);
@@ -1815,9 +1815,9 @@ time_t MvtxMonDraw::getTime()
 int MvtxMonDraw::DrawServerStats()
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  if (!gROOT->FindObject("MvtxMon_ServerStats"))
+  if (!gROOT->FindObject("MvtxMonServerStats"))
   {
-    MakeCanvas("MvtxMon_ServerStats");
+    MakeCanvas("MvtxMonServerStats");
   }
   TC[6]->Clear("D");
   TC[6]->SetEditable(true);
@@ -1841,7 +1841,7 @@ int MvtxMonDraw::DrawServerStats()
     {
       txt << "Server " << server
           << " is dead ";
-      PrintRun.SetTextColor(2);
+      PrintRun.SetTextColor(kRed);
     }
     else
     {
@@ -1851,11 +1851,11 @@ int MvtxMonDraw::DrawServerStats()
           << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
-        PrintRun.SetTextColor(3);
+        PrintRun.SetTextColor(kGray+2);
       }
       else
       {
-        PrintRun.SetTextColor(2);
+        PrintRun.SetTextColor(kRed);
       }
     }
     PrintRun.DrawText(0.5, vpos, txt.str().c_str());

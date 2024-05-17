@@ -39,7 +39,7 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("DAQ", "daq");
+  subsys = new SubSystem("DAQ [Expert]", "daq");
   subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
   subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check");
   // subsys->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
@@ -51,7 +51,9 @@ void StartPoms()
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
   subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average [Expert]");
   subsys->AddAction("ihcalDraw(\"THIRD\")", "Wave Form");
-  subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health [Expert]");
+  //subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health [Expert]");
+  subsys->AddAction("ihcalDraw(\"FIFTH\")", "Trigger [Expert]");
+  subsys->AddAction("ihcalDraw(\"SIXTH\")", "Tower Status [Expert]");
   subsys->AddAction("ihcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
@@ -60,16 +62,17 @@ void StartPoms()
   subsys->AddAction("ohcalDraw(\"FIRST\")", "Towers");
   subsys->AddAction("ohcalDraw(\"SECOND\")", "Sector Average [Expert]");
   subsys->AddAction("ohcalDraw(\"THIRD\")", "Wave Form");
-  subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health [Expert]");
+  //subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ohcalDraw(\"FIFTH\")", "Trigger [Expert]");
+  subsys->AddAction("ohcalDraw(\"SIXTH\")", "Tower Status [Expert]");
   subsys->AddAction("ohcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("INTT", "intt");
   subsys->AddAction("inttDraw(\"chip_hitmap\")", "Chip Hitmap");
-  subsys->AddAction("inttDraw(\"ladder_hitmap\")", "Ladder Hitmap");
-  subsys->AddAction("inttDraw(\"chip_nll\")", "Chip NLL");
+  // subsys->AddAction("inttDraw(\"ladder_hitmap\")", "Ladder Hitmap");
+  //  subsys->AddAction("inttDraw(\"chip_nll\")", "Chip NLL");
   subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff");
   subsys->AddAction("inttDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
@@ -125,6 +128,7 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCCLUSTERSZYWEIGTHED\")", "TPC Cluster ZY MaxADC-Pedestal,w");
   subsys->AddAction("tpcDraw(\"TPCCLUSTERSZYUNWEIGTHED\")", "TPC Cluster ZY MaxADC-Pedestal,u");
   subsys->AddAction("tpcDraw(\"TPCLASERCLUSTERSXYWEIGTHED\")", "TPC DIFF. LASER Cluster XY MaxADC-Pedestal,w");
+  subsys->AddAction("tpcDraw(\"TPCCLUSTERS5EXYUNWEIGTHED\")", "TPC Cluster XY <= 5 Events MaxADC-Pedestal,u");
   subsys->AddAction("tpcDraw(\"TPCCHANNELPHI_LAYER_WEIGHTED\")", "TPC ChannelPhi vs Layer vs Pedest Sub. ADC,w");
   subsys->AddAction("tpcDraw(\"TPCNEVENTSEBDC\")", "TPC NEvents vs EBDC");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE\")", "TPC Pedest Sub. ADC vs Sample");
@@ -132,6 +136,8 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R2\")", "TPC Pedest Sub. ADC vs Sample R2 ONLY");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R3\")", "TPC Pedest Sub. ADC vs Sample R3 ONLY");
   subsys->AddAction("tpcDraw(\"TPCSTUCKCHANNELS\")", "TPC Stuck Channels in FEE");
+  subsys->AddAction("tpcDraw(\"TPCCHANSINPACKETNS\")", "TPC NS Chan. Per Packet per RCDAQ EVENT");
+  subsys->AddAction("tpcDraw(\"TPCCHANSINPACKETSS\")", "TPC SS Chan. Per Packet per RCDAQ EVENT");
   subsys->AddAction("tpcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);

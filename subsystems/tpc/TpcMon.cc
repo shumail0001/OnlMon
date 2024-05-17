@@ -368,6 +368,34 @@ int TpcMon::Init()
   Check_Sum_Error -> GetYaxis() -> SetTitleSize(0.05);
   Check_Sum_Error -> GetYaxis() -> SetTitleOffset(1.0); 
 
+  // # of times channels are in packet per RCDAQ event
+  char chans_in_packet_title_str[100];
+  sprintf(chans_in_packet_title_str,"Channel counts vs Channel in packets in  RCDAQ Events: SECTOR %i",MonitorServerId());  
+  Channels_in_Packet = new TH1F("Channels_in_Packet" , chans_in_packet_title_str, 6656, -0.5, 6655.5);
+  Channels_in_Packet->SetXTitle("(FEE # * 256) + chan. #");
+  Channels_in_Packet->SetYTitle("Counts / Packet in RCDAQ Event");
+  Channels_in_Packet->SetStats(0);
+
+  Channels_in_Packet -> GetXaxis() -> SetLabelSize(0.05);
+  Channels_in_Packet -> GetXaxis() -> SetTitleSize(0.05);
+  Channels_in_Packet -> GetYaxis() -> SetLabelSize(0.05);
+  Channels_in_Packet -> GetYaxis() -> SetTitleSize(0.05);
+  Channels_in_Packet -> GetYaxis() -> SetTitleOffset(1.0);
+
+  // # of times channels are in packet per RCDAQ event
+  char chans_always_title_str[100];
+  sprintf(chans_always_title_str,"Channel counts vs all channels (filled once per event w/ packets): SECTOR %i",MonitorServerId());  
+  Channels_Always = new TH1F("Channels_Always" , chans_always_title_str, 6656, -0.5, 6655.5);
+  Channels_Always->SetXTitle("(FEE # * 256) + chan. #");
+  Channels_Always->SetYTitle("Counts");
+  Channels_Always->SetStats(0);
+
+  Channels_Always -> GetXaxis() -> SetLabelSize(0.05);
+  Channels_Always -> GetXaxis() -> SetTitleSize(0.05);
+  Channels_Always -> GetYaxis() -> SetLabelSize(0.05);
+  Channels_Always -> GetYaxis() -> SetTitleSize(0.05);
+  Channels_Always -> GetYaxis() -> SetTitleOffset(1.0);
+
   // Max ADC per waveform dist for each module (R1, R2, R3)
   char MAXADC_str[100];
   char YLabel_str[5];
@@ -536,6 +564,9 @@ int TpcMon::Init()
   se->registerHisto(this, Check_Sum_Error);
   se->registerHisto(this, Check_Sums);
   se->registerHisto(this, Stuck_Channels);
+  se->registerHisto(this, Channels_in_Packet);
+  se->registerHisto(this, Channels_Always);
+  se->registerHisto(this, Channels_Always);
   se->registerHisto(this, ADC_vs_SAMPLE);
   se->registerHisto(this, PEDEST_SUB_ADC_vs_SAMPLE);
   se->registerHisto(this, PEDEST_SUB_ADC_vs_SAMPLE_R1);
@@ -672,6 +703,8 @@ int TpcMon::process_event(Event *evt/* evt */)
 
       bool is_channel_stuck = 0;
 
+      for(int ci = 0; ci < 6656; ci++){ Channels_Always->Fill(ci);}
+
       for( int wf = 0; wf < nr_of_waveforms; wf++)
       {
 	//std::cout<<"START OF WF LOOP, "<<"current wf = "<<wf<<", total wf = "<<nr_of_waveforms<<" EVENT "<<evtcnt<<std::endl;
@@ -697,6 +730,8 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         Check_Sums->Fill(fee*8 + sampaAddress); 
         if( checksumError == 1){Check_Sum_Error->Fill(fee*8 + sampaAddress);}
+
+        if( checksumError == 0){Channels_in_Packet->Fill(channel + (256*FEE_transform[fee]));}
 
         int nr_Samples = p->iValue(wf, "SAMPLES");
         sample_size_hist->Fill(nr_Samples);

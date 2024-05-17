@@ -9,6 +9,7 @@
 
 class TCanvas;
 class TGraphErrors;
+class TH2D;
 class TPad;
 class TProfile;
 
@@ -50,16 +51,18 @@ class CemcMonDraw : public OnlMonDraw
   int save{0};
 
   TCanvas *TC[19]{nullptr};
-  TCanvas *PopUpCanvas{nullptr};
+  //TCanvas *PopUpCanvas{nullptr};
   TPad *transparent[19]{nullptr};
   TPad *Pad[29]{nullptr};
   TPad *warning[29]{nullptr};
 
-  TPad *PopUpPad[8][8] {{nullptr}};
-  TPad *PopUpTransparent{nullptr};
+  //TPad *PopUpPad[8][8] {{nullptr}};
+  //TPad *PopUpTransparent{nullptr};
   TGraphErrors *gr[2]{nullptr};
-  TProfile *summedProfile[8][8]{{nullptr}};
-  TProfile *AllProfiles[256][96]{{nullptr}};
+  //TProfile *summedProfile[8][8]{{nullptr}};
+  //TProfile *AllProfiles[256][96]{{nullptr}};
+  TH2D* h2_template_hit{nullptr};
+  TH2D* h_cemc_datahits{nullptr};
   TStyle *cemcStyle{nullptr};
 };
 
