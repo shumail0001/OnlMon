@@ -107,6 +107,7 @@ const int historyLength = 100;
 const int historyScaleDown = 100;
 // const int n_channel = 48;
 const float hit_threshold = 30;
+const float waveform_hit_threshold = 100;
 const int n_samples_show = 31;
 
 int HcalMon::Init()
@@ -462,9 +463,12 @@ int HcalMon::process_event(Event* e /* evt */)
         unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
         unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
         int sectorNumber = phi_bin / 2 + 1;
+        if(signal > waveform_hit_threshold){
+          h_waveform_time->Fill(time);
+        }
         if (signal > hit_threshold)
         {
-          h_waveform_time->Fill(time);
+          
           rm_vector_twrTime[towerNumber - 1]->Add(&time);
           rm_vector_twrhit[towerNumber - 1]->Add(one);
         }
@@ -537,7 +541,7 @@ int HcalMon::process_event(Event* e /* evt */)
         for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
         {
           h_waveform_twrAvg->Fill(s, p->iValue(s, c));
-          if (signal > hit_threshold)
+          if (signal > waveform_hit_threshold)
           {
             h2_hcal_waveform->Fill(s, (p->iValue(s, c) - pedestal));
           }
