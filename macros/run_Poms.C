@@ -39,7 +39,7 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("DAQ", "daq");
+  subsys = new SubSystem("DAQ [Expert]", "daq");
   subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
   subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check");
   // subsys->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
@@ -71,8 +71,8 @@ void StartPoms()
 
   subsys = new SubSystem("INTT", "intt");
   subsys->AddAction("inttDraw(\"chip_hitmap\")", "Chip Hitmap");
-  subsys->AddAction("inttDraw(\"ladder_hitmap\")", "Ladder Hitmap");
-  subsys->AddAction("inttDraw(\"chip_nll\")", "Chip NLL");
+  // subsys->AddAction("inttDraw(\"ladder_hitmap\")", "Ladder Hitmap");
+  //  subsys->AddAction("inttDraw(\"chip_nll\")", "Chip NLL");
   subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff");
   subsys->AddAction("inttDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));

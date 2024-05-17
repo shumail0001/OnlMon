@@ -474,7 +474,6 @@ int TpcMonDraw::Draw(const std::string &what)
 int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-
   TH2 *tpcmon_NSIDEADC[24] = {nullptr};
   TH2 *tpcmon_SSIDEADC[24] = {nullptr};
 
@@ -488,6 +487,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
     tpcmon_SSIDEADC[i] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC");
   }
 
+
   //TH2 *tpcmon_NSIDEADC1 = (TH2*) cl->getHisto("TPCMON_0","NorthSideADC");
   //TH2 *tpcmon_SSIDEADC1 = (TH2*) cl->getHisto("TPCMON_0","SouthSideADC");
 
@@ -495,6 +495,9 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   {
     MakeCanvas("TPCModules");
   }
+
+  TCanvas *MyTC = TC[0];
+  TPad *TransparentTPad = transparent[0];
 
   dummy_his1 = new TH2F("dummy_his1", "ADC Counts North Side", 100, -1.5, 1.5, 100, -1.5, 1.5); //dummy histos for titles
   dummy_his2 = new TH2F("dummy_his2", "ADC Counts South Side", 100, -1.5, 1.5, 100, -1.5, 1.5);
@@ -552,14 +555,9 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   SS10->SetFillColor(0);
   SS11->SetFillColor(0);
 
-  TCanvas *MyTC = TC[0];
-  TPad *TransparentTPad = transparent[0];
-
   MyTC->SetEditable(true);
   MyTC->Clear("D");
-
   MyTC->cd(1);
-
   gPad->SetTopMargin(0.15);
   gStyle->SetOptStat(0);
   dummy_his1->Draw("colpolzsame");
@@ -567,21 +565,20 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   float NS_max = 0;
   for( int i=0; i<12; i++ )
   {
-    if( tpcmon_NSIDEADC[i] )
+    if( tpcmon_NSIDEADC[i] ){
+    MyTC->cd(1);
+    tpcmon_NSIDEADC[i] -> DrawCopy("colpolzsame");
+    if( tpcmon_NSIDEADC[i]->GetBinContent(tpcmon_NSIDEADC[i]->GetMaximumBin()) > NS_max)
     {
-      TC[3]->cd(1);
-      tpcmon_NSIDEADC[i] -> DrawCopy("colpolzsame");
-      if( tpcmon_NSIDEADC[i]->GetBinContent(tpcmon_NSIDEADC[i]->GetMaximumBin()) > NS_max)
-      {
-        NS_max = tpcmon_NSIDEADC[i]->GetBinContent(tpcmon_NSIDEADC[i]->GetMaximumBin());
-        dummy_his1->SetMaximum( NS_max );
-      }
+      NS_max = tpcmon_NSIDEADC[i]->GetBinContent(tpcmon_NSIDEADC[i]->GetMaximumBin());
+      dummy_his1->SetMaximum( NS_max );
+    }
     gStyle->SetPalette(57); //kBird CVD friendly
     }
+
   }
   MyTC->Update();
   MyTC->cd(1);
-
   SS00->Draw("same");
   SS01->Draw("same");
   SS02->Draw("same");
@@ -620,7 +617,6 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   MyTC->Update();
 
   MyTC->cd(2);
-
   NS18->Draw("same");
   NS17->Draw("same");
   NS16->Draw("same");
