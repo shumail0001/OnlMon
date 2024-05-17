@@ -415,7 +415,7 @@ int TpcMon::Init()
   char ZS_ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(ZS_ADC_vs_SAMPLE_str,"ADC Counts vs Sample - Trigger QA: SECTOR %i",MonitorServerId());
   sprintf(ZS_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
-  ZS_Trigger_ADC_vs_Sample = new TH2F("ZS_Trigger_ADC_vs_Sample", ZS_ADC_vs_SAMPLE_str, 360, -0.5, 359.5, 256, 0, 1024);
+  ZS_Trigger_ADC_vs_Sample = new TH2F("ZS_Trigger_ADC_vs_Sample", ZS_ADC_vs_SAMPLE_str, 360, -0.5, 359.5, 1024, 0, 1024);
   ZS_Trigger_ADC_vs_Sample -> SetXTitle(ZS_ADC_vs_SAMPLE_xaxis_str);
   ZS_Trigger_ADC_vs_Sample -> SetYTitle("ADC [ADU]");
 
@@ -423,7 +423,22 @@ int TpcMon::Init()
   ZS_Trigger_ADC_vs_Sample -> GetXaxis() -> SetTitleSize(0.05);
   ZS_Trigger_ADC_vs_Sample -> GetYaxis() -> SetLabelSize(0.05);
   ZS_Trigger_ADC_vs_Sample -> GetYaxis() -> SetTitleSize(0.05);
-  ZS_Trigger_ADC_vs_Sample -> GetYaxis() -> SetTitleOffset(1.0); 
+  ZS_Trigger_ADC_vs_Sample -> GetYaxis() -> SetTitleOffset(1.0);
+
+  //First non-ZS ADC vs Sample (small)
+  char First_ADC_vs_First_Time_Bin_str[100];
+  char First_ADC_vs_First_Time_Bin_xaxis_str[100];
+  sprintf(First_ADC_vs_First_Time_Bin_str,"1st nonZS ADC vs 1st nonZS Sample Time: SECTOR %i",MonitorServerId());
+  sprintf(First_ADC_vs_First_Time_Bin_xaxis_str,"Sector %i: 1st non-ZS Time bin [1/20MHz]",MonitorServerId());
+  First_ADC_vs_First_Time_Bin = new TH2F("First_ADC_vs_First_Time_Bin", First_ADC_vs_First_Time_Bin_str, 360, -0.5, 359.5, 256, 0, 1024);
+  First_ADC_vs_First_Time_Bin -> SetXTitle(First_ADC_vs_First_Time_Bin_xaxis_str);
+  First_ADC_vs_First_Time_Bin -> SetYTitle("1st non-ZS ADC [ADU]");
+
+  First_ADC_vs_First_Time_Bin -> GetXaxis() -> SetLabelSize(0.05);
+  First_ADC_vs_First_Time_Bin -> GetXaxis() -> SetTitleSize(0.05);
+  First_ADC_vs_First_Time_Bin -> GetYaxis() -> SetLabelSize(0.05);
+  First_ADC_vs_First_Time_Bin -> GetYaxis() -> SetTitleSize(0.05);
+  First_ADC_vs_First_Time_Bin -> GetYaxis() -> SetTitleOffset(1.0);  
 
   // Max ADC per waveform dist for each module (R1, R2, R3)
   char MAXADC_str[100];
@@ -598,6 +613,7 @@ int TpcMon::Init()
   se->registerHisto(this, Channels_Always);
   se->registerHisto(this, Num_non_ZS_channels_vs_SAMPA);
   se->registerHisto(this, ZS_Trigger_ADC_vs_Sample);
+  se->registerHisto(this, First_ADC_vs_First_Time_Bin);
   se->registerHisto(this, ADC_vs_SAMPLE);
   se->registerHisto(this, PEDEST_SUB_ADC_vs_SAMPLE);
   se->registerHisto(this, PEDEST_SUB_ADC_vs_SAMPLE_R1);
@@ -823,6 +839,7 @@ int TpcMon::process_event(Event *evt/* evt */)
         int tr_samp = 0;
         int start_flag = 0;
         int prev_sample = 65000;
+        int first_non_ZS_sample = 1;
 
         if( nr_Samples > 9)
         {
@@ -833,7 +850,11 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           for( int si=0;si < nr_Samples; si++ ) //get pedestal and noise before hand
           {
-            if( (p->iValue(wf,si)) < 1025 && prev_sample > 64500) { start_flag = 1; } // start condition to record
+            if( (p->iValue(wf,si)) < 1025 && prev_sample > 64500) //start condition to record 
+            { 
+              start_flag = 1;
+              if(first_non_ZS_sample == 1){First_ADC_vs_First_Time_Bin->Fill(si,(p->iValue(wf,si)));first_non_ZS_sample = 0;} //this is the first sample, its all we want
+            } 
             if( (p->iValue(wf,si)) > 64500 && prev_sample < 1025){ tr_samp = 0; start_flag = 0; prev_sample =  (p->iValue(wf,si)); }  // end condition to record
             if( start_flag == 1){ ZS_Trigger_ADC_vs_Sample->Fill(tr_samp, p->iValue(wf,si)); tr_samp++; prev_sample = p->iValue(wf,si);} // record the ZS trigger histo if you should
             

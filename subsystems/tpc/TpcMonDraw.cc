@@ -352,6 +352,17 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[26]->Draw();
     TC[26]->SetEditable(false);
   }
+  else if (name == "TPCFirstADCvsFirstSample")
+  {
+    TC[27] = new TCanvas(name.c_str(), "",-1, 0, xsize , ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[27]->Divide(4,7);
+    transparent[27] = new TPad("transparent27", "this does not show", 0, 0, 1, 1);
+    transparent[27]->SetFillStyle(4000);
+    transparent[27]->Draw();
+    TC[27]->SetEditable(false);
+  }
      
   return 0;
 }
@@ -488,6 +499,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCZSTRIGGERADCVSSAMPLE")
   {
     iret += DrawTPCZSTriggerADCSample(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCFIRSTNONZSADCVSFIRSTNONZSSAMPLE")
+  {
+    iret +=  DrawTPCFirstnonZSADCFirstnonZSSample(what);
     idraw++;
   }
   if (what == "ALL" || what == "SERVERSTATS")
@@ -2980,6 +2996,68 @@ int TpcMonDraw::DrawTPCZSTriggerADCSample(const std::string & /* what */)
 
   return 0;
 }
+
+int TpcMonDraw::DrawTPCFirstnonZSADCFirstnonZSSample(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_FirstNZSADCvsFirstNZSSample[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_FirstNZSADCvsFirstNZSSample[i] = (TH1*) cl->getHisto(TPCMON_STR,"First_ADC_vs_First_Time_Bin");
+  }
+
+  if (!gROOT->FindObject("TPCFirstADCvsFirstSample"))
+  {
+    MakeCanvas("TPCFirstADCvsFirstSample");
+  }
+
+  TCanvas *MyTC = TC[27];
+  TPad *TransparentTPad = transparent[27];
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57); //kBird CVD friendly
+
+  for( int i=0; i<24; i++ ) 
+  {
+    if( tpcmon_FirstNZSADCvsFirstNZSSample[i] )
+    {
+      MyTC->cd(i+5);
+      tpcmon_FirstNZSADCvsFirstNZSSample[i]->RebinX(5);
+      tpcmon_FirstNZSADCvsFirstNZSSample[i]->DrawCopy("colz");
+      gPad->SetLogz(kTRUE);
+      gPad->SetLogy(kTRUE);
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_1st non-ZS ADC vs 1st non-ZS Sample Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+
+  return 0;
+}
+
 
 int TpcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
