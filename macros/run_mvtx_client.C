@@ -37,6 +37,8 @@ void mvtxDrawInit(const int online = 0)
     cl->registerHisto("General_hfeeStrobes", servername);
     cl->registerHisto("General_feeL1", servername);
 
+    cl->registerHisto("hStrobesDMA", servername);
+
     // FEE
     //cl->registerHisto("MVTXMON_FEE_TriggerVsFeeid", servername);
     //cl->registerHisto("MVTXMON_FEE_TriggerFlag", servername);
