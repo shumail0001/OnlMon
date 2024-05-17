@@ -1093,16 +1093,19 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   h1_waveform_time[start[1]]->GetYaxis()->SetTitleOffset(.85);
   h1_waveform_time[start[1]]->SetFillColorAlpha(kBlue,0.1);
   gPad->Update();
-  //if (h1_waveform_time[start[1]]->GetEntries())
-  //{
-  //  h1_waveform_time[start[1]]->Scale(1. / h1_waveform_time[start[1]]->GetEntries());
-  //}
-  //h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0, 1.);
+  if (h1_waveform_time[start[1]]->GetEntries())
+  {
+    h1_waveform_time[start[1]]->Scale(1. / h1_waveform_time[start[1]]->GetEntries());
+  }
+  h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0, 1.);
 
   TLine *windowLow2 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, gPad->GetFrame()->GetY2());
   TLine *windowHigh2 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, gPad->GetFrame()->GetY2());
+  TLine* meantime = new TLine(h1_waveform_time[start[1]]->GetMean(),0,h1_waveform_time[start[1]]->GetMean(),gPad->GetFrame()->GetY2());
   windowLow2->SetLineWidth(3);
   windowHigh2->SetLineWidth(3);
+  meantime->SetLineWidth(3);
+  meantime->SetLineColor(kRed);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1147,12 +1150,12 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   gPad->Update();
 
 
-  //if (h1_waveform_pedestal[start[2]]->GetEntries())
-  //{
-  //  h1_waveform_pedestal[start[2]]->Scale(1. / h1_waveform_pedestal[start[2]]->GetEntries());
-  //}
+  if (h1_waveform_pedestal[start[2]]->GetEntries())
+  {
+    h1_waveform_pedestal[start[2]]->Scale(1. / h1_waveform_pedestal[start[2]]->GetEntries());
+  }
   // h1_waveform_pedestal -> GetXaxis() -> SetRangeUser(1000,2000);
-  //gStyle->SetOptStat(0);
+  gStyle->SetOptStat(0);
 
 
   TC[2]->Update();

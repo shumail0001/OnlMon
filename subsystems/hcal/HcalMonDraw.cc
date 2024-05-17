@@ -663,6 +663,9 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
     int n_bins = profile_y->GetNbinsX();
     for (int i = 1; i <= n_bins; ++i) {
         double bin_center = profile_y->GetBinCenter(i);
+        if (profile_y->GetBinContent(i) == 0) {
+            continue;
+        }
         if (bin_center >= x_min && bin_center <= x_max) {
             n_points_in_range++;
         }
@@ -675,6 +678,9 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
     int point_index = 0;
     for (int i = 1; i <= n_bins; ++i) {
         double bin_center = profile_y->GetBinCenter(i);
+        if (profile_y->GetBinContent(i) == 0) {
+            continue;
+        }
         if (bin_center >= x_min && bin_center <= x_max) {
             y_vals[point_index] = bin_center;
             x_vals[point_index] = profile_y->GetBinContent(i);
@@ -767,6 +773,9 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h_waveform_time->GetXaxis()->SetTitleOffset(1.0);
   h_waveform_time->GetYaxis()->SetTitleOffset(0.85);
   h_waveform_time->SetFillColorAlpha(kBlue, 0.1);
+  if(h_waveform_time->GetEntries()){
+    h_waveform_time->Scale(1. / h_waveform_time->GetEntries());
+  }
   gPad->Update();
   //draw two black lines for the okay timing range
   TLine* line3 = new TLine(4.5, 0, 4.5,  gPad->GetFrame()->GetY2());
@@ -810,6 +819,10 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h_waveform_pedestal->GetXaxis()->SetTitleOffset(0.9);
   h_waveform_pedestal->GetYaxis()->SetTitleOffset(0.85);
   h_waveform_pedestal->SetFillColorAlpha(kBlue, 0.1);
+  if (h_waveform_pedestal->GetEntries())
+  {
+    h_waveform_pedestal->Scale(1. / h_waveform_pedestal->GetEntries());
+  }
   gPad->Update();
   TLine* line6 = new TLine(1000, 0, 1000,  gPad->GetFrame()->GetY2());
   line6->SetLineColor(1);
@@ -827,6 +840,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
   gPad->SetLeftMargin(0.15);
+  gPad->SetLogy();
   gStyle->SetOptStat(0);
   gPad->SetTicky();
   gPad->SetTickx();
