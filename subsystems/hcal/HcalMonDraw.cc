@@ -180,7 +180,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalMon5")
   {
-    TC[6] = new TCanvas(name.c_str(), "HcalMon5 Trigger Info", xsize / 2, 0, xsize / 2, ysize * 0.9);
+    TC[6] = new TCanvas(name.c_str(), "Expert: Trigger Info", xsize / 2, 0, xsize / 2, ysize * 0.9);
     gSystem->ProcessEvents();
     Pad[16] = new TPad("hcalpad16", "", 0.0, 0.6, 0.5, 0.95, 0);
     Pad[17] = new TPad("hcalpad17", "", 0.5, 0.6, 1.0, 0.95, 0);
@@ -200,7 +200,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if(name == "HcalMon6")
   {
-    TC[7] = new TCanvas(name.c_str(), "HcalMon6 Tower Information", xsize , 0, xsize, ysize * 0.9);
+    TC[7] = new TCanvas(name.c_str(), "Expert: Tower Information", xsize , 0, xsize, ysize * 0.9);
     gSystem->ProcessEvents();
     Pad[21] = new TPad("hcalpad21", "", 0.0, 0.5, 0.5, 0.95, 0);
     Pad[22] = new TPad("hcalpad22", "", 0.5, 0.5, 1.0, 0.95, 0);
@@ -217,7 +217,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     TC[7]->SetEditable(false);
   }
   else if (name == "HcalMon7"){
-    TC[9] = new TCanvas(name.c_str(),"Channel unsuppressed event fraction Expert", -xsize/2 , 0, xsize/2, ysize*0.9);
+    TC[9] = new TCanvas(name.c_str(),"Expert: Channel unsuppressed event fraction ", -xsize/2 , 0, xsize/2, ysize*0.9);
     gSystem->ProcessEvents();
     Pad[24]=new TPad("hcalpad24","who needs this?",0.00,0.00,1.00,0.95);
     Pad[24]->SetRightMargin(0.15);
