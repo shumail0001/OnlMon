@@ -31,10 +31,7 @@ InttMonDraw::CdPad (
 	if(!p)return;
 
 	p->cd();
-
-	// Shit like this is why I hate ROOT
 	gROOT->SetSelectedPad(p); // So TObject::DrawClone draws where you expect
-	// ... and whatever other dumb global pointer things I may find later
 }
 
 Color_t
