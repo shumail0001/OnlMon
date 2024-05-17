@@ -759,8 +759,8 @@ int TpcMon::process_event(Event *evt/* evt */)
         int checksumError = p->iValue(wf, "CHECKSUMERROR");
         int channel = p->iValue(wf, "CHANNEL");
 
-        Check_Sums->Fill(fee*8 + sampaAddress); 
-        if( checksumError == 1){Check_Sum_Error->Fill(fee*8 + sampaAddress);}
+        Check_Sums->Fill(FEE_transform[fee]*8 + sampaAddress); 
+        if( checksumError == 1){Check_Sum_Error->Fill(FEE_transform[fee]*8 + sampaAddress);}
 
         if( checksumError == 0){Channels_in_Packet->Fill(channel + (256*FEE_transform[fee]));}
 
@@ -865,8 +865,8 @@ int TpcMon::process_event(Event *evt/* evt */)
         if(rawnoise==0. && median_and_stdev_vec.size() > 1 )
         {
           //for( int si=0;si < nr_Samples; si++ ){ std::cout<<"SAMPLE: "<<si<<", ADC: "<< p->iValue(wf,si) << std::endl; } 
-	  stuck_channel_count[channel][fee]++;  // if the RMS is 0, this channel must be stuck
-          if(stuck_channel_count[channel][fee] == 1){ Stuck_Channels->Fill(fee); } // only count # of unique channels in FEE that get stuck at least once
+	  stuck_channel_count[channel][FEE_transform[fee]]++;  // if the RMS is 0, this channel must be stuck
+          if(stuck_channel_count[channel][FEE_transform[fee]] == 1){ Stuck_Channels->Fill(FEE_transform[fee]); } // only count # of unique channels in FEE that get stuck at least once
         } 
 
         int wf_max = 0;

@@ -776,6 +776,17 @@ int TpcMonDraw::DrawTPCCheckSum(const std::string & /* what */)
   MyTC->Clear("D");
   MyTC->cd(1);
 
+  TLine *t1 = new TLine(); t1->SetLineWidth(2);
+  TLine *t2 = new TLine(); t2->SetLineStyle(2);
+  TText *tt1= new TText(); tt1->SetTextSize(0.05);
+
+  int FEEid[26]={2,4,3,13,17,16, // R1
+                 11,12,19,18,0,1,15,14, // R2
+                 20,22,21,23,25,24,10,9,8,6,7,5 // R3
+                };
+
+  char title[50];
+
   for( int i=0; i<24; i++ )
   {
     if( tpcmon_checksumerror[i] && tpcmon_checksums[i] )
@@ -783,8 +794,29 @@ int TpcMonDraw::DrawTPCCheckSum(const std::string & /* what */)
       MyTC->cd(i+5);
 
       tpcmon_checksumerror[i]->Divide(tpcmon_checksums[i]);
-      tpcmon_checksumerror[i]->GetYaxis()->SetRangeUser(0.0001,1.2);
+      tpcmon_checksumerror[i]->GetYaxis()->SetRangeUser(0.0001,1.5);
       tpcmon_checksumerror[i]->DrawCopy("HIST");
+    
+      MyTC->Update();
+
+      for(int j=0;j<25;j++)
+      {
+        t2->DrawLine((j+1)*8,-0.01,(j+1)*8,1.5);
+      }
+      for(int k=0;k<26;k++)
+      {
+        sprintf(title,"%d",FEEid[k]);
+        tt1->DrawText(k*8+4,1.2,title);
+      }
+      tt1->SetTextSize(0.06);
+      tt1->DrawText(25,1.4,"R1");
+      tt1->DrawText(77,1.4,"R2");
+      tt1->DrawText(163,1.4,"R3");
+      tt1->SetTextSize(0.05); 
+
+      t1->DrawLine(48.5,-0.01,48.5,1.5);
+      t1->DrawLine(112.5,-0.01,112.5,1.5);
+
     }
   }
 
@@ -2361,16 +2393,50 @@ int TpcMonDraw::DrawTPCStuckChannels(const std::string & /* what */)
   MyTC->Clear("D");
   MyTC->cd(1);
 
+  TLine *t1 = new TLine(); t1->SetLineWidth(2);
+  TLine *t11 = new TLine(); t11->SetLineWidth(2);
+  TLine *t2 = new TLine(); t2->SetLineStyle(2);
+  TText *tt1= new TText(); tt1->SetTextSize(0.05);
+
+  int FEEid[26]={2,4,3,13,17,16, // R1
+                 11,12,19,18,0,1,15,14, // R2
+                 20,22,21,23,25,24,10,9,8,6,7,5 // R3
+                };
+
+  char title[50];
+
   for( int i=0; i<24; i++ )
   {
     if( tpcmon_stuckchannels[i] )
     {
       MyTC->cd(i+5);
 
-      tpcmon_stuckchannels[i]->GetYaxis()->SetRangeUser(0.01,300);
+      tpcmon_stuckchannels[i]->GetYaxis()->SetRangeUser(0.01,10000);
       tpcmon_stuckchannels[i]->DrawCopy("HIST");
 
       gPad->SetLogy(kTRUE);
+
+      MyTC->Update();
+
+      for(int j=0;j<25;j++)
+      {
+        t2->DrawLine((j+0.5),0.01,(j+0.5),1500);
+      }
+      for(int k=0;k<26;k++)
+      {
+        sprintf(title,"%d",FEEid[k]);
+        tt1->DrawText(k,400,title);
+      }
+      tt1->SetTextSize(0.06);
+      tt1->DrawText(3.1,2000,"R1");
+      tt1->DrawText(9.6,2000,"R2");
+      tt1->DrawText(20.4,2000,"R3");
+      tt1->SetTextSize(0.05); 
+
+      t1->DrawLine(5.5,0.01,5.5,5000);
+      t1->DrawLine(13.5,0.01,13.5,5000);
+
+      t11->DrawLine(-0.5,256,25.5,256);
     }
   }
 
