@@ -238,8 +238,8 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
     transparent[8] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
-    transparent[8]->SetFillStyle(4000);
     transparent[8]->Draw();
+    transparent[8]->SetFillColor(kGray);
     TC[8]->SetEditable(false);
   }
   return 0;
@@ -466,7 +466,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   std::string runstring;
   time_t evttime = getTime();
   // fill run number and event time into string
-  runnostream << ThisName << ": tower occupancy running mean divided by template";
+  runnostream << ThisName << ": tower occupancy(threshold 30ADC) running mean divided by template";
   runnostream2 << "Run" << cl->RunNumber() << ", Time: " << ctime(&evttime);
   transparent[0]->cd();
   runstring = runnostream.str();
@@ -651,13 +651,44 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h2_hcal_waveform->Add(h2_hcal_waveform_1);
 
   //Tprofie of h2_hcal_waveform 
-  TProfile* h_waveform_profile = h2_hcal_waveform->ProfileX();
-  // closed circle
+  float ymaxp = h2_hcal_waveform->ProfileX()->GetMaximum();
+  TProfile* profile_y = h2_hcal_waveform->ProfileY();
+  profile_y->Rebin(5);
+
+    // Define the range
+    double x_min = 100;
+    double x_max = 10 * ymaxp;
+    int n_points_in_range = 0;
+    // Loop through the bins of the Profile Y histogram and count the bins within the range
+    int n_bins = profile_y->GetNbinsX();
+    for (int i = 1; i <= n_bins; ++i) {
+        double bin_center = profile_y->GetBinCenter(i);
+        if (bin_center >= x_min && bin_center <= x_max) {
+            n_points_in_range++;
+        }
+    }
+
+    double* x_vals = new double[n_points_in_range];
+    double* y_vals = new double[n_points_in_range];
+
+    // Extract the Profile Y values and their corresponding Y positions within the range
+    int point_index = 0;
+    for (int i = 1; i <= n_bins; ++i) {
+        double bin_center = profile_y->GetBinCenter(i);
+        if (bin_center >= x_min && bin_center <= x_max) {
+            y_vals[point_index] = bin_center;
+            x_vals[point_index] = profile_y->GetBinContent(i);
+            point_index++;
+        }
+    }
+
+
+
  
 
   Pad[6]->cd();
   gStyle->SetTitleFontSize(0.03);
-  float ymaxp = h2_hcal_waveform->ProfileX()->GetMaximum();
+  
   h2_hcal_waveform->GetYaxis()->SetRangeUser(0, ymaxp * 20);
 
   h2_hcal_waveform->Draw("colz");
@@ -674,9 +705,11 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h2_hcal_waveform->GetXaxis()->SetTitleOffset(1.2);
   h2_hcal_waveform->GetYaxis()->SetTitleOffset(0.75);
   //over lay the profile draw only the marker
-   h_waveform_profile->SetMarkerStyle(20);
-  h_waveform_profile->SetMarkerSize(1);
-  h_waveform_profile->Draw("EX0 same");
+  TGraph* graph = new TGraph(n_points_in_range, x_vals, y_vals);
+  graph->SetMarkerStyle(20);
+  graph->SetMarkerSize(1);
+  graph->SetMarkerColor(1);
+  graph->Draw("P same");
 
   //draw two black lines for the okay timing range
   TLine* line1 = new TLine(4.5, 0, 4.5, ymaxp * 20);
@@ -691,8 +724,8 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   line2->Draw();
 
   gPad->SetLogz();
-  gPad->SetBottomMargin(0.16);
-  gPad->SetLeftMargin(0.2);
+  gPad->SetTopMargin(0.06);
+  gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
   gPad->SetLeftMargin(0.15);
   gStyle->SetOptStat(0);
@@ -733,7 +766,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h_waveform_time->GetYaxis()->SetTitleSize(tsize2);
   h_waveform_time->GetXaxis()->SetTitleOffset(1.0);
   h_waveform_time->GetYaxis()->SetTitleOffset(0.85);
-  h_waveform_time->GetYaxis()->SetRange(0, h_waveform_time->GetMaximum() * 1.1);
+  h_waveform_time->SetFillColorAlpha(kBlue, 0.1);
   gPad->Update();
   //draw two black lines for the okay timing range
   TLine* line3 = new TLine(4.5, 0, 4.5,  gPad->GetFrame()->GetY2());
@@ -757,7 +790,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
-  gPad->SetLeftMargin(0.2);
+  gPad->SetLeftMargin(0.15);
   gStyle->SetOptStat(0);
   gPad->SetTicky();
   gPad->SetTickx();
@@ -776,10 +809,24 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h_waveform_pedestal->GetYaxis()->SetTitleSize(tsize2);
   h_waveform_pedestal->GetXaxis()->SetTitleOffset(0.9);
   h_waveform_pedestal->GetYaxis()->SetTitleOffset(0.85);
+  h_waveform_pedestal->SetFillColorAlpha(kBlue, 0.1);
+  gPad->Update();
+  TLine* line6 = new TLine(1000, 0, 1000,  gPad->GetFrame()->GetY2());
+  line6->SetLineColor(1);
+  line6->SetLineWidth(3);
+  line6->SetLineStyle(1);
+  line6->Draw();
+  TLine* line7 = new TLine(2000, 0, 2000,  gPad->GetFrame()->GetY2());
+  line7->SetLineColor(1);
+  line7->SetLineWidth(3);
+  line7->SetLineStyle(1);
+  line7->Draw();
+
+
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
-  gPad->SetLeftMargin(0.2);
+  gPad->SetLeftMargin(0.15);
   gStyle->SetOptStat(0);
   gPad->SetTicky();
   gPad->SetTickx();
@@ -2067,7 +2114,7 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   h2_hcal_hits->GetXaxis()->SetNdivisions(510, kTRUE);
   h2_hcal_hits->GetXaxis()->SetTitle("eta index");
   h2_hcal_hits->GetYaxis()->SetTitle("phi index");
-  h2_hcal_hits->SetTitle("Average Multiplicity");
+  h2_hcal_hits->SetTitle("Average Occupancy");
   h2_hcal_hits->GetXaxis()->SetLabelSize(tsize);
   h2_hcal_hits->GetYaxis()->SetLabelSize(tsize);
   h2_hcal_hits->GetXaxis()->SetTitleSize(tsize);
@@ -2125,6 +2172,7 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   h2_hcal_time->GetYaxis()->SetTitleSize(tsize);
   h2_hcal_time->GetXaxis()->SetTitleOffset(1.2);
   h2_hcal_time->GetYaxis()->SetTitleOffset(0.75);
+  h2_hcal_time->GetZaxis()->SetRangeUser(4, 8);
 
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.15);
@@ -2166,17 +2214,34 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   gStyle->SetTitleFontSize(0.06);
  
   pr_zsFrac_etaphi->Draw("colz");
+  //find the average z for all bins
+  double sum = 0;
+  int count = 0;
+  for (int i = 0; i < pr_zsFrac_etaphi->GetNbinsX(); i++)
+  {
+    for (int j = 0; j < pr_zsFrac_etaphi->GetNbinsY(); j++)
+    {
+      if (pr_zsFrac_etaphi->GetBinContent(i, j) != 0)
+      {
+        sum += pr_zsFrac_etaphi->GetBinContent(i, j);
+        count++;
+      }
+    }
+  }
+  double averagezs = sum / count;
+
   
   pr_zsFrac_etaphi->GetXaxis()->SetNdivisions(510, kTRUE);
   pr_zsFrac_etaphi->GetXaxis()->SetTitle("eta index");
   pr_zsFrac_etaphi->GetYaxis()->SetTitle("phi index");
-  pr_zsFrac_etaphi->SetTitle("Zero Suppression Fraction");
+  pr_zsFrac_etaphi->SetTitle(Form("Unsuppressed Fraction, Average Zs rate = %0.3f", averagezs));
   pr_zsFrac_etaphi->GetXaxis()->SetLabelSize(tsize);
   pr_zsFrac_etaphi->GetYaxis()->SetLabelSize(tsize);
   pr_zsFrac_etaphi->GetXaxis()->SetTitleSize(tsize);
   pr_zsFrac_etaphi->GetYaxis()->SetTitleSize(tsize);
   pr_zsFrac_etaphi->GetXaxis()->SetTitleOffset(1.2);
   pr_zsFrac_etaphi->GetYaxis()->SetTitleOffset(0.75);
+  pr_zsFrac_etaphi->GetZaxis()->SetRangeUser(0, 1);
 
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.15);
@@ -2276,7 +2341,7 @@ int HcalMonDraw::DrawServerStats()
     {
       txt << "Server " << server
           << " is dead ";
-      PrintRun.SetTextColor(2);
+      PrintRun.SetTextColor(kRed);
     }
     else
     {
@@ -2286,11 +2351,11 @@ int HcalMonDraw::DrawServerStats()
 	  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
-	PrintRun.SetTextColor(3);
+	PrintRun.SetTextColor(kGray+2);
       }
       else
       {
-	PrintRun.SetTextColor(2);
+	PrintRun.SetTextColor(kRed);
       }
     }
     PrintRun.DrawText(0.5, vpos, txt.str().c_str());

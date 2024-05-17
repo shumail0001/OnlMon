@@ -10,6 +10,7 @@ class TowerInfoContainer;
 class Event;
 class TH1;
 class TH2;
+class TH2D;
 class TProfile;
 class TProfile2D;
 class Packet;
@@ -38,9 +39,6 @@ class CemcMon : public OnlMon
   std::vector<float> anaWaveformTemp(Packet* p, const int channel);
 
   int idummy = 0;
-  TH2* cemc_occupancy = nullptr;
-  TH2* cemc_runningmean = nullptr;
-  TH1* cemc_signal = nullptr;
   TH1* h1_cemc_adc = nullptr;
 
   static const int Nsector = 64;
@@ -52,7 +50,7 @@ class CemcMon : public OnlMon
   const int nPhiIndex=256;
   const int nEtaIndex=96;
   int eventCounter = 0;
-
+  TH2D* h2_template_hit=nullptr;
   TH2* h2_cemc_hits_trig[64] = {nullptr};
   TH1* h1_cemc_trig = nullptr;
   TH1* h1_packet_event = nullptr;
@@ -71,21 +69,16 @@ class CemcMon : public OnlMon
   TH1* h1_waveform_time = nullptr;
   TH1* h1_waveform_pedestal = nullptr;
   TH2* h2_cemc_rm = nullptr;
+  TH2* h2_cemc_rmhits = nullptr;
   TH2* h2_cemc_mean = nullptr;
   TH1* h1_sectorAvg_total = nullptr;
   TH1* h1_event = nullptr;
   TH1* h1_rm_sectorAvg[100] = {nullptr};
-  TProfile*** h2_waveform= {nullptr};
-  //TH2* h2_maximum= {nullptr};
-  //TH2* h2_timeAtMaximum= {nullptr};
-  //TH2* h2_pedestal= {nullptr};
-  //TH2* h2_saturating= {nullptr};
-
+  //TProfile*** h2_waveform= {nullptr};
   std::vector<runningMean*> rm_vector_twr;
-  std::vector<runningMean*> rm_vector_sectAvg;
+  std::vector<runningMean*> rm_vector_twrhits;
 
   std::string runtypestr = "Unknown";
-  std::string id_string;
 
   eventReceiverClient* erc = {nullptr};
   bool anaGL1 = true;
@@ -93,7 +86,6 @@ class CemcMon : public OnlMon
   CaloWaveformFitting* WaveformProcessingFast = nullptr;
   CaloWaveformFitting* WaveformProcessingTemp = nullptr;
 
-  std::vector<runningMean*> rm_vector;
 };
 
 #endif /* CEMC_CEMCMON_H */

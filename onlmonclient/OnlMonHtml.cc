@@ -280,9 +280,15 @@ OnlMonHtml::registerPage(const std::string& header,
 {
   std::string fullfilename;
   std::string filename;
-
+  std::string menupath = path;
   namer(header, basefilename, ext, fullfilename, filename);
-  addMenu(header, path, filename);
+  if (path.find('/') != std::string::npos)
+  {
+    std::cout << "OnlMonHtml::registerPage: found fatal \"/\" in path: \"" << path 
+	      << "\" stripping it" << std::endl;
+  }
+  menupath.erase(remove(menupath.begin(),menupath.end(),'/'),menupath.end());
+  addMenu(header, menupath, filename);
   return fullfilename;
 }
 

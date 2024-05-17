@@ -96,13 +96,13 @@ int DaqMonDraw::MakeCanvas(const std::string &name)
     TC[1]->SetEditable(false);
     gStyle->SetOptStat(0);
   }
-  else if (name == "DaqMon3")
+  else if (name == "DaqMonServerStats")
   {
     gStyle->SetOptStat(0);
     TC[2] = new TCanvas(name.c_str(), "DaqMon Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
-    transparent[2]->SetFillStyle(4000);
+    transparent[2]->SetFillColor(kGray);
     transparent[2]->Draw();
     TC[2]->SetEditable(false);
     gStyle->SetOptStat(0);
@@ -332,19 +332,20 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   transparent[1]->cd();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
-  std::string femstatusstring = (h_fem_match[start]->GetEntries() > 0) ? "#bf{Calo FEM Mismatch!! Stop the run now!}" : "#bf{FEMs are all locked Continue data taking}";
   TLatex latex;
   latex.SetNDC();
   latex.SetTextFont(62);
-  latex.SetTextSize(0.028);
 
   if(h_fem_match[start]->GetEntries() > 0){
+      latex.SetTextSize(0.028);
       latex.SetTextColor(kRed);
-      latex.DrawLatex(0.25,0.95,femstatusstring.c_str());
+      latex.DrawLatex(0.25,0.94,"#bf{Calo FEM Mismatch!! Stop the run now!}");
   }
   else{
-      latex.SetTextColor(kGreen);
-      latex.DrawLatex(0.25,0.6,femstatusstring.c_str());
+      latex.SetTextColor(kGreen+1);
+      latex.SetTextSize(0.032);
+      latex.DrawLatex(0.25,0.7,"#bf{Good! FEMs are locked}");
+      latex.DrawLatex(0.25,0.5,"#bf{Continue data taking}");
   }
     
   TC[1]->SetEditable(false);
@@ -449,9 +450,9 @@ time_t DaqMonDraw::getTime()
 int DaqMonDraw::DrawServerStats()
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  if (!gROOT->FindObject("DaqMon3"))
+  if (!gROOT->FindObject("DaqMonServerStats"))
   {
-    MakeCanvas("DaqMon3");
+    MakeCanvas("DaqMonServerStats");
   }
   TC[2]->Clear("D");
   TC[2]->SetEditable(true);
@@ -478,7 +479,7 @@ int DaqMonDraw::DrawServerStats()
     {
       txt << "Server " << server
           << " is dead ";
-      PrintRun.SetTextColor(2);
+      PrintRun.SetTextColor(kRed);
     }
     else
     {
@@ -488,11 +489,11 @@ int DaqMonDraw::DrawServerStats()
 	  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
-	PrintRun.SetTextColor(3);
+	PrintRun.SetTextColor(kGray+2);
       }
       else
       {
-	PrintRun.SetTextColor(2);
+	PrintRun.SetTextColor(kRed);
       }
     }
         if (i > 10)

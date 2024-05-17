@@ -367,7 +367,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       float signalFast = resultFast.at(0);
       float signal = signalFast;
       if(c==48||c==49||c==50||c==51){//quick and durty for now
-      	if(signal>200) continue;
+      	if(signal>200&&resultFast.at(1)>6&&resultFast.at(1)<11) continue;
       }
       if(it->second>47) continue;
       unsigned int towerkey = TowerInfoDefs::decode_zdc(c);
@@ -376,8 +376,12 @@ int ZdcMon::process_event(Event *e /* evt */)
 
       if (c < 16)
       {
-	if(resultFast.at(1)<4||resultFast.at(1)>10)signal=0;//quick and durty for now
-        zdc_adc[c] = signal;
+	if(resultFast.at(1)<4||resultFast.at(1)>10){
+	  zdc_adc[c]=0;//quick and durty for now
+	}
+        else {
+	  zdc_adc[c] = signal;
+	}
       }
       else
       {

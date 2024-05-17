@@ -200,12 +200,12 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
     //         transparent[2]->Draw();
     //       TC[2]->SetEditable(0);
   }
-  else if (name == "MvtxMon_ServerStats")
+  else if (name == "MvtxMonServerStats")
   {
     TC[6] = new TCanvas(name.c_str(), "MvtxMon Server Stats", xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
-    transparent[6]->SetFillStyle(4000);
+    transparent[6]->SetFillColor(kGray);
     transparent[6]->Draw();
     TC[6]->SetEditable(false);
     TC[6]->SetTopMargin(0.05);
@@ -428,9 +428,11 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   TH2Poly *mvtxmon_mGeneralOccupancy[NFlx + 1] = {nullptr};
   TH2Poly *mGeneralNoisyPixel[NFlx + 1] = {nullptr};
   TH1D *mvtxmon_mGeneralErrorPlots[NFlx + 1] = {nullptr};
+  TH1D *mvtxmon_mGeneralErrorPlotsTime[NFlx + 1] = {nullptr};
   TH1I *hChipStrobes[NFlx + 1] = {nullptr};
   TH1I *hChipL1[NFlx + 1] = {nullptr};
   TH2D *mvtxmon_mGeneralErrorFile[NFlx + 1] = {nullptr};
+  TH1D *mvtxmon_ChipStave1D[NFlx + 1] = {nullptr};
 
   for (int iFelix = 0; iFelix < NFlx; iFelix++)
   {
@@ -438,9 +440,11 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
     mvtxmon_mGeneralOccupancy[iFelix] = dynamic_cast<TH2Poly *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "MVTXMON_General_Occupancy"));
     mGeneralNoisyPixel[iFelix] = dynamic_cast<TH2Poly *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "MVTXMON_General_Noisy_Pixel"));
     mvtxmon_mGeneralErrorPlots[iFelix] = dynamic_cast<TH1D *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "General_DecErrors"));
-    hChipStrobes[iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "General_hChipStrobes"));
-    hChipL1[iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "General_ChipL1"));
+    mvtxmon_mGeneralErrorPlotsTime[iFelix] = dynamic_cast<TH1D *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "General_DecErrorsTime"));
+    hChipStrobes[iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "General_hfeeStrobes"));
+    hChipL1[iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "General_feeL1"));
     mvtxmon_mGeneralErrorFile[iFelix] = dynamic_cast<TH2D *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "General_DecErrorsEndpoint"));
+    mvtxmon_ChipStave1D[iFelix] = dynamic_cast<TH1D *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "OCC_ChipStave1D"));
   }
 
 
@@ -464,6 +468,9 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   bitset = MergeServers<TH1D *>(mvtxmon_mGeneralErrorPlots);
   bitsetOR |= bitset;
   bitsetAND &= bitset;
+  bitset = MergeServers<TH1D *>(mvtxmon_mGeneralErrorPlotsTime);
+  bitsetOR |= bitset;
+  bitsetAND &= bitset;
   bitset = MergeServers<TH1I *>(hChipStrobes);
   bitsetOR |= bitset;
   bitsetAND &= bitset;
@@ -471,6 +478,9 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   bitsetOR |= bitset;
   bitsetAND &= bitset;
   bitset = MergeServers<TH2D *>(mvtxmon_mGeneralErrorFile);
+  bitsetOR |= bitset;
+  bitsetAND &= bitset;
+  bitset = MergeServers<TH1D *>(mvtxmon_ChipStave1D);
   bitsetOR |= bitset;
   bitsetAND &= bitset;
 
@@ -485,6 +495,16 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   if (mvtxmon_mGeneralOccupancy[NFlx])
   {
     mvtxmon_mGeneralOccupancy[NFlx]->GetYaxis()->SetTitleOffset(0.6);
+  }
+
+   if (mvtxmon_ChipStave1D[NFlx])
+  {
+    mvtxmon_ChipStave1D[NFlx]->GetXaxis()->SetLabelSize(0.05);
+    mvtxmon_ChipStave1D[NFlx]->GetXaxis()->SetTitleSize(0.055);
+    mvtxmon_ChipStave1D[NFlx]->GetXaxis()->SetTitleOffset(0.9);
+    mvtxmon_ChipStave1D[NFlx]->GetYaxis()->SetLabelSize(0.045);
+    mvtxmon_ChipStave1D[NFlx]->GetYaxis()->SetTitleSize(0.05);
+    mvtxmon_ChipStave1D[NFlx]->GetYaxis()->SetTitleOffset(1.2);
   }
 
   /*if (mvtxmon_mGeneralErrorFile[NFlx])
@@ -516,8 +536,9 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   int returnCode = 0;
 
   Pad[padID]->cd(4)->SetRightMargin(0.12);
-  Pad[padID]->cd(5)->SetLeftMargin(0.16);
+  Pad[padID]->cd(6)->SetLeftMargin(0.16);
   Pad[padID]->cd(6)->SetTopMargin(0.16);
+  Pad[padID]->cd(6)->SetBottomMargin(0.14);
 
   // injecting errors here
   /*  mvtxmon_LaneStatusOverview[1][NFlx]->SetBinContent(5,0.5);
@@ -542,6 +563,25 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   hChipStrobes[NFlx]->SetMinimum(0);
   hChipStrobes[NFlx]->SetTitle("Strobe & L1 vs Chip");
 
+    TPaveText *tlayer[3] = {nullptr};
+
+  for (int i = 0; i < 3; i++)
+  {
+    double shift[3] = {0, 0.25, 0.55};
+    tlayer[i] = new TPaveText(.14 + shift[i], .87, .24 + shift[i], .93, "blNDC");
+    tlayer[i]->SetTextSize(0.05);
+    tlayer[i]->SetFillColor(0);
+    tlayer[i]->SetTextAlign(22);
+    tlayer[i]->SetLineColor(0);
+    tlayer[i]->SetBorderSize(1);
+    tlayer[i]->AddText(Form("Layer %d", i));
+  }
+
+    Pad[padID]->cd(4)->SetTopMargin(0.16);
+
+   Pad[padID]->cd(6)->SetTopMargin(0.2);
+   Pad[padID]->cd(6)->SetLeftMargin(0.16);
+
   std::vector<MvtxMonDraw::Quality> status;
   status = analyseForError(mvtxmon_LaneStatusOverview[NFlx], nullptr, nullptr, mvtxmon_mGeneralErrorFile[NFlx]);
 
@@ -551,8 +591,14 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   returnCode += PublishHistogram(Pad[padID], 2, mvtxmon_mGeneralOccupancy[NFlx], "colz");
   returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx]);
   returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "colz same");
-  returnCode += PublishHistogram(Pad[padID], 5, mvtxmon_mGeneralErrorPlots[NFlx]);
+  returnCode += PublishHistogram(Pad[padID], 5, mvtxmon_mGeneralErrorPlotsTime[NFlx]);
   returnCode += PublishHistogram(Pad[padID], 4, hChipStrobes[NFlx]);
+
+  for (const int& lay : LayerBoundaryFEE)
+    {
+      auto l = new TLine(lay, 0, lay, hChipStrobes[NFlx]->GetMaximum());
+      l->Draw("same");
+    }
 
   Float_t rightmax = 2 * hChipL1[NFlx]->GetMaximum();
   Float_t scale = hChipStrobes[NFlx]->GetMaximum() / rightmax;
@@ -560,7 +606,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   hChipL1[NFlx]->Scale(scale);
   returnCode += PublishHistogram(Pad[padID], 4, hChipL1[NFlx], "same hist");
 
-  TGaxis *axis = new TGaxis(48 * 9, 0, 48 * 9, hChipStrobes[NFlx]->GetMaximum(), 0, rightmax, 510, "+L");
+  TGaxis *axis = new TGaxis(48 * 3, 0, 48 * 3, hChipStrobes[NFlx]->GetMaximum(), 0, rightmax, 510, "+L");
   axis->SetLineColor(kRed);
   axis->SetLabelColor(kRed);
   axis->SetLabelFont(42);
@@ -568,6 +614,35 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   axis->SetTitleColor(kRed);
   axis->SetTitle("Number of L1 triggers");
   axis->Draw();
+
+  for (auto &i : tlayer)
+  {
+    i->Draw();
+  }
+
+
+
+
+
+   
+
+  returnCode += PublishHistogram(Pad[padID], 6, mvtxmon_ChipStave1D[NFlx]);
+
+  for (const int& lay : LayerBoundaryChip)
+    {
+      auto ll = new TLine(lay, 0, lay, mvtxmon_ChipStave1D[NFlx]->GetMaximum());
+      ll->Draw("same");
+    }
+
+    for (auto &i : tlayer)
+  {
+    i->Draw();
+  }
+
+  
+  
+
+ 
 
 
   //returnCode += PublishHistogram(Pad[padID], 6, mvtxmon_mGeneralErrorFile[NFlx], "lcol");
@@ -730,6 +805,8 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   TH2I *mLaneStatusCumulative[3][NFlx + 1] = {{nullptr}};
   TH1I *mLaneStatusSummary[3][NFlx + 1] = {{nullptr}};
   TH1I *mLaneStatusSummaryIB[NFlx + 1] = {nullptr};
+  TH1D *mvtxmon_mGeneralErrorPlots[NFlx + 1] = {nullptr};
+  TH2D *mvtxmon_mGeneralErrorFile[NFlx + 1] = {nullptr};
 
   for (int iFelix = 0; iFelix < NFlx; iFelix++)
   {
@@ -737,6 +814,8 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
    // mTrigger[iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "MVTXMON_FEE_TriggerFlag"));
     // mLaneInfo[iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/FEE/LaneInfo"));
     mLaneStatusSummaryIB[iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "FEE_LaneStatusSummary"));
+    mvtxmon_mGeneralErrorPlots[iFelix] = dynamic_cast<TH1D *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "General_DecErrors"));
+     mvtxmon_mGeneralErrorFile[iFelix] = dynamic_cast<TH2D *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "General_DecErrorsEndpoint"));
     for (int i = 0; i < 3; i++)
     {
       mLaneStatus[i][iFelix] = dynamic_cast<TH2I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), Form("FEE_LaneStatus_Flag_%s", mLaneStatusFlag[i].c_str())));
@@ -755,6 +834,8 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   //MergeServers<TH1I *>(mTrigger);
   // MergeServers<TH2I*>(mLaneInfo);
   MergeServers<TH1I *>(mLaneStatusSummaryIB);
+    MergeServers<TH1D *>(mvtxmon_mGeneralErrorPlots);
+      MergeServers<TH2D *>(mvtxmon_mGeneralErrorFile);
 
   if (!gROOT->FindObject("MvtxMon_FEE"))
   {
@@ -841,6 +922,8 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
 
   int returnCode = 0;
   Pad[padID]->cd(1)->SetLeftMargin(0.16);
+  returnCode += PublishHistogram(Pad[padID], 1, mvtxmon_mGeneralErrorPlots[NFlx]);
+  returnCode += PublishHistogram(Pad[padID], 5, mvtxmon_mGeneralErrorFile[NFlx], "lcol");
   //returnCode += PublishHistogram(Pad[padID], 1, mTriggerVsFeeId[NFlx], "lcol");
   //returnCode += PublishHistogram(Pad[padID], 5, mTrigger[NFlx]);
   // returnCode += PublishHistogram(Pad[9],3,mLaneInfo[NFlx]);
@@ -1732,9 +1815,9 @@ time_t MvtxMonDraw::getTime()
 int MvtxMonDraw::DrawServerStats()
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  if (!gROOT->FindObject("MvtxMon_ServerStats"))
+  if (!gROOT->FindObject("MvtxMonServerStats"))
   {
-    MakeCanvas("MvtxMon_ServerStats");
+    MakeCanvas("MvtxMonServerStats");
   }
   TC[6]->Clear("D");
   TC[6]->SetEditable(true);
@@ -1758,7 +1841,7 @@ int MvtxMonDraw::DrawServerStats()
     {
       txt << "Server " << server
           << " is dead ";
-      PrintRun.SetTextColor(2);
+      PrintRun.SetTextColor(kRed);
     }
     else
     {
@@ -1768,11 +1851,11 @@ int MvtxMonDraw::DrawServerStats()
           << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
-        PrintRun.SetTextColor(3);
+        PrintRun.SetTextColor(kGray+2);
       }
       else
       {
-        PrintRun.SetTextColor(2);
+        PrintRun.SetTextColor(kRed);
       }
     }
     PrintRun.DrawText(0.5, vpos, txt.str().c_str());

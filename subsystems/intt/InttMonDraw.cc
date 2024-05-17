@@ -276,12 +276,12 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   OnlMonClient* cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
-  if (name == "InttMon_ServerStats")
+  if (name == "InttMonServerStats")
   {
     TC[0] = new TCanvas(name.c_str(), "InttMon Server Stats", xsize / 2, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     transparent[0] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
+    transparent[0]->SetFillColor(kGray);
     transparent[0]->Draw();
     TC[0]->SetEditable(false);
     TC[0]->SetTopMargin(0.05);
@@ -293,9 +293,9 @@ int InttMonDraw::MakeCanvas(const std::string& name)
 int InttMonDraw::DrawServerStats()
 {
   OnlMonClient* cl = OnlMonClient::instance();
-  if (!gROOT->FindObject("InttMon_ServerStats"))
+  if (!gROOT->FindObject("InttMonServerStats"))
   {
-    MakeCanvas("InttMon_ServerStats");
+    MakeCanvas("InttMonServerStats");
   }
   TC[0]->Clear("D");
   TC[0]->SetEditable(true);
@@ -319,7 +319,7 @@ int InttMonDraw::DrawServerStats()
     {
       txt << "Server " << server
           << " is dead ";
-      PrintRun.SetTextColor(2);
+      PrintRun.SetTextColor(kRed);
     }
     else
     {
@@ -329,11 +329,11 @@ int InttMonDraw::DrawServerStats()
           << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
-        PrintRun.SetTextColor(3);
+        PrintRun.SetTextColor(kGray+2);
       }
       else
       {
-        PrintRun.SetTextColor(2);
+        PrintRun.SetTextColor(kRed);
       }
     }
     PrintRun.DrawText(0.5, vpos, txt.str().c_str());

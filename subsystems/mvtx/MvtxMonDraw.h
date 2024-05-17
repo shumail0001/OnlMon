@@ -59,6 +59,8 @@ class MvtxMonDraw : public OnlMonDraw
   static constexpr int NRows = 512;
   static constexpr int NPixels = NRows * NCols;
   const int chipmapoffset[3] = {0, 12, 28};
+  const int LayerBoundaryFEE[NLAYERS - 1] = {35, 83};
+   const int LayerBoundaryChip[NLAYERS - 1] = {35*3, 83*3};
 
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");

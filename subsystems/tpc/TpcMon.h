@@ -108,6 +108,9 @@ class TpcMon : public OnlMon
   TH1 *Channels_in_Packet = nullptr;
   TH1 *Channels_Always = nullptr;
 
+  TH2 *Num_non_ZS_channels_vs_SAMPA = nullptr;
+  TH2 *ZS_Trigger_ADC_vs_Sample = nullptr;
+
   TH2 *MAXADC = nullptr;
 
   TH1 *RAWADC_1D_R1= nullptr;
@@ -141,6 +144,7 @@ class TpcMon : public OnlMon
   int Max_Nine(int one, int two, int three, int four, int five, int six, int seven, int eight, int nine);
   bool side(int server_id);
   std::pair<float, float> calculateMedianAndStdDev(const std::vector<int>& values);
+  float calculateRawStdDev(const std::vector<int>& values);
 };
 
 #endif /* TPC_TPCMON_H */
