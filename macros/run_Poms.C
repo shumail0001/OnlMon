@@ -54,6 +54,7 @@ void StartPoms()
   //subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ihcalDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("ihcalDraw(\"SIXTH\")", "Tower Status [Expert]");
+  subsys->AddAction("ihcalDraw(\"SEVENTH\")", "Zero-suppression info [Expert]");
   subsys->AddAction("ihcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
@@ -65,6 +66,7 @@ void StartPoms()
   //subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ohcalDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("ohcalDraw(\"SIXTH\")", "Tower Status [Expert]");
+  subsys->AddAction("ohcalDraw(\"SEVENTH\")", "Zero-suppression info [Expert]");
   subsys->AddAction("ohcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);

@@ -33,6 +33,7 @@ class HcalMonDraw : public OnlMonDraw
   int DrawFourth(const std::string& what = "ALL");
   int DrawFifth(const std::string& what = "ALL");
   int DrawSixth(const std::string& what = "ALL");
+  int DrawSeventh(const std::string& what = "ALL");
   int DrawServerStats();
   int FindHotTower(TPad* warn, TH2*);
   void DrawTowerAvg();
@@ -42,7 +43,7 @@ class HcalMonDraw : public OnlMonDraw
 
   // int DrawDeadServer(TPad *transparent);
   std::string prefix = "HCALMON";
-  TCanvas* TC[9] = {nullptr};
+  TCanvas* TC[10] = {nullptr};
   TPad* transparent[19] = {nullptr};
   TPad* Pad[29] = {nullptr};
   TPad* warning[28] = {nullptr};

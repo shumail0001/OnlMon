@@ -116,7 +116,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "CemcMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "CemcMon2 Packet Information Expert", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[1] = new TCanvas(name.c_str(), "Expert: CemcMon2 Packet Information", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     Pad[1] = new TPad("cemcpad1", "packet event check", 0.0, 0.6, 1.0 / 2, 0.95, 0);
     Pad[2] = new TPad("cemcpad2", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
@@ -153,7 +153,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcMon4")
   {
-    TC[3] = new TCanvas(name.c_str(), "CemcMon Waveform Processing Expert", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[3] = new TCanvas(name.c_str(), "Expert: CemcMon Waveform Processing", xsize / 3, 0, xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     Pad[7] = new TPad("cemcpad7", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
     Pad[8] = new TPad("cemcpad8", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
@@ -169,7 +169,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcMon5")
   {
-    TC[4] = new TCanvas(name.c_str(), "CemcMon5 Trigger Info Expert", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[4] = new TCanvas(name.c_str(), "Expert: Trigger Info", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     Pad[10] = new TPad("cemcpad10", "who needs this?", 0.0, 0.6, 0.45, 0.95, 0);
     Pad[11] = new TPad("cemcpad11", "who needs this?", 0.45, 0.6, 0.9, 0.95, 0);
@@ -232,7 +232,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   //  TC[6]->SetEditable(0);
   //}
   else if (name == "CemcMon8" ){
-    TC[7] = new TCanvas(name.c_str(),"Channel unsuppressed event fraction Expert", -xsize/3 , 0, xsize/3, ysize*0.9);
+    TC[7] = new TCanvas(name.c_str(),"Expert: Channel unsuppressed event fraction", -xsize/3 , 0, xsize/3, ysize*0.9);
     gSystem->ProcessEvents();
     Pad[19]=new TPad("cemcpad19","who needs this?",0.00,0.00,1.00,0.95);
     Pad[19]->SetRightMargin(0.15);
@@ -1093,16 +1093,19 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   h1_waveform_time[start[1]]->GetYaxis()->SetTitleOffset(.85);
   h1_waveform_time[start[1]]->SetFillColorAlpha(kBlue,0.1);
   gPad->Update();
-  //if (h1_waveform_time[start[1]]->GetEntries())
-  //{
-  //  h1_waveform_time[start[1]]->Scale(1. / h1_waveform_time[start[1]]->GetEntries());
-  //}
-  //h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0, 1.);
+  if (h1_waveform_time[start[1]]->GetEntries())
+  {
+    h1_waveform_time[start[1]]->Scale(1. / h1_waveform_time[start[1]]->GetEntries());
+  }
+  h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0, 1.);
 
   TLine *windowLow2 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, gPad->GetFrame()->GetY2());
   TLine *windowHigh2 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, gPad->GetFrame()->GetY2());
+  TLine* meantime = new TLine(h1_waveform_time[start[1]]->GetMean(),0,h1_waveform_time[start[1]]->GetMean(),gPad->GetFrame()->GetY2());
   windowLow2->SetLineWidth(3);
   windowHigh2->SetLineWidth(3);
+  meantime->SetLineWidth(3);
+  meantime->SetLineColor(kRed);
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1147,12 +1150,12 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   gPad->Update();
 
 
-  //if (h1_waveform_pedestal[start[2]]->GetEntries())
-  //{
-  //  h1_waveform_pedestal[start[2]]->Scale(1. / h1_waveform_pedestal[start[2]]->GetEntries());
-  //}
+  if (h1_waveform_pedestal[start[2]]->GetEntries())
+  {
+    h1_waveform_pedestal[start[2]]->Scale(1. / h1_waveform_pedestal[start[2]]->GetEntries());
+  }
   // h1_waveform_pedestal -> GetXaxis() -> SetRangeUser(1000,2000);
-  //gStyle->SetOptStat(0);
+  gStyle->SetOptStat(0);
 
 
   TC[2]->Update();
