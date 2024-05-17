@@ -4,12 +4,12 @@
 
 InttMonDraw::Options_t InttMonDraw::OPTIONS =
 {
-//    //Chip-Channel
-//  {"chip_hitmap", (struct Option_s){
-//    .head = &InttMonDraw::GlobalChipLocalChannelHead,
-//    .global = &InttMonDraw::PrepGlobalChipHists_Hitmap,
-//    .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
-//
+  //Chip-Channel
+  {"chip_hitmap", (struct Option_s){
+    .head = &InttMonDraw::GlobalChipLocalChannelHead,
+    .global = &InttMonDraw::PrepGlobalChipHists_Hitmap,
+    .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
+
 //  {"chip_nll", (struct Option_s){
 //    .head = &InttMonDraw::GlobalChipLocalChannelHead,
 //    .global = &InttMonDraw::PrepGlobalChipHists_NLL,
