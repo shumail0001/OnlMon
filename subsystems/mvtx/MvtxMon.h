@@ -91,6 +91,8 @@ class MvtxMon : public OnlMon
   TH2I* hEtaPhiHitmap[NLAYERS] = {nullptr};
   TH2D* hChipStaveOccupancy[NLAYERS] = {nullptr};
   TH3I* hChipHitmap = nullptr;
+
+  TH1D* hErrorPlotsTime = nullptr;
   //TH3I* hChipHitmap_evt = nullptr;
 
   // fhr
