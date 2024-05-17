@@ -109,6 +109,7 @@ class TpcMon : public OnlMon
   TH1 *Channels_Always = nullptr;
 
   TH2 *Num_non_ZS_channels_vs_SAMPA = nullptr;
+  TH2 *ZS_Trigger_ADC_vs_Sample = nullptr;
 
   TH2 *MAXADC = nullptr;
 

@@ -341,6 +341,17 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[25]->Draw();
     TC[25]->SetEditable(false);
   }
+  else if (name == "TPCNonZSTriggerADCvsSample")
+  {
+    TC[26] = new TCanvas(name.c_str(), "",-1, 0, xsize , ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[26]->Divide(4,7);
+    transparent[26] = new TPad("transparent26", "this does not show", 0, 0, 1, 1);
+    transparent[26]->SetFillStyle(4000);
+    transparent[26]->Draw();
+    TC[26]->SetEditable(false);
+  }
      
   return 0;
 }
@@ -472,6 +483,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCNONZSCHANNELS")
   {
     iret += DrawTPCNonZSChannels(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCZSTRIGGERADCVSSAMPLE")
+  {
+    iret += DrawTPCZSTriggerADCSample(what);
     idraw++;
   }
   if (what == "ALL" || what == "SERVERSTATS")
@@ -2771,8 +2787,14 @@ int TpcMonDraw::DrawTPCNonZSChannels(const std::string & /* what */)
   MyTC->SetEditable(true);
   MyTC->Clear("D");
 
+  TLine *t1 = new TLine(); t1->SetLineWidth(2);
   TLine *t2 = new TLine(); t2->SetLineStyle(2);
   TText *tt1= new TText(); tt1->SetTextSize(0.05);
+
+  int FEEid[26]={2,4,3,13,17,16, // R1
+                 11,12,19,18,0,1,15,14, // R2
+                 20,22,21,23,25,24,10,9,8,6,7,5 // R3
+                };
 
   char title[50];
 
@@ -2791,14 +2813,21 @@ int TpcMonDraw::DrawTPCNonZSChannels(const std::string & /* what */)
 
       for(int j=0;j<25;j++)
       {
-        t2->DrawLine((j+1)*8,-200.01,(j+1)*8,1024);
+        t2->DrawLine((j+1)*8,-300.01,(j+1)*8,1024);
       }
       for(int k=0;k<26;k++)
       {
-        sprintf(title,"%d",k);
+        sprintf(title,"%d",FEEid[k]);
         tt1->DrawText(k*8+4,-100,title);
       }
       tt1->SetTextSize(0.06);
+      tt1->DrawText(25,-200,"R1");
+      tt1->DrawText(77,-200,"R2");
+      tt1->DrawText(163,-200,"R3");
+      tt1->SetTextSize(0.05); 
+
+      t1->DrawLine(48,-300.01,48,1024);
+      t1->DrawLine(112,-300.01,112,1024);
     }
   }
 
@@ -2812,6 +2841,68 @@ int TpcMonDraw::DrawTPCNonZSChannels(const std::string & /* what */)
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_Non-ZS Channels per SAMPA Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCZSTriggerADCSample(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_ZSTriggerADCSampledist[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_ZSTriggerADCSampledist[i] = (TH1*) cl->getHisto(TPCMON_STR,"ZS_Trigger_ADC_vs_Sample");
+  }
+
+  if (!gROOT->FindObject("TPCNonZSTriggerADCvsSample"))
+  {
+    MakeCanvas("TPCNonZSTriggerADCvsSample");
+  }
+
+  TCanvas *MyTC = TC[26];
+  TPad *TransparentTPad = transparent[26];
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57); //kBird CVD friendly
+
+  for( int i=0; i<24; i++ ) 
+  {
+    if( tpcmon_ZSTriggerADCSampledist[i] )
+    {
+      MyTC->cd(i+5);
+      tpcmon_ZSTriggerADCSampledist[i]->GetXaxis()->SetRangeUser(0, 20);
+      tpcmon_ZSTriggerADCSampledist[i]->DrawCopy("colz");
+      gPad->SetLogz(kTRUE);
+      gPad->SetLogy(kTRUE);
+      gPad->SetGridy(kTRUE);
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_Trigger ADC vs Sample Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   TransparentTPad->cd();

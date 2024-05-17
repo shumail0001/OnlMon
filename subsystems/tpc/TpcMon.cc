@@ -372,7 +372,7 @@ int TpcMon::Init()
   char num_nonZS_channels_title_str[100];
   sprintf(num_nonZS_channels_title_str,"Number of non ZS Channels: # of samples in channel waveform != 65K vs SAMPA ID: SECTOR %i",MonitorServerId());  
   // x-axis is channel phi, y-axis is channel layer, z axis is ADC weithing
-  Num_non_ZS_channels_vs_SAMPA = new TH2F("Num_non_ZS_channels_vs_SAMPA",num_nonZS_channels_title_str,208,-0.5,207.5,1224,-200.5,1023.5);
+  Num_non_ZS_channels_vs_SAMPA = new TH2F("Num_non_ZS_channels_vs_SAMPA",num_nonZS_channels_title_str,208,-0.5,207.5,1324,-300.5,1023.5);
   Num_non_ZS_channels_vs_SAMPA->SetXTitle("SAMPA ID: SAMPA # + (feeID * 8)");
   Num_non_ZS_channels_vs_SAMPA->SetYTitle("# of Non-Zero Suppressed Samples in WF");
 
@@ -409,6 +409,21 @@ int TpcMon::Init()
   Channels_Always -> GetYaxis() -> SetLabelSize(0.05);
   Channels_Always -> GetYaxis() -> SetTitleSize(0.05);
   Channels_Always -> GetYaxis() -> SetTitleOffset(1.0);
+
+  //ZS ADC vs Sample (small)
+  char ZS_ADC_vs_SAMPLE_str[100];
+  char ZS_ADC_vs_SAMPLE_xaxis_str[100];
+  sprintf(ZS_ADC_vs_SAMPLE_str,"ADC Counts vs Sample - Trigger QA: SECTOR %i",MonitorServerId());
+  sprintf(ZS_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
+  ZS_Trigger_ADC_vs_Sample = new TH2F("ZS_Trigger_ADC_vs_Sample", ZS_ADC_vs_SAMPLE_str, 360, -0.5, 359.5, 256, 0, 1024);
+  ZS_Trigger_ADC_vs_Sample -> SetXTitle(ZS_ADC_vs_SAMPLE_xaxis_str);
+  ZS_Trigger_ADC_vs_Sample -> SetYTitle("ADC [ADU]");
+
+  ZS_Trigger_ADC_vs_Sample -> GetXaxis() -> SetLabelSize(0.05);
+  ZS_Trigger_ADC_vs_Sample -> GetXaxis() -> SetTitleSize(0.05);
+  ZS_Trigger_ADC_vs_Sample -> GetYaxis() -> SetLabelSize(0.05);
+  ZS_Trigger_ADC_vs_Sample -> GetYaxis() -> SetTitleSize(0.05);
+  ZS_Trigger_ADC_vs_Sample -> GetYaxis() -> SetTitleOffset(1.0); 
 
   // Max ADC per waveform dist for each module (R1, R2, R3)
   char MAXADC_str[100];
@@ -582,6 +597,7 @@ int TpcMon::Init()
   se->registerHisto(this, Channels_Always);
   se->registerHisto(this, Channels_Always);
   se->registerHisto(this, Num_non_ZS_channels_vs_SAMPA);
+  se->registerHisto(this, ZS_Trigger_ADC_vs_Sample);
   se->registerHisto(this, ADC_vs_SAMPLE);
   se->registerHisto(this, PEDEST_SUB_ADC_vs_SAMPLE);
   se->registerHisto(this, PEDEST_SUB_ADC_vs_SAMPLE_R1);
@@ -804,22 +820,31 @@ int TpcMon::process_event(Event *evt/* evt */)
         int mid = floor(360/2); //get median sample from 0-360 (we are assuming the sample > 360 is not useful to us as of 05.01.24)
         int num_of_nonZS_samples = 0; //start counter from 0
 
+        int tr_samp = 0;
+        int start_flag = 0;
+        int prev_sample = 65000;
+
         if( nr_Samples > 9)
         {
           if( (p->iValue(wf,mid) == p->iValue(wf,mid-1)) && (p->iValue(wf,mid) == p->iValue(wf,mid-2)) && (p->iValue(wf,mid) == p->iValue(wf,mid+1)) && (p->iValue(wf,mid) == p->iValue(wf,mid+2)) )     
           {
             is_channel_stuck = 1;
           }
+
           for( int si=0;si < nr_Samples; si++ ) //get pedestal and noise before hand
           {
+            if( (p->iValue(wf,si)) < 1025 && prev_sample > 64500) { start_flag = 1; } // start condition to record
+            if( (p->iValue(wf,si)) > 64500 && prev_sample < 1025){ tr_samp = 0; start_flag = 0; prev_sample =  (p->iValue(wf,si)); }  // end condition to record
+            if( start_flag == 1){ ZS_Trigger_ADC_vs_Sample->Fill(tr_samp, p->iValue(wf,si)); tr_samp++; prev_sample = p->iValue(wf,si);} // record the ZS trigger histo if you should
+            
 	    if( (p->iValue(wf,si)) > 64500 && si > 359){ break; } //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 360, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
-            else if( (p->iValue(wf,si)) > 64500 ){ continue; }  //only use reasonable values to calculate median
+            if( (p->iValue(wf,si)) > 64500 ){ continue; }  //only use reasonable values to calculate median
             median_and_stdev_vec.push_back(p->iValue(wf,si));
             num_of_nonZS_samples++; 
           }
         } //Compare 5 values to determine stuck !!
 
-        Num_non_ZS_channels_vs_SAMPA->Fill(sampaAddress + (8*fee),num_of_nonZS_samples);
+        Num_non_ZS_channels_vs_SAMPA->Fill(sampaAddress + (8*FEE_transform[fee]),num_of_nonZS_samples);
 
         if( median_and_stdev_vec.size() == 0 ) // if all waveform values were 65 K
         { 
