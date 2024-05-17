@@ -44,7 +44,7 @@ class MvtxMonDraw : public OnlMonDraw
   template <typename T>
   int MergeServers(T *h);
   void formatPaveText(TPaveText *aPT, float aTextSize, Color_t aTextColor, short aTextAlign, const char *aText);
-  std::vector<Quality> analyseForError(TH2Poly *over1, TH2Poly *over2, TH2Poly *over3, TH1 *decErr);
+  std::vector<Quality> analyseForError(TH2Poly *lane, TH2Poly *noisy, TH1 *strobes, TH1 *decErr, TH1 *decErrTime);
   void DrawPave(std::vector<MvtxMonDraw::Quality> status, int position, const char *what = "");
 
  private:
@@ -74,6 +74,7 @@ class MvtxMonDraw : public OnlMonDraw
   int DrawServerStats();
   time_t getTime();
   int TimeOffsetTicks = -1;
+  int lastStrobes[12] = {0};
   TCanvas *TC[7] = {nullptr};
   TPad *transparent[7] = {nullptr};
   TPad *Pad[6] = {nullptr};
