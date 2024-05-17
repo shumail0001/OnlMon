@@ -366,7 +366,21 @@ int TpcMon::Init()
   Check_Sum_Error -> GetXaxis() -> SetTitleSize(0.05);
   Check_Sum_Error -> GetYaxis() -> SetLabelSize(0.05);
   Check_Sum_Error -> GetYaxis() -> SetTitleSize(0.05);
-  Check_Sum_Error -> GetYaxis() -> SetTitleOffset(1.0); 
+  Check_Sum_Error -> GetYaxis() -> SetTitleOffset(1.0);
+ 
+  // number of nonZS channels - <number of channels in sampa with values != 65 K ADC> vs sampa number + (feeID * sampa number)
+  char num_nonZS_channels_title_str[100];
+  sprintf(num_nonZS_channels_title_str,"Number of non ZS Channels: # of samples in channel waveform != 65K vs SAMPA ID: SECTOR %i",MonitorServerId());  
+  // x-axis is channel phi, y-axis is channel layer, z axis is ADC weithing
+  Num_non_ZS_channels_vs_SAMPA = new TH2F("Num_non_ZS_channels_vs_SAMPA",num_nonZS_channels_title_str,208,-0.5,207.5,1224,-200.5,1023.5);
+  Num_non_ZS_channels_vs_SAMPA->SetXTitle("SAMPA ID: SAMPA # + (feeID * 8)");
+  Num_non_ZS_channels_vs_SAMPA->SetYTitle("# of Non-Zero Suppressed Samples in WF");
+
+  Num_non_ZS_channels_vs_SAMPA -> GetXaxis() -> SetLabelSize(0.05);
+  Num_non_ZS_channels_vs_SAMPA -> GetXaxis() -> SetTitleSize(0.05);
+  Num_non_ZS_channels_vs_SAMPA -> SetLabelSize(0.05);
+  Num_non_ZS_channels_vs_SAMPA -> GetYaxis() -> SetTitleSize(0.05);
+  Num_non_ZS_channels_vs_SAMPA -> GetYaxis() -> SetTitleOffset(1.0);
 
   // # of times channels are in packet per RCDAQ event
   char chans_in_packet_title_str[100];
@@ -380,10 +394,7 @@ int TpcMon::Init()
   Channels_in_Packet -> GetXaxis() -> SetTitleSize(0.05);
   Channels_in_Packet -> GetYaxis() -> SetLabelSize(0.05);
   Channels_in_Packet -> GetYaxis() -> SetTitleSize(0.05);
-  Channels_in_Packet -> GetYaxis() -> SetTitleOffset(1.0);
-
-  // # of times nonZS channels are in packet per RCDAQ event
-  
+  Channels_in_Packet -> GetYaxis() -> SetTitleOffset(1.0);  
 
   // # of times channels could be in packet per RCDAQ event
   char chans_always_title_str[100];
@@ -570,6 +581,7 @@ int TpcMon::Init()
   se->registerHisto(this, Channels_in_Packet);
   se->registerHisto(this, Channels_Always);
   se->registerHisto(this, Channels_Always);
+  se->registerHisto(this, Num_non_ZS_channels_vs_SAMPA);
   se->registerHisto(this, ADC_vs_SAMPLE);
   se->registerHisto(this, PEDEST_SUB_ADC_vs_SAMPLE);
   se->registerHisto(this, PEDEST_SUB_ADC_vs_SAMPLE_R1);
@@ -790,6 +802,7 @@ int TpcMon::process_event(Event *evt/* evt */)
         //std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<std::endl;
 
         int mid = floor(360/2); //get median sample from 0-360 (we are assuming the sample > 360 is not useful to us as of 05.01.24)
+        int num_of_nonZS_samples = 0; //start counter from 0
 
         if( nr_Samples > 9)
         {
@@ -801,9 +814,12 @@ int TpcMon::process_event(Event *evt/* evt */)
           {
 	    if( (p->iValue(wf,si)) > 64500 && si > 359){ break; } //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 360, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
             else if( (p->iValue(wf,si)) > 64500 ){ continue; }  //only use reasonable values to calculate median
-            median_and_stdev_vec.push_back(p->iValue(wf,si)); 
+            median_and_stdev_vec.push_back(p->iValue(wf,si));
+            num_of_nonZS_samples++; 
           }
         } //Compare 5 values to determine stuck !!
+
+        Num_non_ZS_channels_vs_SAMPA->Fill(sampaAddress + (8*fee),num_of_nonZS_samples);
 
         if( median_and_stdev_vec.size() == 0 ) // if all waveform values were 65 K
         { 
