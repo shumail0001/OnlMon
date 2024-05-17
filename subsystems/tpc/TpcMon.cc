@@ -382,7 +382,10 @@ int TpcMon::Init()
   Channels_in_Packet -> GetYaxis() -> SetTitleSize(0.05);
   Channels_in_Packet -> GetYaxis() -> SetTitleOffset(1.0);
 
-  // # of times channels are in packet per RCDAQ event
+  // # of times nonZS channels are in packet per RCDAQ event
+  
+
+  // # of times channels could be in packet per RCDAQ event
   char chans_always_title_str[100];
   sprintf(chans_always_title_str,"Channel counts vs all channels (filled once per event w/ packets): SECTOR %i",MonitorServerId());  
   Channels_Always = new TH1F("Channels_Always" , chans_always_title_str, 6656, -0.5, 6655.5);
@@ -816,7 +819,9 @@ int TpcMon::process_event(Event *evt/* evt */)
         float pedestal = result.first; //average/pedestal -- based on MEDIAN OF ALL ENTRIES NOW, NOT MEAN OF FIRST 10 (02/12/24)
         float noise = result.second; //stdev - BASED ON REASONABLE SIGMA OF ENTRIES THAT ARE +/- 40 ADC WITHIN PEDESTAL
 
-        if(noise==0. && median_and_stdev_vec.size() > 1 )
+        float rawnoise =  calculateRawStdDev(median_and_stdev_vec);
+
+        if(rawnoise==0. && median_and_stdev_vec.size() > 1 )
         {
           //for( int si=0;si < nr_Samples; si++ ){ std::cout<<"SAMPLE: "<<si<<", ADC: "<< p->iValue(wf,si) << std::endl; } 
 	  stuck_channel_count[channel][fee]++;  // if the RMS is 0, this channel must be stuck
@@ -938,7 +943,7 @@ int TpcMon::process_event(Event *evt/* evt */)
           else if(Module_ID(fee)==1){NorthSideADC_clusterXY_R2_u5->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
           else if(Module_ID(fee)==2){NorthSideADC_clusterXY_R3_u5->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
         }
-        if( (serverid < 12 && (pedest_sub_wf_max) > std::max(5.0*noise,20.)) && layer != 0 )
+        if( (serverid >= 12 && (pedest_sub_wf_max) > std::max(5.0*noise,20.)) && layer != 0 )
         {
           if(Module_ID(fee)==0){SouthSideADC_clusterXY_R1_u5->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R1
           else if(Module_ID(fee)==1){SouthSideADC_clusterXY_R2_u5->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
@@ -1147,7 +1152,37 @@ std::pair<float, float> TpcMon::calculateMedianAndStdDev(const std::vector<int>&
     return std::make_pair(median, stdDev);
 }
 
+float TpcMon::calculateRawStdDev(const std::vector<int>& values) {
+   
+    float stdDev = 3; // default answer is 3 ADC if somehow you don't have anything in the values vector 
 
+    if(values.size() > 0 )
+    {   
+
+      //Calculate Mean of values
+      float sum = 0.0;
+      for (int value : values) 
+      {
+        sum += value;
+      }
+      float mean = sum / values.size();
+  
+      // Calculate RMS of selected values
+      float sumSquares = 0.0;
+  
+      // Calculate the standard deviation of values
+      for (int value : values)
+      {
+        float diff = value - mean;
+        sumSquares += std::pow(diff, 2);
+      }
+      float variance = sumSquares / values.size();
+      stdDev = std::sqrt(variance);
+
+    }
+    //std::cout<<"PED = "<< median << "ADC, NOISE = "<< stdDev <<" ADC"<<std::endl;
+    return stdDev;
+}
 
 int TpcMon::Reset()
 {

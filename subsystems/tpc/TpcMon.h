@@ -141,6 +141,7 @@ class TpcMon : public OnlMon
   int Max_Nine(int one, int two, int three, int four, int five, int six, int seven, int eight, int nine);
   bool side(int server_id);
   std::pair<float, float> calculateMedianAndStdDev(const std::vector<int>& values);
+  float calculateRawStdDev(const std::vector<int>& values);
 };
 
 #endif /* TPC_TPCMON_H */
