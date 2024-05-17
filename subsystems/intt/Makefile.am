@@ -43,7 +43,10 @@ libonlinttmon_server_la_SOURCES = \
 libonlinttmon_client_la_SOURCES = \
   InttFelixMap.cc \
   InttMonDraw.cc \
-  InttMonConstants.cc
+  InttMonConstants.cc \
+  Intt_o_FelixBcoFphxBco.cc \
+  Intt_o_Helpers.cc \
+  Intt_o_Whatever.cc
 
 bin_SCRIPTS = \
   InttMonSetup.csh \
