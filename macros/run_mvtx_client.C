@@ -34,6 +34,8 @@ void mvtxDrawInit(const int online = 0)
 
     cl->registerHisto("General_hChipStrobes", servername);
     cl->registerHisto("General_ChipL1", servername);
+    cl->registerHisto("General_hfeeStrobes", servername);
+    cl->registerHisto("General_feeL1", servername);
 
     // FEE
     //cl->registerHisto("MVTXMON_FEE_TriggerVsFeeid", servername);
@@ -55,6 +57,7 @@ void mvtxDrawInit(const int online = 0)
 
     // raw task
     cl->registerHisto("General_DecErrors", servername);
+    cl->registerHisto("General_DecErrorsTime", servername);
     cl->registerHisto("General_DecErrorsEndpoint", servername);
 
     for (int aLayer = 0; aLayer < 3; aLayer++)
