@@ -83,6 +83,7 @@ int HcalMonDraw::Init()
     std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_mean_template in file " << TEMPFILENAME << std::endl;
     exit(1);
   }
+  h1_zs = new TH1F("h1_zs", "unsuppressed rate ", 100, 0, 1);
 
   
   return 0;
@@ -219,9 +220,12 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   else if (name == "HcalMon7"){
     TC[9] = new TCanvas(name.c_str(),"Expert: Channel unsuppressed event fraction ", -xsize/2 , 0, xsize/2, ysize*0.9);
     gSystem->ProcessEvents();
-    Pad[24]=new TPad("hcalpad24","who needs this?",0.00,0.00,1.00,0.95);
+    Pad[24]=new TPad("hcalpad24","who needs this?",0.00,0.3,1.00,0.95);
     Pad[24]->SetRightMargin(0.15);
     Pad[24]->Draw();
+    Pad[25] = new TPad("hcalpad24", "1d zs rate", 0.0, 0.0, 1.00, 0.3);
+    Pad[25]->SetRightMargin(0.15);
+    Pad[25]->Draw();
     transparent[9] = new TPad("transparent7", "this does not show", 0, 0, 1, 1);
     transparent[9]->SetFillStyle(4000);
     transparent[9]->Draw();
@@ -674,7 +678,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
 
     // Define the range
     double x_min = 100;
-    double x_max = 10 * ymaxp;
+    double x_max = 7 * ymaxp;
     int n_points_in_range = 0;
     // Loop through the bins of the Profile Y histogram and count the bins within the range
     int n_bins = profile_y->GetNbinsX();
@@ -2313,17 +2317,19 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   //find the average z for all bins
   double sum = 0;
   int count = 0;
+  h1_zs->Reset();
   for (int i = 0; i < pr_zsFrac_etaphi->GetNbinsX(); i++)
   {
     for (int j = 0; j < pr_zsFrac_etaphi->GetNbinsY(); j++)
     {
-      if (pr_zsFrac_etaphi->GetBinContent(i, j) != 0)
-      {
-        sum += pr_zsFrac_etaphi->GetBinContent(i, j);
-        count++;
-      }
+      h1_zs->Fill(pr_zsFrac_etaphi->GetBinContent(i, j));
+      sum += pr_zsFrac_etaphi->GetBinContent(i, j);
+      count++;
+      
     }
   }
+  double maxx = (sum/count)*5 > 1 ? 1 : (sum/count)*5;
+  h1_zs->GetXaxis()->SetRangeUser(0, maxx);
   double averagezs = sum / count*100;
 
   
@@ -2374,6 +2380,32 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
     line_board1->Draw();
     line_board2->Draw();
   }
+
+  Pad[25]->cd();
+  gStyle->SetTitleFontSize(0.06);
+  tsize = 0.08;
+  h1_zs->Draw();
+  h1_zs->GetXaxis()->SetTitle("unsuppressed fraction");
+  h1_zs->GetYaxis()->SetTitle("towers");
+  h1_zs->GetXaxis()->SetLabelSize(tsize);
+  h1_zs->GetYaxis()->SetLabelSize(tsize);
+  h1_zs->GetXaxis()->SetTitleSize(tsize);
+  h1_zs->GetYaxis()->SetTitleSize(tsize);
+  h1_zs->GetXaxis()->SetTitleOffset(0.9);
+  h1_zs->GetYaxis()->SetTitleOffset(0.85);
+  h1_zs->GetXaxis()->SetNdivisions(510, kTRUE);
+  h1_zs->SetFillColorAlpha(kBlue, 0.1);
+   gPad->SetBottomMargin(0.16);
+  gPad->SetLeftMargin(0.15);
+  gPad->SetRightMargin(0.15);
+  gPad->SetTopMargin(0.1);
+  gStyle->SetOptStat(0);
+  gPad->SetTicky();
+  gPad->SetTickx();
+
+
+
+
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
