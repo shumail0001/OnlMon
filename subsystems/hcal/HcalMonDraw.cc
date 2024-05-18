@@ -2324,13 +2324,13 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
       }
     }
   }
-  double averagezs = sum / count;
+  double averagezs = sum / count*100;
 
   
   pr_zsFrac_etaphi->GetXaxis()->SetNdivisions(510, kTRUE);
   pr_zsFrac_etaphi->GetXaxis()->SetTitle("eta index");
   pr_zsFrac_etaphi->GetYaxis()->SetTitle("phi index");
-  pr_zsFrac_etaphi->SetTitle(Form("Unsuppressed Fraction, Average unsuppressed rate = %0.3f", averagezs));
+  pr_zsFrac_etaphi->SetTitle(Form("Average unsuppressed rate = %0.3f%%", averagezs));
   pr_zsFrac_etaphi->GetXaxis()->SetLabelSize(tsize);
   pr_zsFrac_etaphi->GetYaxis()->SetLabelSize(tsize);
   pr_zsFrac_etaphi->GetXaxis()->SetTitleSize(tsize);

@@ -1931,6 +1931,26 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
   }
 
   Pad[19]->cd();
+
+  double sum = 0;
+  int count = 0;
+
+  for (int i = 1; i <= p2_zsFrac_etaphiCombined->GetNbinsX(); i++)
+  {
+    for (int j = 1; j <= p2_zsFrac_etaphiCombined->GetNbinsY(); j++)
+    {
+      if (p2_zsFrac_etaphiCombined->GetBinContent(i, j) > 0)
+      {
+        sum += p2_zsFrac_etaphiCombined->GetBinContent(i, j);
+        count++;
+      }
+    }
+  }
+
+  double averagezs = sum / count*100;
+
+  
+
   gPad->SetTopMargin(0.02);
   gPad->SetBottomMargin(0.12);
   gPad->SetLeftMargin(0.12);
@@ -1939,6 +1959,7 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
   gStyle->SetPalette(kBird);
   p2_zsFrac_etaphiCombined->GetXaxis()->SetTitle("eta index");
   p2_zsFrac_etaphiCombined->GetYaxis()->SetTitle("phi index");
+  p2_zsFrac_etaphiCombined->SetTitle(Form("Average unsuppressed rate: %.3f%%", averagezs));
   p2_zsFrac_etaphiCombined->GetXaxis()->SetLabelSize(0.05);
   p2_zsFrac_etaphiCombined->GetYaxis()->SetLabelSize(0.05);
   p2_zsFrac_etaphiCombined->GetXaxis()->SetTitleSize(0.05);
