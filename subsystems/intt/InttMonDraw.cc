@@ -28,7 +28,7 @@ InttMonDraw::Options_t InttMonDraw::OPTIONS =
 //    .local = nullptr}},
 
   //Bco Diffs
-  {m_FelixBcoFphxBco.name, (struct Option_s){ // Does not follow same recursive structure; everything is done in the head function
+  {"bco_diff", (struct Option_s){ // Does not follow same recursive structure; everything is done in the head function
     .head = &InttMonDraw::DrawFelixBcoFphxBco,
     .global = nullptr,
     .local = nullptr}},
