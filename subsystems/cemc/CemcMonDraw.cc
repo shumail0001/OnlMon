@@ -82,6 +82,9 @@ int CemcMonDraw::Init()
     }
   }
 
+  h1_zs = new TH1F("h1_zs", "unsuppressed rate ", 100, 0, 1);
+  h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1);
+  h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1);
 
   return 0;
 }
@@ -234,9 +237,12 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "CemcMon8" ){
     TC[7] = new TCanvas(name.c_str(),"Expert: Channel unsuppressed event fraction", -xsize/3 , 0, xsize/3, ysize*0.9);
     gSystem->ProcessEvents();
-    Pad[19]=new TPad("cemcpad19","who needs this?",0.00,0.00,1.00,0.95);
+    Pad[19]=new TPad("cemcpad19","who needs this?",0.00,0.3,1.00,0.95);
     Pad[19]->SetRightMargin(0.15);
     Pad[19]->Draw();
+    Pad[20] = new TPad("hcalpad24", "1d zs rate", 0.0, 0.0, 1.00, 0.3);
+    Pad[20]->SetRightMargin(0.15);
+    Pad[20]->Draw();
     transparent[7] = new TPad("transparent7", "this does not show", 0, 0, 1, 1);
     transparent[7]->SetFillStyle(4000);
     transparent[7]->Draw();
@@ -1001,20 +1007,56 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
     TC[2]->SetEditable(false);
     return -1;
   }
-
+  std::cout<<"start drawing"<<std::endl;
   gStyle->SetTitleFontSize(0.03);
-  TProfile* profiled=h2_waveform_twrAvg[start[0]]->ProfileX();
+  TProfile *profiled = h2_waveform_twrAvg[start[0]]->ProfileX();
   float ymaxp = profiled->GetMaximum();
-  ymaxp=ymaxp*20>pow(2,14)?pow(2,14):20*ymaxp;
-  h2_waveform_twrAvg[start[0]] -> GetYaxis() -> SetRangeUser(0,ymaxp);
-  TGraph* gavg_waveforms=new TGraph(0);
-  gavg_waveforms->SetMarkerStyle(kFullCircle);
-  gavg_waveforms->SetMarkerSize(1);
-  gavg_waveforms->SetMarkerColor(kBlack);
-  for(int ibin=0; ibin<profiled->GetNbinsX();ibin++){
-    gavg_waveforms->SetPoint(ibin,profiled->GetBinCenter(ibin+1),profiled->GetBinContent(ibin+1));
+  ymaxp = ymaxp * 20 > pow(2, 14) ? pow(2, 14) : 20 * ymaxp;
+  h2_waveform_twrAvg[start[0]]->GetYaxis()->SetRangeUser(0, ymaxp);
+  /*
+  TProfile *profile_y = h2_waveform_twrAvg[start[0]]->ProfileY();
+  profile_y->Rebin(5);
+
+  // Define the range
+  double x_min = 100;
+  double x_max = 7 * ymaxp;
+  int n_points_in_range = 0;
+  // Loop through the bins of the Profile Y histogram and count the bins within the range
+  int n_bins = profile_y->GetNbinsX();
+  for (int j = 1; j <= n_bins; ++i)
+  {
+    double bin_center = profile_y->GetBinCenter(j);
+    if (profile_y->GetBinContent(j) == 0)
+    {
+      continue;
+    }
+    if (bin_center >= x_min && bin_center <= x_max)
+    {
+      n_points_in_range++;
+    }
   }
 
+  double *x_vals = new double[n_points_in_range];
+  double *y_vals = new double[n_points_in_range];
+
+  // Extract the Profile Y values and their corresponding Y positions within the range
+  int point_index = 0;
+  for (int j = 1; j <= n_bins; ++j)
+  {
+    double bin_center = profile_y->GetBinCenter(j);
+    if (profile_y->GetBinContent(j) == 0)
+    {
+      continue;
+    }
+    if (bin_center >= x_min && bin_center <= x_max)
+    {
+      y_vals[point_index] = bin_center;
+      x_vals[point_index] = profile_y->GetBinContent(i);
+      point_index++;
+    }
+  }
+  std::cout<<"start drawing 2"<<std::endl;
+  */
   float tsize = 0.06;
   float tsize2 = 0.08;
 
@@ -1043,7 +1085,14 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   gPad->SetTickx();
   gStyle->SetPalette(kBird);
   h2_waveform_twrAvg[start[0]]->DrawCopy("colz");
-  gavg_waveforms->Draw("psame");
+  //over lay the profile draw only the marker
+  /*
+  TGraph* graph = new TGraph(n_points_in_range, x_vals, y_vals);
+  graph->SetMarkerStyle(20);
+  graph->SetMarkerSize(1);
+  graph->SetMarkerColor(1);
+  graph->Draw("P same");
+  */
   windowLow1->Draw("same");
   windowHigh1->Draw("same");
   gStyle->SetPalette(57);
@@ -1115,6 +1164,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   gPad->SetTickx();
   windowLow2->Draw("same");
   windowHigh2->Draw("same");
+  meantime->Draw("same");
 
   Pad[6]->cd();
   gPad->SetTopMargin(0.06);
@@ -1939,24 +1989,33 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
   {
     for (int j = 1; j <= p2_zsFrac_etaphiCombined->GetNbinsY(); j++)
     {
-      if (p2_zsFrac_etaphiCombined->GetBinContent(i, j) > 0)
+      float rate = p2_zsFrac_etaphiCombined->GetBinContent(i + 1, j + 1);
+      if (rate <= 0.04)
       {
-        sum += p2_zsFrac_etaphiCombined->GetBinContent(i, j);
-        count++;
+        h1_zs_low->Fill(rate);
       }
+      else if (rate > 0.2)
+      {
+        h1_zs_high->Fill(rate);
+      }
+      else
+      {
+        h1_zs->Fill(rate);
+      }
+
+      sum += p2_zsFrac_etaphiCombined->GetBinContent(i, j);
+      count++;
     }
   }
 
-  double averagezs = sum / count*100;
-
-  
+  double averagezs = sum / count * 100;
 
   gPad->SetTopMargin(0.02);
   gPad->SetBottomMargin(0.12);
   gPad->SetLeftMargin(0.12);
   gPad->SetRightMargin(0.12);
   gStyle->SetTitleFontSize(0.06);
-  gStyle->SetPalette(kBird);
+  SetBirdPalette();
   p2_zsFrac_etaphiCombined->GetXaxis()->SetTitle("eta index");
   p2_zsFrac_etaphiCombined->GetYaxis()->SetTitle("phi index");
   p2_zsFrac_etaphiCombined->SetTitle(Form("Average unsuppressed rate: %.3f%%", averagezs));
@@ -1970,6 +2029,33 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
   p2_zsFrac_etaphiCombined->SetMaximum(1);
   p2_zsFrac_etaphiCombined->SetStats(kFALSE);
   p2_zsFrac_etaphiCombined->DrawCopy("colz");
+
+  Pad[20]->cd();
+  gStyle->SetTitleFontSize(0.06);
+  float tsize = 0.08;
+  h1_zs->Draw();
+  h1_zs->GetXaxis()->SetTitle("unsuppressed fraction");
+  h1_zs->GetYaxis()->SetTitle("towers");
+  h1_zs->GetXaxis()->SetLabelSize(tsize);
+  h1_zs->GetYaxis()->SetLabelSize(tsize);
+  h1_zs->GetXaxis()->SetTitleSize(tsize);
+  h1_zs->GetYaxis()->SetTitleSize(tsize);
+  h1_zs->GetXaxis()->SetTitleOffset(0.9);
+  h1_zs->GetYaxis()->SetTitleOffset(0.85);
+  h1_zs->GetXaxis()->SetNdivisions(510, kTRUE);
+  h1_zs->SetFillColorAlpha(kBlue, 0.1);
+  h1_zs_low->SetFillColorAlpha(kRed, 0.1);
+  h1_zs_high->SetFillColorAlpha(kYellow , 0.1);
+  h1_zs_low->Draw("same");
+  h1_zs_high->Draw("same");
+  gPad->SetBottomMargin(0.16);
+  gPad->SetLeftMargin(0.15);
+  gPad->SetRightMargin(0.15);
+  gPad->SetTopMargin(0.1);
+  gStyle->SetOptStat(0);
+  gPad->SetTicky();
+  gPad->SetTickx();
+
 
   TText PrintRun;
   PrintRun.SetTextFont(62);

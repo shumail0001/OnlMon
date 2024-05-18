@@ -64,6 +64,22 @@ class CemcMonDraw : public OnlMonDraw
   TH2D* h2_template_hit{nullptr};
   TH2D* h_cemc_datahits{nullptr};
   TStyle *cemcStyle{nullptr};
+
+  TH1F* h1_zs = nullptr;
+  TH1F* h1_zs_low = nullptr;
+  TH1F* h1_zs_high = nullptr;
+
+  void SetBirdPalette()
+  {
+    Double_t red[9] = {1.0, 0.0592, 0.0780, 0.0232, 0.1802, 0.5301, 0.8186, 0.9956, 0.9764};
+    Double_t green[9] = {0.0, 0.3599, 0.5041, 0.6419, 0.7178, 0.7492, 0.7328, 0.7862, 0.9832};
+    Double_t blue[9] = {0.0, 0.8684, 0.8385, 0.7914, 0.6425, 0.4662, 0.3499, 0.1968, 0.0539};
+    Double_t stops[9] = {0.0, 0.04, 0.12, 0.15, 0.2, 0.25, 0.3, 0.35, 1.0000};
+    Int_t nb = 255;
+    TColor::CreateGradientColorTable(9, stops, red, green, blue, nb);
+
+    gStyle->SetNumberContours(nb);
+  }
 };
 
 #endif /* CEMC_CEMCMONDRAW_H */

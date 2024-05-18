@@ -84,6 +84,8 @@ int HcalMonDraw::Init()
     exit(1);
   }
   h1_zs = new TH1F("h1_zs", "unsuppressed rate ", 100, 0, 1);
+  h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1);
+  h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1);
 
   
   return 0;
@@ -2318,12 +2320,23 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   double sum = 0;
   int count = 0;
   h1_zs->Reset();
+  h1_zs_low->Reset();
+  h1_zs_high->Reset();
   for (int i = 0; i < pr_zsFrac_etaphi->GetNbinsX(); i++)
   {
     for (int j = 0; j < pr_zsFrac_etaphi->GetNbinsY(); j++)
     {
-      h1_zs->Fill(pr_zsFrac_etaphi->GetBinContent(i, j));
-      sum += pr_zsFrac_etaphi->GetBinContent(i, j);
+      float rate = pr_zsFrac_etaphi->GetBinContent(i+1, j+1);
+      if(rate <=0.04){
+        h1_zs_low->Fill(rate);
+      }
+      else if (rate > 0.2){
+        h1_zs_high->Fill(rate);
+      }
+      else{
+        h1_zs->Fill(rate);
+      }
+      sum += pr_zsFrac_etaphi->GetBinContent(i+1, j+1);
       count++;
       
     }
@@ -2331,7 +2344,7 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   double maxx = (sum/count)*5 > 1 ? 1 : (sum/count)*5;
   h1_zs->GetXaxis()->SetRangeUser(0, maxx);
   double averagezs = sum / count*100;
-
+  
   
   pr_zsFrac_etaphi->GetXaxis()->SetNdivisions(510, kTRUE);
   pr_zsFrac_etaphi->GetXaxis()->SetTitle("eta index");
@@ -2351,7 +2364,8 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   gPad->SetTopMargin(0.1);
   gPad->SetTicky();
   gPad->SetTickx();
-  gStyle->SetPalette(57);
+  //gStyle->SetPalette(57);
+  SetBirdPalette();
   gStyle->SetOptStat(0);
   
   {
@@ -2395,6 +2409,10 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   h1_zs->GetYaxis()->SetTitleOffset(0.85);
   h1_zs->GetXaxis()->SetNdivisions(510, kTRUE);
   h1_zs->SetFillColorAlpha(kBlue, 0.1);
+  h1_zs_low->SetFillColorAlpha(kRed, 0.1);
+  h1_zs_high->SetFillColorAlpha(kYellow , 0.1);
+  h1_zs_low->Draw("same");
+  h1_zs_high->Draw("same");
    gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.15);
   gPad->SetRightMargin(0.15);
