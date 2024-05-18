@@ -2043,8 +2043,6 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   char HCALMON_1[100];
   sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
 
-  TH2F* pr_zsFrac_etaphi = (TH2F*) cl->getHisto(HCALMON_0, "pr_zsFrac_etaphi");
-  TH2F* pr_zsFrac_etaphi_1 = (TH2F*) cl->getHisto(HCALMON_1, "pr_zsFrac_etaphi");
 
   TH2F* h2_hcal_mean = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_mean");
   TH1F* h_event = (TH1F*) cl->getHisto(HCALMON_0, "h_event");
@@ -2059,7 +2057,7 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   {
     MakeCanvas("HcalMon6");
   }
-  if (!h2_hcal_mean || !h_event || !h2_hcal_hits || !h2_hcal_time || !h2_hcal_mean_1 || !h_event_1 || !h2_hcal_hits_1 || !h2_hcal_time_1 || !pr_zsFrac_etaphi || !pr_zsFrac_etaphi_1)
+  if (!h2_hcal_mean || !h_event || !h2_hcal_hits || !h2_hcal_time || !h2_hcal_mean_1 || !h_event_1 || !h2_hcal_hits_1 || !h2_hcal_time_1)
   {
     DrawDeadServer(transparent[6]);
     TC[7]->SetEditable(false);
@@ -2070,16 +2068,21 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
     }
     return -1;
   }
-  h2_hcal_mean->Scale(1. / h_event->GetEntries());
-  h2_hcal_hits->Scale(1. / h_event->GetEntries());
-
-  h2_hcal_mean_1->Scale(1. / h_event_1->GetEntries());
-  h2_hcal_hits_1->Scale(1. / h_event_1->GetEntries());
+  if(h_event->GetEntries()){
+    h2_hcal_mean->Scale(1. / h_event->GetEntries());
+    h2_hcal_hits->Scale(1. / h_event->GetEntries());
+    
+  }
+  if(h_event_1->GetEntries()){
+    h2_hcal_mean_1->Scale(1. / h_event_1->GetEntries());
+    h2_hcal_hits_1->Scale(1. / h_event_1->GetEntries());
+    
+  }
 
   h2_hcal_mean->Add(h2_hcal_mean_1);
   h2_hcal_hits->Add(h2_hcal_hits_1);
   h2_hcal_time->Add(h2_hcal_time_1);
-  pr_zsFrac_etaphi->Add(pr_zsFrac_etaphi_1);
+  
 
   float tsize = 0.06;
 
@@ -2327,7 +2330,7 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   pr_zsFrac_etaphi->GetXaxis()->SetNdivisions(510, kTRUE);
   pr_zsFrac_etaphi->GetXaxis()->SetTitle("eta index");
   pr_zsFrac_etaphi->GetYaxis()->SetTitle("phi index");
-  pr_zsFrac_etaphi->SetTitle(Form("Unsuppressed Fraction, Average Zs rate = %0.3f", averagezs));
+  pr_zsFrac_etaphi->SetTitle(Form("Unsuppressed Fraction, Average unsuppressed rate = %0.3f", averagezs));
   pr_zsFrac_etaphi->GetXaxis()->SetLabelSize(tsize);
   pr_zsFrac_etaphi->GetYaxis()->SetLabelSize(tsize);
   pr_zsFrac_etaphi->GetXaxis()->SetTitleSize(tsize);
