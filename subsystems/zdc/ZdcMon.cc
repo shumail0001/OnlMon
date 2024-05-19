@@ -402,16 +402,15 @@ int ZdcMon::process_event(Event *e /* evt */)
 
       float signal = signalFast;
 
-     // fill zdc raw signal first 
+     // fill zdc raw signal first
      if(c < 16)
-     {    
+     {
  
        z.push_back(signal);
        tz.push_back(time);
 
       if((c==0) || (c ==2) || (c == 4))
       {
-
          totalzdcsouthsignal += signal;
          if(c == 0) zdc_S1->Fill(signal);
          if(c == 2) zdc_S2->Fill(signal);
@@ -420,7 +419,6 @@ int ZdcMon::process_event(Event *e /* evt */)
 
       else if((c==8) || (c ==10) || (c == 12))
       {
-
          totalzdcnorthsignal += signal;
          if(c == 8) zdc_N1->Fill(signal);
          if(c == 10) zdc_N2->Fill(signal);
@@ -454,7 +452,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       
      //smd
       else if((c > 47 && c < 64) || (c > 111))
-      {   
+      {
          sm.push_back(signal);
          tsmd.push_back(time);
       }
@@ -503,23 +501,23 @@ int ZdcMon::process_event(Event *e /* evt */)
                   if(j >= 8 && j<=14) smd_north_xsum += sm[j]; //skip sum ch, 15->63
               }
               else
-              { 
- 		               smd_adc[j] = 0.0;
-               }
-            }
+              {
+                 smd_adc[j] = 0.0;
+              }
+           }
         
           if (j >= 16 && j <= 31) //smd south [16,31] --> [112,127]
-          {    
+          {
              if((tsmd[j] >= smdStimelow) && (tsmd[j] <= smdStimehigh ))
               {
                   smd_adc[j] = sm[j];
                   if(j >= 16 && j<=23) smd_south_ysum += sm[j];
                   if(j >= 24 && j<=30) smd_south_xsum += sm[j]; //skip sum ch, 31->127
-              } 
+              }
               else
- 		          {
+              {
                   smd_adc[j] = 0.0;
-              } 
+              }
           }
       }//smd
 
@@ -579,9 +577,9 @@ int ZdcMon::process_event(Event *e /* evt */)
          smd_value_small->Fill(smd_adc[i], float(i));
       }
 
-      if ((smd_adc[i] > smd_adc_threshold) && (zdc_adc[0] > zdc_adc_threshold)) 
+      if ((smd_adc[i] > smd_adc_threshold) && (zdc_adc[0] > zdc_adc_threshold))
       {
-        smd_n_h_counter++;  
+        smd_n_h_counter++;
       }
 
       if (smd_adc[i] > smd_adc_threshold)
@@ -733,9 +731,10 @@ int ZdcMon::process_event(Event *e /* evt */)
 
   z.clear();
   sm.clear();
- 
-   delete p;
-
+  tz.clear();
+  tsmd.clear();
+    
+  delete p;
   return 0;
 }
 
@@ -827,5 +826,6 @@ void ZdcMon::CompSmdPos()  //computing position with weighted averages
     smd_pos[3] = 0;
   }
 }
+
 
 

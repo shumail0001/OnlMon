@@ -238,13 +238,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     // xpos negative: do not draw menu bar
     TC[6] = new TCanvas(name.c_str(), "EXPERT - Veto counter", -xsize / 2, -ysize / 2, xsize / 2, ysize / 2);
     gSystem->ProcessEvents();
-    /*
-    Pad[51] = new TPad("smd_north_hor_hits", "smd_north_hor_hits", 0.05, 0.5, 0.5, 0.98, 0);
-    Pad[52] = new TPad("smd_north_ver_hits", "smd_north_ver_hits", 0.5, 0.5, 0.98, 0.98, 0);
-    Pad[53] = new TPad("smd_south_hor_hits", "smd_south_hor_hits", 0.05, 0.05, 0.5, 0.5, 0);
-    Pad[54] = new TPad("smd_south_ver_hits", "smd_south_ver_hits", 0.5, 0.05, 0.95, 0.5, 0);
-    */
-
+  
     Pad[51] = new TPad("Veto_NF", "Veto_NF", 0.05, 0.5, 0.5, 0.98, 0);
     Pad[52] = new TPad("Veto_NB", "Veto_NB", 0.5, 0.5, 0.98, 0.98, 0);
     Pad[53] = new TPad("Veto_SF", "Veto_SF", 0.05, 0.05, 0.5, 0.5, 0);
@@ -293,6 +287,27 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     TC[7]->SetEditable(false);
   }
 
+  else if (name == "SmdMultiplicities")
+  {
+    // xpos negative: do not draw menu bar
+    TC[8] = new TCanvas(name.c_str(), "EXPERT - Smd Multiplicities", -xsize / 2, -ysize / 2, xsize / 2, ysize / 2);
+    gSystem->ProcessEvents();
+    Pad[61] = new TPad("smd_north_hor_hits", "smd_north_hor_hits", 0.05, 0.5, 0.5, 0.98, 0);
+    Pad[62] = new TPad("smd_north_ver_hits", "smd_north_ver_hits", 0.5, 0.5, 0.98, 0.98, 0);
+    Pad[63] = new TPad("smd_south_hor_hits", "smd_south_hor_hits", 0.05, 0.05, 0.5, 0.5, 0);
+    Pad[64] = new TPad("smd_south_ver_hits", "smd_south_ver_hits", 0.5, 0.05, 0.95, 0.5, 0);
+
+    Pad[61]->Draw();
+    Pad[62]->Draw();
+    Pad[63]->Draw();
+    Pad[64]->Draw();
+
+    // this one is used to plot the run number on the canvas
+    transparent[6] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
+    TC[8]->SetEditable(false);
+  }
 
   return 0;
 }
@@ -345,6 +360,12 @@ int ZdcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "ZDC_WAVEFORM")
   {
     iret += DrawWaveForm(what);
+    idraw++;
+  }
+    
+  if (what == "ALL" || what == "SMD_MULTIPLICITIES")
+  {
+    iret += DrawSmdMultiplicities(what);
     idraw++;
   }
 
@@ -814,7 +835,7 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
      l[0].SetNDC();
      l[0].SetTextFont(43);
      l[0].SetTextSize(textsize);
-     smd_sum_ver_north->GetXaxis()->SetRangeUser(20,800);
+     smd_sum_ver_north->GetXaxis()->SetRangeUser(0,800);
      smd_sum_ver_north->SetXTitle("SMD x-sum North ADC distribution");
      smd_sum_ver_north->SetYTitle("Counts");
      smd_sum_ver_north->DrawCopy();
@@ -826,7 +847,7 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
      l[1].SetNDC();
      l[1].SetTextFont(43);
      l[1].SetTextSize(textsize);
-     smd_sum_hor_north->GetXaxis()->SetRangeUser(20,800);
+     smd_sum_hor_north->GetXaxis()->SetRangeUser(0,800);
      smd_sum_hor_north->SetXTitle("SMD y-sum North ADC distribution");
      smd_sum_hor_north->SetYTitle("Counts");
      smd_sum_hor_north->DrawCopy();
@@ -838,7 +859,7 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
      l[2].SetNDC();
      l[2].SetTextFont(43);
      l[2].SetTextSize(textsize);
-     smd_sum_ver_south->GetXaxis()->SetRangeUser(20,800);
+     smd_sum_ver_south->GetXaxis()->SetRangeUser(0,800);
      smd_sum_ver_south->SetXTitle("SMD x-sum South ADC distribution");
      smd_sum_ver_south->SetYTitle("Counts");
      smd_sum_ver_south->DrawCopy();
@@ -850,7 +871,7 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
       l[3].SetNDC();
       l[3].SetTextFont(43);
       l[3].SetTextSize(textsize);
-      smd_sum_hor_south->GetXaxis()->SetRangeUser(20,800);
+      smd_sum_hor_south->GetXaxis()->SetRangeUser(0,800);
       smd_sum_hor_south->SetXTitle("SMD y-sum South ADC distribution");
       smd_sum_hor_south->SetYTitle("Counts");
       smd_sum_hor_south->DrawCopy();
@@ -912,7 +933,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   TC[4]->SetEditable(true);
   TC[4]->Clear("D");
   Pad[21]->cd();
-  gPad->SetLogy(1); // log scale for the y-axis
+  gPad->SetLogy(1);
 
   if (smd_adc_n_hor_ind[0])
   {
@@ -944,7 +965,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   for (int i = 1; i < 8; ++i)
   {
     Pad[21 + i]->cd();
-    gPad->SetLogy(1); // log scale for the y-axis
+    gPad->SetLogy(1);
     if (smd_adc_n_hor_ind[i])
     {
         float m = smd_adc_n_hor_ind[i]->GetMean();
@@ -966,7 +987,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
   for (int i = 0; i < 7; ++i)
   {
     Pad[29 + i]->cd();
-    gPad->SetLogy(1); // log scale for the y-axis
+    gPad->SetLogy(1);
     if (smd_adc_n_ver_ind[i])
     {
         float m = smd_adc_n_ver_ind[i]->GetMean();
@@ -1014,18 +1035,17 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
     
   OnlMonClient *cl = OnlMonClient::instance();
 
-  // Array that holds pointer to the histogram of each channel
   TH1 *smd_adc_s_hor_ind[8];
   TH1 *smd_adc_s_ver_ind[7];
   // Horizontal
   for (int i = 0; i < 8; ++i)
   {
-    smd_adc_s_hor_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_s_hor_ind%d", i));  // Retrieve histogram pointer using 'histName'
+    smd_adc_s_hor_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_s_hor_ind%d", i));
   }
   // Vertical
   for (int i = 0; i < 7; ++i)
   {
-    smd_adc_s_ver_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_s_ver_ind%d", i));  // Retrieve histogram pointer using 'histName'
+    smd_adc_s_ver_ind[i] = (TH1 *) cl->getHisto("ZDCMON_0", Form("smd_adc_s_ver_ind%d", i));
   }
 
   if (!gROOT->FindObject("SmdAdcSouthIndividual"))
@@ -1036,7 +1056,7 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
   TC[5]->SetEditable(true);
   TC[5]->Clear("D");
   Pad[36]->cd();
-  gPad->SetLogy(1); // log scale for the y-axis
+  gPad->SetLogy(1);
   if (smd_adc_s_hor_ind[0])
   {
       float m = smd_adc_s_hor_ind[0]->GetMean();
@@ -1066,7 +1086,7 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
   for (int i = 1; i < 8; ++i)
   {
     Pad[36 + i]->cd();
-    gPad->SetLogy(1); // log scale for the y-axis
+    gPad->SetLogy(1);
     if (smd_adc_s_hor_ind[i])
     {
         float m = smd_adc_s_hor_ind[i]->GetMean();
@@ -1086,7 +1106,7 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
   for (int i = 0; i < 7; ++i)
   {
     Pad[44 + i]->cd();
-    gPad->SetLogy(1); // log scale for the y-axis
+    gPad->SetLogy(1);
     if (smd_adc_s_ver_ind[i])
     {
         float m = smd_adc_s_ver_ind[i]->GetMean();
@@ -1127,20 +1147,11 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
 int ZdcMonDraw::Drawveto(const std::string & /* what */)
 {
     
- // TString Mult[4] = {"SMD North y mult", "SMD North x mult","SMD South y mult","SMD South x mult"};
-  TString Mult[4] = {"Veto North Front", "Veto North Back","Veto South Front","Veto South Back"};
- 
-
-   TLatex l[4];
+  TString vnmame[4] = {"Veto North Front", "Veto North Back","Veto South Front","Veto South Back"};
+  TLatex l[4];
   int textsize = 15;
     
   OnlMonClient *cl = OnlMonClient::instance();
-/*
-  TH1 *smd_north_hor_hits = (TH1 *) cl->getHisto("ZDCMON_0", "smd_north_hor_hits");
-  TH1 *smd_north_ver_hits = (TH1 *) cl->getHisto("ZDCMON_0", "smd_north_ver_hits");
-  TH1 *smd_south_hor_hits = (TH1 *) cl->getHisto("ZDCMON_0", "smd_south_hor_hits");
-  TH1 *smd_south_ver_hits = (TH1 *) cl->getHisto("ZDCMON_0", "smd_south_ver_hits");
-*/
 
   TH1 *veto_NF = (TH1 *) cl->getHisto("ZDCMON_0", "veto_NF");
   TH1 *veto_NB = (TH1 *) cl->getHisto("ZDCMON_0", "veto_NB");
@@ -1163,12 +1174,8 @@ int ZdcMonDraw::Drawveto(const std::string & /* what */)
       l[0].SetNDC();
       l[0].SetTextFont(43);
       l[0].SetTextSize(textsize);
-      //smd_north_hor_hits->SetStats(0);
-      //smd_north_hor_hits->SetXTitle("SMD North Horizontal Multiplicities");
-      //smd_north_hor_hits->SetYTitle("Counts");
-      //smd_north_hor_hits->DrawCopy();
        veto_NF->DrawCopy();
-       l[0].DrawLatex(0.15, 0.75, Mult[0]);
+       l[0].DrawLatex(0.15, 0.75, vnmame[0]);
 
   }
   else
@@ -1191,12 +1198,8 @@ int ZdcMonDraw::Drawveto(const std::string & /* what */)
     l[1].SetNDC();
     l[1].SetTextFont(43);
     l[1].SetTextSize(textsize);
-    //smd_north_ver_hits->SetStats(0);
-    //smd_north_ver_hits->SetXTitle("SMD North Vertical Multiplicities");
-    //smd_north_ver_hits->SetYTitle("Counts");
-    //smd_north_ver_hits->DrawCopy();
-     veto_NB->DrawCopy(); 
-   l[1].DrawLatex(0.15, 0.75, Mult[1]);
+     veto_NB->DrawCopy();
+   l[1].DrawLatex(0.15, 0.75, vnmame[1]);
 
   }
   Pad[53]->cd();
@@ -1206,12 +1209,8 @@ int ZdcMonDraw::Drawveto(const std::string & /* what */)
     l[2].SetNDC();
     l[2].SetTextFont(43);
     l[2].SetTextSize(textsize);
-    //smd_south_hor_hits->SetStats(0);
-    //smd_south_hor_hits->SetXTitle("SMD South Horizontal Multiplicities");
-    //smd_south_hor_hits->SetYTitle("Counts");
-    //smd_south_hor_hits->DrawCopy();
     veto_SF->DrawCopy();
-    l[2].DrawLatex(0.15, 0.75, Mult[2]);
+    l[2].DrawLatex(0.15, 0.75, vnmame[2]);
 
   }
   Pad[54]->cd();
@@ -1221,12 +1220,8 @@ int ZdcMonDraw::Drawveto(const std::string & /* what */)
     l[3].SetNDC();
     l[3].SetTextFont(43);
     l[3].SetTextSize(textsize);
-    //smd_south_ver_hits->SetStats(0);
-    //smd_south_ver_hits->SetXTitle("SMD South Vertical Multiplicities");
-    //smd_south_ver_hits->SetYTitle("Counts");
-    //smd_south_ver_hits->DrawCopy();
     veto_SB->DrawCopy();
-     l[3].DrawLatex(0.15, 0.75, Mult[3]);
+     l[3].DrawLatex(0.15, 0.75, vnmame[3]);
 
   }
 
@@ -1406,6 +1401,115 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   return 0;
 }
 
+int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
+{
+    
+ TString Mult[4] = {"SMD North y mult", "SMD North x mult","SMD South y mult","SMD South x mult"};
+ TLatex l[4];
+  int textsize = 15;
+    
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH1 *smd_north_hor_hits = (TH1 *) cl->getHisto("ZDCMON_0", "smd_north_hor_hits");
+  TH1 *smd_north_ver_hits = (TH1 *) cl->getHisto("ZDCMON_0", "smd_north_ver_hits");
+  TH1 *smd_south_hor_hits = (TH1 *) cl->getHisto("ZDCMON_0", "smd_south_hor_hits");
+  TH1 *smd_south_ver_hits = (TH1 *) cl->getHisto("ZDCMON_0", "smd_south_ver_hits");
+
+  if (!gROOT->FindObject("SmdMultiplicities"))
+  {
+    MakeCanvas("SmdMultiplicities");
+  }
+        
+    TC[8]->SetEditable(true);
+    TC[8]->Clear("D");
+    Pad[61]->cd();
+    if (smd_north_hor_hits)
+    {
+        l[0].SetNDC();
+        l[0].SetTextFont(43);
+        l[0].SetTextSize(textsize);
+        smd_north_hor_hits->SetStats(0);
+        smd_north_hor_hits->SetXTitle("SMD North Horizontal Multiplicities");
+        smd_north_hor_hits->SetYTitle("Counts");
+        smd_north_hor_hits->DrawCopy();
+        l[0].DrawLatex(0.15, 0.75, Mult[0]);
+
+    }
+    else
+    {
+      DrawDeadServer(transparent[6]);
+      TC[8]->SetEditable(false);
+      if (isHtml())
+      {
+        delete TC[8];
+        TC[8] = nullptr;
+      }
+      return -1;
+    }
+
+    Pad[62]->cd();
+    gPad->SetLogy();
+    if (smd_north_ver_hits)
+    {
+      l[1].SetNDC();
+      l[1].SetTextFont(43);
+      l[1].SetTextSize(textsize);
+      smd_north_ver_hits->SetStats(0);
+      smd_north_ver_hits->SetXTitle("SMD North Vertical Multiplicities");
+      smd_north_ver_hits->SetYTitle("Counts");
+      smd_north_ver_hits->DrawCopy();
+      l[1].DrawLatex(0.15, 0.75, Mult[1]);
+    }
+    
+    Pad[63]->cd();
+    gPad->SetLogy();
+    if (smd_south_hor_hits)
+    {
+      l[2].SetNDC();
+      l[2].SetTextFont(43);
+      l[2].SetTextSize(textsize);
+      smd_south_hor_hits->SetStats(0);
+      smd_south_hor_hits->SetXTitle("SMD South Horizontal Multiplicities");
+      smd_south_hor_hits->SetYTitle("Counts");
+      smd_south_hor_hits->DrawCopy();
+      l[2].DrawLatex(0.15, 0.75, Mult[2]);
+    }
+    
+    Pad[64]->cd();
+    gPad->SetLogy();
+    if (smd_south_ver_hits)
+    {
+      l[3].SetNDC();
+      l[3].SetTextFont(43);
+      l[3].SetTextSize(textsize);
+      smd_south_ver_hits->SetStats(0);
+      smd_south_ver_hits->SetXTitle("SMD South Vertical Multiplicities");
+      smd_south_ver_hits->SetYTitle("Counts");
+      smd_south_ver_hits->DrawCopy();
+      l[3].DrawLatex(0.15, 0.75, Mult[3]);
+
+    }
+
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_7 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[6]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[8]->Update();
+  TC[8]->Show();
+  TC[8]->SetEditable(false);
+
+  return 0;
+}
 
 
 int ZdcMonDraw::SavePlot(const std::string &what, const std::string &type)
