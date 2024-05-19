@@ -40,7 +40,7 @@ class ZdcMonDraw : public OnlMonDraw
   int DrawSmdXY(const std::string &what = "ALL");
   int DrawSmdAdcNorthIndividual(const std::string &what = "ALL");
   int DrawSmdAdcSouthIndividual(const std::string &what = "ALL");
-  int DrawSmdMultiplicities(const std::string &what = "ALL");
+  int Drawveto(const std::string &what = "ALL");
   int DrawWaveForm(const std::string &what = "ALL");
   int DrawSmdAdcMeans(const std::string &what = "ALL");
 
