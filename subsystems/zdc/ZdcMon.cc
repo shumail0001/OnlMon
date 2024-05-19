@@ -499,7 +499,7 @@ int ZdcMon::process_event(Event *e /* evt */)
             if((tsmd[j] >= smdNtimelow) && (tsmd[j] <= smdNtimehigh))
               {
                   smd_adc[j] = sm[j];
-                  if(j >= 0 && j<=7) smd_north_ysum += sm[j];
+                  if(j<=7) smd_north_ysum += sm[j];
                   if(j >= 8 && j<=14) smd_north_xsum += sm[j]; //skip sum ch, 15->63
               }
               else
