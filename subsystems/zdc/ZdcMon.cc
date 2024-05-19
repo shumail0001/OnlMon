@@ -702,7 +702,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       smd_sum_hor_south->Fill(smd_south_ysum);
     }
 
-    if(fill_hor_south && fill_ver_south && (zdc_adc[0] > ZDC1cut) && (zdc_adc[2] > ZDC2cut) && (v[2] > veto_cut) && (v[3] > veto_cut))
+    if(fill_hor_south && fill_ver_south && (zdc_adc[0] > ZDC1cut) && (zdc_adc[2] > ZDC2cut) && (v[2] < veto_cut) && (v[3] < veto_cut))
     {
       smd_xy_south->Fill(smd_pos[3], smd_pos[2]);
       smd_hor_south_good->Fill(smd_pos[2]);
@@ -721,7 +721,7 @@ int ZdcMon::process_event(Event *e /* evt */)
       
     }
 
-    if(fill_hor_north && fill_ver_north && (zdc_adc[8] > ZDC1cut) && (zdc_adc[10] > ZDC2cut) && (v[0] > veto_cut) && (v[1] > veto_cut))
+    if(fill_hor_north && fill_ver_north && (zdc_adc[8] > ZDC1cut) && (zdc_adc[10] > ZDC2cut) && (v[0] < veto_cut) && (v[1] < veto_cut))
     {
       smd_xy_north->Fill(smd_pos[1], smd_pos[0]);
       smd_hor_north_good->Fill(smd_pos[0]);
