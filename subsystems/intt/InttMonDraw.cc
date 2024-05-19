@@ -84,13 +84,18 @@ int InttMonDraw::SavePlot(std::string const& what, std::string const& type)
   }
 
   OnlMonClient* cl = OnlMonClient::instance();
-  for (TCanvas* canvas : TC) {
-	if(!canvas)continue;
 
-	std::string filename = ThisName + "_" + canvas->GetTitle() + "_" + std::to_string(cl->RunNumber()) + "." + type;
+  int icnt = 0;
+  for (TCanvas* canvas : TC)
+  {
+	if(canvas == nullptr)
+	{
+      continue;
+	}
+	++icnt;
+	std::string filename = ThisName + "_" + std::to_string(icnt) + "_" + std::to_string(cl->RunNumber()) + "." + type;
 	cl->CanvasToPng(canvas, filename);
   }
-
   return 0;
 }
 
