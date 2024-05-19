@@ -1,16 +1,18 @@
 #include "InttMon.h"
 
-//===	Public Methods		===//
 InttMon::InttMon(const std::string &name)
   : OnlMon(name)
 {
-  // leaving fairly empty
   return;
 }
 
 InttMon::~InttMon()
 {
   delete dbvars;
+
+  delete EvtHist;
+  delete HitHist;
+  delete BcoHist;
 }
 
 int InttMon::Init()
@@ -22,34 +24,27 @@ int InttMon::Init()
   DBVarInit();
 
   // histograms
-  NumEvents = new TH1D(Form("InttNumEvents"), Form("InttNumEvents"), 1, 0, 1);
-  HitMap = new TH1D(Form("InttMap"), Form("InttMap"), INTT::ADCS, 0, INTT::ADCS);
-  BcoDiffMap = new TH1D(Form("InttBcoDiffMap"), Form("InttBcoDiffMap"), INTT::BCOS, 0, INTT::BCOS);
-  HitsVsEvt = new TH2D(Form("InttHitsVsEvt"), Form("InttHitsVsEvt"), INTT::FELIX, 0, INTT::FELIX, INTT::EVT_BUFF_LEN, 0, INTT::EVT_BUFF_LEN);
+  EvtHist = new TH1D("InttEvtHist", "InttEvtHist", 1, 0.0, 1.0);
+  // The helper binning functions return the index of the overflow bin when an invalid value is passed
+  HitHist = new TH1D("InttHitHist", "InttHitHist", HitBin({-1, -1}) - 1, 0.0, 1.0);
+  BcoHist = new TH1D("InttBcoHist", "InttBcoHist", BcoBin({-1, -1}) - 1, 0.0, 1.0);
   //...
 
-  se->registerHisto(this, NumEvents);
-  se->registerHisto(this, HitMap);
-  se->registerHisto(this, BcoDiffMap);
-  se->registerHisto(this, HitsVsEvt);
+  se->registerHisto(this, EvtHist);
+  se->registerHisto(this, HitHist);
+  se->registerHisto(this, BcoHist);
   //...
 
   // Read in calibrartion data from InttMonData.dat
   const char *inttcalib = getenv("INTTCALIB");
   if (!inttcalib)
   {
-    std::cout << "INTTCALIB environment variable not set" << std::endl;
+    std::cerr << "INTTCALIB environment variable not set" << std::endl;
     exit(1);
   }
   std::string fullfile = std::string(inttcalib) + "/" + "InttMonData.dat";
   std::ifstream calib(fullfile);
-  // probably need to do stuff here (maybe write to expectation maps)
-  // or reimplment in BeginRun()
   calib.close();
-
-  // for testing/debugging without unpacker, remove later
-  rng = new TRandom(1234);
-  //~for testing/debugging without unpacker, remove later
 
   Reset();
 
@@ -58,92 +53,40 @@ int InttMon::Init()
 
 int InttMon::BeginRun(const int /* run_num */)
 {
-  // per-run calibrations; don't think we need to do anything here yet
-
   return 0;
 }
 
 int InttMon::process_event(Event *evt)
 {
-  int bin;
-  int bco_bin;
-  int N;
-  int n;
-
-  int pid = 3001;
-  int felix;
-  int felix_channel;
-  struct INTT_Felix::Ladder_s lddr_s;
-  struct INTT::Indexes_s indexes;
-  struct INTT::BcoData_s bco_data;
-
-  for (pid = 3001; pid < 3009; ++pid)
+  for (int pid = 3001; pid < 3009; ++pid)
   {
-    felix = pid - 3001;
-
     Packet *p = evt->getPacket(pid);
     if (!p)
     {
       continue;
     }
 
-    N = p->iValue(0, "NR_HITS");
-	bin = HitsVsEvt->GetBin(pid - 3000, (int)(NumEvents->GetBinContent(1)) % INTT::EVT_BUFF_LEN + 1);
-    HitsVsEvt->SetBinContent(bin, N);
-
-    // p->identify();
-    // if(N)std::cout << N << std::endl;
-
-    for (n = 0; n < N; ++n)
+    for (int n = 0, N = p->iValue(0, "NR_HITS"); n < N; ++n)
     {
-      felix_channel = p->iValue(n, "FEE");
+      int fee = p->iValue(n, "FEE");
+      int chp = (p->iValue(n, "CHIP_ID") + 25) % 26;
+      int bco = ((0x7f & p->lValue(n, "BCO")) - p->iValue(n, "FPHX_BCO") + 128) % 128;
 
-      INTT_Felix::FelixMap(felix, felix_channel, lddr_s);
+	  HitHist->AddBinContent(HitBin({
+        .fee = fee,
+        .chp = chp
+      }));
 
-      indexes.lyr = lddr_s.barrel * 2 + lddr_s.layer;
-      indexes.ldr = lddr_s.ladder;
-
-      indexes.arm = (felix / 4) % 2;
-      indexes.chp = p->iValue(n, "CHIP_ID") % 26;
-      indexes.chn = p->iValue(n, "CHANNEL_ID");
-      indexes.adc = p->iValue(n, "ADC");
-
-      // std::cout << "\t" << indexes.lyr << std::endl;
-      // std::cout << "\t" << indexes.ldr << std::endl;
-      // std::cout << "\t" << indexes.arm << std::endl;
-      // std::cout << "\t" << indexes.chp << std::endl;
-      // std::cout << "\t" << indexes.chn << std::endl;
-      // std::cout << std::endl;
-
-      INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
-      if (bin < 0)
-      {
-        std::cout << "n: " << n << std::endl;
-        std::cout << "bin: " << bin << std::endl;
-        std::cout << "lyr: " << indexes.lyr << std::endl;
-        std::cout << "ldr: " << indexes.ldr << std::endl;
-        std::cout << "arm: " << indexes.arm << std::endl;
-        std::cout << "chp: " << indexes.chp << std::endl;
-        std::cout << "chn: " << indexes.chn << std::endl;
-        std::cout << "adc: " << indexes.adc << std::endl;
-
-        break;
-      }
-      HitMap->AddBinContent(bin);
-
-      bco_data.pid = pid;
-      bco_data.fee = p->iValue(n, "FEE");
-      bco_data.bco = ((0x7f & p->lValue(n, "BCO")) - p->iValue(n, "FPHX_BCO") + 128) % 128;
-      INTT::GetBcoBin(bco_bin, bco_data);
-
-      BcoDiffMap->AddBinContent(bco_bin);
+	  BcoHist->AddBinContent(BcoBin({
+        .fee = fee,
+        .bco = bco
+      }));
     }
 
     delete p;
   }
 
-  NumEvents->AddBinContent(1);
-
+  EvtHist->AddBinContent(1);
   DBVarUpdate();
 
   return 0;
@@ -155,14 +98,36 @@ int InttMon::Reset()
   evtcnt = 0;
 
   // clear our histogram entries
-  NumEvents->Reset();
-  HitMap->Reset();
+  EvtHist->Reset();
+  HitHist->Reset();
+  BcoHist->Reset();
 
   return 0;
 }
-//===	~Public Methods		===//
 
-//===	Private Methods		===//
+int InttMon::MiscDebug()
+{
+  for(int fee = 0; fee < 14; ++fee) {
+    for(int chp = 0; chp < 26; ++chp) {
+      HitHist->SetBinContent(HitBin({
+        .fee = fee,
+        .chp = chp
+      }), chp);
+	}
+  }
+
+  for(int fee = 0; fee < 14; ++fee) {
+    for(int bco = 0; bco < 128; ++bco) {
+      BcoHist->SetBinContent(BcoBin({
+        .fee = fee,
+        .bco = bco
+      }), fee);
+    }
+  }
+
+  return 0;
+}
+
 int InttMon::DBVarInit()
 {
   std::string var_name;
@@ -181,177 +146,4 @@ int InttMon::DBVarUpdate()
 
   return 0;
 }
-//===	~Private Methods		===//
 
-// for testing/debugging
-void InttMon::RandomEvent(int felix)
-{
-  int bin;
-
-  int felix_channel;
-  struct INTT::Indexes_s indexes;
-  struct INTT_Felix::Ladder_s ldr_struct
-  {
-  };
-
-  int hits = rng->Poisson(16);
-  for (int hit = 0; hit < hits; ++hit)
-  {
-    felix_channel = rng->Uniform(INTT::FELIX_CHANNEL);
-    if (felix_channel == INTT::FELIX_CHANNEL)
-    {
-      felix_channel -= 1;
-    }
-
-    INTT_Felix::FelixMap(felix, felix_channel, ldr_struct);
-    indexes.lyr = 2 * ldr_struct.barrel + ldr_struct.layer;
-    indexes.ldr = ldr_struct.ladder;
-    indexes.arm = felix / 4;
-
-    indexes.chp = rng->Uniform(INTT::CHIP);
-    if (indexes.chp == INTT::CHIP)
-    {
-      indexes.chp -= 1;
-    }
-
-    indexes.chn = rng->Uniform(INTT::CHANNEL);
-    if (indexes.chn == INTT::CHANNEL)
-    {
-      indexes.chn -= 1;
-    }
-
-    indexes.adc = rng->Uniform(INTT::ADC);
-    if (indexes.adc == INTT::ADC)
-    {
-      indexes.adc -= 1;
-    }
-
-    INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
-    HitMap->SetBinContent(bin, HitMap->GetBinContent(bin) + 1);
-    NumEvents->AddBinContent(1);
-
-    printf("Layer:%2d\tLadder:%3d (%s)\tChip:%3d\tChannel:%4d\n", indexes.lyr, indexes.ldr, indexes.arm ? "North" : "South", indexes.chp, indexes.chn);
-  }
-}
-
-int InttMon::MiscDebug()
-{
-  int b = 0;
-  int c = -1;
-
-  int felix_channel = 0;
-  int gelix_channel = -1;
-
-  struct INTT::Indexes_s indexes = (struct INTT::Indexes_s){.lyr = 0, .ldr = 0, .arm = 0, .chp = 0, .chn = 0, .adc = 0};
-  struct INTT::Indexes_s jndexes = (struct INTT::Indexes_s){.lyr = -1, .ldr = -1, .arm = -1, .chp = -1, .chn = -1, .adc = -1};
-
-  while (true)
-  {
-    INTT::GetFelixBinFromIndexes(b, felix_channel, indexes);
-    INTT::GetFelixIndexesFromBin(b, gelix_channel, jndexes);
-    INTT::GetFelixBinFromIndexes(c, gelix_channel, jndexes);
-
-    if (b != c)
-    {
-      std::cout << "Round trip failed" << std::endl;
-      std::cout << "bin: " << b << " -> " << c << std::endl;
-      std::cout << "felix_channel: " << felix_channel << " -> " << gelix_channel << std::endl;
-      std::cout << "chp: " << indexes.chp << " -> " << jndexes.chp << std::endl;
-      std::cout << "chn: " << indexes.chn << " -> " << jndexes.chn << std::endl;
-      std::cout << "adc: " << indexes.adc << " -> " << jndexes.adc << std::endl;
-
-      return 0;
-    }
-
-    ++indexes.adc;
-    if (indexes.adc < INTT::ADC)
-    {
-      continue;
-    }
-    indexes.adc = 0;
-
-    ++indexes.chn;
-    if (indexes.chn < INTT::CHANNEL)
-    {
-      continue;
-    }
-    indexes.chn = 0;
-
-    ++indexes.chp;
-    if (indexes.chp < INTT::CHIP)
-    {
-      continue;
-    }
-    indexes.chp = 0;
-
-    ++felix_channel;
-    if (felix_channel < INTT::FELIX_CHANNEL)
-    {
-      continue;
-    }
-
-    break;
-  }
-
-  std::cout << "Felix Round trip worked" << std::endl;
-
-  return 0;
-}
-
-int InttMon::CheckBcoRoundTrip()
-{
-  struct INTT::BcoData_s bco_data, bco_data_check;
-  int b, b_check;
-
-  bco_data.pid = 3001;
-  bco_data.fee = 0;
-  bco_data.bco = 0;
-  while (true)
-  {
-    INTT::GetBcoBin(b, bco_data);
-    INTT::GetBcoIndexes(b, bco_data_check);
-
-    bool flag = false;
-    flag = flag || (bco_data.pid != bco_data_check.pid);
-    flag = flag || (bco_data.fee != bco_data_check.fee);
-    flag = flag || (bco_data.bco != bco_data_check.bco);
-
-    if (flag)
-    {
-      std::cout << "Mismatch (BcoData_s -> Bin -> BcoData_s)" << std::endl;
-      std::cout << "From:"
-                << "\t" << bco_data.pid << "\n"
-                << "\t" << bco_data.fee << "\n"
-                << "\t" << bco_data.bco << "\n"
-                << "To:"
-                << "\t" << bco_data_check.pid << "\n"
-                << "\t" << bco_data_check.fee << "\n"
-                << "\t" << bco_data_check.bco << "\n"
-                << "Bin: " << b << "\n"
-                << std::endl;
-      break;
-    }
-
-    if (++bco_data.bco < INTT::BCO) continue;
-    bco_data.bco = 0;
-    if (++bco_data.fee < INTT::FELIX) continue;
-    bco_data.fee = 0;
-    if (++bco_data.pid < 3009) continue;
-
-    break;
-  }
-
-  for (b = 1; b < INTT::BCOS; ++b)
-  {
-    INTT::GetBcoIndexes(b, bco_data);
-    INTT::GetBcoBin(b_check, bco_data);
-
-    if (b != b_check)
-    {
-      std::cout << "Mismatch (Bin -> BcoData_s -> Bin)" << std::endl;
-      break;
-    }
-  }
-
-  return 0;
-}

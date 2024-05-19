@@ -2,50 +2,15 @@
 
 #include <TPolyLine.h>
 
-InttMonDraw::Options_t InttMonDraw::OPTIONS =
-{
-  //Chip-Channel
-  {"chip_hitmap", (struct Option_s){
-    .head = &InttMonDraw::GlobalChipLocalChannelHead,
-    .global = &InttMonDraw::PrepGlobalChipHists_Hitmap,
-    .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
-
-//  {"chip_nll", (struct Option_s){
-//    .head = &InttMonDraw::GlobalChipLocalChannelHead,
-//    .global = &InttMonDraw::PrepGlobalChipHists_NLL,
-//    .local = &InttMonDraw::PrepLocalChannelHists_Hitmap}},
-//
-//  //Ladder-Chip
-//  {"ladder_hitmap", (struct Option_s){
-//    .head = &InttMonDraw::GlobalLadderLocalChipHead,
-//    .global = &InttMonDraw::PrepGlobalLadderHists_Interface,
-//    .local = &InttMonDraw::PrepLocalChipHists_Hitmap}},
-//
-//  //hits vs Evt (by packet)
-//  {"hits_vs_evt", (struct Option_s){ // Does not follow same recursive structure; everything is done in the head function
-//    .head = &InttMonDraw::DrawHitsVsEvt,
-//    .global = nullptr,
-//    .local = nullptr}},
-
-  //Bco Diffs
-  {m_FelixBcoFphxBco.name, (struct Option_s){ // Does not follow same recursive structure; everything is done in the head function
-    .head = &InttMonDraw::DrawFelixBcoFphxBco,
-    .global = nullptr,
-    .local = nullptr}},
-};
-
 InttMonDraw::InttMonDraw(const std::string& name)
   : OnlMonDraw(name)
 {
-  return;
 }
 
 InttMonDraw::~InttMonDraw()
 {
-  return;
 }
 
-//===    Inherited Functions    ===//
 int InttMonDraw::Init()
 {
   return 0;
@@ -53,130 +18,46 @@ int InttMonDraw::Init()
 
 int InttMonDraw::Draw(const std::string& what)
 {
-  bool found = false;
+  int idraw = 0;
+  int iret = 0;
+  int icnvs = 0; // So each draws to the canvas at TC[icnvs]
 
-  if (what == "ALL" || what == "SERVERSTATS")
-  {
-    DrawServerStats();
-    found = true;
+  if(what == "ALL" || what == "SERVERSTATS") {
+	  iret += DrawServerStats();
+	  ++idraw;
+  }
+  ++icnvs;
+
+  if(what == "ALL" || what == "chip_hitmap") {
+	  iret += DrawHitMap(icnvs);
+	  ++idraw;
+  }
+  ++icnvs;
+
+  if(what == "ALL" || what == "bco_diff") {
+	  iret += DrawFelixBcoFphxBco(icnvs);
+	  ++idraw;
+  }
+  ++icnvs;
+
+  if(!idraw) {
+    std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
+              << "\tUnimplemented drawing option \"" << what << "\"" << std::endl;
   }
 
-  bool b = false;
-  std::string temp = "";
-  for (char s : what)
-  {
-    temp += (char) std::tolower(s);
-  }
-
-  for (auto& itr : OPTIONS)
-  {
-    b = false;
-
-    if (temp == "all")
-    {
-      b = true;
-    }
-    if (temp == itr.first)
-    {
-      b = true;
-    }
-
-    if (!b)
-    {
-      continue;
-    }
-
-    found = true;
-    (*(itr.second.head))(itr.first);
-  }
-
-  if (!found)
-  {
-    std::cout << "Option \"" << what << "\" not found" << std::endl;
-    std::cout << "Try \"all\" or one of the following (case insensitive)" << std::endl;
-    for (auto& itr : OPTIONS)
-    {
-      std::cout << "\t" << itr.first << std::endl;
-
-      return 1;
-    }
-  }
-
-  return 0;
+  return iret;
 }
 
 int InttMonDraw::MakeHtml(const std::string& what)
 {
+  if(Draw(what)) {
+      std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << std::endl;
+	  return 1;
+  }
+
   OnlMonClient* cl = OnlMonClient::instance();
-  if (Draw(what))
-  {
-    return 1;
-  }
-  TSeqCollection* canvases = gROOT->GetListOfCanvases();
-  TCanvas* canv = nullptr;
 
-  bool b = false;
-  bool found = false;
-
-  std::string temp = "";
-  std::string name = "";
-  for (char s : what)
-  {
-    temp += (char) std::tolower(s);
-  }
-  for (auto& itr : OPTIONS)
-  {
-    b = false;
-
-    if (temp == "all")
-    {
-      b = true;
-    }
-    if (temp == itr.first)
-    {
-      b = true;
-    }
-
-    if (!b)
-    {
-      continue;
-    }
-
-    found = true;
-
-    canv = nullptr;
-    name = Form("Intt_%s", (itr.first).c_str());
-    for (TIter t_itr = canvases->begin(); t_itr != canvases->end(); ++t_itr)
-    {
-      if (std::string((*t_itr)->GetName()).find(name) == std::string::npos)
-      {
-        continue;
-      }
-
-      canv = (TCanvas*) (*t_itr);
-      break;
-    }
-
-    if (!canv)
-    {
-      continue;
-    }
-
-    std::string pngfl = cl->htmlRegisterPage(*this, canv->GetTitle(), itr.first, "png");
-    cl->CanvasToPng(canv, pngfl);
-  }
-
-  if (!found)
-  {
-    std::cout << "Option \"" << what << "\" not found" << std::endl;
-    std::cout << "Try \"all\" or one of the following (case insensitive)" << std::endl;
-    for (auto& itr : OPTIONS)
-    {
-      std::cout << "\t" << itr.first << std::endl;
-    }
-  }
-
-// this code must not be modified
+//  this code must not be modified
   Draw("SERVERSTATS");
 
   int icnt = 0;
@@ -197,75 +78,17 @@ int InttMonDraw::MakeHtml(const std::string& what)
 
 int InttMonDraw::SavePlot(std::string const& what, std::string const& type)
 {
+  if(Draw(what)) {
+      std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << std::endl;
+	  return 1;
+  }
+
   OnlMonClient* cl = OnlMonClient::instance();
-  if (Draw(what))
-  {
-    return 1;
-  }
+  for (TCanvas* canvas : TC) {
+	if(!canvas)continue;
 
-  TSeqCollection* canvases = gROOT->GetListOfCanvases();
-  TCanvas* canvas = nullptr;
-  std::string filename;
-
-  bool b = false;
-  bool found = false;
-
-  std::string temp = "";
-  std::string name = "";
-  for (char s : what)
-  {
-    temp += (char) std::tolower(s);
-  }
-  for (auto& itr : OPTIONS)
-  {
-    b = false;
-
-    if (temp == "all")
-    {
-      b = true;
-    }
-    if (temp == itr.first)
-    {
-      b = true;
-    }
-
-    if (!b)
-    {
-      continue;
-    }
-
-    found = true;
-
-    canvas = nullptr;
-    name = Form("Intt_%s", (itr.first).c_str());
-    for (TIter t_itr = canvases->begin(); t_itr != canvases->end(); ++t_itr)
-    {
-      if (std::string((*t_itr)->GetName()).find(name) == std::string::npos)
-      {
-        continue;
-      }
-
-      canvas = (TCanvas*) (*t_itr);
-      break;
-    }
-
-    if (!canvas)
-    {
-      continue;
-    }
-
-    filename = ThisName + "_" + itr.first + "_" + cl->RunNumber() + "." + type;
-    cl->CanvasToPng(canvas, filename);
-  }
-
-  if (!found)
-  {
-    std::cout << "Option \"" << what << "\" not found" << std::endl;
-    std::cout << "Try \"all\" or one of the following (case insensitive)" << std::endl;
-    for (auto& itr : OPTIONS)
-    {
-      std::cout << "\t" << itr.first << std::endl;
-    }
+	std::string filename = ThisName + "_" + canvas->GetTitle() + "_" + std::to_string(cl->RunNumber()) + "." + type;
+	cl->CanvasToPng(canvas, filename);
   }
 
   return 0;
@@ -344,4 +167,53 @@ int InttMonDraw::DrawServerStats()
   TC[0]->SetEditable(false);
 
   return 0;
+}
+
+void
+InttMonDraw::DrawPad (
+	TPad* b,
+	TPad* p
+) {
+	if(!b)return;
+	if(!p)return;
+
+	p->SetFillStyle(4000);	// transparent
+	p->Range(0.0, 0.0, 1.0, 1.0);
+
+	CdPad(b);
+	p->Draw();
+	CdPad(p);
+}
+
+void
+InttMonDraw::CdPad (
+	TPad* p
+) {
+	if(!p)return;
+
+	p->cd();
+	gROOT->SetSelectedPad(p); // So TObject::DrawClone draws where you expect
+}
+
+Color_t
+InttMonDraw::GetFeeColor (
+	int const& fee
+) {
+	switch (fee % 7) {
+	case 0:
+		return (fee / 7) ? kGray + 3 : kBlack;
+	case 1:
+		return kRed + 3 * (fee / 7);
+	case 2:
+		return kYellow + 3 * (fee / 7);
+	case 3:
+		return kGreen + 3 * (fee / 7);
+	case 4:
+		return kCyan + 3 * (fee / 7);
+	case 5:
+		return kBlue + 3 * (fee / 7);
+	case 6:
+		return kMagenta + 3 * (fee / 7);
+	}
+	return kBlack;
 }

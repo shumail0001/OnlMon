@@ -1,5 +1,5 @@
+#include "InttMon.h"
 #include "InttMonDraw.h"
-#include "InttMonConstants.h"
 
 InttMonDraw::FelixBcoFphxBco_s const
 InttMonDraw::m_FelixBcoFphxBco {
@@ -7,45 +7,50 @@ InttMonDraw::m_FelixBcoFphxBco {
 	.disp_frac = 0.1, .lgnd_frac = 0.15,
 	.disp_text_size = 0.25,
 	.lgnd_box_width = 0.16, .lgnd_box_height = 0.01, .lgnd_text_size = 0.08,
-	.name = "InttFelixBcoFphxBco"
+	.name = "INTT_FelixBco_FphxBco_Diff"
 };
 
-void
+int
 InttMonDraw::DrawFelixBcoFphxBco (
-	std::string const& foo // just so the function signature matches
+	int icnvs
 ) {
-	std::string name = foo;
+	std::string name;
 
-	// use gROOT to find base TCanvas for this m_FelixBcoFphxBco.name
+	// use gROOT to find TStyle
 	name = Form("%s_style", m_FelixBcoFphxBco.name.c_str());
 	TStyle* style = dynamic_cast<TStyle*>(gROOT->FindObject(name.c_str()));
 	if (!style) {
-		style = new TStyle(
-			name.c_str(),
-			name.c_str());
+		style = new TStyle(name.c_str(), name.c_str());
 		style->SetOptStat(0);
 		style->SetOptTitle(0);
 		//...
 	}
 	style->cd();
 
-	// use gROOT to find base TCanvas for this m_FelixBcoFphxBco.name
+	// use member TClonesArray instead of (purely) gROOT here
 	name = Form("%s", m_FelixBcoFphxBco.name.c_str());
-	TCanvas* cnvs = dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str()));
-	if(!cnvs) {// Make if it does not exist
-		cnvs = new TCanvas (
+	if(!dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str()))) { // Only allocate if gROOT doesn't find it
+		// This next line would throw a double free() IF ROOT freed the memory when a user closed the TCanvas
+		// (I added another delete to see what ROOT does for a double free()--it crashes)
+		// Yet, the next line is safe...
+		delete TC[icnvs];
+		TC[icnvs] = new TCanvas (
 			name.c_str(), name.c_str(),
 			0, 0,
 			m_FelixBcoFphxBco.cnvs_width, m_FelixBcoFphxBco.cnvs_height
 		);
 	}
+	gSystem->ProcessEvents(); // ...ROOT garbage collection?
 
-	DrawFelixBcoFphxBco_DispPad();
-	DrawFelixBcoFphxBco_LgndPad();
-	DrawFelixBcoFphxBco_SubPads();
+	int iret = 0;
+	iret += DrawFelixBcoFphxBco_DispPad();
+	iret += DrawFelixBcoFphxBco_LgndPad();
+	iret += DrawFelixBcoFphxBco_SubPads();
+
+	return iret;
 }
 
-void
+int
 InttMonDraw::DrawFelixBcoFphxBco_DispPad (
 ) {
 	std::string name;
@@ -54,9 +59,9 @@ InttMonDraw::DrawFelixBcoFphxBco_DispPad (
 	name = Form("%s", m_FelixBcoFphxBco.name.c_str());
 	TCanvas* cnvs = dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str()));
 	if(!cnvs) {// If we fail to find it, give up
-		std::cerr << __PRETTY_FUNCTION__ << "\n"
+		std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
 		          << "\tCouldn't get parent pad \"" << name << "\"" << std::endl;
-		return;
+		return 1;
 	}
 
 	// find or make this this pad
@@ -82,24 +87,42 @@ InttMonDraw::DrawFelixBcoFphxBco_DispPad (
 		disp_text->Draw();
 	}
 
+	name = "InttEvtHist";
 	OnlMonClient* cl = OnlMonClient::instance();
+	TH1D* evt_hist = (TH1D*) cl->getHisto(Form("INTTMON_%d", 0), name);
+	if (!evt_hist) {
+		std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
+		          << "\tCould not get \"" << name << "\" from " << Form("INTTMON_%d", 0) << std::endl;
+		return 1;
+	}
+
 	std::time_t t = cl->EventTime("CURRENT"); // BOR, CURRENT, or EOR
 	struct tm* ts = std::localtime(&t);
-
-	TH1D* nevt_hist = dynamic_cast<TH1D*>(cl->getHisto(Form("INTTMON_0"), "InttNumEvents"));
-	if(!nevt_hist) return;
-
 	name = Form (
 		"Run: %08d, Events: %d, Date: %02d/%02d/%4d",
 		cl->RunNumber(),
-		(int)nevt_hist->GetBinContent(1),
+		(int)evt_hist->GetBinContent(1),
 		ts->tm_mon + 1, ts->tm_mday, ts->tm_year + 1900
 	);
 	disp_text->SetTitle(name.c_str());
-	// disp_pad->Update();
+
+	name = Form("%s_title_text", m_FelixBcoFphxBco.name.c_str());
+	TText* title_text = dynamic_cast<TText*>(gROOT->FindObject(name.c_str()));
+	if(title_text) return 0; // Early return since the title text is unchanging, and this means we've drawn it
+
+	title_text = new TText (0.5, 0.75, name.c_str());
+	title_text->SetName(name.c_str());
+	title_text->SetTextAlign(22);
+	title_text->SetTextSize(m_FelixBcoFphxBco.disp_text_size);
+	title_text->Draw();
+
+	name = Form("%s", m_FelixBcoFphxBco.name.c_str());
+	title_text->SetTitle(name.c_str());
+
+	return 0;
 }
 
-void
+int
 InttMonDraw::DrawFelixBcoFphxBco_LgndPad (
 ) {
 	std::string name;
@@ -108,15 +131,15 @@ InttMonDraw::DrawFelixBcoFphxBco_LgndPad (
 	name = Form("%s", m_FelixBcoFphxBco.name.c_str());
 	TCanvas* cnvs = dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str()));
 	if(!cnvs) {// If we fail to find it, give up
-		std::cerr << __PRETTY_FUNCTION__ << "\n"
+		std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
 		          << "\tCouldn't get parent pad \"" << name << "\"" << std::endl;
-		return;
+		return 1;
 	}
 
 	// find or make this this pad
 	name = Form("%s_lgnd_pad", m_FelixBcoFphxBco.name.c_str());
 	TPad* lgnd_pad = dynamic_cast<TPad*>(gROOT->FindObject(name.c_str()));
-	if(lgnd_pad) return; // We've already made it and can return here
+	if(lgnd_pad) return 0; // Early return since the title text is unchanging, and this means we've drawn it
 
 	lgnd_pad = new TPad (
 		name.c_str(), name.c_str(),
@@ -156,9 +179,11 @@ InttMonDraw::DrawFelixBcoFphxBco_LgndPad (
 		box->SetLineWidth(1);
 		box->Draw("f");
 	}
+
+	return 0;
 }
 
-void
+int
 InttMonDraw::DrawFelixBcoFphxBco_SubPads (
 ) {
 	std::string name;
@@ -167,9 +192,9 @@ InttMonDraw::DrawFelixBcoFphxBco_SubPads (
 	name = Form("%s", m_FelixBcoFphxBco.name.c_str());
 	TCanvas* cnvs = dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str()));
 	if(!cnvs)  {// If we fail to find it, give up
-		std::cerr << __PRETTY_FUNCTION__ << "\n"
+		std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
 		          << "\tCouldn't get parent pad \"" << name << "\"" << std::endl;
-		return;
+		return 1;
 	}
 
 	double x_min = 0.0; double x_max = 1.0 - m_FelixBcoFphxBco.lgnd_frac;
@@ -184,15 +209,20 @@ InttMonDraw::DrawFelixBcoFphxBco_SubPads (
 			x_min + (x_max - x_min) * (i % 4 + 0) / 4.0, y_min + (y_max - y_min) * (i / 4 + 0) / 2.0, // Southwest x, y
 			x_min + (x_max - x_min) * (i % 4 + 1) / 4.0, y_min + (y_max - y_min) * (i / 4 + 1) / 2.0  // Southwest x, y
 		);
-		DrawPad(cnvs, hist_pad, (struct Margin_s){.b = .15, .l = .15});
+		hist_pad->SetBottomMargin(0.15);
+		hist_pad->SetLeftMargin(0.15);
+		DrawPad(cnvs, hist_pad);
 	}
 
+	int iret = 0;
 	for(int i = 0; i < 8; ++i) {
-		DrawFelixBcoFphxBco_SubPad(i);
+		iret += DrawFelixBcoFphxBco_SubPad(i);
 	}
+
+	return iret;
 }
 
-void
+int
 InttMonDraw::DrawFelixBcoFphxBco_SubPad (
 	int i 
 ) {
@@ -202,9 +232,9 @@ InttMonDraw::DrawFelixBcoFphxBco_SubPad (
 	name = Form("%s_hist_pad_%d", m_FelixBcoFphxBco.name.c_str(), i);
 	TPad* prnt_pad = dynamic_cast<TPad*>(gROOT->FindObject(name.c_str()));
 	if(!prnt_pad) {// If we fail to find it, give up
-		std::cerr << __PRETTY_FUNCTION__ << "\n"
+		std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
 		          << "\tCouldn't get parent pad \"" << name << "\"" << std::endl;
-		return;
+		return 1;
 	}
 	CdPad(prnt_pad);
 
@@ -212,21 +242,20 @@ InttMonDraw::DrawFelixBcoFphxBco_SubPad (
 	// Other niceties (manual axis labels/ticks, maybe gridlines)
 	//   in the future (broken up into other methods)
 
+	name = "InttBcoHist";
 	OnlMonClient* cl = OnlMonClient::instance();
-	name = "InttBcoDiffMap";
-	TH1D* server_hist = (TH1D*) cl->getHisto(Form("INTTMON_%d", i), name);
-	if (!server_hist) {
-		std::cerr << __PRETTY_FUNCTION__ << "\n"
+	TH1D* bco_hist = (TH1D*) cl->getHisto(Form("INTTMON_%d", i), name);
+	if (!bco_hist) {
+		std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
 		          << "\tCould not get \"" << name << "\" from " << Form("INTTMON_%d", i) << std::endl;
-		return;
+		return 1;
 	}
 
 	int max = 0;
 	int bin;
-	struct INTT::BcoData_s bco_data;
-	bco_data.pid = i + 3001;
-	TH1D* hist[INTT::FELIX_CHANNEL];
-    for(int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee) {
+	struct InttMon::BcoData_s bco_data;
+	TH1D* hist[14];
+    for(int fee = 0; fee < 14; ++fee) {
 		name = Form("%s_hist_%01d_%02d", m_FelixBcoFphxBco.name.c_str(), i, fee);
 		hist[fee] = dynamic_cast<TH1D*>(gROOT->FindObject(name.c_str()));
 		if (!hist[fee]) {
@@ -241,18 +270,18 @@ InttMonDraw::DrawFelixBcoFphxBco_SubPad (
 		
 		// Fill
 		bco_data.fee = fee;
-		for(int bco = 0; bco < INTT::BCO; ++bco) {
+		for(int bco = 0; bco < 128; ++bco) {
 			bco_data.bco = bco;
-			INTT::GetBcoBin(bin, bco_data);
-			bin = server_hist->GetBinContent(bin); // reuse the index as the value in that bin
+			bin = InttMon::BcoBin(bco_data);
+			bin = bco_hist->GetBinContent(bin); // reuse the index as the value in that bin
 			if(bin > max)max = bin;
 			hist[fee]->SetBinContent(bco + 1, bin); // + 1 is b/c the 0th bin is an underflow bin
 		}
 	}
 
 	prnt_pad->SetLogy();
-	for(int fee = 0; fee < INTT::FELIX_CHANNEL; ++fee) {
-		hist[fee]->SetLineColor(INTT::GetFeeColor(fee));
+	for(int fee = 0; fee < 14; ++fee) {
+		hist[fee]->SetLineColor(GetFeeColor(fee));
 		hist[fee]->GetYaxis()->SetRangeUser(1, max ? max * 10 : 10);
 		if(fee) {
 			hist[fee]->Draw("same");
@@ -261,4 +290,6 @@ InttMonDraw::DrawFelixBcoFphxBco_SubPad (
 			hist[fee]->Draw();
 		}
 	}
+
+	return 0;
 }
