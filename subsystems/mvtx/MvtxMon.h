@@ -85,6 +85,7 @@ class MvtxMon : public OnlMon
   TString mTriggerType[NTrigger] = {"ORBIT", "HB", "HBr", "HC", "PHYSICS", "PP", "CAL", "SOT", "EOT", "SOC", "EOC", "TF", "INT"};
 
   // raw task
+  TH1I* hStrobesDMA = nullptr;
   TH1D* hErrorPlots = nullptr;
   TH2D* hErrorFile = nullptr;
   TH1D* hOccupancyPlot[NLAYERS] = {nullptr};
@@ -107,7 +108,7 @@ class MvtxMon : public OnlMon
   TH1D* mOccupancyPlot[NLAYERS] = {nullptr};
   TH2D* hChipStaveNoisy[NLAYERS] = {nullptr};
 
-  float mOccupancyCutForNoisyPixel = 0.2;
+  float mOccupancyCutForNoisyPixel = 0.01;
   int mNoisyPixelNumber[3][20][9] = {{{0}}};
 
   int mStatusFlagNumber[3][3][20][9] = {{{{0}}}};

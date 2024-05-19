@@ -39,6 +39,7 @@ const int depth = 10000;
 // const int historyLength = 100;
 //const float hit_threshold = 100;
 const float hit_threshold = 30;
+const float waveform_hit_threshold = 100;
 
 using namespace std;
 
@@ -405,47 +406,54 @@ int CemcMon::process_event(Event *e /* evt */)
         float timeFast = resultFast.at(1);
         float pedestalFast = resultFast.at(2);
 
-	if(p->iValue(c,"SUPPRESSED")){
-	  p2_zsFrac_etaphi->Fill(eta_bin,phi_bin,0);
-	}
-	else{
-	  p2_zsFrac_etaphi->Fill(eta_bin,phi_bin,1);
-	}
-	  
-	
+        if (p->iValue(c, "SUPPRESSED"))
+        {
+          p2_zsFrac_etaphi->Fill(eta_bin, phi_bin, 0);
+        }
+        else
+        {
+          p2_zsFrac_etaphi->Fill(eta_bin, phi_bin, 1);
+        }
+
         h1_waveform_pedestal->Fill(pedestalFast);
-
-
-
-
 
         int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
 
         rm_vector_twr[towerNumber - 1]->Add(&signalFast);
+
+        if (signalFast > waveform_hit_threshold)
+        {
+          h1_waveform_time->Fill(timeFast);
+        }
+
+        if (signalFast > waveform_hit_threshold)
+        {
+          for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+          {
+            h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
+          }
+        }
+
         if (signalFast > hit_threshold)
         {
-	  h1_waveform_time->Fill(timeFast);
-	  for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
-	    {
-	      h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
-	    }
-	  rm_vector_twrhits[towerNumber - 1]->Add(&one);
+          rm_vector_twrhits[towerNumber - 1]->Add(&one);
           h2_cemc_hits->SetBinContent(bin, h2_cemc_hits->GetBinContent(bin) + 1);
-          //h2_cemc_hits->SetBinContent(bin, h2_cemc_hits->GetBinContent(bin) + signalFast);
-	  if (have_gl1)
-	  {
-	    for(int itrig = 0; itrig < 64; itrig++)
-	    {
-	      if(trig_bools[itrig])
-	      {
-		h2_cemc_hits_trig[itrig]->Fill(eta_bin + 0.5, phi_bin + 0.5);
-	      }
-	    }
-	  }
+          // h2_cemc_hits->SetBinContent(bin, h2_cemc_hits->GetBinContent(bin) + signalFast);
+          if (have_gl1)
+          {
+            for (int itrig = 0; itrig < 64; itrig++)
+            {
+              if (trig_bools[itrig])
+              {
+                h2_cemc_hits_trig[itrig]->Fill(eta_bin + 0.5, phi_bin + 0.5);
+              }
+            }
+          }
         }
-	else{
-	  rm_vector_twrhits[towerNumber - 1]->Add(&zero);
-	}
+        else
+        {
+          rm_vector_twrhits[towerNumber - 1]->Add(&zero);
+        }
 
         h2_cemc_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
         h2_cemc_rmhits->SetBinContent(bin, rm_vector_twrhits[towerNumber - 1]->getMean(0));
@@ -457,7 +465,7 @@ int CemcMon::process_event(Event *e /* evt */)
         }
 
         h1_cemc_adc->Fill(signalFast);
-
+        /*
         if (!((eventCounter - 2) % 10000))
         {
           std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
@@ -468,7 +476,8 @@ int CemcMon::process_event(Event *e /* evt */)
           h1_cemc_fitting_pedDiff->Fill(pedestalFast / pedestalTemp);
           h1_cemc_fitting_timeDiff->Fill(timeFast - timeTemp - 6);
         }
-	  
+        */
+
       }  // channel loop
       if (nChannels < m_nChannels)
       {

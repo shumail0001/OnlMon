@@ -25,7 +25,6 @@
 #include <cstdio>  // for printf
 #include <fstream>
 #include <iostream>
-#include <map>
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
 
@@ -56,6 +55,7 @@ int ZdcMon::Init()
   const float MIN_ENERGY1 = 0.;
   const float MIN_ENERGY2 = 0.;
   const int BIN_NUMBER = 150;
+  const int SMD_ADC_BIN = 250;
 
   //  gRandom->SetSeed(rand());
   // read our calibrations from ZdcMonData.dat
@@ -68,24 +68,6 @@ int ZdcMon::Init()
   std::string fullfile = std::string(zdccalib) + "/" + "ZdcMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
-
-  std::string mappingfilename=std::string(zdccalib)+"/"+"ChannelMapping.dat";
-  std::ifstream mapping(mappingfilename);
-  std::ostringstream msg_mapping(mappingfilename);
-
-  if(!mapping){
-    msg_mapping<<mappingfilename<<" could not be opened.";
-    OnlMonServer *se = OnlMonServer::instance();
-    se->send_message(this, MSG_SOURCE_ZDC, MSG_SEV_FATAL,msg_mapping.str(),2);
-    exit(1);
-  }
-  int adc, array;
-  std::string ChannelName;
-  for(int i=0; i<128; i++){
-    mapping>>adc>>array>>ChannelName;
-    Chmapping[adc]=array;
-    std::cout<<adc<<" \t"<<array<<std::endl;
-  }
 
   //getting gains
   float col1, col2, col3;
@@ -134,13 +116,18 @@ int ZdcMon::Init()
   zdc_S2 = new TH1F("zdc_S2", "ZDC2 ADC south", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
   zdc_S3 = new TH1F("zdc_S3", "ZDC3 ADC south", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
 
+  veto_NF = new TH1F("veto_NF", "veto north front", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+  veto_NB = new TH1F("veto_NB", "veto north back", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+  veto_SF = new TH1F("veto_SF", "veto south front", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+  veto_SB = new TH1F("veto_SB", "veto south back", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+ 
   //waveform
-  h_waveformZDC = new TH2F("h_waveformZDC", "h_waveformZDC", 19, -0.5, 18.5, 512, -500, 20000);
-  h_waveformSMD_North = new TH2F("h_waveformSMD_North", "h_waveformSMD_North", 19, -0.5, 18.5, 512, -500, 20000);
-  h_waveformSMD_South = new TH2F("h_waveformSMD_South", "h_waveformSMD_South", 19, -0.5, 18.5, 512, -500, 20000);
-  h_waveformVeto_North = new TH2F("h_waveformVeto_North", "h_waveformVeto_North", 19, -0.5, 18.5, 512, -500, 20000);
-  h_waveformVeto_South = new TH2F("h_waveformVeto_South", "h_waveformVeto_South", 19, -0.5, 18.5, 512, -500, 20000);
-  h_waveformAll = new TH2F("h_waveformAll", "h_waveformAll", 19, -0.5, 18.5, 512, -500, 20000);
+  h_waveformZDC = new TH2F("h_waveformZDC", "h_waveformZDC", 17, -0.5, 16.5, 512, -500, 20000);
+  h_waveformSMD_North = new TH2F("h_waveformSMD_North", "h_waveformSMD_North", 17, -0.5, 16.5, 512, -500, 20000);
+  h_waveformSMD_South = new TH2F("h_waveformSMD_South", "h_waveformSMD_South", 17, -0.5, 16.5, 512, -500, 20000);
+  h_waveformVeto_North = new TH2F("h_waveformVeto_North", "h_waveformVeto_North", 17, -0.5, 16.5, 512, -500, 20000);
+  h_waveformVeto_South = new TH2F("h_waveformVeto_South", "h_waveformVeto_South", 17, -0.5, 16.5, 512, -500, 20000);
+  h_waveformAll = new TH2F("h_waveformAll", "h_waveformAll", 17, -0.5, 16.5, 512, -500, 20000);
 
 
   // SMD
@@ -148,14 +135,14 @@ int ZdcMon::Init()
   // Horizontal (expert plot)
   for (int i = 0; i < 8; i++)
   {
-    smd_adc_n_hor_ind[i] = new TH1I(Form("smd_adc_n_hor_ind%d", i), Form("smd_adc_n_hor_ind%d", i), 1000, 0, 5000);
-    smd_adc_s_hor_ind[i] = new TH1I(Form("smd_adc_s_hor_ind%d", i), Form("smd_adc_s_hor_ind%d", i), 1000, 0, 5000);
+    smd_adc_n_hor_ind[i] = new TH1I(Form("smd_adc_n_hor_ind%d", i), Form("smd_adc_n_hor_ind%d", i), SMD_ADC_BIN, 0, 5000);
+    smd_adc_s_hor_ind[i] = new TH1I(Form("smd_adc_s_hor_ind%d", i), Form("smd_adc_s_hor_ind%d", i), SMD_ADC_BIN, 0, 5000);
   }
   // Vertical (expert plot)
   for (int i = 0; i < 7; i++)
   {
-    smd_adc_n_ver_ind[i] = new TH1I(Form("smd_adc_n_ver_ind%d", i), Form("smd_adc_n_ver_ind%d", i), 1000, 0, 5000);
-    smd_adc_s_ver_ind[i] = new TH1I(Form("smd_adc_s_ver_ind%d", i), Form("smd_adc_s_ver_ind%d", i), 1000, 0, 5000);
+    smd_adc_n_ver_ind[i] = new TH1I(Form("smd_adc_n_ver_ind%d", i), Form("smd_adc_n_ver_ind%d", i), SMD_ADC_BIN, 0, 5000);
+    smd_adc_s_ver_ind[i] = new TH1I(Form("smd_adc_s_ver_ind%d", i), Form("smd_adc_s_ver_ind%d", i), SMD_ADC_BIN, 0, 5000);
   }
 
   // SMD Hit Multiplicity
@@ -167,28 +154,35 @@ int ZdcMon::Init()
   // north smd
   smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
   smd_ver_north = new TH1F("smd_ver_north", "Beam centroid distribution, SMD North x", 220, -5.5, 5.5);
-  smd_sum_hor_north = new TH1F("smd_sum_hor_north", "SMD North y", 512, 0, 2048);
-  smd_sum_ver_north = new TH1F("smd_sum_ver_north", "SMD North x", 512, 0, 2048);
+  
+  smd_sum_hor_north = new TH1F("smd_sum_hor_north", "SMD North y", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+  smd_sum_ver_north = new TH1F("smd_sum_ver_north", "SMD North x", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+  
   smd_hor_north_small = new TH1F("smd_hor_north_small", "Beam centroid distribution, SMD North y, zdc <= 200", 296, -5.92, 5.92);
   smd_ver_north_small = new TH1F("smd_ver_north_small", "Beam centroid distribution, SMD North x, zdc <= 200", 220, -5.5, 5.5);
-  smd_hor_north_good = new TH1F("smd_hor_north_good", "Beam centroid distribution, SMD North y, zdc1 > 65 zdc2>20 and veto<200", 296, -5.92, 5.92);
-  smd_ver_north_good = new TH1F("smd_ver_north_good", "Beam centroid distribution, SMD North x, zdc1 > 65 zdc2>20 and veto<200", 220, -5.5, 5.5);
+  smd_hor_north_good = new TH1F("smd_hor_north_good", "Beam centroid distribution, SMD North y, zdc > 200", 296, -5.92, 5.92);
+  smd_ver_north_good = new TH1F("smd_ver_north_good", "Beam centroid distribution, SMD North x, zdc > 200", 220, -5.5, 5.5);
+
   // south smd
   smd_hor_south = new TH1F("smd_hor_south", "Beam centroid distribution, SMD South y", 296, -5.92, 5.92);
   smd_ver_south = new TH1F("smd_ver_south", "Beam centroid distribution, SMD South x", 220, -5.5, 5.5);
+
+  smd_sum_hor_south = new TH1F("smd_sum_hor_south", "SMD South y", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+  smd_sum_ver_south = new TH1F("smd_sum_ver_south", "SMD South x", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+ 
   smd_hor_south_good = new TH1F("smd_hor_south_good", "Beam centroid distribution, SMD South y, zdc1 > 65 zdc2>20 and veto<200", 296, -5.92, 5.92);
   smd_ver_south_good = new TH1F("smd_ver_south_good", "Beam centroid distribution, SMD South x, zdc1 > 65 zdc2>20 and veto<200", 220, -5.5, 5.5);
-  smd_sum_hor_south = new TH1F("smd_sum_hor_south", "SMD South y", 640, 0, 2560);
-  smd_sum_ver_south = new TH1F("smd_sum_ver_south", "SMD South x", 640, 0, 2560);
+
 
   // smd values (expert plot)
-  smd_value = new TH2F("smd_value", "SMD channel# vs value", 1024, 0, 4096, 32, 0, 32);
-  smd_value_good = new TH2F("smd_value_good", "SMD channel# vs value, zdc > 200", 1024, 0, 4096, 32, 0, 32);
-  smd_value_small = new TH2F("smd_value_small", "SMD channel# vs value, zdc <= 200", 1024, 0, 4096, 32, 0, 32);
+  smd_value = new TH2F("smd_value", "SMD channel# vs value", 1024, 0, 4096, 33, -0.5, 32.5);
+  smd_value_good = new TH2F("smd_value_good", "SMD channel# vs value, zdc > 200", 1024, 0, 4096, 33, -0.5, 32.5);
+  smd_value_small = new TH2F("smd_value_small", "SMD channel# vs value, zdc <= 200", 1024, 0, 4096, 33, -0.5, 32.5);
   smd_xy_north = new TH2F("smd_xy_north", "SMD hit position north", 110, -5.5, 5.5, 119, -5.92, 5.92);
   smd_xy_south = new TH2F("smd_xy_south", "SMD hit position south", 110, -5.5, 5.5, 119, -5.92, 5.92);
 
   OnlMonServer *se = OnlMonServer::instance();
+
   //register histograms with server otherwise client won't get them
   //zdc
   se->registerHisto(this, zdc_adc_north);
@@ -206,6 +200,12 @@ int ZdcMon::Init()
   se->registerHisto(this, h_waveformVeto_South);
   se->registerHisto(this, h_waveformAll);
 
+  //veto
+  se->registerHisto(this, veto_NF);
+  se->registerHisto(this, veto_NB);
+  se->registerHisto(this, veto_SF);
+  se->registerHisto(this, veto_SB);
+ 
 
   // SMD
   // Individual smd_adc channel histos
@@ -240,10 +240,10 @@ int ZdcMon::Init()
   // south SMD
   se->registerHisto(this, smd_hor_south);
   se->registerHisto(this, smd_ver_south);
-  se->registerHisto(this, smd_hor_south_good);
-  se->registerHisto(this, smd_ver_south_good);
   se->registerHisto(this, smd_sum_hor_south);
   se->registerHisto(this, smd_sum_ver_south);
+  se->registerHisto(this, smd_hor_south_good);
+  se->registerHisto(this, smd_ver_south_good);
   // SMD values
   se->registerHisto(this, smd_value);
   se->registerHisto(this, smd_value_good);
@@ -290,158 +290,242 @@ int ZdcMon::process_event(Event *e /* evt */)
 {
   evtcnt++;
 
-  float totalzdcsouthsignal = 0.;
-  float totalzdcnorthsignal = 0.;
   int packet = 12001;
 
+  float totalzdcsouthsignal = 0.;
+  float totalzdcnorthsignal = 0.;
+  float smd_south_xsum = 0.;
+  float smd_south_ysum = 0.;
+  float smd_north_xsum = 0.;
+  float smd_north_ysum = 0.;
+
+  float veto_cut = 200.0;
+  float ZDC1cut = 65.0;
+  float ZDC2cut = 20.0;
+
+  std::vector <float> z;
+  z.clear();
+    
+  std::vector <float> sm;
+  sm.clear();
+    
+  std::vector <float> tz;
+  tz.clear();
+    
+  std::vector <float> tsmd;
+  tsmd.clear();
+    
+  std::vector<float> resultFast;
+  resultFast.clear();
+
+  float zdctimelow  = 6.0;
+  float zdctimehigh  = 9.0;
+    
+  float smdNtimelow  = 10.0;
+  float smdNtimehigh  = 14.0;
+
+  float smdStimelow  = 7.0;
+  float smdStimehigh  = 12.0;
+    
+  float vetoStimelow  = 7.0;
+  float vetoStimehigh  = 12.0;
+    
+  float vetoNtimelow  = 6.0;
+  float vetoNtimehigh  = 9.0;
+
+ 
   Packet *p = e->getPacket(packet);
   if (p)
   {
-      
-      //for (int j = 0; j < p->iValue(0, "CHANNELS"); j++)
-    for(std::map<int,int>::iterator it=Chmapping.begin(); it!=Chmapping.end(); ++it)//new mapping for ZDC/SMD/Veto with 2 ADC boards//May 13th 2024
+    for (int j = 0; j < p->iValue(0, "CHANNELS"); j++)
     {
-      if(it->second<0) continue;
-      if(it->second>51) continue;
-      int j=it->second;
-      //std::cout<<j<<std::endl;
         double baseline = 0.;
         double baseline_low = 0.;
         double baseline_high = 0.;
 
        for(int s = 0; s < 3; s++)
         {
-         baseline_low += p->iValue(s, it->first);
+         baseline_low += p->iValue(s, j);
         }
           
         baseline_low /= 3.;
 
         for (int s = p->iValue(0, "SAMPLES")-3; s < p->iValue(0, "SAMPLES"); s++)
         {
-          baseline_high += p->iValue(s,it->first);
+          baseline_high += p->iValue(s,j);
         }
          
         baseline_high /=3.;
+
         baseline = baseline_low;
 
         if(baseline_high < baseline_low) baseline = baseline_high;
 
         for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
         {
-             h_waveformAll->Fill(s, p->iValue(s, it->first) - baseline);
+             h_waveformAll->Fill(s, p->iValue(s, j) - baseline);
 
               if (j < 16) //-->[0,15]
               {
-                  h_waveformZDC->Fill(s, p->iValue(s, it->first) - baseline);
+                  h_waveformZDC->Fill(s, p->iValue(s, j) - baseline);
               }
               
-	      else if (j<32) //-->[16,31]
+             if ((j > 47) && (j < 64)) //-->[48,63]
               {
-                  h_waveformSMD_North->Fill(s, p->iValue(s, it->first) - baseline);
+                  h_waveformSMD_North->Fill(s, p->iValue(s, j) - baseline);
               }
             
-              else if (j < 48) //-->[32,47]
+              if ((j > 111) && (j < 128)) //-->[112,127]
               {
-                  h_waveformSMD_South->Fill(s, p->iValue(s, it->first) - baseline);
+                  h_waveformSMD_South->Fill(s, p->iValue(s, j) - baseline);
               }
               
-              else if (j < 50) //-->[48,49]
+              if ((j > 15) && (j < 18)) //-->[16,17]
                {
-                   h_waveformVeto_North->Fill(s, p->iValue(s, it->first) - baseline);
+                   h_waveformVeto_North->Fill(s, p->iValue(s, j) - baseline);
 
                }
                
-              else if (j < 52) //-->[50,51]
+              if ((j > 79) && (j < 82)) //-->[80,81]
               {
-                  h_waveformVeto_South->Fill(s, p->iValue(s, it->first) - baseline);
+                  h_waveformVeto_South->Fill(s, p->iValue(s, j) - baseline);
               }
            }
-    } // waveform hists
+      } // waveform hists
       
-    //for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
-    for(std::map<int,int>::iterator it=Chmapping.begin(); it!=Chmapping.end(); ++it)//new mapping for ZDC/SMD/Veto with 2 ADC boards//May 13th 2024
+      
+    for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
     {
-      int c = it->second;
-      if(it->second<0) continue;
-      std::vector<float> resultFast = anaWaveformFast(p, it->first);  // fast waveform fitting
+      resultFast = anaWaveformFast(p, c);  // fast waveform fitting
       float signalFast = resultFast.at(0);
+      float time = resultFast.at(1);
+
       float signal = signalFast;
-      if(c==48||c==49||c==50||c==51){//quick and durty for now
-      	if(signal>200&&resultFast.at(1)>6&&resultFast.at(1)<11) continue;
-      }
-      if(it->second>47) continue;
-      unsigned int towerkey = TowerInfoDefs::decode_zdc(c);
-      int zdc_side = TowerInfoDefs::get_zdc_side(towerkey);
-      int mod = c % 2;
 
-      if (c < 16)
+     // fill zdc raw signal first
+     if(c < 16)
+     {
+ 
+       z.push_back(signal);
+       tz.push_back(time);
+
+      if((c==0) || (c ==2) || (c == 4))
       {
-	if(resultFast.at(1)<4||resultFast.at(1)>10){
-	  zdc_adc[c]=0;//quick and durty for now
-	}
-        else {
-	  zdc_adc[c] = signal;
-	}
-      }
-      else
-      {
-	if(resultFast.at(1)<9&&c<32) signal=0;//quick and durty for now
-	else if((resultFast.at(1)<7||resultFast.at(1)>12)&&c>31) signal=0;//quick and durty for now
-        smd_adc[c - 16] = signal;
+         totalzdcsouthsignal += signal;
+         if(c == 0) zdc_S1->Fill(signal);
+         if(c == 2) zdc_S2->Fill(signal);
+         if(c == 4) zdc_S3->Fill(signal);
       }
 
-      if (mod != 0)
+      else if((c==8) || (c ==10) || (c == 12))
       {
-        continue;
+         totalzdcnorthsignal += signal;
+         if(c == 8) zdc_N1->Fill(signal);
+         if(c == 10) zdc_N2->Fill(signal);
+         if(c == 12) zdc_N3->Fill(signal);
+      }
+     }
+
+     //veto counter
+      else if((c == 16) || (c == 17) || (c == 80) || (c == 81))
+      {
+         if((c == 16) && ((time >= vetoNtimelow) && (time <= vetoNtimehigh)))
+         {
+             v[0] = signal; if(signal > 0.) veto_NF->Fill(signal);
+         }
+          
+          if((c == 17) && ((time >= vetoNtimelow) && (time <= vetoNtimehigh)))
+          {
+              v[1] = signal; if(signal > 0.) veto_NB->Fill(signal);
+          }
+          
+          if((c == 80) && ((time >= vetoStimelow) && (time <= vetoStimehigh)))
+          {
+              v[2] = signal; if(signal > 0.) veto_SF->Fill(signal);
+          }
+          
+          if(( c == 81) && ((time >= vetoStimelow) && (time <= vetoStimehigh)))
+          {
+              v[3] = signal; if(signal > 0.) veto_SB->Fill(signal);
+          }
+      }
+      
+     //smd
+      else if((c > 47 && c < 64) || (c > 111))
+      {
+         sm.push_back(signal);
+         tsmd.push_back(time);
       }
 
-      if ((c < 16) && ((c != 6) && (c != 14)))
+  }// channel loop end
+
+      
+   zdc_adc_south->Fill(totalzdcsouthsignal);
+   zdc_adc_north->Fill(totalzdcnorthsignal);
+
+        
+  int zsize = z.size();
+  int ssize = sm.size();
+      
+   if(zsize != 16)
+    {
+      std::cout<< "zdc channel mapping error" << std::endl;
+      if(tz.size() != 16)
+      exit(1);
+    }
+
+   if(ssize != 32)
+    {
+      std::cout<< "smd channel mapping error" << std::endl;
+      if(tsmd.size() != 32)
+      exit(1);
+    }
+
+
+     for (int i = 0; i < zsize; i++) //zdc
+     {
+         if ((tz[i] >= zdctimelow) && (tz[i] <= zdctimehigh))
+         {
+             zdc_adc[i] = z[i];
+         }
+     }//zdc
+
+     for (int j = 0; j < ssize; j++) //smd
       {
-        if (zdc_side == 0)
-        {
-          totalzdcsouthsignal += signal;
-          if (c == 0)
+          if(j < 16) //smd north [0,15] --> [48,63]
           {
-            zdc_S1->Fill(signal);
-          }
-          if (c == 2)
+            if((tsmd[j] >= smdNtimelow) && (tsmd[j] <= smdNtimehigh))
+              {
+                  smd_adc[j] = sm[j];
+                  if(j<=7) smd_north_ysum += sm[j];
+                  if(j >= 8 && j<=14) smd_north_xsum += sm[j]; //skip sum ch, 15->63
+              }
+              else
+              {
+                 smd_adc[j] = 0.0;
+              }
+           }
+        
+          if (j >= 16 && j <= 31) //smd south [16,31] --> [112,127]
           {
-            zdc_S2->Fill(signal);
+             if((tsmd[j] >= smdStimelow) && (tsmd[j] <= smdStimehigh ))
+              {
+                  smd_adc[j] = sm[j];
+                  if(j >= 16 && j<=23) smd_south_ysum += sm[j];
+                  if(j >= 24 && j<=30) smd_south_xsum += sm[j]; //skip sum ch, 31->127
+              }
+              else
+              {
+                  smd_adc[j] = 0.0;
+              }
           }
-          if (c == 4)
-          {
-            zdc_S3->Fill(signal);
-          }
-        }
-        else if (zdc_side == 1)
-        {
-          totalzdcnorthsignal += signal;
-          if (c == 8)
-          {
-            zdc_N1->Fill(signal);
-          }
-          if (c == 10)
-          {
-            zdc_N2->Fill(signal);
-          }
-          if (c == 12)
-          {
-            zdc_N3->Fill(signal);
-          }
-        }
-        else
-        {
-          std::cout << "arm bin not assigned ... " << std::endl;
-          return -1;
-        }
-      }  //select zdc high gain channels only
+      }//smd
 
-    }  // channel loop end
 
-    // call the functions
+
+  // call the functions
     CompSmdAdc();
     CompSmdPos();
-    CompSumSmd();
 
     // BOOLEANS, INTs AND OTHER DEFINITIONS
 
@@ -459,51 +543,60 @@ int ZdcMon::process_event(Event *e /* evt */)
 
     float zdc_adc_threshold = 200.;
     float smd_adc_threshold = 20.;
+   
     // counters
     int smd_n_h_counter = 0;
     int smd_n_v_counter = 0;
     int smd_s_h_counter = 0;
     int smd_s_v_counter = 0;
+    
+      
+    float hor_cut = 8.0;
+    float ver_cut = 8.0;
+    float ped_cut = 0.0; //suppress zeroes
 
     for (int i = 0; i < 8; i++)
     {
-      //****smd north horizontal individual channels****
-      if (smd_adc[i] > 8)
+
+     if (smd_adc[i] > hor_cut)
       {
         n_hor++;
       }
-      smd_adc_n_hor_ind[i]->Fill(smd_adc[i]);
+      
 
-      smd_value->Fill(smd_adc[i], float(i));
-      if (zdc_adc[8] > 200.)
+     if (smd_adc[i] > ped_cut) smd_adc_n_hor_ind[i]->Fill(smd_adc[i]);
+
+     smd_value->Fill(smd_adc[i], float(i));
+   
+     if (zdc_adc[8] > veto_cut)
       {
-              smd_value_good->Fill(smd_adc[i], float(i));
+         smd_value_good->Fill(smd_adc[i], float(i));
       }
       else
       {
-              smd_value_small->Fill(smd_adc[i], float(i));
+         smd_value_small->Fill(smd_adc[i], float(i));
       }
 
-      if ((smd_adc[i] > smd_adc_threshold) && (zdc_adc[0] > zdc_adc_threshold)) 
+      if ((smd_adc[i] > smd_adc_threshold) && (zdc_adc[0] > zdc_adc_threshold))
       {
-        smd_n_h_counter++;  
+        smd_n_h_counter++;
       }
-      // no threshold
+
       if (smd_adc[i] > smd_adc_threshold)
       {
         smd_n_h_counter++;
       }
-      //****************************
 
-      //****smd south horizontal individual channels****
-      if (smd_adc[i + 16] > 8)
+      if (smd_adc[i + 16] > hor_cut)
       {
         s_hor++;
       }
-      smd_adc_s_hor_ind[i]->Fill(smd_adc[i + 16]);
-
+    
+      if (smd_adc[i + 16] > ped_cut) smd_adc_s_hor_ind[i]->Fill(smd_adc[i + 16]);
+      
       smd_value->Fill(smd_adc[i + 16], float(i) + 16);
-      if (zdc_adc[0] > 200.)
+     
+      if (zdc_adc[0] > veto_cut)
       {
         smd_value_good->Fill(smd_adc[i + 16], float(i) + 16);
       }
@@ -512,24 +605,27 @@ int ZdcMon::process_event(Event *e /* evt */)
         smd_value_small->Fill(smd_adc[i + 16], float(i) + 16);
       }
 
+
       if (smd_adc[i + 16] > smd_adc_threshold)
       {
         smd_s_h_counter++;
       }
-      //****************************
+        
     }
 
     for (int i = 0; i < 7; i++)
     {
-      //****smd north vertical individual channels****
-      if (smd_adc[i + 8] > 5)
+      if (smd_adc[i + 8] > ver_cut)
       {
         n_ver++;
       }
-      smd_adc_n_ver_ind[i]->Fill(smd_adc[i + 8]);
+     
+  
+      if(smd_adc[i + 8] > ped_cut) smd_adc_n_ver_ind[i]->Fill(smd_adc[i + 8]);
 
       smd_value->Fill(smd_adc[i + 8], float(i) + 8);
-      if (zdc_adc[8] > 200.)
+   
+      if (zdc_adc[8] > veto_cut)
       {
         smd_value_good->Fill(smd_adc[i + 8], float(i) + 8);
       }
@@ -545,14 +641,16 @@ int ZdcMon::process_event(Event *e /* evt */)
       //****************************
 
       //****smd south vertical individual channels****
-      if (smd_adc[i + 24] > 5)
+      if (smd_adc[i + 24] > ver_cut)
       {
         s_ver++;
       }
-      smd_adc_s_ver_ind[i]->Fill(smd_adc[i + 24]);
+      
+      if (smd_adc[i + 24] > ped_cut)   smd_adc_s_ver_ind[i]->Fill(smd_adc[i + 24]);
 
       smd_value->Fill(smd_adc[i + 24], float(i) + 24);
-      if (zdc_adc[0] > 200.)
+    
+      if (zdc_adc[0] > veto_cut)
       {
         smd_value_good->Fill(smd_adc[i + 24], float(i) + 24);
       }
@@ -576,32 +674,21 @@ int ZdcMon::process_event(Event *e /* evt */)
       smd_south_hor_hits->Fill(sh);
       double sv = smd_s_v_counter + 0.0;
       smd_south_ver_hits->Fill(sv);
-
-
     }
 
+    
     bool fired_smd_hor_n = (n_hor > 1);
     bool fired_smd_ver_n = (n_ver > 1);
 
     bool fired_smd_hor_s = (s_hor > 1);
     bool fired_smd_ver_s = (s_ver > 1);
 
-    ///***** for testing ***********/
-    //fired_smd_hor_n = true;
-    //fired_smd_ver_n = true;
-    //fired_smd_hor_s = true;
-    //fired_smd_ver_s = true;
-
-    //compute, if smd is overloaded
+   //compute, if smd is overloaded
     bool smd_ovld_north = false;
     bool smd_ovld_south = false;
-    //smd_ovld_south = (zdc_adc[0] > 1000);
-    //smd_ovld_north = (zdc_adc[4] > 1000);
-
-    //bool ped_smd_hnorth = true; //in 200GeV, it was: (smd_sum[2] > 800.);
-    //bool ped_smd_vnorth = true; //in 200GeV, it was: (smd_sum[3] > 700.);
 
     // FILLING OUT THE HISTOGRAMS
+    
 
     if (fired_smd_hor_s && fired_smd_ver_s && !smd_ovld_south)
     {
@@ -609,52 +696,45 @@ int ZdcMon::process_event(Event *e /* evt */)
       fill_ver_south = true;
       smd_hor_south->Fill(smd_pos[2]);
       smd_ver_south->Fill(smd_pos[3]);
+      smd_sum_ver_south->Fill(smd_south_xsum);
+      smd_sum_hor_south->Fill(smd_south_ysum);
     }
 
-    //if (fill_hor_south && fill_ver_south && totalzdcsouthsignal > 40) {
-    if (fill_hor_south && fill_ver_south && (zdc_adc[2]>20&&zdc_adc[0]>65))
+    if(fill_hor_south && fill_ver_south && (zdc_adc[0] > ZDC1cut) && (zdc_adc[2] > ZDC2cut) && (v[2] < veto_cut) && (v[3] < veto_cut))
     {
-      smd_sum_ver_south->Fill(smd_sum[3]);
-      smd_sum_hor_south->Fill(smd_sum[2]);
       smd_xy_south->Fill(smd_pos[3], smd_pos[2]);
       smd_hor_south_good->Fill(smd_pos[2]);
       smd_ver_south_good->Fill(smd_pos[3]);
     }
 
+   
     if (fired_smd_hor_n && fired_smd_ver_n && !smd_ovld_north)
     {
       fill_hor_north = true;
       fill_ver_north = true;
       smd_hor_north->Fill(smd_pos[0]);
       smd_ver_north->Fill(smd_pos[1]);
-      if (zdc_adc[10]>20&&zdc_adc[8]>65)//zdc_adc[4] > 200.)
-      {
-        smd_hor_north_good->Fill(smd_pos[0]);
-        smd_ver_north_good->Fill(smd_pos[1]);
-      }
-      else
-      {
-        smd_hor_north_small->Fill( smd_pos[0] );
-        smd_ver_north_small->Fill( smd_pos[1] );
-      } 
-
+      smd_sum_ver_north->Fill(smd_north_xsum);
+      smd_sum_hor_north->Fill(smd_north_ysum);
+      
     }
 
-    //if (fill_hor_north && fill_ver_north && totalzdcnorthsignal > 40) {
-    if (fill_hor_north && fill_ver_north && (zdc_adc[10]>20&&zdc_adc[8]>65))
+    if(fill_hor_north && fill_ver_north && (zdc_adc[8] > ZDC1cut) && (zdc_adc[10] > ZDC2cut) && (v[0] < veto_cut) && (v[1] < veto_cut))
     {
-      smd_sum_ver_north->Fill(smd_sum[1]);
-      smd_sum_hor_north->Fill(smd_sum[0]);
       smd_xy_north->Fill(smd_pos[1], smd_pos[0]);
+      smd_hor_north_good->Fill(smd_pos[0]);
+      smd_ver_north_good->Fill(smd_pos[1]);
     }
 
+   
   }  // if packet good
 
-  zdc_adc_south->Fill(totalzdcsouthsignal);
-  zdc_adc_north->Fill(totalzdcnorthsignal);
-
+  z.clear();
+  sm.clear();
+  tz.clear();
+  tsmd.clear();
+    
   delete p;
-
   return 0;
 }
 
@@ -747,18 +827,5 @@ void ZdcMon::CompSmdPos()  //computing position with weighted averages
   }
 }
 
-void ZdcMon::CompSumSmd()  //compute 'digital' sum
-{
-  memset(smd_sum, 0, sizeof(smd_sum));
 
-  for (int i = 0; i < 8; i++)
-  {
-    smd_sum[0] += smd_adc[i]; // north horizontal
-    smd_sum[2] += smd_adc[i + 16]; // south horizontal
-  }
-  for (int i = 0; i < 7; i++)
-  {
-    smd_sum[1] += smd_adc[i+8];       // north horizontal
-    smd_sum[3] += smd_adc[i + 24];  // south horizontal
-  }
-}
+
