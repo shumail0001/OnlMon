@@ -196,17 +196,11 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   int nbinsy = h_gl1_clock_diff[start]->GetNbinsY();
   for (int ibx = 1; ibx <= nbinsx; ibx++)
   {
-    float tot = 0;
     for (int iby = 1; iby <= nbinsy; iby++)
     {
-      tot += h_gl1_clock_diff[start]->GetBinContent(ibx, iby);
-    }
-    for (int iby = 1; iby <= nbinsy; iby++)
-    {
-      float con = h_gl1_clock_diff[start]->GetBinContent(ibx, iby);
-      if (con > 0)
-      {
-        h_gl1_clock_diff[start]->SetBinContent(ibx, iby, con / tot * 100.);
+      double content = h_gl1_clock_diff[start]->GetBinContent(ibx,iby);
+      if(content >0){
+          h_gl1_clock_diff[start]->SetBinContent(ibx,iby,iby);
       }
     }
   }
@@ -339,7 +333,7 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   if(h_fem_match[start]->GetEntries() > 0){
       latex.SetTextSize(0.028);
       latex.SetTextColor(kRed);
-      latex.DrawLatex(0.25,0.94,"#bf{Calo FEM Mismatch!! Stop the run now!}");
+      latex.DrawLatex(0.25,0.94,"#bf{Calo FEM Mismatch!! Put a special note in the e-log}");
   }
   else{
       latex.SetTextColor(kGreen+1);

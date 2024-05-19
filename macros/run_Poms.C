@@ -39,9 +39,9 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("DAQ [Expert]", "daq");
+  subsys = new SubSystem("DAQ", "daq");
   subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
-  subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check");
+  subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check [Expert]");
   // subsys->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
    subsys->AddAction("daqDraw(\"SERVERSTATS\")", "Server Stats");
    subsys->AddAction(new SubSystemActionSavePlot(subsys));
