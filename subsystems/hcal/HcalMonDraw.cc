@@ -83,6 +83,9 @@ int HcalMonDraw::Init()
     std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_mean_template in file " << TEMPFILENAME << std::endl;
     exit(1);
   }
+  h1_zs = new TH1F("h1_zs", "unsuppressed rate ", 100, 0, 1);
+  h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1);
+  h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1);
 
   
   return 0;
@@ -219,9 +222,12 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   else if (name == "HcalMon7"){
     TC[9] = new TCanvas(name.c_str(),"Expert: Channel unsuppressed event fraction ", -xsize/2 , 0, xsize/2, ysize*0.9);
     gSystem->ProcessEvents();
-    Pad[24]=new TPad("hcalpad24","who needs this?",0.00,0.00,1.00,0.95);
+    Pad[24]=new TPad("hcalpad24","who needs this?",0.00,0.3,1.00,0.95);
     Pad[24]->SetRightMargin(0.15);
     Pad[24]->Draw();
+    Pad[25] = new TPad("hcalpad24", "1d zs rate", 0.0, 0.0, 1.00, 0.3);
+    Pad[25]->SetRightMargin(0.15);
+    Pad[25]->Draw();
     transparent[9] = new TPad("transparent7", "this does not show", 0, 0, 1, 1);
     transparent[9]->SetFillStyle(4000);
     transparent[9]->Draw();
@@ -674,7 +680,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
 
     // Define the range
     double x_min = 100;
-    double x_max = 10 * ymaxp;
+    double x_max = 7 * ymaxp;
     int n_points_in_range = 0;
     // Loop through the bins of the Profile Y histogram and count the bins within the range
     int n_bins = profile_y->GetNbinsX();
@@ -2043,8 +2049,6 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   char HCALMON_1[100];
   sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
 
-  TH2F* pr_zsFrac_etaphi = (TH2F*) cl->getHisto(HCALMON_0, "pr_zsFrac_etaphi");
-  TH2F* pr_zsFrac_etaphi_1 = (TH2F*) cl->getHisto(HCALMON_1, "pr_zsFrac_etaphi");
 
   TH2F* h2_hcal_mean = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_mean");
   TH1F* h_event = (TH1F*) cl->getHisto(HCALMON_0, "h_event");
@@ -2059,7 +2063,7 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   {
     MakeCanvas("HcalMon6");
   }
-  if (!h2_hcal_mean || !h_event || !h2_hcal_hits || !h2_hcal_time || !h2_hcal_mean_1 || !h_event_1 || !h2_hcal_hits_1 || !h2_hcal_time_1 || !pr_zsFrac_etaphi || !pr_zsFrac_etaphi_1)
+  if (!h2_hcal_mean || !h_event || !h2_hcal_hits || !h2_hcal_time || !h2_hcal_mean_1 || !h_event_1 || !h2_hcal_hits_1 || !h2_hcal_time_1)
   {
     DrawDeadServer(transparent[6]);
     TC[7]->SetEditable(false);
@@ -2070,16 +2074,21 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
     }
     return -1;
   }
-  h2_hcal_mean->Scale(1. / h_event->GetEntries());
-  h2_hcal_hits->Scale(1. / h_event->GetEntries());
-
-  h2_hcal_mean_1->Scale(1. / h_event_1->GetEntries());
-  h2_hcal_hits_1->Scale(1. / h_event_1->GetEntries());
+  if(h_event->GetEntries()){
+    h2_hcal_mean->Scale(1. / h_event->GetEntries());
+    h2_hcal_hits->Scale(1. / h_event->GetEntries());
+    
+  }
+  if(h_event_1->GetEntries()){
+    h2_hcal_mean_1->Scale(1. / h_event_1->GetEntries());
+    h2_hcal_hits_1->Scale(1. / h_event_1->GetEntries());
+    
+  }
 
   h2_hcal_mean->Add(h2_hcal_mean_1);
   h2_hcal_hits->Add(h2_hcal_hits_1);
   h2_hcal_time->Add(h2_hcal_time_1);
-  pr_zsFrac_etaphi->Add(pr_zsFrac_etaphi_1);
+  
 
   float tsize = 0.06;
 
@@ -2310,24 +2319,37 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   //find the average z for all bins
   double sum = 0;
   int count = 0;
+  h1_zs->Reset();
+  h1_zs_low->Reset();
+  h1_zs_high->Reset();
   for (int i = 0; i < pr_zsFrac_etaphi->GetNbinsX(); i++)
   {
     for (int j = 0; j < pr_zsFrac_etaphi->GetNbinsY(); j++)
     {
-      if (pr_zsFrac_etaphi->GetBinContent(i, j) != 0)
-      {
-        sum += pr_zsFrac_etaphi->GetBinContent(i, j);
-        count++;
+      float rate = pr_zsFrac_etaphi->GetBinContent(i+1, j+1);
+      if(rate <=0.04){
+        h1_zs_low->Fill(rate);
       }
+      else if (rate > 0.2){
+        h1_zs_high->Fill(rate);
+      }
+      else{
+        h1_zs->Fill(rate);
+      }
+      sum += pr_zsFrac_etaphi->GetBinContent(i+1, j+1);
+      count++;
+      
     }
   }
-  double averagezs = sum / count;
-
+  double maxx = (sum/count)*5 > 1 ? 1 : (sum/count)*5;
+  h1_zs->GetXaxis()->SetRangeUser(0, maxx);
+  double averagezs = sum / count*100;
+  
   
   pr_zsFrac_etaphi->GetXaxis()->SetNdivisions(510, kTRUE);
   pr_zsFrac_etaphi->GetXaxis()->SetTitle("eta index");
   pr_zsFrac_etaphi->GetYaxis()->SetTitle("phi index");
-  pr_zsFrac_etaphi->SetTitle(Form("Unsuppressed Fraction, Average Zs rate = %0.3f", averagezs));
+  pr_zsFrac_etaphi->SetTitle(Form("Average unsuppressed rate = %0.3f%%", averagezs));
   pr_zsFrac_etaphi->GetXaxis()->SetLabelSize(tsize);
   pr_zsFrac_etaphi->GetYaxis()->SetLabelSize(tsize);
   pr_zsFrac_etaphi->GetXaxis()->SetTitleSize(tsize);
@@ -2342,7 +2364,8 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   gPad->SetTopMargin(0.1);
   gPad->SetTicky();
   gPad->SetTickx();
-  gStyle->SetPalette(57);
+  //gStyle->SetPalette(57);
+  SetBirdPalette();
   gStyle->SetOptStat(0);
   
   {
@@ -2371,6 +2394,36 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
     line_board1->Draw();
     line_board2->Draw();
   }
+
+  Pad[25]->cd();
+  gStyle->SetTitleFontSize(0.06);
+  tsize = 0.08;
+  h1_zs->Draw();
+  h1_zs->GetXaxis()->SetTitle("unsuppressed fraction");
+  h1_zs->GetYaxis()->SetTitle("towers");
+  h1_zs->GetXaxis()->SetLabelSize(tsize);
+  h1_zs->GetYaxis()->SetLabelSize(tsize);
+  h1_zs->GetXaxis()->SetTitleSize(tsize);
+  h1_zs->GetYaxis()->SetTitleSize(tsize);
+  h1_zs->GetXaxis()->SetTitleOffset(0.9);
+  h1_zs->GetYaxis()->SetTitleOffset(0.85);
+  h1_zs->GetXaxis()->SetNdivisions(510, kTRUE);
+  h1_zs->SetFillColorAlpha(kBlue, 0.1);
+  h1_zs_low->SetFillColorAlpha(kRed, 0.1);
+  h1_zs_high->SetFillColorAlpha(kYellow , 0.1);
+  h1_zs_low->Draw("same");
+  h1_zs_high->Draw("same");
+   gPad->SetBottomMargin(0.16);
+  gPad->SetLeftMargin(0.15);
+  gPad->SetRightMargin(0.15);
+  gPad->SetTopMargin(0.1);
+  gStyle->SetOptStat(0);
+  gPad->SetTicky();
+  gPad->SetTickx();
+
+
+
+
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
