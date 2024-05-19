@@ -83,9 +83,9 @@ int HcalMonDraw::Init()
     std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_mean_template in file " << TEMPFILENAME << std::endl;
     exit(1);
   }
-  h1_zs = new TH1F("h1_zs", "unsuppressed rate ", 100, 0, 1);
-  h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1);
-  h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1);
+  h1_zs = new TH1F("h1_zs", "unsuppressed rate ", 100, 0, 1.1);
+  h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1.1);
+  h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1.1);
 
   
   return 0;
@@ -220,7 +220,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     TC[7]->SetEditable(false);
   }
   else if (name == "HcalMon7"){
-    TC[9] = new TCanvas(name.c_str(),"Expert: Channel unsuppressed event fraction ", -xsize/2 , 0, xsize/2, ysize*0.9);
+    TC[9] = new TCanvas(name.c_str(),"Channel unsuppressed event fraction ", -xsize/2 , 0, xsize/2, ysize*0.9);
     gSystem->ProcessEvents();
     Pad[24]=new TPad("hcalpad24","who needs this?",0.00,0.3,1.00,0.95);
     Pad[24]->SetRightMargin(0.15);
@@ -732,7 +732,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h2_hcal_waveform->GetXaxis()->SetTitleSize(tsize);
   h2_hcal_waveform->GetYaxis()->SetTitleSize(tsize);
   h2_hcal_waveform->GetXaxis()->SetTitleOffset(1.2);
-  h2_hcal_waveform->GetYaxis()->SetTitleOffset(0.75);
+  h2_hcal_waveform->GetYaxis()->SetTitleOffset(0.85);
   //over lay the profile draw only the marker
   TGraph* graph = new TGraph(n_points_in_range, x_vals, y_vals);
   graph->SetMarkerStyle(20);
@@ -788,7 +788,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_time->GetXaxis()->SetRangeUser(0, 16);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
-  h_waveform_time->GetYaxis()->SetTitle("Towers");
+  h_waveform_time->GetYaxis()->SetTitle("Fraction of Towers");
   h_waveform_time->GetXaxis()->SetLabelSize(tsize2);
   h_waveform_time->GetYaxis()->SetLabelSize(tsize2);
   h_waveform_time->GetXaxis()->SetTitleSize(tsize2);
@@ -834,7 +834,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h_waveform_pedestal->Draw("hist");
   h_waveform_pedestal->GetXaxis()->SetNdivisions(505, kTRUE);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
-  h_waveform_pedestal->GetYaxis()->SetTitle("Towers");
+  h_waveform_pedestal->GetYaxis()->SetTitle("Fraction of Towers");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize2);
   h_waveform_pedestal->GetYaxis()->SetLabelSize(tsize2);
   h_waveform_pedestal->GetXaxis()->SetTitleSize(tsize2);
@@ -2341,7 +2341,7 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
       
     }
   }
-  double maxx = (sum/count)*5 > 1 ? 1 : (sum/count)*5;
+  double maxx = (sum/count)*5 > 1.1 ? 1.1 : (sum/count)*5;
   h1_zs->GetXaxis()->SetRangeUser(0, maxx);
   double averagezs = sum / count*100;
   

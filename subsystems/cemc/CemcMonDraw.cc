@@ -82,9 +82,9 @@ int CemcMonDraw::Init()
     }
   }
 
-  h1_zs = new TH1F("h1_zs", "unsuppressed rate ", 100, 0, 1);
-  h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1);
-  h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1);
+  h1_zs = new TH1F("h1_zs", "unsuppressed rate ", 100, 0, 1.1);
+  h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1.1);
+  h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1.1);
 
   return 0;
 }
@@ -235,7 +235,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   //  TC[6]->SetEditable(0);
   //}
   else if (name == "CemcMon8" ){
-    TC[7] = new TCanvas(name.c_str(),"Expert: Channel unsuppressed event fraction", -xsize/3 , 0, xsize/3, ysize*0.9);
+    TC[7] = new TCanvas(name.c_str(),"Channel unsuppressed event fraction", -xsize/3 , 0, xsize/3, ysize*0.9);
     gSystem->ProcessEvents();
     Pad[19]=new TPad("cemcpad19","who needs this?",0.00,0.3,1.00,0.95);
     Pad[19]->SetRightMargin(0.15);
@@ -1133,7 +1133,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   h1_waveform_time[start[1]]->Draw("hist");
   h1_waveform_time[start[1]]->GetXaxis()->SetNdivisions(16);
   h1_waveform_time[start[1]]->GetXaxis()->SetTitle("Sample #");
-  h1_waveform_time[start[1]]->GetYaxis()->SetTitle("Towers");
+  h1_waveform_time[start[1]]->GetYaxis()->SetTitle("Fraction of Towers");
   h1_waveform_time[start[1]]->GetXaxis()->SetLabelSize(tsize2);
   h1_waveform_time[start[1]]->GetYaxis()->SetLabelSize(tsize2);
   h1_waveform_time[start[1]]->GetXaxis()->SetTitleSize(tsize2);
@@ -1180,7 +1180,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   h1_waveform_pedestal[start[2]]->Draw("hist");
   h1_waveform_pedestal[start[2]]->GetXaxis()->SetNdivisions(505,kTRUE);
   h1_waveform_pedestal[start[2]]->GetXaxis()->SetTitle("ADC Pedestal");
-  h1_waveform_pedestal[start[2]]->GetYaxis()->SetTitle("Towers");
+  h1_waveform_pedestal[start[2]]->GetYaxis()->SetTitle("Fraction of Towers");
   h1_waveform_pedestal[start[2]]->GetXaxis()->SetLabelSize(tsize2);
   h1_waveform_pedestal[start[2]]->GetYaxis()->SetLabelSize(tsize2);
   h1_waveform_pedestal[start[2]]->GetXaxis()->SetTitleSize(tsize2);
@@ -2007,6 +2007,8 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
       count++;
     }
   }
+  double maxx = (sum/count)*5 > 1.1 ? 1.1 : (sum/count)*5;
+  h1_zs->GetXaxis()->SetRangeUser(0, maxx);
 
   double averagezs = sum / count * 100;
 
