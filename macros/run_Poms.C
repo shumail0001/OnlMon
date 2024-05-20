@@ -34,14 +34,14 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"FOURTH\")", "Wave vs Fast Fitting [Expert]");
   subsys->AddAction("cemcDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("cemcDraw(\"SIXTH\")", "All waveform summary [Expert]");
-  subsys->AddAction("cemcDraw(\"SEVENTH\")", "Zero-suppression info [Expert]");
+  subsys->AddAction("cemcDraw(\"SEVENTH\")", "Zero-suppression info");
   subsys->AddAction("cemcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("DAQ", "daq");
   subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
-  subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check");
+  subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check [Expert]");
   // subsys->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
    subsys->AddAction("daqDraw(\"SERVERSTATS\")", "Server Stats");
    subsys->AddAction(new SubSystemActionSavePlot(subsys));
@@ -54,6 +54,7 @@ void StartPoms()
   //subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ihcalDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("ihcalDraw(\"SIXTH\")", "Tower Status [Expert]");
+  subsys->AddAction("ihcalDraw(\"SEVENTH\")", "Zero-suppression info");
   subsys->AddAction("ihcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
@@ -65,14 +66,15 @@ void StartPoms()
   //subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ohcalDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("ohcalDraw(\"SIXTH\")", "Tower Status [Expert]");
+  subsys->AddAction("ohcalDraw(\"SEVENTH\")", "Zero-suppression info");
   subsys->AddAction("ohcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("INTT", "intt");
   subsys->AddAction("inttDraw(\"chip_hitmap\")", "Chip Hitmap");
-  subsys->AddAction("inttDraw(\"ladder_hitmap\")", "Ladder Hitmap");
-  subsys->AddAction("inttDraw(\"chip_nll\")", "Chip NLL");
+  // subsys->AddAction("inttDraw(\"ladder_hitmap\")", "Ladder Hitmap");
+  //  subsys->AddAction("inttDraw(\"chip_nll\")", "Chip NLL");
   subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff");
   subsys->AddAction("inttDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
@@ -138,6 +140,9 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCSTUCKCHANNELS\")", "TPC Stuck Channels in FEE");
   subsys->AddAction("tpcDraw(\"TPCCHANSINPACKETNS\")", "TPC NS Chan. Per Packet per RCDAQ EVENT");
   subsys->AddAction("tpcDraw(\"TPCCHANSINPACKETSS\")", "TPC SS Chan. Per Packet per RCDAQ EVENT");
+  subsys->AddAction("tpcDraw(\"TPCNONZSCHANNELS\")", "TPC Non-ZS channels Per SAMPA chip");
+  subsys->AddAction("tpcDraw(\"TPCZSTRIGGERADCVSSAMPLE\")", "TPC ZS trigger threshold QA");
+  subsys->AddAction("tpcDraw(\"TPCFIRSTNONZSADCVSFIRSTNONZSSAMPLE\")", "TPC 1st nonZS ADC vs 1st nonZS Sample");
   subsys->AddAction("tpcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);

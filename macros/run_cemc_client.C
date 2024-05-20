@@ -7,6 +7,7 @@
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlcemcmon_client.so)
 const int nServers = 16;
+  //call with online > 1 if you want to just use the localhost
 void cemcDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -28,6 +29,7 @@ void cemcDrawInit(const int online = 0)
       cl->registerHisto("h1_cemc_trig", servername.c_str());
       cl->registerHisto("h_evtRec", servername.c_str());
       cl->registerHisto("h2_cemc_rm", servername.c_str());
+      cl->registerHisto("h2_cemc_rmhits", servername.c_str());
       cl->registerHisto("h2_cemc_mean", servername.c_str());
       cl->registerHisto("h1_event", servername.c_str());
       cl->registerHisto("h2_waveform_twrAvg", servername.c_str());
@@ -40,14 +42,7 @@ void cemcDrawInit(const int online = 0)
       cl->registerHisto("h1_packet_length",servername.c_str());
       cl->registerHisto("h1_packet_chans",servername.c_str());
       cl->registerHisto("h1_cemc_adc",servername.c_str());
-
-      for(int iphi=0; iphi<256; iphi++){
-	for(int ieta=0; ieta<96; ieta++){
-	  cl->registerHisto(Form("h2_waveform_phi%d_eta%d",iphi,ieta),servername.c_str());
-	}
-      }
     }
-  //cl->AddServerHost("localhost");  // check local host first
   CreateSubsysHostlist("cemc_hosts.list", online);
   //  get my histos from server, the second parameter = 1
   //  says I know they are all on the same node

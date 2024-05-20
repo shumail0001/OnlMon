@@ -32,6 +32,7 @@
 #include <cstdio>  // for printf
 #include <fstream>
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
 #include <utility>
@@ -75,7 +76,7 @@ int MvtxMon::Init()
 
   // register histograms with server otherwise client won't get them
   mvtxmon_ChipStaveOcc = new TH2D("OCC_ChipStaveOcc", "Average Occupancy: Stave Number and Chip Number", NCHIP, -0.5, NCHIP - 0.5, NSTAVE, -0.5, NSTAVE - 0.5);
-  mvtxmon_ChipStave1D = new TH1D("OCC_ChipStave1D", "Average Occupancy per Chip Stave", NCHIP * NSTAVE, -0.5, NCHIP * NSTAVE - 0.5);
+  mvtxmon_ChipStave1D = new TH1D("OCC_ChipStave1D", "Average Occupancy per Chip", NCHIP * NSTAVE, -0.5, NCHIP * NSTAVE - 0.5);
   mvtxmon_ChipFiredHis = new TH1D("OCC_ChipFiredFLX", "Number of Chips Fired per Felix per RCDAQ event Distribution", NCHIP * NSTAVE / 6 +1 , -0.5, NCHIP * NSTAVE / 6 + 0.5);
   mvtxmon_EvtHitChip = new TH1D("OCC_HitChipPerStrobe", "Number of Hits Per Strobe Per Chip Distribution", 51, -0.5, 50.5);
   mvtxmon_EvtHitDis = new TH1D("OCC_HitFLXPerStrobe", "Number of Hits Per Strobe Distribution", 2001, -0.5, 2000.5);
@@ -86,7 +87,7 @@ int MvtxMon::Init()
   mvtxmon_EvtHitChip->SetStats(false);
   mvtxmon_EvtHitDis->SetStats(false);
 
-  mvtxmon_ChipStave1D->GetXaxis()->SetTitle("Chip*Stave");
+  mvtxmon_ChipStave1D->GetXaxis()->SetTitle("Chip");
   mvtxmon_ChipStave1D->GetYaxis()->SetTitle("Occupancy");
 
   mvtxmon_ChipFiredHis->GetXaxis()->SetTitle("Number of Chips");
@@ -110,13 +111,20 @@ int MvtxMon::Init()
   mRCDAQevt->SetStats(false);
   se->registerHisto(this, mRCDAQevt);
 
+
+  hStrobesDMA = new TH1I("hStrobesDMA", "Minimum number of stobes processed per DMA", 12, -0.5, 11.5);
+  hStrobesDMA->GetXaxis()->SetTitle("DMA");
+  hStrobesDMA->GetYaxis()->SetTitle("Counts");
+  hStrobesDMA->SetStats(false);
+  se->registerHisto(this, hStrobesDMA);
+
   for (int i = 0; i < NFlags+1; i++)
   {
     mvtxmon_LaneStatusOverview[i] = new TH2Poly();
     mvtxmon_LaneStatusOverview[i]->SetName(Form("FEE_LaneStatus_Overview_Flag%s", mLaneStatusFlag[i].c_str()));
     TString title = Form("Fraction of lanes into %s", mLaneStatusFlag[i].c_str());
     // title += ";mm (IB 3x);mm (IB 3x)";
-    title += ";mm;mm";
+    title += "; ; ";
     mvtxmon_LaneStatusOverview[i]->SetTitle(title);
     createPoly(mvtxmon_LaneStatusOverview[i]);
     se->registerHisto(this, mvtxmon_LaneStatusOverview[i]);  // mLaneStatusOverview
@@ -186,6 +194,15 @@ int MvtxMon::Init()
   hErrorPlots->SetStats(false);
 
   se->registerHisto(this, hErrorPlots);
+
+  hErrorPlotsTime = new TH1D("General_DecErrorsTime", "Decoding Errors Time Serie", 50, 0.5, 50.5);
+  hErrorPlotsTime->GetYaxis()->SetTitle("Number of Errors");
+  hErrorPlotsTime->GetXaxis()->SetTitle("Time");
+  hErrorPlotsTime->SetMinimum(0);       // remove
+  hErrorPlotsTime->SetFillColor(kRed);  // remove
+  hErrorPlotsTime->SetStats(false);
+
+  se->registerHisto(this, hErrorPlotsTime);
 
 
   hErrorFile = new TH2D("General_DecErrorsEndpoint", "Decoding Errors vs Packet ID", 6 * 2, 0, 6 * 2 + 1, NError, 0.5, NError + 0.5);
@@ -263,14 +280,14 @@ int MvtxMon::Init()
   se->registerHisto(this, hChipL1);
 
   hFeeStrobes = new TH1I("General_hfeeStrobes", "Chip Strobes vs FeeId", NFees,0,NFees);
-  hFeeStrobes->GetXaxis()->SetTitle("FeeID");
-  hFeeStrobes->GetYaxis()->SetTitle("Counts");
+  hFeeStrobes->GetXaxis()->SetTitle("FEE ID");
+  hFeeStrobes->GetYaxis()->SetTitle("Strobes");
   hFeeStrobes->SetStats(0);
   se->registerHisto(this, hFeeStrobes);
 
   hFeeL1 = new TH1I("General_feeL1", "L1 triggers vs FeeId", NFees,0,NFees);
-  hFeeL1->GetXaxis()->SetTitle("FeeID");
-  hFeeL1->GetYaxis()->SetTitle("Counts");
+  hFeeL1->GetXaxis()->SetTitle("FEE ID");
+  hFeeL1->GetYaxis()->SetTitle("L1 Triggers");
   hFeeL1->SetStats(0);
   se->registerHisto(this, hFeeL1);
 
@@ -282,14 +299,14 @@ int MvtxMon::Init()
   se->registerHisto(this, mErrorVsFeeid);
 
   mGeneralOccupancy = new TH2Poly();
-  mGeneralOccupancy->SetTitle("General Occupancy;mm;mm");
+  mGeneralOccupancy->SetTitle("General Occupancy; ; ");
   mGeneralOccupancy->SetName("MVTXMON_General_Occupancy");
   // mGeneralOccupancy->GetXaxis()->SetTitle("");
   // mGeneralOccupancy->GetYaxis()->SetTitle("");
   mGeneralOccupancy->SetStats(false);
 
   mGeneralNoisyPixel = new TH2Poly();
-  mGeneralNoisyPixel->SetTitle("Noisy Pixel Number;mm (IB 3x);mm (IB 3x)");
+  mGeneralNoisyPixel->SetTitle("Noisy Pixel Number; ; ");
   mGeneralNoisyPixel->SetName("MVTXMON_General_Noisy_Pixel");
   mGeneralNoisyPixel->GetXaxis()->SetTitle("");
   mGeneralNoisyPixel->GetYaxis()->SetTitle("");
@@ -346,7 +363,7 @@ int MvtxMon::BeginRun(const int /* runno */)
 
 int MvtxMon::process_event(Event* evt)
 {
-  //std::cout<<"event "<<evtcnt<<std::endl;
+  std::cout<<"event "<<evtcnt<<std::endl;
   evtcnt++;
   mRCDAQevt->Fill(this->MonitorServerId());
 
@@ -386,9 +403,13 @@ int MvtxMon::process_event(Event* evt)
   hChipStaveNoisy[0]->Reset("ICESM");
   hChipStaveNoisy[1]->Reset("ICESM");
   hChipStaveNoisy[2]->Reset("ICESM");
+  //hStrobesDMA->Reset("ICESM");
 
 
   int nChipStrobes[8 * 9 * 6] = {0};
+
+
+  int nDecError = 0;
 
   int npackets = evt->getPacketList(plist, 2);
 
@@ -416,6 +437,14 @@ int MvtxMon::process_event(Event* evt)
     }
     if (num_feeId > 0)
     {
+      int  min_strobes = 1000000000;
+      for (int i_fee{0}; i_fee < num_feeId; ++i_fee)
+      {      
+        auto feeId = plist[i]->iValue(i_fee, "FEEID");
+        int cur_strobes = plist[i]->iValue(feeId, "NR_STROBES");
+        if (cur_strobes < min_strobes) min_strobes = cur_strobes;
+      }
+      hStrobesDMA->SetBinContent((this->MonitorServerId() * 2) + i +1, hStrobesDMA->GetBinContent((this->MonitorServerId() * 2) + i +1) + min_strobes);
       for (int i_fee{0}; i_fee < num_feeId; ++i_fee)
       {
         auto feeId = plist[i]->iValue(i_fee, "FEEID");
@@ -472,10 +501,11 @@ int MvtxMon::process_event(Event* evt)
 
         int ifee_plot = 3 * StaveBoundary[link.layer] + 3 * link.stave + link.gbtid;
         auto lane_error = plist[i]->iValue(feeId, "tdt_lanestatus_error");
+  
 
         while (lane_error != -1)
         {
-          // std::cout<<"feeid: "<<feeId<<" lane error: "<<lane_error<<std::endl;
+          //std::cout<<"feeid: "<<feeId<<" lane error: "<<lane_error<<std::endl;
 
           for (unsigned int ilane = 0; ilane < NLanesMax; ilane++)
           {
@@ -503,17 +533,21 @@ int MvtxMon::process_event(Event* evt)
         {
          
           int error = decoder_error & 0xFFFFFFFF;
-          if(error > 1) //ignore error ID = 1
-          {
-            hErrorPlots->Fill(error);
-            hErrorFile->Fill((this->MonitorServerId() * 2) + i + 0.5, error);
-          }
+          hErrorPlots->Fill(error);
+          nDecError++;
+          
+          hErrorFile->Fill((this->MonitorServerId() * 2) + i + 0.5, error);
           decoder_error = plist[i]->lValue(feeId, "decoder_error");
         }
       }
     }
     delete plist[i];
   }
+
+  for(int bin = 1; bin < 50 ; bin ++){
+    hErrorPlotsTime->SetBinContent(bin,hErrorPlotsTime->GetBinContent(bin+1));
+  }
+  hErrorPlotsTime->SetBinContent(50,nDecError);
 
 
   int firedChips = 0;
@@ -594,7 +628,7 @@ int MvtxMon::process_event(Event* evt)
     {
       for (int iChip = 0; iChip < 9; iChip++)
       {
-        double noisy = *(std::max_element(mNoisyPixelNumber[iLayer][iStave], mNoisyPixelNumber[iLayer][iStave] + 9));
+        double noisy = std::accumulate(mNoisyPixelNumber[iLayer][iStave], mNoisyPixelNumber[iLayer][iStave] + 9,0);
         mGeneralNoisyPixel->SetBinContent(mapstave[iLayer][iStave], noisy);
         if (mNoisyPixelNumber[iLayer][iStave][iChip] > 0)
         {

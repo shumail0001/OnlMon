@@ -32,6 +32,9 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCCheckSum(const std::string &what = "ALL");
   int DrawTPCChansinPacketNS(const std::string &what = "ALL");
   int DrawTPCChansinPacketSS(const std::string &what = "ALL");
+  int DrawTPCNonZSChannels(const std::string &what = "ALL");
+  int DrawTPCZSTriggerADCSample(const std::string &what = "ALL");
+  int DrawTPCFirstnonZSADCFirstnonZSSample(const std::string &what = "ALL");
   int DrawTPCADCSample(const std::string &what = "ALL");
   int DrawTPCPedestSubADCSample(const std::string &what = "ALL");
   int DrawTPCPedestSubADCSample_R1(const std::string &what = "ALL");
@@ -54,12 +57,12 @@ class TpcMonDraw : public OnlMonDraw
   time_t getTime();
   
   TCanvas *TC[28] = {nullptr};
-  TPad *transparent[27] = {nullptr};
+  TPad *transparent[28] = {nullptr};
   TPad *Pad[11] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module
-  TH2 *dummy_his1 = nullptr;
-  TH2 *dummy_his2 = nullptr;
+  TH2 *dummy_his1 {nullptr};
+  TH2 *dummy_his2 {nullptr};
 
   //TPC Module
   TH2 *dummy_his1_XY = nullptr;

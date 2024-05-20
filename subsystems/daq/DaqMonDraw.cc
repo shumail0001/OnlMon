@@ -43,11 +43,12 @@ int DaqMonDraw::Init()
   daqStyle->SetPadTickX(1);
   daqStyle->SetPadTickY(1);
 
-  Int_t colors[2];
-  colors[0] = kRed;
-  colors[1] = kGreen;
+  Int_t colors[3];
+  colors[0] = kWhite;
+  colors[1] = kRed;
+  colors[2] = kGreen;
 
-  daqStyle->SetPalette(2, colors);
+  daqStyle->SetPalette(3, colors);
   daqStyle->SetOptStat(0);
   gROOT->SetStyle("daqStyle");
   gROOT->ForceStyle();
@@ -62,7 +63,7 @@ int DaqMonDraw::MakeCanvas(const std::string &name)
   if (name == "DaqMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "Calo ADC System Clock Check", -1, 0, xsize / 2, ysize);
+    TC[0] = new TCanvas(name.c_str(), "Calo ADC System Clock Check", -1, 0, xsize *0.7, ysize*0.7);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -86,7 +87,7 @@ int DaqMonDraw::MakeCanvas(const std::string &name)
   else if (name == "DaqMon2")
   {
     gStyle->SetOptStat(0);
-    TC[1] = new TCanvas(name.c_str(), "Calo ADC FEM Check", -1, 0, xsize / 2, ysize);
+    TC[1] = new TCanvas(name.c_str(), "Calo ADC FEM Check", -1, 0, xsize *0.7, ysize * 0.8);
     gSystem->ProcessEvents();
     Pad[1] = new TPad("pad2", "pad2", 0., 0.2, 1., 1.);
     Pad[1]->Draw();
@@ -96,13 +97,13 @@ int DaqMonDraw::MakeCanvas(const std::string &name)
     TC[1]->SetEditable(false);
     gStyle->SetOptStat(0);
   }
-  else if (name == "DaqMon3")
+  else if (name == "DaqMonServerStats")
   {
     gStyle->SetOptStat(0);
     TC[2] = new TCanvas(name.c_str(), "DaqMon Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
-    transparent[2]->SetFillStyle(4000);
+    transparent[2]->SetFillColor(kGray);
     transparent[2]->Draw();
     TC[2]->SetEditable(false);
     gStyle->SetOptStat(0);
@@ -192,29 +193,25 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
     return 0;
   }
 
+  Int_t color[3];
+  color[0] = kWhite;
+  color[1] = kRed;
+  color[2] = kGreen;
+  gStyle->SetPalette(3, color);
+
   int nbinsx = h_gl1_clock_diff[start]->GetNbinsX();
   int nbinsy = h_gl1_clock_diff[start]->GetNbinsY();
   for (int ibx = 1; ibx <= nbinsx; ibx++)
   {
-    float tot = 0;
     for (int iby = 1; iby <= nbinsy; iby++)
     {
-      tot += h_gl1_clock_diff[start]->GetBinContent(ibx, iby);
-    }
-    for (int iby = 1; iby <= nbinsy; iby++)
-    {
-      float con = h_gl1_clock_diff[start]->GetBinContent(ibx, iby);
-      if (con > 0)
-      {
-        h_gl1_clock_diff[start]->SetBinContent(ibx, iby, con / tot * 100.);
+      double content = h_gl1_clock_diff[start]->GetBinContent(ibx,iby);
+      if(content >0){ 
+          h_gl1_clock_diff[start]->SetBinContent(ibx,iby,iby);
       }
     }
   }
-  Int_t color[2];
-  color[0] = kRed;
-  color[1] = kGreen;
-  gStyle->SetPalette(2, color);
-  gStyle->SetOptStat(0);
+
   h_gl1_clock_diff[start]->Draw("col");
   TLine line(h_gl1_clock_diff[start]->GetXaxis()->GetXmin(), 0.5, h_gl1_clock_diff[start]->GetXaxis()->GetXmax(), 0.5);
   line.SetLineColor(kBlack);
@@ -310,11 +307,6 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   h_fem_match[start]->GetYaxis()->SetNdivisions(100);
   h_fem_match[start]->GetYaxis()->SetLabelSize(0);
 
-  Int_t color[2];
-  color[0] = kRed;
-  color[1] = kGreen;
-  gStyle->SetPalette(2, color);
-  gStyle->SetOptStat(0);
   h_fem_match[start]->Draw("col");
 
   TText PrintRun;
@@ -332,19 +324,20 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   transparent[1]->cd();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
-  std::string femstatusstring = (h_fem_match[start]->GetEntries() > 0) ? "#bf{Calo FEM Mismatch!! Stop the run now!}" : "#bf{FEMs are all locked Continue data taking}";
   TLatex latex;
   latex.SetNDC();
   latex.SetTextFont(62);
-  latex.SetTextSize(0.028);
 
   if(h_fem_match[start]->GetEntries() > 0){
+      latex.SetTextSize(0.028);
       latex.SetTextColor(kRed);
-      latex.DrawLatex(0.25,0.95,femstatusstring.c_str());
+      latex.DrawLatex(0.25,0.94,"#bf{Calo FEM Mismatch!! Put a special note in the e-log}");
   }
   else{
-      latex.SetTextColor(kGreen);
-      latex.DrawLatex(0.25,0.6,femstatusstring.c_str());
+      latex.SetTextColor(kGreen+1);
+      latex.SetTextSize(0.032);
+      latex.DrawLatex(0.25,0.7,"#bf{Good! FEMs are locked}");
+      latex.DrawLatex(0.25,0.5,"#bf{Continue data taking}");
   }
     
   TC[1]->SetEditable(false);
@@ -449,9 +442,9 @@ time_t DaqMonDraw::getTime()
 int DaqMonDraw::DrawServerStats()
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  if (!gROOT->FindObject("DaqMon3"))
+  if (!gROOT->FindObject("DaqMonServerStats"))
   {
-    MakeCanvas("DaqMon3");
+    MakeCanvas("DaqMonServerStats");
   }
   TC[2]->Clear("D");
   TC[2]->SetEditable(true);
@@ -478,7 +471,7 @@ int DaqMonDraw::DrawServerStats()
     {
       txt << "Server " << server
           << " is dead ";
-      PrintRun.SetTextColor(2);
+      PrintRun.SetTextColor(kRed);
     }
     else
     {
@@ -488,11 +481,11 @@ int DaqMonDraw::DrawServerStats()
 	  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
-	PrintRun.SetTextColor(3);
+	PrintRun.SetTextColor(kGray+2);
       }
       else
       {
-	PrintRun.SetTextColor(2);
+	PrintRun.SetTextColor(kRed);
       }
     }
         if (i > 10)

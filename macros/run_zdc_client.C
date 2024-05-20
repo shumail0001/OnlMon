@@ -31,6 +31,12 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("h_waveformVeto_South","ZDCMON_0");
   cl->registerHisto("h_waveformAll","ZDCMON_0");
 
+ //veto
+  cl->registerHisto("veto_NF","ZDCMON_0");
+  cl->registerHisto("veto_NB","ZDCMON_0");
+  cl->registerHisto("veto_SF","ZDCMON_0");
+  cl->registerHisto("veto_SB","ZDCMON_0");
+ 
  // smd
   // Individual smd_adc channel histos
   
@@ -75,7 +81,6 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("smd_xy_north", "ZDCMON_0");
   cl->registerHisto("smd_xy_south", "ZDCMON_0");
 
-  //cl->AddServerHost("localhost");  // check local host first
   CreateSubsysHostlist("zdc_hosts.list", online);
 
   // get my histos from server, the second parameter = 1 
