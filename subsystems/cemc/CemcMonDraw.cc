@@ -263,12 +263,13 @@ int CemcMonDraw::Draw(const std::string &what)
 {
   int iret = 0;
   int idraw = 0;
-  /*
+  
   if (what == "ALL" || what == "FIRST")
   {
     iret += DrawFirst(what);
     idraw++;
   }
+  
   if (what == "ALL" || what == "SECOND")
   {
     iret += DrawSecond(what);
@@ -294,18 +295,20 @@ int CemcMonDraw::Draw(const std::string &what)
   //   iret += DrawSixth(what);
   //   idraw++;
   // }
+  
   if (what == "ALL" || what == "SERVERSTATS")
   {
     iret += DrawServerStats();
     idraw++;
   }
-*/
+
 // DO NOT CHANGE THE ORDER, DrawSeventh crashes DrawServerStats with an X11 error in the virtual framebuffer in the html
   if (what == "ALL" || what == "SEVENTH")
   {
     iret += DrawSeventh(what);
     idraw++;
   }
+  
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -348,6 +351,22 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
       deadservercount++;
     }
   }
+  int avgevents = 0;
+  int neventhist = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    TH1D* h_eventSource  = (TH1D*) cl->getHisto(*server, "h1_event");
+    if (h_eventSource )
+    {
+      avgevents += h_eventSource->GetEntries();
+      neventhist++;
+    }
+  }
+  if (neventhist)
+  {
+    avgevents /= neventhist;
+  }
+  
 
   // TH2 *hist1[m_ServerSet.size()];
   // const int nHists = 4;
@@ -605,7 +624,8 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": tower occupancy (threshold 30ADC) running mean divided by template";
-  runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
+  runnostream2 << "Run " << cl->RunNumber()<<", Event: " << avgevents << ", Time: " << ctime(&evttime);
+  
   transparent[0]->cd();
   runstring = runnostream.str();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
