@@ -82,6 +82,7 @@ class CemcMon : public OnlMon
 
   eventReceiverClient* erc = {nullptr};
   bool anaGL1 = true;
+  bool usembdtrig = true;
 
   CaloWaveformFitting* WaveformProcessingFast = nullptr;
   CaloWaveformFitting* WaveformProcessingTemp = nullptr;
