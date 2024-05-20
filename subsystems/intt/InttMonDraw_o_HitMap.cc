@@ -23,7 +23,6 @@ InttMonDraw::DrawHitMap (
 	if (!style) {
 		style = new TStyle(name.c_str(), name.c_str());
 		style->SetOptStat(0);
-		// style->SetOptTitle(0);
 		//...
 
 		Int_t palette[3] = {kBlue, kGreen, kRed};

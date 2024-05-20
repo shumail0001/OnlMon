@@ -22,7 +22,6 @@ InttMonDraw::DrawFelixBcoFphxBco (
 	if (!style) {
 		style = new TStyle(name.c_str(), name.c_str());
 		style->SetOptStat(0);
-		style->SetOptTitle(0);
 		//...
 	}
 	style->cd();

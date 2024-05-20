@@ -27,7 +27,7 @@ InttMonDraw::DrawPeaks (
 		style = new TStyle(name.c_str(), name.c_str());
 		style->SetOptStat(0);
 		style->SetMarkerStyle(8); // Circle
-		style->SetMarkerSize(1.5);
+		style->SetMarkerSize(0.5);
 		style->SetMarkerColor(kBlack);
 		//...
 	}
@@ -194,10 +194,11 @@ InttMonDraw::DrawPeaks_SubPad (
 	delete graph;
 	graph = new TGraphErrors(14, x, y, x_err, y_err);
 	graph->SetName(name.c_str());
-	graph->SetTitle(Form("BCO Peaks for intt%01d", i));
-
+	graph->SetTitle(Form("BCO Peaks for intt%01d;Felix Channel;Felix BCO - FPHX BCO", i));
 	graph->GetXaxis()->SetRangeUser(-0.5, 13.5);
 	graph->GetXaxis()->SetNdivisions(14, true);
+	graph->GetYaxis()->SetRangeUser(0.0, 127.0);
+	graph->GetYaxis()->SetNdivisions(14, true);
 	graph->Draw("AP");
 
 	// Go back over and add red markers
