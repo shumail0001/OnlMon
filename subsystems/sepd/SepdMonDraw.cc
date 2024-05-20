@@ -505,6 +505,9 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   TH1D *h_waveform_pedestal = (TH1D *) cl->getHisto("SEPDMON_0", "h1_waveform_pedestal");
   TH2F *h2_sepd_waveform = (TH2F *) cl->getHisto("SEPDMON_0", "h2_sepd_waveform");
 
+  TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
+  int nevt = h_event->GetEntries();
+
   if (!gROOT->FindObject("SepdMon4"))
   {
     MakeCanvas("SepdMon4");
@@ -589,12 +592,13 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   gStyle->SetTitleFontSize(0.06);
 
   h_waveform_time->GetXaxis()->SetRangeUser(0,11);
+  h_waveform_time->Scale(1.0/nevt);
   h_waveform_time->Draw("hist");
   // ---
   //h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_time->GetXaxis()->SetNdivisions(12);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
-  h_waveform_time->GetYaxis()->SetTitle("Counts");
+  h_waveform_time->GetYaxis()->SetTitle("Counts/Event");
   h_waveform_time->GetXaxis()->SetLabelSize(tsize);
   h_waveform_time->GetYaxis()->SetLabelSize(tsize);
   h_waveform_time->GetXaxis()->SetTitleSize(tsize);
@@ -630,10 +634,11 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   gStyle->SetTitleFontSize(0.06);
 
   // x-axis range is set in SepdMon.cc, need to change there if want a wider range
+  h_waveform_pedestal->Scale(1.0/nevt);
   h_waveform_pedestal->Draw("hist");
   h_waveform_pedestal->GetXaxis()->SetNdivisions(505);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
-  h_waveform_pedestal->GetYaxis()->SetTitle("Counts");
+  h_waveform_pedestal->GetYaxis()->SetTitle("Counts/Event");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize);
   h_waveform_pedestal->GetYaxis()->SetLabelSize(tsize);
   h_waveform_pedestal->GetXaxis()->SetTitleSize(tsize);
