@@ -26,13 +26,11 @@ InttMonDraw::DrawFelixBcoFphxBco (
 		//...
 	}
 	style->cd();
+	gROOT->SetStyle(name.c_str());
+	gROOT->ForceStyle();
 
-	// use member TClonesArray instead of (purely) gROOT here
 	name = Form("%s", m_FelixBcoFphxBco.name.c_str());
 	if(!dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str()))) { // Only allocate if gROOT doesn't find it
-		// This next line would throw a double free() IF ROOT freed the memory when a user closed the TCanvas
-		// (I added another delete to see what ROOT does for a double free()--it crashes)
-		// Yet, the next line is safe...
 		delete TC[icnvs];
 		TC[icnvs] = new TCanvas (
 			name.c_str(), name.c_str(),
@@ -46,6 +44,10 @@ InttMonDraw::DrawFelixBcoFphxBco (
 	iret += DrawFelixBcoFphxBco_DispPad();
 	iret += DrawFelixBcoFphxBco_LgndPad();
 	iret += DrawFelixBcoFphxBco_SubPads();
+
+	TC[icnvs]->Update();
+	TC[icnvs]->Show();
+	TC[icnvs]->SetEditable(false);
 
 	return iret;
 }
@@ -139,7 +141,9 @@ InttMonDraw::DrawFelixBcoFphxBco_LgndPad (
 	// find or make this this pad
 	name = Form("%s_lgnd_pad", m_FelixBcoFphxBco.name.c_str());
 	TPad* lgnd_pad = dynamic_cast<TPad*>(gROOT->FindObject(name.c_str()));
-	if(lgnd_pad) return 0; // Early return since the title text is unchanging, and this means we've drawn it
+	if(lgnd_pad) return 0;
+	// Everything that follows doesn't change,
+	// early return if we've drawn it
 
 	lgnd_pad = new TPad (
 		name.c_str(), name.c_str(),

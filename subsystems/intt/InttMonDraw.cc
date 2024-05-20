@@ -40,6 +40,12 @@ int InttMonDraw::Draw(const std::string& what)
   }
   ++icnvs;
 
+  if(what == "ALL" || what == "peaks") {
+	  iret += DrawPeaks(icnvs);
+	  ++idraw;
+  }
+  ++icnvs;
+
   if(!idraw) {
     std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
               << "\tUnimplemented drawing option \"" << what << "\"" << std::endl;

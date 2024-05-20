@@ -56,6 +56,7 @@ class InttMonDraw : public OnlMonDraw
 	double lgnd_box_width, lgnd_box_height, lgnd_text_size;
 	std::string name;
   } static const m_FelixBcoFphxBco;
+  TStyle* m_FelixBcoFphxBco_style;
   int DrawFelixBcoFphxBco(int);
   int DrawFelixBcoFphxBco_DispPad();
   int DrawFelixBcoFphxBco_LgndPad();
@@ -66,14 +67,35 @@ class InttMonDraw : public OnlMonDraw
   struct HitMap_s
   {
 	double cnvs_width, cnvs_height;
-	double disp_frac;
+	double disp_frac, lgnd_frac;
 	double disp_text_size;
+	double lgnd_box_width, lgnd_box_height, lgnd_text_size;
+	double lower, upper;
 	std::string name;
   } static const m_HitMap;
+  TStyle* m_HitMap_style;
   int DrawHitMap(int);
   int DrawHitMap_DispPad();
+  int DrawHitMap_LgndPad();
   int DrawHitMap_SubPads();
   int DrawHitMap_SubPad(int);
+
+  // InttMonDraw_o_Peaks.cc
+  struct Peaks_s
+  {
+	double cnvs_width, cnvs_height;
+	double disp_frac;
+	double disp_text_size;
+	double frac;
+	double max_width;
+	std::string name;
+  } static const m_Peaks;
+  TStyle* m_Peaks_style;
+  int DrawPeaks(int);
+  int DrawPeaks_DispPad();
+  int DrawPeaks_SubPads();
+  int DrawPeaks_SubPad(int);
+  int DrawPeaks_GetFeePeakAndWidth(int, double*, double*, double*);
   // ...
 
   // InttMonDraw.cc (Helper functions I want to declare last)
