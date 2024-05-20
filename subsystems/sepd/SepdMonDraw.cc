@@ -219,18 +219,18 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 
   float R_PI = 3.1415926535;
 
-  TH2F* polar_histS = new TH2F("polar_histS","polar_hist",
+  TH2* polar_histS = new TH2F("polar_histS","polar_hist",
                                24, 0, 2*R_PI,
                                16, 0.15, 3.5);
-  TH2F* polar_histN = new TH2F("polar_histN","polar_hist",
+  TH2* polar_histN = new TH2F("polar_histN","polar_hist",
                                24, 0, 2*R_PI,
                                16, 0.15, 3.5);
 
   //tile 0 is 2x the angular size of the rest of the tiles and needs a separate histogram
-  TH2F* polar_histS01 = new TH2F("polar_histS01","polar_hist",
+  TH2* polar_histS01 = new TH2F("polar_histS01","polar_hist",
                                  12, 0, 2*R_PI,
                                  16, 0.15, 3.5);
-  TH2F* polar_histN01 = new TH2F("polar_histN01","polar_hist",
+  TH2* polar_histN01 = new TH2F("polar_histN01","polar_hist",
                                  12, 0, 2*R_PI,
                                  16, 0.15, 3.5);
 
@@ -501,9 +501,9 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1D *h_waveform_time = (TH1D *) cl->getHisto("SEPDMON_0", "h1_waveform_time");
-  TH1D *h_waveform_pedestal = (TH1D *) cl->getHisto("SEPDMON_0", "h1_waveform_pedestal");
-  TH2F *h2_sepd_waveform = (TH2F *) cl->getHisto("SEPDMON_0", "h2_sepd_waveform");
+  TH1 *h_waveform_time = (TH1D *) cl->getHisto("SEPDMON_0", "h1_waveform_time");
+  TH1 *h_waveform_pedestal = (TH1D *) cl->getHisto("SEPDMON_0", "h1_waveform_pedestal");
+  TH2 *h2_sepd_waveform = (TH2F *) cl->getHisto("SEPDMON_0", "h2_sepd_waveform");
 
   TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
   int nevt = h_event->GetEntries();
@@ -666,10 +666,10 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1D *h1_packet_number = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_number");
-  TH1D *h1_packet_length = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_length");
-  TH1D *h1_packet_chans = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_chans");
-  TH1D *h1_packet_event = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_event");
+  TH1 *h1_packet_number = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_number");
+  TH1 *h1_packet_length = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_length");
+  TH1 *h1_packet_chans = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_chans");
+  TH1 *h1_packet_event = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_event");
 
   if (!gROOT->FindObject("SepdMon5"))
   {
