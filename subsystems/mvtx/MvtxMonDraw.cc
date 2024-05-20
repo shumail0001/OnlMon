@@ -1747,14 +1747,14 @@ std::vector<MvtxMonDraw::Quality> MvtxMonDraw::analyseForError(TH2Poly *lane, TH
         bincontent = lane->GetBinContent(ibin);
       }
       
-      if (bincontent /*hp[iflag][NFlx]->GetBinContent(ibin)*/ > maxbadchips / 9.)
+      if (bincontent /*hp[iflag][NFlx]->GetBinContent(ibin)*/ >= maxbadchips / 9.)
       {
         // std::cout<<"bad stave"<<std::endl;
         countStave++;
         result.at(ilayer) = Quality::Medium;
       }
     }
-    if (countStave > 0.25 * NStaves[ilayer])
+    if (countStave > 0.2 * NStaves[ilayer])
     {
       result.at(ilayer) = Quality::Bad;
     }
