@@ -291,14 +291,15 @@ int CemcMonDraw::Draw(const std::string &what)
   //   iret += DrawSixth(what);
   //   idraw++;
   // }
-  if (what == "ALL" || what == "SEVENTH")
-  {
-    iret += DrawSeventh(what);
-    idraw++;
-  }
   if (what == "ALL" || what == "SERVERSTATS")
   {
     iret += DrawServerStats();
+    idraw++;
+  }
+// DO NOT CHANGE THE ORDER, DrawSeventh crashes DrawServerStats with an X11 error in the virtual framebuffer in the html
+  if (what == "ALL" || what == "SEVENTH")
+  {
+    iret += DrawSeventh(what);
     idraw++;
   }
   if (!idraw)
@@ -2025,8 +2026,8 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
   gPad->SetLeftMargin(0.12);
   gPad->SetRightMargin(0.12);
   gStyle->SetTitleFontSize(0.06);
-  gStyle->SetPalette(57);
-  //  SetBirdPalette();
+  //gStyle->SetPalette(57);
+  SetBirdPalette();
   p2_zsFrac_etaphiCombined->GetXaxis()->SetTitle("eta index");
   p2_zsFrac_etaphiCombined->GetYaxis()->SetTitle("phi index");
   p2_zsFrac_etaphiCombined->SetTitle(Form("Average unsuppressed rate: %.3f%%", averagezs));
