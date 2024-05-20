@@ -540,7 +540,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   Pad[padID]->Divide(4, 2);
   int returnCode = 0;
 
-  Pad[padID]->cd(4)->SetRightMargin(0.12);
+  Pad[padID]->cd(4)->SetRightMargin(0.2);
   Pad[padID]->cd(6)->SetLeftMargin(0.16);
   Pad[padID]->cd(6)->SetTopMargin(0.16);
   Pad[padID]->cd(6)->SetBottomMargin(0.14);
@@ -1791,7 +1791,7 @@ std::vector<MvtxMonDraw::Quality> MvtxMonDraw::analyseForError(TH2Poly *lane, TH
       avrs =+ binc;
     }
     if(strobes->GetNbinsX() > 0) avrs = avrs/strobes->GetNbinsX();
-    if(mins < 0.5*avrs || maxs > 0.5*avrs){
+    if(mins < 0.5*avrs || maxs > 1.5*avrs){
       result.at(4) = Quality::Medium;
     }
   }
