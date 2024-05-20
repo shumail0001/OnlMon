@@ -101,7 +101,7 @@ class InttMonDraw : public OnlMonDraw
   Color_t static GetFeeColor(int const&);
 
   // Member Variables
-  TCanvas* TC[3] = {nullptr};
+  TCanvas* TC[4] = {nullptr};
   TPad* transparent[1] = {nullptr};
 };
 
