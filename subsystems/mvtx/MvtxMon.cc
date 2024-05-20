@@ -32,6 +32,7 @@
 #include <cstdio>  // for printf
 #include <fstream>
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
 #include <utility>
@@ -109,6 +110,13 @@ int MvtxMon::Init()
   mRCDAQevt->GetYaxis()->SetTitle("Counts");
   mRCDAQevt->SetStats(false);
   se->registerHisto(this, mRCDAQevt);
+
+
+  hStrobesDMA = new TH1I("hStrobesDMA", "Minimum number of stobes processed per DMA", 12, -0.5, 11.5);
+  hStrobesDMA->GetXaxis()->SetTitle("DMA");
+  hStrobesDMA->GetYaxis()->SetTitle("Counts");
+  hStrobesDMA->SetStats(false);
+  se->registerHisto(this, hStrobesDMA);
 
   for (int i = 0; i < NFlags+1; i++)
   {
@@ -272,14 +280,14 @@ int MvtxMon::Init()
   se->registerHisto(this, hChipL1);
 
   hFeeStrobes = new TH1I("General_hfeeStrobes", "Chip Strobes vs FeeId", NFees,0,NFees);
-  hFeeStrobes->GetXaxis()->SetTitle("FeeID");
-  hFeeStrobes->GetYaxis()->SetTitle("Counts");
+  hFeeStrobes->GetXaxis()->SetTitle("FEE ID");
+  hFeeStrobes->GetYaxis()->SetTitle("Strobes");
   hFeeStrobes->SetStats(0);
   se->registerHisto(this, hFeeStrobes);
 
   hFeeL1 = new TH1I("General_feeL1", "L1 triggers vs FeeId", NFees,0,NFees);
-  hFeeL1->GetXaxis()->SetTitle("FeeID");
-  hFeeL1->GetYaxis()->SetTitle("Counts");
+  hFeeL1->GetXaxis()->SetTitle("FEE ID");
+  hFeeL1->GetYaxis()->SetTitle("L1 Triggers");
   hFeeL1->SetStats(0);
   se->registerHisto(this, hFeeL1);
 
@@ -395,9 +403,11 @@ int MvtxMon::process_event(Event* evt)
   hChipStaveNoisy[0]->Reset("ICESM");
   hChipStaveNoisy[1]->Reset("ICESM");
   hChipStaveNoisy[2]->Reset("ICESM");
+  //hStrobesDMA->Reset("ICESM");
 
 
   int nChipStrobes[8 * 9 * 6] = {0};
+
 
   int nDecError = 0;
 
@@ -427,6 +437,14 @@ int MvtxMon::process_event(Event* evt)
     }
     if (num_feeId > 0)
     {
+      int  min_strobes = 1000000000;
+      for (int i_fee{0}; i_fee < num_feeId; ++i_fee)
+      {      
+        auto feeId = plist[i]->iValue(i_fee, "FEEID");
+        int cur_strobes = plist[i]->iValue(feeId, "NR_STROBES");
+        if (cur_strobes < min_strobes) min_strobes = cur_strobes;
+      }
+      hStrobesDMA->SetBinContent((this->MonitorServerId() * 2) + i +1, hStrobesDMA->GetBinContent((this->MonitorServerId() * 2) + i +1) + min_strobes);
       for (int i_fee{0}; i_fee < num_feeId; ++i_fee)
       {
         auto feeId = plist[i]->iValue(i_fee, "FEEID");
@@ -610,7 +628,7 @@ int MvtxMon::process_event(Event* evt)
     {
       for (int iChip = 0; iChip < 9; iChip++)
       {
-        double noisy = *(std::max_element(mNoisyPixelNumber[iLayer][iStave], mNoisyPixelNumber[iLayer][iStave] + 9));
+        double noisy = std::accumulate(mNoisyPixelNumber[iLayer][iStave], mNoisyPixelNumber[iLayer][iStave] + 9,0);
         mGeneralNoisyPixel->SetBinContent(mapstave[iLayer][iStave], noisy);
         if (mNoisyPixelNumber[iLayer][iStave][iChip] > 0)
         {

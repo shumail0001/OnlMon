@@ -43,11 +43,12 @@ int DaqMonDraw::Init()
   daqStyle->SetPadTickX(1);
   daqStyle->SetPadTickY(1);
 
-  Int_t colors[2];
-  colors[0] = kRed;
-  colors[1] = kGreen;
+  Int_t colors[3];
+  colors[0] = kWhite;
+  colors[1] = kRed;
+  colors[2] = kGreen;
 
-  daqStyle->SetPalette(2, colors);
+  daqStyle->SetPalette(3, colors);
   daqStyle->SetOptStat(0);
   gROOT->SetStyle("daqStyle");
   gROOT->ForceStyle();
@@ -196,25 +197,14 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   int nbinsy = h_gl1_clock_diff[start]->GetNbinsY();
   for (int ibx = 1; ibx <= nbinsx; ibx++)
   {
-    float tot = 0;
     for (int iby = 1; iby <= nbinsy; iby++)
     {
-      tot += h_gl1_clock_diff[start]->GetBinContent(ibx, iby);
-    }
-    for (int iby = 1; iby <= nbinsy; iby++)
-    {
-      float con = h_gl1_clock_diff[start]->GetBinContent(ibx, iby);
-      if (con > 0)
-      {
-        h_gl1_clock_diff[start]->SetBinContent(ibx, iby, con / tot * 100.);
+      double content = h_gl1_clock_diff[start]->GetBinContent(ibx,iby);
+      if(content >0){
+          h_gl1_clock_diff[start]->SetBinContent(ibx,iby,iby);
       }
     }
   }
-  Int_t color[2];
-  color[0] = kRed;
-  color[1] = kGreen;
-  gStyle->SetPalette(2, color);
-  gStyle->SetOptStat(0);
   h_gl1_clock_diff[start]->Draw("col");
   TLine line(h_gl1_clock_diff[start]->GetXaxis()->GetXmin(), 0.5, h_gl1_clock_diff[start]->GetXaxis()->GetXmax(), 0.5);
   line.SetLineColor(kBlack);
@@ -310,11 +300,6 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   h_fem_match[start]->GetYaxis()->SetNdivisions(100);
   h_fem_match[start]->GetYaxis()->SetLabelSize(0);
 
-  Int_t color[2];
-  color[0] = kRed;
-  color[1] = kGreen;
-  gStyle->SetPalette(2, color);
-  gStyle->SetOptStat(0);
   h_fem_match[start]->Draw("col");
 
   TText PrintRun;
@@ -339,7 +324,7 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   if(h_fem_match[start]->GetEntries() > 0){
       latex.SetTextSize(0.028);
       latex.SetTextColor(kRed);
-      latex.DrawLatex(0.25,0.94,"#bf{Calo FEM Mismatch!! Stop the run now!}");
+      latex.DrawLatex(0.25,0.94,"#bf{Calo FEM Mismatch!! Put a special note in the e-log}");
   }
   else{
       latex.SetTextColor(kGreen+1);

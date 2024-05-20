@@ -10,7 +10,7 @@ class OnlMonDB;
 class TCanvas;
 class TGraphErrors;
 class TPad;
-const int NUM_CANV = 2 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1;
+const int NUM_CANV = 2 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1;
 const int NUM_PAD = 4 + 3 + 12 + 2 + 4 + 15 + 15 + 4 + 1 + 4 + 5;
 
 class ZdcMonDraw : public OnlMonDraw
@@ -40,8 +40,9 @@ class ZdcMonDraw : public OnlMonDraw
   int DrawSmdXY(const std::string &what = "ALL");
   int DrawSmdAdcNorthIndividual(const std::string &what = "ALL");
   int DrawSmdAdcSouthIndividual(const std::string &what = "ALL");
-  int DrawSmdMultiplicities(const std::string &what = "ALL");
+  int Drawveto(const std::string &what = "ALL");
   int DrawWaveForm(const std::string &what = "ALL");
+  int DrawSmdMultiplicities(const std::string &what = "ALL");
   int DrawSmdAdcMeans(const std::string &what = "ALL");
 
   TCanvas *TC[NUM_CANV] = {nullptr};
