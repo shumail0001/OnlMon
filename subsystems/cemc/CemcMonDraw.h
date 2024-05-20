@@ -16,7 +16,7 @@ class TProfile;
 class CemcMonDraw : public OnlMonDraw
 {
  public:
-  explicit CemcMonDraw(const std::string &name = "CEMCMON"); // same name as server!
+  explicit CemcMonDraw(const std::string &name = "CEMCMON");  // same name as server!
 
   ~CemcMonDraw() override {}
 
@@ -24,8 +24,8 @@ class CemcMonDraw : public OnlMonDraw
   int Draw(const std::string &what = "ALL") override;
   int MakeHtml(const std::string &what = "ALL") override;
   int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
-  void setSave(int s) {save = s;}
-  void HandleEvent(int event, int x, int y, TObject* sel);
+  void setSave(int s) { save = s; }
+  void HandleEvent(int event, int x, int y, TObject *sel);
 
  private:
   int MakeCanvas(const std::string &name);
@@ -41,7 +41,7 @@ class CemcMonDraw : public OnlMonDraw
 
   int FindHotTower(TPad *warn, TH2 *);
   time_t getTime();
-  std::vector<int>  getBadPackets(TH1 *hist, int what, float cutoff);
+  std::vector<int> getBadPackets(TH1 *hist, int what, float cutoff);
 
   const int nTowersEta{96};
   const int nTowersPhi{256};
@@ -51,23 +51,23 @@ class CemcMonDraw : public OnlMonDraw
   int save{0};
 
   TCanvas *TC[19]{nullptr};
-  //TCanvas *PopUpCanvas{nullptr};
+  // TCanvas *PopUpCanvas{nullptr};
   TPad *transparent[19]{nullptr};
   TPad *Pad[29]{nullptr};
   TPad *warning[29]{nullptr};
 
-  //TPad *PopUpPad[8][8] {{nullptr}};
-  //TPad *PopUpTransparent{nullptr};
+  // TPad *PopUpPad[8][8] {{nullptr}};
+  // TPad *PopUpTransparent{nullptr};
   TGraphErrors *gr[2]{nullptr};
-  //TProfile *summedProfile[8][8]{{nullptr}};
-  //TProfile *AllProfiles[256][96]{{nullptr}};
-  TH2D* h2_template_hit{nullptr};
-  TH2D* h_cemc_datahits{nullptr};
+  // TProfile *summedProfile[8][8]{{nullptr}};
+  // TProfile *AllProfiles[256][96]{{nullptr}};
+  TH2D *h2_template_hit{nullptr};
+  TH2D *h_cemc_datahits{nullptr};
   TStyle *cemcStyle{nullptr};
 
-  TH1F* h1_zs = nullptr;
-  TH1F* h1_zs_low = nullptr;
-  TH1F* h1_zs_high = nullptr;
+  TH1F *h1_zs = nullptr;
+  TH1F *h1_zs_low = nullptr;
+  TH1F *h1_zs_high = nullptr;
 
   void SetBirdPalette()
   {
