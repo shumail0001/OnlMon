@@ -246,7 +246,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     transparent[7] = new TPad("transparent7", "this does not show", 0, 0, 1, 1);
     transparent[7]->SetFillStyle(4000);
     transparent[7]->Draw();
-    TC[7]->SetEditable(0);
+    TC[7]->SetEditable(false);
   }
 
   return 0;
@@ -2017,7 +2017,8 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
   gPad->SetLeftMargin(0.12);
   gPad->SetRightMargin(0.12);
   gStyle->SetTitleFontSize(0.06);
-  SetBirdPalette();
+  gStyle->SetPalette(57);
+//  SetBirdPalette();
   p2_zsFrac_etaphiCombined->GetXaxis()->SetTitle("eta index");
   p2_zsFrac_etaphiCombined->GetYaxis()->SetTitle("phi index");
   p2_zsFrac_etaphiCombined->SetTitle(Form("Average unsuppressed rate: %.3f%%", averagezs));
@@ -2076,7 +2077,7 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
 
   TC[7]->Update();
   TC[7]->Show();
-  TC[7]->SetEditable(0);
+  TC[7]->SetEditable(false);
   if(save)TC[7] -> SaveAs("plots/UnsuppressedEventFraction.pdf");
   return 0;
 }
