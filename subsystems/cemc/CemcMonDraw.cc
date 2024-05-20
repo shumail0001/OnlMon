@@ -90,6 +90,8 @@ int CemcMonDraw::Init()
   h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1.1);
   h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1.1);
 
+  MakeZSPalette();
+
   return 0;
 }
 
@@ -261,6 +263,7 @@ int CemcMonDraw::Draw(const std::string &what)
 {
   int iret = 0;
   int idraw = 0;
+  /*
   if (what == "ALL" || what == "FIRST")
   {
     iret += DrawFirst(what);
@@ -296,6 +299,7 @@ int CemcMonDraw::Draw(const std::string &what)
     iret += DrawServerStats();
     idraw++;
   }
+*/
 // DO NOT CHANGE THE ORDER, DrawSeventh crashes DrawServerStats with an X11 error in the virtual framebuffer in the html
   if (what == "ALL" || what == "SEVENTH")
   {
@@ -2011,11 +2015,11 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
       {
         h1_zs->Fill(rate);
       }
-
-      sum += p2_zsFrac_etaphiCombined->GetBinContent(i, j);
+      sum += rate;
       count++;
     }
   }
+  
   double maxx = (sum / count) * 5 > 1.1 ? 1.1 : (sum / count) * 5;
   h1_zs->GetXaxis()->SetRangeUser(0, maxx);
 
@@ -2027,7 +2031,8 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
   gPad->SetRightMargin(0.12);
   gStyle->SetTitleFontSize(0.06);
   //gStyle->SetPalette(57);
-  SetBirdPalette();
+  gStyle->SetPalette(255, ZSPalette);
+  gStyle->SetNumberContours(255);
   p2_zsFrac_etaphiCombined->GetXaxis()->SetTitle("eta index");
   p2_zsFrac_etaphiCombined->GetYaxis()->SetTitle("phi index");
   p2_zsFrac_etaphiCombined->SetTitle(Form("Average unsuppressed rate: %.3f%%", averagezs));

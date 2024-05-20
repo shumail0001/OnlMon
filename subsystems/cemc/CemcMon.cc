@@ -347,12 +347,14 @@ int CemcMon::process_event(Event *e /* evt */)
       std::cout << "GL1 event is null" << std::endl;
       h_evtRec->Fill(0.0, 0.0);
     }
+    /*
     //this is for only process event with the MBD>=1 trigger
     if(usembdtrig){
       if(trig_bools.at(10) == 0){
         return 0;
       }
     }
+    */
   }
 
   // loop over packets which contain a single sector
