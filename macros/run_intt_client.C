@@ -12,14 +12,15 @@ void inttDrawInit(const int online = 0)
   // register histos we want with monitor name
   OnlMonDraw *inttmon = new InttMonDraw("INTTMONDRAW");    // create Drawing Object
 
-
-  for (int serverid = 0; serverid < INTT::FELIX; serverid++)
+  for (int serverid = 0; serverid < 8; serverid++)
   {
     std::string servername = "INTTMON_" + std::to_string(serverid);
     inttmon->AddServer(servername);
-    cl->registerHisto("InttNumEvents",servername);
-    cl->registerHisto("InttMap",servername);
-    cl->registerHisto("InttBcoDiffMap",servername);
+
+    cl->registerHisto("InttEvtHist",servername);
+    cl->registerHisto("InttHitHist",servername);
+    cl->registerHisto("InttBcoHist",servername);
+	//...
   }
 
   // for local host, just call inttDrawInit(2)

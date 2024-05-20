@@ -1,9 +1,6 @@
 #ifndef INTT_MON_H
 #define INTT_MON_H
 
-#include "InttFelixMap.h"
-#include "InttMonConstants.h"
-
 #include <onlmon/OnlMon.h>
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
@@ -15,7 +12,6 @@
 
 #include <TH1D.h>
 #include <TH2D.h>
-#include <TRandom.h>  //for rng; remove later
 
 #include <cmath>
 #include <cstdio>
@@ -27,6 +23,7 @@
 class InttMon : public OnlMon
 {
  public:
+  // InttMon.cc
   InttMon(const std::string& name);
   virtual ~InttMon();
 
@@ -35,27 +32,34 @@ class InttMon : public OnlMon
   int process_event(Event*);
   int Reset();
 
-  // for testing/debugging without unpacker, remove later
   int MiscDebug();
-  int CheckBcoRoundTrip();
-  void RandomEvent(int);
+
+  // InttMon_o_Binning.cc
+  // (public so InttMonDraw can use them)
+  struct HitData_s
+  {
+    int fee, chp;
+  };
+  int static HitBin(HitData_s const&);
+
+  struct BcoData_s
+  {
+    int fee, bco;
+  };
+  int static BcoBin(BcoData_s const&);
 
  private:
-  //// for testing/debugging without unpacker, remove later
-  TRandom* rng = nullptr;
-  // int InitExpectationHists();
-  ////~for testing/debugging without unpacker, remove later
-
+  // InttMon.cc
   int DBVarInit();
   int DBVarUpdate();
 
+  // Members
   OnlMonDB* dbvars = nullptr;
   int evtcnt = 0;
 
-  TH1D* NumEvents = nullptr;
-  TH1D* HitMap = nullptr;
-  TH1D* BcoDiffMap = nullptr;
-  TH2D* HitsVsEvt = nullptr;
+  TH1D* EvtHist = nullptr;
+  TH1D* HitHist = nullptr;
+  TH1D* BcoHist = nullptr;
   //...
 };
 
