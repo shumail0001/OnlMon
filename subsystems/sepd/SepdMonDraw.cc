@@ -193,8 +193,8 @@ int SepdMonDraw::Draw(const std::string &what)
 int SepdMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  //TH1F *h_ADC_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
-  TH1F *h_hits_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_hits_all_channel");
+  //TH1D *h_ADC_all_channel = (TH1D *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
+  TH1D *h_hits_all_channel = (TH1D *) cl->getHisto("SEPDMON_0", "h_hits_all_channel");
   TH1 *h_event = (TH1*)cl->getHisto("SEPDMON_0", "h_event");
   time_t evttime = cl->EventTime("CURRENT");
 
@@ -501,8 +501,8 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1F *h_waveform_time = (TH1F *) cl->getHisto("SEPDMON_0", "h1_waveform_time");
-  TH1F *h_waveform_pedestal = (TH1F *) cl->getHisto("SEPDMON_0", "h1_waveform_pedestal");
+  TH1D *h_waveform_time = (TH1D *) cl->getHisto("SEPDMON_0", "h1_waveform_time");
+  TH1D *h_waveform_pedestal = (TH1D *) cl->getHisto("SEPDMON_0", "h1_waveform_pedestal");
   TH2F *h2_sepd_waveform = (TH2F *) cl->getHisto("SEPDMON_0", "h2_sepd_waveform");
 
   if (!gROOT->FindObject("SepdMon4"))
@@ -661,10 +661,10 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1F *h1_packet_number = (TH1F *) cl->getHisto("SEPDMON_0", "h1_packet_number");
-  TH1F *h1_packet_length = (TH1F *) cl->getHisto("SEPDMON_0", "h1_packet_length");
-  TH1F *h1_packet_chans = (TH1F *) cl->getHisto("SEPDMON_0", "h1_packet_chans");
-  TH1F *h1_packet_event = (TH1F *) cl->getHisto("SEPDMON_0", "h1_packet_event");
+  TH1D *h1_packet_number = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_number");
+  TH1D *h1_packet_length = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_length");
+  TH1D *h1_packet_chans = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_chans");
+  TH1D *h1_packet_event = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_event");
 
   if (!gROOT->FindObject("SepdMon5"))
   {
