@@ -40,7 +40,7 @@ class HcalMonDraw : public OnlMonDraw
   void DrawHitMap();
   void DrawAvgTime();
   time_t getTime();
-
+  
   void MakeZSPalette()
   {
     Double_t red[9] = {1.0, 0.0592, 0.0780, 0.0232, 0.1802, 0.5301, 0.8186, 0.9956, 0.9764};
