@@ -24,6 +24,7 @@ void StartPoms()
   subsys = new SubSystem("MBD", "bbc");
   subsys->AddAction("bbcDraw(\"FIRST\")", "MBD Vertex Monitor");
   subsys->AddAction("bbcDraw(\"SECOND\")", "MBD Timing Monitor");
+  subsys->AddAction("bbcDraw(\"THIRD\")", "MBD Triggered Monitor");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
