@@ -10,12 +10,18 @@ R__LOAD_LIBRARY(libonltpotmon_server.so)
 void run_tpot_server(
   const std::string &name = "TPOTMON",
   unsigned int serverid = 0,
-  const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/TPOT/junk/TPOT_ebdc39_junk-00041227-0000.evt"
+  // const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/TPOT/junk/TPOT_ebdc39_junk-00041227-0000.evt"
+  const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/TPOT/beam/TPOT_ebdc39_beam-00041374-0000.evt"
   )
 {
   // create subsystem Monitor object
   auto m = new TpotMon(name);
   m->SetMonitorServerId(serverid);
+
+  // prefer local calibration filename if exists
+  const std::string local_calibration_filename( "TPOT_Pedestal-000.root" );
+  if( std::ifstream( local_calibration_filename ).is_good() )
+  { m->set_calibration_file( local_calibration_filename ); }
 
   // get pointer to Server Framework
   auto se = OnlMonServer::instance();
