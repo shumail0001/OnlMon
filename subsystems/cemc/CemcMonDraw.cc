@@ -298,7 +298,6 @@ int CemcMonDraw::Draw(const std::string &what)
   // }
   if (what == "ALL" || what == "SERVERSTATS")
   {
-    std::cout << "Drawing SERVERSTATS" << std::endl;
     iret += DrawServerStats();
     idraw++;
   }
