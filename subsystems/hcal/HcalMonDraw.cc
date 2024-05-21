@@ -248,6 +248,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalServerStats")
   {
+    
     TC[8] = new TCanvas(name.c_str(), "HcalMon Server Stats", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
@@ -1916,7 +1917,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   gStyle->SetPalette(57);
   gPad->SetTicky();
   gPad->SetTickx();
-
+  
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.03);
@@ -1933,7 +1934,6 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
   Pad[17]->cd();
-
   gStyle->SetTitleFontSize(0.06);
 
   float tsize2 = 0.06;
@@ -1956,7 +1956,6 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   gPad->SetTickx();
 
   Pad[19]->cd();
-
   gStyle->SetTitleFontSize(0.06);
 
   h2_hcal_hits_trig3->Draw("colz");
@@ -1969,6 +1968,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   h2_hcal_hits_trig3->GetYaxis()->SetTitleSize(tsize2);
   h2_hcal_hits_trig3->GetXaxis()->SetTitleOffset(1.0);
   h2_hcal_hits_trig3->GetYaxis()->SetTitleOffset(0.85);
+  
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1978,7 +1978,6 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   gPad->SetTickx();
 
   Pad[20]->cd();
-
   gStyle->SetTitleFontSize(0.06);
 
   //h2_hcal_hits_trig4->Draw("colz");
