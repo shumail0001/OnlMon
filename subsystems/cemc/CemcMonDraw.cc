@@ -263,7 +263,6 @@ int CemcMonDraw::Draw(const std::string &what)
 {
   int iret = 0;
   int idraw = 0;
-  /*
   if (what == "ALL" || what == "FIRST")
   {
     iret += DrawFirst(what);
@@ -299,7 +298,6 @@ int CemcMonDraw::Draw(const std::string &what)
     iret += DrawServerStats();
     idraw++;
   }
-*/
 // DO NOT CHANGE THE ORDER, DrawSeventh crashes DrawServerStats with an X11 error in the virtual framebuffer in the html
   if (what == "ALL" || what == "SEVENTH")
   {
