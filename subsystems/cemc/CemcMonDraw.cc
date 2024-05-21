@@ -268,6 +268,7 @@ int CemcMonDraw::Draw(const std::string &what)
     iret += DrawFirst(what);
     idraw++;
   }
+  
   if (what == "ALL" || what == "SECOND")
   {
     iret += DrawSecond(what);
@@ -283,11 +284,13 @@ int CemcMonDraw::Draw(const std::string &what)
     iret += DrawFourth(what);
     idraw++;
   }
+  
   if (what == "ALL" || what == "FIFTH")
   {
     iret += DrawFifth(what);
     idraw++;
   }
+  
   // if (what == "ALL" || what == "SIXTH")
   //{
   //   iret += DrawSixth(what);
@@ -295,6 +298,7 @@ int CemcMonDraw::Draw(const std::string &what)
   // }
   if (what == "ALL" || what == "SERVERSTATS")
   {
+    std::cout << "Drawing SERVERSTATS" << std::endl;
     iret += DrawServerStats();
     idraw++;
   }
@@ -1424,10 +1428,16 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
 
   TH2 *h_cemc_hits_trig[64][m_ServerSet.size()];
   int start_trig[64] = {-1};
+  for (int i = 1; i < 64; i++)
+  {
+    start_trig[i] = -1;
+  }
   int i = 0;
+
   for (int itrig = 0; itrig < 64; itrig++)
   {
     i = 0;
+
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {
       h_cemc_hits_trig[itrig][i] = (TH2 *) cl->getHisto(*server, Form("h2_cemc_hits_trig_bit_%d", itrig));
@@ -1478,7 +1488,7 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
       break;
     }
   }
-
+  
   if (!gROOT->FindObject("CemcMon5"))
   {
     MakeCanvas("CemcMon5");
