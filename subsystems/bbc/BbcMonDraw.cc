@@ -1219,6 +1219,7 @@ int BbcMonDraw::Draw(const std::string &what)
   otext << " Events: " << nhit_total;
   otext << " Date:" << ctime(&evttime);
   text = otext.str();
+  ifnew(TText, TextTop);
   TextTop->SetText(0.01, 0.25, text.c_str());
 
   if (TC[0])
