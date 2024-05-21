@@ -198,6 +198,10 @@ int TpotMonDraw::Init()
       // set range
       h->SetMinimum(0);
       h->SetMaximum(1024);
+      h->SetLineColor(2);
+
+      // store histograms
+      m_threshold_histograms[i] = h;
 
       // set values
       for( int channel = 0; channel < MicromegasDefs::m_nchannels_fee; ++channel )
@@ -219,6 +223,8 @@ int TpotMonDraw::Init()
           ++count;
         }
       }
+
+      if(count > 0) {m_mean_thresholds[i]/=count;}
     }
 
   } else {
@@ -332,7 +338,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     gSystem->ProcessEvents();
     divide_canvas( cv, 4, 4 );
     create_transparent_pad(name);
-    for( int i = 0; i < 16; ++i )
+    for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
     {
       cv->GetPad(i+1)->SetLeftMargin(0.15);
       cv->GetPad(i+1)->SetRightMargin(0.02);
@@ -347,7 +353,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     gSystem->ProcessEvents();
     divide_canvas( cv, 4, 4 );
     create_transparent_pad(name);
-    for( int i = 0; i < 16; ++i )
+    for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
     {
       cv->GetPad(i+1)->SetLeftMargin(0.15);
       cv->GetPad(i+1)->SetRightMargin(0.02);
@@ -362,7 +368,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     gSystem->ProcessEvents();
     divide_canvas( cv, 4, 4 );
     create_transparent_pad(name);
-    for( int i = 0; i < 16; ++i )
+    for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
     {
       auto&& pad = cv->GetPad(i+1);
       pad->SetLeftMargin(0.15);
@@ -453,13 +459,24 @@ int TpotMonDraw::Draw(const std::string &what)
     {
       CanvasEditor cv_edit(cv);
       cv->Update();
-      for( int i = 0; i < 16; ++i )
+      for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
       {
         // draw vertical lines that match sample window
         auto&& pad = cv->GetPad(i+1);
         pad->cd();
+        pad->Update();
         for( const auto line:{vertical_line( pad, m_sample_window_signal.first ), vertical_line( pad, m_sample_window_signal.second ) } )
         {
+          line->SetLineStyle(2);
+          line->SetLineColor(2);
+          line->SetLineWidth(2);
+          line->Draw();
+        }
+
+        // also draw horizontal line at average threshold
+        if( m_mean_thresholds[i] > 0 )
+        {
+          auto line = horizontal_line( pad, m_mean_thresholds[i] );
           line->SetLineStyle(2);
           line->SetLineColor(2);
           line->SetLineWidth(2);
@@ -478,11 +495,17 @@ int TpotMonDraw::Draw(const std::string &what)
     {
       CanvasEditor cv_edit(cv);
       cv->Update();
-      for( int i = 0; i < 16; ++i )
+      for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
       {
-        // draw vertical lines that match HV sectors
+
         auto&& pad = cv->GetPad(i+1);
         pad->cd();
+
+        // draw threshold
+        if( m_threshold_histograms[i] )
+        { m_threshold_histograms[i]->Draw("h same"); }
+
+        // draw vertical lines that match HV sectors
         for( const int& channel:{64, 128, 196} )
         {
           const auto line = vertical_line( pad, channel );
@@ -505,7 +528,7 @@ int TpotMonDraw::Draw(const std::string &what)
       std::cout << "TpotMonDraw::Draw - draw vertical lines" << std::endl;
       CanvasEditor cv_edit(cv);
       cv->Update();
-      for( int i = 0; i < 16; ++i )
+      for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
       {
         // draw vertical lines that match sample window
         auto&& pad = cv->GetPad(i+1);
@@ -542,7 +565,7 @@ int TpotMonDraw::Draw(const std::string &what)
     {
       CanvasEditor cv_edit(cv);
       cv->Update();
-      for( int i = 0; i < 16; ++i )
+      for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
       {
         // draw vertical lines that match HV sectors
         // also set log y
