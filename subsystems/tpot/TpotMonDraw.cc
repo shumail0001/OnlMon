@@ -4,6 +4,8 @@
 #include <onlmon/OnlMonClient.h>
 #include <onlmon/OnlMonDB.h>
 
+#include <micromegas/MicromegasCalibrationData.h>
+
 #include <TAxis.h>  // for TAxis
 #include <TCanvas.h>
 #include <TDatime.h>
@@ -107,14 +109,33 @@ namespace
       const double ymax = max_height*(1. - double(row)/nrow);
       pad->SetPad( xmin, ymin, xmax, ymax );
     }
-
   }
+
+
+  // streamer for sample window
+  std::ostream& operator << ( std::ostream&o, const TpotMonDraw::sample_window_t& window )
+  {
+    o << "{ " << window.first << ", " << window.second << "}";
+    return o;
+  }
+
 }
 
 //__________________________________________________________________________________
 TpotMonDraw::TpotMonDraw(const std::string &name)
   : OnlMonDraw(name)
 {
+  // setup default calibration filename
+  // note: this can be overriden by calling set_calibration_filename from the parent macro
+  const auto tpotcalib = getenv("TPOTCALIB");
+  if (!tpotcalib)
+  {
+    std::cout << "TpotMon::TpotMon - TPOTCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+
+  m_calibration_filename = std::string(tpotcalib) + "/" + "TPOT_Pedestal-000.root";
+
   // setup default filename for reference histograms
   const auto tpotcalibref = getenv("TPOTCALIBREF");
   if( tpotcalibref )
@@ -141,7 +162,74 @@ TpotMonDraw::TpotMonDraw(const std::string &name)
 
 //__________________________________________________________________________________
 int TpotMonDraw::Init()
-{ return 0; }
+{
+  if( Verbosity() )
+  {
+    std::cout << "TpotMonDraw::Init - m_calibration_filename: " << m_calibration_filename << std::endl;
+    std::cout << "TpotMonDraw::Init - m_sample_window_signal: " << m_sample_window_signal << std::endl;
+    std::cout << "TpotMon::Init - m_n_sigma: " << m_n_sigma << std::endl;
+  }
+
+  // setup calibrations
+  if( std::ifstream( m_calibration_filename.c_str() ).good() )
+  {
+
+    MicromegasCalibrationData calibration_data;
+    calibration_data.read( m_calibration_filename );
+
+    // get fee ids
+    const auto fee_id_list = m_mapping.get_fee_id_list();
+
+    // loop over FEES
+    for( int i = 0; i < MicromegasDefs::m_nfee; ++i)
+    {
+
+      // get fee_id
+      const int fee_id = fee_id_list[i];
+
+      // reset mean
+      m_mean_thresholds[i] = 0;
+      unsigned int count = 0;
+
+      // create histogram
+      std::string hname = std::string( "h_threshold_" ) + m_detnames_sphenix[i];
+      auto h = new TH1F( hname.c_str(), hname.c_str(), MicromegasDefs::m_nchannels_fee, 0, MicromegasDefs::m_nchannels_fee );
+
+      // set range
+      h->SetMinimum(0);
+      h->SetMaximum(1024);
+
+      // set values
+      for( int channel = 0; channel < MicromegasDefs::m_nchannels_fee; ++channel )
+      {
+
+        // get channel rms and pedestal from calibration data
+        const double pedestal = calibration_data.get_pedestal( fee_id, channel );
+        const double rms = calibration_data.get_rms( fee_id, channel );
+        const double threshold = pedestal + m_n_sigma * rms;
+        const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
+
+        // fill histogram
+        h->SetBinContent( strip_index+1, threshold );
+
+        if( rms > 0 )
+        {
+          // increment average
+          m_mean_thresholds[i] += threshold;
+          ++count;
+        }
+      }
+    }
+
+  } else {
+    std::cout << "TpotMonDraw::Init -"
+      << " file " << m_calibration_filename << " cannot be opened."
+      << " No calibration loaded"
+      << std::endl;
+  }
+
+  return 0;
+}
 
 //__________________________________________________________________________________
 int TpotMonDraw::DrawDeadServer( TPad* pad )
