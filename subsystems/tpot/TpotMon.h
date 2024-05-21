@@ -19,7 +19,11 @@ class TH2Poly;
 class TpotMon : public OnlMon
 {
   public:
+
+  //! constructor
   TpotMon(const std::string &name);
+
+  //! destructor
   ~TpotMon() override = default;
 
   int process_event(Event *evt) override;
