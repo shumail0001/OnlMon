@@ -331,13 +331,8 @@ int MvtxMon::Init()
     mDeadChipPos[mLayer]->SetStats(false);
     //mAliveChipPos[mLayer]->SetStats(false);
 
-    mOccupancyPlot[mLayer] = new TH1D(Form("MVTXMON_Occupancy_Layer%dOccupancy_LOG", mLayer), Form("MVTX Layer %d Noise pixels occupancy distribution", mLayer), 301, -3, 0.05);
-    mOccupancyPlot[mLayer]->GetXaxis()->SetTitle("log(Occupancy)");
-    mOccupancyPlot[mLayer]->GetYaxis()->SetTitle("");
-    mOccupancyPlot[mLayer]->SetStats(false);
     se->registerHisto(this, mDeadChipPos[mLayer]);
     //se->registerHisto(this, mAliveChipPos[mLayer]);
-    se->registerHisto(this, mOccupancyPlot[mLayer]);
   }
 
   /*mTotalDeadChipPos = new TH2D(Form("MVTXMON_Occupancy_TotalDeadChipPos"), Form("TotalDeadChipPos "), 9, -0.5, 9 - 0.5, NStaves[2], -0.5, NStaves[2] - 0.5);
@@ -714,6 +709,7 @@ int MvtxMon::Reset()
         }
       }
     }
+  }
   // reset our internal counters
 
   evtcnt = 0;
