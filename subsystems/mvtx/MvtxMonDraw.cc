@@ -1272,7 +1272,7 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
   TH2D *mDeadChipPos[3][NFlx + 1] = {{nullptr}};
   //TH2D *mAliveChipPos[3][NFlx + 1] = {{nullptr}};
   // TH2D* mChipStaveOccupancy[3][NFlx];
-  TH1D *mOccupancyPlot[3][NFlx + 1] = {{nullptr}};
+  //TH1D *mOccupancyPlot[3][NFlx + 1] = {{nullptr}};
 
   TH2I *mErrorVsFeeid[NFlx + 1] = {nullptr};
   TH2Poly *mGeneralOccupancy[NFlx + 1] = {nullptr};
