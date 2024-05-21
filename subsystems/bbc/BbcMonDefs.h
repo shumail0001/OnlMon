@@ -30,7 +30,7 @@ namespace BbcMonDefs
 #define nTRIGGER 2
 
   static const char *SIDE_Str[nSIDE] __attribute__((unused)) = {"South", "North"};
-  static const char *TRIGGER_str[nTRIGGER] __attribute__((unused)) = {"minimum_bias", "laser"};
+  //static const char *TRIGGER_str[nTRIGGER] __attribute__((unused)) = {"minimum_bias", "laser"};
 
 #define nTDC 1
   // static const char *TDC_STR[nTDC] = {"TDC0","TDC1"};

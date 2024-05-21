@@ -11,6 +11,12 @@ void bbcDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
+  cl->registerHisto("bbc_south_nhit", "BBCMON_0");
+  cl->registerHisto("bbc_north_nhit", "BBCMON_0");
+  cl->registerHisto("bbc_nhit_emcal", "BBCMON_0");
+  cl->registerHisto("bbc_nhit_hcal", "BBCMON_0");
+  cl->registerHisto("bbc_nhit_emcalmbd", "BBCMON_0");
+  cl->registerHisto("bbc_nhit_hcalmbd", "BBCMON_0");
   cl->registerHisto("bbc_adc", "BBCMON_0");
   cl->registerHisto("bbc_tdc", "BBCMON_0");
   cl->registerHisto("bbc_tdc_overflow", "BBCMON_0");
@@ -21,6 +27,10 @@ void bbcDrawInit(const int online = 0)
   cl->registerHisto("bbc_zvertex_30", "BBCMON_0");
   cl->registerHisto("bbc_zvertex_60", "BBCMON_0");
   cl->registerHisto("bbc_zvertex_zdcns", "BBCMON_0");
+  cl->registerHisto("bbc_zvertex_emcal", "BBCMON_0");
+  cl->registerHisto("bbc_zvertex_hcal", "BBCMON_0");
+  cl->registerHisto("bbc_zvertex_emcalmbd", "BBCMON_0");
+  cl->registerHisto("bbc_zvertex_hcalmbd", "BBCMON_0");
   cl->registerHisto("bbc_nevent_counter", "BBCMON_0");
   cl->registerHisto("bbc_tzero_zvtx", "BBCMON_0");
   cl->registerHisto("bbc_prescale_hist", "BBCMON_0");
