@@ -380,9 +380,6 @@ int MvtxMon::process_event(Event* evt)
       {
         mHitPerChip[iLayer][iStave][iChip] = 0;
         mNoisyPixelNumber[iLayer][iStave][iChip] = 0;
-        for (int iFlag = 0; iFlag < 3; iFlag++) {
-          mStatusFlagNumber[iFlag][iLayer][iStave][iChip] = 0;
-        }
       }
     }
   }
@@ -398,8 +395,6 @@ int MvtxMon::process_event(Event* evt)
   hOccupancyPlot[0]->Reset("ICESM");
   hOccupancyPlot[1]->Reset("ICESM");
   hOccupancyPlot[2]->Reset("ICESM");
-  mvtxmon_ChipStave1D->Reset("ICESM");
-  mGeneralOccupancy->Reset("ICESM");
   hChipStaveNoisy[0]->Reset("ICESM");
   hChipStaveNoisy[1]->Reset("ICESM");
   hChipStaveNoisy[2]->Reset("ICESM");
@@ -589,7 +584,8 @@ int MvtxMon::process_event(Event* evt)
       {
         chip_occ[iChip] = 0;
         chipOccupancy = hChipHitmap->Integral(0, -1, 0, -1, (StaveBoundary[iLayer] + iStave) * 9 + iChip + 1, (StaveBoundary[iLayer] + iStave) * 9 + iChip + 1);  // scale at client
-        double chipOccupancyNorm = chipOccupancy / hChipStrobes->GetBinContent((StaveBoundary[iLayer] + iStave) * 9 + iChip + 1) / 1024 / 512;
+        double chipOccupancyNorm = -1;
+        if(hChipStrobes->GetBinContent((StaveBoundary[iLayer] + iStave) * 9 + iChip + 1) > 0) chipOccupancyNorm = chipOccupancy / hChipStrobes->GetBinContent((StaveBoundary[iLayer] + iStave) * 9 + iChip + 1) / 1024 / 512;
         if (chipOccupancyNorm > 0)
         {
           mvtxmon_ChipStave1D->SetBinContent((StaveBoundary[iLayer] + iStave) * 9 + iChip + 1, chipOccupancyNorm);
@@ -610,7 +606,6 @@ int MvtxMon::process_event(Event* evt)
               if (pixelOccupancy / (double) (hChipStrobes->GetBinContent((StaveBoundary[iLayer] + iStave) * 9 + iChip + 1)) > mOccupancyCutForNoisyPixel)
               {
                 mNoisyPixelNumber[iLayer][iStave][iChip]++;
-                mOccupancyPlot[iLayer]->Fill(log10(pixelOccupancy / (double)(hChipStrobes->GetBinContent((StaveBoundary[iLayer] + iStave) * 9 + iChip + 1))));
               }
             }
           }
@@ -707,6 +702,18 @@ int MvtxMon::Reset()
       }
     }
   }
+
+  for (int iLayer = 0; iLayer < 3; iLayer++) 
+  {
+    for (int iStave = 0; iStave < NStaves[iLayer]; iStave++) 
+    {
+      for (int iChip = 0; iChip < 9; iChip++) 
+      {
+        for (int iFlag = 0; iFlag < 3; iFlag++) {
+          mStatusFlagNumber[iFlag][iLayer][iStave][iChip] = 0;
+        }
+      }
+    }
   // reset our internal counters
 
   evtcnt = 0;
