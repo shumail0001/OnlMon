@@ -63,12 +63,12 @@ class BbcMon : public OnlMon
   TH2 *bbc_tdc{nullptr};
   TH2 *bbc_tdc_overflow{nullptr};
   TH1 *bbc_tdc_overflow_each[128] = {};  // should be [nPMT_BBC], need to fix
-  TH1 *bbc_south_nhit;
-  TH1 *bbc_north_nhit;
-  TH1 *bbc_nhit_emcal;
-  TH1 *bbc_nhit_hcal;
-  TH1 *bbc_nhit_emcalmbd;
-  TH1 *bbc_nhit_hcalmbd;
+  TH1 *bbc_south_nhit{nullptr};
+  TH1 *bbc_north_nhit{nullptr};
+  TH1 *bbc_nhit_emcal{nullptr};
+  TH1 *bbc_nhit_hcal{nullptr};
+  TH1 *bbc_nhit_emcalmbd{nullptr};
+  TH1 *bbc_nhit_hcalmbd{nullptr};
 
   TH2 *bbc_tdc_armhittime{nullptr};
   TH1 *bbc_nevent_counter{nullptr};
