@@ -907,20 +907,28 @@ int BbcMonDraw::Draw(const std::string &what)
   //
   if ( what == "MBD2MCR" )
   {
-	shm_fd = shm_open(BbcMonDefs::shm_name, O_RDWR, 0666);
+    shm_fd = shm_open(BbcMonDefs::shm_name, O_RDWR, 0666);
     shm_vtx2mcr = static_cast<BbcMonDefs::vtx2mcr*>( mmap(0, sizeof(BbcMonDefs::vtx2mcr), PROT_WRITE, MAP_SHARED, shm_fd, 0) );
-    int sendflag = shm_vtx2mcr->sendflag;
-    std::cout << "YYY shm_fd " << shm_fd << std::endl;
-    if ( sendflag==0 && shm_vtx2mcr!=nullptr )
+
+    if ( shm_vtx2mcr != nullptr )
     {
-      shm_vtx2mcr->sendflag = 1;
-      std::cout << "MBD: NOW Sending vertex to MCR" << std::endl;
+      int sendflag = shm_vtx2mcr->sendflag;
+      if ( sendflag==0 )
+      {
+        shm_vtx2mcr->sendflag = 1;
+        std::cout << "MBD: NOW Sending vertex to MCR" << std::endl;
+      }
+      else
+      {
+        shm_vtx2mcr->sendflag = 0;
+        std::cout << "MBD: STOP sending vertex to MCR" << std::endl;
+      }
     }
     else
     {
-      shm_vtx2mcr->sendflag = 0;
-      std::cout << "MBD: STOPPED sending vertex to MCR" << std::endl;
+      std::cerr << "MBD: WARNING, can't access shared mem" << std::endl;
     }
+
     close(shm_fd);
   }
 
@@ -1449,15 +1457,22 @@ int BbcMonDraw::Draw(const std::string &what)
     }
 
     // Status of sending vertex
-	shm_fd = shm_open(BbcMonDefs::shm_name, O_RDWR, 0666);
+    shm_fd = shm_open(BbcMonDefs::shm_name, O_RDWR, 0666);
     shm_vtx2mcr = static_cast<BbcMonDefs::vtx2mcr*>( mmap(0, sizeof(BbcMonDefs::vtx2mcr), PROT_WRITE, MAP_SHARED, shm_fd, 0) );
-    if ( shm_vtx2mcr->sendflag )
+    if ( shm_vtx2mcr!= nullptr )
     {
+      if ( shm_vtx2mcr->sendflag )
+      {
         text = "Sending Vertex to MCR";
+      }
+      else
+      {
+        text = "NOT Sending Vertex to MCR";
+      }
     }
     else
     {
-        text = "NOT Sending Vertex to MCR";
+      text = "ERROR accessing shared mem, contact MBD expert";
     }
     close( shm_fd );
 
