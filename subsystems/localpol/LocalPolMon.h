@@ -2,6 +2,7 @@
 #define LOCALPOL_LOCALPOLMON_H
 
 #include <onlmon/OnlMon.h>
+
 #include <cmath>
 #include <map>
 #include <vector>
@@ -26,7 +27,7 @@ class LocalPolMon : public OnlMon
   int BeginRun(const int runno);
   int Reset();
 
- protected:
+ private:
   double *ComputeAsymmetries(double L_U, double R_D, double L_D, double R_U);
   float anaWaveformFast(Packet *p, const int channel);
   CaloWaveformFitting *WaveformProcessingFast = nullptr;
@@ -45,8 +46,7 @@ class LocalPolMon : public OnlMon
 
   const float nchannelsY = 8.0;
   const float nchannelsX = 7.0;
-  const float PI = 3.14159;
-  const float pitchY = 2.0 /*cm plastic scint.*/ * (11.0 / 10.5) /*(pitch correction for gap and wrapping)*/ * sin(PI / 4) /*(correct for the tilt)*/;
+  const float pitchY = 2.0 /*cm plastic scint.*/ * (11.0 / 10.5) /*(pitch correction for gap and wrapping)*/ * sin(M_PI / 4) /*(correct for the tilt)*/;
   const float pitchX = 1.5 /*cm plastic scint.*/ * (11.0 / 10.5) /*(pitch correction for gap and wrapping)*/;
 
   bool goodtrigger[16] = {false};        // selection from config
