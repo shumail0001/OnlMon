@@ -546,7 +546,6 @@ int BbcMon::Init()
 
   /* create the shared memory object */
   shm_fd = shm_open(BbcMonDefs::shm_name, O_CREAT | O_RDWR, 0666);
-  std::cout << "XXX shm_fd " << shm_fd << std::endl;
   ftruncate(shm_fd, sizeof(BbcMonDefs::vtx2mcr));
   shm_vtx2mcr = static_cast<BbcMonDefs::vtx2mcr*>( mmap(0, sizeof(BbcMonDefs::vtx2mcr), PROT_WRITE, MAP_SHARED, shm_fd, 0) );
   shm_vtx2mcr->fill = 0;

@@ -1259,7 +1259,7 @@ int BbcMonDraw::Draw(const std::string &what)
   otext << " Events: " << nhit_total;
   otext << " Date:" << ctime(&evttime);
   text = otext.str();
-  ifnew(TText, TextTop);
+  //ifnew(TText, TextTop);
   TextTop->SetText(0.01, 0.25, text.c_str());
 
   if (TC[0])
@@ -2473,9 +2473,9 @@ int BbcMonDraw::DrawHistory(const std::string & /* what */)
   return iret;
   }
   */
-  if (!gROOT->FindObject("BbcMon3"))
+  if (!gROOT->FindObject("BbcMon4"))
   {
-    MakeCanvas("BbcMon3");
+    MakeCanvas("BbcMon4");
   }
   // timestamps come sorted in ascending order
   float *x = new float[var.size()];
@@ -2572,7 +2572,7 @@ int BbcMonDraw::DrawHistory(const std::string & /* what */)
   delete[] ex;
   delete[] ey;
 
-  TC[2]->Update();
+  TC[3]->Update();
   return 0;
 }
 
