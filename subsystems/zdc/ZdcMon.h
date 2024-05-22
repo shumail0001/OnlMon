@@ -46,6 +46,11 @@ class ZdcMon : public OnlMon
   TH1 *zdc_S2 = nullptr;
   TH1 *zdc_S3 = nullptr;
 
+  TH1 *veto_NF = nullptr;
+  TH1 *veto_NB = nullptr;
+  TH1 *veto_SF = nullptr;
+  TH1 *veto_SB = nullptr;
+  
   // //waveform
   TH2 *h_waveformZDC = nullptr;
   TH2 *h_waveformSMD_North = nullptr;
@@ -81,6 +86,8 @@ class ZdcMon : public OnlMon
   TH1 *smd_ver_south = nullptr;
   TH1 *smd_sum_hor_south = nullptr;
   TH1 *smd_sum_ver_south = nullptr;
+  TH1 *smd_hor_south_good = nullptr;
+  TH1 *smd_ver_south_good = nullptr;
   // smd values
   TH2 *smd_value = nullptr;
   TH2 *smd_value_good = nullptr;
@@ -88,6 +95,7 @@ class ZdcMon : public OnlMon
   TH2 *smd_xy_north = nullptr;
   TH2 *smd_xy_south = nullptr;
 
+  float v[4] = {0.0f};
   float smd_adc[32] = {0.0f};
   float zdc_adc[16] = {0.0f};
   float smd_sum[4] = {0.0f};

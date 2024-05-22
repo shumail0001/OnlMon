@@ -52,7 +52,8 @@ class MvtxMon : public OnlMon
 
   int mMaxGeneralAxisRange = -3;  // the range of TH2Poly plots z axis range, pow(10, mMinGeneralAxisRange) ~ pow(10, mMaxGeneralAxisRange)
   int mMinGeneralAxisRange = -12;
-  std::string mLaneStatusFlag[NFlags] = {"WARNING", "ERROR", "FAULT"};
+
+  std::string mLaneStatusFlag[NFlags+1] = {"WARNING", "ERROR", "FAULT", "PROBLEM"};
 
   const int StaveBoundary[4] = {0, 12, 28, 48};
   const int LayerBoundaryFEE[NLAYERS - 1] = {35, 83};
@@ -64,12 +65,15 @@ class MvtxMon : public OnlMon
   TH1* mvtxmon_EvtHitDis = nullptr;
   TH2* mvtxmon_HitMap[NSTAVE][NCHIP] = {{nullptr}};
   TH2Poly* mvtxmon_GeneralOccupancy = nullptr;
-  TH2Poly* mvtxmon_LaneStatusOverview[NFlags] = {nullptr};
+
+  TH2Poly* mvtxmon_LaneStatusOverview[NFlags+1] = {nullptr};
 
   TH1I* mRCDAQevt = nullptr;
 
   TH1I* hChipStrobes = nullptr;
   TH1I* hChipL1 = nullptr;
+  TH1I* hFeeStrobes = nullptr;
+  TH1I* hFeeL1 = nullptr;
   // fee
   TH2I* mTriggerVsFeeId = nullptr;
   TH1I* mTrigger = nullptr;
@@ -81,27 +85,30 @@ class MvtxMon : public OnlMon
   TString mTriggerType[NTrigger] = {"ORBIT", "HB", "HBr", "HC", "PHYSICS", "PP", "CAL", "SOT", "EOT", "SOC", "EOC", "TF", "INT"};
 
   // raw task
+  TH1I* hStrobesDMA = nullptr;
   TH1D* hErrorPlots = nullptr;
   TH2D* hErrorFile = nullptr;
   TH1D* hOccupancyPlot[NLAYERS] = {nullptr};
   TH2I* hEtaPhiHitmap[NLAYERS] = {nullptr};
   TH2D* hChipStaveOccupancy[NLAYERS] = {nullptr};
   TH3I* hChipHitmap = nullptr;
-  TH3I* hChipHitmap_evt = nullptr;
+
+  TH1D* hErrorPlotsTime = nullptr;
+  //TH3I* hChipHitmap_evt = nullptr;
 
   // fhr
   TH2I* mErrorVsFeeid = nullptr;
   TH2Poly* mGeneralOccupancy = nullptr;
   TH2Poly* mGeneralNoisyPixel = nullptr;
   TH2D* mDeadChipPos[NLAYERS] = {nullptr};
-  TH2D* mAliveChipPos[NLAYERS] = {nullptr};
-  TH2D* mTotalDeadChipPos = nullptr;
-  TH2D* mTotalAliveChipPos = nullptr;
+  //TH2D* mAliveChipPos[NLAYERS] = {nullptr};
+  //TH2D* mTotalDeadChipPos = nullptr;
+  //TH2D* mTotalAliveChipPos = nullptr;
   TH2D* mChipStaveOccupancy[NLAYERS] = {nullptr};
   TH1D* mOccupancyPlot[NLAYERS] = {nullptr};
   TH2D* hChipStaveNoisy[NLAYERS] = {nullptr};
 
-  float mOccupancyCutForNoisyPixel = 0.2;
+  float mOccupancyCutForNoisyPixel = 0.01;
   int mNoisyPixelNumber[3][20][9] = {{{0}}};
 
   int mStatusFlagNumber[3][3][20][9] = {{{{0}}}};

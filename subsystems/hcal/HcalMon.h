@@ -83,11 +83,13 @@ class HcalMon : public OnlMon
 
   eventReceiverClient* erc = {nullptr};
   bool anaGL1 = true;
+  bool usembdtrig = true;
 
   CaloWaveformFitting* WaveformProcessing = nullptr;
 
   std::vector<runningMean*> rm_vector_sectAvg;
   std::vector<runningMean*> rm_vector_twr;
+  std::vector<runningMean*> rm_vector_twrhit;
   std::vector<runningMean*> rm_vector_twrTime;
   std::vector<runningMean*> rm_packet_number;
   std::vector<runningMean*> rm_packet_length;

@@ -21,50 +21,56 @@ void mvtxDrawInit(const int online = 0)
   {
     std::string servername = "MVTXMON_" + std::to_string(serverid);
     mvtxmon->AddServer(servername);
-    cl->registerHisto("MVTXMON_RawData_ChipStaveOcc", servername);
-    cl->registerHisto("MVTXMON_RawData_ChipStave1D", servername);
-    cl->registerHisto("MVTXMON_RawData_ChipFiredHis", servername);
-    cl->registerHisto("MVTXMON_RawData_EvtHitChip", servername);
-    cl->registerHisto("MVTXMON_RawData_EvtHitDis", servername);
+    cl->registerHisto("OCC_ChipStaveOcc", servername);
+    cl->registerHisto("OCC_ChipStave1D", servername);
+    cl->registerHisto("OCC_ChipFiredFLX", servername);
+    cl->registerHisto("OCC_HitChipPerStrobe", servername);
+    cl->registerHisto("OCC_HitFLXPerStrobe", servername);
     cl->registerHisto("MVTXMON_General_Occupancy", servername);
-    cl->registerHisto("MVTXMON_LaneStatus_laneStatusOverviewFlagWARNING", servername);
-    cl->registerHisto("MVTXMON_LaneStatus_laneStatusOverviewFlagERROR", servername);
-    cl->registerHisto("MVTXMON_LaneStatus_laneStatusOverviewFlagFAULT", servername);
+    cl->registerHisto("FEE_LaneStatus_Overview_FlagPROBLEM", servername);
+    cl->registerHisto("FEE_LaneStatus_Overview_FlagWARNING", servername);
+    cl->registerHisto("FEE_LaneStatus_Overview_FlagERROR", servername);
+    cl->registerHisto("FEE_LaneStatus_Overview_FlagFAULT", servername);
 
-    cl->registerHisto("hChipStrobes", servername);
-    cl->registerHisto("hChipL1", servername);
+    cl->registerHisto("General_hChipStrobes", servername);
+    cl->registerHisto("General_ChipL1", servername);
+    cl->registerHisto("General_hfeeStrobes", servername);
+    cl->registerHisto("General_feeL1", servername);
+
+    cl->registerHisto("hStrobesDMA", servername);
 
     // FEE
-    cl->registerHisto("MVTXMON_FEE_TriggerVsFeeid", servername);
-    cl->registerHisto("MVTXMON_FEE_TriggerFlag", servername);
+    //cl->registerHisto("MVTXMON_FEE_TriggerVsFeeid", servername);
+    //cl->registerHisto("MVTXMON_FEE_TriggerFlag", servername);
     // cl->registerHisto("MVTXMON/FEE/LaneInfo", servername);
 
     for (int i = 0; i < MvtxMonDraw::NFlags; i++)
     {
-      cl->registerHisto(Form("MVTXMON_LaneStatus_laneStatusFlag%s", mLaneStatusFlag[i].c_str()), servername);
-      cl->registerHisto(Form("MVTXMON_LaneStatus_laneStatusFlagCumulative%s", mLaneStatusFlag[i].c_str()), servername);
+      cl->registerHisto(Form("FEE_LaneStatus_Flag_%s", mLaneStatusFlag[i].c_str()), servername);
+      cl->registerHisto(Form("FEE_LaneStatusFromSOX_Flag_%s", mLaneStatusFlag[i].c_str()), servername);
     }
 
     for (int i = 0; i < 3; i++)
     {
-      cl->registerHisto(Form("MVTXMON_LaneStatusSummary_LaneStatusSummaryL%i", i), servername);
+      cl->registerHisto(Form("FEE_LaneStatusSummary_Layer_%i", i), servername);
     }
 
-    cl->registerHisto("MVTXMON_LaneStatusSummary_LaneStatusSummary", servername);
+    cl->registerHisto("FEE_LaneStatusSummary", servername);
 
     // raw task
-    cl->registerHisto("MVTXMON_General_ErrorPlots", servername);
-    cl->registerHisto("MVTXMON_General_ErrorFile", servername);
+    cl->registerHisto("General_DecErrors", servername);
+    cl->registerHisto("General_DecErrorsTime", servername);
+    cl->registerHisto("General_DecErrorsEndpoint", servername);
 
     for (int aLayer = 0; aLayer < 3; aLayer++)
     {
-      cl->registerHisto(Form("MVTXMON_Occupancy_Layer%dOccupancy", aLayer), servername);
-      cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dChipStave", aLayer, aLayer), servername);
-      cl->registerHisto(Form("MVTXMON_Noisy_Layer%d_ChipStave", aLayer), servername);
+      cl->registerHisto(Form("OCC_Occupancy1D_Layer%d", aLayer), servername);
+      cl->registerHisto(Form("OCC_OccupancyChipStave_Layer_%d", aLayer), servername);
+      cl->registerHisto(Form("FHR_NoisyChipStave_Layer%d", aLayer), servername);
     }
 
     // fhr
-    cl->registerHisto("MVTXMON_General_ErrorVsFeeid", servername);
+    cl->registerHisto("FHR_ErrorVsFeeid", servername);
     // cl->registerHisto("MVTXMON_General_Occupancy", servername);
     cl->registerHisto("MVTXMON_General_Noisy_Pixel", servername);
     cl->registerHisto("RCDAQ_evt", servername);
@@ -72,13 +78,10 @@ void mvtxDrawInit(const int online = 0)
     for (int mLayer = 0; mLayer < 3; mLayer++)
     {
       cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dDeadChipPos", mLayer, mLayer), servername);
-      cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dAliveChipPos", mLayer, mLayer), servername);
+      //cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dAliveChipPos", mLayer, mLayer), servername);
       // cl->registerHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dChipStaveC", mLayer, mLayer), servername);
-      cl->registerHisto(Form("MVTXMON_Occupancy_Layer%dOccupancy_LOG", mLayer), servername);
+      //cl->registerHisto(Form("MVTXMON_Occupancy_Layer%dOccupancy_LOG", mLayer), servername);
     }
-
-    cl->registerHisto("MVTXMON_Occupancy_TotalDeadChipPos", servername);
-    cl->registerHisto("MVTXMON_Occupancy_TotalAliveChipPos", servername);
   }
 
   // for local host, just call mvtxDrawInit(2)

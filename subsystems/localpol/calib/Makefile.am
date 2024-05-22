@@ -4,4 +4,8 @@ include_HEADERS =
 localpoldatadir = $(pkgdatadir)/localpol
 
 localpoldata_DATA = \
-  LocalPolMonData.dat
+  LocalPolMonData.dat \
+  LocPolConfig.dat\
+  ChannelMapping.txt\
+  SMDRelativeGain.dat
+

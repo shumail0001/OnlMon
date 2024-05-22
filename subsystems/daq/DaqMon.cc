@@ -72,7 +72,6 @@ int DaqMon::Init()
   h_gl1_clock_diff->GetXaxis()->SetBinLabel(6,"#bf{ZDC}");
 
   h_fem_match = new TH2F("h_fem_match","", 20, -0.5,19.5, 1, 0.5, 1.5);
-  h_fem_match->GetXaxis()->SetTitle("Latest 1M events");
   for(int is=0;is<10;is++){
       h_fem_match->GetXaxis()->SetBinLabel(is+1,Form("seb0%d",is));
   }
@@ -87,7 +86,9 @@ int DaqMon::Init()
   Reset();
   erc = new eventReceiverClient("gl1daq");
 
-  loadpacketMapping("packetid_seb_mapping.txt");
+
+  std::string mappingfile = std::string(daqcalib) + "/" + "packetid_seb_mapping.txt";
+  loadpacketMapping(mappingfile.c_str());
 
   return 0;
 }
@@ -111,8 +112,8 @@ int DaqMon::process_event(Event *e /* evt */)
   }
 
   evtcnt++;
-  long int gl1_clock = 0;
-  Event *gl1Event = erc->getEvent(evtnr);
+  long long int gl1_clock = 0;
+  Event *gl1Event = erc->getEvent(evtnr+1);
 
   if (!gl1Event)
   {
@@ -128,6 +129,10 @@ int DaqMon::process_event(Event *e /* evt */)
 
   Packet *plist[100];
   int npackets = e->getPacketList(plist,100);
+  bool mismatchfem = true;
+  int femevtref = 0;
+  int femclkref = 0;
+  int sebid = 0;
   for (int ipacket = 0; ipacket < npackets; ipacket++) {
       Packet * p = plist[ipacket];
       if (p) {
@@ -137,24 +142,24 @@ int DaqMon::process_event(Event *e /* evt */)
           clockdiff[ipacket] = gl1_clock  - packet_clock;
           int fdiff = (clockdiff[ipacket] != previousdiff[ipacket]) ? 0 : 1;
           previousdiff[ipacket] = clockdiff[ipacket];
-          
+
           int nADCs = p->iValue(0,"NRMODULES");
-          int femevt = 0;
-          int femclk = 0;
-          bool mismatchfem = true;
           for(int iadc = 0; iadc<nADCs ; iadc++){
-              femevt = p->iValue(iadc,"FEMEVTNR");
-              femclk = p->iValue(iadc,"FEMCLOCK");
-              if(femevt != p->iValue(0,"FEMEVTNR") || fabs(femclk - p->iValue(0,"FEMCLOCK"))>2) mismatchfem = false;
+              if(ipacket==0 && iadc==0){ femevtref = p->iValue(iadc,"FEMEVTNR"); femclkref = p->iValue(iadc,"FEMCLOCK");}
+
+              if(femevtref !=  p->iValue(iadc,"FEMEVTNR") || fabs(femclkref - p->iValue(0,"FEMCLOCK"))>2)
+              {
+                  mismatchfem = false;
+                  sebid = getmapping(pnum);
+              }
           }
           
-          int sebid = getmapping(pnum);
-          if(mismatchfem == false) h_fem_match->Fill(sebid,1);
           if(evtcnt>3) h_gl1_clock_diff->Fill(calomapid,fdiff);
           
       }
       delete p;
   }
+  if(mismatchfem == false) h_fem_match->Fill(sebid,1);
 
   return 0;
 }

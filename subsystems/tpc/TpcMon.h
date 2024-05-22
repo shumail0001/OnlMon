@@ -29,12 +29,15 @@ class TpcMon : public OnlMon
 
  protected:
   int evtcnt = 0;
+  int evtcnt5 = 0;
   int idummy = 0;
   int weird_counter = 0;
 
   static const int N_rBins = 4; //(one inner bin not filled, 2nd bin is R1, 3rd bin is R2, 4th bin is R3)
   const int N_thBins = 12; //(12 theta bins of uniform angle (360/12 = 30 degrees = TMath::Pi()/6 ~= 0.523 rad)
   const double rBin_edges[N_rBins+1] = {0.0, 0.256, 0.504, 0.752, 1.00}; //variable edges for radial dims
+
+  const int FEE_transform[26] = {10, 11, 0, 2, 1, 25, 23, 24, 22, 21, 20, 6, 7, 3, 13, 12, 5, 4, 9, 8, 14, 16, 15, 17, 19, 18};
 
   //for X-Y channel plot
   static const int N_rBins_XY = 66; //From Evgeny code - global to all modules
@@ -66,6 +69,14 @@ class TpcMon : public OnlMon
   TH2 *SouthSideADC_clusterXY_R2_LASER = nullptr;
   TH2 *SouthSideADC_clusterXY_R3_LASER = nullptr;
 
+  TH2 *NorthSideADC_clusterXY_R1_u5 = nullptr;
+  TH2 *NorthSideADC_clusterXY_R2_u5 = nullptr;
+  TH2 *NorthSideADC_clusterXY_R3_u5 = nullptr;
+
+  TH2 *SouthSideADC_clusterXY_R1_u5 = nullptr;
+  TH2 *SouthSideADC_clusterXY_R2_u5 = nullptr;
+  TH2 *SouthSideADC_clusterXY_R3_u5 = nullptr;
+
   TH2 *NorthSideADC_clusterXY_R1_unw = nullptr;
   TH2 *NorthSideADC_clusterXY_R2_unw = nullptr;
   TH2 *NorthSideADC_clusterXY_R3_unw = nullptr;
@@ -94,6 +105,12 @@ class TpcMon : public OnlMon
   TH1 *Check_Sum_Error = nullptr;
   TH1 *Check_Sums = nullptr;
   TH1 *Stuck_Channels = nullptr;
+  TH1 *Channels_in_Packet = nullptr;
+  TH1 *Channels_Always = nullptr;
+
+  TH2 *Num_non_ZS_channels_vs_SAMPA = nullptr;
+  TH2 *ZS_Trigger_ADC_vs_Sample = nullptr;
+  TH2 *First_ADC_vs_First_Time_Bin = nullptr;
 
   TH2 *MAXADC = nullptr;
 
@@ -128,6 +145,7 @@ class TpcMon : public OnlMon
   int Max_Nine(int one, int two, int three, int four, int five, int six, int seven, int eight, int nine);
   bool side(int server_id);
   std::pair<float, float> calculateMedianAndStdDev(const std::vector<int>& values);
+  float calculateRawStdDev(const std::vector<int>& values);
 };
 
 #endif /* TPC_TPCMON_H */

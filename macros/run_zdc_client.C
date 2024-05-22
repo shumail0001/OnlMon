@@ -31,6 +31,12 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("h_waveformVeto_South","ZDCMON_0");
   cl->registerHisto("h_waveformAll","ZDCMON_0");
 
+ //veto
+  cl->registerHisto("veto_NF","ZDCMON_0");
+  cl->registerHisto("veto_NB","ZDCMON_0");
+  cl->registerHisto("veto_SF","ZDCMON_0");
+  cl->registerHisto("veto_SB","ZDCMON_0");
+ 
  // smd
   // Individual smd_adc channel histos
   
@@ -64,6 +70,8 @@ void zdcDrawInit(const int online = 0)
   // south smd
   cl->registerHisto("smd_hor_south", "ZDCMON_0");
   cl->registerHisto("smd_ver_south", "ZDCMON_0");
+  cl->registerHisto("smd_hor_south_good", "ZDCMON_0");
+  cl->registerHisto("smd_ver_south_good", "ZDCMON_0");
   cl->registerHisto("smd_sum_hor_south", "ZDCMON_0");
   cl->registerHisto("smd_sum_ver_south", "ZDCMON_0");
   // smd values

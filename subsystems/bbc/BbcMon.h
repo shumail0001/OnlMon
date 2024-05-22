@@ -36,6 +36,8 @@ class BbcMon : public OnlMon
 
   int useGL1{1};    // whether to use the GL1 data
   uint64_t triggervec{0};
+  uint64_t triginput{0};
+  //uint64_t gl1_bco{0};
   uint64_t trigmask{0};       // accepted triggers
   uint64_t mbdtrig{0};        // main mbd trigger
   uint64_t mbdns{0};          // mbdns n>=1 or 2 bit
@@ -43,7 +45,10 @@ class BbcMon : public OnlMon
   uint64_t mbdnsvtx30{0};     // mbdns vtx<30 bit
   uint64_t mbdnsvtx60{0};     // mbdns vtx<60 bit
   uint64_t zdcns{0};          // zdcns
-  uint64_t gl1_bco{0};
+  uint64_t emcal{0};          // all emcal triggers, no bbc
+  uint64_t hcal{0};           // all hcal triggers, no bbc
+  uint64_t emcalmbd{0};       // all emcal triggers, with bbc
+  uint64_t hcalmbd{0};        // all hcal triggers, with bbc
   eventReceiverClient *erc{nullptr};
 
   int evtcnt{0};
@@ -58,7 +63,12 @@ class BbcMon : public OnlMon
   TH2 *bbc_tdc{nullptr};
   TH2 *bbc_tdc_overflow{nullptr};
   TH1 *bbc_tdc_overflow_each[128] = {};  // should be [nPMT_BBC], need to fix
-  // TH1 *bbc_nhit[nTRIGGER];
+  TH1 *bbc_south_nhit{nullptr};
+  TH1 *bbc_north_nhit{nullptr};
+  TH1 *bbc_nhit_emcal{nullptr};
+  TH1 *bbc_nhit_hcal{nullptr};
+  TH1 *bbc_nhit_emcalmbd{nullptr};
+  TH1 *bbc_nhit_hcalmbd{nullptr};
 
   TH2 *bbc_tdc_armhittime{nullptr};
   TH1 *bbc_nevent_counter{nullptr};
@@ -70,6 +80,10 @@ class BbcMon : public OnlMon
   TH1 *bbc_zvertex_30{nullptr};
   TH1 *bbc_zvertex_60{nullptr};
   TH1 *bbc_zvertex_zdcns{nullptr};  // ZDCNS triggers
+  TH1 *bbc_zvertex_emcal{nullptr};  // EMCAL triggers
+  TH1 *bbc_zvertex_hcal{nullptr};   // HCAL triggers
+  TH1 *bbc_zvertex_emcalmbd{nullptr};  // EMCAL triggers, w/ BBC
+  TH1 *bbc_zvertex_hcalmbd{nullptr};   // HCAL triggers, w/ BBC
   TF1 *f_zvtx{nullptr};             // Used for fitting central vertex peak
   // TH1 *bbc_zvertex_bbll1_novtx = nullptr;
   // TH1 *bbc_zvertex_bbll1_narrowvtx = nullptr;  // Run11 pp
