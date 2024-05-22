@@ -40,22 +40,12 @@ void mvtxDrawInit(const int online = 0)
     cl->registerHisto("hStrobesDMA", servername);
 
     // FEE
-    //cl->registerHisto("MVTXMON_FEE_TriggerVsFeeid", servername);
-    //cl->registerHisto("MVTXMON_FEE_TriggerFlag", servername);
-    // cl->registerHisto("MVTXMON/FEE/LaneInfo", servername);
 
     for (int i = 0; i < MvtxMonDraw::NFlags; i++)
     {
       cl->registerHisto(Form("FEE_LaneStatus_Flag_%s", mLaneStatusFlag[i].c_str()), servername);
       cl->registerHisto(Form("FEE_LaneStatusFromSOX_Flag_%s", mLaneStatusFlag[i].c_str()), servername);
     }
-
-    for (int i = 0; i < 3; i++)
-    {
-      cl->registerHisto(Form("FEE_LaneStatusSummary_Layer_%i", i), servername);
-    }
-
-    cl->registerHisto("FEE_LaneStatusSummary", servername);
 
     // raw task
     cl->registerHisto("General_DecErrors", servername);
@@ -71,16 +61,12 @@ void mvtxDrawInit(const int online = 0)
 
     // fhr
     cl->registerHisto("FHR_ErrorVsFeeid", servername);
-    // cl->registerHisto("MVTXMON_General_Occupancy", servername);
     cl->registerHisto("MVTXMON_General_Noisy_Pixel", servername);
     cl->registerHisto("RCDAQ_evt", servername);
 
     for (int mLayer = 0; mLayer < 3; mLayer++)
     {
       cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dDeadChipPos", mLayer, mLayer), servername);
-      //cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dAliveChipPos", mLayer, mLayer), servername);
-      // cl->registerHisto(Form("MVTXMON/Occupancy/Layer%d/Layer%dChipStaveC", mLayer, mLayer), servername);
-      //cl->registerHisto(Form("MVTXMON_Occupancy_Layer%dOccupancy_LOG", mLayer), servername);
     }
   }
 

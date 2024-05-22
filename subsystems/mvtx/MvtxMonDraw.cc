@@ -890,13 +890,13 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   const int canvasID = 2;
   const int padID = 2;
 
-  TH2I *mTriggerVsFeeId[NFlx + 1] = {nullptr};
-  TH1I *mTrigger[NFlx + 1] = {nullptr};
-  // TH2I* mLaneInfo[NFlx+1] = {nullptr};
+  //TH2I *mTriggerVsFeeId[NFlx + 1] = {nullptr};
+  //TH1I *mTrigger[NFlx + 1] = {nullptr};
+  TH2I* FHR_ErrorVsFeeid[NFlx+1] = {nullptr};
   TH2I *mLaneStatus[3][NFlx + 1] = {{nullptr}};
   TH2I *mLaneStatusCumulative[3][NFlx + 1] = {{nullptr}};
-  TH1I *mLaneStatusSummary[3][NFlx + 1] = {{nullptr}};
-  TH1I *mLaneStatusSummaryIB[NFlx + 1] = {nullptr};
+  //TH1I *mLaneStatusSummary[3][NFlx + 1] = {{nullptr}};
+  //TH1I *mLaneStatusSummaryIB[NFlx + 1] = {nullptr};
   TH1D *mvtxmon_mGeneralErrorPlots[NFlx + 1] = {nullptr};
   TH2D *mvtxmon_mGeneralErrorFile[NFlx + 1] = {nullptr};
 
@@ -904,15 +904,15 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   {
     //mTriggerVsFeeId[iFelix] = dynamic_cast<TH2I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "MVTXMON_FEE_TriggerVsFeeid"));
    // mTrigger[iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "MVTXMON_FEE_TriggerFlag"));
-    // mLaneInfo[iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"MVTXMON/FEE/LaneInfo"));
-    mLaneStatusSummaryIB[iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "FEE_LaneStatusSummary"));
+    FHR_ErrorVsFeeid[iFelix] = dynamic_cast<TH2I*>(cl->getHisto(Form("MVTXMON_%d",iFelix),"FHR_ErrorVsFeeid"));
+    //mLaneStatusSummaryIB[iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "FEE_LaneStatusSummary"));
     mvtxmon_mGeneralErrorPlots[iFelix] = dynamic_cast<TH1D *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "General_DecErrors"));
      mvtxmon_mGeneralErrorFile[iFelix] = dynamic_cast<TH2D *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "General_DecErrorsEndpoint"));
     for (int i = 0; i < 3; i++)
     {
       mLaneStatus[i][iFelix] = dynamic_cast<TH2I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), Form("FEE_LaneStatus_Flag_%s", mLaneStatusFlag[i].c_str())));
       mLaneStatusCumulative[i][iFelix] = dynamic_cast<TH2I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), Form("FEE_LaneStatusFromSOX_Flag_%s", mLaneStatusFlag[i].c_str())));
-      mLaneStatusSummary[i][iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), Form("FEE_LaneStatusSummary_Layer_%i", i)));
+      //mLaneStatusSummary[i][iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), Form("FEE_LaneStatusSummary_Layer_%i", i)));
     }
   }
 
@@ -920,12 +920,12 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   {
     MergeServers<TH2I *>(mLaneStatus[i]);
     MergeServers<TH2I *>(mLaneStatusCumulative[i]);
-    MergeServers<TH1I *>(mLaneStatusSummary[i]);
+    //MergeServers<TH1I *>(mLaneStatusSummary[i]);
   }
   //MergeServers<TH2I *>(mTriggerVsFeeId);
   //MergeServers<TH1I *>(mTrigger);
   // MergeServers<TH2I*>(mLaneInfo);
-  MergeServers<TH1I *>(mLaneStatusSummaryIB);
+  MergeServers<TH2I *>(FHR_ErrorVsFeeid);
     MergeServers<TH1D *>(mvtxmon_mGeneralErrorPlots);
       MergeServers<TH2D *>(mvtxmon_mGeneralErrorFile);
 
@@ -936,7 +936,7 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
 
   TC[canvasID]->SetEditable(true);
   TC[canvasID]->Clear("D");
-  Pad[padID]->Divide(4, 3);
+  Pad[padID]->Divide(3, 3);
 
   for (int i = 0; i < 3; i++)
   {
@@ -956,7 +956,8 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
       mLaneStatusCumulative[i][NFlx]->GetXaxis()->SetLabelSize(0.05);
       mLaneStatusCumulative[i][NFlx]->GetYaxis()->SetLabelSize(0.05);
     }
-    if (mLaneStatusSummary[i][NFlx])
+  }
+  /*  if (mLaneStatusSummary[i][NFlx])
     {
       mLaneStatusSummary[i][NFlx]->GetXaxis()->SetLabelSize(0.07);
       mLaneStatusSummary[i][NFlx]->GetYaxis()->SetTitleSize(0.06);
@@ -970,8 +971,8 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
     mLaneStatusSummaryIB[NFlx]->GetYaxis()->SetTitleSize(0.06);
     mLaneStatusSummaryIB[NFlx]->GetYaxis()->SetLabelSize(0.05);
     mLaneStatusSummaryIB[NFlx]->GetYaxis()->SetTitleOffset(0.9);
-  }
-  if (mTriggerVsFeeId[NFlx])
+  }*/
+  /*if (mTriggerVsFeeId[NFlx])
   {
     mTriggerVsFeeId[NFlx]->GetXaxis()->SetTitleSize(0.055);
     mTriggerVsFeeId[NFlx]->GetXaxis()->SetTitleOffset(0.75);
@@ -988,7 +989,7 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
     mTrigger[NFlx]->GetYaxis()->SetLabelSize(0.06);
     mTrigger[NFlx]->GetXaxis()->SetLabelSize(0.05);
     mTrigger[NFlx]->GetYaxis()->SetTitleOffset(0.85);
-  }
+  }*/
 
   TPaveText *tlayer[3] = {nullptr};
 
@@ -1003,57 +1004,58 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
     tlayer[i]->SetBorderSize(1);
     tlayer[i]->AddText(Form("Layer %d", i));
   }
-
+/*
   Pad[padID]->cd(3)->SetTopMargin(0.16);
   Pad[padID]->cd(4)->SetTopMargin(0.16);
   Pad[padID]->cd(4)->SetTopMargin(0.145);
   Pad[padID]->cd(7)->SetTopMargin(0.16);
   Pad[padID]->cd(8)->SetTopMargin(0.16);
   Pad[padID]->cd(11)->SetTopMargin(0.16);
-  Pad[padID]->cd(12)->SetTopMargin(0.16);
+  Pad[padID]->cd(12)->SetTopMargin(0.16);*/
 
   int returnCode = 0;
-  Pad[padID]->cd(1)->SetLeftMargin(0.16);
-  returnCode += PublishHistogram(Pad[padID], 1, mvtxmon_mGeneralErrorPlots[NFlx]);
-  returnCode += PublishHistogram(Pad[padID], 5, mvtxmon_mGeneralErrorFile[NFlx], "lcol");
+ // Pad[padID]->cd(1)->SetLeftMargin(0.16);
+  returnCode += PublishHistogram(Pad[padID], 7, mvtxmon_mGeneralErrorPlots[NFlx]);
+  returnCode += PublishHistogram(Pad[padID], 8, mvtxmon_mGeneralErrorFile[NFlx], "lcol");
+  returnCode += PublishHistogram(Pad[padID], 9, FHR_ErrorVsFeeid[NFlx], "lcol");
   //returnCode += PublishHistogram(Pad[padID], 1, mTriggerVsFeeId[NFlx], "lcol");
   //returnCode += PublishHistogram(Pad[padID], 5, mTrigger[NFlx]);
   // returnCode += PublishHistogram(Pad[9],3,mLaneInfo[NFlx]);
-  returnCode += PublishHistogram(Pad[padID], 3, mLaneStatus[0][NFlx], "lcol");
-  for (auto &i : tlayer)
+  returnCode += PublishHistogram(Pad[padID], 1, mLaneStatus[0][NFlx], "lcol");
+  /*for (auto &i : tlayer)
   {
     i->Draw();
-  }
-  returnCode += PublishHistogram(Pad[padID], 7, mLaneStatus[1][NFlx], "lcol");
-  for (auto &i : tlayer)
+  }*/
+  returnCode += PublishHistogram(Pad[padID], 2, mLaneStatus[1][NFlx], "lcol");
+  /*for (auto &i : tlayer)
   {
     i->Draw();
-  }
-  returnCode += PublishHistogram(Pad[padID], 11, mLaneStatus[2][NFlx], "lcol");
-  for (auto &i : tlayer)
+  }*/
+  returnCode += PublishHistogram(Pad[padID], 3, mLaneStatus[2][NFlx], "lcol");
+  /*for (auto &i : tlayer)
   {
     i->Draw();
-  }
+  }*/
   returnCode += PublishHistogram(Pad[padID], 4, mLaneStatusCumulative[0][NFlx], "lcol");
-  for (auto &i : tlayer)
+  /*for (auto &i : tlayer)
   {
     i->Draw();
-  }
-  returnCode += PublishHistogram(Pad[padID], 8, mLaneStatusCumulative[1][NFlx], "lcol");
-  for (auto &i : tlayer)
+  }*/
+  returnCode += PublishHistogram(Pad[padID], 5, mLaneStatusCumulative[1][NFlx], "lcol");
+  /*for (auto &i : tlayer)
   {
     i->Draw();
-  }
-  returnCode += PublishHistogram(Pad[padID], 12, mLaneStatusCumulative[2][NFlx], "lcol");
-  for (auto &i : tlayer)
+  }*/
+  returnCode += PublishHistogram(Pad[padID], 6, mLaneStatusCumulative[2][NFlx], "lcol");
+  /*for (auto &i : tlayer)
   {
     i->Draw();
-  }
-  returnCode += PublishHistogram(Pad[padID], 2, mLaneStatusSummary[0][NFlx]);
+  }*/
+  /*returnCode += PublishHistogram(Pad[padID], 2, mLaneStatusSummary[0][NFlx]);
   returnCode += PublishHistogram(Pad[padID], 6, mLaneStatusSummary[1][NFlx]);
   returnCode += PublishHistogram(Pad[padID], 10, mLaneStatusSummary[2][NFlx]);
   returnCode += PublishHistogram(Pad[padID], 9, mLaneStatusSummaryIB[NFlx]);
-
+*/
   PublishStatistics(canvasID, cl);
   TC[canvasID]->SetEditable(false);
   return returnCode < 0 ? -1 : 0;
@@ -1384,15 +1386,15 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
 
   TC[canvasID]->SetEditable(true);
   TC[canvasID]->Clear("D");
-  Pad[padID]->Divide(4, 3);
+  Pad[padID]->Divide(3, 3);
 
   int returnCode = 0;
   // returnCode += PublishHistogram(Pad[padID],1,mErrorVsFeeid[0]);
   // returnCode += PublishHistogram(Pad[padID],6,mGeneralOccupancy[NFlx],"COLZ");
-  returnCode += PublishHistogram(Pad[padID], 4, mGeneralNoisyPixel[NFlx], "COLZ");
+  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "COLZ");
   returnCode += PublishHistogram(Pad[padID], 1, mDeadChipPos[0][NFlx], "COL");
-  returnCode += PublishHistogram(Pad[padID], 5, mDeadChipPos[1][NFlx], "COL");
-  returnCode += PublishHistogram(Pad[padID], 9, mDeadChipPos[2][NFlx], "COL");
+  returnCode += PublishHistogram(Pad[padID], 4, mDeadChipPos[1][NFlx], "COL");
+  returnCode += PublishHistogram(Pad[padID], 7, mDeadChipPos[2][NFlx], "COL");
   //returnCode += PublishHistogram(Pad[padID], 2, mAliveChipPos[0][NFlx], "COLZ");
   //returnCode += PublishHistogram(Pad[padID], 7, mAliveChipPos[1][NFlx], "COLZ");
   //sreturnCode += PublishHistogram(Pad[padID], 12, mAliveChipPos[2][NFlx], "COLZ");
@@ -1400,14 +1402,14 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
   // returnCode += PublishHistogram<TH2D*>(TC[canvasID],11,mChipStaveOccupancy[1][0]);
   //  returnCode += PublishHistogram<TH2D*>(TC[canvasID],12,mChipStaveOccupancy[2][0]);
   returnCode += PublishHistogram(Pad[padID], 2, mChipStaveNoisy[0][NFlx], "COLZ");
-  returnCode += PublishHistogram(Pad[padID], 6, mChipStaveNoisy[1][NFlx], "COLZ");
-  returnCode += PublishHistogram(Pad[padID], 10, mChipStaveNoisy[2][NFlx], "COLZ");
+  returnCode += PublishHistogram(Pad[padID], 5, mChipStaveNoisy[1][NFlx], "COLZ");
+  returnCode += PublishHistogram(Pad[padID], 8, mChipStaveNoisy[2][NFlx], "COLZ");
   //returnCode += PublishHistogram(Pad[padID], 3, mOccupancyPlot[0][NFlx]);
   //returnCode += PublishHistogram(Pad[padID], 7, mOccupancyPlot[1][NFlx]);
   //returnCode += PublishHistogram(Pad[padID], 11, mOccupancyPlot[2][NFlx]);
 
-  PublishHistogram(Pad[padID], 8, mvtxmon_EvtHitChip[NFlx]);
-  PublishHistogram(Pad[padID], 12, mvtxmon_EvtHitDis[NFlx]);
+  PublishHistogram(Pad[padID], 6, mvtxmon_EvtHitChip[NFlx]);
+  PublishHistogram(Pad[padID], 9, mvtxmon_EvtHitDis[NFlx]);
 
   // returnCode += PublishHistogram(Pad[11],16,mTotalDeadChipPos[NFlx],"COL");
   // returnCode += PublishHistogram(Pad[11],17,mTotalAliveChipPos[NFlx],"COL");
@@ -1789,7 +1791,7 @@ std::vector<MvtxMonDraw::Quality> MvtxMonDraw::analyseForError(TH2Poly *lane, TH
       avrs =+ binc;
     }
     if(strobes->GetNbinsX() > 0) avrs = avrs/strobes->GetNbinsX();
-    if(mins < 0.5*avrs || maxs > 1.5*avrs){
+    if(mins < 0.3*avrs || maxs > 1.7*avrs){
       result.at(4) = Quality::Medium;
     }
   }

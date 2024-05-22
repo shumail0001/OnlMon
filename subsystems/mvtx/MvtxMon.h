@@ -80,8 +80,8 @@ class MvtxMon : public OnlMon
   TH2I* mLaneInfo = nullptr;
   TH2I* mLaneStatus[NFlags] = {nullptr};
   TH2I* mLaneStatusCumulative[NFlags] = {nullptr};
-  TH1I* mLaneStatusSummary[NLAYERS] = {nullptr};
-  TH1I* mLaneStatusSummaryIB = nullptr;
+  //TH1I* mLaneStatusSummary[NLAYERS] = {nullptr};
+  //TH1I* mLaneStatusSummaryIB = nullptr;
   TString mTriggerType[NTrigger] = {"ORBIT", "HB", "HBr", "HC", "PHYSICS", "PP", "CAL", "SOT", "EOT", "SOC", "EOC", "TF", "INT"};
 
   // raw task
