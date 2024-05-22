@@ -310,11 +310,12 @@ int CemcMon::process_event(Event *e /* evt */)
 {
   float sectorAvg[Nsector] = {0};
   unsigned int towerNumber = 0;
-
+  bool fillhist = true;
   std::vector<bool> trig_bools;
   trig_bools.resize(64);
   long long int gl1_clock = 0;
   bool have_gl1 = false;
+  
   if (anaGL1)
   {
     int evtnr = e->getEvtSequence();
@@ -347,14 +348,14 @@ int CemcMon::process_event(Event *e /* evt */)
       std::cout << "GL1 event is null" << std::endl;
       h_evtRec->Fill(0.0, 0.0);
     }
-    /*
+    
     //this is for only process event with the MBD>=1 trigger
     if(usembdtrig){
       if(trig_bools.at(10) == 0){
-        return 0;
+        fillhist = false;
       }
     }
-    */
+    
   }
 
   // loop over packets which contain a single sector
@@ -412,38 +413,53 @@ int CemcMon::process_event(Event *e /* evt */)
         float timeFast = resultFast.at(1);
         float pedestalFast = resultFast.at(2);
 
-        if (p->iValue(c, "SUPPRESSED"))
+        //________________________________for this part we only want to deal with the MBD>=1 trigger
+        if (fillhist)
         {
-          p2_zsFrac_etaphi->Fill(eta_bin, phi_bin, 0);
-        }
-        else
-        {
-          p2_zsFrac_etaphi->Fill(eta_bin, phi_bin, 1);
-        }
-
-        h1_waveform_pedestal->Fill(pedestalFast);
-
-        int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
-
-        rm_vector_twr[towerNumber - 1]->Add(&signalFast);
-
-        if (signalFast > waveform_hit_threshold)
-        {
-          h1_waveform_time->Fill(timeFast);
-        }
-
-        if (signalFast > waveform_hit_threshold)
-        {
-          for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+          if (p->iValue(c, "SUPPRESSED"))
           {
-            h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
+            p2_zsFrac_etaphi->Fill(eta_bin, phi_bin, 0);
           }
-        }
+          else
+          {
+            p2_zsFrac_etaphi->Fill(eta_bin, phi_bin, 1);
+          }
 
+          h1_waveform_pedestal->Fill(pedestalFast);
+
+          int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
+
+          rm_vector_twr[towerNumber - 1]->Add(&signalFast);
+
+          if (signalFast > waveform_hit_threshold)
+          {
+            h1_waveform_time->Fill(timeFast);
+          }
+
+          if (signalFast > waveform_hit_threshold)
+          {
+            for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+            {
+              h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
+            }
+          }
+          if (signalFast > hit_threshold)
+          {
+            rm_vector_twrhits[towerNumber - 1]->Add(&one);
+            h2_cemc_hits->SetBinContent(bin, h2_cemc_hits->GetBinContent(bin) + 1);
+          }
+          else
+          {
+            rm_vector_twrhits[towerNumber - 1]->Add(&zero);
+          }
+          h2_cemc_mean->SetBinContent(bin, h2_cemc_mean->GetBinContent(bin) + signalFast);
+          h2_cemc_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
+          h2_cemc_rmhits->SetBinContent(bin, rm_vector_twrhits[towerNumber - 1]->getMean(0));
+          h1_cemc_adc->Fill(signalFast);
+        }
+        //_______________________________________________________end of MBD trigger requirement
         if (signalFast > hit_threshold)
         {
-          rm_vector_twrhits[towerNumber - 1]->Add(&one);
-          h2_cemc_hits->SetBinContent(bin, h2_cemc_hits->GetBinContent(bin) + 1);
           // h2_cemc_hits->SetBinContent(bin, h2_cemc_hits->GetBinContent(bin) + signalFast);
           if (have_gl1)
           {
@@ -456,21 +472,7 @@ int CemcMon::process_event(Event *e /* evt */)
             }
           }
         }
-        else
-        {
-          rm_vector_twrhits[towerNumber - 1]->Add(&zero);
-        }
 
-        h2_cemc_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
-        h2_cemc_rmhits->SetBinContent(bin, rm_vector_twrhits[towerNumber - 1]->getMean(0));
-
-        // create beginning of run template
-        if (eventCounter < templateDepth)
-        {
-          h2_cemc_mean->SetBinContent(bin, h2_cemc_mean->GetBinContent(bin) + signalFast);
-        }
-
-        h1_cemc_adc->Fill(signalFast);
         /*
         if (!((eventCounter - 2) % 10000))
         {

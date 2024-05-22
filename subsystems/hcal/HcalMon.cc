@@ -129,7 +129,7 @@ int HcalMon::Init()
   // system (all couts are redirected)
   printf("doing the Init\n");
 
-  h2_hcal_hits = new TH2F("h2_hcal_hits", "", 24, 0, 24, 64, 0, 64);
+  
   h2_hcal_hits_trig1 = new TH2F("h2_hcal_hits_trig1", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_hits_trig2 = new TH2F("h2_hcal_hits_trig2", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_hits_trig3 = new TH2F("h2_hcal_hits_trig3", "", 24, 0, 24, 64, 0, 64);
@@ -139,6 +139,7 @@ int HcalMon::Init()
   h2_hcal_rm = new TH2F("h2_hcal_rm", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_mean = new TH2F("h2_hcal_mean", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_time = new TH2F("h2_hcal_time", "", 24, 0, 24, 64, 0, 64);
+  h2_hcal_hits = new TH2F("h2_hcal_hits", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_waveform = new TH2F("h2_hcal_waveform", "", n_samples_show, 0.5, n_samples_show + 0.5, 1000, 0, 15000);
   h2_hcal_correlation = new TH2F("h2_hcal_correlation", "", 200, 0, 100000, 200, 0, 150000);
   h_event = new TH1F("h_event", "", 1, 0, 1);
@@ -369,6 +370,7 @@ int HcalMon::process_event(Event* e /* evt */)
   bool trig2_fire = false;
   bool trig3_fire = false;
   bool trig4_fire = false;
+  bool fillhist = true;
   std::vector<bool> trig_bools;
   long long int gl1_clock = 0;
   bool have_gl1 = false;
@@ -409,13 +411,13 @@ int HcalMon::process_event(Event* e /* evt */)
       h_evtRec->Fill(0.0, 0.0);
     }
   //this is for only process event with the MBD>=1 trigger
-  /*
+  
     if(usembdtrig){
       if(trig_bools.at(10) == 0){
-        return 0;
+        return false;
       }
     }
-  */
+  
   }
 
   for (int packet = packetlow; packet <= packethigh; packet++)
@@ -471,59 +473,74 @@ int HcalMon::process_event(Event* e /* evt */)
         unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
         unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
         int sectorNumber = phi_bin / 2 + 1;
-        if(signal > waveform_hit_threshold){
-          h_waveform_time->Fill(time);
-        }
-        if (signal > hit_threshold)
+        //________________________________for this part we only want to deal with the MBD>=1 trigger
+        if (fillhist)
         {
-          
-          rm_vector_twrTime[towerNumber - 1]->Add(&time);
-          rm_vector_twrhit[towerNumber - 1]->Add(one);
-        }
-        else
-        {
-          rm_vector_twrhit[towerNumber - 1]->Add(zero);
-        }
-        h_waveform_pedestal->Fill(pedestal);
-
-        if (suppressed==1){
-          pr_zsFrac_etaphi->Fill(eta_bin,phi_bin,0);
-        }
-        else {
-          pr_zsFrac_etaphi->Fill(eta_bin,phi_bin,1);
-        }
-
-        sectorAvg[sectorNumber - 1] += signal;
-
-        rm_vector_twr[towerNumber - 1]->Add(&signal);
-
-        int bin = h2_hcal_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
-        h2_hcal_mean->SetBinContent(bin, h2_hcal_mean->GetBinContent(bin) + signal);
-        h2_hcal_rm->SetBinContent(bin, rm_vector_twrhit[towerNumber - 1]->getMean(0));
-        h2_hcal_time->SetBinContent(bin, rm_vector_twrTime[towerNumber - 1]->getMean(0));
-
-        // fill tower_rm here
-        if (evtcnt <= historyLength * historyScaleDown)
-        {
-          // only fill every scaledown event
-          if (evtcnt % historyScaleDown == 0)
+          if (signal > waveform_hit_threshold)
           {
-            h_rm_tower[eta_bin][phi_bin]->SetBinContent(evtcnt / historyScaleDown, rm_vector_twrhit[towerNumber - 1]->getMean(0));
+            h_waveform_time->Fill(time);
           }
-        }
-        else
-        {
-          // only fill every scaledown event
-          if (evtcnt % historyScaleDown == 0)
+          if (signal > hit_threshold)
           {
-            for (int ib = 1; ib < historyLength; ib++)
+            rm_vector_twrTime[towerNumber - 1]->Add(&time);
+            rm_vector_twrhit[towerNumber - 1]->Add(one);
+          }
+          else
+          {
+            rm_vector_twrhit[towerNumber - 1]->Add(zero);
+          }
+          h_waveform_pedestal->Fill(pedestal);
+
+          if (suppressed == 1)
+          {
+            pr_zsFrac_etaphi->Fill(eta_bin, phi_bin, 0);
+          }
+          else
+          {
+            pr_zsFrac_etaphi->Fill(eta_bin, phi_bin, 1);
+          }
+
+          sectorAvg[sectorNumber - 1] += signal;
+
+          rm_vector_twr[towerNumber - 1]->Add(&signal);
+
+          int bin = h2_hcal_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
+          h2_hcal_mean->SetBinContent(bin, h2_hcal_mean->GetBinContent(bin) + signal);
+          h2_hcal_rm->SetBinContent(bin, rm_vector_twrhit[towerNumber - 1]->getMean(0));
+          h2_hcal_time->SetBinContent(bin, rm_vector_twrTime[towerNumber - 1]->getMean(0));
+
+          // fill tower_rm here
+          if (evtcnt <= historyLength * historyScaleDown)
+          {
+            // only fill every scaledown event
+            if (evtcnt % historyScaleDown == 0)
             {
-              h_rm_tower[eta_bin][phi_bin]->SetBinContent(ib, h_rm_tower[eta_bin][phi_bin]->GetBinContent(ib + 1));
+              h_rm_tower[eta_bin][phi_bin]->SetBinContent(evtcnt / historyScaleDown, rm_vector_twrhit[towerNumber - 1]->getMean(0));
             }
-            h_rm_tower[eta_bin][phi_bin]->SetBinContent(historyLength, rm_vector_twrhit[towerNumber - 1]->getMean(0));
+          }
+          else
+          {
+            // only fill every scaledown event
+            if (evtcnt % historyScaleDown == 0)
+            {
+              for (int ib = 1; ib < historyLength; ib++)
+              {
+                h_rm_tower[eta_bin][phi_bin]->SetBinContent(ib, h_rm_tower[eta_bin][phi_bin]->GetBinContent(ib + 1));
+              }
+              h_rm_tower[eta_bin][phi_bin]->SetBinContent(historyLength, rm_vector_twrhit[towerNumber - 1]->getMean(0));
+            }
+          }
+          // record waveform
+          for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+          {
+            h_waveform_twrAvg->Fill(s, p->iValue(s, c));
+            if (signal > waveform_hit_threshold)
+            {
+              h2_hcal_waveform->Fill(s, (p->iValue(s, c) - pedestal));
+            }
           }
         }
-
+        //_______________________________________________________end of MBD trigger requirement
         if (signal > hit_threshold)
         {
           h2_hcal_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);
@@ -545,15 +562,7 @@ int HcalMon::process_event(Event* e /* evt */)
           }
         }
 
-        // record waveform
-        for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
-        {
-          h_waveform_twrAvg->Fill(s, p->iValue(s, c));
-          if (signal > waveform_hit_threshold)
-          {
-            h2_hcal_waveform->Fill(s, (p->iValue(s, c) - pedestal));
-          }
-        }
+        
 
       }  // channel loop
 
@@ -640,7 +649,7 @@ int HcalMon::process_event(Event* e /* evt */)
 
   }  // sector loop
 
-  h_event->Fill(0);
+  if(fillhist)h_event->Fill(0);
   h_waveform_twrAvg->Scale(1. / 32. / 48.);  // average tower waveform
 
   return 0;

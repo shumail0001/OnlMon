@@ -365,14 +365,16 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
 
   TH2D* hist1 = (TH2D*) cl->getHisto(HCALMON_0, "h2_hcal_rm");
+  TH1D* h_event = (TH1D*) cl->getHisto(HCALMON_0, "h_event");
  
-  TH2F* hist1_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_rm");
+  TH2D* hist1_1 = (TH2D*) cl->getHisto(HCALMON_1, "h2_hcal_rm");
+  TH1D* h_event_1 = (TH1D*) cl->getHisto(HCALMON_1, "h_event");
 
   if (!gROOT->FindObject("HcalMon1"))
   {
     MakeCanvas("HcalMon1");
   }
-  if (!hist1)
+  if (!hist1 || !hist1_1 || !h_event || !h_event_1)
   {
     DrawDeadServer(transparent[0]);
     TC[0]->SetEditable(false);
@@ -388,6 +390,8 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
 
   hist1->Add(hist1_1);
   hist1->Divide(h2_mean_template);
+  int avgevents = h_event->GetEntries() + h_event_1->GetEntries();
+  avgevents /= 2;
   // h_event->Add(h_event_1);
 
 
@@ -491,7 +495,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   time_t evttime = getTime();
   // fill run number and event time into string
   runnostream << ThisName << ": tower occupancy(threshold 30ADC) running mean divided by template";
-  runnostream2 << "Run" << cl->RunNumber() << ", Time: " << ctime(&evttime);
+  runnostream2 << "Run" << cl->RunNumber() << " Event: " << avgevents << " " << ctime(&evttime);
   transparent[0]->cd();
   runstring = runnostream.str();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
