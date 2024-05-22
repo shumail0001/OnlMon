@@ -35,10 +35,10 @@ enum
   FILLMESSAGE = 2
 };
 
-const int depth = 10000;
+const int depth = 50000;
 // const int historyLength = 100;
 // const float hit_threshold = 100;
-const float hit_threshold = 30;
+const float hit_threshold = 100;
 const float waveform_hit_threshold = 100;
 
 using namespace std;

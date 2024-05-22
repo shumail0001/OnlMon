@@ -680,6 +680,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
 
   //Tprofie of h2_hcal_waveform 
   float ymaxp = h2_hcal_waveform->ProfileX()->GetMaximum();
+  /*
   TProfile* profile_y = h2_hcal_waveform->ProfileY();
   profile_y->Rebin(5);
 
@@ -715,7 +716,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
             point_index++;
         }
     }
-
+*/
 
 
  
@@ -739,12 +740,13 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h2_hcal_waveform->GetXaxis()->SetTitleOffset(1.2);
   h2_hcal_waveform->GetYaxis()->SetTitleOffset(0.85);
   //over lay the profile draw only the marker
+  /*
   TGraph* graph = new TGraph(n_points_in_range, x_vals, y_vals);
   graph->SetMarkerStyle(20);
   graph->SetMarkerSize(1);
   graph->SetMarkerColor(1);
   graph->Draw("P same");
-
+  */
   //draw two black lines for the okay timing range
   TLine* line1 = new TLine(4.5, 0, 4.5, ymaxp * 20);
   line1->SetLineColor(1);
