@@ -3,6 +3,7 @@
 #include <onlmon/OnlMonClient.h>
 
 #include <array>
+#include <fstream>
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpotmon_client.so)
@@ -17,7 +18,7 @@ void tpotDrawInit(const int online = 0)
 
   // prefer local calibration filename if exists
   const std::string local_calibration_filename( "TPOT_Pedestal-000.root" );
-  if( std::ifstream( local_calibration_filename ).is_good() )
+  if( std::ifstream( local_calibration_filename ).good() )
   { tpotmon->set_calibration_file( local_calibration_filename ); }
 
   cl->registerDrawer(tpotmon);

@@ -1,8 +1,9 @@
 #include "ServerFuncs.C"
 
 #include <onlmon/tpot/TpotMon.h>
-
 #include <onlmon/OnlMonServer.h>
+
+#include <fstream>
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpotmon_server.so)
@@ -20,7 +21,7 @@ void run_tpot_server(
 
   // prefer local calibration filename if exists
   const std::string local_calibration_filename( "TPOT_Pedestal-000.root" );
-  if( std::ifstream( local_calibration_filename ).is_good() )
+  if( std::ifstream( local_calibration_filename ).good() )
   { m->set_calibration_file( local_calibration_filename ); }
 
   // get pointer to Server Framework
