@@ -11,7 +11,7 @@ class TCanvas;
 class TGraphErrors;
 class TPad;
 const int NUM_CANV = 2 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1;
-const int NUM_PAD = 4 + 3 + 12 + 2 + 4 + 15 + 15 + 4 + 1 + 4 + 5;
+const int NUM_PAD = 4 + 3 + 12 + 2 + 4 + 15 + 15 + 4 + 1 + 4 + 5 + 4;
 
 class ZdcMonDraw : public OnlMonDraw
 {
