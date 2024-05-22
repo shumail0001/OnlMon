@@ -602,7 +602,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   t_agrat.SetTextFont(62);
   t_agrat.SetTextSize(textsize);
   t_agrat.SetNDC(); 
-  t_agrat.DrawText(0.15, 0.2, "Abort gap scalers (keep below 3%)");
+  t_agrat.DrawText(0.15, 0.2, "Abort gap scalers (keep below 7%)");
   t_agrat.DrawText(0.075, 0.125, "MBD_NS");
   t_agrat.DrawText(0.308, 0.125, "MBD_VTX");
   t_agrat.DrawText(0.541, 0.125, "MBD_10");
@@ -615,7 +615,7 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
     t_agrat.SetTextColor(kBlack);
     float agrat_pct = std::round((agrat[i]*100) * 100.0) / 100.0;
     agratstream[i] << agrat_pct << "%";
-    if (agrat_pct > 3)
+    if (agrat_pct > 7)
     {
       t_agrat.SetTextColor(kRed);
       agratstring[i] = agratstream[i].str();
