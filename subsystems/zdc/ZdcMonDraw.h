@@ -10,9 +10,6 @@ class OnlMonDB;
 class TCanvas;
 class TGraphErrors;
 class TPad;
-const int NUM_CANV = 2 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1;
-const int NUM_PAD = 4 + 3 + 12 + 2 + 4 + 15 + 15 + 4 + 1 + 4 + 5 + 4;
-
 class ZdcMonDraw : public OnlMonDraw
 {
  public:
@@ -25,7 +22,10 @@ class ZdcMonDraw : public OnlMonDraw
   int MakeHtml(const std::string &what = "ALL") override;
   int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
 
- protected:
+ private:
+  static constexpr int NUM_CANV = 2 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1;
+  static constexpr int NUM_PAD = 4 + 3 + 12 + 2 + 4 + 15 + 15 + 4 + 1 + 4 + 5 + 4;
+
 
   TH1 *smd_adc_n_hor_means = nullptr;
   TH1 *smd_adc_s_hor_means = nullptr;
