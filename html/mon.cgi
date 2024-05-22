@@ -559,22 +559,28 @@ sub select_run {
   print "<table border=\"1\">\n";
   print "<tr valign=\"top\">\n";
 
+  if (-d "physics")
+  {
+      print "<td>\n";
+      dirlist("physics",$runrange);
+      print "</td>\n";
+  }
   if (-d "beam")
   {
       print "<td>\n";
       dirlist("beam",$runrange);
       print "</td>\n";
   }
-  if (-d "calib")
-  {
-      print "<td>\n";
-      dirlist("calib",$runrange);
-      print "</td>\n";
-  }
   if (-d "cosmics")
   {
       print "<td>\n";
       dirlist("cosmics",$runrange);
+      print "</td>\n";
+  }
+  if (-d "calib")
+  {
+      print "<td>\n";
+      dirlist("calib",$runrange);
       print "</td>\n";
   }
   if (-d "junk")
@@ -605,12 +611,6 @@ sub select_run {
   {
       print "<td>\n";
       dirlist("pedestal",$runrange);
-      print "</td>\n";
-  }
-  if (-d "physics")
-  {
-      print "<td>\n";
-      dirlist("physics",$runrange);
       print "</td>\n";
   }
   if (-d "pulser")
