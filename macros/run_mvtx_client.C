@@ -50,12 +50,12 @@ void mvtxDrawInit(const int online = 0)
       cl->registerHisto(Form("FEE_LaneStatusFromSOX_Flag_%s", mLaneStatusFlag[i].c_str()), servername);
     }
 
-    for (int i = 0; i < 3; i++)
+   /* for (int i = 0; i < 3; i++)
     {
       cl->registerHisto(Form("FEE_LaneStatusSummary_Layer_%i", i), servername);
     }
 
-    cl->registerHisto("FEE_LaneStatusSummary", servername);
+    cl->registerHisto("FEE_LaneStatusSummary", servername);*/
 
     // raw task
     cl->registerHisto("General_DecErrors", servername);
