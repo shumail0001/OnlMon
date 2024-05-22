@@ -4,7 +4,6 @@
 // (more info - check the difference in include path search when using "" versus <>)
 
 #include "BbcMon.h"
-#include "BbcMonDefs.h"
 #include <mbd/MbdEvent.h>
 
 #include <onlmon/OnlMon.h>
@@ -29,6 +28,7 @@
 #include <TH2.h>
 #include <TH2Poly.h>
 #include <TString.h>
+#include <TSystem.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -38,6 +38,10 @@
 #include <iomanip>
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
+
+#include <fcntl.h>
+#include <sys/shm.h>
+#include <sys/mman.h>
 
 enum
 {
@@ -58,6 +62,9 @@ BbcMon::~BbcMon()
   delete bevt;
   delete _mbdgeom;
   delete erc;
+
+  shm_unlink(BbcMonDefs::shm_name);  // remove shared object
+
   return;
 }
 
@@ -171,10 +178,17 @@ int BbcMon::Init()
   // Nhit Distributions
   bbc_south_nhit = new TH1F("bbc_south_nhit","MBD.S Nhits",64,-0.5,63.5);
   bbc_north_nhit = new TH1F("bbc_north_nhit","MBD.N Nhits",64,-0.5,63.5);
-  bbc_nhit_emcal = new TH1F("bbc_nhit_emcal","MBD Nhits, EMCAL trig",64,-0.5,63.5);
-  bbc_nhit_hcal = new TH1F("bbc_nhit_hcal","MBD Nhits, JET trig",64,-0.5,63.5);
-  bbc_nhit_emcalmbd = new TH1F("bbc_nhit_emcalmbd","MBD Nhits, EMCAL&&MBD trig",64,-0.5,63.5);
-  bbc_nhit_hcalmbd = new TH1F("bbc_nhit_hcalmbd","MBD Nhits, JET&&MBD trig",64,-0.5,63.5);
+  for (int iarm=0; iarm<2; iarm++)
+  {
+    TString name = "bbc_nhit_emcal"; name += iarm;
+    bbc_nhit_emcal[iarm] = new TH1F(name,"MBD Nhits, EMCAL trig",64,-0.5,63.5);
+    name = "bbc_nhit_hcal"; name += iarm;
+    bbc_nhit_hcal[iarm] = new TH1F(name,"MBD Nhits, JET trig",64,-0.5,63.5);
+    name = "bbc_nhit_emcalmbd"; name += iarm;
+    bbc_nhit_emcalmbd[iarm] = new TH1F(name,"MBD Nhits, EMCAL&&MBD trig",64,-0.5,63.5);
+    name = "bbc_nhit_hcalmbd"; name += iarm;
+    bbc_nhit_hcalmbd[iarm] = new TH1F(name,"MBD Nhits, JET&&MBD trig",64,-0.5,63.5);
+  }
 
   // TDC Distribution ----------------------------------------------------
 
@@ -478,16 +492,19 @@ int BbcMon::Init()
   }
   se->registerHisto(this, bbc_south_nhit);
   se->registerHisto(this, bbc_north_nhit);
-  se->registerHisto(this, bbc_nhit_emcal);
-  se->registerHisto(this, bbc_nhit_hcal);
-  se->registerHisto(this, bbc_nhit_emcalmbd);
-  se->registerHisto(this, bbc_nhit_hcalmbd);
+  for (int iarm=0; iarm<2; iarm++)
+  {
+    se->registerHisto(this, bbc_nhit_emcal[iarm]);
+    se->registerHisto(this, bbc_nhit_hcal[iarm]);
+    se->registerHisto(this, bbc_nhit_emcalmbd[iarm]);
+    se->registerHisto(this, bbc_nhit_hcalmbd[iarm]);
+  }
   se->registerHisto(this, bbc_adc);
   se->registerHisto(this, bbc_tdc);
   se->registerHisto(this, bbc_tdc_overflow);
   for (auto &ipmt : bbc_tdc_overflow_each)
   {
-    se->registerHisto(this, ipmt);
+      se->registerHisto(this, ipmt);
   }
 
   se->registerHisto(this, bbc_tdc_armhittime);
@@ -527,6 +544,14 @@ int BbcMon::Init()
   m_mbdout = new MbdOutV2();
   m_mbdpmts = new MbdPmtContainerV1();
 
+  /* create the shared memory object */
+  shm_fd = shm_open(BbcMonDefs::shm_name, O_CREAT | O_RDWR, 0666);
+  std::cout << "XXX shm_fd " << shm_fd << std::endl;
+  ftruncate(shm_fd, sizeof(BbcMonDefs::vtx2mcr));
+  shm_vtx2mcr = static_cast<BbcMonDefs::vtx2mcr*>( mmap(0, sizeof(BbcMonDefs::vtx2mcr), PROT_WRITE, MAP_SHARED, shm_fd, 0) );
+  shm_vtx2mcr->fill = 0;
+  shm_vtx2mcr->sendflag = 0;
+
   return 0;
 }
 
@@ -538,7 +563,24 @@ int BbcMon::BeginRun(const int runno)
   Reset();
   bevt->InitRun();
 
+  // stop sending vtx on a new fill
+  int prev_fill = shm_vtx2mcr->fill;
+  int current_fill = GetFillNumber();
+  if ( prev_fill==0 || current_fill!=prev_fill )
+  {
+    std::cout << "MBD: Found new fill " << current_fill << std::endl;
+    shm_vtx2mcr->fill = current_fill;
+    shm_vtx2mcr->sendflag = 0;
+  }
+
   return 0;
+}
+
+int BbcMon::GetFillNumber()
+{
+  TString retval = gSystem->GetFromPipe( "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -g ringSpec.blue fillNumberM | awk 'NR==1 {print $3}'" );
+  int fill = retval.Atoi();
+  return fill;
 }
 
 int BbcMon::EndRun(const int /* runno */)
@@ -550,6 +592,19 @@ int BbcMon::EndRun(const int /* runno */)
 
 int BbcMon::process_event(Event *evt)
 {
+  if (evt->getEvtType() == 9)  // spin patterns stored in BeginRun
+  {
+    std::cout << "Found begin run event " << std::endl;
+    Packet *pBlueFillNumber = evt->getPacket(14915);
+    //pYellFillNumber = evt->getPacket(packet_YELLFILLNUMBER);
+    if ( pBlueFillNumber )
+    {
+      int fillnumberBlue = pBlueFillNumber->iValue(0);
+      std::cout << "Blue fill number " << fillnumberBlue << std::endl;
+      delete pBlueFillNumber;
+    }
+  }
+
   if (evt->getEvtType() != DATAEVENT)
   {
     return 0;
@@ -708,22 +763,26 @@ int BbcMon::process_event(Event *evt)
   if ( triggervec&emcal )
   {
     bbc_zvertex_emcal->Fill(zvtx);
-    bbc_nhit_emcal->Fill( south_nhits + north_nhits );
+    bbc_nhit_emcal[0]->Fill( south_nhits );
+    bbc_nhit_emcal[1]->Fill( north_nhits );
   }
   if ( triggervec&hcal )
   {
     bbc_zvertex_hcal->Fill(zvtx);
-    bbc_nhit_hcal->Fill( south_nhits + north_nhits );
+    bbc_nhit_hcal[0]->Fill( south_nhits );
+    bbc_nhit_hcal[1]->Fill( north_nhits );
   }
   if ( triggervec&emcalmbd )
   {
     bbc_zvertex_emcalmbd->Fill(zvtx);
-    bbc_nhit_emcalmbd->Fill( south_nhits + north_nhits );
+    bbc_nhit_emcalmbd[0]->Fill( south_nhits );
+    bbc_nhit_emcalmbd[1]->Fill( north_nhits );
   }
   if ( triggervec&hcalmbd )
   {
     bbc_zvertex_hcalmbd->Fill(zvtx);
-    bbc_nhit_hcalmbd->Fill( south_nhits + north_nhits );
+    bbc_nhit_hcalmbd[0]->Fill( south_nhits );
+    bbc_nhit_hcalmbd[1]->Fill( north_nhits );
   }
 
   // only process for primary mbd trigger
@@ -752,6 +811,13 @@ int BbcMon::process_event(Event *evt)
     msg << "MBD zvertex mean/width: " << mean << " " << rms;
     se->send_message(this, MSG_SOURCE_BBC, MSG_SEV_INFORMATIONAL, msg.str(), 1);
     std::cout << "MBD zvtx mean/width: " << mean << " " << rms << std::endl;
+
+    if ( shm_vtx2mcr->sendflag )
+    {
+      TString cmd = "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zMeanM "; cmd += mean;
+      cmd += "; /home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zRmsM "; cmd += rms;
+      gSystem->Exec( cmd );
+    }
 
     bbc_zvertex_short->Reset();
   }
@@ -839,10 +905,13 @@ int BbcMon::Reset()
 
   bbc_south_nhit->Reset();
   bbc_north_nhit->Reset();
-  bbc_nhit_emcal->Reset();
-  bbc_nhit_hcal->Reset();
-  bbc_nhit_emcalmbd->Reset();
-  bbc_nhit_hcalmbd->Reset();
+  for (int iarm=0; iarm<2; iarm++)
+  {
+    bbc_nhit_emcal[iarm]->Reset();
+    bbc_nhit_hcal[iarm]->Reset();
+    bbc_nhit_emcalmbd[iarm]->Reset();
+    bbc_nhit_hcalmbd[iarm]->Reset();
+  }
   bbc_adc->Reset();
   bbc_tdc->Reset();
   bbc_tdc_overflow->Reset();

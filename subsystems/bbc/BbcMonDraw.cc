@@ -98,7 +98,7 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete(PaveTop);
   ifdelete(TextTop);
 
-  for (int i = 0; i < MAX_WARNING; i++)
+  for (int i = 0; i < BbcMonDefs::MAX_WARNING; i++)
   {
     ifdelete(PaveWarning[i]);
     ifdelete(ArcWarning[i]);
@@ -180,6 +180,7 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete(TextZvtxSouth);
   ifdelete(TextZvtxStatus[0]);
   ifdelete(TextZvtxStatus[1]);
+  ifdelete(TextZvtxStatus[2]);
 
   ifdelete(ArmHit);
   ifdelete(TextArmHit);
@@ -188,10 +189,13 @@ BbcMonDraw::~BbcMonDraw()
   // for 3rd Page
   ifdelete(South_Nhit);
   ifdelete(North_Nhit);
-  ifdelete(Nhit_emcal);
-  ifdelete(Nhit_hcal);
-  ifdelete(Nhit_emcalmbd);
-  ifdelete(Nhit_hcalmbd);
+  for (int iarm=0; iarm<2; iarm++)
+  {
+    ifdelete(Nhit_emcal[iarm]);
+    ifdelete(Nhit_hcal[iarm]);
+    ifdelete(Nhit_emcalmbd[iarm]);
+    ifdelete(Nhit_hcalmbd[iarm]);
+  }
 
   ifdelete(Zvtx);
   ifdelete(Zvtx_ns);
@@ -229,6 +233,7 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete(FitZvtx);
   ifdelete(TextZvtxStatus[0]);
   ifdelete(TextZvtxStatus[1]);
+  ifdelete(TextZvtxStatus[2]);
 
   for (auto &icv : TC)
   {
@@ -307,6 +312,7 @@ int BbcMonDraw::Init()
   FitZvtx = new TF1("FitZvtx", "gaus", -60, 60);
   TextZvtxStatus[0] = new TLatex;
   TextZvtxStatus[1] = new TLatex;
+  TextZvtxStatus[2] = new TLatex;
 
   tspec = new TSpectrum(5);  // 5 peaks is enough - we have 4
 
@@ -404,7 +410,7 @@ int BbcMonDraw::Warning(TPad *pad, const float x, const float y, const int r, co
 
   // brink = 1 - brink;
 
-  if (nWarning == MAX_WARNING - 2)
+  if (nWarning == BbcMonDefs::MAX_WARNING - 2)
   {
     std::string bmsg = "Too Many Warnings";
     Warning(pad, x, y, 0, bmsg);
@@ -883,7 +889,7 @@ int BbcMonDraw::Draw(const std::string &what)
   if (!gROOT->FindObject("BbcMon3"))
   {
     TC[2] = nullptr;
-    if (what == "ALL" || what == "BbcMon3" || what == "BbcMonitor")
+    if (what == "ALL" || what == "THIRD" ||  what == "BbcMon3" || what == "TriggerMonitor")
     {
       MakeCanvas("BbcMon3");
     }
@@ -898,6 +904,25 @@ int BbcMonDraw::Draw(const std::string &what)
     }
   }
 
+  //
+  if ( what == "MBD2MCR" )
+  {
+	shm_fd = shm_open(BbcMonDefs::shm_name, O_RDWR, 0666);
+    shm_vtx2mcr = static_cast<BbcMonDefs::vtx2mcr*>( mmap(0, sizeof(BbcMonDefs::vtx2mcr), PROT_WRITE, MAP_SHARED, shm_fd, 0) );
+    int sendflag = shm_vtx2mcr->sendflag;
+    std::cout << "YYY shm_fd " << shm_fd << std::endl;
+    if ( sendflag==0 && shm_vtx2mcr!=nullptr )
+    {
+      shm_vtx2mcr->sendflag = 1;
+      std::cout << "MBD: NOW Sending vertex to MCR" << std::endl;
+    }
+    else
+    {
+      shm_vtx2mcr->sendflag = 0;
+      std::cout << "MBD: STOPPED sending vertex to MCR" << std::endl;
+    }
+    close(shm_fd);
+  }
 
   ClearWarning();
 
@@ -930,21 +955,28 @@ int BbcMonDraw::Draw(const std::string &what)
   ifdelete(North_Nhit);
   North_Nhit = static_cast<TH1 *>(bbc_north_nhit->Clone());
 
-  TH1 *bbc_nhit_emcal = cl->getHisto("BBCMON_0", "bbc_nhit_emcal");
-  ifdelete(Nhit_emcal);
-  Nhit_emcal = static_cast<TH1 *>(bbc_nhit_emcal->Clone());
+  for (int iarm=0; iarm<2; iarm++)
+  {
+    TString name2 = "bbc_nhit_emcal"; name2 += iarm;
+    TH1 *bbc_nhit_emcal = cl->getHisto("BBCMON_0", name2.Data());
+    ifdelete(Nhit_emcal[iarm]);
+    Nhit_emcal[iarm] = static_cast<TH1 *>(bbc_nhit_emcal->Clone());
 
-  TH1 *bbc_nhit_hcal = cl->getHisto("BBCMON_0", "bbc_nhit_hcal");
-  ifdelete(Nhit_hcal);
-  Nhit_hcal = static_cast<TH1 *>(bbc_nhit_hcal->Clone());
+    name2 = "bbc_nhit_hcal"; name2 += iarm;
+    TH1 *bbc_nhit_hcal = cl->getHisto("BBCMON_0", name2.Data());
+    ifdelete(Nhit_hcal[iarm]);
+    Nhit_hcal[iarm] = static_cast<TH1 *>(bbc_nhit_hcal->Clone());
 
-  TH1 *bbc_nhit_emcalmbd = cl->getHisto("BBCMON_0", "bbc_nhit_emcalmbd");
-  ifdelete(Nhit_emcalmbd);
-  Nhit_emcalmbd = static_cast<TH1 *>(bbc_nhit_emcalmbd->Clone());
+    name2 = "bbc_nhit_emcalmbd"; name2 += iarm;
+    TH1 *bbc_nhit_emcalmbd = cl->getHisto("BBCMON_0", name2.Data());
+    ifdelete(Nhit_emcalmbd[iarm]);
+    Nhit_emcalmbd[iarm] = static_cast<TH1 *>(bbc_nhit_emcalmbd->Clone());
 
-  TH1 *bbc_nhit_hcalmbd = cl->getHisto("BBCMON_0", "bbc_nhit_hcalmbd");
-  ifdelete(Nhit_hcalmbd);
-  Nhit_hcalmbd = static_cast<TH1 *>(bbc_nhit_hcalmbd->Clone());
+    name2 = "bbc_nhit_hcalmbd"; name2 += iarm;
+    TH1 *bbc_nhit_hcalmbd = cl->getHisto("BBCMON_0", name2.Data());
+    ifdelete(Nhit_hcalmbd[iarm]);
+    Nhit_hcalmbd[iarm] = static_cast<TH1 *>(bbc_nhit_hcalmbd->Clone());
+  }
 
   TH1 *bbc_nevent_counter = cl->getHisto("BBCMON_0", "bbc_nevent_counter");
 
@@ -1416,6 +1448,23 @@ int BbcMonDraw::Draw(const std::string &what)
       Zvtx_ns->Draw("hist");
     }
 
+    // Status of sending vertex
+	shm_fd = shm_open(BbcMonDefs::shm_name, O_RDWR, 0666);
+    shm_vtx2mcr = static_cast<BbcMonDefs::vtx2mcr*>( mmap(0, sizeof(BbcMonDefs::vtx2mcr), PROT_WRITE, MAP_SHARED, shm_fd, 0) );
+    if ( shm_vtx2mcr->sendflag )
+    {
+        text = "Sending Vertex to MCR";
+    }
+    else
+    {
+        text = "NOT Sending Vertex to MCR";
+    }
+    close( shm_fd );
+
+    TextZvtxStatus[2]->SetText(-55., Zvtx_ns->GetMaximum()*0.95, text.c_str());
+    TextZvtxStatus[2]->SetTextSize(0.05);
+    TextZvtxStatus[2]->Draw();
+
     /*
     // replaced with hitmap
     PadTzeroZVertex->cd();
@@ -1860,8 +1909,8 @@ int BbcMonDraw::Draw(const std::string &what)
 
       South_Nhit->SetLineColor(2);
       North_Nhit->SetLineColor(4);
-      South_Nhit->GetXaxis()->SetRangeUser(0,60);
-      North_Nhit->GetXaxis()->SetRangeUser(0,60);
+      South_Nhit->GetXaxis()->SetRangeUser(0,30);
+      North_Nhit->GetXaxis()->SetRangeUser(0,30);
       South_Nhit->SetTitle("MBD Nhits, MBD trig");
       North_Nhit->SetTitle("MBD Nhits, MBD trig");
       South_Nhit->Draw();
@@ -1889,12 +1938,21 @@ int BbcMonDraw::Draw(const std::string &what)
     {
       PadNhitsEMCAL->cd();
 
-      Nhit_emcal->SetLineColor(4);
-      Nhit_emcalmbd->SetLineColor(2);
-      Nhit_emcal->GetXaxis()->SetRangeUser(0,60);
-      Nhit_emcalmbd->GetXaxis()->SetRangeUser(0,60);
-      Nhit_emcal->Draw();
-      Nhit_emcalmbd->Draw("same");
+      Nhit_emcal[0]->SetLineColor(2);
+      Nhit_emcal[1]->SetLineColor(4);
+      Nhit_emcalmbd[0]->SetLineColor(2);
+      Nhit_emcalmbd[1]->SetLineColor(4);
+      Nhit_emcalmbd[0]->SetLineStyle(7);
+      Nhit_emcalmbd[1]->SetLineStyle(7);
+      for (int iarm=0; iarm<2; iarm++)
+      {
+        Nhit_emcal[iarm]->GetXaxis()->SetRangeUser(0,20);
+        Nhit_emcalmbd[iarm]->GetXaxis()->SetRangeUser(0,20);
+
+        if ( iarm==0 ) Nhit_emcal[iarm]->Draw();
+        else           Nhit_emcal[iarm]->Draw("same");
+        Nhit_emcalmbd[iarm]->Draw("same");
+      }
     }
 
     if (PadZvtxHCAL)
@@ -1918,12 +1976,21 @@ int BbcMonDraw::Draw(const std::string &what)
     {
       PadNhitsHCAL->cd();
 
-      Nhit_hcal->SetLineColor(4);
-      Nhit_hcalmbd->SetLineColor(2);
-      Nhit_hcal->GetXaxis()->SetRangeUser(0,60);
-      Nhit_hcalmbd->GetXaxis()->SetRangeUser(0,60);
-      Nhit_hcal->Draw();
-      Nhit_hcalmbd->Draw("same");
+      Nhit_hcal[0]->SetLineColor(2);
+      Nhit_hcal[1]->SetLineColor(4);
+      Nhit_hcalmbd[0]->SetLineColor(2);
+      Nhit_hcalmbd[1]->SetLineColor(4);
+      Nhit_hcalmbd[0]->SetLineStyle(7);
+      Nhit_hcalmbd[1]->SetLineStyle(7);
+      for (int iarm=0; iarm<2; iarm++)
+      {
+        Nhit_hcal[iarm]->GetXaxis()->SetRangeUser(0,20);
+        Nhit_hcalmbd[iarm]->GetXaxis()->SetRangeUser(0,20);
+
+        if ( iarm==0 ) Nhit_hcal[iarm]->Draw();
+        else           Nhit_hcal[iarm]->Draw("same");
+        Nhit_hcalmbd[iarm]->Draw("same");
+      }
     }
 
 
