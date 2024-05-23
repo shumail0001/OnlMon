@@ -431,18 +431,9 @@ int CemcMon::process_event(Event *e /* evt */)
 
           rm_vector_twr[towerNumber - 1]->Add(&signalFast);
 
-          if (signalFast > waveform_hit_threshold)
-          {
-            h1_waveform_time->Fill(timeFast);
-          }
+         
 
-          if (signalFast > waveform_hit_threshold)
-          {
-            for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
-            {
-              h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
-            }
-          }
+         
           if (signalFast > hit_threshold)
           {
             rm_vector_twrhits[towerNumber - 1]->Add(&one);
@@ -458,6 +449,17 @@ int CemcMon::process_event(Event *e /* evt */)
           h1_cemc_adc->Fill(signalFast);
         }
         //_______________________________________________________end of MBD trigger requirement
+        if (signalFast > waveform_hit_threshold)
+        {
+          for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+          {
+            h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
+          }
+        }
+        if (signalFast > waveform_hit_threshold)
+        {
+          h1_waveform_time->Fill(timeFast);
+        }
         if (signalFast > hit_threshold)
         {
           // h2_cemc_hits->SetBinContent(bin, h2_cemc_hits->GetBinContent(bin) + signalFast);
