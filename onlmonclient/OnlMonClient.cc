@@ -1791,3 +1791,48 @@ OnlMonDraw *OnlMonClient::GetDrawer(const std::string &name)
   std::cout << "Cannot locate Drawer " << name << " in my list" << std::endl;
   return nullptr;
 }
+
+void OnlMonClient::SaveServerHistoMap(const std::string &cachefilename)
+{
+  std::ofstream cachefile(cachefilename);
+  std::cout << "saving histomap to " << cachefilename << std::endl;
+  for (auto &subs : SubsysHisto)
+  {
+    for (auto &histos : subs.second)
+    {
+      cachefile << histos.first << " " << histos.second->SubSystem() << " " << histos.second->ServerHost() << " " << histos.second->ServerPort() << std::endl;
+    }
+  }
+  cachefile.close();
+  return;
+}
+
+void OnlMonClient::ReadServerHistoMap(const std::string &cachefilename)
+{
+  std::ifstream cachefile(cachefilename);
+  std::string hname;
+  std::string subsys;
+  std::string hostname;
+  int port;
+  if (cachefile.good())
+  {
+    std::cout << "opened file " << cachefilename << std::endl;
+    std::string line;
+    while (std::getline(cachefile, line))
+    {
+      std::cout << "read line " << line << std::endl;
+      std::istringstream iss(line);
+      iss >> hname;
+      iss >> subsys;
+      iss >> hostname;
+      iss >> port;
+      std::cout << "hanem " << hname << ", port " << port << std::endl;
+      PutHistoInMap(hname,subsys,hostname,port);
+    }
+    cachefile.close();
+  }
+  else
+  {
+    std::cout << "failed to open file " << cachefilename << std::endl;
+  }
+}
