@@ -1,8 +1,10 @@
 #ifndef BBC_BBCMON_H
 #define BBC_BBCMON_H
 
-#include <onlmon/OnlMon.h>
 #include "BbcMonDefs.h"
+
+#include <onlmon/OnlMon.h>
+
 
 class Event;
 class TH1;
