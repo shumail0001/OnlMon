@@ -32,9 +32,7 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"FIRST\")", "Towers");
   subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Health [Expert]");
   subsys->AddAction("cemcDraw(\"THIRD\")", "Wave Forms");
-  subsys->AddAction("cemcDraw(\"FOURTH\")", "Wave vs Fast Fitting [Expert]");
   subsys->AddAction("cemcDraw(\"FIFTH\")", "Trigger [Expert]");
-  subsys->AddAction("cemcDraw(\"SIXTH\")", "All waveform summary [Expert]");
   subsys->AddAction("cemcDraw(\"SEVENTH\")", "Zero-suppression info");
   subsys->AddAction("cemcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
@@ -173,11 +171,11 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("LOCALPOL", "localpol");
-  subsys->AddAction("localpolDraw(\"FIRST\")", "Asymmetries");
-  subsys->AddAction("localpolDraw(\"SECOND\")", "Polarisation direction");
-  subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  pmf->RegisterSubSystem(subsys);
+  // subsys = new SubSystem("LOCALPOL", "localpol");
+  // subsys->AddAction("localpolDraw(\"FIRST\")", "Asymmetries");
+  // subsys->AddAction("localpolDraw(\"SECOND\")", "Polarisation direction");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
 
 
   pmf->Draw();
