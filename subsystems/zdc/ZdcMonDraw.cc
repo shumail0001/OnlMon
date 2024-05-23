@@ -1468,6 +1468,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   t2->SetLineColor(kRed);
     
   Pad[59]->cd();
+  gPad->SetLogz();
   gPad->SetRightMargin(0.15);
   gPad->SetLeftMargin(lf);
 
@@ -1584,6 +1585,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     t4->SetLineColor(kRed);
       
     Pad[60]->cd();
+    gPad->SetLogz();
     gPad->SetRightMargin(0.15);
     gPad->SetLeftMargin(lf);
 
@@ -1702,6 +1704,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   t6->SetLineColor(kRed);
       
     Pad[61]->cd();
+    gPad->SetLogz();
     gPad->SetRightMargin(0.15);
     gPad->SetLeftMargin(lf);
 
@@ -1822,6 +1825,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   t8->SetLineColor(kRed);
       
     Pad[62]->cd();
+    gPad->SetLogz();
     gPad->SetRightMargin(0.15);
     gPad->SetLeftMargin(lf);
 
@@ -1945,6 +1949,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
 
       
     Pad[63]->cd();
+    gPad->SetLogz();
     gPad->SetRightMargin(0.15);
     gPad->SetLeftMargin(lf);
 
