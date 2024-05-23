@@ -5,10 +5,7 @@
 
 #include <onlmon/OnlMonDraw.h>
 
-#include <string>
-#include <fcntl.h>
-#include <sys/shm.h>
-#include <sys/mman.h>
+#include <string>  // for allocator, string
 
 class OnlMonDB;
 class TCanvas;
@@ -27,6 +24,8 @@ class TArrow;
 class TF1;
 class TLatex;
 class TSpectrum;
+
+#define MAX_WARNING 16
 
 class BbcMonDraw : public OnlMonDraw
 {
@@ -54,10 +53,6 @@ class BbcMonDraw : public OnlMonDraw
 
   OnlMonDB *dbvars = nullptr;
 
-  // shared mem pointer for vtx to MCR
-  int shm_fd{0};
-  BbcMonDefs::vtx2mcr *shm_vtx2mcr{nullptr};
-
   TCanvas *TC[nCANVAS] = {nullptr};
   TPad *transparent[nCANVAS] = {nullptr};
 
@@ -68,10 +63,10 @@ class BbcMonDraw : public OnlMonDraw
   TPaveText *PaveTop = nullptr;
   TText *TextTop = nullptr;
 
-  TPaveText *PaveWarning[BbcMonDefs::MAX_WARNING] = {};
-  TArc *ArcWarning[BbcMonDefs::MAX_WARNING] = {};
-  TPad *PadWarning[BbcMonDefs::MAX_WARNING] = {};
-  int nPadWarning[BbcMonDefs::MAX_WARNING] = {};
+  TPaveText *PaveWarning[MAX_WARNING] = {};
+  TArc *ArcWarning[MAX_WARNING] = {};
+  TPad *PadWarning[MAX_WARNING] = {};
+  int nPadWarning[MAX_WARNING] = {};
   int nWarning = 0;
 
   TH1 *Trigs{nullptr};
@@ -156,10 +151,10 @@ class BbcMonDraw : public OnlMonDraw
   // Triggered Monitor
   TH1 *South_Nhit{ nullptr };
   TH1 *North_Nhit{ nullptr };
-  TH1 *Nhit_emcal[2]{ nullptr, nullptr };
-  TH1 *Nhit_hcal[2]{ nullptr, nullptr };
-  TH1 *Nhit_emcalmbd[2]{ nullptr, nullptr };
-  TH1 *Nhit_hcalmbd[2]{ nullptr, nullptr };
+  TH1 *Nhit_emcal{ nullptr };
+  TH1 *Nhit_hcal{ nullptr };
+  TH1 *Nhit_emcalmbd{ nullptr };
+  TH1 *Nhit_hcalmbd{ nullptr };
   TPad *PadNhits{ nullptr };
   TPad *PadNhitsHCAL{ nullptr };
   TPad *PadNhitsEMCAL{ nullptr };
@@ -212,7 +207,7 @@ class BbcMonDraw : public OnlMonDraw
   TText *TextZVertex_scale[5] = {};  // RUN11 pp
   TText *TextZVertex_mean[5] = {};   // RUN11 pp
 
-  TLatex *TextZvtxStatus[3] = {};
+  TLatex *TextZvtxStatus[2] = {};
 
   TH2 *TzeroZvtx = nullptr;
 
