@@ -1,7 +1,10 @@
 #ifndef BBC_BBCMON_H
 #define BBC_BBCMON_H
 
+#include "BbcMonDefs.h"
+
 #include <onlmon/OnlMon.h>
+
 
 class Event;
 class TH1;
@@ -58,6 +61,11 @@ class BbcMon : public OnlMon
   MbdOut *m_mbdout{nullptr};
   MbdPmtContainer *m_mbdpmts{nullptr};
 
+  // shared mem pointer for vtx to MCR
+  int shm_fd{0};
+  BbcMonDefs::vtx2mcr *shm_vtx2mcr{nullptr};
+  int GetFillNumber();
+
   TH1 *bbc_trigs{nullptr};
   TH2 *bbc_adc{nullptr};
   TH2 *bbc_tdc{nullptr};
@@ -65,10 +73,10 @@ class BbcMon : public OnlMon
   TH1 *bbc_tdc_overflow_each[128] = {};  // should be [nPMT_BBC], need to fix
   TH1 *bbc_south_nhit{nullptr};
   TH1 *bbc_north_nhit{nullptr};
-  TH1 *bbc_nhit_emcal{nullptr};
-  TH1 *bbc_nhit_hcal{nullptr};
-  TH1 *bbc_nhit_emcalmbd{nullptr};
-  TH1 *bbc_nhit_hcalmbd{nullptr};
+  TH1 *bbc_nhit_emcal[2]{nullptr,nullptr};
+  TH1 *bbc_nhit_hcal[2]{nullptr,nullptr};
+  TH1 *bbc_nhit_emcalmbd[2]{nullptr,nullptr};
+  TH1 *bbc_nhit_hcalmbd[2]{nullptr,nullptr};
 
   TH2 *bbc_tdc_armhittime{nullptr};
   TH1 *bbc_nevent_counter{nullptr};

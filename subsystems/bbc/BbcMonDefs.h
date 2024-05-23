@@ -3,7 +3,7 @@
 
 //#include <gsl/gsl_const_cgsm.h>
 
-#define AUAU  // PROTONPROTON //PAL //PAU //DAU //HE3AU //CUCU //AUAU
+#define AUAU  // PROTONPROTON //PAU //DAU
 
 namespace BbcMonDefs
 {
@@ -177,6 +177,8 @@ namespace BbcMonDefs
   // static const int BBC_COLOR_ZVTX[4] = {4,2,7,1};
   static const int BBC_COLOR_ZVTX[5] = {4, 2, 7, 6, 1};
 
+  static const int MAX_WARNING = 16;
+
   static const int BBC_MAXSAMPLES = 31;  // number of digitizer samples
 
   const double index_refract = 1.4585;        // quartz radiator index of refraction
@@ -203,6 +205,14 @@ namespace BbcMonDefs
     RESET_NODE_TREE = 1
   };
   
+
+  static const char *shm_name = "mbdvtx2mcr";
+
+  typedef struct {
+    int fill;
+    int sendflag;
+  } vtx2mcr;
+
 }  // namespace BbcMonDefs
 
 #endif /*__BBCMONDEFS_H__ */
