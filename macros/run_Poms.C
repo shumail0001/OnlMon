@@ -8,12 +8,15 @@
 // See run_Poms.C.README
 
 #include <onlmon/Poms.h>
+#include <onlmon/OnlMonClient.h>
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libpoms.so)
 
 void StartPoms()
 {
+  OnlMonClient *cl = OnlMonClient::instance();
+  cl->ReadServerHistoMap();
   PomsMainFrame *pmf;
   pmf = PomsMainFrame::Instance();
 
