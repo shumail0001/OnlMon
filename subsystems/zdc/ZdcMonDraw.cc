@@ -1855,7 +1855,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     gStyle->SetTitleFontSize(0.06);
     h_waveform_timevn->Draw("hist");
     h_waveform_timevn->SetTitle("");
-    h_waveform_timevn->GetXaxis()->CenterTitle();
+    // h_waveform_timevn->GetXaxis()->CenterTitle();
     h_waveform_timevn->SetStats(0);
     h_waveform_timevn->GetXaxis()->SetNdivisions(510, kTRUE);
     h_waveform_timevn->GetXaxis()->SetRangeUser(0, 16);
@@ -1979,7 +1979,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     gStyle->SetTitleFontSize(0.06);
     h_waveform_timevs->Draw("hist");
     h_waveform_timevs->SetTitle("");
-    h_waveform_timevs->GetXaxis()->CenterTitle();
+    // h_waveform_timevs->GetXaxis()->CenterTitle();
     h_waveform_timevs->SetStats(0);
     h_waveform_timevs->GetXaxis()->SetNdivisions(510, kTRUE);
     h_waveform_timevs->GetXaxis()->SetRangeUser(0, 16);
