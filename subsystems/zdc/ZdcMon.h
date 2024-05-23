@@ -51,7 +51,14 @@ class ZdcMon : public OnlMon
   TH1 *veto_NB = nullptr;
   TH1 *veto_SF = nullptr;
   TH1 *veto_SB = nullptr;
-  
+    
+    
+  TH1* h_waveform_timez = nullptr;
+  TH1* h_waveform_timess = nullptr;
+  TH1* h_waveform_timesn = nullptr;
+  TH1* h_waveform_timevs = nullptr;
+  TH1* h_waveform_timevn = nullptr;
+
   // //waveform
   TH2 *h_waveformZDC = nullptr;
   TH2 *h_waveformSMD_North = nullptr;
@@ -59,16 +66,6 @@ class ZdcMon : public OnlMon
   TH2 *h_waveformVeto_North = nullptr;
   TH2 *h_waveformVeto_South = nullptr;
 
-  TProfile *tph_waveformZDC = nullptr;
-  TProfile *tph_waveformZDCc = nullptr;
-  TProfile *tph_waveformSMD_North = nullptr;
-  TProfile *tph_waveformSMD_Northc = nullptr;
-  TProfile *tph_waveformSMD_South = nullptr;
-  TProfile *tph_waveformSMD_Southc = nullptr;
-  TProfile *tph_waveformVeto_North = nullptr;
-  TProfile *tph_waveformVeto_Northc = nullptr;
-  TProfile *tph_waveformVeto_South = nullptr;
-  TProfile *tph_waveformVeto_Southc = nullptr;
 
   // smd
   // Individual Channels

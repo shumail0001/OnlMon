@@ -30,18 +30,14 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("h_waveformSMD_South","ZDCMON_0");
   cl->registerHisto("h_waveformVeto_North","ZDCMON_0");
   cl->registerHisto("h_waveformVeto_South","ZDCMON_0");
+  cl->registerHisto("h_waveform_timez", "ZDCMON_0");
+  cl->registerHisto("h_waveform_timess", "ZDCMON_0");
+  cl->registerHisto("h_waveform_timesn", "ZDCMON_0");
+  cl->registerHisto("h_waveform_timevs", "ZDCMON_0");
+  cl->registerHisto("h_waveform_timevn", "ZDCMON_0");
 
-    
-  cl->registerHisto("tph_waveformZDC","ZDCMON_0");
-  cl->registerHisto("tph_waveformZDCc","ZDCMON_0");
-  cl->registerHisto("tph_waveformSMD_North","ZDCMON_0");
-  cl->registerHisto("tph_waveformSMD_Northc","ZDCMON_0");
-  cl->registerHisto("tph_waveformSMD_South","ZDCMON_0");
-  cl->registerHisto("tph_waveformSMD_Southc","ZDCMON_0");
-  cl->registerHisto("tph_waveformVeto_North","ZDCMON_0");
-  cl->registerHisto("tph_waveformVeto_Northc","ZDCMON_0");
-  cl->registerHisto("tph_waveformVeto_South","ZDCMON_0");
-  cl->registerHisto("tph_waveformVeto_Southc","ZDCMON_0");
+
+
 
 
  //veto
