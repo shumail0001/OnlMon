@@ -101,7 +101,7 @@ HcalMon::~HcalMon()
   return;
 }
 
-const int depth = 20000;
+const int depth = 50000;
 const int packet_depth = 1000;
 const int historyLength = 100;
 const int historyScaleDown = 100;
@@ -372,12 +372,13 @@ int HcalMon::process_event(Event* e /* evt */)
   bool trig4_fire = false;
   bool fillhist = true;
   std::vector<bool> trig_bools;
+  trig_bools.resize(64);
   long long int gl1_clock = 0;
   bool have_gl1 = false;
   if (anaGL1)
   {
     int evtnr = e->getEvtSequence();
-    Event* gl1Event = erc->getEvent(evtnr);
+    Event* gl1Event = erc->getEvent(evtnr+1);
     if (gl1Event)
     {
       have_gl1 = true;
@@ -390,7 +391,8 @@ int HcalMon::process_event(Event* e /* evt */)
         for (int i = 0; i < 64; i++)
         {
           bool trig_decision = ((triggervec & 0x1U) == 0x1U);
-          trig_bools.push_back(trig_decision);
+          trig_bools[i] = trig_decision;
+          
           if (trig_decision)
           {
             h_hcal_trig->Fill(i);
@@ -411,13 +413,11 @@ int HcalMon::process_event(Event* e /* evt */)
       h_evtRec->Fill(0.0, 0.0);
     }
   //this is for only process event with the MBD>=1 trigger
-  
     if(usembdtrig){
       if(trig_bools.at(10) == 0){
         fillhist = false;
       }
     }
-  
   }
 
   for (int packet = packetlow; packet <= packethigh; packet++)
@@ -489,7 +489,7 @@ int HcalMon::process_event(Event* e /* evt */)
           {
             rm_vector_twrhit[towerNumber - 1]->Add(zero);
           }
-          h_waveform_pedestal->Fill(pedestal);
+          h_waveform_pedestal->Fill(pedestal); 
 
           if (suppressed == 1)
           {

@@ -35,10 +35,10 @@ enum
   FILLMESSAGE = 2
 };
 
-const int depth = 10000;
+const int depth = 50000;
 // const int historyLength = 100;
 // const float hit_threshold = 100;
-const float hit_threshold = 30;
+const float hit_threshold = 100;
 const float waveform_hit_threshold = 100;
 
 using namespace std;
@@ -319,7 +319,7 @@ int CemcMon::process_event(Event *e /* evt */)
   if (anaGL1)
   {
     int evtnr = e->getEvtSequence();
-    Event *gl1Event = erc->getEvent(evtnr);
+    Event *gl1Event = erc->getEvent(evtnr+1);
     if (gl1Event)
     {
       have_gl1 = true;

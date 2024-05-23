@@ -68,7 +68,9 @@ int CemcMonDraw::Init()
   {
     // std::string Templatefilename=std::string(CEMCcalib)+"/"+"Template_40929_100ADC_hits.root";
     // std::string Templatefilename=std::string(CEMCcalib)+"/"+"Template_40929_50ADC_hits.root";
-    std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_40929_30ADC_hits.root";
+    // std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_40929_30ADC_hits.root";
+    std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_43451_100ADC_hits.root";
+    
     inputTemplate = new TFile(Templatefilename.c_str(), "READ");
     if (!inputTemplate->IsOpen())
     {
@@ -623,7 +625,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << ": tower occupancy (threshold 30ADC) running mean divided by template";
+  runnostream << ThisName << ": tower occupancy (threshold 100ADC) running mean divided by template";
   runnostream2 << "Run " << cl->RunNumber()<<", Event: " << avgevents << ", Time: " << ctime(&evttime);
   
   transparent[0]->cd();
