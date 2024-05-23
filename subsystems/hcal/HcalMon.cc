@@ -371,7 +371,8 @@ int HcalMon::process_event(Event* e /* evt */)
   bool trig3_fire = false;
   bool trig4_fire = false;
   bool fillhist = true;
-  std::vector<bool> trig_bools(64, false);
+  std::vector<bool> trig_bools;
+  trig_bools.resize(64);
   long long int gl1_clock = 0;
   bool have_gl1 = false;
   if (anaGL1)

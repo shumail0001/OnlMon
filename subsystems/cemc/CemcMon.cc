@@ -312,7 +312,7 @@ int CemcMon::process_event(Event *e /* evt */)
   unsigned int towerNumber = 0;
   bool fillhist = true;
   std::vector<bool> trig_bools;
-  std::vector<bool> trig_bools(64, false);
+  trig_bools.resize(64);
   long long int gl1_clock = 0;
   bool have_gl1 = false;
   
