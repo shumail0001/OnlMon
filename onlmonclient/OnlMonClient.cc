@@ -1228,7 +1228,10 @@ void OnlMonClient::AddServerHost(const std::string &hostname)
 {
   if (find(MonitorHosts.begin(), MonitorHosts.end(), hostname) != MonitorHosts.end())
   {
-    std::cout << "Host " << hostname << " already in list" << std::endl;
+    if (Verbosity() > 2)
+    {
+      std::cout << "Host " << hostname << " already in list" << std::endl;
+    }
   }
   else
   {
@@ -1850,6 +1853,7 @@ void OnlMonClient::ReadServerHistoMap(const std::string &cachefilename)
       iss >> port;
       AddServerHost(hostname);
       PutHistoInMap(hname,subsys,hostname,port);
+      MonitorHostPorts.insert(std::make_pair(subsys, std::make_pair(hostname,port)));
     }
     cachefile.close();
   }
