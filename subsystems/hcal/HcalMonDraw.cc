@@ -419,61 +419,72 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
 
   hist1->GetZaxis()->SetRangeUser(0, 4);
 
-  TLine* line_sector[32];
-  for (int i_line = 0; i_line < 32; i_line++)
-  {
-    line_sector[i_line] = new TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
-    line_sector[i_line]->SetLineColor(1);
-    line_sector[i_line]->SetLineWidth(4);
-    line_sector[i_line]->SetLineStyle(1);
-  }
-  TLine* line_board1 = new TLine(8, 0, 8, 64);
-  line_board1->SetLineColor(1);
-  line_board1->SetLineWidth(4);
-  line_board1->SetLineStyle(1);
-  TLine* line_board2 = new TLine(16, 0, 16, 64);
-  line_board2->SetLineColor(1);
-  line_board2->SetLineWidth(4);
-  line_board2->SetLineStyle(1);
-
-  TLine* line_iphi[64];
-  for (int i_line = 0; i_line < 64; i_line++)
-  {
-    line_iphi[i_line] = new TLine(0, (i_line + 1), 24, (i_line + 1));
-    line_iphi[i_line]->SetLineColor(1);
-    line_iphi[i_line]->SetLineWidth(1);
-    line_iphi[i_line]->SetLineStyle(1);
-  }
-  TLine* line_ieta[64];
-  for (int i_line = 0; i_line < 24; i_line++)
-  {
-    line_ieta[i_line] = new TLine((i_line + 1), 0, (i_line + 1), 64);
-    line_ieta[i_line]->SetLineColor(1);
-    line_ieta[i_line]->SetLineWidth(1);
-    line_ieta[i_line]->SetLineStyle(1);
-  }
-
   gPad->SetTopMargin(0.08);
-  gPad->SetBottomMargin(0.07);
-  gPad->SetLeftMargin(0.08);
-  gPad->SetRightMargin(0.11);
+gPad->SetBottomMargin(0.07);
+gPad->SetLeftMargin(0.08);
+gPad->SetRightMargin(0.11);
 
-  hist1->Draw("colz");
-  for (auto& i_line : line_sector)
-  {
-    i_line->Draw();
-  }
-  line_board1->Draw();
-  line_board2->Draw();
+hist1->Draw("colz");
 
-  for (auto& i_line : line_iphi)
-  {
-    i_line->Draw();
-  }
-  for (int i_line = 0; i_line < 24; i_line++)
-  {
-    line_ieta[i_line]->Draw();
-  }
+TLine line_sector[32];
+for (int i_line = 0; i_line < 32; i_line++)
+{
+    line_sector[i_line] = TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+    line_sector[i_line].SetLineColor(1);
+    line_sector[i_line].SetLineWidth(4);
+    line_sector[i_line].SetLineStyle(1);
+}
+TLine line_board1(8, 0, 8, 64);
+line_board1.SetLineColor(1);
+line_board1.SetLineWidth(4);
+line_board1.SetLineStyle(1);
+TLine line_board2(16, 0, 16, 64);
+line_board2.SetLineColor(1);
+line_board2.SetLineWidth(4);
+line_board2.SetLineStyle(1);
+
+TLine line_iphi[64];
+for (int i_line = 0; i_line < 64; i_line++)
+{
+    line_iphi[i_line] = TLine(0, (i_line + 1), 24, (i_line + 1));
+    line_iphi[i_line].SetLineColor(1);
+    line_iphi[i_line].SetLineWidth(1);
+    line_iphi[i_line].SetLineStyle(1);
+}
+TLine line_ieta[24];
+for (int i_line = 0; i_line < 24; i_line++)
+{
+    line_ieta[i_line] = TLine((i_line + 1), 0, (i_line + 1), 64);
+    line_ieta[i_line].SetLineColor(1);
+    line_ieta[i_line].SetLineWidth(1);
+    line_ieta[i_line].SetLineStyle(1);
+}
+
+gPad->SetTopMargin(0.08);
+gPad->SetBottomMargin(0.07);
+gPad->SetLeftMargin(0.08);
+gPad->SetRightMargin(0.11);
+
+hist1->Draw("colz");
+
+for (int i_line = 0; i_line < 32; i_line++)
+{
+    line_sector[i_line].DrawLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+}
+
+line_board1.DrawLine(8, 0, 8, 64);
+line_board2.DrawLine(16, 0, 16, 64);
+
+for (int i_line = 0; i_line < 64; i_line++)
+{
+    line_iphi[i_line].DrawLine(0, (i_line + 1), 24, (i_line + 1));
+}
+for (int i_line = 0; i_line < 24; i_line++)
+{
+    line_ieta[i_line].DrawLine((i_line + 1), 0, (i_line + 1), 64);
+}
+
+
 
   Int_t palette[3] = {1, 8, 2};
   hcalStyle->SetPalette(3, palette);
@@ -747,17 +758,18 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   graph->SetMarkerColor(1);
   graph->Draw("P same");
   */
-  //draw two black lines for the okay timing range
-  TLine* line1 = new TLine(4.5, 0, 4.5, ymaxp * 20);
-  line1->SetLineColor(1);
-  line1->SetLineWidth(3);
-  line1->SetLineStyle(1);
-  line1->Draw();
-  TLine* line2 = new TLine(7.5, 0, 7.5, ymaxp * 20);
-  line2->SetLineColor(1);
-  line2->SetLineWidth(3);
-  line2->SetLineStyle(1);
-  line2->Draw();
+  // draw two black lines for the okay timing range
+  TLine line1(4.5, 0, 4.5, ymaxp * 20);
+  line1.SetLineColor(1);
+  line1.SetLineWidth(3);
+  line1.SetLineStyle(1);
+  line1.DrawLine(4.5, 0, 4.5, ymaxp * 20);
+
+  TLine line2(7.5, 0, 7.5, ymaxp * 20);
+  line2.SetLineColor(1);
+  line2.SetLineWidth(3);
+  line2.SetLineStyle(1);
+  line2.DrawLine(7.5, 0, 7.5, ymaxp * 20);
 
   gPad->SetLogz();
   gPad->SetTopMargin(0.06);
@@ -807,24 +819,25 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
     h_waveform_time->Scale(1. / h_waveform_time->GetEntries());
   }
   gPad->Update();
-  //draw two black lines for the okay timing range
-  TLine* line3 = new TLine(4.5, 0, 4.5,  gPad->GetFrame()->GetY2());
-  line3->SetLineColor(1);
-  line3->SetLineWidth(3);
-  line3->SetLineStyle(1);
-  line3->Draw();
-  TLine* line4 = new TLine(7.5, 0, 7.5,  gPad->GetFrame()->GetY2());
-  line4->SetLineColor(1);
-  line4->SetLineWidth(3);
-  line4->SetLineStyle(1);
-  line4->Draw();
-  //draw a red line at mean x
-  TLine* line5 = new TLine(h_waveform_time->GetMean(), 0, h_waveform_time->GetMean(),  gPad->GetFrame()->GetY2());
-  line5->SetLineColor(2);
-  line5->SetLineWidth(3);
-  line5->SetLineStyle(1);
-  line5->Draw();
+  // draw two black lines for the okay timing range
+  TLine line3(4.5, 0, 4.5, gPad->GetFrame()->GetY2());
+  line3.SetLineColor(1);
+  line3.SetLineWidth(3);
+  line3.SetLineStyle(1);
+  line3.DrawLine(4.5, 0, 4.5, gPad->GetFrame()->GetY2());
 
+  TLine line4(7.5, 0, 7.5, gPad->GetFrame()->GetY2());
+  line4.SetLineColor(1);
+  line4.SetLineWidth(3);
+  line4.SetLineStyle(1);
+  line4.DrawLine(7.5, 0, 7.5, gPad->GetFrame()->GetY2());
+
+  // Draw a red line at mean x
+  TLine line5(h_waveform_time->GetMean(), 0, h_waveform_time->GetMean(), gPad->GetFrame()->GetY2());
+  line5.SetLineColor(2);
+  line5.SetLineWidth(3);
+  line5.SetLineStyle(1);
+  line5.DrawLine(h_waveform_time->GetMean(), 0, h_waveform_time->GetMean(), gPad->GetFrame()->GetY2());
 
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
@@ -854,17 +867,17 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
     h_waveform_pedestal->Scale(1. / h_waveform_pedestal->GetEntries());
   }
   gPad->Update();
-  TLine* line6 = new TLine(1000, 0, 1000,  gPad->GetFrame()->GetY2());
-  line6->SetLineColor(1);
-  line6->SetLineWidth(3);
-  line6->SetLineStyle(1);
-  line6->Draw();
-  TLine* line7 = new TLine(2000, 0, 2000,  gPad->GetFrame()->GetY2());
-  line7->SetLineColor(1);
-  line7->SetLineWidth(3);
-  line7->SetLineStyle(1);
-  line7->Draw();
+  TLine line6(1000, 0, 1000, gPad->GetFrame()->GetY2());
+  line6.SetLineColor(1);
+  line6.SetLineWidth(3);
+  line6.SetLineStyle(1);
+  line6.DrawLine(1000, 0, 1000, gPad->GetFrame()->GetY2());
 
+  TLine line7(2000, 0, 2000, gPad->GetFrame()->GetY2());
+  line7.SetLineColor(1);
+  line7.SetLineWidth(3);
+  line7.SetLineStyle(1);
+  line7.DrawLine(2000, 0, 2000, gPad->GetFrame()->GetY2());
 
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
@@ -1012,14 +1025,17 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   double xmin = h1_packet_number->GetXaxis()->GetXmin();
   double xmax = h1_packet_number->GetXaxis()->GetXmax();
 
-  TLine* one = new TLine(xmin, 1, xmax, 1);
-  one->SetLineStyle(7);
+  TLine one(xmin, 1, xmax, 1);
+  one.SetLineStyle(7);
+  one.DrawLine(xmin, 1, xmax, 1);
 
-  TLine* goodSize = new TLine(xmin, 5981, xmax, 5981);
-  goodSize->SetLineStyle(7);
+  TLine goodSize(xmin, 5981, xmax, 5981);
+  goodSize.SetLineStyle(7);
+  goodSize.DrawLine(xmin, 5981, xmax, 5981);
 
-  TLine* goodChans = new TLine(xmin, 192, xmax, 192);
-  goodChans->SetLineStyle(7);
+  TLine goodChans(xmin, 192, xmax, 192);
+  goodChans.SetLineStyle(7);
+  goodChans.DrawLine(xmin, 192, xmax, 192);
 
   // float param = 0.75;
   float param = 0.95;
@@ -1028,19 +1044,22 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
 
-  TLine* warnLineOne = new TLine(xmin, param * 1, xmax, param * 1);
-  warnLineOne->SetLineStyle(7);
-  warnLineOne->SetLineColor(2);
+  TLine warnLineOne(xmin, param * 1, xmax, param * 1);
+  warnLineOne.SetLineStyle(7);
+  warnLineOne.SetLineColor(2);
+  warnLineOne.DrawLine(xmin, param * 1, xmax, param * 1);
 
-  leg->AddEntry(warnLineOne, "95% Threshold", "l");
+  leg->AddEntry(&warnLineOne, "95% Threshold", "l");
 
-  TLine* warnLineSize = new TLine(xmin, param * 5981., xmax, param * 5981.);
-  warnLineSize->SetLineStyle(7);
-  warnLineSize->SetLineColor(2);
+  TLine warnLineSize(xmin, param * 5981., xmax, param * 5981.);
+  warnLineSize.SetLineStyle(7);
+  warnLineSize.SetLineColor(2);
+  warnLineSize.DrawLine(xmin, param * 5981., xmax, param * 5981.);
 
-  TLine* warnLineChans = new TLine(xmin, param * 192., xmax, param * 192.);
-  warnLineChans->SetLineStyle(7);
-  warnLineChans->SetLineColor(2);
+  TLine warnLineChans(xmin, param * 192., xmax, param * 192.);
+  warnLineChans.SetLineStyle(7);
+  warnLineChans.SetLineColor(2);
+  warnLineChans.DrawLine(xmin, param * 192., xmax, param * 192.);
 
   Pad[10]->cd();
   float tsize = 0.08;
@@ -1048,8 +1067,8 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   h1_packet_number->Draw("hist");
   // std::vector<std::vector<int>> badPackets;
   // badPackets.push_back(getBadPackets(h1_packet_number, 0, param));
-  one->Draw("same");
-  warnLineOne->Draw("same");
+  //one->Draw("same");
+  //warnLineOne->Draw("same");
   h1_packet_number->GetXaxis()->SetNdivisions(510, kTRUE);
   h1_packet_number->GetXaxis()->SetTitle("Packet #");
   h1_packet_number->GetYaxis()->SetTitle("% Of Events Present");
@@ -1070,8 +1089,8 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   h1_packet_length->Draw("hist");
   h1_packet_length->GetYaxis()->SetRangeUser(0, 6500);
   // badPackets.push_back(getBadPackets(h1_packet_length, 1, param));
-  goodSize->Draw("same");
-  warnLineSize->Draw("same");
+  //goodSize->Draw("same");
+  //warnLineSize->Draw("same");
   leg->Draw("same");
   h1_packet_length->GetXaxis()->SetNdivisions(510, kTRUE);
   h1_packet_length->GetXaxis()->SetTitle("Packet #");
@@ -1094,8 +1113,8 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   h1_packet_chans->Draw("hist");
   h1_packet_chans->GetYaxis()->SetRangeUser(0, 212);
   // badPackets.push_back(getBadPackets(h1_packet_chans, 2, param));
-  goodChans->Draw("same");
-  warnLineChans->Draw("same");
+  //goodChans->Draw("same");
+  //warnLineChans->Draw("same");
   h1_packet_chans->GetXaxis()->SetNdivisions(510, kTRUE);
   h1_packet_chans->GetXaxis()->SetTitle("Packet #");
   h1_packet_chans->GetYaxis()->SetTitle("Average # of Channels");
@@ -2123,34 +2142,30 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   gStyle->SetOptStat(0);
   gStyle->SetPalette(57);
 
-
   {
-     // lines
-    TLine* line_sector[32];
+    // lines
+    TLine line_sector[32];
     for (int i_line = 0; i_line < 32; i_line++)
     {
-     line_sector[i_line] = new TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
-    line_sector[i_line]->SetLineColor(1);
-    line_sector[i_line]->SetLineWidth(4);
-    line_sector[i_line]->SetLineStyle(1);
+      line_sector[i_line] = TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+      line_sector[i_line].SetLineColor(1);
+      line_sector[i_line].SetLineWidth(4);
+      line_sector[i_line].SetLineStyle(1);
+      line_sector[i_line].DrawLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
     }
-    TLine* line_board1 = new TLine(8, 0, 8, 64);
-    line_board1->SetLineColor(1);
-    line_board1->SetLineWidth(4);
-    line_board1->SetLineStyle(1);
-    TLine* line_board2 = new TLine(16, 0, 16, 64);
-    line_board2->SetLineColor(1);
-    line_board2->SetLineWidth(4);
-    line_board2->SetLineStyle(1);
 
-    for (auto& i_line : line_sector)
-    {
-     i_line->Draw();
-    }
-    line_board1->Draw();
-    line_board2->Draw();
+    TLine line_board1(8, 0, 8, 64);
+    line_board1.SetLineColor(1);
+    line_board1.SetLineWidth(4);
+    line_board1.SetLineStyle(1);
+    line_board1.DrawLine(8, 0, 8, 64);
+
+    TLine line_board2(16, 0, 16, 64);
+    line_board2.SetLineColor(1);
+    line_board2.SetLineWidth(4);
+    line_board2.SetLineStyle(1);
+    line_board2.DrawLine(16, 0, 16, 64);
   }
-
 
   Pad[22]->cd();
   gStyle->SetTitleFontSize(0.06);
@@ -2176,31 +2191,29 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   gStyle->SetOptStat(0);
   gStyle->SetPalette(57);
 
-  {
+ {
     // lines
-    TLine* line_sector[32];
+    TLine line_sector[32];
     for (int i_line = 0; i_line < 32; i_line++)
     {
-      line_sector[i_line] = new TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
-      line_sector[i_line]->SetLineColor(1);
-      line_sector[i_line]->SetLineWidth(4);
-      line_sector[i_line]->SetLineStyle(1);
+      line_sector[i_line] = TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+      line_sector[i_line].SetLineColor(1);
+      line_sector[i_line].SetLineWidth(4);
+      line_sector[i_line].SetLineStyle(1);
+      line_sector[i_line].DrawLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
     }
-    TLine* line_board1 = new TLine(8, 0, 8, 64);
-    line_board1->SetLineColor(1);
-    line_board1->SetLineWidth(4);
-    line_board1->SetLineStyle(1);
-    TLine* line_board2 = new TLine(16, 0, 16, 64);
-    line_board2->SetLineColor(1);
-    line_board2->SetLineWidth(4);
-    line_board2->SetLineStyle(1);
 
-    for (auto& i_line : line_sector)
-    {
-      i_line->Draw();
-    }
-    line_board1->Draw();
-    line_board2->Draw();
+    TLine line_board1(8, 0, 8, 64);
+    line_board1.SetLineColor(1);
+    line_board1.SetLineWidth(4);
+    line_board1.SetLineStyle(1);
+    line_board1.DrawLine(8, 0, 8, 64);
+
+    TLine line_board2(16, 0, 16, 64);
+    line_board2.SetLineColor(1);
+    line_board2.SetLineWidth(4);
+    line_board2.SetLineStyle(1);
+    line_board2.DrawLine(16, 0, 16, 64);
   }
 
   Pad[23]->cd();
@@ -2228,31 +2241,29 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
 
   gStyle->SetOptStat(0);
 
-  {
+ {
     // lines
-    TLine* line_sector[32];
+    TLine line_sector[32];
     for (int i_line = 0; i_line < 32; i_line++)
     {
-      line_sector[i_line] = new TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
-      line_sector[i_line]->SetLineColor(1);
-      line_sector[i_line]->SetLineWidth(4);
-      line_sector[i_line]->SetLineStyle(1);
+      line_sector[i_line] = TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+      line_sector[i_line].SetLineColor(1);
+      line_sector[i_line].SetLineWidth(4);
+      line_sector[i_line].SetLineStyle(1);
+      line_sector[i_line].DrawLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
     }
-    TLine* line_board1 = new TLine(8, 0, 8, 64);
-    line_board1->SetLineColor(1);
-    line_board1->SetLineWidth(4);
-    line_board1->SetLineStyle(1);
-    TLine* line_board2 = new TLine(16, 0, 16, 64);
-    line_board2->SetLineColor(1);
-    line_board2->SetLineWidth(4);
-    line_board2->SetLineStyle(1);
 
-    for (auto& i_line : line_sector)
-    {
-      i_line->Draw();
-    }
-    line_board1->Draw();
-    line_board2->Draw();
+    TLine line_board1(8, 0, 8, 64);
+    line_board1.SetLineColor(1);
+    line_board1.SetLineWidth(4);
+    line_board1.SetLineStyle(1);
+    line_board1.DrawLine(8, 0, 8, 64);
+
+    TLine line_board2(16, 0, 16, 64);
+    line_board2.SetLineColor(1);
+    line_board2.SetLineWidth(4);
+    line_board2.SetLineStyle(1);
+    line_board2.DrawLine(16, 0, 16, 64);
   }
   
   
@@ -2376,29 +2387,27 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   
   {
     // lines
-    TLine* line_sector[32];
+    TLine line_sector[32];
     for (int i_line = 0; i_line < 32; i_line++)
     {
-      line_sector[i_line] = new TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
-      line_sector[i_line]->SetLineColor(1);
-      line_sector[i_line]->SetLineWidth(4);
-      line_sector[i_line]->SetLineStyle(1);
+      line_sector[i_line] = TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+      line_sector[i_line].SetLineColor(1);
+      line_sector[i_line].SetLineWidth(4);
+      line_sector[i_line].SetLineStyle(1);
+      line_sector[i_line].DrawLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
     }
-    TLine* line_board1 = new TLine(8, 0, 8, 64);
-    line_board1->SetLineColor(1);
-    line_board1->SetLineWidth(4);
-    line_board1->SetLineStyle(1);
-    TLine* line_board2 = new TLine(16, 0, 16, 64);
-    line_board2->SetLineColor(1);
-    line_board2->SetLineWidth(4);
-    line_board2->SetLineStyle(1);
 
-    for (auto& i_line : line_sector)
-    {
-      i_line->Draw();
-    }
-    line_board1->Draw();
-    line_board2->Draw();
+    TLine line_board1(8, 0, 8, 64);
+    line_board1.SetLineColor(1);
+    line_board1.SetLineWidth(4);
+    line_board1.SetLineStyle(1);
+    line_board1.DrawLine(8, 0, 8, 64);
+
+    TLine line_board2(16, 0, 16, 64);
+    line_board2.SetLineColor(1);
+    line_board2.SetLineWidth(4);
+    line_board2.SetLineStyle(1);
+    line_board2.DrawLine(16, 0, 16, 64);
   }
 
   Pad[25]->cd();
