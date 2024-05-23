@@ -414,7 +414,7 @@ int HcalMon::process_event(Event* e /* evt */)
   
     if(usembdtrig){
       if(trig_bools.at(10) == 0){
-        return false;
+        fillhist = false;
       }
     }
   
