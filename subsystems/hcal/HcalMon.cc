@@ -371,7 +371,7 @@ int HcalMon::process_event(Event* e /* evt */)
   bool trig3_fire = false;
   bool trig4_fire = false;
   bool fillhist = true;
-  std::vector<bool> trig_bools;
+  std::vector<bool> trig_bools(64, false);
   long long int gl1_clock = 0;
   bool have_gl1 = false;
   if (anaGL1)
@@ -390,7 +390,8 @@ int HcalMon::process_event(Event* e /* evt */)
         for (int i = 0; i < 64; i++)
         {
           bool trig_decision = ((triggervec & 0x1U) == 0x1U);
-          trig_bools.push_back(trig_decision);
+          trig_bools[i] = trig_decision;
+          
           if (trig_decision)
           {
             h_hcal_trig->Fill(i);
@@ -411,13 +412,14 @@ int HcalMon::process_event(Event* e /* evt */)
       h_evtRec->Fill(0.0, 0.0);
     }
   //this is for only process event with the MBD>=1 trigger
-  
-    if(usembdtrig){
-      if(trig_bools.at(10) == 0){
+
+    if (usembdtrig)
+    {
+      if (trig_bools.at(10) == 0)
+      {
         return false;
       }
     }
-  
   }
 
   for (int packet = packetlow; packet <= packethigh; packet++)
