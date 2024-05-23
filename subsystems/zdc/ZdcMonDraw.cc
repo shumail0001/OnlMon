@@ -1492,7 +1492,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   graph->SetMarkerStyle(20);
   graph->SetMarkerSize(1);
   graph->SetMarkerColor(1);
-  graph->Draw("P same");
+  // graph->Draw("P same");
   t1->Draw("same");
   t2->Draw("same");
     
@@ -1608,7 +1608,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     graph2->SetMarkerStyle(20);
     graph2->SetMarkerSize(1);
     graph2->SetMarkerColor(1);
-    graph2->Draw("P same");
+    // graph2->Draw("P same");
     t3->Draw("same");
     t4->Draw("same");
       
@@ -1729,7 +1729,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     graph3->SetMarkerStyle(20);
     graph3->SetMarkerSize(1);
     graph3->SetMarkerColor(1);
-    graph3->Draw("P same");
+    // graph3->Draw("P same");
     t5->Draw("same");
     t6->Draw("same");
       
@@ -1850,7 +1850,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     graph4->SetMarkerStyle(20);
     graph4->SetMarkerSize(1);
     graph4->SetMarkerColor(1);
-    graph4->Draw("P same");
+    // graph4->Draw("P same");
     t7->Draw("same");
     t8->Draw("same");
       
@@ -1974,7 +1974,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     graph5->SetMarkerStyle(20);
     graph5->SetMarkerSize(1);
     graph5->SetMarkerColor(1);
-    graph5->Draw("P same");
+    // graph5->Draw("P same");
     t9->Draw("same");
     t10->Draw("same");
       
