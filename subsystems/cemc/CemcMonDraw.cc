@@ -562,29 +562,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   h_cemc_datahits->GetYaxis()->SetTitleSize(tsize);
   h_cemc_datahits->GetXaxis()->SetTickLength(0.02);
 
-  TLine *line_sector[32];
-  for (int i_line = 0; i_line < 32; i_line++)
-  {
-    line_sector[i_line] = new TLine(0, (i_line + 1) * 8, 96, (i_line + 1) * 8);
-    line_sector[i_line]->SetLineColor(1);
-    line_sector[i_line]->SetLineWidth(1);
-    line_sector[i_line]->SetLineStyle(1);
-  }
-
-  const int numVertDiv = 12;
-  int dEI = 96 / numVertDiv;
-  TLine *l_board[numVertDiv - 1];
-  for (int il = 1; il < numVertDiv; il++)
-  {
-    l_board[il - 1] = new TLine(dEI * il, 0, dEI * il, 256);
-    l_board[il - 1]->SetLineColor(1);
-    l_board[il - 1]->SetLineWidth(1);
-    l_board[il - 1]->SetLineStyle(1);
-    if (il == 6)
-    {
-      l_board[il - 1]->SetLineWidth(2);
-    }
-  }
+ 
 
   gPad->SetTopMargin(0.08);
   gPad->SetBottomMargin(0.07);
@@ -604,13 +582,38 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   gStyle->SetOptStat(0);
   h_cemc_datahits->DrawCopy("colz");
   // h2_cemc_mean[start[1]]->DrawCopy("colz");
-  for (auto &i_line : line_sector)
+  TLine line_sector[32];
+  for (int i_line = 0; i_line < 32; i_line++)
   {
-    i_line->Draw();
+    line_sector[i_line] = TLine(0, (i_line + 1) * 8, 96, (i_line + 1) * 8);
+    line_sector[i_line].SetLineColor(1);
+    line_sector[i_line].SetLineWidth(1);
+    line_sector[i_line].SetLineStyle(1);
   }
-  for (auto &il : l_board)
+
+  const int numVertDiv = 12;
+  int dEI = 96 / numVertDiv;
+  TLine l_board[numVertDiv - 1];
+  for (int il = 1; il < numVertDiv; il++)
   {
-    il->Draw();
+    l_board[il - 1] = TLine(dEI * il, 0, dEI * il, 256);
+    l_board[il - 1].SetLineColor(1);
+    l_board[il - 1].SetLineWidth(1);
+    l_board[il - 1].SetLineStyle(1);
+    if (il == 6)
+    {
+      l_board[il - 1].SetLineWidth(2);
+    }
+  }
+
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line].DrawLine(0, (i_line + 1) * 8, 96, (i_line + 1) * 8);
+  }
+
+  for (int il = 1; il < numVertDiv; il++)
+  {
+    l_board[il - 1].DrawLine(dEI * il, 0, dEI * il, 256);
   }
 
   // FindHotTower(warning[0], hist1[start[0]]);
@@ -1107,10 +1110,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   // float ymaxp = 5000;
   h2_waveform_twrAvg[start[0]]->GetYaxis()->SetRangeUser(0, ymaxp);
 
-  TLine *windowLow1 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, ymaxp);
-  TLine *windowHigh1 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, ymaxp);
-  windowLow1->SetLineWidth(3);
-  windowHigh1->SetLineWidth(3);
+  
   gStyle->SetOptStat(0);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);
@@ -1128,8 +1128,14 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   graph->SetMarkerColor(1);
   graph->Draw("P same");
   */
-  windowLow1->Draw("same");
-  windowHigh1->Draw("same");
+  TLine windowLow1(SampleLowBoundary, 0, SampleLowBoundary, ymaxp);
+  windowLow1.SetLineWidth(3);
+  windowLow1.DrawLine(SampleLowBoundary, 0, SampleLowBoundary, ymaxp);
+
+  TLine windowHigh1(SampleHighBoundary, 0, SampleHighBoundary, ymaxp);
+  windowHigh1.SetLineWidth(3);
+  windowHigh1.DrawLine(SampleHighBoundary, 0, SampleHighBoundary, ymaxp);
+
   gStyle->SetPalette(57);
   gPad->SetLogz();
 
@@ -1183,13 +1189,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   }
   h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0, 1.);
 
-  TLine *windowLow2 = new TLine(SampleLowBoundary, 0, SampleLowBoundary, gPad->GetFrame()->GetY2());
-  TLine *windowHigh2 = new TLine(SampleHighBoundary, 0, SampleHighBoundary, gPad->GetFrame()->GetY2());
-  TLine *meantime = new TLine(h1_waveform_time[start[1]]->GetMean(), 0, h1_waveform_time[start[1]]->GetMean(), gPad->GetFrame()->GetY2());
-  windowLow2->SetLineWidth(3);
-  windowHigh2->SetLineWidth(3);
-  meantime->SetLineWidth(3);
-  meantime->SetLineColor(kRed);
+
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
@@ -1197,9 +1197,18 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   gPad->SetLeftMargin(0.15);
   gPad->SetTicky();
   gPad->SetTickx();
-  windowLow2->Draw("same");
-  windowHigh2->Draw("same");
-  meantime->Draw("same");
+  TLine windowLow2(SampleLowBoundary, 0, SampleLowBoundary, gPad->GetFrame()->GetY2());
+  windowLow2.SetLineWidth(3);
+  windowLow2.DrawLine(SampleLowBoundary, 0, SampleLowBoundary, gPad->GetFrame()->GetY2());
+
+  TLine windowHigh2(SampleHighBoundary, 0, SampleHighBoundary, gPad->GetFrame()->GetY2());
+  windowHigh2.SetLineWidth(3);
+  windowHigh2.DrawLine(SampleHighBoundary, 0, SampleHighBoundary, gPad->GetFrame()->GetY2());
+
+  TLine meantime(h1_waveform_time[start[1]]->GetMean(), 0, h1_waveform_time[start[1]]->GetMean(), gPad->GetFrame()->GetY2());
+  meantime.SetLineWidth(3);
+  meantime.SetLineColor(kRed);
+  meantime.DrawLine(h1_waveform_time[start[1]]->GetMean(), 0, h1_waveform_time[start[1]]->GetMean(), gPad->GetFrame()->GetY2());
 
   Pad[6]->cd();
   gPad->SetTopMargin(0.06);
@@ -1225,12 +1234,14 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   h1_waveform_pedestal[start[2]]->SetFillColorAlpha(kBlue, 0.1);
   gPad->Update();
 
-  TLine *windowLow3 = new TLine(1000, 0, 1000, gPad->GetFrame()->GetY2());
-  TLine *windowHigh3 = new TLine(2000, 0, 2000, gPad->GetFrame()->GetY2());
-  windowLow3->SetLineWidth(3);
-  windowHigh3->SetLineWidth(3);
-  windowLow3->Draw("same");
-  windowHigh3->Draw("same");
+  TLine windowLow3(1000, 0, 1000, gPad->GetFrame()->GetY2());
+  windowLow3.SetLineWidth(3);
+  windowLow3.DrawLine(1000, 0, 1000, gPad->GetFrame()->GetY2());
+
+  TLine windowHigh3(2000, 0, 2000, gPad->GetFrame()->GetY2());
+  windowHigh3.SetLineWidth(3);
+  windowHigh3.DrawLine(2000, 0, 2000, gPad->GetFrame()->GetY2());
+
   gPad->SetLogy();
   gPad->Update();
 
