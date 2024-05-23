@@ -79,7 +79,7 @@ int MvtxMon::Init()
   mvtxmon_ChipStave1D = new TH1D("OCC_ChipStave1D", "Average Occupancy per Chip", NCHIP * NSTAVE, -0.5, NCHIP * NSTAVE - 0.5);
   mvtxmon_ChipFiredHis = new TH1D("OCC_ChipFiredFLX", "Number of Chips Fired per Felix per RCDAQ event Distribution", NCHIP * NSTAVE / 6 +1 , -0.5, NCHIP * NSTAVE / 6 + 0.5);
   mvtxmon_EvtHitChip = new TH1D("OCC_HitChipPerStrobe", "Number of Hits Per Strobe Per Chip Distribution", 51, -0.5, 50.5);
-  mvtxmon_EvtHitDis = new TH1D("OCC_HitFLXPerStrobe", "Number of Hits Per Strobe Distribution", 2001, -0.5, 2000.5);
+  mvtxmon_EvtHitDis = new TH1D("OCC_HitFLXPerStrobe", "Number of Hits Per Strobe Distribution", 501, -0.5, 2000.5);
 
   mvtxmon_ChipStaveOcc->SetStats(false);
   mvtxmon_ChipStave1D->SetStats(false);
@@ -137,30 +137,30 @@ int MvtxMon::Init()
   se->registerHisto(this, mLaneInfo);*/
 
   for (int i = 0; i < NFlags; i++) {
-    mLaneStatus[i] = new TH2I(Form("FEE_LaneStatus_Flag_%s", mLaneStatusFlag[i].c_str()), Form("Lane Status Flag: %s", mLaneStatusFlag[i].c_str()), NFees, 0, NFees, NLanesMax, 0, NLanesMax);
-    mLaneStatus[i]->GetXaxis()->SetTitle("FEE ID");
-    mLaneStatus[i]->GetYaxis()->SetTitle("Lane");
+    mLaneStatus[i] = new TH2I(Form("FEE_LaneStatus_Flag_%s", mLaneStatusFlag[i].c_str()), Form("Lane Status Flag: %s", mLaneStatusFlag[i].c_str()), 9, -0.5, 8.5, 48, -0.5, 47.5);
+    mLaneStatus[i]->GetXaxis()->SetTitle("Chip");
+    mLaneStatus[i]->GetYaxis()->SetTitle("Stave");
     mLaneStatus[i]->SetStats(false);
-    for (const int& lay : LayerBoundaryFEE)
+    /*for (const int& lay : LayerBoundaryFEE)
     {
       auto l = new TLine(lay, 0, lay, mLaneStatus[i]->GetNbinsY());
       mLaneStatus[i]->GetListOfFunctions()->Add(l);
-    }
+    }*/
     se->registerHisto(this, mLaneStatus[i]);
 
-    mLaneStatusCumulative[i] = new TH2I(Form("FEE_LaneStatusFromSOX_Flag_%s", mLaneStatusFlag[i].c_str()), Form("Lane Status Flags since SOX: %s", mLaneStatusFlag[i].c_str()), NFees, 0, NFees, NLanesMax, 0, NLanesMax);
-    mLaneStatusCumulative[i]->GetXaxis()->SetTitle("FEE ID");
-    mLaneStatusCumulative[i]->GetYaxis()->SetTitle("Lane");
+    mLaneStatusCumulative[i] = new TH2I(Form("FEE_LaneStatusFromSOX_Flag_%s", mLaneStatusFlag[i].c_str()), Form("Lane Status Flags since SOX: %s", mLaneStatusFlag[i].c_str()), 9, -0.5, 8.5, 48, -0.5, 47.5);
+    mLaneStatusCumulative[i]->GetXaxis()->SetTitle("Chip");
+    mLaneStatusCumulative[i]->GetYaxis()->SetTitle("Stave");
     mLaneStatusCumulative[i]->SetStats(false);
-    for (const int& lay : LayerBoundaryFEE)
+   /* for (const int& lay : LayerBoundaryFEE)
     {
       auto l = new TLine(lay, 0, lay, mLaneStatusCumulative[i]->GetNbinsY());
       mLaneStatusCumulative[i]->GetListOfFunctions()->Add(l);
-    }
+    }*/
     se->registerHisto(this, mLaneStatusCumulative[i]);
   }
 
-  for (int i = 0; i < NLAYERS; i++)
+  /*for (int i = 0; i < NLAYERS; i++)
   {
     mLaneStatusSummary[i] = new TH1I(Form("FEE_LaneStatusSummary_Layer_%i", i), Form("Lane Status Summary L%i", i), 3, 0, 3);
     mLaneStatusSummary[i]->GetYaxis()->SetTitle("#Lanes");
@@ -182,8 +182,8 @@ int MvtxMon::Init()
   }
   mLaneStatusSummaryIB->GetXaxis()->CenterLabels();
   mLaneStatusSummaryIB->SetStats(false);
-  mLaneStatusSummaryIB->SetFillColor(kRed);
-  se->registerHisto(this, mLaneStatusSummaryIB);
+  mLaneStatusSummaryIB->SetFillColor(kRed);*/
+  //se->registerHisto(this, mLaneStatusSummaryIB);
 
   // raw task
   hErrorPlots = new TH1D("General_DecErrors", "Decoding Errors", NError, 0.5, NError + 0.5);
@@ -292,7 +292,7 @@ int MvtxMon::Init()
   se->registerHisto(this, hFeeL1);
 
   // fhr
-  mErrorVsFeeid = new TH2I("FHR_ErrorVsFeeid", "Error count vs Error id and Fee id", 3 * StaveBoundary[3], 0, 3 * StaveBoundary[3], NErrorExtended, 0.5, NErrorExtended + 0.5);
+  mErrorVsFeeid = new TH2I("FHR_ErrorVsFeeid", "Decoder error vs FeeID", 3 * StaveBoundary[3], 0, 3 * StaveBoundary[3], NError, 0.5, NError + 0.5);;
   mErrorVsFeeid->GetXaxis()->SetTitle("FEE ID");
   mErrorVsFeeid->GetYaxis()->SetTitle("Error ID");
   mErrorVsFeeid->SetStats(false);
@@ -331,13 +331,8 @@ int MvtxMon::Init()
     mDeadChipPos[mLayer]->SetStats(false);
     //mAliveChipPos[mLayer]->SetStats(false);
 
-    mOccupancyPlot[mLayer] = new TH1D(Form("MVTXMON_Occupancy_Layer%dOccupancy_LOG", mLayer), Form("MVTX Layer %d Noise pixels occupancy distribution", mLayer), 301, -3, 0.05);
-    mOccupancyPlot[mLayer]->GetXaxis()->SetTitle("log(Occupancy)");
-    mOccupancyPlot[mLayer]->GetYaxis()->SetTitle("");
-    mOccupancyPlot[mLayer]->SetStats(false);
     se->registerHisto(this, mDeadChipPos[mLayer]);
     //se->registerHisto(this, mAliveChipPos[mLayer]);
-    se->registerHisto(this, mOccupancyPlot[mLayer]);
   }
 
   /*mTotalDeadChipPos = new TH2D(Form("MVTXMON_Occupancy_TotalDeadChipPos"), Form("TotalDeadChipPos "), 9, -0.5, 9 - 0.5, NStaves[2], -0.5, NStaves[2] - 0.5);
@@ -380,9 +375,6 @@ int MvtxMon::process_event(Event* evt)
       {
         mHitPerChip[iLayer][iStave][iChip] = 0;
         mNoisyPixelNumber[iLayer][iStave][iChip] = 0;
-        for (int iFlag = 0; iFlag < 3; iFlag++) {
-          mStatusFlagNumber[iFlag][iLayer][iStave][iChip] = 0;
-        }
       }
     }
   }
@@ -398,8 +390,6 @@ int MvtxMon::process_event(Event* evt)
   hOccupancyPlot[0]->Reset("ICESM");
   hOccupancyPlot[1]->Reset("ICESM");
   hOccupancyPlot[2]->Reset("ICESM");
-  mvtxmon_ChipStave1D->Reset("ICESM");
-  mGeneralOccupancy->Reset("ICESM");
   hChipStaveNoisy[0]->Reset("ICESM");
   hChipStaveNoisy[1]->Reset("ICESM");
   hChipStaveNoisy[2]->Reset("ICESM");
@@ -516,12 +506,12 @@ int MvtxMon::process_event(Event* evt)
               // mStatusFlagNumber[link.layer][link.stave][i%3][laneValue]++;
               // std::cout<<"lanevalue: "<<laneValue<<" layer "<<link.layer<<" stave "<<link.stave<<" lane "<<ilane<<std::endl;
 
-              mLaneStatus[laneValue - 1]->Fill(ifee_plot, ilane);
-              mLaneStatusCumulative[laneValue - 1]->Fill(ifee_plot, ilane);
-              mLaneStatusSummary[link.layer]->Fill(laneValue - 0.5);
+              mLaneStatus[laneValue - 1]->Fill(ilane, StaveBoundary[link.layer] + link.stave);
+              mLaneStatusCumulative[laneValue - 1]->Fill(ilane, StaveBoundary[link.layer] + link.stave);
+              //mLaneStatusSummary[link.layer]->Fill(laneValue - 0.5);
 
               mStatusFlagNumber[laneValue - 1][link.layer][link.stave][ilane]++;
-              mLaneStatusSummaryIB->Fill(laneValue - 0.5);
+              //mLaneStatusSummaryIB->Fill(laneValue - 0.5);
             }
           }
 
@@ -537,6 +527,7 @@ int MvtxMon::process_event(Event* evt)
           nDecError++;
           
           hErrorFile->Fill((this->MonitorServerId() * 2) + i + 0.5, error);
+          mErrorVsFeeid->Fill(ifee_plot,error);
           decoder_error = plist[i]->lValue(feeId, "decoder_error");
         }
       }
@@ -589,16 +580,14 @@ int MvtxMon::process_event(Event* evt)
       {
         chip_occ[iChip] = 0;
         chipOccupancy = hChipHitmap->Integral(0, -1, 0, -1, (StaveBoundary[iLayer] + iStave) * 9 + iChip + 1, (StaveBoundary[iLayer] + iStave) * 9 + iChip + 1);  // scale at client
-        double chipOccupancyNorm = chipOccupancy / hChipStrobes->GetBinContent((StaveBoundary[iLayer] + iStave) * 9 + iChip + 1) / 1024 / 512;
+        double chipOccupancyNorm = -1;
+        if(hChipStrobes->GetBinContent((StaveBoundary[iLayer] + iStave) * 9 + iChip + 1) > 0) chipOccupancyNorm = chipOccupancy / hChipStrobes->GetBinContent((StaveBoundary[iLayer] + iStave) * 9 + iChip + 1) / 1024 / 512;
         if (chipOccupancyNorm > 0)
         {
           mvtxmon_ChipStave1D->SetBinContent((StaveBoundary[iLayer] + iStave) * 9 + iChip + 1, chipOccupancyNorm);
-        }
-        if (chipOccupancyNorm > 0)
-        {
           chip_occ[iChip] = chipOccupancyNorm;
         }
-
+        
         for (int iCol = 0; iCol < NCols; iCol++)
         {
           for (int iRow = 0; iRow < NRows; iRow++)
@@ -610,7 +599,6 @@ int MvtxMon::process_event(Event* evt)
               if (pixelOccupancy / (double) (hChipStrobes->GetBinContent((StaveBoundary[iLayer] + iStave) * 9 + iChip + 1)) > mOccupancyCutForNoisyPixel)
               {
                 mNoisyPixelNumber[iLayer][iStave][iChip]++;
-                mOccupancyPlot[iLayer]->Fill(log10(pixelOccupancy / (double)(hChipStrobes->GetBinContent((StaveBoundary[iLayer] + iStave) * 9 + iChip + 1))));
               }
             }
           }
@@ -704,6 +692,19 @@ int MvtxMon::Reset()
       for (int biny = 0; biny < mDeadChipPos[mLayer]->GetNbinsY(); biny++)
       {
         mDeadChipPos[mLayer]->SetBinContent(binx + 1, biny + 1, 1);
+      }
+    }
+  }
+
+  for (int iLayer = 0; iLayer < 3; iLayer++) 
+  {
+    for (int iStave = 0; iStave < NStaves[iLayer]; iStave++) 
+    {
+      for (int iChip = 0; iChip < 9; iChip++) 
+      {
+        for (int iFlag = 0; iFlag < 3; iFlag++) {
+          mStatusFlagNumber[iFlag][iLayer][iStave][iChip] = 0;
+        }
       }
     }
   }

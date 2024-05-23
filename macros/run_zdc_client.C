@@ -24,12 +24,25 @@ void zdcDrawInit(const int online = 0)
   cl->registerHisto("zdc_N1","ZDCMON_0");
   cl->registerHisto("zdc_N2","ZDCMON_0");
   cl->registerHisto("zdc_N3","ZDCMON_0");
+    
   cl->registerHisto("h_waveformZDC","ZDCMON_0");
   cl->registerHisto("h_waveformSMD_North","ZDCMON_0");
   cl->registerHisto("h_waveformSMD_South","ZDCMON_0");
   cl->registerHisto("h_waveformVeto_North","ZDCMON_0");
   cl->registerHisto("h_waveformVeto_South","ZDCMON_0");
-  cl->registerHisto("h_waveformAll","ZDCMON_0");
+
+    
+  cl->registerHisto("tph_waveformZDC","ZDCMON_0");
+  cl->registerHisto("tph_waveformZDCc","ZDCMON_0");
+  cl->registerHisto("tph_waveformSMD_North","ZDCMON_0");
+  cl->registerHisto("tph_waveformSMD_Northc","ZDCMON_0");
+  cl->registerHisto("tph_waveformSMD_South","ZDCMON_0");
+  cl->registerHisto("tph_waveformSMD_Southc","ZDCMON_0");
+  cl->registerHisto("tph_waveformVeto_North","ZDCMON_0");
+  cl->registerHisto("tph_waveformVeto_Northc","ZDCMON_0");
+  cl->registerHisto("tph_waveformVeto_South","ZDCMON_0");
+  cl->registerHisto("tph_waveformVeto_Southc","ZDCMON_0");
+
 
  //veto
   cl->registerHisto("veto_NF","ZDCMON_0");
