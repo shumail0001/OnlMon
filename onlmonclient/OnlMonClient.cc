@@ -1067,7 +1067,6 @@ void OnlMonClient::Print(const char *what)
     std::cout << std::endl;
     for (auto &subs : SubsysHisto)
     {
-      auto subiter = MonitorHostPorts.find(subs.first);
       for (auto &histos : subs.second)
       {
 	if ( histos.second->ServerHost() == "UNKNOWN" ||
