@@ -476,10 +476,7 @@ int HcalMon::process_event(Event* e /* evt */)
         //________________________________for this part we only want to deal with the MBD>=1 trigger
         if (fillhist)
         {
-          if (signal > waveform_hit_threshold)
-          {
-            h_waveform_time->Fill(time);
-          }
+          
           if (signal > hit_threshold)
           {
             rm_vector_twrTime[towerNumber - 1]->Add(&time);
@@ -530,17 +527,23 @@ int HcalMon::process_event(Event* e /* evt */)
               h_rm_tower[eta_bin][phi_bin]->SetBinContent(historyLength, rm_vector_twrhit[towerNumber - 1]->getMean(0));
             }
           }
-          // record waveform
-          for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
-          {
-            h_waveform_twrAvg->Fill(s, p->iValue(s, c));
-            if (signal > waveform_hit_threshold)
-            {
-              h2_hcal_waveform->Fill(s, (p->iValue(s, c) - pedestal));
-            }
-          }
+          
         }
         //_______________________________________________________end of MBD trigger requirement
+        // record waveform
+        for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+        {
+          h_waveform_twrAvg->Fill(s, p->iValue(s, c));
+          if (signal > waveform_hit_threshold)
+          {
+            h2_hcal_waveform->Fill(s, (p->iValue(s, c) - pedestal));
+          }
+        }
+        if (signal > waveform_hit_threshold)
+        {
+          h_waveform_time->Fill(time);
+        }
+
         if (signal > hit_threshold)
         {
           h2_hcal_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);
