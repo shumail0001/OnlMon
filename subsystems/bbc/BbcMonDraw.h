@@ -72,19 +72,12 @@ class BbcMonDraw : public OnlMonDraw
   TH1 *Trigs{nullptr};
 
   // for the 1st Page
-  TGraphErrors *TdcOver[nSIDE] = {};
-  TPad *PadTdcOver[nSIDE] = {};
-  TLine *LineTdcOver[nSIDE][2] = {};
-  TBox *BoxTdcOver[nSIDE] = {};
-  TH1 *FrameTdcOver[nSIDE] = {};
-
-  TGraph *nHit[nTRIGGER][nSIDE] = {};
-  TPad *PadnHit[nSIDE] = {};
-  TLine *LinenHit[nTRIGGER][nSIDE][2] = {};
-  TBox *BoxnHit[nTRIGGER][nSIDE] = {};
-  TPad *PadnHitStatus = nullptr;
-  TText *TextnHitStatus = nullptr;
-  TH1 *FramenHit[nSIDE] = {};
+  TPad *PadZVertex = nullptr;
+  TPad *PadZVertexSummary = nullptr;
+  TH2 *SouthHitMap = nullptr;
+  TPad *PadSouthHitMap = nullptr;
+  TH2 *NorthHitMap = nullptr;
+  TPad *PadNorthHitMap = nullptr;
 
   // for 2nd Page
   TH1 *HitTime[nSIDE] = {};
@@ -115,23 +108,11 @@ class BbcMonDraw : public OnlMonDraw
   TText *TextNorthHitTime = nullptr;
   TF1 *FitNorthHitTime = nullptr;
 
-  TH1 *SouthChargeSum = nullptr;
-  TH1 *NorthChargeSum = nullptr;
-  TPad *PadChargeSum = nullptr;
-  TText *TextSouthChargeSum = nullptr;
-  TText *TextNorthChargeSum = nullptr;
-
   TH2 *TimeWave = nullptr;
   TPad *PadTimeWave = nullptr;
 
   TH2 *ChargeWave = nullptr;
   TPad *PadChargeWave = nullptr;
-
-  TH2 *SouthHitMap = nullptr;
-  TPad *PadSouthHitMap = nullptr;
-
-  TH2 *NorthHitMap = nullptr;
-  TPad *PadNorthHitMap = nullptr;
 
   TLine *LineTzeroZvtx[4] = {};
   TText *TextTzeroZvtx = nullptr;
@@ -150,7 +131,10 @@ class BbcMonDraw : public OnlMonDraw
   TH1 *Zvtx_30{nullptr};
   TH1 *Zvtx_60{nullptr};
   TH1 *Zvtx_zdcns{nullptr};
-  TPad *PadZvtx = nullptr;
+  TH1 *Zvtx_emcal{nullptr};
+  TH1 *Zvtx_hcal{nullptr};
+  TH1 *Zvtx_emcalmbd{nullptr};
+  TH1 *Zvtx_hcalmbd{nullptr};
   TF1 *FitZvtx = nullptr;
   TLine *LineZvtx[2] = {};
   TArrow *ArrowZvtx = nullptr;
@@ -164,9 +148,25 @@ class BbcMonDraw : public OnlMonDraw
   TArc *ArcArmHit = nullptr;
 
   // for 3rd Page
-  // It is for Only Expert
-  TH2 *Adc = nullptr;
-  TPad *PadAdc = nullptr;
+  // Triggered Monitor
+  TH1 *South_Nhit{ nullptr };
+  TH1 *North_Nhit{ nullptr };
+  TH1 *Nhit_emcal{ nullptr };
+  TH1 *Nhit_hcal{ nullptr };
+  TH1 *Nhit_emcalmbd{ nullptr };
+  TH1 *Nhit_hcalmbd{ nullptr };
+  TPad *PadNhits{ nullptr };
+  TPad *PadNhitsHCAL{ nullptr };
+  TPad *PadNhitsEMCAL{ nullptr };
+  TPad *PadZvtx{ nullptr };
+  TPad *PadZvtxHCAL{ nullptr };
+  TPad *PadZvtxEMCAL{ nullptr };
+
+  TH1 *SouthChargeSum = nullptr;
+  TH1 *NorthChargeSum = nullptr;
+  TPad *PadChargeSum = nullptr;
+  TText *TextSouthChargeSum = nullptr;
+  TText *TextNorthChargeSum = nullptr;
 
   TPad *PadButton = nullptr;
   TPad *PadMultiView = nullptr;
@@ -175,13 +175,28 @@ class BbcMonDraw : public OnlMonDraw
   TPad *PadWarnings = nullptr;
   TPaveText *PaveWarnings = nullptr;
 
+  TPad *PadAdc = nullptr;
+  TH2 *Adc = nullptr;
+
   // for 4th Page
-  // Vertex Monitor
-  TPad *PadZVertex = nullptr;
+  // It is for Only Expert
   TPad *PadTzeroZVertex = nullptr;
-  TPad *PadZVertexSummary = nullptr;
   TText *TextZVertexExpress = nullptr;
   TText *TextZVertexNotice = nullptr;
+  TGraphErrors *TdcOver[nSIDE] = {};
+  TPad *PadTdcOver[nSIDE] = {};
+  TLine *LineTdcOver[nSIDE][2] = {};
+  TBox *BoxTdcOver[nSIDE] = {};
+  TH1 *FrameTdcOver[nSIDE] = {};
+
+  TGraph *nHit[nTRIGGER][nSIDE] = {};
+  TPad *PadnHit[nSIDE] = {};
+  TLine *LinenHit[nTRIGGER][nSIDE][2] = {};
+  TBox *BoxnHit[nTRIGGER][nSIDE] = {};
+  TPad *PadnHitStatus = nullptr;
+  TText *TextnHitStatus = nullptr;
+  TH1 *FramenHit[nSIDE] = {};
+
 
   //  TText * TextZVertex[3] = {};
   // TText * TextZVertex_scale[3] = {};

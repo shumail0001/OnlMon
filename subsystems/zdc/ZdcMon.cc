@@ -19,6 +19,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TProfile.h>
 #include <TRandom.h>
 
 #include <cmath>
@@ -127,9 +128,23 @@ int ZdcMon::Init()
   h_waveformSMD_South = new TH2F("h_waveformSMD_South", "h_waveformSMD_South", 17, -0.5, 16.5, 512, -500, 20000);
   h_waveformVeto_North = new TH2F("h_waveformVeto_North", "h_waveformVeto_North", 17, -0.5, 16.5, 512, -500, 20000);
   h_waveformVeto_South = new TH2F("h_waveformVeto_South", "h_waveformVeto_South", 17, -0.5, 16.5, 512, -500, 20000);
-  h_waveformAll = new TH2F("h_waveformAll", "h_waveformAll", 17, -0.5, 16.5, 512, -500, 20000);
 
+  tph_waveformZDC = new TProfile("tph_waveformZDC", "tph_waveformZDC", 17, -0.5, 16.5, 0, 20000);
+  tph_waveformZDCc = new TProfile("tph_waveformZDCc", "tph_waveformZDCc", 17, -0.5, 16.5, 0, 20000);
+  
+  tph_waveformSMD_North = new TProfile("tph_waveformSMD_North", "tph_waveformSMD_North", 17, -0.5, 16.5, 0, 20000);
+  tph_waveformSMD_Northc = new TProfile("tph_waveformSMD_Northc", "tph_waveformSMD_Northc", 17, -0.5, 16.5, 0, 20000);
 
+  tph_waveformSMD_South = new TProfile("tph_waveformSMD_South", "tph_waveformSMD_South", 17, -0.5, 16.5, 0, 20000);
+  tph_waveformSMD_Southc = new TProfile("tph_waveformSMD_Southc", "tph_waveformSMD_Southc", 17, -0.5, 16.5, 0, 20000);
+
+  tph_waveformVeto_North = new TProfile("tph_waveformVeto_North", "tph_waveformVeto_North", 17, -0.5, 16.5, 0, 20000);
+  tph_waveformVeto_Northc = new TProfile("tph_waveformVeto_Northc", "tph_waveformVeto_Northc", 17, -0.5, 16.5, 0, 20000);
+
+  tph_waveformVeto_South = new TProfile("tph_waveformVeto_South", "tph_waveformVeto_South", 17, -0.5, 16.5, 0, 20000);
+  tph_waveformVeto_Southc = new TProfile("tph_waveformVeto_Southc", "tph_waveformVeto_Southc", 17, -0.5, 16.5, 0, 20000);
+
+     
   // SMD
   // Individual SMD_ADC Values
   // Horizontal (expert plot)
@@ -198,8 +213,19 @@ int ZdcMon::Init()
   se->registerHisto(this, h_waveformSMD_South);
   se->registerHisto(this, h_waveformVeto_North);
   se->registerHisto(this, h_waveformVeto_South);
-  se->registerHisto(this, h_waveformAll);
+    
+  se->registerHisto(this, tph_waveformZDC);
+  se->registerHisto(this, tph_waveformZDCc);
+  se->registerHisto(this, tph_waveformSMD_North);
+  se->registerHisto(this, tph_waveformSMD_Northc);
+  se->registerHisto(this, tph_waveformSMD_South);
+  se->registerHisto(this, tph_waveformSMD_Southc);
+  se->registerHisto(this, tph_waveformVeto_North);
+  se->registerHisto(this, tph_waveformVeto_Northc);
+  se->registerHisto(this, tph_waveformVeto_South);
+  se->registerHisto(this, tph_waveformVeto_Southc);
 
+    
   //veto
   se->registerHisto(this, veto_NF);
   se->registerHisto(this, veto_NB);
@@ -332,7 +358,6 @@ int ZdcMon::process_event(Event *e /* evt */)
     
   float vetoNtimelow  = 6.0;
   float vetoNtimehigh  = 9.0;
-
  
   Packet *p = e->getPacket(packet);
   if (p)
@@ -363,32 +388,51 @@ int ZdcMon::process_event(Event *e /* evt */)
 
         for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
         {
-             h_waveformAll->Fill(s, p->iValue(s, j) - baseline);
-
               if (j < 16) //-->[0,15]
               {
-                  h_waveformZDC->Fill(s, p->iValue(s, j) - baseline);
+                  if ((s >= 4) && (s <= 12))
+                  {
+                      h_waveformZDC->Fill(s, p->iValue(s, j) - baseline);
+                      tph_waveformZDC->Fill(s, p->iValue(s, j) - baseline);
+
+                  }
               }
               
              if ((j > 47) && (j < 64)) //-->[48,63]
               {
-                  h_waveformSMD_North->Fill(s, p->iValue(s, j) - baseline);
+                  if ((s >= 9) && (s <= 16))
+                  {
+                      h_waveformSMD_North->Fill(s, p->iValue(s, j) - baseline);
+                      tph_waveformSMD_North->Fill(s, p->iValue(s, j) - baseline);
+                  }
               }
             
               if ((j > 111) && (j < 128)) //-->[112,127]
               {
-                  h_waveformSMD_South->Fill(s, p->iValue(s, j) - baseline);
+                  if ((s >= 7) && (s <= 13))
+                  {
+                      h_waveformSMD_South->Fill(s, p->iValue(s, j) - baseline);
+                      tph_waveformSMD_South->Fill(s, p->iValue(s, j) - baseline);
+                  }
               }
               
               if ((j > 15) && (j < 18)) //-->[16,17]
                {
-                   h_waveformVeto_North->Fill(s, p->iValue(s, j) - baseline);
+                   if ((s >= 5) && (s <= 12))
+                   {
+                       h_waveformVeto_North->Fill(s, p->iValue(s, j) - baseline);
+                       tph_waveformVeto_North->Fill(s, p->iValue(s, j) - baseline);
+                   }
 
                }
                
               if ((j > 79) && (j < 82)) //-->[80,81]
               {
-                  h_waveformVeto_South->Fill(s, p->iValue(s, j) - baseline);
+                  if ((s >= 7) && (s <= 12))
+                  {
+                      h_waveformVeto_South->Fill(s, p->iValue(s, j) - baseline);
+                      tph_waveformVeto_South->Fill(s, p->iValue(s, j) - baseline);
+                  }
               }
            }
       } // waveform hists
@@ -399,7 +443,6 @@ int ZdcMon::process_event(Event *e /* evt */)
       resultFast = anaWaveformFast(p, c);  // fast waveform fitting
       float signalFast = resultFast.at(0);
       float time = resultFast.at(1);
-
       float signal = signalFast;
 
      // fill zdc raw signal first
@@ -409,9 +452,10 @@ int ZdcMon::process_event(Event *e /* evt */)
        z.push_back(signal);
        tz.push_back(time);
 
-      if((c==0) || (c ==2) || (c == 4))
+      if((c == 0) || (c == 2) || (c == 4))
       {
          totalzdcsouthsignal += signal;
+          
          if(c == 0) zdc_S1->Fill(signal);
          if(c == 2) zdc_S2->Fill(signal);
          if(c == 4) zdc_S3->Fill(signal);
@@ -420,42 +464,66 @@ int ZdcMon::process_event(Event *e /* evt */)
       else if((c==8) || (c ==10) || (c == 12))
       {
          totalzdcnorthsignal += signal;
+          
          if(c == 8) zdc_N1->Fill(signal);
          if(c == 10) zdc_N2->Fill(signal);
          if(c == 12) zdc_N3->Fill(signal);
       }
      }
 
-     //veto counter
-      else if((c == 16) || (c == 17) || (c == 80) || (c == 81))
-      {
-         if((c == 16) && ((time >= vetoNtimelow) && (time <= vetoNtimehigh)))
-         {
-             v[0] = signal; if(signal > 0.) veto_NF->Fill(signal);
-         }
+    // veto N
+    else if(c > 15 && c < 18)
+    {
+        if(((time >= vetoNtimelow) && (time <= vetoNtimehigh)))
+        {
+
+            if(c == 16)
+            {
+                v[0] = signal; if(signal > 0.) veto_NF->Fill(signal);
+            }
+            
+            if (c == 17)
+            {
+                v[1] = signal; if(signal > 0.) veto_NB->Fill(signal);
+            }
+        }
+        
+    }
+        
+     //smd N
+     else if(c > 47 && c < 64)
+     {
+        sm.push_back(signal);
+        tsmd.push_back(time);
+     }
+        
+    // veto S
+    else if(c > 79 && c < 82)
+    {
+        if(((time >= vetoStimelow) && (time <= vetoStimehigh)))
+        {
+
+            if(c == 80)
+            {
+                v[2] = signal; if(signal > 0.) veto_SF->Fill(signal);
+            }
+                
+            if (c == 81)
+            {
+                v[3] = signal; if(signal > 0.) veto_SB->Fill(signal);
+            }
+        }
+            
+    }
+        
           
-          if((c == 17) && ((time >= vetoNtimelow) && (time <= vetoNtimehigh)))
-          {
-              v[1] = signal; if(signal > 0.) veto_NB->Fill(signal);
-          }
-          
-          if((c == 80) && ((time >= vetoStimelow) && (time <= vetoStimehigh)))
-          {
-              v[2] = signal; if(signal > 0.) veto_SF->Fill(signal);
-          }
-          
-          if(( c == 81) && ((time >= vetoStimelow) && (time <= vetoStimehigh)))
-          {
-              v[3] = signal; if(signal > 0.) veto_SB->Fill(signal);
-          }
-      }
-      
-     //smd
-      else if((c > 47 && c < 64) || (c > 111))
-      {
-         sm.push_back(signal);
-         tsmd.push_back(time);
-      }
+    //smd S
+     else if(c > 111)
+     {
+           sm.push_back(signal);
+           tsmd.push_back(time);
+     }
+
 
   }// channel loop end
 
@@ -496,6 +564,7 @@ int ZdcMon::process_event(Event *e /* evt */)
           {
             if((tsmd[j] >= smdNtimelow) && (tsmd[j] <= smdNtimehigh))
               {
+                  
                   smd_adc[j] = sm[j];
                   if(j<=7) smd_north_ysum += sm[j];
                   if(j >= 8 && j<=14) smd_north_xsum += sm[j]; //skip sum ch, 15->63

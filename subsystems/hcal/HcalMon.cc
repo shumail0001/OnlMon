@@ -413,12 +413,9 @@ int HcalMon::process_event(Event* e /* evt */)
       h_evtRec->Fill(0.0, 0.0);
     }
   //this is for only process event with the MBD>=1 trigger
-
-    if (usembdtrig)
-    {
-      if (trig_bools.at(10) == 0)
-      {
-        return false;
+    if(usembdtrig){
+      if(trig_bools.at(10) == 0){
+        fillhist = false;
       }
     }
   }

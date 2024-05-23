@@ -46,6 +46,14 @@ namespace
     std::transform( point_list.begin(), point_list.end(), std::back_inserter( out ), []( const auto& p ) { return p.second; } );
     return out;
   }
+
+  // streamer for sample window
+  std::ostream& operator << ( std::ostream&o, const TpotMon::sample_window_t& window )
+  {
+    o << "{ " << window.first << ", " << window.second << "}";
+    return o;
+  }
+
 }
 
 //__________________________________________________
@@ -72,6 +80,8 @@ int TpotMon::Init()
   {
     std::cout << "TpotMon::Init - m_calibration_filename: " << m_calibration_filename << std::endl;
     std::cout << "TpotMon::Init - m_max_sample: " << m_max_sample << std::endl;
+    std::cout << "TpotMon::Init - m_sample_window_signal: " << m_sample_window_signal << std::endl;
+    std::cout << "TpotMon::Init - m_n_sigma: " << m_n_sigma << std::endl;
   }
 
   // setup calibrations

@@ -186,20 +186,32 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete(ArcArmHit);
 
   // for 3rd Page
-  ifdelete(Adc);
-  ifdelete(MultiView1F);
-  ifdelete(MultiView2F);
-  ifdelete(PaveWarnings);
+  ifdelete(South_Nhit);
+  ifdelete(North_Nhit);
+  ifdelete(Nhit_emcal);
+  ifdelete(Nhit_hcal);
+  ifdelete(Nhit_emcalmbd);
+  ifdelete(Nhit_hcalmbd);
 
-  // for 4th Page
   ifdelete(Zvtx);
   ifdelete(Zvtx_ns);
   ifdelete(Zvtx_10);
   ifdelete(Zvtx_30);
   ifdelete(Zvtx_60);
   ifdelete(Zvtx_zdcns);
+  ifdelete(Zvtx_emcal);
+  ifdelete(Zvtx_hcal);
+  ifdelete(Zvtx_emcalmbd);
+  ifdelete(Zvtx_hcalmbd);
+
+  // for 4th Page
   ifdelete(TzeroZvtx);
   ifdelete(TextZVertexNotice);
+
+  ifdelete(Adc);
+  ifdelete(MultiView1F);
+  ifdelete(MultiView2F);
+  ifdelete(PaveWarnings);
 
   ifdelete(LineTzeroZvtx[0]);
   ifdelete(LineTzeroZvtx[1]);
@@ -626,56 +638,11 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     transparent[1]->Draw();
   }
 
+  //
+  // 3rd Page
   else if (name == "BbcMon3")
   {
     std::cout << "Creating Canvas BbcMon3..." << std::endl;
-
-    TC[2] = new TCanvas("BbcMon3", "MBD status view for Expert", -xsize / 2, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-    TC[2]->cd();
-
-    PadTop[2] = new TPad("PadTop0", "PadTop0", 0.00, 0.90, 1.00, 1.00, 0, 0, 0);
-    PadTdcOver[0] = new TPad("PadTdcOverSouth0", "PadTdcOverSouth0", 0.00, 0.30, 0.50, 0.60, 0, 0, 0);
-    PadTdcOver[1] = new TPad("PadTdcOverNorth1", "PadTdcOverNorth1", 0.50, 0.60, 1.00, 0.90, 0, 0, 0);
-    PadnHit[1] = new TPad("PadnHitNorth", "PadnHitNorth", 0.50, 0.03, 1.00, 0.30, 0, 0, 0);
-    PadnHit[0] = new TPad("PadnHitSouth", "PadnHitSouth", 0.00, 0.03, 0.50, 0.30, 0);
-    PadnHitStatus = new TPad("PadnHitStatus", "PadnHitStatus", 0.00, 0.00, 1.00, 0.03, 0, 0, 0);
-
-    PadTop[2]->Draw();
-    for (int side = 0; side < nSIDE; side++)
-    {
-      PadTdcOver[side]->Draw();
-      PadnHit[side]->Draw();
-      PadnHitStatus->Draw();
-
-      ifnew(TBox(0.5, BbcMonDefs::BBC_nHIT_MB_MIN[side], nPMT_1SIDE_BBC + .5, BbcMonDefs::BBC_nHIT_MB_MAX[side]), BoxnHit[0][side]);
-      BoxnHit[0][side]->SetFillColor(5);
-      BoxnHit[0][side]->SetLineColor(3);
-
-      ifnew(TBox(0.5, BbcMonDefs::BBC_nHIT_LASER_MIN[side], nPMT_1SIDE_BBC + .5, BbcMonDefs::BBC_nHIT_LASER_MAX[side]), BoxnHit[1][side]);
-      BoxnHit[1][side]->SetFillColor(7);
-      BoxnHit[1][side]->SetLineColor(4);
-    }
-
-    for (auto &side : BoxTdcOver)
-    {
-      ifnew(TBox(0.5, BbcMonDefs::BBC_TDC_OVERFLOW_REGULAR_MIN, nPMT_1SIDE_BBC + .5, BbcMonDefs::BBC_TDC_OVERFLOW_REGULAR_MAX), side);
-      side->SetFillColor(5);
-      side->SetLineColor(3);
-    }
-    ifnew(TText, TextnHitStatus);
-    TextnHitStatus->SetTextSize(0.7);
-    TextnHitStatus->SetText(0.05, 0.5, "Red Square : Collision Event  / Blue Triangle : Laser Event");
-    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1, 0, 0);
-    transparent[2]->SetFillStyle(4000);
-    transparent[2]->Draw();
-  }
-
-  //
-  // 4th Page
-  else if (name == "BbcMon4")
-  {
-    std::cout << "Creating Canvas BbcMon4..." << std::endl;
 
     // ifnew( TText, TextBbcSummaryTrigRate );
     ifnew(TLatex, TextBbcSummaryTrigRate);
@@ -683,13 +650,21 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     TextBbcSummaryTrigRate->SetTextSize(0.08);
     // TextBbcSummaryTrigRate->SetTextSize(0.075);
 
-    TC[3] = new TCanvas("BbcMon4", "Beam/Trigger status view for Shift clew", -1, 0, xsize / 2, ysize);
+    TC[2] = new TCanvas("BbcMon3", "Trigger view for Shift crew", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    TC[3]->cd();
+    TC[2]->cd();
 
-    PadTop[3] = new TPad("PadTop3", "PadTop3", 0.00, 0.90, 1.00, 1.00, 0, 0, 0);
-    PadTop[3]->Draw();
+    PadTop[2] = new TPad("PadTop2", "PadTop3", 0.00, 0.90, 1.00, 1.00, 0, 0, 0);
+    PadTop[2]->Draw();
 
+    PadZvtx  = new TPad("PadZvtx", "PadZvtx", 0.00, 0.60, 0.50, 0.90, 0, 0, 0);
+    PadNhits = new TPad("PadNhits", "PadNhits", 0.50, 0.60, 1.00, 0.90, 0, 0, 0);
+    PadZvtx->SetLeftMargin(0.17);
+    PadNhits->SetLeftMargin(0.17);
+    PadZvtx->Draw();
+    PadNhits->Draw();
+
+    /*
     PadHitTime[0] = new TPad("PadHitTimeSouth1", "PadHitTimeSouth1", 0.00, 0.60, 0.50, 0.90, 0, 0, 0);
     PadHitTime[1] = new TPad("PadHitTimeNorth1", "PadHitTimeNorth1", 0.50, 0.60, 1.00, 0.90, 0, 0, 0);
     PadHitTime[0]->SetLeftMargin(0.17);
@@ -716,9 +691,25 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
       ArrowHitTime[side]->SetLineColor(9);
       TextHitTime[side]->SetTextColor(9);
     }
-    PadZvtx = new TPad("PadZvtx", "PadZvtx", 0.00, 0.30, 0.50, 0.60, 0, 0, 0);
+    */
 
+    PadZvtxEMCAL  = new TPad("PadZvtxEMCAL", "PadZvtxEMCAL", 0.00, 0.30, 0.50, 0.60, 0, 0, 0);
+    PadNhitsEMCAL = new TPad("PadNhitsEMCAL", "PadNhitsEMCAL", 0.50, 0.30, 1.00, 0.60, 0, 0, 0);
+    PadZvtxEMCAL->SetLeftMargin(0.17);
+    PadNhitsEMCAL->SetLeftMargin(0.17);
+    PadZvtxEMCAL->Draw();
+    PadNhitsEMCAL->Draw();
+
+    PadZvtxHCAL  = new TPad("PadZvtxHCAL", "PadZvtxHCAL", 0.00, 0.00, 0.50, 0.30, 0, 0, 0);
+    PadNhitsHCAL = new TPad("PadNhitsHCAL", "PadNhitsHCAL", 0.50, 0.00, 1.00, 0.30, 0, 0, 0);
+    PadZvtxHCAL->SetLeftMargin(0.17);
+    PadNhitsHCAL->SetLeftMargin(0.17);
+    PadZvtxHCAL->Draw();
+    PadNhitsHCAL->Draw();
+
+    /*
     // for Zvtx
+    PadZvtx = new TPad("PadZvtx", "PadZvtx", 0.00, 0.30, 0.50, 0.60, 0, 0, 0);
     if (PadZvtx)
     {
       PadZvtx->SetLeftMargin(0.17);
@@ -750,7 +741,9 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
       ArrowZvtx->SetLineColor(9);
       TextZvtx->SetTextColor(9);
     }
+    */
 
+    /*
     PadChargeSum = new TPad("PadChargeSum", "PadCHargeSum", 0.50, 0.30, 1.00, 0.60, 0, 0, 0);
     PadChargeSum->SetLogy();
     PadChargeSum->Draw();
@@ -768,13 +761,17 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     TextSouthChargeSum->SetTextSize(0.08);
     TextSouthChargeSum->SetText(0.6, 0.8, "--South");  // for p+p
     TextSouthChargeSum->SetTextColor(2);
+    */
 
+    /*
     PadAdc = new TPad("PadAdc", "PadAdc", 0.00, 0.00, 1.00, 0.30, 0, 0, 0);
     PadAdc->SetLogz();
     PadAdc->Draw();
-    transparent[3] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[3]->SetFillStyle(4000);
-    transparent[3]->Draw();
+    */
+
+    transparent[2] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
 
     // PadHitTime[1][0]->SetLogy();
     // PadHitTime[1][1]->SetLogy();
@@ -790,6 +787,51 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
        */
 
     // TC[3]->SetEditable(0);
+  }
+
+  else if (name == "BbcMon4")
+  {
+    std::cout << "Creating Canvas BbcMon4..." << std::endl;
+
+    TC[3] = new TCanvas("BbcMon4", "MBD status view for Expert", -xsize / 2, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    TC[3]->cd();
+
+    PadTop[3] = new TPad("PadTop0", "PadTop0", 0.00, 0.90, 1.00, 1.00, 0, 0, 0);
+    PadTdcOver[0] = new TPad("PadTdcOverSouth0", "PadTdcOverSouth0", 0.00, 0.30, 0.50, 0.60, 0, 0, 0);
+    PadTdcOver[1] = new TPad("PadTdcOverNorth1", "PadTdcOverNorth1", 0.50, 0.60, 1.00, 0.90, 0, 0, 0);
+    PadnHit[1] = new TPad("PadnHitNorth", "PadnHitNorth", 0.50, 0.03, 1.00, 0.30, 0, 0, 0);
+    PadnHit[0] = new TPad("PadnHitSouth", "PadnHitSouth", 0.00, 0.03, 0.50, 0.30, 0);
+    PadnHitStatus = new TPad("PadnHitStatus", "PadnHitStatus", 0.00, 0.00, 1.00, 0.03, 0, 0, 0);
+
+    PadTop[3]->Draw();
+    for (int side = 0; side < nSIDE; side++)
+    {
+      PadTdcOver[side]->Draw();
+      PadnHit[side]->Draw();
+      PadnHitStatus->Draw();
+
+      ifnew(TBox(0.5, BbcMonDefs::BBC_nHIT_MB_MIN[side], nPMT_1SIDE_BBC + .5, BbcMonDefs::BBC_nHIT_MB_MAX[side]), BoxnHit[0][side]);
+      BoxnHit[0][side]->SetFillColor(5);
+      BoxnHit[0][side]->SetLineColor(3);
+
+      ifnew(TBox(0.5, BbcMonDefs::BBC_nHIT_LASER_MIN[side], nPMT_1SIDE_BBC + .5, BbcMonDefs::BBC_nHIT_LASER_MAX[side]), BoxnHit[1][side]);
+      BoxnHit[1][side]->SetFillColor(7);
+      BoxnHit[1][side]->SetLineColor(4);
+    }
+
+    for (auto &side : BoxTdcOver)
+    {
+      ifnew(TBox(0.5, BbcMonDefs::BBC_TDC_OVERFLOW_REGULAR_MIN, nPMT_1SIDE_BBC + .5, BbcMonDefs::BBC_TDC_OVERFLOW_REGULAR_MAX), side);
+      side->SetFillColor(5);
+      side->SetLineColor(3);
+    }
+    ifnew(TText, TextnHitStatus);
+    TextnHitStatus->SetTextSize(0.7);
+    TextnHitStatus->SetText(0.05, 0.5, "Red Square : Collision Event  / Blue Triangle : Laser Event");
+    transparent[3] = new TPad("transparent2", "this does not show", 0, 0, 1, 1, 0, 0);
+    transparent[3]->SetFillStyle(4000);
+    transparent[3]->Draw();
   }
 
   //
@@ -841,7 +883,7 @@ int BbcMonDraw::Draw(const std::string &what)
   if (!gROOT->FindObject("BbcMon3"))
   {
     TC[2] = nullptr;
-    if (what == "BbcMon3" || what == "BbcMonitor")
+    if (what == "ALL" || what == "BbcMon3" || what == "BbcMonitor")
     {
       MakeCanvas("BbcMon3");
     }
@@ -877,6 +919,32 @@ int BbcMonDraw::Draw(const std::string &what)
   {
     Trigs = static_cast<TH1 *>(bbc_trigs->Clone());
   }
+
+  std::ostringstream name;
+
+  TH1 *bbc_south_nhit = cl->getHisto("BBCMON_0", "bbc_south_nhit");
+  ifdelete(South_Nhit);
+  South_Nhit = static_cast<TH1 *>(bbc_south_nhit->Clone());
+
+  TH1 *bbc_north_nhit = cl->getHisto("BBCMON_0", "bbc_north_nhit");
+  ifdelete(North_Nhit);
+  North_Nhit = static_cast<TH1 *>(bbc_north_nhit->Clone());
+
+  TH1 *bbc_nhit_emcal = cl->getHisto("BBCMON_0", "bbc_nhit_emcal");
+  ifdelete(Nhit_emcal);
+  Nhit_emcal = static_cast<TH1 *>(bbc_nhit_emcal->Clone());
+
+  TH1 *bbc_nhit_hcal = cl->getHisto("BBCMON_0", "bbc_nhit_hcal");
+  ifdelete(Nhit_hcal);
+  Nhit_hcal = static_cast<TH1 *>(bbc_nhit_hcal->Clone());
+
+  TH1 *bbc_nhit_emcalmbd = cl->getHisto("BBCMON_0", "bbc_nhit_emcalmbd");
+  ifdelete(Nhit_emcalmbd);
+  Nhit_emcalmbd = static_cast<TH1 *>(bbc_nhit_emcalmbd->Clone());
+
+  TH1 *bbc_nhit_hcalmbd = cl->getHisto("BBCMON_0", "bbc_nhit_hcalmbd");
+  ifdelete(Nhit_hcalmbd);
+  Nhit_hcalmbd = static_cast<TH1 *>(bbc_nhit_hcalmbd->Clone());
 
   TH1 *bbc_nevent_counter = cl->getHisto("BBCMON_0", "bbc_nevent_counter");
 
@@ -955,6 +1023,22 @@ int BbcMonDraw::Draw(const std::string &what)
   ifdelete(Zvtx_zdcns);
   Zvtx_zdcns = static_cast<TH1 *>(bbc_zvertex_zdcns->Clone());
 
+  TH1 *bbc_zvertex_emcal = cl->getHisto("BBCMON_0", "bbc_zvertex_emcal");
+  ifdelete(Zvtx_emcal);
+  Zvtx_emcal = static_cast<TH1 *>(bbc_zvertex_emcal->Clone());
+
+  TH1 *bbc_zvertex_hcal = cl->getHisto("BBCMON_0", "bbc_zvertex_hcal");
+  ifdelete(Zvtx_hcal);
+  Zvtx_hcal = static_cast<TH1 *>(bbc_zvertex_hcal->Clone());
+
+  TH1 *bbc_zvertex_emcalmbd = cl->getHisto("BBCMON_0", "bbc_zvertex_emcalmbd");
+  ifdelete(Zvtx_emcalmbd);
+  Zvtx_emcalmbd = static_cast<TH1 *>(bbc_zvertex_emcalmbd->Clone());
+
+  TH1 *bbc_zvertex_hcalmbd = cl->getHisto("BBCMON_0", "bbc_zvertex_hcalmbd");
+  ifdelete(Zvtx_hcalmbd);
+  Zvtx_hcalmbd = static_cast<TH1 *>(bbc_zvertex_hcalmbd->Clone());
+
   TH2 *bbc_tzero_zvtx = static_cast<TH2 *>(cl->getHisto("BBCMON_0", "bbc_tzero_zvtx"));
   ifdelete(TzeroZvtx);
   TzeroZvtx = static_cast<TH2 *>(bbc_tzero_zvtx->Clone());
@@ -1003,7 +1087,6 @@ int BbcMonDraw::Draw(const std::string &what)
 
   // Create HitTime projection ------------------------------------------
 
-  std::ostringstream name;
   for (int side = 0; side < nSIDE; side++)
   {
     ifdelete(HitTime[side]);
@@ -1136,6 +1219,7 @@ int BbcMonDraw::Draw(const std::string &what)
   otext << " Events: " << nhit_total;
   otext << " Date:" << ctime(&evttime);
   text = otext.str();
+  ifnew(TText, TextTop);
   TextTop->SetText(0.01, 0.25, text.c_str());
 
   if (TC[0])
@@ -1153,15 +1237,6 @@ int BbcMonDraw::Draw(const std::string &what)
 
     Zvtx_ns->SetLineColor(4);
     Zvtx_ns->SetFillColor(7);
-
-    Zvtx_60->SetLineColor(40);
-    Zvtx_60->SetFillColor(6);
-
-    Zvtx_30->SetLineColor(30);
-    Zvtx_30->SetFillColor(3);
-
-    Zvtx_10->SetLineColor(46);
-    Zvtx_10->SetFillColor(2);
 
     // Get Maximum at the inside of BBC which is 130cm from center;
     float maxEntries = 10;
@@ -1339,19 +1414,6 @@ int BbcMonDraw::Draw(const std::string &what)
     {
       Zvtx_ns->GetXaxis()->SetRangeUser(-60, 60);
       Zvtx_ns->Draw("hist");
-
-      /*
-      // dirty way to determine if we are using GL1 trig info
-      if ( Zvtx_zdcns->GetEntries() != Zvtx_ns->GetEntries() )
-      {
-        Zvtx_zdcns->Draw("same");
-        Zvtx_60->Draw("same");
-        Zvtx_30->Draw("same");
-        Zvtx_10->Draw("same");
-        //std::cout << "aaa " << Zvtx_ns->GetEntries() << " " << Zvtx_10->GetEntries() << " " << Zvtx_30->GetEntries() << " "
-        //<< Zvtx_60->GetEntries() << " " << Zvtx_zdcns->GetEntries() << " " << std::endl;
-      }
-      */
     }
 
     /*
@@ -1447,6 +1509,7 @@ int BbcMonDraw::Draw(const std::string &what)
     if (PadTimeWave)
     {
       PadTimeWave->cd();
+      TimeWave->GetXaxis()->SetRangeUser(-0.5,15.5);
       TimeWave->Draw("colz");
     }
 
@@ -1460,8 +1523,8 @@ int BbcMonDraw::Draw(const std::string &what)
       if (npeak < 3)                                       // no center peak
       {
         SouthHitTime->Fit("FitSouthHitTime", "QN0L");
-        rangemin = FitSouthHitTime->GetParameter(1) - FitSouthHitTime->GetParameter(2);
-        rangemax = FitSouthHitTime->GetParameter(1) + FitSouthHitTime->GetParameter(2);
+        rangemin = FitSouthHitTime->GetParameter(1) - 1.0*FitSouthHitTime->GetParameter(2);
+        rangemax = FitSouthHitTime->GetParameter(1) + 1.0*FitSouthHitTime->GetParameter(2);
       }
       else
       {
@@ -1513,8 +1576,8 @@ int BbcMonDraw::Draw(const std::string &what)
       if (npeak < 3)                                       // no center peak
       {
         NorthHitTime->Fit("FitNorthHitTime", "QN0L");
-        rangemin = FitNorthHitTime->GetParameter(1) - FitNorthHitTime->GetParameter(2);
-        rangemax = FitNorthHitTime->GetParameter(1) + FitNorthHitTime->GetParameter(2);
+        rangemin = FitNorthHitTime->GetParameter(1) - 1.0*FitNorthHitTime->GetParameter(2);
+        rangemax = FitNorthHitTime->GetParameter(1) + 1.0*FitNorthHitTime->GetParameter(2);
       }
       else
       {
@@ -1677,12 +1740,229 @@ int BbcMonDraw::Draw(const std::string &what)
   // ------------------------------------------------------------------------
   // Draw 3rd Page
   // ------------------------------------------------------------------------
+  bbcStyle->cd();
   if (TC[2])
   {
-    TC[2]->cd();
+    PadTop[2]->cd();
+    PaveTop->Draw();
+    TextTop->Draw();
+
+    /*
+    for (int side = 0; side < nSIDE; side++)
+    {
+      PadHitTime[side]->cd();
+
+      HitTime[side]->Draw();
+      float rangemin;
+      float rangemax;
+      int npeak = tspec->Search(HitTime[side], 2, "goff");  // finds the highest peak, draws marker
+      if (npeak < 3)                                        // no center peak
+      {
+        FitHitTime[side]->SetRange(BbcMonDefs::TDC_FIT_MIN, BbcMonDefs::TDC_FIT_MAX);
+        HitTime[side]->Fit(FitHitTime[side]->GetName(), "QRNL");
+        rangemax = std::min(BbcMonDefs::TDC_FIT_MAX,
+                            FitHitTime[side]->GetParameter(1) + FitHitTime[side]->GetParameter(2));
+        rangemin = std::max(BbcMonDefs::TDC_FIT_MIN,
+                            FitHitTime[side]->GetParameter(1) - FitHitTime[side]->GetParameter(2));
+      }
+      else
+      {
+        double *peakpos = tspec->GetPositionX();
+        float centerpeak = peakpos[0];
+        float sidepeak[2];
+        if (peakpos[2] > peakpos[1])
+        {
+          sidepeak[0] = peakpos[1];
+          sidepeak[1] = peakpos[2];
+        }
+        else
+        {
+          sidepeak[1] = peakpos[1];
+          sidepeak[0] = peakpos[2];
+        }
+        rangemin = centerpeak - (centerpeak - sidepeak[0]) / 2.;
+        rangemax = centerpeak + (sidepeak[1] - centerpeak) / 2.;
+      }
+
+      FitHitTime[side]->SetRange(rangemin, rangemax);
+
+      HitTime[side]->Fit(FitHitTime[side]->GetName(), "QRL");
+      float height = HitTime[side]->GetMaximum();
+      FitHitTime[side]->Draw("same");
+
+      LineHitTime[side][1]->SetY2(height);
+      LineHitTime[side][0]->SetY2(height);
+      ArrowHitTime[side]->SetY1(height * 0.90);
+      ArrowHitTime[side]->SetY2(height * 0.90);
+      TextHitTime[side]->SetY(height * 0.88);
+      LineHitTime[side][0]->Draw();
+      LineHitTime[side][1]->Draw();
+      ArrowHitTime[side]->Draw();
+      TextHitTime[side]->Draw();
+    }
+    // PadWarnings->cd();
+    // PaveWarnings->Draw();
+    */
+
+    if (PadZvtx)
+    {
+      PadZvtx->cd();
+
+      if (Zvtx_ns->GetEntries() > 0)
+      {
+        Zvtx_ns->GetXaxis()->SetRangeUser(-60, 60);
+        Zvtx_ns->Draw("hist");
+
+        Zvtx_60->SetLineColor(40);
+        Zvtx_60->SetFillColor(6);
+
+        Zvtx_30->SetLineColor(30);
+        Zvtx_30->SetFillColor(3);
+
+        Zvtx_10->SetLineColor(46);
+        Zvtx_10->SetFillColor(2);
+
+        Zvtx_zdcns->Draw("same");
+        Zvtx_60->Draw("same");
+        Zvtx_30->Draw("same");
+        Zvtx_10->Draw("same");
+        //std::cout << "aaa " << Zvtx_ns->GetEntries() << " " << Zvtx_10->GetEntries() << " " << Zvtx_30->GetEntries() << " " << Zvtx_60->GetEntries() << " " << Zvtx_zdcns->GetEntries() << " " << std::endl;
+      }
+
+      /*
+      Zvtx->Draw();
+      Zvtx->Fit("FitZvtx", "QN0L");
+      FitZvtx->SetRange(FitZvtx->GetParameter(1) - FitZvtx->GetParameter(2) * 2,
+                        FitZvtx->GetParameter(1) + FitZvtx->GetParameter(2) * 2);
+      Zvtx->Fit("FitZvtx", "QRL");
+      FitZvtx->Draw("same");
+
+      float height = Zvtx->GetMaximum();
+      FitZvtx->Draw("same");
+
+      LineZvtx[1]->SetY2(height);
+      LineZvtx[0]->SetY2(height);
+      ArrowZvtx->SetY1(height * 0.90);
+      ArrowZvtx->SetY2(height * 0.90);
+      TextZvtx->SetY(height * 0.88);
+      LineZvtx[0]->Draw();
+      LineZvtx[1]->Draw();
+      ArrowZvtx->Draw();
+      TextZvtx->Draw();
+      TextZvtxNorth->Draw();
+      TextZvtxSouth->Draw();
+      */
+    }
+
+    if (PadNhits)
+    {
+      PadNhits->cd();
+
+      South_Nhit->SetLineColor(2);
+      North_Nhit->SetLineColor(4);
+      South_Nhit->GetXaxis()->SetRangeUser(0,60);
+      North_Nhit->GetXaxis()->SetRangeUser(0,60);
+      South_Nhit->SetTitle("MBD Nhits, MBD trig");
+      North_Nhit->SetTitle("MBD Nhits, MBD trig");
+      South_Nhit->Draw();
+      North_Nhit->Draw("same");
+    }
+
+    if (PadZvtxEMCAL)
+    {
+      PadZvtxEMCAL->cd();
+
+      Zvtx_emcal->GetXaxis()->SetRangeUser(-60, 60);
+      Zvtx_emcalmbd->GetXaxis()->SetRangeUser(-60, 60);
+      if ( Zvtx_emcal->GetEntries() > Zvtx_emcalmbd->GetEntries() )
+      {
+        Zvtx_emcal->Draw();
+        Zvtx_emcalmbd->Draw("same");
+      }
+      else
+      {
+        Zvtx_emcalmbd->Draw();
+        Zvtx_emcal->Draw("same");
+      }
+    }
+    if (PadNhitsEMCAL)
+    {
+      PadNhitsEMCAL->cd();
+
+      Nhit_emcal->SetLineColor(4);
+      Nhit_emcalmbd->SetLineColor(2);
+      Nhit_emcal->GetXaxis()->SetRangeUser(0,60);
+      Nhit_emcalmbd->GetXaxis()->SetRangeUser(0,60);
+      Nhit_emcal->Draw();
+      Nhit_emcalmbd->Draw("same");
+    }
+
+    if (PadZvtxHCAL)
+    {
+      PadZvtxHCAL->cd();
+      Zvtx_hcal->GetXaxis()->SetRangeUser(-60, 60);
+      Zvtx_hcalmbd->GetXaxis()->SetRangeUser(-60, 60);
+
+      if ( Zvtx_hcal->GetEntries() > Zvtx_hcalmbd->GetEntries() )
+      {
+        Zvtx_hcal->Draw();
+        Zvtx_hcalmbd->Draw("same");
+      }
+      else
+      {
+        Zvtx_hcalmbd->Draw();
+        Zvtx_hcal->Draw("same");
+      }
+    }
+    if (PadNhitsHCAL)
+    {
+      PadNhitsHCAL->cd();
+
+      Nhit_hcal->SetLineColor(4);
+      Nhit_hcalmbd->SetLineColor(2);
+      Nhit_hcal->GetXaxis()->SetRangeUser(0,60);
+      Nhit_hcalmbd->GetXaxis()->SetRangeUser(0,60);
+      Nhit_hcal->Draw();
+      Nhit_hcalmbd->Draw("same");
+    }
+
+
+    if (PadChargeSum)
+    {
+      PadChargeSum->cd();
+
+      NorthChargeSum->SetLineColor(4);
+      SouthChargeSum->SetLineColor(2);
+      NorthChargeSum->GetXaxis()->SetRangeUser(0,60);
+      SouthChargeSum->GetXaxis()->SetRangeUser(0,60);
+      NorthChargeSum->Draw();
+      SouthChargeSum->Draw("same");
+
+      //       float height = NorthChargeSum->GetMaximum();
+      //       TextNorthChargeSum->SetY( height*0.88);
+      //       TextSouthChargeSum->SetY( height*0.88);
+      TextNorthChargeSum->SetTextColor(4);
+      TextSouthChargeSum->SetTextColor(2);
+      TextNorthChargeSum->Draw();
+      TextSouthChargeSum->Draw();
+    }
+
+    if (PadAdc)
+    {
+      PadAdc->cd();
+      Adc->Draw("colz");
+    }
+  }  // TC[2]
+
+  // ------------------------------------------------------------------------
+  // Draw 4th Page
+  // ------------------------------------------------------------------------
+  if (TC[3])
+  {
+    TC[3]->cd();
 
     // -------------------------------------------------------------------------
-    PadTop[2]->cd();
+    PadTop[3]->cd();
     PaveTop->Draw();
     TextTop->Draw();
 
@@ -1870,121 +2150,6 @@ int BbcMonDraw::Draw(const std::string &what)
   }
 
   //  std::cout << "Got Histgram Got-Pad 0" << std::endl;
-
-  // ------------------------------------------------------------------------
-  // Draw 4th Page
-  // ------------------------------------------------------------------------
-  bbcStyle->cd();
-  if (TC[3])
-  {
-    PadTop[3]->cd();
-    PaveTop->Draw();
-    TextTop->Draw();
-
-    for (int side = 0; side < nSIDE; side++)
-    {
-      PadHitTime[side]->cd();
-
-      HitTime[side]->Draw();
-      float rangemin;
-      float rangemax;
-      int npeak = tspec->Search(HitTime[side], 2, "goff");  // finds the highest peak, draws marker
-      if (npeak < 3)                                        // no center peak
-      {
-        FitHitTime[side]->SetRange(BbcMonDefs::TDC_FIT_MIN, BbcMonDefs::TDC_FIT_MAX);
-        HitTime[side]->Fit(FitHitTime[side]->GetName(), "QRNL");
-        rangemax = std::min(BbcMonDefs::TDC_FIT_MAX,
-                            FitHitTime[side]->GetParameter(1) + FitHitTime[side]->GetParameter(2));
-        rangemin = std::max(BbcMonDefs::TDC_FIT_MIN,
-                            FitHitTime[side]->GetParameter(1) - FitHitTime[side]->GetParameter(2));
-      }
-      else
-      {
-        double *peakpos = tspec->GetPositionX();
-        float centerpeak = peakpos[0];
-        float sidepeak[2];
-        if (peakpos[2] > peakpos[1])
-        {
-          sidepeak[0] = peakpos[1];
-          sidepeak[1] = peakpos[2];
-        }
-        else
-        {
-          sidepeak[1] = peakpos[1];
-          sidepeak[0] = peakpos[2];
-        }
-        rangemin = centerpeak - (centerpeak - sidepeak[0]) / 2.;
-        rangemax = centerpeak + (sidepeak[1] - centerpeak) / 2.;
-      }
-
-      FitHitTime[side]->SetRange(rangemin, rangemax);
-
-      HitTime[side]->Fit(FitHitTime[side]->GetName(), "QRL");
-      float height = HitTime[side]->GetMaximum();
-      FitHitTime[side]->Draw("same");
-
-      LineHitTime[side][1]->SetY2(height);
-      LineHitTime[side][0]->SetY2(height);
-      ArrowHitTime[side]->SetY1(height * 0.90);
-      ArrowHitTime[side]->SetY2(height * 0.90);
-      TextHitTime[side]->SetY(height * 0.88);
-      LineHitTime[side][0]->Draw();
-      LineHitTime[side][1]->Draw();
-      ArrowHitTime[side]->Draw();
-      TextHitTime[side]->Draw();
-    }
-    // PadWarnings->cd();
-    // PaveWarnings->Draw();
-
-    if (PadZvtx)
-    {
-      PadZvtx->cd();
-      Zvtx->Draw();
-      Zvtx->Fit("FitZvtx", "QN0L");
-      FitZvtx->SetRange(FitZvtx->GetParameter(1) - FitZvtx->GetParameter(2) * 2,
-                        FitZvtx->GetParameter(1) + FitZvtx->GetParameter(2) * 2);
-      Zvtx->Fit("FitZvtx", "QRL");
-      FitZvtx->Draw("same");
-
-      float height = Zvtx->GetMaximum();
-      FitZvtx->Draw("same");
-
-      LineZvtx[1]->SetY2(height);
-      LineZvtx[0]->SetY2(height);
-      ArrowZvtx->SetY1(height * 0.90);
-      ArrowZvtx->SetY2(height * 0.90);
-      TextZvtx->SetY(height * 0.88);
-      LineZvtx[0]->Draw();
-      LineZvtx[1]->Draw();
-      ArrowZvtx->Draw();
-      TextZvtx->Draw();
-      TextZvtxNorth->Draw();
-      TextZvtxSouth->Draw();
-    }
-
-    if (PadChargeSum)
-    {
-      PadChargeSum->cd();
-      NorthChargeSum->SetLineColor(4);
-      SouthChargeSum->SetLineColor(2);
-      NorthChargeSum->Draw();
-      SouthChargeSum->Draw("same");
-
-      //       float height = NorthChargeSum->GetMaximum();
-      //       TextNorthChargeSum->SetY( height*0.88);
-      //       TextSouthChargeSum->SetY( height*0.88);
-      TextNorthChargeSum->SetTextColor(4);
-      TextSouthChargeSum->SetTextColor(2);
-      TextNorthChargeSum->Draw();
-      TextSouthChargeSum->Draw();
-    }
-
-    if (PadAdc)
-    {
-      PadAdc->cd();
-      Adc->Draw("colz");
-    }
-  }  // TC[3]
 
   if (TC[0])
   {
