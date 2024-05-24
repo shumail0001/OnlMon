@@ -18,6 +18,7 @@ void run_tpot_server(
   // create subsystem Monitor object
   auto m = new TpotMon(name);
   m->SetMonitorServerId(serverid);
+  m->set_sample_window_signal( {5, 20} );
 
   // prefer local calibration filename if exists
   const std::string local_calibration_filename( "TPOT_Pedestal-000.root" );
