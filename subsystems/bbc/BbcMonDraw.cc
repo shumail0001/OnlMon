@@ -885,6 +885,16 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     transparent[3]->Draw();
   }
 
+  else if (name == "BbcVertexSend")
+  {
+    TC[4] = new TCanvas(name.c_str(), "Bbc Vertex Sender", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    gSystem->ProcessEvents();
+    // this one is used to plot the run number on the canvas
+    transparent[4] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
+    transparent[4]->Draw();
+    transparent[4]->SetFillColor(kGray);
+    TC[4]->SetEditable(false);
+  }
   //
 
   /*
@@ -912,13 +922,14 @@ int BbcMonDraw::Draw(const std::string &what)
 
   TStyle *oldStyle = gStyle;
   bbcStyle->cd();
-
+  int canvasindex = -1;
   if (!gROOT->FindObject("BbcMon1"))
   {
     PRINT_DEBUG("In BbcMonDraw::Draw(), BbcMon1");
     TC[0] = nullptr;
     if (what == "ALL" || what == "FIRST" || what == "BbcMon1" || what == "BbcMonitor")
     {
+      canvasindex = 0;
       MakeCanvas("BbcMon1");
     }
   }
@@ -928,6 +939,7 @@ int BbcMonDraw::Draw(const std::string &what)
     TC[1] = nullptr;
     if (what == "ALL" || what == "SECOND" || what == "BbcMon2" || what == "VertexMonitor")
     {
+      canvasindex = 1;
       MakeCanvas("BbcMon2");
     }
   }
@@ -936,6 +948,7 @@ int BbcMonDraw::Draw(const std::string &what)
     TC[2] = nullptr;
     if (what == "ALL" || what == "THIRD" ||  what == "BbcMon3" || what == "TriggerMonitor")
     {
+      canvasindex = 2;
       MakeCanvas("BbcMon3");
     }
   }
@@ -945,6 +958,7 @@ int BbcMonDraw::Draw(const std::string &what)
     TC[3] = nullptr;
     if (what == "BbcMon4" || what == "VertexMonitor")
     {
+      canvasindex = 3;
       MakeCanvas("BbcMon4");
     }
   }
@@ -952,22 +966,44 @@ int BbcMonDraw::Draw(const std::string &what)
   //
   if ( what == "MBD2MCR" )
   {
+  if (!gROOT->FindObject("BbcVertexSend"))
+    {
+      MakeCanvas("BbcVertexSend");
+    }
+  TC[4]->Clear("D");
+  TC[4]->SetEditable(true);
+  transparent[4]->cd();
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+
     GetSendFlag();
     if ( sendflag==0 )
     {
       UpdateSendFlag( 1 );
+      PrintRun.DrawText(0.5, 0.5, "MBD: NOW Sending vertex to MCR");
       std::cout << "MBD: NOW Sending vertex to MCR" << std::endl;
     }
     else if ( sendflag==1 )
     {
       UpdateSendFlag( 0 );
+      PrintRun.DrawText(0.5, 0.5, "MBD: STOP sending vertex to MCR");
       std::cout << "MBD: STOP sending vertex to MCR" << std::endl;
     }
     else
     {
       UpdateSendFlag( 0 );
+      PrintRun.DrawText(0.5, 0.5, "MBD: something wrong with sendflag, setting to 0");
       std::cout << "MBD: something wrong with sendflag, setting to 0" << std::endl;
     }
+  TC[4]->Update();
+  TC[4]->Show();
+  TC[4]->SetEditable(false);
+  return 0;
   }
 
   ClearWarning();
@@ -994,6 +1030,14 @@ int BbcMonDraw::Draw(const std::string &what)
   std::ostringstream name;
 
   TH1 *bbc_south_nhit = cl->getHisto("BBCMON_0", "bbc_south_nhit");
+  if (! bbc_south_nhit)
+    {
+      if (canvasindex >= 0)
+	{
+	  DrawDeadServer(transparent[canvasindex]);
+	}
+      return -1;
+    }
   ifdelete(South_Nhit);
   South_Nhit = static_cast<TH1 *>(bbc_south_nhit->Clone());
 
