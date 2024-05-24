@@ -256,7 +256,7 @@ int BbcMonDraw::UpdateSendFlag(const int flag)
   }
   else
   {
-    std::cout << "unable to open file " << sendflagfname << std::endl;
+    std::cout << "UpdateSendFlag, unable to open file " << sendflagfname << std::endl;
     return 0;
   }
   sendflagfile.close();
@@ -272,7 +272,7 @@ int BbcMonDraw::GetSendFlag()
   }
   else
   {
-    std::cout << "unable to open file " << sendflagfname << std::endl;
+    std::cout << "GetSendFlag, unable to open file " << sendflagfname << std::endl;
     sendflag = 0;
   }
   sendflagfile.close();
@@ -300,9 +300,9 @@ int BbcMonDraw::Init()
   }
   
   // prep the vtx to MCR info
-  sendflagfname = "/home/phnxrc/operations/mbd/.mbd2mcr.";
+  sendflagfname = "/home/phnxrc/operations/mbd/mbd2mcr.seb18";
   //sendflagfname += getenv("HOSTNAME");
-  sendflagfname += "seb18";
+  //sendflagfname += "seb18";
   GetSendFlag();
 
   // ------------------------------------------------------

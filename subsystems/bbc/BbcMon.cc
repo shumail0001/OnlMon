@@ -540,8 +540,7 @@ int BbcMon::Init()
   m_mbdpmts = new MbdPmtContainerV1();
 
   // prep the vtx to MCR info
-  sendflagfname = "/home/phnxrc/operations/mbd/.mbd2mcr.";
-  sendflagfname += getenv("HOSTNAME");
+  sendflagfname = "/home/phnxrc/operations/mbd/mbd2mcr.seb18";
   std::cout << "sendflagfname " << sendflagfname << std::endl;
   fillnumber = 0;
   UpdateSendFlag( 0 );
