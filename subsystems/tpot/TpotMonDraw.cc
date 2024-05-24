@@ -165,6 +165,10 @@ namespace
 
         if(column<3) pad->SetRightMargin(0);
         else pad->SetRightMargin(0.01);
+
+        // draw ticks on both sides
+        pad->SetTicky();
+
       }
     }
   }
@@ -632,7 +636,7 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_hit_vs_channel")
   {
-    iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ), get_ref_histograms_scaled( "m_hit_vs_channel" ), DrawOptions::MatchRange );
+    iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ), get_ref_histograms_scaled( "m_hit_vs_channel" ), DrawOptions::Logy|DrawOptions::MatchRange);
     auto cv = get_canvas("TPOT_hit_vs_channel");
     if( cv )
     {
@@ -644,7 +648,6 @@ int TpotMonDraw::Draw(const std::string &what)
         // also set log y
         auto&& pad = cv->GetPad(i+1);
         pad->cd();
-        pad->SetLogy(true);
         pad->Update();
         for( const int& channel:{64, 128, 196} )
         {
@@ -1055,9 +1058,21 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
         ref_histograms[i]->SetStats(false);
       }
 
-      if( options&DrawOptions::Logx ) gPad->SetLogx( true );
-      if( options&DrawOptions::Logy && histograms[i]->GetEntries() > 0 ) gPad->SetLogy( true );
-      if( options&DrawOptions::Logz ) gPad->SetLogz( true );
+      if( options&DrawOptions::Logx )
+      {
+        gPad->SetLogx( true );
+      }
+
+      if( options&DrawOptions::Logy && histograms[i]->GetEntries() > 0 )
+      {
+        gPad->SetLogy( true );
+        copy->SetMinimum(1);
+      }
+
+      if( options&DrawOptions::Logz )
+      {
+        gPad->SetLogz( true );
+      }
 
       // draw detector name
       draw_text( 0.7, 0.9, m_detnames_sphenix[i].c_str() );
