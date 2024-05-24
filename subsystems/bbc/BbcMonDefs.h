@@ -24,7 +24,7 @@ namespace BbcMonDefs
 #define nPMT_1SIDE_BBC 64
 #define nPMT_BBC (nPMT_1SIDE_BBC * 2)
 
-#define nCANVAS 4
+#define nCANVAS 5
 
 #define nSIDE 2
 #define nTRIGGER 2
