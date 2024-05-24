@@ -288,11 +288,19 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
     {
       continue;
     }
-    float content = h_fem_match[i]->GetBinContent(ibinx, ibiny);
-    if (content < 100)
+    
+    for (int ibinx = 1; ibinx <= h_fem_match[i]->GetNbinsX(); ibinx++)
     {
-        h_fem_match[i]->SetBinContent(ibinx, ibiny, 0);
+      for (int ibiny = 1; ibiny <= h_fem_match[i]->GetNbinsY(); ibiny++)
+      {
+        float content = h_fem_match[i]->GetBinContent(ibinx, ibiny);
+        if (content < 100)
+        {
+          h_fem_match[i]->SetBinContent(ibinx, ibiny, 0);
+        }
+      }
     }
+
     if (start == -1)
     {
       start = i;
