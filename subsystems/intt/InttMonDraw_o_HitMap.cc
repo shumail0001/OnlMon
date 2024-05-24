@@ -30,10 +30,6 @@ int InttMonDraw::DrawHitMap(
   name = Form("%s", m_HitMap.name.c_str());
   if (!dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str())))
   {  // Only allocate if gROOT doesn't find it
-    // If ROOT freed the memory when a user closed the TCanvas,
-    // This next line would throw a double free() and cause it to crash
-    // This next line does not cause it to crash
-    delete TC[icnvs];
     TC[icnvs] = new TCanvas(
         name.c_str(), name.c_str(),
         0, 0,
