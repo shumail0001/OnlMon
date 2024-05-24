@@ -14,6 +14,7 @@
 #include <TLine.h>
 #include <TLatex.h>
 #include <TPad.h>
+#include <TPaveText.h>
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TText.h>
@@ -101,6 +102,17 @@ namespace
     text->SetTextSize(text_size);
     text->DrawLatex( x_ndc, y_ndc, value );
     return text;
+  }
+
+  void mask_scoz( double xmin, double ymin, double xmax, double ymax )
+  {
+    auto text = new TPaveText(xmin, ymin, xmax, ymax, "NDC" );
+    text->SetFillColor(0);
+    text->SetFillStyle(3001);
+    text->SetBorderSize(1);
+    text->SetTextAlign(11);
+    text->AddText( "   Ignore   " );
+    text->Draw();
   }
 
   // divide canvas, adjusting canvas positions to leave room for a banner at the top
@@ -549,6 +561,14 @@ int TpotMonDraw::Draw(const std::string &what)
           line->Draw();
         }
       }
+
+      {
+        // maks scoz
+        auto&& pad = cv->GetPad(9);
+        pad->cd();
+        mask_scoz(0.22,0.02,0.58, 0.98);
+      }
+
     }
     ++idraw;
   }
@@ -615,8 +635,17 @@ int TpotMonDraw::Draw(const std::string &what)
           line->SetLineWidth(1);
           line->Draw();
         }
+
+      }
+
+      {
+        // maks scoz
+        auto&& pad = cv->GetPad(9);
+        pad->cd();
+        mask_scoz(0.17,0.02,0.55, 0.98);
       }
     }
+
     ++idraw;
   }
 

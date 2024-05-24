@@ -75,7 +75,8 @@ class TpotMonDraw : public OnlMonDraw
     Logx = 1<<0,
     Logy = 1<<1,
     Logz = 1<<2,
-    Colz = 1<<3
+    Colz = 1<<3,
+    MatchMaximum = 1<<4
   };
 
   /// get histogram by name
