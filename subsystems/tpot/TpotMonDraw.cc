@@ -754,7 +754,8 @@ int TpotMonDraw::draw_counters()
     gPad->SetRightMargin( 0.15 );
     m_counters->SetFillStyle(1001);
     m_counters->SetFillColor(kYellow );
-    m_counters->DrawCopy( "h" );
+    auto copy = m_counters->DrawCopy( "h" );
+    copy->SetStats(false);
 
     if( m_counters_ref )
     {
@@ -801,6 +802,7 @@ int TpotMonDraw::draw_detector_occupancy()
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
     auto copy = m_detector_occupancy_z->DrawCopy( "colz" );
+    copy->SetStats(false);
     copy->GetXaxis()->SetTitleOffset(1);
     copy->GetYaxis()->SetTitleOffset(0.65);
     draw_detnames_sphenix( "Z" );
@@ -810,6 +812,7 @@ int TpotMonDraw::draw_detector_occupancy()
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
     copy = m_detector_occupancy_phi->DrawCopy( "colz" );
+    copy->SetStats(false);
     copy->GetXaxis()->SetTitleOffset(1);
     copy->GetYaxis()->SetTitleOffset(0.65);
     draw_detnames_sphenix( "P" );
@@ -855,6 +858,7 @@ int TpotMonDraw::draw_resist_occupancy()
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
     auto copy = m_resist_occupancy_z->DrawCopy( "colz" );
+    copy->SetStats(false);
     copy->GetXaxis()->SetTitleOffset(1);
     copy->GetYaxis()->SetTitleOffset(0.65);
     draw_detnames_sphenix( "Z" );
@@ -863,6 +867,7 @@ int TpotMonDraw::draw_resist_occupancy()
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
     copy = m_resist_occupancy_phi->DrawCopy( "colz" );
+    copy->SetStats(false);
     copy->GetXaxis()->SetTitleOffset(1);
     copy->GetYaxis()->SetTitleOffset(0.65);
     draw_detnames_sphenix( "P" );
@@ -999,6 +1004,7 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
       if( copy )
       {
         copy->SetTitle("");
+        copy->SetStats(false);
         copy->GetXaxis()->SetTitleOffset(1.);
         copy->GetXaxis()->SetTitleSize( 0.08 );
         copy->GetXaxis()->SetLabelSize( 0.08 );
@@ -1013,6 +1019,7 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
       {
         ref_histograms[i]->SetLineColor(2);
         ref_histograms[i]->Draw("hist same" );
+        ref_histograms[i]->SetStats(false);
       }
 
       if( options&DrawOptions::Logx ) gPad->SetLogx( true );
