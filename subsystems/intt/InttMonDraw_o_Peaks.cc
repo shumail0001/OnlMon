@@ -36,7 +36,6 @@ int InttMonDraw::DrawPeaks(
   name = Form("%s", m_Peaks.name.c_str());
   if (!dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str())))
   {
-    delete TC[icnvs];
     TC[icnvs] = new TCanvas(
         name.c_str(), name.c_str(),
         0, 0,

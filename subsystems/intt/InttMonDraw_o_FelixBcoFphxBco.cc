@@ -26,7 +26,6 @@ int InttMonDraw::DrawFelixBcoFphxBco(
   name = Form("%s", m_FelixBcoFphxBco.name.c_str());
   if (!dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str())))
   {  // Only allocate if gROOT doesn't find it
-    delete TC[icnvs];
     TC[icnvs] = new TCanvas(
         name.c_str(), name.c_str(),
         0, 0,
