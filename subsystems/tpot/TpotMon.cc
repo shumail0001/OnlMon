@@ -127,8 +127,6 @@ int TpotMon::Init()
   for( auto&& h:{m_detector_multiplicity_phi, m_detector_occupancy_phi, m_detector_multiplicity_z, m_detector_occupancy_z } )
   {
     setup_detector_bins( h );
-    h->GetXaxis()->SetTitleOffset(1);
-    h->GetYaxis()->SetTitleOffset(0.65);
     h->SetMinimum(0);
   }
 
@@ -145,16 +143,12 @@ int TpotMon::Init()
   for( auto&& h:{m_resist_multiplicity_z, m_resist_occupancy_z } )
   {
     setup_resist_bins( h, MicromegasDefs::SegmentationType::SEGMENTATION_Z );
-    h->GetXaxis()->SetTitleOffset(1);
-    h->GetYaxis()->SetTitleOffset(0.65);
     h->SetMinimum(0);
   }
 
   for( auto&& h:{m_resist_multiplicity_phi, m_resist_occupancy_phi } )
   {
     setup_resist_bins( h, MicromegasDefs::SegmentationType::SEGMENTATION_PHI );
-    h->GetXaxis()->SetTitleOffset(1);
-    h->GetYaxis()->SetTitleOffset(0.65);
     h->SetMinimum(0);
   }
 
@@ -165,40 +159,29 @@ int TpotMon::Init()
 
     detector_histograms_t detector_histograms;
 
-    {
-      auto h = detector_histograms.m_counts_sample = new TH1I(
-        Form( "m_counts_sample_%s", detector_name.c_str() ),
-        Form( "hit count vs sample (%s);sample;counts", detector_name.c_str() ),
-        m_max_sample, 0, m_max_sample );
-      h->GetXaxis()->SetTitleOffset(1.);
-      h->GetYaxis()->SetTitleOffset(1.65);
-      se->registerHisto(this, detector_histograms.m_counts_sample);
-    }
+    detector_histograms.m_counts_sample = new TH1I(
+      Form( "m_counts_sample_%s", detector_name.c_str() ),
+      Form( "hit count vs sample (%s);sample;counts", detector_name.c_str() ),
+      m_max_sample, 0, m_max_sample );
+    se->registerHisto(this, detector_histograms.m_counts_sample);
 
-    {
-      auto h = detector_histograms.m_adc_sample = new TH2I(
-        Form( "m_adc_sample_%s", detector_name.c_str() ),
-        Form( "adc count vs sample (%s);sample;adc", detector_name.c_str() ),
-        m_max_sample, 0, m_max_sample,
-        1024, 0, 1024 );
-      h->GetXaxis()->SetTitleOffset(1.);
-      h->GetYaxis()->SetTitleOffset(1.65);
-      se->registerHisto(this, detector_histograms.m_adc_sample);
-    }
+    static constexpr int max_adc = 1100;
+    detector_histograms.m_adc_sample = new TH2I(
+      Form( "m_adc_sample_%s", detector_name.c_str() ),
+      Form( "adc count vs sample (%s);sample;adc", detector_name.c_str() ),
+      m_max_sample, 0, m_max_sample,
+      max_adc, 0, max_adc );
+    se->registerHisto(this, detector_histograms.m_adc_sample);
 
-    {
-      auto h = detector_histograms.m_adc_channel = new TH2I(
-        Form( "m_adc_channel_%s", detector_name.c_str() ),
-        Form( "adc count vs strip (%s);strip;adc", detector_name.c_str() ),
-        MicromegasDefs::m_nchannels_fee, 0, MicromegasDefs::m_nchannels_fee,
-        1024, 0, 1024 );
-      h->GetXaxis()->SetTitleOffset(1.);
-      h->GetYaxis()->SetTitleOffset(1.65);
-      se->registerHisto(this, detector_histograms.m_adc_channel);
-    }
+    detector_histograms.m_adc_channel = new TH2I(
+      Form( "m_adc_channel_%s", detector_name.c_str() ),
+      Form( "adc count vs strip (%s);strip;adc", detector_name.c_str() ),
+      MicromegasDefs::m_nchannels_fee, 0, MicromegasDefs::m_nchannels_fee,
+      max_adc, 0, max_adc );
+    se->registerHisto(this, detector_histograms.m_adc_channel);
 
     // hit charge
-    static constexpr double max_hit_charge = 1024;
+    static constexpr double max_hit_charge = 1100;
     detector_histograms.m_hit_charge = new TH1I(
       Form( "m_hit_charge_%s", detector_name.c_str() ),
       Form( "hit charge distribution (%s);adc", detector_name.c_str() ),
@@ -209,7 +192,7 @@ int TpotMon::Init()
     detector_histograms.m_hit_multiplicity = new TH1I(
       Form( "m_hit_multiplicity_%s", detector_name.c_str() ),
       Form( "hit multiplicity (%s);#hits", detector_name.c_str() ),
-      MicromegasDefs::m_nchannels_fee, 0, MicromegasDefs::m_nchannels_fee );
+      MicromegasDefs::m_nchannels_fee+5, 0, MicromegasDefs::m_nchannels_fee+5 );
     se->registerHisto(this, detector_histograms.m_hit_multiplicity);
 
     // hit per channel

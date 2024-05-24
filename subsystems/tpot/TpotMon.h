@@ -81,7 +81,7 @@ class TpotMon : public OnlMon
   MicromegasCalibrationData m_calibration_data;
 
   //! max sample
-  int m_max_sample = 100;
+  int m_max_sample = 105;
 
   // sample window
   sample_window_t m_sample_window_signal = {20, 40};
