@@ -41,8 +41,13 @@ class TpotMonDraw : public OnlMonDraw
   void set_calibration_file( const std::string& value )
   { m_calibration_filename = value; }
 
+
   // define signal sample window
   using sample_window_t = std::pair<int, int>;
+  void set_sample_window( const sample_window_t& value )
+  { m_sample_window = value; }
+
+  // define signal sample window
   void set_sample_window_signal( const sample_window_t& value )
   { m_sample_window_signal = value; }
 
@@ -76,7 +81,7 @@ class TpotMonDraw : public OnlMonDraw
     Logy = 1<<1,
     Logz = 1<<2,
     Colz = 1<<3,
-    MatchMaximum = 1<<4
+    MatchRange = 1<<4
   };
 
   /// get histogram by name
@@ -135,6 +140,9 @@ class TpotMonDraw : public OnlMonDraw
 
   /// needed to get time axis right
   int TimeOffsetTicks = -1;
+
+  // sample window
+  sample_window_t m_sample_window = {0, 100};
 
   // sample window
   sample_window_t m_sample_window_signal = {20, 40};

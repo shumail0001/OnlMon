@@ -108,7 +108,7 @@ namespace
   {
     auto text = new TPaveText(xmin, ymin, xmax, ymax, "NDC" );
     text->SetFillColor(0);
-    text->SetFillStyle(3001);
+    text->SetFillStyle(1001);
     text->SetBorderSize(1);
     text->SetTextAlign(11);
     text->AddText( "   Ignore   " );
@@ -223,6 +223,7 @@ int TpotMonDraw::Init()
   if( Verbosity() )
   {
     std::cout << "TpotMonDraw::Init - m_calibration_filename: " << m_calibration_filename << std::endl;
+    std::cout << "TpotMonDraw::Init - m_sample_window: " << m_sample_window << std::endl;
     std::cout << "TpotMonDraw::Init - m_sample_window_signal: " << m_sample_window_signal << std::endl;
     std::cout << "TpotMon::Init - m_n_sigma: " << m_n_sigma << std::endl;
   }
@@ -415,7 +416,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     auto cv = new TCanvas(name.c_str(), "TpotMon counts vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     divide_canvas(cv, 4, 4);
-    hide_margins(cv);
+    hide_margins(cv,0.2);
     create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -498,7 +499,16 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_adc_vs_sample")
   {
-    iret += draw_array("TPOT_adc_vs_sample", get_histograms( "m_adc_sample" ), DrawOptions::Colz );
+
+    // adjust histogram range
+    auto h_array = get_histograms( "m_adc_sample" );
+    for( const auto& h:h_array )
+    {
+      if( h )
+      { h->GetXaxis()->SetRangeUser( m_sample_window.first, m_sample_window.second ); }
+    }
+
+    iret += draw_array("TPOT_adc_vs_sample", h_array, DrawOptions::Colz );
     auto cv = get_canvas("TPOT_adc_vs_sample");
     if( cv )
     {
@@ -575,7 +585,16 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_counts_vs_sample")
   {
-    iret += draw_array("TPOT_counts_vs_sample", get_histograms( "m_counts_sample" ), get_ref_histograms_scaled( "m_counts_sample" ) );
+    // adjust histogram range
+    auto h_array = get_histograms( "m_counts_sample" );
+    for( const auto& h:h_array )
+    {
+      if( h )
+      { h->GetXaxis()->SetRangeUser( m_sample_window.first, m_sample_window.second ); }
+    }
+
+    // iret += draw_array("TPOT_counts_vs_sample", h_array, get_ref_histograms_scaled( "m_counts_sample" ), DrawOptions::MatchRange );
+    iret += draw_array("TPOT_counts_vs_sample", h_array, get_ref_histograms_scaled( "m_counts_sample" ) );
     auto cv = get_canvas("TPOT_counts_vs_sample");
     if( cv )
     {
@@ -601,19 +620,19 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_hit_charge")
   {
-    iret += draw_array("TPOT_hit_charge", get_histograms( "m_hit_charge" ), get_ref_histograms_scaled( "m_hit_charge" ), DrawOptions::Logy );
+    iret += draw_array("TPOT_hit_charge", get_histograms( "m_hit_charge" ), get_ref_histograms_scaled( "m_hit_charge" ), DrawOptions::Logy|DrawOptions::MatchRange );
     ++idraw;
   }
 
   if (what == "ALL" || what == "TPOT_hit_multiplicity")
   {
-    iret += draw_array("TPOT_hit_multiplicity", get_histograms( "m_hit_multiplicity" ), get_ref_histograms_scaled( "m_hit_multiplicity" ), DrawOptions::Logy );
+    iret += draw_array("TPOT_hit_multiplicity", get_histograms( "m_hit_multiplicity" ), get_ref_histograms_scaled( "m_hit_multiplicity" ), DrawOptions::Logy|DrawOptions::MatchRange );
     ++idraw;
   }
 
   if (what == "ALL" || what == "TPOT_hit_vs_channel")
   {
-    iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ), get_ref_histograms_scaled( "m_hit_vs_channel" ) );
+    iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ), get_ref_histograms_scaled( "m_hit_vs_channel" ), DrawOptions::MatchRange );
     auto cv = get_canvas("TPOT_hit_vs_channel");
     if( cv )
     {
@@ -986,6 +1005,16 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
 
   bool drawn = false;
   CanvasEditor cv_edit(cv);
+
+  // calculate matched maximum
+  double maximum = 0;
+  if(options&DrawOptions::MatchRange)
+  {
+    for( const auto& h:histograms )
+    { if( h ) maximum = std::max( maximum, h->GetMaximum() ); }
+  }
+
+  // draw
   for( size_t i = 0; i < histograms.size(); ++i )
   {
     if( histograms[i] )
@@ -1012,6 +1041,10 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
         copy->GetYaxis()->SetTitleOffset( i<12 ? 1.4:1.6);
         copy->GetYaxis()->SetTitleSize( i<12 ? 0.08:0.07 );
         copy->GetYaxis()->SetLabelSize( i<12 ? 0.08:0.07 );
+
+        if(options&DrawOptions::MatchRange)
+        { copy->SetMaximum( 1.2*maximum ); }
+
       }
 
       // also draw reference
@@ -1028,11 +1061,7 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
 
       // draw detector name
       draw_text( 0.7, 0.9, m_detnames_sphenix[i].c_str() );
-
       drawn = true;
-
-
-
     }
   }
 
