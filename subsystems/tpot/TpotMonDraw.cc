@@ -594,7 +594,10 @@ int TpotMonDraw::Draw(const std::string &what)
     for( const auto& h:h_array )
     {
       if( h )
-      { h->GetXaxis()->SetRangeUser( m_sample_window.first, m_sample_window.second ); }
+      {
+        h->GetXaxis()->SetRangeUser( m_sample_window.first, m_sample_window.second );
+        h->SetMinimum(0);
+      }
     }
 
     // iret += draw_array("TPOT_counts_vs_sample", h_array, get_ref_histograms_scaled( "m_counts_sample" ), DrawOptions::MatchRange );
