@@ -767,8 +767,6 @@ int TpotMonDraw::draw_counters()
 
   // get histograms
   auto m_counters =  get_histogram( "m_counters");
-  m_counters->SetMinimum(0);
-
   std::unique_ptr<TH1> m_counters_ref( normalize( get_ref_histogram( "m_counters" ), get_ref_scale_factor() ) );
 
   auto cv = get_canvas("TPOT_counters");
@@ -783,6 +781,8 @@ int TpotMonDraw::draw_counters()
 
   if( m_counters )
   {
+    m_counters->SetMinimum(0);
+
     cv->cd(1);
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
