@@ -31,6 +31,10 @@ namespace
     FILLMESSAGE = 2
   };
 
+  //! number of active packets used by TPOT.
+  /** This is used to properly normalize the number of trigger received */
+  static constexpr int m_npackets_active = 2;
+
   // get first member of pairs into a list
   std::vector<double> get_x( const MicromegasGeometry::point_list_t& point_list )
   {
@@ -109,9 +113,8 @@ int TpotMon::Init()
   // counters
   /* arbitrary counters. First bin is number of events */
   m_counters = new TH1F( "m_counters", "counters", 10, 0, 10 );
-  m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kEventCounter, "events" );
-  m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kValidEventCounter, "valid events" );
-  m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kFullEventCounter, "full events" );
+  m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kEventCounter, "RCDAQ frame" );
+  m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kValidEventCounter, "valid RCDAQ frames" );
   m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kTriggerCounter, "triggers" );
   se->registerHisto(this, m_counters);
 
@@ -197,7 +200,7 @@ int TpotMon::Init()
     se->registerHisto(this, detector_histograms.m_hit_multiplicity);
 
     // hit per channel
-    detector_histograms.m_hit_vs_channel = new TH1I(
+    detector_histograms.m_hit_vs_channel = new TH1F(
       Form( "m_hit_vs_channel_%s", detector_name.c_str() ),
       Form( "hit profile (%s);strip", detector_name.c_str() ),
       MicromegasDefs::m_nchannels_fee, 0, MicromegasDefs::m_nchannels_fee );
@@ -245,7 +248,6 @@ int TpotMon::process_event(Event* event)
   std::map<int, int> multiplicity;
 
   // read the data
-  double fullevent_weight = 0;
   for( const auto& packet_id:MicromegasDefs::m_packet_ids )
   {
     std::unique_ptr<Packet> packet(event->getPacket(packet_id));
@@ -258,19 +260,20 @@ int TpotMon::process_event(Event* event)
     }
 
     // get number of lvl1 tagger
+    const int n_tagger = packet->lValue(0, "N_TAGGER");
+    int n_lvl1_tagger = 0;
+    for (int t = 0; t < n_tagger; t++)
+    {
+      const bool is_lvl1_tagger( static_cast<uint8_t>(packet->lValue(t, "IS_LEVEL1_TRIGGER" )));
+      if( is_lvl1_tagger ) ++n_lvl1_tagger;
+    }
 
-
+    // increment counter
+    increment( m_counters, TpotMonDefs::kTriggerCounter, double(n_lvl1_tagger)/m_npackets_active );
+    m_triggercnt += double(n_lvl1_tagger)/m_npackets_active;
 
     // get number of datasets (also call waveforms)
     const auto n_waveforms = packet->iValue(0, "NR_WF" );
-
-    // add contribution to full event
-    /*
-     * we assume a full event must have m_nchannels_total waveforms
-     * this does not work with zero suppression ON. We do not know how many waveforms to expect for a full event.
-     * it might be more relevant to load taggers and increment.
-     */
-    fullevent_weight += double(n_waveforms)/MicromegasDefs::m_nchannels_total;
 
     if( Verbosity() )
     { std::cout << "TpotMon::process_event - n_waveforms: " << n_waveforms << std::endl; }
@@ -369,10 +372,6 @@ int TpotMon::process_event(Event* event)
     }
   }
 
-  // increment full event counter and counters histogram
-  m_fullevtcnt += fullevent_weight;
-  increment( m_counters, TpotMonDefs::kFullEventCounter, fullevent_weight );
-
   // fill hit multiplicities
   for( auto&& [fee_id, detector_histograms]:m_detector_histograms )
   { detector_histograms.m_hit_multiplicity->Fill( multiplicity[fee_id] ); }
@@ -384,10 +383,10 @@ int TpotMon::process_event(Event* event)
     { destination->SetBinContent( bin+1, source->GetBinContent( bin+1 )*scale ); }
   };
 
-  copy_content( m_detector_multiplicity_z, m_detector_occupancy_z, 100./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
-  copy_content( m_detector_multiplicity_phi, m_detector_occupancy_phi, 100./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
-  copy_content( m_resist_multiplicity_z, m_resist_occupancy_z, 400./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
-  copy_content( m_resist_multiplicity_phi, m_resist_occupancy_phi, 400./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_detector_multiplicity_z, m_detector_occupancy_z, 100./(m_triggercnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_detector_multiplicity_phi, m_detector_occupancy_phi, 100./(m_triggercnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_resist_multiplicity_z, m_resist_occupancy_z, 400./(m_triggercnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_resist_multiplicity_phi, m_resist_occupancy_phi, 400./(m_triggercnt*MicromegasDefs::m_nchannels_fee) );
 
   return 0;
 }
@@ -397,7 +396,7 @@ int TpotMon::Reset()
 {
   // reset our internal counters
   m_evtcnt = 0;
-  m_fullevtcnt = 0;
+  m_triggercnt = 0;
 
   // reset all histograms
   for( TH1* h:{

@@ -453,7 +453,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     auto cv = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     divide_canvas(cv, 4, 4);
-    hide_margins(cv);
+    hide_margins(cv,0.2);
     create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -475,11 +475,18 @@ int TpotMonDraw::Draw(const std::string &what)
   {
     // get counters
     const auto m_counters = get_histogram( "m_counters");
+    if( m_counters )
+    {
+      m_triggercnt =  m_counters->GetBinContent( TpotMonDefs::kTriggerCounter );
+    } else {
+      m_triggercnt = 0;
+    }
+
     if( m_counters && Verbosity() )
     {
       const int events = m_counters->GetBinContent( TpotMonDefs::kEventCounter );
       const int valid_events = m_counters->GetBinContent( TpotMonDefs::kValidEventCounter );
-      std::cout << "TpotMonDraw::Draw - events: " << events << " valid events: " << valid_events << std::endl;
+      std::cout << "TpotMonDraw::Draw - RCDAQ frames: " << events << " valid RCDAQ frames: " << valid_events << std::endl;
     }
   }
 
@@ -638,7 +645,7 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_hit_vs_channel")
   {
-    iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ), get_ref_histograms_scaled( "m_hit_vs_channel" ), DrawOptions::Logy|DrawOptions::MatchRange);
+    iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ), get_ref_histograms_scaled( "m_hit_vs_channel" ), DrawOptions::Logy|DrawOptions::MatchRange|DrawOptions::Normalize);
     auto cv = get_canvas("TPOT_hit_vs_channel");
     if( cv )
     {
@@ -666,7 +673,8 @@ int TpotMonDraw::Draw(const std::string &what)
         // maks scoz
         auto&& pad = cv->GetPad(9);
         pad->cd();
-        mask_scoz(0.17,0.02,0.55, 0.98);
+        mask_scoz(0.22,0.02,0.58, 0.98);
+        // mask_scoz(0.17,0.02,0.55, 0.98);
       }
     }
 
@@ -986,9 +994,9 @@ double TpotMonDraw::get_ref_scale_factor() const
   const auto m_counters_ref = get_ref_histogram( "m_counters");
   if( !( m_counters && m_counters_ref ) ) return 0;
 
-  const double full_events = m_counters->GetBinContent( TpotMonDefs::kFullEventCounter );
-  const double full_events_ref = m_counters_ref->GetBinContent( TpotMonDefs::kFullEventCounter );
-  return full_events_ref > 0 ? full_events/full_events_ref : 0;
+  const double triggercnt = m_counters->GetBinContent( TpotMonDefs::kTriggerCounter );
+  const double triggercnt_ref = m_counters_ref->GetBinContent( TpotMonDefs::kTriggerCounter );
+  return triggercnt_ref > 0 ? triggercnt/triggercnt_ref : 0;
 }
 
 //__________________________________________________________________________________
@@ -1021,6 +1029,10 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
     { if( h ) maximum = std::max( maximum, h->GetMaximum() ); }
   }
 
+  // also scale by number of triggers if normalization is required
+  if((options&DrawOptions::Normalize) && (m_triggercnt>0))
+  { maximum/=m_triggercnt; }
+
   // draw
   for( size_t i = 0; i < histograms.size(); ++i )
   {
@@ -1049,6 +1061,14 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
         copy->GetYaxis()->SetTitleSize( i<12 ? 0.08:0.07 );
         copy->GetYaxis()->SetLabelSize( i<12 ? 0.08:0.07 );
 
+        // normalize
+        if((options&DrawOptions::Normalize) && (m_triggercnt>0))
+        {
+          copy->Scale( 1./m_triggercnt );
+          copy->GetYaxis()->SetTitle("counts/trigger");
+        }
+
+        // equalize maximum
         if(options&DrawOptions::MatchRange)
         { copy->SetMaximum( 1.2*maximum ); }
 
@@ -1058,25 +1078,33 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
       if( ref_histograms[i] )
       {
         ref_histograms[i]->SetLineColor(2);
-        ref_histograms[i]->Draw("hist same" );
-        ref_histograms[i]->SetStats(false);
+
+        const auto& ref_copy = ref_histograms[i]->DrawCopy("hist same" );
+        ref_copy->SetStats(false);
+
+        // normalize
+        if((options&DrawOptions::Normalize) && (m_triggercnt>0))
+        { ref_copy->Scale( 1./m_triggercnt ); }
+
       }
 
+      // apply log scales
       if( options&DrawOptions::Logx )
-      {
-        gPad->SetLogx( true );
-      }
+      { gPad->SetLogx( true ); }
 
       if( options&DrawOptions::Logy && histograms[i]->GetEntries() > 0 )
       {
         gPad->SetLogy( true );
-        copy->SetMinimum(1);
+        if((options&DrawOptions::Normalize) && (m_triggercnt>0))
+        {
+          copy->SetMinimum(1./m_triggercnt);
+        } else {
+          copy->SetMinimum(1);
+        }
       }
 
       if( options&DrawOptions::Logz )
-      {
-        gPad->SetLogz( true );
-      }
+      { gPad->SetLogz( true ); }
 
       // draw detector name
       draw_text( 0.7, 0.9, m_detnames_sphenix[i].c_str() );

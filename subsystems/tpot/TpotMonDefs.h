@@ -11,8 +11,7 @@ namespace TpotMonDefs
   {
     kEventCounter = 1,
     kValidEventCounter = 2,
-    kFullEventCounter = 3,
-    kTriggerCounter = 4
+    kTriggerCounter = 3
   };
 }
 #endif

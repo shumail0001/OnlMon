@@ -63,10 +63,10 @@ class TpotMon : public OnlMon
 
   //! keep track of number of 'full' triggers
   /*
-   * it is estimated by summing the number of recorded waveforms/max_waveform/trigger
-   * this will break when zero suppression is implemented
+   * it is estimated by counting the number of lvl1 taggers received for each packet
+   * and dividing by the number of active packets (2)
    */
-  double m_fullevtcnt = 0;
+  double m_triggercnt = 0;
 
   //! mapping
   MicromegasMapping m_mapping;
