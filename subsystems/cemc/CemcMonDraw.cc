@@ -2037,6 +2037,11 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
   double sum = 0;
   int count = 0;
 
+  //reset
+  h1_zs->Reset();
+  h1_zs_low->Reset();
+  h1_zs_high->Reset();
+
   for (int i = 1; i <= p2_zsFrac_etaphiCombined->GetNbinsX(); i++)
   {
     for (int j = 1; j <= p2_zsFrac_etaphiCombined->GetNbinsY(); j++)

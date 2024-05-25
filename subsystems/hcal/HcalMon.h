@@ -55,10 +55,7 @@ class HcalMon : public OnlMon
   // TH1 *hcalhist1 = nullptr;
   // TH2 *hcalhist2 = nullptr;
   TH2* h2_hcal_hits = nullptr;
-  TH2* h2_hcal_hits_trig1 = nullptr;
-  TH2* h2_hcal_hits_trig2 = nullptr;
-  TH2* h2_hcal_hits_trig3 = nullptr;
-  TH2* h2_hcal_hits_trig4 = nullptr;
+  TH2* h2_hcal_hits_trig[64] = {nullptr};
   TProfile2D* pr_zsFrac_etaphi = nullptr;
   TH1* h_waveform_twrAvg = nullptr;
   TH1* h_waveform_time = nullptr;
