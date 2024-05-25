@@ -112,6 +112,7 @@ int TpotMon::Init()
   m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kEventCounter, "events" );
   m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kValidEventCounter, "valid events" );
   m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kFullEventCounter, "full events" );
+  m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kTriggerCounter, "triggers" );
   se->registerHisto(this, m_counters);
 
   // global occupancy
@@ -255,6 +256,10 @@ int TpotMon::process_event(Event* event)
       { std::cout << "TpotMon::process_event - packet " << packet_id << " not found" << std::endl; }
       continue;
     }
+
+    // get number of lvl1 tagger
+
+
 
     // get number of datasets (also call waveforms)
     const auto n_waveforms = packet->iValue(0, "NR_WF" );

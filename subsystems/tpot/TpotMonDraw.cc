@@ -512,7 +512,7 @@ int TpotMonDraw::Draw(const std::string &what)
       { h->GetXaxis()->SetRangeUser( m_sample_window.first, m_sample_window.second ); }
     }
 
-    iret += draw_array("TPOT_adc_vs_sample", h_array, DrawOptions::Colz );
+    iret += draw_array("TPOT_adc_vs_sample", h_array, DrawOptions::Colz|DrawOptions::Logz );
     auto cv = get_canvas("TPOT_adc_vs_sample");
     if( cv )
     {
@@ -549,7 +549,7 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_adc_vs_channel")
   {
-    iret += draw_array("TPOT_adc_vs_channel", get_histograms( "m_adc_channel" ), DrawOptions::Colz );
+    iret += draw_array("TPOT_adc_vs_channel", get_histograms( "m_adc_channel" ), DrawOptions::Colz|DrawOptions::Logz );
     auto cv = get_canvas("TPOT_adc_vs_channel");
     if( cv )
     {
@@ -605,7 +605,6 @@ int TpotMonDraw::Draw(const std::string &what)
     auto cv = get_canvas("TPOT_counts_vs_sample");
     if( cv )
     {
-      std::cout << "TpotMonDraw::Draw - draw vertical lines" << std::endl;
       CanvasEditor cv_edit(cv);
       cv->Update();
       for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
@@ -760,6 +759,8 @@ int TpotMonDraw::draw_counters()
 
   // get histograms
   auto m_counters =  get_histogram( "m_counters");
+  m_counters->SetMinimum(0);
+
   std::unique_ptr<TH1> m_counters_ref( normalize( get_ref_histogram( "m_counters" ), get_ref_scale_factor() ) );
 
   auto cv = get_canvas("TPOT_counters");
