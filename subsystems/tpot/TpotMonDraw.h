@@ -81,7 +81,8 @@ class TpotMonDraw : public OnlMonDraw
     Logy = 1<<1,
     Logz = 1<<2,
     Colz = 1<<3,
-    MatchRange = 1<<4
+    MatchRange = 1<<4,
+    Normalize = 1<<5
   };
 
   /// get histogram by name
@@ -119,6 +120,9 @@ class TpotMonDraw : public OnlMonDraw
   /// draw detector names in current canvas
   /** only works if canvas contains one of the properly formated TH2Poly histograms */
   void draw_detnames_sphenix( const std::string& suffix = std::string());
+
+  /// keep track of trigger count
+  double m_triggercnt = 0;
 
   /// mapping
   MicromegasMapping m_mapping;
