@@ -79,7 +79,7 @@ int CemcMonDraw::Init()
     }
     else
     {
-      h2_template_hit = (TH2D *) inputTemplate->Get("h2_cemc_hits_template");
+      h2_template_hit = (TH2 *) inputTemplate->Get("h2_cemc_hits_template");
       if (!h2_template_hit)
       {
         std::cout << "h2_cemc_hits_template could not be retrieved from file. Empty reference will be used" << std::endl;
@@ -342,8 +342,8 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
     Nservers++;
-    htmp2d = (TH2D *) cl->getHisto(*server, "h2_cemc_rmhits");
-    // htmp2d=(TH2D*) cl->getHisto(*server, "h2_cemc_rm");
+    htmp2d = (TH2 *) cl->getHisto(*server, "h2_cemc_rmhits");
+    // htmp2d=(TH2 *) cl->getHisto(*server, "h2_cemc_rm");
     if (htmp2d)
     {
       h_cemc_datahits->Add(htmp2d);
@@ -357,7 +357,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   int neventhist = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    TH1* h_eventSource  = (TH1D*) cl->getHisto(*server, "h1_event");
+    TH1* h_eventSource  = cl->getHisto(*server, "h1_event");
     if (h_eventSource )
     {
       avgevents += h_eventSource->GetEntries();
@@ -428,7 +428,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   //   }
   //   if (start[2] > -1 && h_eventSource[i])
   //   {
-  //     h_event[i] = (TH1 *) h_eventSource[i]->Clone();
+  //     h_event[i] =  h_eventSource[i]->Clone();
   //
   //     h_event[i]->SetName(Form("h1_event_%d", i));
   //     if (/*i != start[2]*/ h_event[i]->GetEntries() > maxEvent)
@@ -666,7 +666,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
     }
     if (start[0] > -1 && h_eventSource[i])
     {
-      h_event[i] = (TH1 *) h_eventSource[i]->Clone();
+      h_event[i] =  (TH1 *) h_eventSource[i]->Clone();
       h_event[i]->SetName(Form("h1_event_%d", i));
       if (/*i != start[0] &&*/ h_event[i]->GetEntries() > maxEvent)
       {
@@ -724,7 +724,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h1_packet_chans[i] = (TH1 *) cl->getHisto(*server, "h1_packet_chans");
+    h1_packet_chans[i] =  cl->getHisto(*server, "h1_packet_chans");
     if (h1_packet_chans[i] && start[3] == -1)
     {
       start[3] = i;
@@ -981,7 +981,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   int i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h2_waveform_twrAvg[i] = (TH2F *) cl->getHisto(*server, "h2_waveform_twrAvg");
+    h2_waveform_twrAvg[i] = (TH2 *) cl->getHisto(*server, "h2_waveform_twrAvg");
     if (h2_waveform_twrAvg[i] && start[0] == -1)
     {
       start[0] = i;
@@ -999,7 +999,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h1_waveform_time[i] = (TH1 *) cl->getHisto(*server, "h1_waveform_time");
+    h1_waveform_time[i] =  cl->getHisto(*server, "h1_waveform_time");
     if (h1_waveform_time[i] && start[1] == -1)
     {
       start[1] = i;
@@ -1017,7 +1017,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h1_waveform_pedestal[i] = (TH1 *) cl->getHisto(*server, "h1_waveform_pedestal");
+    h1_waveform_pedestal[i] =  cl->getHisto(*server, "h1_waveform_pedestal");
 
     if (h1_waveform_pedestal[i] && start[2] == -1)
     {
@@ -1280,7 +1280,7 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   int i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_waveform_sigDiff[i] = (TH1 *) cl->getHisto(*server, "h1_fitting_sigDiff");
+    h_waveform_sigDiff[i] =  cl->getHisto(*server, "h1_fitting_sigDiff");
     if (h_waveform_sigDiff[i] && start[0] == -1)
     {
       start[0] = i;
@@ -1298,7 +1298,7 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_waveform_pedDiff[i] = (TH1 *) cl->getHisto(*server, "h1_fitting_pedDiff");
+    h_waveform_pedDiff[i] =  cl->getHisto(*server, "h1_fitting_pedDiff");
     if (h_waveform_pedDiff[i] && start[1] == -1)
     {
       start[1] = i;
@@ -1316,7 +1316,7 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_waveform_timeDiff[i] = (TH1 *) cl->getHisto(*server, "h1_fitting_timeDiff");
+    h_waveform_timeDiff[i] =  cl->getHisto(*server, "h1_fitting_timeDiff");
     if (h_waveform_timeDiff[i] && start[2] == -1)
     {
       start[2] = i;
@@ -1493,7 +1493,7 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_cemc_trig[i] = (TH1 *) cl->getHisto(*server, "h1_cemc_trig");
+    h_cemc_trig[i] = cl->getHisto(*server, "h1_cemc_trig");
     if (h_cemc_trig[i] && start == -1)
     {
       start = i;
