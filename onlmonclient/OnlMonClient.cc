@@ -1800,7 +1800,7 @@ std::string OnlMonClient::ExtractSubsystem(const std::string &fullfilename, OnlM
 {
   std::string subsys = std::filesystem::path(fullfilename).filename();
   subsys = subsys.substr(subsys.find('-') + 1);
-  subsys = subsys.substr(0, subsys.find(".root"));
+  subsys.resize(subsys.find(".root"));
   m_MonitorFetchedSet.insert(subsys);
   drawer->AddServer(subsys);
   return subsys;
