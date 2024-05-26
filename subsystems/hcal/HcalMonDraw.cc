@@ -46,6 +46,10 @@ HcalMonDraw::HcalMonDraw(const std::string& name)
     std::cout << "HcalMonDraw::HcalMonDraw() ERROR: name does not start with O or I " << ThisName << std::endl;
     exit(1);
   }
+  for (int i=0; i<2; i++)
+  {
+    hcalmon[i] = prefix + "_" + std::to_string(i);
+  }
   return;
 }
 
@@ -76,7 +80,7 @@ int HcalMonDraw::Init()
     std::cout << "HcalMonDraw::Init() ERROR: Could not open file " << TEMPFILENAME << std::endl;
     exit(1);
   }
-  h2_mean_template = (TH2F*) tempfile->Get("h2_hcal_hits_template");
+  h2_mean_template = (TH2*) tempfile->Get("h2_hcal_hits_template");
 
   if (!h2_mean_template)
   {
@@ -357,16 +361,11 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
 {
   OnlMonClient* cl = OnlMonClient::instance();
 
-  char HCALMON_0[100];
-  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
-  char HCALMON_1[100];
-  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
+  TH2* hist1 = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_rm");
+  TH1* h_event =  cl->getHisto(hcalmon[0], "h_event");
 
-  TH2D* hist1 = (TH2D*) cl->getHisto(HCALMON_0, "h2_hcal_rm");
-  TH1D* h_event = (TH1D*) cl->getHisto(HCALMON_0, "h_event");
-
-  TH2D* hist1_1 = (TH2D*) cl->getHisto(HCALMON_1, "h2_hcal_rm");
-  TH1D* h_event_1 = (TH1D*) cl->getHisto(HCALMON_1, "h_event");
+  TH2* hist1_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_rm");
+  TH1* h_event_1 =  cl->getHisto(hcalmon[1], "h_event");
 
   if (!gROOT->FindObject("HcalMon1"))
   {
@@ -539,21 +538,16 @@ int HcalMonDraw::DrawSecond(const std::string& /* what */)
   const int Nsector = 32;
   OnlMonClient* cl = OnlMonClient::instance();
 
-  char HCALMON_0[100];
-  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
-  char HCALMON_1[100];
-  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
-
-  TH1F* h_sectorAvg_total = (TH1F*) cl->getHisto(HCALMON_0, "h_sectorAvg_total");
-  TH1F* h_event = (TH1F*) cl->getHisto(HCALMON_0, "h_event");
-  TH1F* h_sectorAvg_total_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_sectorAvg_total");
-  TH1F* h_event_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_event");
-  TH1F* h_rm_sectorAvg[Nsector];
-  TH1F* h_rm_sectorAvg_1[Nsector];
+  TH1* h_sectorAvg_total =  cl->getHisto(hcalmon[0], "h_sectorAvg_total");
+  TH1* h_event =  cl->getHisto(hcalmon[0], "h_event");
+  TH1* h_sectorAvg_total_1 =  cl->getHisto(hcalmon[1], "h_sectorAvg_total");
+  TH1* h_event_1 =  cl->getHisto(hcalmon[1], "h_event");
+  TH1* h_rm_sectorAvg[Nsector];
+  TH1* h_rm_sectorAvg_1[Nsector];
   for (int ih = 0; ih < Nsector; ih++)
   {
-    h_rm_sectorAvg[ih] = (TH1F*) cl->getHisto(HCALMON_0, Form("h_rm_sectorAvg_s%d", ih));
-    h_rm_sectorAvg_1[ih] = (TH1F*) cl->getHisto(HCALMON_1, Form("h_rm_sectorAvg_s%d", ih));
+    h_rm_sectorAvg[ih] =  cl->getHisto(hcalmon[0], Form("h_rm_sectorAvg_s%d", ih));
+    h_rm_sectorAvg_1[ih] =  cl->getHisto(hcalmon[1], Form("h_rm_sectorAvg_s%d", ih));
     h_rm_sectorAvg[ih]->Add(h_rm_sectorAvg_1[ih]);
   }
 
@@ -594,7 +588,7 @@ int HcalMonDraw::DrawSecond(const std::string& /* what */)
 
   gStyle->SetOptStat(0);
 
-  TH1F* frame = new TH1F("frame", "", 100, 0, 100);
+  TH1* frame = new TH1F("frame", "", 100, 0, 100);
   frame->Draw("AXIS");
   frame->GetXaxis()->SetTitle("time");
   frame->GetYaxis()->SetTitle("sector running mean / template + sector #");
@@ -644,18 +638,14 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
 {
   OnlMonClient* cl = OnlMonClient::instance();
 
-  char HCALMON_0[100];
-  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
-  char HCALMON_1[100];
-  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
-  // TH1F* h_waveform_twrAvg = (TH1F*) cl->getHisto(HCALMON_0, "h_waveform_twrAvg");
-  TH1F* h_waveform_time = (TH1F*) cl->getHisto(HCALMON_0, "h_waveform_time");
-  TH1F* h_waveform_pedestal = (TH1F*) cl->getHisto(HCALMON_0, "h_waveform_pedestal");
-  TH2F* h2_hcal_waveform = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_waveform");
-  // TH1F* hwaveform_twrAvg_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_waveform_twrAvg");
-  TH1F* hwaveform_time_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_waveform_time");
-  TH1F* hwaveform_pedestal_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_waveform_pedestal");
-  TH2F* h2_hcal_waveform_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_waveform");
+  // TH1* h_waveform_twrAvg =  cl->getHisto(hcalmon0, "h_waveform_twrAvg");
+  TH1* h_waveform_time =  cl->getHisto(hcalmon[0], "h_waveform_time");
+  TH1* h_waveform_pedestal =  cl->getHisto(hcalmon[0], "h_waveform_pedestal");
+  TH2* h2_hcal_waveform = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_waveform");
+  // TH1* hwaveform_twrAvg_1 =  cl->getHisto(hcalmon[1], "h_waveform_twrAvg");
+  TH1* hwaveform_time_1 =  cl->getHisto(hcalmon[1], "h_waveform_time");
+  TH1* hwaveform_pedestal_1 =  cl->getHisto(hcalmon[1], "h_waveform_pedestal");
+  TH2* h2_hcal_waveform_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_waveform");
 
   if (!gROOT->FindObject("HcalMon3"))
   {
@@ -888,23 +878,19 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
 {
   OnlMonClient* cl = OnlMonClient::instance();
 
-  char HCALMON_0[100];
-  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
-  char HCALMON_1[100];
-  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
-  TH1F* h1_packet_number = (TH1F*) cl->getHisto(HCALMON_0, "h1_packet_number");
-  TH1F* h1_packet_length = (TH1F*) cl->getHisto(HCALMON_0, "h1_packet_length");
-  TH1F* h1_packet_chans = (TH1F*) cl->getHisto(HCALMON_0, "h1_packet_chans");
-  TH1F* h1_packet_event = (TH1F*) cl->getHisto(HCALMON_0, "h1_packet_event");
-  TH1F* h_event = (TH1F*) cl->getHisto(HCALMON_0, "h_event");
-  TH2F* h2_hcal_correlation = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_correlation");
+  TH1* h1_packet_number =  cl->getHisto(hcalmon[0], "h1_packet_number");
+  TH1* h1_packet_length =  cl->getHisto(hcalmon[0], "h1_packet_length");
+  TH1* h1_packet_chans =  cl->getHisto(hcalmon[0], "h1_packet_chans");
+  TH1* h1_packet_event =  cl->getHisto(hcalmon[0], "h1_packet_event");
+  TH1* h_event =  cl->getHisto(hcalmon[0], "h_event");
+  TH2* h2_hcal_correlation = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_correlation");
 
-  TH1F* h1_packet_number_1 = (TH1F*) cl->getHisto(HCALMON_1, "h1_packet_number");
-  TH1F* h1_packet_length_1 = (TH1F*) cl->getHisto(HCALMON_1, "h1_packet_length");
-  TH1F* h1_packet_chans_1 = (TH1F*) cl->getHisto(HCALMON_1, "h1_packet_chans");
-  TH1F* h1_packet_event_1 = (TH1F*) cl->getHisto(HCALMON_1, "h1_packet_event");
-  TH2F* h2_hcal_correlation_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_correlation");
-  TH1F* h_event_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_event");
+  TH1* h1_packet_number_1 =  cl->getHisto(hcalmon[1], "h1_packet_number");
+  TH1* h1_packet_length_1 =  cl->getHisto(hcalmon[1], "h1_packet_length");
+  TH1* h1_packet_chans_1 =  cl->getHisto(hcalmon[1], "h1_packet_chans");
+  TH1* h1_packet_event_1 =  cl->getHisto(hcalmon[1], "h1_packet_event");
+  TH2* h2_hcal_correlation_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_correlation");
+  TH1* h_event_1 =  cl->getHisto(hcalmon[1], "h_event");
 
   if (!gROOT->FindObject("HcalMon4"))
   {
@@ -1412,7 +1398,7 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
 /*
   {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2D* hist1 = (TH2D*)cl->getHisto("h2_hcal_rm");
+  TH2* hist1 = (TH2*)cl->getHisto("h2_hcal_rm");
 
   if (!gROOT->FindObject("HcalMon2"))
   {
@@ -1577,15 +1563,11 @@ int HcalMonDraw::MakeHtml(const std::string& what)
 void HcalMonDraw::DrawTowerAvg()
 {
   OnlMonClient* cl = OnlMonClient::instance();
-  char HCALMON_0[100];
-  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
-  char HCALMON_1[100];
-  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
 
-  TH2D* h2_hcal_mean = (TH2D*) cl->getHisto(HCALMON_0, "h2_hcal_mean");
-  // TH1F* h_event = (TH1F*) cl->getHisto(HCALMON_0, "h_event");
-  // TH2D* h2_hcal_mean_1 = (TH2D*) cl->getHisto(HCALMON_1, "h2_hcal_mean");
-  // TH1F* h_event_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_event");
+  TH2* h2_hcal_mean = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_mean");
+  // TH1* h_event =  cl->getHisto(hcalmon[0], "h_event");
+  // TH2* h2_hcal_mean_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_mean");
+  // TH1* h_event_1 =  cl->getHisto(hcalmon[1], "h_event");
 
   if (!gROOT->FindObject("HcalPopUp"))
   {
@@ -1652,12 +1634,8 @@ void HcalMonDraw::DrawTowerAvg()
 void HcalMonDraw::DrawHitMap()
 {
   OnlMonClient* cl = OnlMonClient::instance();
-  char HCALMON_0[100];
-  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
-  char HCALMON_1[100];
-  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
 
-  TH2D* h2_hcal_hits = (TH2D*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
+  TH2* h2_hcal_hits = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_hits");
 
   if (!gROOT->FindObject("HcalPopUp"))
   {
@@ -1717,12 +1695,8 @@ void HcalMonDraw::DrawHitMap()
 void HcalMonDraw::DrawAvgTime()
 {
   OnlMonClient* cl = OnlMonClient::instance();
-  char HCALMON_0[100];
-  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
-  char HCALMON_1[100];
-  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
 
-  TH2D* h2_hcal_time = (TH2D*) cl->getHisto(HCALMON_0, "h2_hcal_time");
+  TH2* h2_hcal_time = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_time");
 
   if (!gROOT->FindObject("HcalPopUp"))
   {
@@ -1779,10 +1753,6 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
 {
   if (event == 1)
   {
-    char HCALMON_0[100];
-    sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
-    char HCALMON_1[100];
-    sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
     // printf("Canvas %s: event=%d, x=%d, y=%d, selected=%s\n", "a",
     //        event, x, y, selected->IsA()->GetName());
     // std::cout << "selected->GetName()=" << selected->GetName() << std::endl;
@@ -1822,8 +1792,8 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
 
     OnlMonClient* cl = OnlMonClient::instance();
 
-    TH1F* h_rm_tower = (TH1F*) cl->getHisto(HCALMON_0, Form("h_rm_tower_%d_%d", binx, biny));
-    TH1F* h_rm_tower_1 = (TH1F*) cl->getHisto(HCALMON_1, Form("h_rm_tower_%d_%d", binx, biny));
+    TH1* h_rm_tower =  cl->getHisto(hcalmon[0], Form("h_rm_tower_%d_%d", binx, biny));
+    TH1* h_rm_tower_1 =  cl->getHisto(hcalmon[1], Form("h_rm_tower_%d_%d", binx, biny));
     if (!gROOT->FindObject("HcalPopUp"))
     {
       MakeCanvas("HcalPopUp");
@@ -1854,12 +1824,8 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
 {
   OnlMonClient* cl = OnlMonClient::instance();
 
-  char HCALMON_0[100];
-  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
-  char HCALMON_1[100];
-  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
-  TH2F* h2_hcal_hist_trig[64];
-  TH2F* h2_hcal_hist_trig_1[64];
+  TH2* h2_hcal_hist_trig[64];
+  TH2* h2_hcal_hist_trig_1[64];
 
   if (!gROOT->FindObject("HcalMon5"))
   {
@@ -1868,8 +1834,8 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   for (int itrig = 0; itrig < 64; itrig++)
   {
     std::cout<<itrig<<std::endl;
-    h2_hcal_hist_trig[itrig] = (TH2F*) cl->getHisto(HCALMON_0, Form("h2_hcal_hits_trig_%d", itrig));
-    h2_hcal_hist_trig_1[itrig] = (TH2F*) cl->getHisto(HCALMON_1, Form("h2_hcal_hist_trig_%d", itrig));
+    h2_hcal_hist_trig[itrig] = (TH2*) cl->getHisto(hcalmon[0], Form("h2_hcal_hits_trig_%d", itrig));
+    h2_hcal_hist_trig_1[itrig] = (TH2*) cl->getHisto(hcalmon[1], Form("h2_hcal_hist_trig_%d", itrig));
     if (!h2_hcal_hist_trig[itrig] || !h2_hcal_hist_trig_1[itrig])
     {
       std::cout<<h2_hcal_hist_trig[itrig] << " " << h2_hcal_hist_trig_1[itrig]<<std::endl;
@@ -1885,13 +1851,13 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
     h2_hcal_hist_trig[itrig]->Add(h2_hcal_hist_trig_1[itrig]);
   }
   std::cout<<"DrawFifth"<<std::endl;
-  TH2F* pr_zsFrac_etaphi_1 = (TH2F*) cl->getHisto(HCALMON_1, "pr_zsFrac_etaphi");
-  TH2F* pr_zsFrac_etaphi = (TH2F*) cl->getHisto(HCALMON_0, "pr_zsFrac_etaphi");
+  TH2* pr_zsFrac_etaphi_1 = (TH2*) cl->getHisto(hcalmon[1], "pr_zsFrac_etaphi");
+  TH2* pr_zsFrac_etaphi = (TH2*) cl->getHisto(hcalmon[0], "pr_zsFrac_etaphi");
 
-  TH2F* h2_hcal_hits = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
-  TH2F* h_evtRec = (TH2F*) cl->getHisto(HCALMON_0, "h_evtRec");
-  TH1F* h_hcal_trig = (TH1F*) cl->getHisto(HCALMON_0, "h_hcal_trig");
-  TH2F* h_caloPack_gl1_clock_diff = (TH2F*) cl->getHisto(HCALMON_0, "h_caloPack_gl1_clock_diff");
+  TH2* h2_hcal_hits = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_hits");
+  TH2* h_evtRec = (TH2*) cl->getHisto(hcalmon[0], "h_evtRec");
+  TH1* h_hcal_trig =  cl->getHisto(hcalmon[0], "h_hcal_trig");
+  TH2* h_caloPack_gl1_clock_diff = (TH2*) cl->getHisto(hcalmon[0], "h_caloPack_gl1_clock_diff");
 
 
   TC[6]->SetEditable(true);
@@ -2092,19 +2058,14 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
 {
   OnlMonClient* cl = OnlMonClient::instance();
 
-  char HCALMON_0[100];
-  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
-  char HCALMON_1[100];
-  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
-
-  TH2F* h2_hcal_mean = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_mean");
-  TH1F* h_event = (TH1F*) cl->getHisto(HCALMON_0, "h_event");
-  TH2F* h2_hcal_hits = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_hits");
-  TH2F* h2_hcal_time = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_time");
-  TH2F* h2_hcal_mean_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_mean");
-  TH1D* h_event_1 = (TH1D*) cl->getHisto(HCALMON_1, "h_event");
-  TH2F* h2_hcal_hits_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_hits");
-  TH2F* h2_hcal_time_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_time");
+  TH2* h2_hcal_mean = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_mean");
+  TH1* h_event =  cl->getHisto(hcalmon[0], "h_event");
+  TH2* h2_hcal_hits = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_hits");
+  TH2* h2_hcal_time = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_time");
+  TH2* h2_hcal_mean_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_mean");
+  TH1* h_event_1 =  cl->getHisto(hcalmon[1], "h_event");
+  TH2* h2_hcal_hits_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_hits");
+  TH2* h2_hcal_time_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_time");
 
   if (!gROOT->FindObject("HcalMon6"))
   {
@@ -2314,13 +2275,8 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
 {
   OnlMonClient* cl = OnlMonClient::instance();
 
-  char HCALMON_0[100];
-  sprintf(HCALMON_0, "%s_%i", prefix.c_str(), 0);
-  char HCALMON_1[100];
-  sprintf(HCALMON_1, "%s_%i", prefix.c_str(), 1);
-
-  TH2F* pr_zsFrac_etaphi = (TH2F*) cl->getHisto(HCALMON_0, "pr_zsFrac_etaphi");
-  TH2F* pr_zsFrac_etaphi_1 = (TH2F*) cl->getHisto(HCALMON_1, "pr_zsFrac_etaphi");
+  TH2* pr_zsFrac_etaphi = (TH2*) cl->getHisto(hcalmon[0], "pr_zsFrac_etaphi");
+  TH2* pr_zsFrac_etaphi_1 = (TH2*) cl->getHisto(hcalmon[1], "pr_zsFrac_etaphi");
 
   if (!gROOT->FindObject("HcalMon7"))
   {
