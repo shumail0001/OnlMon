@@ -336,7 +336,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   {
     h_cemc_datahits->Reset();
   }
-  TH2D *htmp2d;
+  TH2 *htmp2d;
   int deadservercount = 0;
   int Nservers = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
@@ -357,7 +357,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   int neventhist = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    TH1D* h_eventSource  = (TH1D*) cl->getHisto(*server, "h1_event");
+    TH1* h_eventSource  = (TH1D*) cl->getHisto(*server, "h1_event");
     if (h_eventSource )
     {
       avgevents += h_eventSource->GetEntries();
@@ -975,7 +975,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH2F *h2_waveform_twrAvg[m_ServerSet.size()];
+  TH2 *h2_waveform_twrAvg[m_ServerSet.size()];
   int start[3];
   start[0] = -1;
   int i = 0;
