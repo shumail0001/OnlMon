@@ -88,6 +88,8 @@ class OnlMonClient : public OnlMonBase
   std::map<std::string, std::tuple<bool, int, int, time_t>>::const_iterator GetServerMap(const std::string subsys) { return m_ServerStatsMap.find(subsys); }
   std::map<std::string, std::tuple<bool, int, int, time_t>>::const_iterator GetServerMapEnd() { return m_ServerStatsMap.end(); }
   OnlMonDraw *GetDrawer(const std::string &name);
+  void SaveServerHistoMap(const std::string &cachefile = "HistoMap.save");
+  void ReadServerHistoMap(const std::string &cachefile = "HistoMap.save");
 
  private:
   OnlMonClient(const std::string &name = "ONLMONCLIENT");
