@@ -55,6 +55,7 @@ HcalMonDraw::HcalMonDraw(const std::string& name)
 
 int HcalMonDraw::Init()
 {
+  delete hcalStyle; // make cppcheck happy - deleting a nullptr here
   hcalStyle = new TStyle("hcalStyle", "hcalStyle");
 
   Int_t font = 42;  // Helvetica
