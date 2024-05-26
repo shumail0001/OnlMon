@@ -1227,7 +1227,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
           reason += "too few channels, ";
         }
         // remove the last two characters
-        reason = reason.substr(0, reason.size() - 2);
+        reason.resize(reason.size() - 2);
         reason += ".";
       }
       whatswrong.push_back(reason);
