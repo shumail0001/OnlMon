@@ -3,6 +3,8 @@ AUTOMAKE_OPTIONS = foreign
 include_HEADERS =
 cemcdatadir = $(pkgdatadir)/cemc
 
+# please leave a space before the newline, then it still works
+# even if the next line does not start with a space
 cemcdata_DATA = \
   testbeam_cemc_template.root \
   Template_40929_100ADC_hits.root \
