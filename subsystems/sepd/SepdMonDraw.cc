@@ -878,7 +878,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
     }
   }
   // remove the final comma and space
-  list_of_bad_packets = list_of_bad_packets.substr(0, list_of_bad_packets.size() - 2);
+  list_of_bad_packets.resize(list_of_bad_packets.size() - 2);
 
   // --- draw the packet information
   TText PacketWarn;
