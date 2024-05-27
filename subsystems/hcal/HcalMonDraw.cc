@@ -10,7 +10,6 @@
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TH2.h>
-#include <TH2D.h>
 #include <TLegend.h>
 #include <TLine.h>
 #include <TPad.h>
