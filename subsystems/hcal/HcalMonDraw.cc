@@ -2345,9 +2345,7 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   gPad->SetTopMargin(0.1);
   gPad->SetTicky();
   gPad->SetTickx();
-  // gStyle->SetPalette(57);
-  gStyle->SetPalette(255, ZSPalette);
-  gStyle->SetNumberContours(255);
+  gStyle->SetPalette(57);
   gStyle->SetOptStat(0);
 
   {
