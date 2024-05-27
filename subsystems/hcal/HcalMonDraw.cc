@@ -455,12 +455,6 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
     line_ieta[i_line].SetLineStyle(1);
   }
 
-  gPad->SetTopMargin(0.08);
-  gPad->SetBottomMargin(0.07);
-  gPad->SetLeftMargin(0.08);
-  gPad->SetRightMargin(0.11);
-
-  hist1->Draw("colz");
 
   for (int i_line = 0; i_line < 32; i_line++)
   {
@@ -1834,12 +1828,10 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   }
   for (int itrig = 0; itrig < 64; itrig++)
   {
-    std::cout<<itrig<<std::endl;
     h2_hcal_hist_trig[itrig] = (TH2*) cl->getHisto(hcalmon[0], Form("h2_hcal_hits_trig_%d", itrig));
     h2_hcal_hist_trig_1[itrig] = (TH2*) cl->getHisto(hcalmon[1], Form("h2_hcal_hist_trig_%d", itrig));
     if (!h2_hcal_hist_trig[itrig] || !h2_hcal_hist_trig_1[itrig])
     {
-      std::cout<<h2_hcal_hist_trig[itrig] << " " << h2_hcal_hist_trig_1[itrig]<<std::endl;
       DrawDeadServer(transparent[6]);
       TC[6]->SetEditable(false);
       if (isHtml())
@@ -1851,9 +1843,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
     }
     h2_hcal_hist_trig[itrig]->Add(h2_hcal_hist_trig_1[itrig]);
   }
-  std::cout<<"DrawFifth"<<std::endl;
-  TH2* pr_zsFrac_etaphi_1 = (TH2*) cl->getHisto(hcalmon[1], "pr_zsFrac_etaphi");
-  TH2* pr_zsFrac_etaphi = (TH2*) cl->getHisto(hcalmon[0], "pr_zsFrac_etaphi");
+
 
   TH2* h2_hcal_hits = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_hits");
   TH2* h_evtRec = (TH2*) cl->getHisto(hcalmon[0], "h_evtRec");
@@ -1864,7 +1854,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TC[6]->SetEditable(true);
   TC[6]->Clear("D");
   Pad[16]->cd();
-  if ( !h2_hcal_hits || !h_hcal_trig || !h_caloPack_gl1_clock_diff || !h_evtRec || !pr_zsFrac_etaphi || !pr_zsFrac_etaphi_1)
+  if ( !h2_hcal_hits || !h_hcal_trig || !h_caloPack_gl1_clock_diff || !h_evtRec )
   {
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(false);
@@ -1876,7 +1866,6 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
     return -1;
   }
 
-  pr_zsFrac_etaphi->Add(pr_zsFrac_etaphi_1);
 
   // vector of pairs (Number of entries, Trigger bit)
   std::vector<std::pair<float, int>> n_entries;
