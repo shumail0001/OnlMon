@@ -92,7 +92,7 @@ int HcalMonDraw::Init()
   h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1.1);
   h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1.1);
 
-  MakeZSPalette();
+//  MakeZSPalette();
   return 0;
 }
 
