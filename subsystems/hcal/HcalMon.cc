@@ -131,7 +131,7 @@ int HcalMon::Init()
 
   for (int itrig = 0; itrig < 64; itrig++)
   {
-    h2_hcal_hits_trig[itrig] = new TH2F(Form("h2_hcal_hits_trig%d", itrig), "", 24, 0, 24, 64, 0, 64);
+    h2_hcal_hits_trig[itrig] = new TH2F(Form("h2_hcal_hits_trig_%d", itrig), "", 24, 0, 24, 64, 0, 64);
   }
 
   pr_zsFrac_etaphi = new TProfile2D("pr_zsFrac_etaphi", "", 24, 0, 24, 64, 0, 64);
