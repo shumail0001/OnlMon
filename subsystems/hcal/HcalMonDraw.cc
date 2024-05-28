@@ -1828,7 +1828,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   for (int itrig = 0; itrig < 64; itrig++)
   {
     h2_hcal_hist_trig[itrig] = (TH2*) cl->getHisto(hcalmon[0], Form("h2_hcal_hits_trig_%d", itrig));
-    h2_hcal_hist_trig_1[itrig] = (TH2*) cl->getHisto(hcalmon[1], Form("h2_hcal_hist_trig_%d", itrig));
+    h2_hcal_hist_trig_1[itrig] = (TH2*) cl->getHisto(hcalmon[1], Form("h2_hcal_hits_trig_%d", itrig));
     if (!h2_hcal_hist_trig[itrig] || !h2_hcal_hist_trig_1[itrig])
     {
       DrawDeadServer(transparent[6]);
