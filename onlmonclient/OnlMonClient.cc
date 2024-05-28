@@ -294,6 +294,7 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
           {
             if (!failed_to_locate)
             {
+	      //	      std::cout << "Looking for " << hname << ", server " << subsys << std::endl;
               if (LocateHistogram(hname, subsys) < 1)
               {
                 if (Verbosity() > 2)
@@ -1825,7 +1826,7 @@ void OnlMonClient::SaveServerHistoMap(const std::string &cachefilename)
   {
     for (auto &histos : subs.second)
     {
-      cachefile << histos.first << " " << histos.second->SubSystem() << " " << histos.second->ServerHost() << " " << histos.second->ServerPort() << std::endl;
+      cachefile << histos.second->SubSystem() << " " << histos.first << " " << histos.second->ServerHost() << " " << histos.second->ServerPort() << std::endl;
     }
   }
   cachefile.close();
@@ -1846,8 +1847,8 @@ void OnlMonClient::ReadServerHistoMap(const std::string &cachefilename)
     while (std::getline(cachefile, line))
     {
       std::istringstream iss(line);
-      iss >> hname;
       iss >> subsys;
+      iss >> hname;
       iss >> hostname;
       iss >> port;
       AddServerHost(hostname);
