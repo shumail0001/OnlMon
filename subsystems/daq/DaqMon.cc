@@ -147,7 +147,7 @@ int DaqMon::process_event(Event *e /* evt */)
           for(int iadc = 0; iadc<nADCs ; iadc++){
               if(ipacket==0 && iadc==0){ femevtref = p->iValue(iadc,"FEMEVTNR"); femclkref = p->iValue(iadc,"FEMCLOCK");}
 
-              if(femevtref !=  p->iValue(iadc,"FEMEVTNR") || fabs(femclkref - p->iValue(0,"FEMCLOCK"))>2)
+              if(femevtref !=  p->iValue(iadc,"FEMEVTNR") && fabs(femclkref - p->iValue(0,"FEMCLOCK"))>2)
               {
                   mismatchfem = false;
                   sebid = getmapping(pnum);
