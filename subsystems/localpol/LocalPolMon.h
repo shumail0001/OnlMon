@@ -29,8 +29,12 @@ class LocalPolMon : public OnlMon
 
  private:
   double *ComputeAsymmetries(double L_U, double R_D, double L_D, double R_U);
-  float anaWaveformFast(Packet *p, const int channel);
+  float anaWaveformFast(Packet *p, const int channel, const int low, const int high);
   CaloWaveformFitting *WaveformProcessingFast = nullptr;
+  void RetrieveSpinPattern(Event* e);
+  void RetrieveTriggerDistribution(Event* e);
+  int RetrieveAbortGapData();
+  int RetrieveBunchNumber(Event* e, long long int z);
 
   const int packetid_gl1 = 14001;  // could be ported to config
   const int packetid_smd = 12001;  // could be ported to config
@@ -55,7 +59,11 @@ class LocalPolMon : public OnlMon
   int ExpectedsPhenixGapPosition = 117;  // from config
   int EventCountThresholdGap = 6000;     // from config
   int EventsAsymmetryNewPoint = 10000;   // from config
+  int lowSample[52]={0};
+  int highSample[52]={0};
   int evtcnt = 0;
+  int EvtShift=0;
+  int failuredepth=0;
   int StartAbortGapPattern = 111;
   int StartAbortGapData = 117;
   int CrossingShift = -6;
@@ -80,8 +88,8 @@ class LocalPolMon : public OnlMon
   TH1D ****h_AsymScramble = nullptr;
 
   TRandom *myRandomBunch = nullptr;
-  std::map<int, int> stored_gl1p_files;
-  eventReceiverClient *erc = {nullptr};
+  //std::map<int, int> stored_gl1p_files;
+  eventReceiverClient *erc = nullptr;
 };
 
 #endif /* LOCALPOL_LOCALPOLMON_H */

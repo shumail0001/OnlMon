@@ -319,12 +319,16 @@ int LocalPolMon::Init()
     se->send_message(this, MSG_SOURCE_LOCALPOL, MSG_SEV_FATAL, msg_mapping.str(), 2);
     exit(1);
   }
-  int adc, array;
+  int adc, array, lowcut, highcut;
   std::string ChannelName;
   for (int i = 0; i < 128; i++)
   {
-    mapping >> adc >> array >> ChannelName;
+    mapping >> adc >> array >> lowcut >> highcut >> ChannelName;
     Chmapping[adc] = array;
+    if(array>-1){
+      lowSample[array]=lowcut;
+      highSample[array]=highcut;
+    }
   }
 
   const char* zdccalib = getenv("ZDCCALIB");
@@ -432,15 +436,19 @@ int LocalPolMon::BeginRun(const int /* runno */)
   {
     std::cout << "\n";
   }
+  EvtShift=0;
+  Reset();
   // goodtrigger[10]=true;//In 2023, it was MBD N&S
   return 0;
 }
 
-float LocalPolMon::anaWaveformFast(Packet* p, const int channel)
+float LocalPolMon::anaWaveformFast(Packet* p, const int channel, const int low, const int high)
 {
   std::vector<float> waveform;
-  waveform.reserve(p->iValue(0, "SAMPLES"));
-  for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+  waveform.reserve(high-low);
+  //waveform.reserve(p->iValue(0, "SAMPLES"));
+  //for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+  for (int s = low; s < high; s++)
   {
     waveform.push_back(p->iValue(s, channel));
   }
@@ -457,137 +465,23 @@ float LocalPolMon::anaWaveformFast(Packet* p, const int channel)
 
 int LocalPolMon::process_event(Event* e /* evt */)
 {
+
   if (e->getEvtType() == BEGRUNEVENT /*9*/)
   {  // spin patterns stored in BeginRun event
-    bool first = true;
-    Packet* bluepacket = e->getPacket(14902);
-    Packet* yellpacket = e->getPacket(14903);
-    if (bluepacket && yellpacket)
-    {
-      if (verbosity)
-      {
-        std::cout << "Initiating spin pattern from CAD\n";
-      }
-      for (int i = 0; i < 120; i++)
-      {
-        SpinPatterns[BLUE][i] = bluepacket->iValue(i);
-        SpinPatterns[YELLOW][i] = yellpacket->iValue(i);
-        if (first && (true /*abort gap def test*/))
-        {
-          first = false;
-          StartAbortGapPattern = i;
-        }
-      }
-    }
-    else
-    {
-      //******* placeholder until html delivery from C-AD is available ***********
-      if (verbosity)
-      {
-        std::cout << "Initiating spin pattern from Dummy\n";
-      }
-      for (int i = 0; i < 120; i++)
-      {
-        if (i % 2 == 0)
-        {
-          SpinPatterns[BLUE][i] = 1;
-        }
-        else
-        {
-          SpinPatterns[BLUE][i] = -1;
-        }
-        if (int(0.5 * i) % 2 == 0)
-        {
-          SpinPatterns[YELLOW][i] = 1;
-        }
-        else
-        {
-          SpinPatterns[YELLOW][i] = -1;
-        }
-        if (i > 110)
-        {
-          SpinPatterns[BLUE][i] = 0;
-          SpinPatterns[YELLOW][i] = 0;
-          if (first && (true /*abort gap def from HTML*/))
-          {
-            first = false;
-            StartAbortGapPattern = i;
-          }
-        }
-      }
-      // **************************************************************************
-    }
+    RetrieveSpinPattern(e);
   }
-  Packet* pgl1 = e->getPacket(packetid_gl1);
 
-  // Here we do the magic to identify the abort gap
-  std::vector<int> gap[16];
-  std::map<int, int> begingap;
-  std::map<int, int> endgap;
-
-  if (pgl1)
-  {
-    int bunchnr = pgl1->lValue(0, "BunchNumber");
-    stored_gl1p_files[e->getEvtSequence()] = bunchnr;
-    for (auto& i : gl1_counter)
-    {  // 16 triggers for gl1p
-      // long long counts = pgl1->lValue(i,2);
-      // gl1_counter[i][bunchnr]=counts;
-
-      // With prdf pgl1->lValue(i,2); simply returns the current processed event number (which can shaddow the abort gap: the lagging bunch# at some point get back to the position of the others)
-      // So instead, we increment the number of processed events per bunch number, for the various triggers
-      i[bunchnr] += 1;  //(pgl1->lValue(i,2)>0)?1:0;
-    }
-  }
+  RetrieveTriggerDistribution(e);
 
   /******Here we do the matching to identify the crossing shift   ******************/
-  if (evtcnt > EventCountThresholdGap)
-  {  // Do we need to somehow wait or from the first events the scalers for all bunches would be already filled? Apparently at least 6,000 to start to see an abort gap with prdf...
-    for (int i = 0; i < 16; i++)
-    {
-      if (!goodtrigger[i])
-      {
-        continue;
-      }
-      std::map<int, long long> tmpmap = gl1_counter[i];
-      // for(std::map<int,long long>::iterator ittest=tmpmap.begin(); ittest!=tmpmap.end(); ++ittest){
-      //	std::cout<<ittest->second<<" ";
-      // }
-      for (int emptyfill = 0; emptyfill < 9; emptyfill++)
-      {
-        int myminimum = min_element(tmpmap.begin(), tmpmap.end(), [](const std::pair<int, long long>& lhs, const std::pair<int, long long>& rhs)
-                                    { return lhs.second < rhs.second; })
-                            ->first;
-        if (myminimum < 111)
-        {
-          gap[i].push_back(120 + myminimum);
-        }
-        else
-        {
-          gap[i].push_back(myminimum);
-        }
-        tmpmap.erase(myminimum);
-      }
-      begingap[i] = (*min_element(gap[i].begin(), gap[i].end()));
-      endgap[i] = (*max_element(gap[i].begin(), gap[i].end()));
-      if (endgap[i] - begingap[i] > 9)
-      {
-        std::cout << " Weird abort gap is larger than 9 bunches " << endgap[i] << " - " << begingap[i] << " for trigger " << i << std::endl;
-      }
-    }
-    for (auto ib = begingap.begin(); ib != begingap.end(); ++ib)
-    {
-      if (begingap.begin()->second != ib->second)
-      {
-        std::cout << " Weird abort gap not in the same location between trigger bit 0 and trigger bit " << ib->second << std::endl;
-      }
-    }
-    StartAbortGapData = (begingap.begin()->second) % 120;
+  if (evtcnt > EventCountThresholdGap){
+    StartAbortGapData = RetrieveAbortGapData();
   }
   else
   {
     StartAbortGapData = ExpectedsPhenixGapPosition;  // default value from config
   }
+
   CrossingShift = StartAbortGapPattern - StartAbortGapData;
   if (verbosity)
   {
@@ -597,45 +491,18 @@ int LocalPolMon::process_event(Event* e /* evt */)
 
   Packet* psmd = e->getPacket(packetid_smd);
   float smd_adc[32];
+  int bunchnr = 0;
   if (psmd)
   {
-    int bunchnr = 0;  // = psmd->lValue(0,"BunchNumber");
-    Event* egl1 = nullptr;
-    if (erc)
-    {
-      egl1 = erc->getEvent(e->getEvtSequence());
+    long long int zdc_clock=psmd->lValue(0,"BCO");
+    bunchnr=RetrieveBunchNumber(e,zdc_clock);
+    //Did not manage to retrieve the proper bunch number, no need to continue the calculation
+    //let us clean and leave
+    if(bunchnr<0){
+      delete psmd;
+      psmd=nullptr;
+      return 0;
     }
-    if (egl1)
-    {
-      Packet* ptmpgl1 = egl1->getPacket(packetid_gl1);
-      if (ptmpgl1)
-      {
-        bunchnr = ptmpgl1->lValue(0, "BunchNumber");
-        delete ptmpgl1;
-        ptmpgl1 = nullptr;
-      }
-      else
-      {
-        if (verbosity)
-        {
-          std::cout << "Failed grabing gl1 from event receiver, Bunch number unknown" << std::endl;
-        }
-      }
-      delete egl1;
-      egl1 = nullptr;
-    }
-    // else{
-    //   std::map<int,int>::iterator it;
-    //   it=stored_gl1p_files.find(e->getEvtSequence());
-    //   if(it!=stored_gl1p_files.end()) {
-    //	bunchnr=it->second;
-    //	std::cout<<bunchnr<<std::endl;
-    //   }
-    //   else {
-    //	bunchnr=0;
-    //	std::cout<<"Trick also failed to retrieve bunch number"<<std::endl;
-    //   }
-    // }
 
     if (fake)
     {
@@ -643,8 +510,16 @@ int LocalPolMon::process_event(Event* e /* evt */)
     }
 
     // get minimum on ZDC second module
-    signalZDCN2 = anaWaveformFast(psmd, ZDCN2);
-    signalZDCS2 = anaWaveformFast(psmd, ZDCS2);
+    // get minimum on ZDC second module
+    signalZDCN2 = anaWaveformFast(psmd, ZDCN2, lowSample[ZDCN2], highSample[ZDCN2]);
+    signalZDCS2 = anaWaveformFast(psmd, ZDCS2, lowSample[ZDCS2], highSample[ZDCS2]);
+
+    if (signalZDCN2 < 10 && signalZDCS2 < 10)
+    {
+      delete psmd;
+      psmd=nullptr;
+      return 0;
+    }
 
     // for(int ch=16; ch<47; ch++){//according to mapping in ZDC logbook entry #85 March 9th 2024
     for (auto& it : Chmapping)
@@ -657,7 +532,7 @@ int LocalPolMon::process_event(Event* e /* evt */)
       {
         continue;
       }
-      float signalFast = anaWaveformFast(psmd, it.first);  // fast waveform fitting
+      float signalFast = anaWaveformFast(psmd, it.first, lowSample[it.second],highSample[it.second]);  // fast waveform fitting
 
       int ch = it.second;
       // Scale according to relative gain calibration factor
@@ -669,10 +544,6 @@ int LocalPolMon::process_event(Event* e /* evt */)
       {
         smd_adc[ch - 16] = signalFast * smd_south_rgain[ch - 32];
       }
-    }
-    if (signalZDCN2 < 65 && signalZDCS2 < 65)
-    {
-      return 0;
     }
     float Weights[4] = {0};
     memset(Weights, 0, sizeof(Weights));
@@ -701,7 +572,6 @@ int LocalPolMon::process_event(Event* e /* evt */)
       if (Weights[i] > 0.0)
       {
         AveragePosition[i] /= Weights[i];
-        // else AveragePosition[i]=0.;
       }
       else
       {
@@ -815,6 +685,7 @@ int LocalPolMon::Reset()
   // reset our internal counters
   evtcnt = 0;
   iPoint = 0;
+  failuredepth=0;
   for (int i = 0; i < 4; i++)
   {
     h_Counts[i]->Reset();
@@ -853,4 +724,190 @@ double* LocalPolMon::ComputeAsymmetries(double L_U, double R_D, double L_D, doub
     result[3] = sqrt(pow(rightG, 2) * leftA + pow(leftG, 2) * rightA) / pow(tmpDenG, 2);
   }
   return result;
+}
+
+void LocalPolMon::RetrieveSpinPattern(Event* e){
+  Event* egl1p=nullptr;
+  Packet* bluepacket = nullptr;
+  Packet* yellpacket = nullptr;
+  bool first = true;
+  if(erc){
+    egl1p = erc->getEvent(e->getEvtSequence()+EvtShift);
+  }
+  if(egl1p){
+    bluepacket = egl1p->getPacket(14902);
+    yellpacket = egl1p->getPacket(14903);
+    if (bluepacket && yellpacket)
+      {
+	if (verbosity)
+	  {
+	    std::cout << "Initiating spin pattern from CAD\n";
+	  }
+	for (int i = 0; i < 120; i++)
+	  {
+	    SpinPatterns[BLUE][i] = bluepacket->iValue(i);
+	    SpinPatterns[YELLOW][i] = yellpacket->iValue(i);
+	    if(SpinPatterns[BLUE][i]==0 &&SpinPatterns[YELLOW][i]==0&&first){//only working for 111x111
+	      first=false;
+	      StartAbortGapPattern=i;
+	    }
+	    //if (first && (true /*abort gap def test*/))
+	    //	{
+	    //	  first = false;
+	    //	  StartAbortGapPattern = i;
+	    //	}
+	  }
+      }
+    else
+      {
+	//******* placeholder until html delivery from C-AD is available ***********
+	if (verbosity)
+	  {
+	    std::cout << "Initiating spin pattern from Dummy\n";
+	  }
+	for (int i = 0; i < 120; i++)
+	  {
+	    if (i % 2 == 0)
+	      {
+		SpinPatterns[BLUE][i] = 1;
+	      }
+	    else
+	      {
+		SpinPatterns[BLUE][i] = -1;
+	      }
+	    if (int(0.5 * i) % 2 == 0)
+	      {
+		SpinPatterns[YELLOW][i] = 1;
+	      }
+	    else
+	      {
+		SpinPatterns[YELLOW][i] = -1;
+	      }
+	    if (i > 110)
+	      {
+		SpinPatterns[BLUE][i] = 0;
+		SpinPatterns[YELLOW][i] = 0;
+		if (first && (true /*abort gap def from HTML*/))
+		  {
+		    first = false;
+		    StartAbortGapPattern = i;
+		  }
+	      }
+	  }
+	// **************************************************************************
+      }
+    if(bluepacket){
+      delete bluepacket;
+      bluepacket=nullptr;
+    }
+    if(yellpacket){
+      delete yellpacket;
+      yellpacket=nullptr;
+    }
+    delete egl1p;
+    egl1p=nullptr;
+  }
+}
+
+void LocalPolMon::RetrieveTriggerDistribution(Event* e){
+  Event* egl1p=nullptr;
+  Packet* pgl1p = nullptr;
+  if (erc){
+    egl1p = erc->getEvent(e->getEvtSequence()+EvtShift);
+  }
+  if (egl1p){
+    pgl1p = egl1p->getPacket(packetid_gl1);
+    if (pgl1p){
+      int bunchnr = pgl1p->lValue(0, "BunchNumber");
+      for (int i=0; i<16; i++){//auto& i : gl1_counter)
+	// 16 triggers for gl1p
+	// With prdf pgl1->lValue(i,2); simply returns the current processed event number (which can shaddow the abort gap: the lagging bunch# at some point get back to the position of the others)
+	// So instead, we increment the number of processed events per bunch number, for the various triggers
+	gl1_counter[i][bunchnr]+= (pgl1p->lValue(i,2)>0)?1:0;
+      }
+      delete pgl1p;
+      pgl1p=nullptr;
+    }
+    delete egl1p;
+    egl1p=nullptr;
+  }
+}
+
+int LocalPolMon::RetrieveAbortGapData(){
+  // Here we do the magic to identify the abort gap
+  std::vector<int> gap[16];
+  std::map<int, int> begingap;
+  std::map<int, int> endgap;
+
+  for (int i = 0; i < 16; i++){
+    if (!goodtrigger[i]){
+      continue;
+    }
+    std::map<int, long long> tmpmap = gl1_counter[i];
+    for (int emptyfill = 0; emptyfill < 9; emptyfill++){
+      int myminimum = min_element(tmpmap.begin(), tmpmap.end(), [](const std::pair<int, long long>& lhs, const std::pair<int, long long>& rhs)
+				  { return lhs.second < rhs.second; })
+	->first;
+      if (myminimum < 111){
+	gap[i].push_back(120 + myminimum);
+      }
+      else{
+	gap[i].push_back(myminimum);
+      }
+      tmpmap.erase(myminimum);
+    }
+    begingap[i] = (*min_element(gap[i].begin(), gap[i].end()));
+    endgap[i] = (*max_element(gap[i].begin(), gap[i].end()));
+    if (endgap[i] - begingap[i] > 9){
+      std::cout << " Weird abort gap is larger than 9 bunches " << endgap[i] << " - " << begingap[i] << " for trigger " << i << std::endl;
+    }
+  }
+  for (auto ib = begingap.begin(); ib != begingap.end(); ++ib){
+    if (begingap.begin()->second != ib->second)
+      {
+	std::cout << " Weird abort gap not in the same location between trigger bit 0 and trigger bit " << ib->second << std::endl;
+      }
+  }
+  return (begingap.begin()->second) % 120;
+}
+
+
+int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
+  Event* egl1 = nullptr;
+  int bunch=-1;
+  if(failuredepth>10){
+    std::cout<<"ZDC and GL1p asynchronous by more than 10 events"<<std::endl;
+    return -1;
+  }
+  if (erc){
+    egl1 = erc->getEvent(e->getEvtSequence()+EvtShift);
+  }
+  if (egl1){
+    Packet* pgl1p = egl1->getPacket(packetid_gl1);
+    if (pgl1p){
+      long long int gl1_clock=pgl1p->lValue(0, "BCO");
+      if(gl1_clock!=zdc_clock){
+	EvtShift++;
+	delete pgl1p;
+	pgl1p=nullptr;
+	delete egl1;
+	egl1=nullptr;
+	failuredepth++;
+	bunch=RetrieveBunchNumber(e,zdc_clock);
+      }
+      else{
+	bunch = pgl1p->lValue(0, "BunchNumber");
+      }
+      delete pgl1p;
+      pgl1p = nullptr;
+    }
+    else{
+      if (verbosity){
+	std::cout << "Failed grabing gl1 from event receiver, Bunch number unknown" << std::endl;
+      }
+    }
+    delete egl1;
+    egl1 = nullptr;
+  }
+  return bunch;
 }
