@@ -619,10 +619,10 @@ sub select_run {
       dirlist("pulser",$runrange);
       print "</td>\n";
   }
-  if (-d "unknowndata")
+  if (-d "unknown_runtype")
   {
       print "<td>\n";
-      dirlist("unknowndata",$runrange);
+      dirlist("unknown_runtype",$runrange);
       print "</td>\n";
   }
   print "</table>\n";
