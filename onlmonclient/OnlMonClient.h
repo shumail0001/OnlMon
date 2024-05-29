@@ -97,17 +97,17 @@ class OnlMonClient : public OnlMonBase
   void InitAll();
 
   static OnlMonClient *__instance;
-  OnlMonHtml *fHtml = nullptr;
-  TH1 *clientrunning = nullptr;
-  TStyle *defaultStyle = nullptr;
+  OnlMonHtml *fHtml {nullptr};
+  TH1 *clientrunning {nullptr};
+  TStyle *defaultStyle {nullptr};
 
-  int display_sizex = 0;
-  int display_sizey = 0;
-  int cosmicrun = 0;
-  int standalone = 0;
-  int cachedrun = 0;
+  int display_sizex {0};
+  int display_sizey {0};
+  int cosmicrun {0};
+  int standalone {0};
+  int cachedrun {0};
 
-  std::string runtype = "UNKNOWN";
+  std::string runtype {"unknown_runtype"};
   std::set<std::string> m_MonitorFetchedSet;
   std::map<std::string, std::map<const std::string, ClientHistoList *>> SubsysHisto;
   std::map<std::string, std::pair<std::string, unsigned int>> MonitorHostPorts;
