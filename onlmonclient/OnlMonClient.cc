@@ -1617,10 +1617,10 @@ void OnlMonClient::CacheRunDB(const int runno)
   }
   standalone = 0;
   cosmicrun = 0;
-  runtype = "UNKNOWN";
+  runtype = "unknown_runtype";
 
-  odbc::Connection *con = nullptr;
-  odbc::Statement *query = nullptr;
+  odbc::Connection *con {nullptr};
+  odbc::Statement *query {nullptr};
   std::ostringstream cmd;
   try
   {
