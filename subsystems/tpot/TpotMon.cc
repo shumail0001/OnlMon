@@ -35,6 +35,18 @@ namespace
   /** This is used to properly normalize the number of trigger received */
   static constexpr int m_npackets_active = 2;
 
+  /*
+   * on May 29 2024, we the fiber arriving on fee_id 11 was moved to fee_id 21
+   * since fee_id 11 was not assigned before, we can internally convert all call to fee_id 21 to fee_id11,
+   * while keeping backward compatibility
+  */
+  int get_old_fee_id( int fee_id )
+  {
+    static const std::map<int,int> internal_fee_id_map( {{21,11}} );
+    const auto& iter = internal_fee_id_map.find( fee_id );
+    return iter == internal_fee_id_map.end() ? fee_id:iter->second;
+  }
+
   // get first member of pairs into a list
   std::vector<double> get_x( const MicromegasGeometry::point_list_t& point_list )
   {
@@ -289,7 +301,9 @@ int TpotMon::process_event(Event* event)
         continue;
       }
 
-      const int fee_id = packet->iValue(i, "FEE" );
+      // account for fiber swapping
+      const int fee_id = get_old_fee_id( packet->iValue(i, "FEE" ) );
+
       const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
       const int samples = packet->iValue( i, "SAMPLES" );
 

@@ -46,7 +46,7 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
   OnlMonClient *cl = OnlMonClient::instance();
   OnlMonDraw *drawer = nullptr;
   std::cout << "If used with root.exe, use root.exe -q makehtml.C" << endl;
-  std::cout << "If you use -q it is batch which does not have an Xserver" 
+  std::cout << "If you use -q it is batch which does not have an Xserver"
 	    << " to create gifs/png and this macro will fail miserably" << std::endl;
   if (subsystem == "BBCMON")
   {
@@ -98,7 +98,19 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
   }
   else if (subsystem == "TPOTMON")
   {
-    drawer = new TpotMonDraw("TPOTMONDRAW");
+    auto tpotmon = new TpotMonDraw("TPOTMONDRAW");
+
+    // prefer local calibration filename if exists
+    const std::string local_calibration_filename( "TPOT_Pedestal-000.root" );
+    if( std::ifstream( local_calibration_filename ).good() )
+    { tpotmon->set_calibration_file( local_calibration_filename ); }
+
+    // adjust sample and signal windows
+    tpotmon->set_sample_window( {0, 50} );
+    tpotmon->set_sample_window_signal( {3, 18} );
+
+    // assign
+    drawer = tpotmon;
   }
   else if (subsystem == "ZDCMON")
   {
@@ -111,10 +123,10 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
   }
   cl->registerDrawer(drawer);
   ifstream listfile(filelist);
-  if (listfile.is_open()) 
+  if (listfile.is_open())
   {
     std::string line;
-    while (std::getline(listfile, line)) 
+    while (std::getline(listfile, line))
     {
       cl->ReadHistogramsFromFile(line, drawer);
     }
