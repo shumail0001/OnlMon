@@ -323,7 +323,7 @@ int CemcMon::process_event(Event *e /* evt */)
   if (anaGL1)
   {
     int evtnr = e->getEvtSequence();
-    Event *gl1Event = erc->getEvent(evtnr+1);
+    Event *gl1Event = erc->getEvent(evtnr);
     if (gl1Event)
     {
       have_gl1 = true;
