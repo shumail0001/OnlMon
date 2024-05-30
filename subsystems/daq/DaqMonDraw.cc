@@ -280,6 +280,7 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
 
   int start = -1;
   TH2 *h_fem_match[m_ServerSet.size()];
+  bool IsMisMatch=false;
   int i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
@@ -298,6 +299,7 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
         {
           h_fem_match[i]->SetBinContent(ibinx, ibiny, 0);
         }
+        else IsMisMatch = true;
       }
     }
 
@@ -341,7 +343,7 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   latex.SetNDC();
   latex.SetTextFont(62);
 
-  if(h_fem_match[start]->GetEntries() > 0){
+  if(IsMisMatch){
       latex.SetTextSize(0.028);
       latex.SetTextColor(kRed);
       latex.DrawLatex(0.25,0.94,"#bf{Calo FEM Mismatch!! Put a special note in the e-log}");
