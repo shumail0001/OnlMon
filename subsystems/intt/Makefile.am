@@ -37,10 +37,6 @@ libonlinttmon_client_la_SOURCES = \
   InttMon.cc \
   InttMonDraw.cc
 
-bin_SCRIPTS = \
-  InttMonSetup.csh \
-  InttMonSetup.sh
-
 noinst_PROGRAMS = \
   testexternals_server \
   testexternals_client
