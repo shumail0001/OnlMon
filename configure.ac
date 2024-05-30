@@ -45,7 +45,6 @@ subsystems/example/calib/Makefile
 subsystems/hcal/Makefile
 subsystems/hcal/calib/Makefile
 subsystems/intt/Makefile
-subsystems/intt/calib/Makefile
 subsystems/localpol/Makefile
 subsystems/localpol/calib/Makefile
 subsystems/mvtx/Makefile

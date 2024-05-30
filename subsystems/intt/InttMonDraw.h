@@ -1,8 +1,6 @@
 #ifndef INTT_MON_DRAW_H
 #define INTT_MON_DRAW_H
 
-#include "InttMon.h"
-
 #include <onlmon/OnlMonClient.h>
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonDraw.h>
@@ -23,9 +21,9 @@
 #include <cctype>
 #include <cmath>
 #include <ctime>
-
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -43,66 +41,67 @@ class InttMonDraw : public OnlMonDraw
   int SavePlot(std::string const& = "ALL", std::string const& = "png") override;
 
  private:
-  // InttMonDraw.cc
+  static constexpr int NCHIPS = 26;
+  static constexpr int NFEES = 14;
+  static constexpr int NBCOS = 128;
+
   int MakeCanvas(const std::string& name);
   int DrawServerStats();
 
-  // InttMonDraw_o_FelixBcoFphxBco.cc
-  struct FelixBcoFphxBco_s
-  {
-    double cnvs_width, cnvs_height;
-    double disp_frac, lgnd_frac;
-    double disp_text_size;
-    double lgnd_box_width, lgnd_box_height, lgnd_text_size;
-    std::string name;
-  } static const m_FelixBcoFphxBco;
-  int DrawFelixBcoFphxBco(int);
-  int DrawFelixBcoFphxBco_DispPad();
-  int DrawFelixBcoFphxBco_LgndPad();
-  int DrawFelixBcoFphxBco_SubPads();
-  int DrawFelixBcoFphxBco_SubPad(int);
+  int MakeDispPad(int icnvs, double lgnd_frac = std::numeric_limits<double>::quiet_NaN());
 
-  // InttMonDraw_o_HitMap.cc
-  struct HitMap_s
-  {
-    double cnvs_width, cnvs_height;
-    double disp_frac, lgnd_frac;
-    double disp_text_size;
-    double lgnd_box_width, lgnd_box_height, lgnd_text_size;
-    double lower, upper;
-    std::string name;
-  } static const m_HitMap;
-  int DrawHitMap(int);
-  int DrawHitMap_DispPad();
-  int DrawHitMap_LgndPad();
-  int DrawHitMap_SubPads();
-  int DrawHitMap_SubPad(int);
+  int DrawDispPad_Generic(int icnvs, const std::string& title);
 
-  // InttMonDraw_o_Peaks.cc
-  struct Peaks_s
-  {
-    double cnvs_width, cnvs_height;
-    double disp_frac;
-    double disp_text_size;
-    double frac;
-    double max_width;
-    std::string name;
-  } static const m_Peaks;
-  int DrawPeaks(int);
-  int DrawPeaks_DispPad();
-  int DrawPeaks_SubPads();
-  int DrawPeaks_SubPad(int);
-  int DrawPeaks_GetFeePeakAndWidth(int, double*, double*, double*);
-  // ...
-
-  // InttMonDraw.cc (Helper functions I want to declare last)
-  void static DrawPad(TPad*, TPad*);
-  void static CdPad(TPad*);
+  int Draw_FelixBcoFphxBco();
+  int DrawHistPad_FelixBcoFphxBco(int icnvs);
   Color_t static GetFeeColor(int const&);
 
+  int Draw_HitMap();
+  int DrawLgndPad_HitMap();
+  int DrawHistPad_HitMap(int i, int icnvs);
+
+  int Draw_HitRates();
+  int DrawHistPad_HitRates(int i, int icnvs);
+
+  // int Draw_Peaks();
+  // int DrawHistPad_Peaks(int);
+  // int DrawPeaks_GetFeePeakAndWidth(int, double*, double*, double*);
+  // TMultiGraph* m_hist_hitrates[8] = {nullptr};
+  // ...
+
+  enum
+  {
+    k_server_stats = 0,  // Reserved for Chris
+    // I don't use it, it just offsets the enum
+
+    k_felixbcofphxbco,
+    k_hitmap,
+    k_hitrates,
+    k_peaks,
+    k_end
+  };
+
   // Member Variables
-  TCanvas* TC[4] = {nullptr};
-  TPad* transparent[1] = {nullptr};
+  TStyle* m_style{nullptr};  // delete
+
+  TCanvas* TC[k_end]{nullptr};
+  TPad* transparent[k_end]{nullptr};
+
+  TPad* m_disp_pad[k_end]{nullptr};
+  TPad* m_lgnd_pad[k_end]{nullptr};
+  TPad* m_hist_pad[k_end][10]{{nullptr}};
+  TH1* m_hist_felixbcofphxbco[8][14]{{nullptr}};
+  TH1* m_hist_hitrates[8]{nullptr};
+  TH2* m_hist_hitmap[8]{nullptr};
+
+  // Some things are universal
+  int const static m_cnvs_width = 1280;
+  int const static m_cnvs_height = 720;
+
+  double constexpr static m_disp_frac = 0.15;
+  double constexpr static m_disp_text_size = 0.2;
+  double constexpr static m_warn_text_size = 0.15;
+  double constexpr static m_min_events = 50000;
 };
 
 #endif
