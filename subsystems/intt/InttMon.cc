@@ -10,13 +10,13 @@
 InttMon::InttMon(const std::string &name)
   : OnlMon(name)
 {
-  plist = new Packet *[1];
+  //  plist = new Packet *[1];
   return;
 }
 
 InttMon::~InttMon()
 {
-  delete[] plist;
+  //  delete[] plist;
 }
 
 int InttMon::Init()
@@ -46,19 +46,27 @@ int InttMon::BeginRun(const int /* run_num */)
 
 int InttMon::process_event(Event *evt)
 {
-  evt->getPacketList(plist, 1);
-  if (plist[0])
-  {
-    for (int n = 0, N = plist[0]->iValue(0, "NR_HITS"); n < N; ++n)
+  for (int pid = 3001; pid < 3009; ++pid)
     {
-      int fee = plist[0]->iValue(n, "FEE");
-      int chp = (plist[0]->iValue(n, "CHIP_ID") + 25) % 26;
-      int bco = ((0x7f & plist[0]->lValue(n, "BCO")) - plist[0]->iValue(n, "FPHX_BCO") + 128) % 128;
-      HitHist->AddBinContent(fee * NCHIPS + chp + 1);  // +1 to start at bin 1
-      BcoHist->AddBinContent(fee * NBCOS + bco + 1);   // +1 to start at bin 1
-      delete plist[0];
+      Packet *p = evt->getPacket(pid);
+      if (!p)
+	{
+	  continue;
+	}
+
+      if (p)
+	{
+	  for (int n = 0; n < p->iValue(0, "NR_HITS"); ++n)
+	    {
+	      int fee = p->iValue(n, "FEE");
+	      int chp = (p->iValue(n, "CHIP_ID") + 25) % 26;
+	      int bco = ((0x7f & p->lValue(n, "BCO")) - p->iValue(n, "FPHX_BCO") + 128) % 128;
+	      HitHist->AddBinContent(fee * NCHIPS + chp + 1);  // +1 to start at bin 1
+	      BcoHist->AddBinContent(fee * NBCOS + bco + 1);   // +1 to start at bin 1
+	    }
+	  delete p;
+	}
     }
-  }
 
   EvtHist->AddBinContent(1);
 
