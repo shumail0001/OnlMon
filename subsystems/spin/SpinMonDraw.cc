@@ -82,7 +82,7 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
   if (name == "SpinMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "SpinMon Shift Crew", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
+    TC[0] = new TCanvas(name.c_str(), "SpinMon Shift Crew", -1, ysize, xsize * 0.95, ysize);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -113,7 +113,7 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SpinMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "SpinMon Experts", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
+    TC[1] = new TCanvas(name.c_str(), "SpinMon Experts", -1, ysize, xsize * 0.95, ysize);
     gSystem->ProcessEvents();
 
     Pad[7] = new TPad("spinpad8", "who needs this?", 0.05, 0.725, 0.35, 0.95, 0);
