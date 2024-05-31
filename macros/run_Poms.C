@@ -28,7 +28,7 @@ void StartPoms()
   subsys->AddAction("bbcDraw(\"FIRST\")", "MBD Vertex Monitor");
   subsys->AddAction("bbcDraw(\"SECOND\")", "MBD Timing Monitor");
   subsys->AddAction("bbcDraw(\"THIRD\")", "MBD Triggered Monitor");
-  //  subsys->AddAction("bbcDraw(\"MBD2MCR\")", "MBD TOGGLE VTX TO MCR");
+  subsys->AddAction("bbcDraw(\"MBD2MCR\")", "MBD TOGGLE VTX TO MCR");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -114,7 +114,7 @@ void StartPoms()
 
   subsys = new SubSystem("SPIN", "spin");
   subsys->AddAction("spinDraw(\"FIRST\")", "Spin");
-  subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
+  //  subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 

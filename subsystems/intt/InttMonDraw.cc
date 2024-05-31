@@ -142,6 +142,8 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   OnlMonClient* cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
+  m_cnvs_width = xsize;
+  m_cnvs_height = ysize;
   if (name == "InttMonServerStats")
   {
     TC[k_server_stats] = new TCanvas(name.c_str(), "InttMon Server Stats", xsize / 2, 0, xsize / 2, ysize);

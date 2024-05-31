@@ -95,8 +95,8 @@ class InttMonDraw : public OnlMonDraw
   TH2* m_hist_hitmap[8]{nullptr};
 
   // Some things are universal
-  int const static m_cnvs_width = 1280;
-  int const static m_cnvs_height = 720;
+  int m_cnvs_width = 1280;
+  int m_cnvs_height = 720;
 
   double constexpr static m_disp_frac = 0.15;
   double constexpr static m_disp_text_size = 0.2;
