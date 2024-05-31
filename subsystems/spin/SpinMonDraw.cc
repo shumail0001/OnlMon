@@ -783,7 +783,7 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
     gl1_counter[i] = cl->getHisto("SPINMON_0", Form("gl1_counter_trig%d", i));
     if (!gl1_counter[i])
     {
-      DrawDeadServer(transparent[0]);
+      DrawDeadServer(transparent[1]);
       TC[1]->SetEditable(false);
       if (isHtml())
       {
