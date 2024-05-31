@@ -833,7 +833,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
         //std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<std::endl;
 
-        int mid = floor(360/2); //get median sample from 0-360 (we are assuming the sample > 360 is not useful to us as of 05.01.24)
+        //int mid = floor(360/2); //get median sample from 0-360 (we are assuming the sample > 360 is not useful to us as of 05.01.24)
         int num_of_nonZS_samples = 0; //start counter from 0
 
         int tr_samp = 0;
@@ -841,12 +841,12 @@ int TpcMon::process_event(Event *evt/* evt */)
         int prev_sample = 65000;
         int first_non_ZS_sample = 1;
 
-        if( nr_Samples > 9)
+        if( nr_Samples > 0)
         {
-          if( (p->iValue(wf,mid) == p->iValue(wf,mid-1)) && (p->iValue(wf,mid) == p->iValue(wf,mid-2)) && (p->iValue(wf,mid) == p->iValue(wf,mid+1)) && (p->iValue(wf,mid) == p->iValue(wf,mid+2)) )     
-          {
-            is_channel_stuck = 1;
-          }
+          //if( (p->iValue(wf,mid) == p->iValue(wf,mid-1)) && (p->iValue(wf,mid) == p->iValue(wf,mid-2)) && (p->iValue(wf,mid) == p->iValue(wf,mid+1)) && (p->iValue(wf,mid) == p->iValue(wf,mid+2)) )     
+          //{
+	  //is_channel_stuck = 1;
+          //}
 
           for( int si=0;si < nr_Samples; si++ ) //get pedestal and noise before hand
           {
@@ -888,6 +888,7 @@ int TpcMon::process_event(Event *evt/* evt */)
           //for( int si=0;si < nr_Samples; si++ ){ std::cout<<"SAMPLE: "<<si<<", ADC: "<< p->iValue(wf,si) << std::endl; } 
 	  stuck_channel_count[channel][FEE_transform[fee]]++;  // if the RMS is 0, this channel must be stuck
           if(stuck_channel_count[channel][FEE_transform[fee]] == 1){ Stuck_Channels->Fill(FEE_transform[fee]); } // only count # of unique channels in FEE that get stuck at least once
+          is_channel_stuck = 1;
         } 
 
         int wf_max = 0;
