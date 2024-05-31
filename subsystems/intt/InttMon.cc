@@ -50,22 +50,22 @@ int InttMon::process_event(Event *evt)
     {
       Packet *p = evt->getPacket(pid);
       if (!p)
-	{
-	  continue;
-	}
+	    {
+	      continue;
+	    }
 
       if (p)
-	{
-	  for (int n = 0; n < p->iValue(0, "NR_HITS"); ++n)
 	    {
-	      int fee = p->iValue(n, "FEE");
-	      int chp = (p->iValue(n, "CHIP_ID") + 25) % 26;
-	      int bco = ((0x7f & p->lValue(n, "BCO")) - p->iValue(n, "FPHX_BCO") + 128) % 128;
-	      HitHist->AddBinContent(fee * NCHIPS + chp + 1);  // +1 to start at bin 1
-	      BcoHist->AddBinContent(fee * NBCOS + bco + 1);   // +1 to start at bin 1
+	      for (int n = 0; n < p->iValue(0, "NR_HITS"); ++n)
+	      {
+	        int fee = p->iValue(n, "FEE");
+	        int chp = (p->iValue(n, "CHIP_ID") + 25) % 26;
+	        int bco = ((0x7f & p->lValue(n, "BCO")) - p->iValue(n, "FPHX_BCO") + 128) % 128;
+	        HitHist->AddBinContent(fee * NCHIPS + chp + 1);  // +1 to start at bin 1
+	        BcoHist->AddBinContent(fee * NBCOS + bco + 1);   // +1 to start at bin 1
+	      }
+	    delete p;
 	    }
-	  delete p;
-	}
     }
 
   EvtHist->AddBinContent(1);
