@@ -114,7 +114,7 @@ void StartPoms()
 
   subsys = new SubSystem("SPIN", "spin");
   subsys->AddAction("spinDraw(\"FIRST\")", "Spin");
-  //  subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
+  subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
