@@ -56,8 +56,8 @@ int InttMon::process_event(Event *evt)
       int bco = ((0x7f & plist[0]->lValue(n, "BCO")) - plist[0]->iValue(n, "FPHX_BCO") + 128) % 128;
       HitHist->AddBinContent(fee * NCHIPS + chp + 1);  // +1 to start at bin 1
       BcoHist->AddBinContent(fee * NBCOS + bco + 1);   // +1 to start at bin 1
-      delete plist[0];
     }
+    delete plist[0];
   }
 
   EvtHist->AddBinContent(1);
