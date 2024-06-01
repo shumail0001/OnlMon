@@ -793,8 +793,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   else
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[1]);
+    TC[1]->SetEditable(false);
     return -1;
   }
 
@@ -807,8 +807,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   else
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[1]);
+    TC[1]->SetEditable(false);
     return -1;
   }
 
@@ -821,8 +821,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   else
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[1]);
+    TC[1]->SetEditable(false);
     return -1;
   }
 
@@ -835,8 +835,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   else
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[1]);
+    TC[1]->SetEditable(false);
     return -1;
   }
 
@@ -849,8 +849,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   else
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[1]);
+    TC[1]->SetEditable(false);
     return -1;
   }
 
@@ -863,8 +863,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   else
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[1]);
+    TC[1]->SetEditable(false);
     return -1;
   }
 
@@ -895,8 +895,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
     }
     else
     {
-      DrawDeadServer(transparent[0]);
-      TC[0]->SetEditable(false);
+      DrawDeadServer(transparent[1]);
+      TC[1]->SetEditable(false);
       return -1;
     }
   }
