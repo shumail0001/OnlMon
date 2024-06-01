@@ -463,15 +463,20 @@ int TpcMon::Init()
   char RAWADC_1D_titlestr[100];
   char MAXADC_1D_titlestr[100];
   char SUBADC_1D_titlestr[100];
+  char COUNTS_SAMPLE_1D_titlestr[100];
+  char COUNTS_SAMPLE_1D_xtitlestr[100];
 
   sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R1",MonitorServerId());
   sprintf(MAXADC_1D_titlestr,"MAX ADC in SLIDING WINDOW for Sector %i R1",MonitorServerId());
-  sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R1",MonitorServerId()); 
+  sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R1",MonitorServerId());
+  sprintf(COUNTS_SAMPLE_1D_titlestr,"COUNTS_vs_SAMPLE for Sector %i R1",MonitorServerId());
+  sprintf(COUNTS_SAMPLE_1D_xtitlestr,"Sector %i: Time bin [1/20MHz]",MonitorServerId()); 
 
   RAWADC_1D_R1 = new TH1F("RAWADC_1D_R1",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R1 = new TH1F("MAXADC_1D_R1",MAXADC_1D_titlestr,1025,-0.5,1024.5);
   PEDEST_SUB_1D_R1 = new TH1F("PEDEST_SUB_1D_R1",SUBADC_1D_titlestr,1125,-100.5,1024.5);
-
+  COUNTS_vs_SAMPLE_1D_R1 = new TH1F("COUNTS_vs_SAMPLE_1D_R1",COUNTS_SAMPLE_1D_titlestr,360,0,360);
+  
   RAWADC_1D_R1->SetYTitle("Entries");
   RAWADC_1D_R1->SetXTitle("ADC [ADU]");
 
@@ -481,13 +486,21 @@ int TpcMon::Init()
   PEDEST_SUB_1D_R1->SetYTitle("Entries");
   PEDEST_SUB_1D_R1->SetXTitle("(ADC-pedestal) [ADU]");
 
+  PEDEST_SUB_1D_R1->SetYTitle("Entries");
+  PEDEST_SUB_1D_R1->SetXTitle("(ADC-pedestal) [ADU]");
+
+  COUNTS_vs_SAMPLE_1D_R1->SetYTitle("Entries");
+  COUNTS_vs_SAMPLE_1D_R1->SetXTitle(COUNTS_SAMPLE_1D_xtitlestr);
+  
   MAXADC_1D_R1->Sumw2(kFALSE);
   RAWADC_1D_R1->Sumw2(kFALSE);
   PEDEST_SUB_1D_R1->Sumw2(kFALSE);
+  COUNTS_vs_SAMPLE_1D_R1->Sumw2(kFALSE);
 
   MAXADC_1D_R1->SetLineColor(2);
   RAWADC_1D_R1->SetLineColor(2);
   PEDEST_SUB_1D_R1->SetLineColor(2);
+  COUNTS_vs_SAMPLE_1D_R1->SetLineColor(2);
 
   MAXADC_1D_R1 -> GetXaxis() -> SetLabelSize(0.05);
   MAXADC_1D_R1 -> GetXaxis() -> SetTitleSize(0.05);
@@ -504,14 +517,21 @@ int TpcMon::Init()
   PEDEST_SUB_1D_R1 -> GetYaxis() -> SetLabelSize(0.05);
   PEDEST_SUB_1D_R1 -> GetYaxis() -> SetTitleSize(0.05);
   PEDEST_SUB_1D_R1 -> GetYaxis() -> SetTitleOffset(1.0);
+  COUNTS_vs_SAMPLE_1D_R1 -> GetXaxis() -> SetLabelSize(0.05);
+  COUNTS_vs_SAMPLE_1D_R1 -> GetXaxis() -> SetTitleSize(0.05);
+  COUNTS_vs_SAMPLE_1D_R1 -> GetYaxis() -> SetLabelSize(0.05);
+  COUNTS_vs_SAMPLE_1D_R1 -> GetYaxis() -> SetTitleSize(0.05);
+  COUNTS_vs_SAMPLE_1D_R1 -> GetYaxis() -> SetTitleOffset(1.0);
 
   sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R2",MonitorServerId());
   sprintf(MAXADC_1D_titlestr,"MAX ADC for Sector %i R2",MonitorServerId());
-  sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R2`",MonitorServerId()); 
+  sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R2`",MonitorServerId());
+  sprintf(COUNTS_SAMPLE_1D_titlestr,"COUNTS_vs_SAMPLE for Sector %i R2",MonitorServerId());  
 
   RAWADC_1D_R2 = new TH1F("RAWADC_1D_R2",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R2 = new TH1F("MAXADC_1D_R2",MAXADC_1D_titlestr,1025,-0.5,1024.5);
   PEDEST_SUB_1D_R2 = new TH1F("PEDEST_SUB_1D_R2",SUBADC_1D_titlestr,1125,-100.5,1024.5);
+  COUNTS_vs_SAMPLE_1D_R2 = new TH1F("COUNTS_vs_SAMPLE_1D_R2",COUNTS_SAMPLE_1D_titlestr,360,0,360);
 
   RAWADC_1D_R2->SetYTitle("Entries");
   RAWADC_1D_R2->SetXTitle("ADC [ADU]");
@@ -522,13 +542,18 @@ int TpcMon::Init()
   PEDEST_SUB_1D_R2->SetYTitle("Entries");
   PEDEST_SUB_1D_R2->SetXTitle("(ADC-pedestal) [ADU]");
 
+  COUNTS_vs_SAMPLE_1D_R2->SetYTitle("Entries");
+  COUNTS_vs_SAMPLE_1D_R2->SetXTitle(COUNTS_SAMPLE_1D_xtitlestr);
+
   MAXADC_1D_R2->Sumw2(kFALSE);
   RAWADC_1D_R2->Sumw2(kFALSE);
   PEDEST_SUB_1D_R2->Sumw2(kFALSE);
+  COUNTS_vs_SAMPLE_1D_R2->Sumw2(kFALSE);
 
   MAXADC_1D_R2->SetLineColor(3);
   RAWADC_1D_R2->SetLineColor(3);
   PEDEST_SUB_1D_R2->SetLineColor(3);
+  COUNTS_vs_SAMPLE_1D_R2->SetLineColor(3);
  
   MAXADC_1D_R2 -> GetXaxis() -> SetLabelSize(0.05);
   MAXADC_1D_R2 -> GetXaxis() -> SetTitleSize(0.05);
@@ -545,6 +570,11 @@ int TpcMon::Init()
   PEDEST_SUB_1D_R2 -> GetYaxis() -> SetLabelSize(0.05);
   PEDEST_SUB_1D_R2 -> GetYaxis() -> SetTitleSize(0.05);
   PEDEST_SUB_1D_R2 -> GetYaxis() -> SetTitleOffset(1.0);
+  COUNTS_vs_SAMPLE_1D_R2 -> GetXaxis() -> SetLabelSize(0.05);
+  COUNTS_vs_SAMPLE_1D_R2 -> GetXaxis() -> SetTitleSize(0.05);
+  COUNTS_vs_SAMPLE_1D_R2 -> GetYaxis() -> SetLabelSize(0.05);
+  COUNTS_vs_SAMPLE_1D_R2 -> GetYaxis() -> SetTitleSize(0.05);
+  COUNTS_vs_SAMPLE_1D_R2 -> GetYaxis() -> SetTitleOffset(1.0);
 
   sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R3",MonitorServerId());
   sprintf(MAXADC_1D_titlestr,"MAX ADC for Sector %i R3",MonitorServerId());
@@ -553,6 +583,7 @@ int TpcMon::Init()
   RAWADC_1D_R3 = new TH1F("RAWADC_1D_R3",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R3 = new TH1F("MAXADC_1D_R3",MAXADC_1D_titlestr,1025,-0.5,1024.5);
   PEDEST_SUB_1D_R3 = new TH1F("PEDEST_SUB_1D_R3",SUBADC_1D_titlestr,1125,-100.5,1024.5);
+  COUNTS_vs_SAMPLE_1D_R3 = new TH1F("COUNTS_vs_SAMPLE_1D_R3",COUNTS_SAMPLE_1D_titlestr,360,0,360);
 
   RAWADC_1D_R3->SetYTitle("Entries");
   RAWADC_1D_R3->SetXTitle("ADC [ADU]");
@@ -563,13 +594,18 @@ int TpcMon::Init()
   PEDEST_SUB_1D_R3->SetYTitle("Entries");
   PEDEST_SUB_1D_R3->SetXTitle("(ADC-pedestal) [ADU]");
 
+  COUNTS_vs_SAMPLE_1D_R3->SetYTitle("Entries");
+  COUNTS_vs_SAMPLE_1D_R3->SetXTitle(COUNTS_SAMPLE_1D_xtitlestr);
+
   MAXADC_1D_R3->Sumw2(kFALSE);  // ADC vs Sample (small)
   RAWADC_1D_R3->Sumw2(kFALSE);
   PEDEST_SUB_1D_R3->Sumw2(kFALSE);
+  COUNTS_vs_SAMPLE_1D_R3->Sumw2(kFALSE);
 
   MAXADC_1D_R3->SetLineColor(4);
   RAWADC_1D_R3->SetLineColor(4);
   PEDEST_SUB_1D_R3->SetLineColor(4);
+  COUNTS_vs_SAMPLE_1D_R3->SetLineColor(4);
 
   MAXADC_1D_R3 -> GetXaxis() -> SetLabelSize(0.05);
   MAXADC_1D_R3 -> GetXaxis() -> SetTitleSize(0.05);
@@ -586,6 +622,11 @@ int TpcMon::Init()
   PEDEST_SUB_1D_R3 -> GetYaxis() -> SetLabelSize(0.05);
   PEDEST_SUB_1D_R3 -> GetYaxis() -> SetTitleSize(0.05);
   PEDEST_SUB_1D_R3 -> GetYaxis() -> SetTitleOffset(1.0);
+  COUNTS_vs_SAMPLE_1D_R3 -> GetXaxis() -> SetLabelSize(0.05);
+  COUNTS_vs_SAMPLE_1D_R3 -> GetXaxis() -> SetTitleSize(0.05);
+  COUNTS_vs_SAMPLE_1D_R3 -> GetYaxis() -> SetLabelSize(0.05);
+  COUNTS_vs_SAMPLE_1D_R3 -> GetYaxis() -> SetTitleSize(0.05);
+  COUNTS_vs_SAMPLE_1D_R3 -> GetYaxis() -> SetTitleOffset(1.0);
   
   char Layer_ChannelPhi_ADC_weighted_title_str[256];
   sprintf(Layer_ChannelPhi_ADC_weighted_title_str,"Layer vs Channel Phi");  
@@ -624,12 +665,15 @@ int TpcMon::Init()
   se->registerHisto(this, RAWADC_1D_R1);
   se->registerHisto(this, MAXADC_1D_R1);
   se->registerHisto(this, PEDEST_SUB_1D_R1);
+  se->registerHisto(this, COUNTS_vs_SAMPLE_1D_R1);
   se->registerHisto(this, RAWADC_1D_R2);
   se->registerHisto(this, MAXADC_1D_R2);
   se->registerHisto(this, PEDEST_SUB_1D_R2);
+  se->registerHisto(this, COUNTS_vs_SAMPLE_1D_R2);
   se->registerHisto(this, RAWADC_1D_R3);
   se->registerHisto(this, MAXADC_1D_R3);
   se->registerHisto(this, PEDEST_SUB_1D_R3);
+  se->registerHisto(this, COUNTS_vs_SAMPLE_1D_R3);
 
   se->registerHisto(this, NorthSideADC_clusterXY_R1);
   se->registerHisto(this, NorthSideADC_clusterXY_R2);
@@ -951,8 +995,12 @@ int TpcMon::process_event(Event *evt/* evt */)
             ADC_vs_SAMPLE_large -> Fill(s, adc);
 
             if(Module_ID(fee)==0){RAWADC_1D_R1->Fill(adc);PEDEST_SUB_1D_R1->Fill(adc-pedestal);PEDEST_SUB_ADC_vs_SAMPLE_R1->Fill(s,adc-pedestal);} //Raw/pedest_sub 1D for R1
-            else if(Module_ID(fee)==1){RAWADC_1D_R2->Fill(adc);PEDEST_SUB_1D_R2->Fill(adc-pedestal);PEDEST_SUB_ADC_vs_SAMPLE_R2->Fill(s,adc-pedestal);} //Raw/pedest_sub 1D for R2
-            else if(Module_ID(fee)==2){RAWADC_1D_R3->Fill(adc);PEDEST_SUB_1D_R3->Fill(adc-pedestal);PEDEST_SUB_ADC_vs_SAMPLE_R3->Fill(s,adc-pedestal);} //Raw/pedest_sub 1D for R3
+            if(Module_ID(fee)==1){RAWADC_1D_R2->Fill(adc);PEDEST_SUB_1D_R2->Fill(adc-pedestal);PEDEST_SUB_ADC_vs_SAMPLE_R2->Fill(s,adc-pedestal);} //Raw/pedest_sub 1D for R2
+            if(Module_ID(fee)==2){RAWADC_1D_R3->Fill(adc);PEDEST_SUB_1D_R3->Fill(adc-pedestal);PEDEST_SUB_ADC_vs_SAMPLE_R3->Fill(s,adc-pedestal);} //Raw/pedest_sub 1D for R3
+
+            if(Module_ID(fee)==0 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R1->Fill(s);} //Drift window in R1
+	    if(Module_ID(fee)==1 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R2->Fill(s);} //Drift window in R2
+	    if(Module_ID(fee)==2 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R3->Fill(s);} //Drift window in R3
           }
 
           //increment 
