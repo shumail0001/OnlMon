@@ -2027,7 +2027,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
-  transparent[0]->cd();
+  transparent[8]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[8]->Update();
   TC[8]->Show();
