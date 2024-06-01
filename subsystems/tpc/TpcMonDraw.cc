@@ -26,6 +26,7 @@
 #include <fstream>
 #include <iostream>  // for operator<<, basic_ostream, basic_os...
 #include <sstream>
+#include <limits>
 #include <vector>  // for vector
 
 #include <cmath>
@@ -363,6 +364,17 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[27]->Draw();
     TC[27]->SetEditable(false);
   }
+  else if (name == "TPCDriftWindow")
+  {
+    TC[28] = new TCanvas(name.c_str(), "",-1, 0, xsize , ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[28]->Divide(4,7);
+    transparent[28] = new TPad("transparent28", "this does not show", 0, 0, 1, 1);
+    transparent[28]->SetFillStyle(4000);
+    transparent[28]->Draw();
+    TC[28]->SetEditable(false);
+  }
      
   return 0;
 }
@@ -504,6 +516,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCFIRSTNONZSADCVSFIRSTNONZSSAMPLE")
   {
     iret +=  DrawTPCFirstnonZSADCFirstnonZSSample(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCDRIFTWINDOW")
+  {
+    iret +=  DrawTPCDriftWindow(what);  
     idraw++;
   }
   if (what == "ALL" || what == "SERVERSTATS")
@@ -3046,6 +3063,105 @@ int TpcMonDraw::DrawTPCFirstnonZSADCFirstnonZSSample(const std::string & /* what
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_1st non-ZS ADC vs 1st non-ZS Sample Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCDriftWindow(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_DriftWindow[24][3] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    for( int j=0; j<3; j++ )
+    {
+      //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+      sprintf(TPCMON_STR,"TPCMON_%i",i);
+      tpcmon_DriftWindow[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R1");
+      tpcmon_DriftWindow[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R2");
+      tpcmon_DriftWindow[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R3");
+    }
+  }
+
+  if (!gROOT->FindObject("TPCDriftWindow"))
+  {
+    MakeCanvas("TPCDriftWindow");
+  }
+
+  TCanvas *MyTC = TC[28];
+  TPad *TransparentTPad = transparent[28];
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57); //kBird CVD friendly
+
+  auto legend = new TLegend(0.7,0.65,0.98,0.95);
+  bool draw_leg = 0;
+
+  for( int i=0; i<24; i++ )
+  {
+    MyTC->cd(i+5);
+
+    int min = std::numeric_limits<int>::max(); // start wih the largest possible value
+    int max = std::numeric_limits<int>::min(); // start with smalles possible value
+    
+    for( int j = 2; j>-1; j-- )
+    {
+      if( tpcmon_DriftWindow[i][j] )
+      {
+        for( int k = 1; k < tpcmon_DriftWindow[i][j]->GetEntries(); k++ )
+	{
+          if( tpcmon_DriftWindow[i][j]->GetBinContent(k) > max && tpcmon_DriftWindow[i][j]->GetBinContent(k) > 0 ){max = tpcmon_DriftWindow[i][j]->GetBinContent(k);}
+          if( tpcmon_DriftWindow[i][j]->GetBinContent(k) < min && tpcmon_DriftWindow[i][j]->GetBinContent(k) > 0 ){min = tpcmon_DriftWindow[i][j]->GetBinContent(k);}
+	}
+      }
+    }
+
+
+    for( int l = 2; l>-1; l-- )
+    {
+      if( tpcmon_DriftWindow[i][l] )
+      {
+        if(l == 2){tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*max);tpcmon_DriftWindow[i][l] -> DrawCopy("HIST");}
+        else      {tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*max);tpcmon_DriftWindow[i][l] -> DrawCopy("HISTsame");} //assumes that R3 will always exist and is most entries
+      }
+    }
+    
+    gPad->Update();  
+
+    if(draw_leg == 0 && tpcmon_DriftWindow[i][0] && tpcmon_DriftWindow[i][1] && tpcmon_DriftWindow[i][2]) //if you have not drawn the legend yet, draw it BUT ONLY ONCE
+    {
+      legend->AddEntry(tpcmon_DriftWindow[i][0], "R1");
+      legend->AddEntry(tpcmon_DriftWindow[i][1], "R2");
+      legend->AddEntry(tpcmon_DriftWindow[i][2], "R3");
+      MyTC->cd(i+5);
+      legend->Draw();
+      draw_leg = 1; //don't draw it again
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_Drift Window, ADC-Pedestal>(5sigma||20ADC) Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   TransparentTPad->cd();
