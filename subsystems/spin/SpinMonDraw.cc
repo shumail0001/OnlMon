@@ -776,6 +776,64 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   {
     MakeCanvas("SpinMon2");
   }
+
+  
+  for (int i = 0; i < NTRIG; i++)
+  {
+    gl1_counter[i] = cl->getHisto("SPINMON_0", Form("gl1_counter_trig%d", i));
+    if (!gl1_counter[i])
+    {
+      DrawDeadServer(transparent[1]);
+      TC[1]->SetEditable(false);
+      if (isHtml())
+      {
+        delete TC[1];
+        TC[1] = nullptr;
+      }
+      return -1;
+    }
+  }
+
+
+  gl1ptriggers["MBD_NS"] = gl1_counter[MBD_NS];
+  gl1ptriggers["MBD_NS"]->SetTitle("gl1p MBD NS");
+  
+  gl1ptriggers["MBD_VTX"] = gl1_counter[MBD_VTX];
+  gl1ptriggers["MBD_VTX"]->SetTitle("gl1p MBD VTX");
+
+  gl1ptriggers["MBD_10cm_VTX"] = gl1_counter[MBD_10cm_VTX];
+  gl1ptriggers["MBD_10cm_VTX"]->SetTitle("gl1p MBD +/-10cm VTX");
+
+  gl1ptriggers["MBD_S"] = gl1_counter[MBD_S];
+  gl1ptriggers["MBD_S"]->SetTitle("gl1p MBD S");
+  gl1ptriggers["MBD_N"] = gl1_counter[MBD_N];
+  gl1ptriggers["MBD_N"]->SetTitle("gl1p MBD N");
+  gl1ptriggers["ZDC_NS"] = gl1_counter[ZDC_NS];
+  gl1ptriggers["ZDC_NS"]->SetTitle("gl1p ZDC NS");
+
+  gl1ptriggers["ZDC_S"] = gl1_counter[ZDC_S];
+  gl1ptriggers["ZDC_S"]->SetTitle("gl1p ZDC S");
+  gl1ptriggers["ZDC_N"] = gl1_counter[ZDC_N];
+  gl1ptriggers["ZDC_N"]->SetTitle("gl1p ZDC N");
+  gl1ptriggers["EMPTY1"] = gl1_counter[EMPTY1];
+  gl1ptriggers["EMPTY1"]->SetTitle("gl1p empty1");
+  gl1ptriggers["EMPTY2"] = gl1_counter[EMPTY2];
+  gl1ptriggers["EMPTY2"]->SetTitle("gl1p empty2");
+  gl1ptriggers["EMPTY3"] = gl1_counter[EMPTY3];
+  gl1ptriggers["EMPTY3"]->SetTitle("gl1p empty3");
+  gl1ptriggers["EMPTY4"] = gl1_counter[EMPTY4];
+  gl1ptriggers["EMPTY4"]->SetTitle("gl1p empty4");
+  gl1ptriggers["EMPTY5"] = gl1_counter[EMPTY5];
+  gl1ptriggers["EMPTY5"]->SetTitle("gl1p empty5");
+  gl1ptriggers["EMPTY6"] = gl1_counter[EMPTY6];
+  gl1ptriggers["EMPTY6"]->SetTitle("gl1p empty6");
+  gl1ptriggers["EMPTY7"] = gl1_counter[EMPTY7];
+  gl1ptriggers["EMPTY7"]->SetTitle("gl1p empty7");
+  gl1ptriggers["EMPTY8"] = gl1_counter[EMPTY8];
+  gl1ptriggers["EMPTY8"]->SetTitle("gl1p empty8");
+  
+
+
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
 
@@ -783,6 +841,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   gStyle->SetTitleAlign(33);
   gStyle->SetTitleX(0.75);
   float labelsize = 0.05;
+
+  
 
   if (gl1ptriggers["MBD_NS"] && gl1ptriggers["MBD_VTX"])
   {
