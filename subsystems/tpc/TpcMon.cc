@@ -637,7 +637,7 @@ int TpcMon::Init()
 
   char NStreakers_vs_Event_title_str[256];
   sprintf(NStreakers_vs_Event_title_str,"Number of Streakers vs Event, Sector # %i",MonitorServerId());
-  NStreaks_vs_EventNo = new TH1F("NStreaks_vs_EventNo",NStreakers_vs_Event_title_str,100000000, -0.5, 99999999.5 );
+  NStreaks_vs_EventNo = new TH1F("NStreaks_vs_EventNo",NStreakers_vs_Event_title_str, 1000000, -0.5, 999999.5 );
   NStreaks_vs_EventNo->SetXTitle("Event #");
   NStreaks_vs_EventNo->SetYTitle("Number of horizontal streak channels");
   NStreaks_vs_EventNo -> GetXaxis() -> SetLabelSize(0.05);
