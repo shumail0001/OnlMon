@@ -1301,7 +1301,7 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
     }
     else
     {
-      DrawDeadServer(transparent[6]);
+      DrawDeadServer(transparent[7]);
       TC[7]->SetEditable(false);
       if (isHtml())
       {
@@ -1367,7 +1367,7 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
   runnostream << ThisName << "_7 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
-  transparent[6]->cd();
+  transparent[7]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[7]->Update();
   TC[7]->Show();
@@ -1404,7 +1404,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   TC[8]->Clear("D");
   if (!h_waveformZDC)
   {
-    DrawDeadServer(transparent[0]);
+    DrawDeadServer(transparent[8]);
     TC[8]->SetEditable(false);
     if (isHtml())
     {
@@ -2027,7 +2027,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
-  transparent[0]->cd();
+  transparent[8]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[8]->Update();
   TC[8]->Show();
