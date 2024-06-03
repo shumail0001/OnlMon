@@ -376,7 +376,7 @@ int HcalMon::process_event(Event* e /* evt */)
   if (anaGL1)
   {
     int evtnr = e->getEvtSequence();
-    Event* gl1Event = erc->getEvent(evtnr);
+    Event* gl1Event = erc->getEvent(evtnr + 1);
     if (gl1Event)
     {
       have_gl1 = true;
