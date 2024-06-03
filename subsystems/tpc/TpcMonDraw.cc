@@ -3219,53 +3219,68 @@ int TpcMonDraw::DrawTPCNStreaksvsEventNo(const std::string & /* what */)
   }    
 
   int event_max = 0;
+  int horiz_max = 0; 
+
   for ( int i=0; i< 24; i++ )
   {
     if( tpcmoneventsebdc[i] )
     {
       if(tpcmoneventsebdc[i]->GetBinContent(i+1) > event_max){event_max = tpcmoneventsebdc[i]->GetBinContent(i+1);}
+      if(tpcmoneventsebdc[i]->GetBinContent(tpcmoneventsebdc[i]->GetMaximumBin()) > horiz_max){horiz_max = tpcmoneventsebdc[i]->GetBinContent(tpcmoneventsebdc[i]->GetMaximumBin());}
     }
   }
 
 
-  int line_colors[24] = { 3, 8, 2, 6, 46, 14, 1, 39, 38, 4, 7, 30, 3, 8, 6, 2, 46, 4, 1, 39, 38, 4, 7, 30 };
+  int line_colors[24] = { 3, 8, 2, 6, 46, 14, 1, 39, 38, 4, 7, 30, 3, 8, 6, 2, 46, 4, 1, 39, 38, 4, 7, 30 }; // assumed filling down and across
+  //int line_colors_leg[24] = {2, 3, 38, 14, 6, 8, 4, 1, 46, 30, 7, 39, 6, 3, 38, 4, 2, 8, 4, 1, 46, 30, 7, 39 }; // assumed filling across and down
 
   TCanvas *MyTC = TC[29];
   TPad *TransparentTPad = transparent[29];
 
   auto leg1 = new TLegend(0.6,0.65,0.98,0.95);
   leg1->SetNColumns(4);
-  auto leg2 = new TLegend(0.6,0.65,0.98,0.95);
-  leg2->SetNColumns(4);
 
   leg1->AddEntry((TObject*)0,"North Top","");
-  int order[24] = {2, 3, 4, 0, 1, 11, 8, 9, 10, 5, 6, 7, 14, 15, 16, 12, 13, 23, 20, 21, 22, 17, 18, 19};
+  leg1->AddEntry((TObject*)0,"North West","");
+  leg1->AddEntry((TObject*)0,"North Bottom","");
+  leg1->AddEntry((TObject*)0,"North East","");
+
+  auto leg2 = new TLegend(0.6,0.65,0.98,0.95);
+  leg2->SetNColumns(4);
+  leg2->AddEntry((TObject*)0,"South Top","");
+  leg2->AddEntry((TObject*)0,"South West","");
+  leg2->AddEntry((TObject*)0,"South Bottom","");
+  leg2->AddEntry((TObject*)0,"South East","");
+
+  // int order[24] = {2, 3, 4, 0, 1, 11, 8, 9, 10, 5, 6, 7, 14, 15, 16, 12, 13, 23, 20, 21, 22, 17, 18, 19}; // assumed filling down and across
+  int order_leg[24] = {2, 0, 8, 5, 3, 1, 9, 6, 4, 11, 10, 7, 14, 12, 20, 17, 15, 13, 21, 18, 16, 23, 22, 19}; // assumed filling across and down
 
   char legend_str[100];
 
-  leg2->AddEntry((TObject*)0,"South Top","");
   for( int i=0; i<24; i++) // legend loop
   {
 
-    if(i==3){leg1->AddEntry((TObject*)0,"North West","");}
-    if(i==6){leg1->AddEntry((TObject*)0,"North Bottom","");}
-    if(i==9){leg1->AddEntry((TObject*)0,"North East","");}
-
-    if( tpcmon_NStreak_vsEventNo[order[i]] && i <= 11 )
+    if( tpcmon_NStreak_vsEventNo[order_leg[i]] && i <=11 )
     {
-      sprintf(legend_str,"Sector %i",order[i]);
-      leg1->AddEntry(tpcmon_NStreak_vsEventNo[order[i]],legend_str);
+      sprintf(legend_str,"Sector %i",order_leg[i]);
+      leg1->AddEntry(tpcmon_NStreak_vsEventNo[order_leg[i]],legend_str);
     }
 
-    if(i==15){leg2->AddEntry((TObject*)0,"South West","");}
-    if(i==18){leg2->AddEntry((TObject*)0,"South Bottom","");}
-    if(i==21){leg2->AddEntry((TObject*)0,"South East","");}
-
-    if( tpcmon_NStreak_vsEventNo[order[i]] && i > 11 )
+    if( !tpcmon_NStreak_vsEventNo[order_leg[i]] && i <=11 )
     {
-      sprintf(legend_str,"Sector %i",order[i]);
-      leg1->AddEntry(tpcmon_NStreak_vsEventNo[order[i]],legend_str);    
+      leg1->AddEntry((TObject*)0,"","");    
     }
+
+    if( tpcmon_NStreak_vsEventNo[order_leg[i]] && i > 11 )
+    {
+      sprintf(legend_str,"Sector %i",order_leg[i]);
+      leg2->AddEntry(tpcmon_NStreak_vsEventNo[order_leg[i]],legend_str);
+    }
+
+    if( !tpcmon_NStreak_vsEventNo[order_leg[i]] && i > 11 )
+    {
+      leg2->AddEntry((TObject*)0,"","");    
+    }    
 
   }
 
@@ -3273,52 +3288,35 @@ int TpcMonDraw::DrawTPCNStreaksvsEventNo(const std::string & /* what */)
   MyTC->Clear("D");
   for( int i=0; i<24; i++ ) 
   {
-    if( tpcmon_NStreak_vsEventNo[i] && i <= 11 )
+    if( tpcmon_NStreak_vsEventNo[i] )
     {
-      MyTC->cd(1);
+
+      if( i <= 11){MyTC->cd(1);}
+      else { MyTC->cd(2);}
       gStyle->SetPadLeftMargin(0.05);
       gStyle->SetPadRightMargin(0.02);
 
       tpcmon_NStreak_vsEventNo[i]->GetXaxis()->SetRangeUser(0, event_max);
+      tpcmon_NStreak_vsEventNo[i]->GetYaxis()->SetRangeUser(0.01,1.1*horiz_max);
       tpcmon_NStreak_vsEventNo[i]->SetStats(kFALSE);
       tpcmon_NStreak_vsEventNo[i]->SetTitle("");    
 
       tpcmon_NStreak_vsEventNo[i]->SetMarkerColor(line_colors[i]);
       tpcmon_NStreak_vsEventNo[i]->SetLineColor(line_colors[i]);
-      tpcmon_NStreak_vsEventNo[i]->DrawCopy("LF2"); 
+      tpcmon_NStreak_vsEventNo[i]->SetLineWidth(3);   
+      tpcmon_NStreak_vsEventNo[i]->Draw("LF2 same"); 
 
       gPad->SetLogy(kTRUE);
        
       MyTC->Update();
 
     }
-
-    if( tpcmon_NStreak_vsEventNo[i] && i > 11 )
-    {
-      MyTC->cd(2);
-      gStyle->SetPadLeftMargin(0.05);
-      gStyle->SetPadRightMargin(0.02);
-
-      tpcmon_NStreak_vsEventNo[i]->GetXaxis()->SetRangeUser(0, event_max);
-      tpcmon_NStreak_vsEventNo[i]->SetStats(kFALSE);
-      tpcmon_NStreak_vsEventNo[i]->SetTitle("");  
-
-      tpcmon_NStreak_vsEventNo[i]->SetMarkerColor(line_colors[i]);
-      tpcmon_NStreak_vsEventNo[i]->SetLineColor(line_colors[i]);
-      tpcmon_NStreak_vsEventNo[i]->DrawCopy("LF2");
-
-      gPad->SetLogy(kTRUE);
-      
-      MyTC->Update();
-
-    }
-
   }
 
   MyTC->cd(1);
-  leg1->Draw();
+  leg1->Draw("same");
   MyTC->cd(2);
-  leg2->Draw();
+  leg2->Draw("same");
 
 
   TText PrintRun;
