@@ -53,12 +53,13 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCZYclusters(const std::string &what = "ALL");
   int DrawTPCZYclusters_unweighted(const std::string &what = "ALL");
   int DrawTPCchannelphi_layer_weighted(const std::string &what = "ALL");
+  int DrawTPCNStreaksvsEventNo(const std::string &what = "ALL");
   int DrawTPCNEventsvsEBDC(const std::string &wht = "ALL");
   int DrawServerStats();
   time_t getTime();
   
-  TCanvas *TC[29] = {nullptr};
-  TPad *transparent[29] = {nullptr};
+  TCanvas *TC[30] = {nullptr};
+  TPad *transparent[30] = {nullptr};
   TPad *Pad[11] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module

@@ -635,6 +635,17 @@ int TpcMon::Init()
   Layer_ChannelPhi_ADC_weighted->SetXTitle("Channel # (#phi bin)");
   Layer_ChannelPhi_ADC_weighted->SetYTitle("Layer");
 
+  char NStreakers_vs_Event_title_str[256];
+  sprintf(NStreakers_vs_Event_title_str,"Number of Streakers vs Event, Sector # %i",MonitorServerId());
+  NStreaks_vs_EventNo = new TH1F("NStreaks_vs_EventNo",NStreakers_vs_Event_title_str,100000000, -0.5, 99999999.5 );
+  NStreaks_vs_EventNo->SetXTitle("Event #");
+  NStreaks_vs_EventNo->SetYTitle("Number of horizontal streak channels");
+  NStreaks_vs_EventNo -> GetXaxis() -> SetLabelSize(0.05);
+  NStreaks_vs_EventNo -> GetXaxis() -> SetTitleSize(0.05);
+  NStreaks_vs_EventNo -> GetYaxis() -> SetLabelSize(0.05);
+  NStreaks_vs_EventNo -> GetYaxis() -> SetTitleSize(0.05);
+  NStreaks_vs_EventNo -> GetYaxis() -> SetTitleOffset(1.0);
+
   char NEvents_vs_EBDC_title_str[256];
   sprintf(NEvents_vs_EBDC_title_str,"N_{Events} vs EBDC");
   NEvents_vs_EBDC = new TH1F("NEvents_vs_EBDC",NEvents_vs_EBDC_title_str,24,-0.5,23.5);
@@ -715,6 +726,7 @@ int TpcMon::Init()
 
   se->registerHisto(this, Layer_ChannelPhi_ADC_weighted); 
   se->registerHisto(this, NEvents_vs_EBDC);
+  se->registerHisto(this, NStreaks_vs_EventNo);
 
   Reset();
   return 0;
@@ -943,6 +955,8 @@ int TpcMon::process_event(Event *evt/* evt */)
         int wf_max_laser_peak = 0;
         float pedest_sub_wf_max_laser_peak = 0.;
 
+        int num_samples_over_threshold = 0;
+     
         for( int s =0; s < nr_Samples ; s++ )
         {
 	  //std::cout<<"MADE IT TO START OF sample LOOP, "<<"current sample = "<<s<<", total sample = "<<nr_Samples<<" EVENT "<<evtcnt<<std::endl;          
@@ -1001,6 +1015,8 @@ int TpcMon::process_event(Event *evt/* evt */)
             if(Module_ID(fee)==0 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R1->Fill(s);} //Drift window in R1
 	    if(Module_ID(fee)==1 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R2->Fill(s);} //Drift window in R2
 	    if(Module_ID(fee)==2 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R3->Fill(s);} //Drift window in R3
+
+            if( (adc-pedestal) > 25 ){ num_samples_over_threshold++ ;}
           }
 
           //increment 
@@ -1009,6 +1025,9 @@ int TpcMon::process_event(Event *evt/* evt */)
 
 	  //std::cout<<"MADE IT TO END OF sample LOOP, "<<"current sample = "<<s<<", total sample = "<<nr_Samples<<" EVENT "<<evtcnt<<std::endl;
         } //nr samples
+
+        //for streaker diagnostic:
+        if( num_samples_over_threshold > 15 ){ NStreaks_vs_EventNo->Fill(evtcnt); }
 
         //for complicated XY stuff ____________________________________________________
         //20 = 3-5 * sigma - hard-coded

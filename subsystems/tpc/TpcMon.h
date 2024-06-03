@@ -132,6 +132,8 @@ class TpcMon : public OnlMon
   TH2 *Layer_ChannelPhi_ADC_weighted = nullptr;
   TH1 *NEvents_vs_EBDC = nullptr;
 
+  TH1 *NStreaks_vs_EventNo = nullptr;
+
   TpcMap M; //declare Martin's map
 
   int starting_BCO;
