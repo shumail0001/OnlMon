@@ -113,7 +113,7 @@ int DaqMon::process_event(Event *e /* evt */)
 
   evtcnt++;
   long long int gl1_clock = 0;
-  Event *gl1Event = erc->getEvent(evtnr+1);
+  Event *gl1Event = erc->getEvent(evtnr);
 
   if (!gl1Event)
   {
