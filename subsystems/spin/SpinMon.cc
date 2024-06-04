@@ -74,6 +74,10 @@ int SpinMon::Init()
   hfilltypeBlue = new TH1I("h1_filltypeBlue", "", 1, 0, 1);
   hfilltypeYellow = new TH1I("h1_filltypeYellow", "", 1, 0, 1);
 
+  hCorrect = new TH1F("hCorrect","Bunch Numbers", 130, -0.5, 129.5);
+  hAbortgap = new TH1F("hAbortgap","Bunch Numbers", 130, -0.5, 129.5);
+  hForbidden = new TH1F("hForbidden","Bunch Numbers", 130, -0.5, 129.5);
+
   for (int i = 0; i < NTRIG; i++)
   {
     gl1_counter[i] = new TH1I(Form("gl1_counter_trig%d", i), Form("gl1p_trig%d", i), 120, -0.5, 119.5);
@@ -113,6 +117,10 @@ int SpinMon::Init()
   se->registerHisto(this, hfillnumber);
   se->registerHisto(this, hfilltypeBlue);
   se->registerHisto(this, hfilltypeYellow);
+
+  se->registerHisto(this, hCorrect);
+  se->registerHisto(this, hAbortgap);
+  se->registerHisto(this, hForbidden);
 
   for (auto &i : gl1_counter)
   {
@@ -445,6 +453,19 @@ int SpinMon::process_event(Event *e /* evt */)
     {
       // int triggervec = p->lValue(0,"TriggerVector");
       int bunchnr = (p_gl1->lValue(0, "BunchNumber") + defaultxingshift) % NBUNCHES;
+      if ( bunchnr <= 110)
+      {
+	hCorrect->Fill(bunchnr);
+      }
+      else if ( bunchnr >110 && bunchnr <120)
+      {
+	hAbortgap->Fill(bunchnr);
+      }
+      else
+      {
+	hForbidden->Fill(125);
+      }
+
       for (int i = 0; i < 16; i++)
       {
         // 2nd arg of lValue: 0 is raw trigger count, 1 is live trigger count, 2 is scaled trigger count
