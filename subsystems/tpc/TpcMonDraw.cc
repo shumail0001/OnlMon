@@ -26,6 +26,7 @@
 #include <fstream>
 #include <iostream>  // for operator<<, basic_ostream, basic_os...
 #include <sstream>
+#include <limits>
 #include <vector>  // for vector
 
 #include <cmath>
@@ -363,6 +364,27 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[27]->Draw();
     TC[27]->SetEditable(false);
   }
+  else if (name == "TPCDriftWindow")
+  {
+    TC[28] = new TCanvas(name.c_str(), "",-1, 0, xsize , ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[28]->Divide(4,7);
+    transparent[28] = new TPad("transparent28", "this does not show", 0, 0, 1, 1);
+    transparent[28]->SetFillStyle(4000);
+    transparent[28]->Draw();
+    TC[28]->SetEditable(false);
+  }
+  else if (name == "TPCNStreakersvsEventNo")
+  {
+    TC[29] = new TCanvas(name.c_str(), "TPC Number of Horizontal Tracks vs Event No.", -1, 0, xsize , ysize );
+    gSystem->ProcessEvents();
+    TC[29]->Divide(1,2);
+    transparent[29] = new TPad("transparent29", "this does not show", 0, 0, 1, 1);
+    transparent[29]->SetFillStyle(4000);
+    transparent[29]->Draw();
+    TC[29]->SetEditable(false);
+  }
      
   return 0;
 }
@@ -506,9 +528,19 @@ int TpcMonDraw::Draw(const std::string &what)
     iret +=  DrawTPCFirstnonZSADCFirstnonZSSample(what);
     idraw++;
   }
+  if (what == "ALL" || what == "TPCDRIFTWINDOW")
+  {
+    iret +=  DrawTPCDriftWindow(what);  
+    idraw++;
+  }
   if (what == "ALL" || what == "SERVERSTATS")
   {
     iret += DrawServerStats();
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCNSTREAKERSVSEVENTNO")
+  {
+    iret += DrawTPCNStreaksvsEventNo(what);
     idraw++;
   }
   if (!idraw)
@@ -3058,6 +3090,256 @@ int TpcMonDraw::DrawTPCFirstnonZSADCFirstnonZSSample(const std::string & /* what
   return 0;
 }
 
+int TpcMonDraw::DrawTPCDriftWindow(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_DriftWindow[24][3] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    for( int j=0; j<3; j++ )
+    {
+      //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+      sprintf(TPCMON_STR,"TPCMON_%i",i);
+      tpcmon_DriftWindow[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R1");
+      tpcmon_DriftWindow[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R2");
+      tpcmon_DriftWindow[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R3");
+    }
+  }
+
+  if (!gROOT->FindObject("TPCDriftWindow"))
+  {
+    MakeCanvas("TPCDriftWindow");
+  }
+
+  TCanvas *MyTC = TC[28];
+  TPad *TransparentTPad = transparent[28];
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57); //kBird CVD friendly
+
+  auto legend = new TLegend(0.7,0.65,0.98,0.95);
+  bool draw_leg = 0;
+
+  for( int i=0; i<24; i++ )
+  {
+    MyTC->cd(i+5);
+
+    int min = std::numeric_limits<int>::max(); // start wih the largest possible value
+    int max = std::numeric_limits<int>::min(); // start with smalles possible value
+    
+    for( int j = 2; j>-1; j-- )
+    {
+      if( tpcmon_DriftWindow[i][j] )
+      {
+        for( int k = 1; k < tpcmon_DriftWindow[i][j]->GetEntries(); k++ )
+	{
+          if( tpcmon_DriftWindow[i][j]->GetBinContent(k) > max && tpcmon_DriftWindow[i][j]->GetBinContent(k) > 0 ){max = tpcmon_DriftWindow[i][j]->GetBinContent(k);}
+          if( tpcmon_DriftWindow[i][j]->GetBinContent(k) < min && tpcmon_DriftWindow[i][j]->GetBinContent(k) > 0 ){min = tpcmon_DriftWindow[i][j]->GetBinContent(k);}
+	}
+      }
+    }
+
+
+    for( int l = 2; l>-1; l-- )
+    {
+      if( tpcmon_DriftWindow[i][l] )
+      {
+        if(l == 2){tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*max);tpcmon_DriftWindow[i][l] -> DrawCopy("HIST");}
+        else      {tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*max);tpcmon_DriftWindow[i][l] -> DrawCopy("HISTsame");} //assumes that R3 will always exist and is most entries
+      }
+    }
+    
+    gPad->Update();  
+
+    if(draw_leg == 0 && tpcmon_DriftWindow[i][0] && tpcmon_DriftWindow[i][1] && tpcmon_DriftWindow[i][2]) //if you have not drawn the legend yet, draw it BUT ONLY ONCE
+    {
+      legend->AddEntry(tpcmon_DriftWindow[i][0], "R1");
+      legend->AddEntry(tpcmon_DriftWindow[i][1], "R2");
+      legend->AddEntry(tpcmon_DriftWindow[i][2], "R3");
+      MyTC->cd(i+5);
+      legend->Draw();
+      draw_leg = 1; //don't draw it again
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_Drift Window, ADC-Pedestal>(5sigma||20ADC) Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+
+  return 0;
+}
+
+
+int TpcMonDraw::DrawTPCNStreaksvsEventNo(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_NStreak_vsEventNo[24] = {nullptr};
+  TH1 *tpcmoneventsebdc[24] = {nullptr};
+
+  char TPCMON_STR[100];
+
+  for( int i=0; i<24; i++) //get the streakers vs event nos from each event histo 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_NStreak_vsEventNo[i] = (TH1*) cl->getHisto(TPCMON_STR,"NStreaks_vs_EventNo");
+  }
+
+  for( int i=0; i<24; i++) //get the num of events from each event histo 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmoneventsebdc[i] = (TH1*) cl->getHisto(TPCMON_STR,"NEvents_vs_EBDC");
+  }
+
+  if (!gROOT->FindObject("TPCNStreakersvsEventNo"))
+  {
+    MakeCanvas("TPCNStreakersvsEventNo");
+  }    
+
+  int event_max = 0;
+  int horiz_max = 0; 
+
+  for ( int i=0; i< 24; i++ )
+  {
+    if( tpcmoneventsebdc[i] )
+    {
+      if(tpcmoneventsebdc[i]->GetBinContent(i+1) > event_max){event_max = tpcmoneventsebdc[i]->GetBinContent(i+1);}
+      if(tpcmoneventsebdc[i]->GetBinContent(tpcmoneventsebdc[i]->GetMaximumBin()) > horiz_max){horiz_max = tpcmoneventsebdc[i]->GetBinContent(tpcmoneventsebdc[i]->GetMaximumBin());}
+    }
+  }
+
+
+  int line_colors[24] = { 3, 8, 2, 6, 46, 14, 1, 39, 38, 4, 7, 30, 3, 8, 6, 2, 46, 4, 1, 39, 38, 4, 7, 30 }; // assumed filling down and across
+  //int line_colors_leg[24] = {2, 3, 38, 14, 6, 8, 4, 1, 46, 30, 7, 39, 6, 3, 38, 4, 2, 8, 4, 1, 46, 30, 7, 39 }; // assumed filling across and down
+
+  TCanvas *MyTC = TC[29];
+  TPad *TransparentTPad = transparent[29];
+
+  auto leg1 = new TLegend(0.6,0.65,0.98,0.95);
+  leg1->SetNColumns(4);
+
+  leg1->AddEntry((TObject*)0,"North Top","");
+  leg1->AddEntry((TObject*)0,"North West","");
+  leg1->AddEntry((TObject*)0,"North Bottom","");
+  leg1->AddEntry((TObject*)0,"North East","");
+
+  auto leg2 = new TLegend(0.6,0.65,0.98,0.95);
+  leg2->SetNColumns(4);
+  leg2->AddEntry((TObject*)0,"South Top","");
+  leg2->AddEntry((TObject*)0,"South West","");
+  leg2->AddEntry((TObject*)0,"South Bottom","");
+  leg2->AddEntry((TObject*)0,"South East","");
+
+  // int order[24] = {2, 3, 4, 0, 1, 11, 8, 9, 10, 5, 6, 7, 14, 15, 16, 12, 13, 23, 20, 21, 22, 17, 18, 19}; // assumed filling down and across
+  int order_leg[24] = {2, 0, 8, 5, 3, 1, 9, 6, 4, 11, 10, 7, 14, 12, 20, 17, 15, 13, 21, 18, 16, 23, 22, 19}; // assumed filling across and down
+
+  char legend_str[100];
+
+  for( int i=0; i<24; i++) // legend loop
+  {
+
+    if( tpcmon_NStreak_vsEventNo[order_leg[i]] && i <=11 )
+    {
+      sprintf(legend_str,"Sector %i",order_leg[i]);
+      leg1->AddEntry(tpcmon_NStreak_vsEventNo[order_leg[i]],legend_str);
+    }
+
+    if( !tpcmon_NStreak_vsEventNo[order_leg[i]] && i <=11 )
+    {
+      leg1->AddEntry((TObject*)0,"","");    
+    }
+
+    if( tpcmon_NStreak_vsEventNo[order_leg[i]] && i > 11 )
+    {
+      sprintf(legend_str,"Sector %i",order_leg[i]);
+      leg2->AddEntry(tpcmon_NStreak_vsEventNo[order_leg[i]],legend_str);
+    }
+
+    if( !tpcmon_NStreak_vsEventNo[order_leg[i]] && i > 11 )
+    {
+      leg2->AddEntry((TObject*)0,"","");    
+    }    
+
+  }
+
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+  for( int i=0; i<24; i++ ) 
+  {
+    if( tpcmon_NStreak_vsEventNo[i] )
+    {
+
+      if( i <= 11){MyTC->cd(1);}
+      else { MyTC->cd(2);}
+      gStyle->SetPadLeftMargin(0.05);
+      gStyle->SetPadRightMargin(0.02);
+
+      tpcmon_NStreak_vsEventNo[i]->GetXaxis()->SetRangeUser(0, event_max);
+      tpcmon_NStreak_vsEventNo[i]->GetYaxis()->SetRangeUser(0.01,1.1*horiz_max);
+      tpcmon_NStreak_vsEventNo[i]->SetStats(kFALSE);
+      tpcmon_NStreak_vsEventNo[i]->SetTitle("");    
+
+      tpcmon_NStreak_vsEventNo[i]->SetMarkerColor(line_colors[i]);
+      tpcmon_NStreak_vsEventNo[i]->SetLineColor(line_colors[i]);
+      tpcmon_NStreak_vsEventNo[i]->SetLineWidth(3);   
+      tpcmon_NStreak_vsEventNo[i]->Draw("LF2 same"); 
+
+      gPad->SetLogy(kTRUE);
+       
+      MyTC->Update();
+
+    }
+  }
+
+  MyTC->cd(1);
+  leg1->Draw("same");
+  MyTC->cd(2);
+  leg2->Draw("same");
+
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_NStreakers_vs_Event # Packet per Sector" << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+
+  return 0;
+}
 
 int TpcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {

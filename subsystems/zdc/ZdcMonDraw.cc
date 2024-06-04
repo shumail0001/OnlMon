@@ -44,7 +44,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   if (name == "ZdcMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "ZDC-SMD Monitor", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
+    TC[0] = new TCanvas(name.c_str(), "ZDC-SMD Monitor", -1, ysize, xsize * 0.9, ysize);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -67,7 +67,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "ZdcMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "ZDC North and South Channels", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
+    TC[1] = new TCanvas(name.c_str(), "ZDC North and South Channels", -1, -ysize, xsize * 0.9, ysize);
     gSystem->ProcessEvents();
 
     Pad[4] = new TPad("zdcpad5", "who needs this?", 0.05, 0.65, 0.35, 0.95, 0);
@@ -95,7 +95,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   {
     // xpos negative: do not draw menu bar
     // TC[2] = new TCanvas(name.c_str(), "Smd Values", 0, -ysize / 2, xsize, ysize / 2);
-    TC[2] = new TCanvas(name.c_str(), "EXPERT - Smd Values", 0, -ysize / 2, xsize, ysize / 2);
+    TC[2] = new TCanvas(name.c_str(), "EXPERT - Smd Values", -1, ysize, xsize*0.9, ysize / 2);
 
     gSystem->ProcessEvents();
     Pad[10] = new TPad("Smd Value", "Smd Value", 0.05, 0.05, 0.35, 0.9, 0);
@@ -107,7 +107,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     Pad[12]->Draw();
 
     // this one is used to plot the run number on the canvas
-    transparent[2] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
     transparent[2]->SetFillStyle(4000);
     transparent[2]->Draw();
     TC[2]->SetEditable(false);
@@ -117,7 +117,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SmdNorthandSouth")
   {
     // xpos negative: do not draw menu bar
-    TC[3] = new TCanvas(name.c_str(), "EXPERT - Smd North and South", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
+    TC[3] = new TCanvas(name.c_str(), "EXPERT - Smd North and South", -1, ysize, xsize * 0.9, ysize * 0.9);
     gSystem->ProcessEvents();
 
     Pad[13] = new TPad("Smd Ver North (good)", "Smd Ver North (good)", 0.02, 0.05, 0.26, 0.35, 0);
@@ -149,7 +149,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     Pad[24]->Draw();
 
     // this one is used to plot the run number on the canvas
-    transparent[3] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[3] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
     transparent[3]->SetFillStyle(4000);
     transparent[3]->Draw();
     TC[3]->SetEditable(false);
@@ -158,7 +158,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SmdAdcNorthIndividual")
   {
     // xpos negative: do not draw menu bar
-    TC[4] = new TCanvas(name.c_str(), "SMD ADC North Individual values", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
+    TC[4] = new TCanvas(name.c_str(), "SMD ADC North Individual values", -1, -ysize, xsize * 0.9, ysize * 0.9);
     gSystem->ProcessEvents();
     //  North Horizontal
 
@@ -189,7 +189,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     }
 
     // this one is used to plot the run number on the canvas
-    transparent[4] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[4] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
     transparent[4]->SetFillStyle(4000);
     transparent[4]->Draw();
     TC[4]->SetEditable(false);
@@ -198,7 +198,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SmdAdcSouthIndividual")
   {
     // xpos negative: do not draw menu bar
-    TC[5] = new TCanvas(name.c_str(), "SMD ADC South Individual values", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
+    TC[5] = new TCanvas(name.c_str(), "SMD ADC South Individual values", -1, ysize, xsize * 0.9, ysize * 0.9);
     gSystem->ProcessEvents();
     //  North Horizontal
 
@@ -229,7 +229,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     }
 
     // this one is used to plot the run number on the canvas
-    transparent[5] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
     transparent[5]->SetFillStyle(4000);
     transparent[5]->Draw();
     TC[5]->SetEditable(false);
@@ -238,7 +238,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "veto")
   {
     // xpos negative: do not draw menu bar
-    TC[6] = new TCanvas(name.c_str(), "EXPERT - Veto counter", -xsize / 2, -ysize / 2, xsize / 2, ysize / 2);
+    TC[6] = new TCanvas(name.c_str(), "EXPERT - Veto counter", -1, ysize, xsize / 2, ysize / 2);
     gSystem->ProcessEvents();
   
     Pad[51] = new TPad("Veto_NF", "Veto_NF", 0.05, 0.5, 0.5, 0.98, 0);
@@ -253,7 +253,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     Pad[54]->Draw();
 
     // this one is used to plot the run number on the canvas
-    transparent[6] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
     transparent[6]->SetFillStyle(4000);
     transparent[6]->Draw();
     TC[6]->SetEditable(false);
@@ -262,7 +262,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SmdMultiplicities")
   {
     // xpos negative: do not draw menu bar
-    TC[7] = new TCanvas(name.c_str(), "EXPERT - Smd Multiplicities", -xsize / 2, -ysize / 2, xsize / 2, ysize / 2);
+    TC[7] = new TCanvas(name.c_str(), "EXPERT - Smd Multiplicities", -1, ysize, xsize / 2, ysize / 2);
     gSystem->ProcessEvents();
     Pad[55] = new TPad("smd_north_hor_hits", "smd_north_hor_hits", 0.05, 0.5, 0.5, 0.98, 0);
     Pad[56] = new TPad("smd_north_ver_hits", "smd_north_ver_hits", 0.5, 0.5, 0.98, 0.98, 0);
@@ -275,16 +275,16 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     Pad[58]->Draw();
 
     // this one is used to plot the run number on the canvas
-    transparent[6] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
-    transparent[6]->SetFillStyle(4000);
-    transparent[6]->Draw();
+    transparent[7] = new TPad("transparent7", "this does not show", 0, 0, 1, 1);
+    transparent[7]->SetFillStyle(4000);
+    transparent[7]->Draw();
     TC[7]->SetEditable(false);
   }
 
   else if (name == "waveform")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[8] = new TCanvas(name.c_str(), "ZDC Wave form", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
+    TC[8] = new TCanvas(name.c_str(), "ZDC Wave form", -1, -ysize, xsize * 0.9, ysize * 0.9);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -319,9 +319,9 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     Pad[68]->Draw();
 
     // this one is used to plot the run number on the canvas
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
+    transparent[8] = new TPad("transparent8", "this does not show", 0, 0, 1, 1);
+    transparent[8]->SetFillStyle(4000);
+    transparent[8]->Draw();
     TC[8]->SetEditable(false);
   }
 
@@ -1301,7 +1301,7 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
     }
     else
     {
-      DrawDeadServer(transparent[6]);
+      DrawDeadServer(transparent[7]);
       TC[7]->SetEditable(false);
       if (isHtml())
       {
@@ -1367,7 +1367,7 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
   runnostream << ThisName << "_7 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
-  transparent[6]->cd();
+  transparent[7]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[7]->Update();
   TC[7]->Show();
@@ -1404,7 +1404,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   TC[8]->Clear("D");
   if (!h_waveformZDC)
   {
-    DrawDeadServer(transparent[0]);
+    DrawDeadServer(transparent[8]);
     TC[8]->SetEditable(false);
     if (isHtml())
     {
@@ -2027,7 +2027,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
-  transparent[0]->cd();
+  transparent[8]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[8]->Update();
   TC[8]->Show();

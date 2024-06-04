@@ -84,7 +84,7 @@ class TpotMon : public OnlMon
   int m_max_sample = 105;
 
   // sample window
-  sample_window_t m_sample_window_signal = {20, 40};
+  sample_window_t m_sample_window_signal = {3, 18};
 
   //! number of RMS sigma used to define threshold
   double m_n_sigma = 5;

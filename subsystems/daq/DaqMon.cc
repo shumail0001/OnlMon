@@ -113,7 +113,7 @@ int DaqMon::process_event(Event *e /* evt */)
 
   evtcnt++;
   long long int gl1_clock = 0;
-  Event *gl1Event = erc->getEvent(evtnr+1);
+  Event *gl1Event = erc->getEvent(evtnr);
 
   if (!gl1Event)
   {
@@ -147,7 +147,7 @@ int DaqMon::process_event(Event *e /* evt */)
           for(int iadc = 0; iadc<nADCs ; iadc++){
               if(ipacket==0 && iadc==0){ femevtref = p->iValue(iadc,"FEMEVTNR"); femclkref = p->iValue(iadc,"FEMCLOCK");}
 
-              if(femevtref !=  p->iValue(iadc,"FEMEVTNR") || fabs(femclkref - p->iValue(0,"FEMCLOCK"))>2)
+              if(femevtref !=  p->iValue(iadc,"FEMEVTNR") && fabs(femclkref - p->iValue(0,"FEMCLOCK"))>2)
               {
                   mismatchfem = false;
                   sebid = getmapping(pnum);
