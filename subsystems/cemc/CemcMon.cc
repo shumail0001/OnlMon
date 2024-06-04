@@ -332,7 +332,7 @@ int CemcMon::process_event(Event *e /* evt */)
       if (p)
       {
         gl1_clock = p->lValue(0, "BCO");
-        uint64_t triggervec = p->lValue(0, "TriggerVector");
+        uint64_t triggervec = p->lValue(0, "ScaledVector");
         for (int i = 0; i < 64; i++)
         {
           bool trig_decision = ((triggervec & 0x1U) == 0x1U);
