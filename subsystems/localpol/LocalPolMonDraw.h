@@ -34,10 +34,12 @@ class LocalPolMonDraw : public OnlMonDraw
   int DrawFourth(const std::string &what = "ALL");
   int DrawFifth(const std::string &what = "ALL");
   int DrawSixth(const std::string &what = "ALL");
+  int DrawSeventh(const std::string &what = "ALL");
+  int DrawEightth(const std::string &what = "ALL");
 
-  TCanvas *TC[6] = {nullptr};
+  TCanvas *TC[10] = {nullptr};
 
-  TPad *transparent[6] = {nullptr};
+  TPad *transparent[10] = {nullptr};
   TPad ***Pad = nullptr;
 
   TH1 *hframe = nullptr;

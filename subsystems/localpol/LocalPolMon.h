@@ -33,7 +33,6 @@ class LocalPolMon : public OnlMon
   float anaWaveformFast(Packet *p, const int channel, const int low, const int high, const int ihisto);
   CaloWaveformFitting *WaveformProcessingFast = nullptr;
   void RetrieveSpinPattern(int r);
-  void RetrieveSpinPattern(Event* e);
   void RetrieveTriggerDistribution(Event* e);
   int RetrieveAbortGapData();
   int RetrieveBunchNumber(Event* e, long long int z);

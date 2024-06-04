@@ -84,13 +84,15 @@ int LocalPolMonDraw::Init()
       g_Polar[beam][method] = nullptr;
     }
   }
-  Pad = new TPad **[6];  // Who is taking care of the deletion?
+  Pad = new TPad **[8];  // Who is taking care of the deletion?
   Pad[0] = new TPad *[16];
   Pad[1] = new TPad *[4];
   Pad[2] = new TPad *[1];
   Pad[3] = new TPad *[16];
   Pad[4] = new TPad *[12];
   Pad[5] = new TPad *[6];
+  Pad[6] = new TPad *[1];
+  Pad[7] = new TPad *[2];
 
   return 0;
 }
@@ -207,7 +209,38 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
     transparent[5]->SetFillStyle(4000);
     transparent[5]->Draw();
     TC[5]->SetEditable(false);
-
+  }
+  else if(name=="LocalPolMon7"){
+    // xpos negative: do not draw menu bar
+    TC[6] = new TCanvas(name.c_str(), "Dropped events", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    gSystem->ProcessEvents();
+    Pad[6][0] = new TPad(Form("locpolpad6%d", 0), "who needs this?", 0.0 , 0.05, 1.0, 0.95, 0);
+    Pad[6][0]->SetLeftMargin(0.15);
+    Pad[6][0]->SetBottomMargin(0.15);
+    Pad[6][0]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[6] = new TPad("locpoltransparent6", "this does not show", 0, 0, 1, 1);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
+    TC[6]->SetEditable(false);
+  }
+  else if(name=="LocalPolMon8"){
+    // xpos negative: do not draw menu bar
+    TC[7] = new TCanvas(name.c_str(), "2D SMD profile", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    gSystem->ProcessEvents();
+    Pad[7][0] = new TPad(Form("locpolpad7%d", 0), "who needs this?", 0.0 , 0.05, 0.50, 0.95, 0);
+    Pad[7][0]->SetLeftMargin(0.15);
+    Pad[7][0]->SetBottomMargin(0.15);
+    Pad[7][0]->Draw();
+    Pad[7][1] = new TPad(Form("locpolpad7%d", 1), "who needs this?", 0.5 , 0.05, 1.0, 0.95, 0);
+    Pad[7][1]->SetLeftMargin(0.15);
+    Pad[7][1]->SetBottomMargin(0.15);
+    Pad[7][1]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[7] = new TPad("locpoltransparent7", "this does not show", 0, 0, 1, 1);
+    transparent[7]->SetFillStyle(4000);
+    transparent[7]->Draw();
+    TC[7]->SetEditable(false);
   }
 
 
@@ -246,6 +279,16 @@ int LocalPolMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SIXTH")
   {
     iret += DrawSixth(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "SEVENTH")
+  {
+    iret += DrawSeventh(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "EIGHTTH")
+  {
+    iret += DrawEightth(what);
     idraw++;
   }
   if (!idraw)
@@ -933,6 +976,101 @@ int LocalPolMonDraw::DrawSixth(const std::string & /* what */)
   TC[5]->Update();
   TC[5]->Show();
   TC[5]->SetEditable(false);
+  return 0;
+}
+
+int LocalPolMonDraw::DrawSeventh(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  
+  if (!gROOT->FindObject("LocalPolMon7"))
+  {
+    MakeCanvas("LocalPolMon7");
+  }
+  TC[6]->SetEditable(true);
+  TC[6]->Clear("D");
+  gStyle->SetOptStat(0);
+  TH1D* hsyncfrac=(TH1D*)cl->getHisto("LOCALPOLMON_0","hsyncfrac");
+  if(!hsyncfrac){
+    DrawDeadServer(transparent[6]);
+    TC[6]->SetEditable(false);
+    return -1;
+  }
+  else{
+    Pad[6][0]->cd();
+    hsyncfrac->DrawCopy();
+  }
+  TC[6]->Update();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_7 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[6]->cd();
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+  TC[6]->Update();
+  TC[6]->Show();
+  TC[6]->SetEditable(false);
+  return 0;
+}
+
+int LocalPolMonDraw::DrawEightth(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  
+  if (!gROOT->FindObject("LocalPolMon8"))
+  {
+    MakeCanvas("LocalPolMon8");
+  }
+  TC[7]->SetEditable(true);
+  TC[7]->Clear("D");
+  gStyle->SetOptStat(0);
+  TH2D* h2d=nullptr;
+  h2d=(TH2D*)cl->getHisto("LOCALPOLMON_0","Bluespace");
+  if(!h2d){
+    DrawDeadServer(transparent[7]);
+    TC[7]->SetEditable(false);
+    return -1;
+  }
+  else{
+    Pad[7][0]->cd();
+    h2d->DrawCopy("colz");
+  }
+  h2d=(TH2D*)cl->getHisto("LOCALPOLMON_0","Yellowspace");
+  if(!h2d){
+    DrawDeadServer(transparent[7]);
+    TC[7]->SetEditable(false);
+    return -1;
+  }
+  else{
+    Pad[7][1]->cd();
+    h2d->DrawCopy("colz");
+  }
+  TC[7]->Update();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_8 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[7]->cd();
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+  TC[7]->Update();
+  TC[7]->Show();
+  TC[7]->SetEditable(false);
   return 0;
 }
 

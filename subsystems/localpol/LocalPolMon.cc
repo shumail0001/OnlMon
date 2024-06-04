@@ -957,143 +957,18 @@ void LocalPolMon::RetrieveSpinPattern(int runnb){
   BunchSpinYellow->Clear();
   delete BunchSpinYellow;
 }
-void LocalPolMon::RetrieveSpinPattern(Event* e){
-  Event* egl1p=nullptr;
-  Packet* bluepacket = nullptr;
-  Packet* yellpacket = nullptr;
-  bool first = true;
-  if(erc){
-    std::cout<<"Inside RetrieveSpin::ERC"<<e->getEvtSequence()<<" "<<EvtShift<<std::endl;
-    egl1p = erc->getEvent(e->getEvtSequence()+EvtShift);
-    std::cout<<egl1p<<std::endl;
-    std::cout<<"Test with 0 "<<erc->getEvent(0)<<std::endl;
-    std::cout<<"Test with 0 and flag 9 "<<erc->getEvent(0,9)<<std::endl;
-    std::cout<<"Test with 1 and flag 9 "<<erc->getEvent(1,9)<<std::endl;
-  }
-  if(egl1p){
-    bluepacket = egl1p->getPacket(14902);
-    yellpacket = egl1p->getPacket(14903);
-    if (bluepacket && yellpacket)
-      {
-	if (verbosity)
-	  {
-	    std::cout << "Initiating spin pattern from CAD\n";
-	  }
-	for (int i = 0; i < 120; i++)
-	  {
-	    SpinPatterns[BLUE][i] = bluepacket->iValue(i);
-	    SpinPatterns[YELLOW][i] = yellpacket->iValue(i);
-	    if(SpinPatterns[BLUE][i]==0 &&SpinPatterns[YELLOW][i]==0&&first){//only working for 111x111
-	      first=false;
-	      StartAbortGapPattern=i;
-	    }
-	    //if (first && (true /*abort gap def test*/))
-	    //	{
-	    //	  first = false;
-	    //	  StartAbortGapPattern = i;
-	    //	}
-	  }
-	if (verbosity)
-	  {
-	    std::cout<<"Spin pattern size for Blue: "<<SpinPatterns[BLUE].size()<<std::endl;
-	    std::cout<<"Spin pattern size for Yellow: "<<SpinPatterns[YELLOW].size()<<std::endl;
-	  }
-      }
-    else
-      {
-	//******* placeholder until html delivery from C-AD is available ***********
-	if (verbosity)
-	  {
-	    std::cout << "Initiating spin pattern from Dummy\n";
-	  }
-	for (int i = 0; i < 120; i++)
-	  {
-	    if (i % 2 == 0)
-	      {
-		SpinPatterns[BLUE][i] = 1;
-	      }
-	    else
-	      {
-		SpinPatterns[BLUE][i] = -1;
-	      }
-	    if (int(0.5 * i) % 2 == 0)
-	      {
-		SpinPatterns[YELLOW][i] = 1;
-	      }
-	    else
-	      {
-		SpinPatterns[YELLOW][i] = -1;
-	      }
-	    if (i > 110)
-	      {
-		SpinPatterns[BLUE][i] = 0;
-		SpinPatterns[YELLOW][i] = 0;
-		if (first && (true /*abort gap def from HTML*/))
-		  {
-		    first = false;
-		    StartAbortGapPattern = i;
-		  }
-	      }
-	  }
-	// **************************************************************************
-      }
-    if(bluepacket){
-      delete bluepacket;
-      bluepacket=nullptr;
-    }
-    if(yellpacket){
-      delete yellpacket;
-      yellpacket=nullptr;
-    }
-    delete egl1p;
-    egl1p=nullptr;
-  }
-  else{
-    //******* placeholder until html delivery from C-AD is available ***********
-    if (verbosity)
-      {
-	std::cout << "Initiating spin pattern from Dummy\n";
-      }
-    for (int i = 0; i < 120; i++)
-      {
-	if (i % 2 == 0)
-	  {
-	    SpinPatterns[BLUE][i] = 1;
-	  }
-	else
-	  {
-	    SpinPatterns[BLUE][i] = -1;
-	  }
-	if (int(0.5 * i) % 2 == 0)
-	  {
-	    SpinPatterns[YELLOW][i] = 1;
-	  }
-	else
-	  {
-	    SpinPatterns[YELLOW][i] = -1;
-	  }
-	if (i > 110)
-	  {
-	    SpinPatterns[BLUE][i] = 0;
-	    SpinPatterns[YELLOW][i] = 0;
-	    if (first && (true /*abort gap def from HTML*/))
-	      {
-		first = false;
-		StartAbortGapPattern = i;
-	      }
-	  }
-      }
-  }
-
-}
 
 void LocalPolMon::RetrieveTriggerDistribution(Event* e){
   Event* egl1p=nullptr;
   Packet* pgl1p = nullptr;
   if (erc){
-    std::cout<<"Inside RetrieveTrigger::ERC"<<e->getEvtSequence()<<" "<<EvtShift<<std::endl;
+    if(verbosity){
+      std::cout<<"Inside RetrieveTrigger::ERC"<<e->getEvtSequence()<<" "<<EvtShift<<std::endl;
+    }
     egl1p = erc->getEvent(e->getEvtSequence()+EvtShift);
-    std::cout<<egl1p<<std::endl;
+    if(verbosity){
+      std::cout<<egl1p<<std::endl;
+    }
   }
   if (egl1p){
     pgl1p = egl1p->getPacket(packetid_gl1);
@@ -1164,21 +1039,36 @@ int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
     EvtShift=1;
     Prevzdc_clock=zdc_clock;
   }
-  std::cout<<"Inside RetrieveBunchNumber"<<std::endl;
-  if(failuredepth>10){
-    std::cout<<"ZDC and GL1p asynchronous by more than 1000 events"<<std::endl;
-    //return -1;
+  if(verbosity){
+    std::cout<<"Inside RetrieveBunchNumber"<<std::endl;
+  }
+  if(failuredepth>100){
+    if(verbosity){
+      std::cout<<"ZDC and GL1p asynchronous by more than 100 events"<<std::endl;
+      std::cout<<"Giving up this event and go to the next one"<<std::endl;
+    }
+    EvtShift=0;
+    failuredepth=0;
+    return -1;
   }
   if (erc){
-    std::cout<<"Inside RetrieveBunchNumber::ERC "<<e->getEvtSequence() <<" "<<EvtShift <<std::endl;
+    if(verbosity){
+      std::cout<<"Inside RetrieveBunchNumber::ERC "<<e->getEvtSequence() <<" "<<EvtShift <<std::endl;
+    }
     egl1 = erc->getEvent(e->getEvtSequence()+EvtShift);
-    std::cout<<egl1<<std::endl;
+    if(verbosity){
+      std::cout<<egl1<<std::endl;
+    }
   }
   if (egl1){
-    std::cout<<"Inside RetrieveBunchNumber::GL1"<<std::endl;
+    if(verbosity){
+      std::cout<<"Inside RetrieveBunchNumber::GL1"<<std::endl;
+    }
     Packet* pgl1p = egl1->getPacket(packetid_gl1);
     if (pgl1p){
-      std::cout<<"Inside RetrieveBunchNumber::PGL1p"<<std::endl;
+      if(verbosity){
+	std::cout<<"Inside RetrieveBunchNumber::PGL1p"<<std::endl;
+      }
       long long int gl1_clock=pgl1p->lValue(0, "BCO");
       if(verbosity){
        std::cout<<"EvtShift: "<<EvtShift<<" zdc: "<<zdc_clock<<"    gl1p: "<<gl1_clock<<std::endl;
