@@ -19,9 +19,12 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TObjArray.h>
+#include <TObjString.h>
 #include <TProfile.h>
 #include <TRandom.h>
 #include <TString.h>
+#include <TSystem.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -120,6 +123,7 @@ int LocalPolMon::Init()
         std::cout << key << ": expecting 0/1 for true or false\n Keep false as default.\n";
         fake = false;
         erc = new eventReceiverClient("gl1daq");
+        //erc = new eventReceiverClient("localhost");
       }
       else
       {
@@ -129,6 +133,7 @@ int LocalPolMon::Init()
           std::cout << key << ": expecting 0/1 for true or false\n Keep false as default.\n";
           fake = false;
           erc = new eventReceiverClient("gl1daq");
+          //erc = new eventReceiverClient("localhost");
         }
         else
         {
@@ -142,6 +147,7 @@ int LocalPolMon::Init()
             fake = false;
           }
           erc = new eventReceiverClient("gl1daq");
+          //erc = new eventReceiverClient("localhost");
         }
       }
     }
@@ -356,11 +362,11 @@ int LocalPolMon::Init()
 
     if (NS == 0 && channel >= 0 && channel < 16)
     {
-      smd_north_rgain[channel] = gain;
+      smd_north_relatgain[channel] = gain;
     }
     else if (NS == 1 && channel >= 0 && channel < 16)
     {
-      smd_south_rgain[channel] = gain;
+      smd_south_relatgain[channel] = gain;
     }
     else
     {
@@ -381,6 +387,11 @@ int LocalPolMon::Init()
   h_CountsScramble[1] = new TH1D("h_BlueCountsScrambleLR", "h_BlueCountsScrambleLR", 4, 0, 4);
   h_CountsScramble[2] = new TH1D("h_YellCountsScrambleUD", "h_YellCountsScrambleUD", 4, 0, 4);
   h_CountsScramble[3] = new TH1D("h_YellCountsScrambleLR", "h_YellCountsScrambleLR", 4, 0, 4);
+
+  for(int i=0; i<4; i++){
+    se->registerHisto(this,h_Counts[i]);
+    se->registerHisto(this,h_CountsScramble[i]);
+  }
 
   h_time = new TProfile("h_times", "h_time", 5000, -0.5, 4999.5);
   se->registerHisto(this, h_time);
@@ -408,6 +419,62 @@ int LocalPolMon::Init()
       }
     }
   }
+  for(int itrig=0; itrig<16; itrig++){
+    h_trigger[itrig]=new TH1D(Form("h_trigger%d",itrig),Form("h_trigger%d",itrig),120,0,120);
+    se->registerHisto(this,h_trigger[itrig]);
+  }
+  h_events=new TH1D("h_events","h_events",20,0,20);
+  se->registerHisto(this,h_events);
+
+  hspinpattern=new TH2I("hspinpattern","hspinpattern",120,0,120,2,0,2);
+  se->registerHisto(this,hspinpattern);
+
+  hmultiplicity[0]=new TH1D("hmultiplicitySMD_NH","hmultiplicitySMD_NH",9,0,9);
+  hmultiplicity[1]=new TH1D("hmultiplicitySMD_NV","hmultiplicitySMD_NV",8,0,8);
+  hmultiplicity[2]=new TH1D("hmultiplicitySMD_SH","hmultiplicitySMD_SH",9,0,9);
+  hmultiplicity[3]=new TH1D("hmultiplicitySMD_SV","hmultiplicitySMD_SV",8,0,8);
+
+  hposition[0]=new TH1D("hpositionSMD_NH_up","hpositionSMD_NH_up",100,-5,5);
+  hposition[1]=new TH1D("hpositionSMD_NV_up","hpositionSMD_NV_up",100,-5,5);
+  hposition[2]=new TH1D("hpositionSMD_SH_up","hpositionSMD_SH_up",100,-5,5);
+  hposition[3]=new TH1D("hpositionSMD_SV_up","hpositionSMD_SV_up",100,-5,5);
+  hposition[4]=new TH1D("hpositionSMD_NH_dn","hpositionSMD_NH_dn",100,-5,5);
+  hposition[5]=new TH1D("hpositionSMD_NV_dn","hpositionSMD_NV_dn",100,-5,5);
+  hposition[6]=new TH1D("hpositionSMD_SH_dn","hpositionSMD_SH_dn",100,-5,5);
+  hposition[7]=new TH1D("hpositionSMD_SV_dn","hpositionSMD_SV_dn",100,-5,5);
+
+  hadcsum[0]=new TH1D("hadcsumSMD_NH","hadcsumSMD_NH",100,0,4.5);
+  hadcsum[1]=new TH1D("hadcsumSMD_NV","hadcsumSMD_NV",100,0,4.5);
+  hadcsum[2]=new TH1D("hadcsumSMD_SH","hadcsumSMD_SH",100,0,4.5);
+  hadcsum[3]=new TH1D("hadcsumSMD_SV","hadcsumSMD_SV",100,0,4.5);
+
+  for(int i=0; i<4; i++){
+    se->registerHisto(this,hmultiplicity[i]);
+    se->registerHisto(this,hposition[i]);
+    se->registerHisto(this,hposition[i+4]);
+    se->registerHisto(this,hadcsum[i]);
+  }
+
+  hwaveform[0]=new TH2D("hwaveform0","hwaveform0",16,-0.5,15.5,16384,0,16384);
+  hwaveform[1]=new TH2D("hwaveform1","hwaveform1",16,-0.5,15.5,16384,0,16384);
+  hwaveform[2]=new TH2D("hwaveform2","hwaveform2",16,-0.5,15.5,16384,0,16384);
+  hwaveform[3]=new TH2D("hwaveform3","hwaveform3",16,-0.5,15.5,16384,0,16384);
+  hwaveform[4]=new TH2D("hwaveform4","hwaveform4",16,-0.5,15.5,16384,0,16384);
+  hwaveform[5]=new TH2D("hwaveform5","hwaveform5",16,-0.5,15.5,16384,0,16384);
+  for(int i=0; i<6; i++){
+    se->registerHisto(this,hwaveform[i]);
+  }
+  
+  //htimesync=new TH2I("htimesync","htimesync",65000,0,65000,65000,0,65000);
+  //se->registerHisto(this,htimesync);
+  hsyncfrac=new TH1D("hsyncfrac","hsyncfrac",2,0,2);
+  se->registerHisto(this,hsyncfrac);
+
+  Bluespace=new TH2D("Bluespace","Bluespace",50,-5,5,50,-5,5);
+  se->registerHisto(this,Bluespace);
+ 
+  Yellowspace=new TH2D("Yellowspace","Yellowspace",50,-5,5,50,-5,5);
+  se->registerHisto(this,Yellowspace);
 
   WaveformProcessingFast = new CaloWaveformFitting();
   myRandomBunch = new TRandom(0);
@@ -415,7 +482,7 @@ int LocalPolMon::Init()
   return 0;
 }
 
-int LocalPolMon::BeginRun(const int /* runno */)
+int LocalPolMon::BeginRun(const int runno)
 {
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
@@ -437,12 +504,14 @@ int LocalPolMon::BeginRun(const int /* runno */)
     std::cout << "\n";
   }
   EvtShift=0;
+  Initfirstbunch=false;
   Reset();
+  RetrieveSpinPattern(runno);
   // goodtrigger[10]=true;//In 2023, it was MBD N&S
   return 0;
 }
 
-float LocalPolMon::anaWaveformFast(Packet* p, const int channel, const int low, const int high)
+float LocalPolMon::anaWaveformFast(Packet* p, const int channel, const int low, const int high, const int ihisto)
 {
   std::vector<float> waveform;
   waveform.reserve(high-low);
@@ -451,6 +520,7 @@ float LocalPolMon::anaWaveformFast(Packet* p, const int channel, const int low, 
   for (int s = low; s < high; s++)
   {
     waveform.push_back(p->iValue(s, channel));
+    hwaveform[ihisto]->Fill(s,p->iValue(s, channel));
   }
   std::vector<std::vector<float>> multiple_wfs;
   multiple_wfs.push_back(waveform);
@@ -466,13 +536,13 @@ float LocalPolMon::anaWaveformFast(Packet* p, const int channel, const int low, 
 int LocalPolMon::process_event(Event* e /* evt */)
 {
 
-  if (e->getEvtType() == BEGRUNEVENT /*9*/)
-  {  // spin patterns stored in BeginRun event
-    RetrieveSpinPattern(e);
-  }
+  //if (e->getEvtType() == BEGRUNEVENT /*9*/)
+  //{  // spin patterns stored in BeginRun event
+  //  RetrieveSpinPattern(e);
+  //}
 
   RetrieveTriggerDistribution(e);
-
+  h_events->Fill(0);
   /******Here we do the matching to identify the crossing shift   ******************/
   if (evtcnt > EventCountThresholdGap){
     StartAbortGapData = RetrieveAbortGapData();
@@ -490,11 +560,11 @@ int LocalPolMon::process_event(Event* e /* evt */)
   /************* end of crossing shift *********************/
 
   Packet* psmd = e->getPacket(packetid_smd);
-  float smd_adc[32];
   int bunchnr = 0;
   if (psmd)
   {
-    long long int zdc_clock=psmd->lValue(0,"BCO");
+    h_events->Fill(1);
+    long long int zdc_clock=psmd->lValue(0,"CLOCK");
     bunchnr=RetrieveBunchNumber(e,zdc_clock);
     //Did not manage to retrieve the proper bunch number, no need to continue the calculation
     //let us clean and leave
@@ -503,6 +573,7 @@ int LocalPolMon::process_event(Event* e /* evt */)
       psmd=nullptr;
       return 0;
     }
+    h_events->Fill(2);
 
     if (fake)
     {
@@ -511,20 +582,27 @@ int LocalPolMon::process_event(Event* e /* evt */)
 
     // get minimum on ZDC second module
     // get minimum on ZDC second module
-    signalZDCN2 = anaWaveformFast(psmd, ZDCN2, lowSample[ZDCN2], highSample[ZDCN2]);
-    signalZDCS2 = anaWaveformFast(psmd, ZDCS2, lowSample[ZDCS2], highSample[ZDCS2]);
+    signalZDCN1 = anaWaveformFast(psmd, ZDCN1, lowSample[ZDCN1], highSample[ZDCN1],0);
+    signalZDCS1 = anaWaveformFast(psmd, ZDCS1, lowSample[ZDCS1], highSample[ZDCS1],1);
+    signalZDCN2 = anaWaveformFast(psmd, ZDCN2, lowSample[ZDCN2], highSample[ZDCN2],0);
+    signalZDCS2 = anaWaveformFast(psmd, ZDCS2, lowSample[ZDCS2], highSample[ZDCS2],1);
+    vetoNF = anaWaveformFast(psmd, 16, lowSample[ivetoNF], highSample[ivetoNF],4);
+    vetoNB = anaWaveformFast(psmd, 17, lowSample[ivetoNB], highSample[ivetoNB],4);
+    vetoSF = anaWaveformFast(psmd, 80, lowSample[ivetoSF], highSample[ivetoSF],5);
+    vetoSB = anaWaveformFast(psmd, 81, lowSample[ivetoSB], highSample[ivetoSB],5);
 
-    if (signalZDCN2 < 10 && signalZDCS2 < 10)
+    if ( (signalZDCN2 < 10 || signalZDCN1<75) && (signalZDCS2 < 10 || signalZDCS1<75) )
     {
       delete psmd;
       psmd=nullptr;
       return 0;
     }
+    h_events->Fill(3);
 
     // for(int ch=16; ch<47; ch++){//according to mapping in ZDC logbook entry #85 March 9th 2024
     for (auto& it : Chmapping)
     {  // new mapping for ZDC/SMD/Veto with 2 ADC boards//May 13th 2024
-      if (it.second < 0)
+      if (it.second < 16)
       {
         continue;
       }
@@ -532,17 +610,21 @@ int LocalPolMon::process_event(Event* e /* evt */)
       {
         continue;
       }
-      float signalFast = anaWaveformFast(psmd, it.first, lowSample[it.second],highSample[it.second]);  // fast waveform fitting
+      float signalFast = anaWaveformFast(psmd, it.first, lowSample[it.second],highSample[it.second],it.second/32+2);  // fast waveform fitting
 
       int ch = it.second;
       // Scale according to relative gain calibration factor
+      //if (ch < 16){
+      //	zdc_adc[ch]=signalFast;
+      //}
+      //else 
       if (ch < 32)
       {
-        smd_adc[ch - 16] = signalFast * smd_north_rgain[ch - 16];
+        smd_adc[ch - 16] = signalFast * smd_north_relatgain[ch - 16];
       }
       else
       {
-        smd_adc[ch - 16] = signalFast * smd_south_rgain[ch - 32];
+        smd_adc[ch - 16] = signalFast * smd_south_relatgain[ch - 32];
       }
     }
     float Weights[4] = {0};
@@ -553,18 +635,18 @@ int LocalPolMon::process_event(Event* e /* evt */)
     for (int ch = 0; ch < 8; ch++)
     {
       Weights[0] += smd_adc[ch];
-      AveragePosition[0] += ConversionSign[0] * pitchY * (ch - nchannelsY / 2) * smd_adc[ch];  // North Y direction (Asym in blue)
+      AveragePosition[0] += ConversionSign[0] * pitchY * (ch - (nchannelsY-1.) / 2) * smd_adc[ch];  // North Y direction (Asym in blue)
       Weights[2] += smd_adc[ch + 16];
-      AveragePosition[2] += ConversionSign[2] * pitchY * (ch - nchannelsY / 2) * smd_adc[ch + 16];  // South Y direction (Asym in Yellow)
+      AveragePosition[2] += ConversionSign[2] * pitchY * (ch - (nchannelsY-1.) / 2) * smd_adc[ch + 16];  // South Y direction (Asym in Yellow)
 
       if (ch == 7)
       {
         continue;
       }
       Weights[1] += smd_adc[ch + 8];
-      AveragePosition[1] += ConversionSign[1] * pitchX * (ch - nchannelsX / 2) * smd_adc[ch + 8];  // North X direction (Asym in Blue)
+      AveragePosition[1] += ConversionSign[1] * pitchX * (ch - (nchannelsX-1.) / 2) * smd_adc[ch + 8];  // North X direction (Asym in Blue)
       Weights[3] += smd_adc[ch + 24];
-      AveragePosition[3] += ConversionSign[3] * pitchX * (ch - nchannelsX / 2) * smd_adc[ch + 24];  // South X direction (Asym in Yellow)
+      AveragePosition[3] += ConversionSign[3] * pitchX * (ch - (nchannelsX-1.) / 2) * smd_adc[ch + 24];  // South X direction (Asym in Yellow)
     }
 
     for (int i = 0; i < 4; i++)
@@ -572,59 +654,88 @@ int LocalPolMon::process_event(Event* e /* evt */)
       if (Weights[i] > 0.0)
       {
         AveragePosition[i] /= Weights[i];
+	h_events->Fill(4+i);
       }
       else
       {
+	AveragePosition[i]=0.;
         continue;  // most likely the most appropriate
       }
 
       if (AveragePosition[i] < ZeroPosition[i] - 0.5)
       {
-        // (i/2)=0 for blue beam, =1 for yellow beam
+	h_events->Fill(8+i);
+	if (verbosity)
+	  {
+	    std::cout<<"Spin pattern size for "<<i/2<<" : "<<SpinPatterns[i/2].size()<<std::endl;
+	  }
+        // (i/2)=0 for blue beam=North, (i/2)=1 for yellow beam=South
         if (SpinPatterns[i / 2].at((120 + bunchnr + CrossingShift) % 120) > 0)
         {
-          h_Counts[i]->Fill(3);  // Right for pointing up
+          if(GoodSelection(i/2)) {
+	    h_Counts[i]->Fill(3);  // Right for pointing up
+	    hposition[i]->Fill(AveragePosition[i]);
+	  }
         }
         else if (SpinPatterns[i / 2].at((120 + bunchnr + CrossingShift) % 120) < 0)
         {
-          h_Counts[i]->Fill(1);  // Left for pointing down
+          if(GoodSelection(i/2)) {
+	    h_Counts[i]->Fill(1);  // Left for pointing down
+	    hposition[i+4]->Fill(AveragePosition[i]);
+	  }
         }
 
         // we swap the spin pattern to get random orientation and check biased asymmetry
         if (SpinPatterns[i / 2 == 0 ? 1 : 0].at((120 + bunchnr + CrossingShift) % 120) > 0)
         {
-          h_CountsScramble[i]->Fill(3);  // Right for pointing up
+          if(GoodSelection(i/2))h_CountsScramble[i]->Fill(3);  // Right for pointing up
         }
         else if (SpinPatterns[i / 2 == 0 ? 1 : 0].at((120 + bunchnr + CrossingShift) % 120) < 0)
         {
-          h_CountsScramble[i]->Fill(1);  // Left for pointing down
+          if(GoodSelection(i/2))h_CountsScramble[i]->Fill(1);  // Left for pointing down
         }
       }
       else if (AveragePosition[i] > ZeroPosition[i] + 0.5)
       {
+	h_events->Fill(8+i);
         // (i/2)=0 for blue beam, =1 for yellow beam
         if (SpinPatterns[i / 2].at((120 + bunchnr + CrossingShift) % 120) > 0)
         {
-          h_Counts[i]->Fill(0);  // Left for pointing up
+          if(GoodSelection(i/2)){
+	    h_Counts[i]->Fill(0);  // Left for pointing up
+	    hposition[i]->Fill(AveragePosition[i]);
+	  }
         }
         else if (SpinPatterns[i / 2].at((120 + bunchnr + CrossingShift) % 120) < 0)
         {
-          h_Counts[i]->Fill(2);  // Right for pointing down
+          if(GoodSelection(i/2)){
+	    h_Counts[i]->Fill(2);  // Right for pointing down
+	    hposition[i+4]->Fill(AveragePosition[i]);
+	  }
         }
 
         // we swap the spin pattern to get random orientation and check biased asymmetry
         if (SpinPatterns[i / 2 == 0 ? 1 : 0].at((120 + bunchnr + CrossingShift) % 120) > 0)
         {
-          h_CountsScramble[i]->Fill(0);  // Left for pointing up
+          if(GoodSelection(i/2))h_CountsScramble[i]->Fill(0);  // Left for pointing up
         }
         else if (SpinPatterns[i / 2 == 0 ? 1 : 0].at((120 + bunchnr + CrossingShift) % 120) < 0)
         {
-          h_CountsScramble[i]->Fill(2);  // Right for pointing down
+          if(GoodSelection(i/2))h_CountsScramble[i]->Fill(2);  // Right for pointing down
         }
       }
     }
+    double rnorth2=pow(AveragePosition[0],2)+pow(AveragePosition[1],2);
+    double rsouth2=pow(AveragePosition[2],2)+pow(AveragePosition[3],2);
+    if(rnorth2>1 && GoodSelection(0)){
+      Bluespace->Fill(AveragePosition[1],AveragePosition[0]);
+    }
+    if(rsouth2>1 && GoodSelection(1)){
+      Yellowspace->Fill(AveragePosition[3],AveragePosition[2]);
+    }
     h_time->Fill(iPoint, e->getTime());
     evtcnt++;
+    evtcntA++;
   }
   else
   {
@@ -635,8 +746,10 @@ int LocalPolMon::process_event(Event* e /* evt */)
   }
 
   /**** Compute asymmetries if we have enough events ****************/
-  if (evtcnt % EventsAsymmetryNewPoint == 0)
+  //if (evtcnt % EventsAsymmetryNewPoint == 0)
+  if (evtcntA > EventsAsymmetryNewPoint )
   {
+    h_events->Fill(12);
     for (int ibeam = 0; ibeam < 2; ibeam++)
     {
       for (int orient = 0; orient < 2; orient++)
@@ -675,6 +788,7 @@ int LocalPolMon::process_event(Event* e /* evt */)
     }
     // Now that everything has been calculated, let move to the next point for next event
     iPoint++;
+    evtcntA=0;
   }
 
   return 0;
@@ -684,6 +798,7 @@ int LocalPolMon::Reset()
 {
   // reset our internal counters
   evtcnt = 0;
+  evtcntA=0;
   iPoint = 0;
   failuredepth=0;
   for (int i = 0; i < 4; i++)
@@ -693,6 +808,57 @@ int LocalPolMon::Reset()
   }
   h_time->Reset();
   return 0;
+}
+
+bool LocalPolMon::GoodSelection(int i)
+{
+  bool goodselection=true;
+  if(i==0){//dealing with north side
+    int nv=0; 
+    int nh=0;
+    double sumH=0;
+    double sumV=0;
+    for(int ch=0; ch<8; ch++) {
+      nh +=(smd_adc[ch]  >5)?1:0;
+      sumH+=smd_adc[ch];
+    }
+    for(int ch=0; ch<7; ch++) {
+      nv +=(smd_adc[ch+8]>5)?1:0;
+      sumV+=smd_adc[ch+8];
+    }
+    goodselection &=(signalZDCN1>75 && signalZDCN2>10);
+    goodselection &=(vetoNF<150&&vetoNB<150);
+    goodselection &=(nv>1&&nh>1);
+    goodselection &=(nv<7&&nh<8);
+    hmultiplicity[0]->Fill(nh);
+    hmultiplicity[1]->Fill(nv);
+    if((sumH>0)&&goodselection) hadcsum[0]->Fill(log10(sumH));
+    if((sumV>0)&&goodselection) hadcsum[1]->Fill(log10(sumV));
+  }
+  else{//south side
+    int nv=0; 
+    int nh=0;
+    double sumH=0;
+    double sumV=0;
+    for(int ch=0; ch<8; ch++) {
+      nh +=(smd_adc[ch+16] >5)?1:0;
+      sumH+=smd_adc[ch+16];
+    }
+    for(int ch=0; ch<7; ch++) {
+      nv +=(smd_adc[ch+24] >5)?1:0;
+      sumV+=smd_adc[ch+24];
+    }
+    goodselection &=(signalZDCS1>75 && signalZDCS2>10);
+    goodselection &=(vetoSF<150&&vetoSB<150);
+    goodselection &=(nv>1&&nh>1);
+    goodselection &=(nv<7&&nh<8);
+    hmultiplicity[2]->Fill(nh);
+    hmultiplicity[3]->Fill(nv);
+    if((sumH>0)&&goodselection) hadcsum[2]->Fill(log10(sumH));
+    if((sumV>0)&&goodselection) hadcsum[3]->Fill(log10(sumV));
+  }
+
+  return goodselection;
 }
 
 double* LocalPolMon::ComputeAsymmetries(double L_U, double R_D, double L_D, double R_U)
@@ -726,13 +892,83 @@ double* LocalPolMon::ComputeAsymmetries(double L_U, double R_D, double L_D, doub
   return result;
 }
 
+void LocalPolMon::RetrieveSpinPattern(int runnb){
+  SpinPatterns[BLUE].clear();
+  SpinPatterns[YELLOW].clear();
+  for(int i = 0; i < 120; i++){
+    SpinPatterns[BLUE][i]=0;
+    SpinPatterns[YELLOW][i]=0;
+  }
+  TString retvalBlue;
+  TString retvalYellow;
+  const char* user=getenv("USER");
+  if(strcmp(user,"phnxrc")==0){
+    //We are on machine which can access operator1 computer without password
+    retvalBlue=gSystem->GetFromPipe(Form("$ONLMON_MACROS/GetSpinPatternHTTP.sh %d",14902));
+    retvalYellow=gSystem->GetFromPipe(Form("$ONLMON_MACROS/GetSpinPatternHTTP.sh %d",14903));
+    if(verbosity){
+      std::cout<<"Retrieving SpinPattern from HTTP"<<std::endl;
+    }
+  }
+  else{
+    OnlMonServer* se = OnlMonServer::instance();
+    TString runtype=se->GetRunType();
+    runtype.ToLower();
+    retvalBlue=gSystem->GetFromPipe(Form("$ONLMON_MACROS/GetSpinPatternGL1.sh %d %s %d",14902,runtype.Data(),runnb));
+    retvalYellow=gSystem->GetFromPipe(Form("$ONLMON_MACROS/GetSpinPatternGL1.sh %d %s %d",14903,runtype.Data(),runnb));
+    if(verbosity){
+      std::cout<<"Retrieving SpinPattern from GL1 "<<runtype.Data() <<" prdf file for run "<<runnb<<std::endl;
+    }
+  }
+
+  TObjArray* BunchSpinBlue=retvalBlue.Tokenize(" ");
+  BunchSpinBlue->SetOwner(kTRUE);
+  int nFilledBunchesBlue=BunchSpinBlue->GetEntries();
+  if(verbosity){
+    std::cout<<"Blue spin patterns for "<<nFilledBunchesBlue<<" bunches "<<std::endl;
+    std::cout<<retvalBlue<<std::endl;
+  }
+  int stepBlue=(112-nFilledBunchesBlue)/28+1;
+  //for(int i=0; i<120; i=i+stepBlue){
+  for(int i=0; i<nFilledBunchesBlue; i++){
+    SpinPatterns[BLUE][stepBlue*i]=((TObjString*)BunchSpinBlue->At(i))->String().Atoi();
+    hspinpattern->Fill(stepBlue*i,1,((TObjString*)BunchSpinBlue->At(i))->String().Atoi());
+  }
+  BunchSpinBlue->Clear();
+  delete BunchSpinBlue;
+
+  TObjArray* BunchSpinYellow=retvalYellow.Tokenize(" ");
+  BunchSpinYellow->SetOwner(kTRUE);
+  int nFilledBunchesYell=BunchSpinYellow->GetEntries();
+  if(verbosity){
+    std::cout<<"Yellow spin patterns for "<<nFilledBunchesYell<<" bunches "<<std::endl;
+    std::cout<<retvalYellow<<std::endl;
+  }
+  int stepYellow=(112-nFilledBunchesYell)/28+1;
+  //for(int i=0; i<120; i=i+stepYellow){
+  for(int i=0; i<nFilledBunchesYell; i++){
+    SpinPatterns[YELLOW][stepYellow*i]=((TObjString*)BunchSpinYellow->At(i))->String().Atoi();
+    hspinpattern->Fill(stepYellow*i,0.,((TObjString*)BunchSpinYellow->At(i))->String().Atoi());
+  }
+  //Check if consitent information (as the method works only with multiples of 28 filled bunches and a constant abort gap of 9 bunches
+  if(stepYellow==stepBlue){
+    nEmptyAbort=stepYellow-1;
+  }
+  BunchSpinYellow->Clear();
+  delete BunchSpinYellow;
+}
 void LocalPolMon::RetrieveSpinPattern(Event* e){
   Event* egl1p=nullptr;
   Packet* bluepacket = nullptr;
   Packet* yellpacket = nullptr;
   bool first = true;
   if(erc){
+    std::cout<<"Inside RetrieveSpin::ERC"<<e->getEvtSequence()<<" "<<EvtShift<<std::endl;
     egl1p = erc->getEvent(e->getEvtSequence()+EvtShift);
+    std::cout<<egl1p<<std::endl;
+    std::cout<<"Test with 0 "<<erc->getEvent(0)<<std::endl;
+    std::cout<<"Test with 0 and flag 9 "<<erc->getEvent(0,9)<<std::endl;
+    std::cout<<"Test with 1 and flag 9 "<<erc->getEvent(1,9)<<std::endl;
   }
   if(egl1p){
     bluepacket = egl1p->getPacket(14902);
@@ -756,6 +992,11 @@ void LocalPolMon::RetrieveSpinPattern(Event* e){
 	    //	  first = false;
 	    //	  StartAbortGapPattern = i;
 	    //	}
+	  }
+	if (verbosity)
+	  {
+	    std::cout<<"Spin pattern size for Blue: "<<SpinPatterns[BLUE].size()<<std::endl;
+	    std::cout<<"Spin pattern size for Yellow: "<<SpinPatterns[YELLOW].size()<<std::endl;
 	  }
       }
     else
@@ -807,13 +1048,52 @@ void LocalPolMon::RetrieveSpinPattern(Event* e){
     delete egl1p;
     egl1p=nullptr;
   }
+  else{
+    //******* placeholder until html delivery from C-AD is available ***********
+    if (verbosity)
+      {
+	std::cout << "Initiating spin pattern from Dummy\n";
+      }
+    for (int i = 0; i < 120; i++)
+      {
+	if (i % 2 == 0)
+	  {
+	    SpinPatterns[BLUE][i] = 1;
+	  }
+	else
+	  {
+	    SpinPatterns[BLUE][i] = -1;
+	  }
+	if (int(0.5 * i) % 2 == 0)
+	  {
+	    SpinPatterns[YELLOW][i] = 1;
+	  }
+	else
+	  {
+	    SpinPatterns[YELLOW][i] = -1;
+	  }
+	if (i > 110)
+	  {
+	    SpinPatterns[BLUE][i] = 0;
+	    SpinPatterns[YELLOW][i] = 0;
+	    if (first && (true /*abort gap def from HTML*/))
+	      {
+		first = false;
+		StartAbortGapPattern = i;
+	      }
+	  }
+      }
+  }
+
 }
 
 void LocalPolMon::RetrieveTriggerDistribution(Event* e){
   Event* egl1p=nullptr;
   Packet* pgl1p = nullptr;
   if (erc){
+    std::cout<<"Inside RetrieveTrigger::ERC"<<e->getEvtSequence()<<" "<<EvtShift<<std::endl;
     egl1p = erc->getEvent(e->getEvtSequence()+EvtShift);
+    std::cout<<egl1p<<std::endl;
   }
   if (egl1p){
     pgl1p = egl1p->getPacket(packetid_gl1);
@@ -823,7 +1103,11 @@ void LocalPolMon::RetrieveTriggerDistribution(Event* e){
 	// 16 triggers for gl1p
 	// With prdf pgl1->lValue(i,2); simply returns the current processed event number (which can shaddow the abort gap: the lagging bunch# at some point get back to the position of the others)
 	// So instead, we increment the number of processed events per bunch number, for the various triggers
-	gl1_counter[i][bunchnr]+= (pgl1p->lValue(i,2)>0)?1:0;
+	//gl1_counter[i][bunchnr]+= (pgl1p->lValue(i,2)>0)?1:0;
+	if(pgl1p->lValue(i,2)>0){
+	  gl1_counter[i][bunchnr]++;
+	  h_trigger[i]->Fill(bunchnr);
+	}
       }
       delete pgl1p;
       pgl1p=nullptr;
@@ -856,7 +1140,7 @@ int LocalPolMon::RetrieveAbortGapData(){
       }
       tmpmap.erase(myminimum);
     }
-    begingap[i] = (*min_element(gap[i].begin(), gap[i].end()));
+    begingap[i] = (*min_element(gap[i].begin(), gap[i].end()))+nEmptyAbort;
     endgap[i] = (*max_element(gap[i].begin(), gap[i].end()));
     if (endgap[i] - begingap[i] > 9){
       std::cout << " Weird abort gap is larger than 9 bunches " << endgap[i] << " - " << begingap[i] << " for trigger " << i << std::endl;
@@ -875,28 +1159,63 @@ int LocalPolMon::RetrieveAbortGapData(){
 int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
   Event* egl1 = nullptr;
   int bunch=-1;
+  //static int localfail=0;
+  if(!Initfirstbunch){
+    EvtShift=1;
+    Prevzdc_clock=zdc_clock;
+  }
+  std::cout<<"Inside RetrieveBunchNumber"<<std::endl;
   if(failuredepth>10){
-    std::cout<<"ZDC and GL1p asynchronous by more than 10 events"<<std::endl;
-    return -1;
+    std::cout<<"ZDC and GL1p asynchronous by more than 1000 events"<<std::endl;
+    //return -1;
   }
   if (erc){
+    std::cout<<"Inside RetrieveBunchNumber::ERC "<<e->getEvtSequence() <<" "<<EvtShift <<std::endl;
     egl1 = erc->getEvent(e->getEvtSequence()+EvtShift);
+    std::cout<<egl1<<std::endl;
   }
   if (egl1){
+    std::cout<<"Inside RetrieveBunchNumber::GL1"<<std::endl;
     Packet* pgl1p = egl1->getPacket(packetid_gl1);
     if (pgl1p){
+      std::cout<<"Inside RetrieveBunchNumber::PGL1p"<<std::endl;
       long long int gl1_clock=pgl1p->lValue(0, "BCO");
-      if(gl1_clock!=zdc_clock){
+      if(verbosity){
+       std::cout<<"EvtShift: "<<EvtShift<<" zdc: "<<zdc_clock<<"    gl1p: "<<gl1_clock<<std::endl;
+      }
+
+      if(!Initfirstbunch){
+	Prevgl1_clock=gl1_clock;
+	Initfirstbunch=true;
+	bunch = pgl1p->lValue(0, "BunchNumber");
+	if(verbosity){
+	  std::cout<<"Init Bunch number is : "<<bunch<<std::endl;
+	}
+	delete pgl1p;
+	pgl1p=nullptr;
+	delete egl1;
+	egl1=nullptr;
+	return bunch;
+      }
+      if((gl1_clock-Prevgl1_clock)!=(zdc_clock-Prevzdc_clock)){
 	EvtShift++;
 	delete pgl1p;
 	pgl1p=nullptr;
 	delete egl1;
 	egl1=nullptr;
 	failuredepth++;
+	hsyncfrac->Fill(0.);
 	bunch=RetrieveBunchNumber(e,zdc_clock);
       }
       else{
+	Prevgl1_clock=gl1_clock;
+	Prevzdc_clock=zdc_clock;
+	hsyncfrac->Fill(1.);	
 	bunch = pgl1p->lValue(0, "BunchNumber");
+	//failuredepth=0;
+	if(verbosity){
+	  std::cout<<"Bunch number is : "<<bunch<<std::endl;
+	}
       }
       delete pgl1p;
       pgl1p = nullptr;

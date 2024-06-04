@@ -30,10 +30,14 @@ class LocalPolMonDraw : public OnlMonDraw
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
+  int DrawThird(const std::string &what = "ALL");
+  int DrawFourth(const std::string &what = "ALL");
+  int DrawFifth(const std::string &what = "ALL");
+  int DrawSixth(const std::string &what = "ALL");
 
-  TCanvas *TC[2] = {nullptr};
+  TCanvas *TC[6] = {nullptr};
 
-  TPad *transparent[2] = {nullptr};
+  TPad *transparent[6] = {nullptr};
   TPad ***Pad = nullptr;
 
   TH1 *hframe = nullptr;
