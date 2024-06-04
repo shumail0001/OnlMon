@@ -41,6 +41,10 @@ void spinDrawInit(const int online = 0)
   cl->registerHisto("h1_filltypeBlue","SPINMON_0");
   cl->registerHisto("h1_filltypeYellow","SPINMON_0");
 
+  cl->registerHisto("hCorrect","SPINMON_0");
+  cl->registerHisto("hAbortgap","SPINMON_0");
+  cl->registerHisto("hForbidden","SPINMON_0");
+
 
   for (int i = 0; i < 16; i++){
     cl->registerHisto(Form("gl1_counter_trig%d",i),"SPINMON_0");

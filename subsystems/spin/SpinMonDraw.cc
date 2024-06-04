@@ -12,6 +12,7 @@
 #include <TH2I.h>
 #include <TLatex.h>
 #include <TLegend.h>
+#include <TLine.h>
 #include <TPad.h>
 #include <TROOT.h>
 #include <TStyle.h>
@@ -167,6 +168,19 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
     transparent[1]->SetFillStyle(4000);
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
+  } else if (name == "SpinMon3")
+  {
+    TC[2] = new TCanvas(name.c_str(), "SpinMon Bunch Numbers", -1, ysize, xsize * 0.95, ysize);
+    gSystem->ProcessEvents();
+
+    Pad[29] = new TPad("spinpad30", "who needs this?", 0.05, 0.05, 0.95, 0.95, 0);
+    Pad[29]->Draw();
+
+    // this one is used to plot the run number on the canvas
+    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
+    TC[2]->SetEditable(false);
   }
   return 0;
 }
@@ -183,6 +197,11 @@ int SpinMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SECOND")
   {
     iret += DrawSecond(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "THIRD")
+  {
+    iret += DrawThird(what);
     idraw++;
   }
   if (!idraw)
@@ -980,6 +999,131 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->SetEditable(false);
   return 0;
 }
+
+int SpinMonDraw::DrawThird(const std::string & /* what */)
+{
+
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1F *hCorrect = (TH1F *) cl->getHisto("SPINMON_0", "hCorrect");
+  TH1F *hAbortgap = (TH1F *) cl->getHisto("SPINMON_0", "hAbortgap");
+  TH1F *hForbidden = (TH1F *) cl->getHisto("SPINMON_0", "hForbidden");
+
+  if (!gROOT->FindObject("SpinMon3"))
+  {
+    MakeCanvas("SpinMon3");
+  }
+  
+  TC[2]->SetEditable(true);
+  TC[2]->Clear("D");
+
+
+  Pad[29]->cd();
+  Pad[29]->SetTopMargin(0.25);
+  Pad[29]->SetBottomMargin(0.25);
+  Pad[29]->SetLeftMargin(0.15);
+  Pad[29]->SetRightMargin(0.15);
+
+  
+  if (!hCorrect || !hAbortgap || !hForbidden)
+  {
+    DrawDeadServer(transparent[2]);
+    TC[2]->SetEditable(false);
+    return -1;
+  }
+  else
+  {
+    hCorrect->SetTitle("");
+    hCorrect->GetXaxis()->SetTitle("Bunch Number");
+    hCorrect->GetYaxis()->SetTitle("Count");
+    hCorrect->SetFillColor(kGreen+2);
+    hCorrect->SetLineWidth(0);
+    hCorrect->SetStats(0);
+
+    hAbortgap->GetXaxis()->SetTitle("Bunch Number");
+    hAbortgap->GetYaxis()->SetTitle("Count");
+    hAbortgap->SetFillColor(kOrange);
+    hAbortgap->SetLineWidth(0);
+
+    hForbidden->GetXaxis()->SetTitle("Bunch Number");
+    hForbidden->GetYaxis()->SetTitle("Count");
+    hForbidden->SetFillColor(kRed+2);
+    hForbidden->SetLineWidth(0);
+
+    double ymax = hCorrect->GetMaximum();
+    if ( hAbortgap->GetMaximum() > ymax ) 
+    {
+      ymax = hAbortgap->GetMaximum();
+    }
+    if ( hForbidden->GetMaximum() > ymax )
+    {
+      ymax = hForbidden->GetMaximum();
+    }
+
+    hCorrect->DrawCopy("hist");
+    hAbortgap->DrawCopy("hist,same");
+    hForbidden->DrawCopy("hist,same");
+
+    TLine *tl111 = new TLine(111,0,111,ymax);
+    tl111->SetLineWidth(4);
+    tl111->SetLineColor(kBlue);
+    //tl111->SetLineStyle(3);
+    tl111->Draw();
+
+    TLine *tl120 = new TLine(120,0,120,ymax);
+    tl120->SetLineWidth(4);
+    tl120->SetLineColor(kBlue);
+    //tl120->SetLineStyle(3);
+    tl120->Draw();
+
+    TText annotation;
+    annotation.SetTextFont(62);
+    annotation.SetTextSize(0.04);
+    //annotation.SetNDC();          // set to normalized coordinates
+    annotation.SetTextAlign(22);  // center alignment
+    annotation.DrawText(55, 0.3*ymax, "Collisions");
+
+    TText ag;
+    ag.SetTextAngle(90);
+    ag.SetTextFont(62);
+    ag.SetTextSize(0.04);
+    //  ag.SetNDC();          // set to normalized coordinates
+    ag.SetTextAlign(22);  // center/top alignment
+    ag.DrawText(115, ymax/3., "Abort Gap");
+
+
+    TText fg;
+    fg.SetTextAngle(90);
+    fg.SetTextFont(62);
+    fg.SetTextSize(0.04);
+    //  fg.SetNDC();          // set to normalized coordinates
+    fg.SetTextAlign(22);  // center alignment
+    fg.DrawText(125, ymax/3., "Forbidden");
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_3 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[2]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[2]->Update();
+  TC[2]->Show();
+  TC[2]->SetEditable(false);
+  return 0;
+
+
+}
+
+
 
 int SpinMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
