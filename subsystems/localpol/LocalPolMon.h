@@ -81,6 +81,7 @@ class LocalPolMon : public OnlMon
   int evtcnt = 0;
   int evtcntA=0;
   int EvtShift=0;
+  int EvtShiftValid=0;
   int failuredepth=0;
   int StartAbortGapPattern = 111;
   int StartAbortGapData = 111;

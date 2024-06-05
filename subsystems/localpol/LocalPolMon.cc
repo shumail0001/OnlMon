@@ -1036,7 +1036,8 @@ int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
   int bunch=-1;
   //static int localfail=0;
   if(!Initfirstbunch){
-    EvtShift=1;
+    EvtShift=0;
+    EvtShiftValid=0;
     Prevzdc_clock=zdc_clock;
   }
   if(verbosity){
@@ -1047,7 +1048,7 @@ int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
       std::cout<<"ZDC and GL1p asynchronous by more than 100 events"<<std::endl;
       std::cout<<"Giving up this event and go to the next one"<<std::endl;
     }
-    EvtShift=0;
+    EvtShift=EvtShiftValid;
     failuredepth=0;
     return -1;
   }
@@ -1088,6 +1089,9 @@ int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
 	return bunch;
       }
       if((gl1_clock-Prevgl1_clock)!=(zdc_clock-Prevzdc_clock)){
+	if(verbosity){
+	  std::cout<<"Mismatched: "<<EvtShift<<" zdc: "<<(zdc_clock-Prevzdc_clock) <<"    gl1p: "<<(gl1_clock-Prevgl1_clock) <<std::endl;
+        }
 	EvtShift++;
 	delete pgl1p;
 	pgl1p=nullptr;
@@ -1100,6 +1104,7 @@ int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
       else{
 	Prevgl1_clock=gl1_clock;
 	Prevzdc_clock=zdc_clock;
+	EvtShiftValid=EvtShiftValid;
 	hsyncfrac->Fill(1.);	
 	bunch = pgl1p->lValue(0, "BunchNumber");
 	//failuredepth=0;
