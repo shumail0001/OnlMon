@@ -32,14 +32,6 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("DAQ", "daq");
-  subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
-  subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check");
-  // subsys->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
-   subsys->AddAction("daqDraw(\"SERVERSTATS\")", "Server Stats");
-   subsys->AddAction(new SubSystemActionSavePlot(subsys));
-   pmf->RegisterSubSystem(subsys);
-
   subsys = new SubSystem("CEMC", "cemc");
   subsys->AddAction("cemcDraw(\"FIRST\")", "Towers");
   subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Health [Expert]");
@@ -47,6 +39,13 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("cemcDraw(\"SEVENTH\")", "Zero-suppression info");
   subsys->AddAction("cemcDraw(\"SERVERSTATS\")", "Server Stats");
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
+
+  subsys = new SubSystem("DAQ", "daq");
+  subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
+  subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check");
+  subsys->AddAction("daqDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -115,6 +114,7 @@ void StartPoms()
   subsys = new SubSystem("SPIN", "spin");
   subsys->AddAction("spinDraw(\"FIRST\")", "Spin");
   subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
+  subsys->AddAction("spinDraw(\"THIRD\")", "Abort Gap");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -140,6 +140,8 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R1\")", "TPC Pedest Sub. ADC vs Sample R1 ONLY");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R2\")", "TPC Pedest Sub. ADC vs Sample R2 ONLY");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R3\")", "TPC Pedest Sub. ADC vs Sample R3 ONLY");
+  subsys->AddAction("tpcDraw(\"TPCNSTREAKERSVSEVENTNO\")", "TPC HORIZONTALS MONITOR ");
+  subsys->AddAction("tpcDraw(\"TPCDRIFTWINDOW\")", "TPC DRIFT WINDOW PLOTS");
   subsys->AddAction("tpcDraw(\"TPCSTUCKCHANNELS\")", "TPC Stuck Channels in FEE");
   subsys->AddAction("tpcDraw(\"TPCCHANSINPACKETNS\")", "TPC NS Chan. Per Packet per RCDAQ EVENT");
   subsys->AddAction("tpcDraw(\"TPCCHANSINPACKETSS\")", "TPC SS Chan. Per Packet per RCDAQ EVENT");
