@@ -1167,6 +1167,9 @@ int SpinMonDraw::MakeHtml(const std::string &what)
   cl->CanvasToPng(TC[1], pngfile);
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
+  pngfile = cl->htmlRegisterPage(*this, "Bunch numbers", "3", "png");
+  cl->CanvasToPng(TC[2], pngfile);
+
   /*
   std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
   std::ofstream out(logfile.c_str());
