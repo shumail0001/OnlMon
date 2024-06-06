@@ -468,14 +468,15 @@ int CemcMon::process_event(Event *e /* evt */)
         //_______________________________________________________end of MBD trigger requirement
         if (signalFast > waveform_hit_threshold)
         {
-          for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+          // check if hot tower and skip it
+          if (!isHottower(packet, c))
           {
-            h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
+            for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+            {
+              h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
+            }
+            h1_waveform_time->Fill(timeFast);
           }
-        }
-        if (signalFast > waveform_hit_threshold)
-        {
-          h1_waveform_time->Fill(timeFast);
         }
         if (signalFast > hit_threshold)
         {

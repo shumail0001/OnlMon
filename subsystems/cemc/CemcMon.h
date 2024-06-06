@@ -88,6 +88,14 @@ class CemcMon : public OnlMon
 
   CaloWaveformFitting* WaveformProcessingFast = nullptr;
   CaloWaveformFitting* WaveformProcessingTemp = nullptr;
+
+  bool isHottower(int pid, int channelid)
+  {
+    if (pid == 6014 && channelid == 159) return true;
+    if (pid == 6030 && channelid == 159) return true;
+    if (pid == 6076 && channelid == 93) return true;
+    if (pid == 6127 && channelid == 29) return true;
+  }
 };
 
 #endif /* CEMC_CEMCMON_H */
