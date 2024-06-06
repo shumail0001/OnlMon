@@ -155,6 +155,7 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   Pad[0]->SetGrid(1, 0);
 
   int start = -1;
+  bool IsMisMatch=false;
   TH2 *h_gl1_clock_diff[m_ServerSet.size()];
   int i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
@@ -208,13 +209,13 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
       double content = h_gl1_clock_diff[start]->GetBinContent(ibx,iby);
       if(content >0){ 
           h_gl1_clock_diff[start]->SetBinContent(ibx,iby,iby);
-          std::cout << "h_gl1_clock_diff : " << start << ", " <<  h_gl1_clock_diff[start]->GetBinContent(ibx,iby) << std::endl;
+          if(iby==1) IsMisMatch = true;
       }
     }
   }
 
   h_gl1_clock_diff[start]->Draw("col");
-  TLine line(h_gl1_clock_diff[start]->GetXaxis()->GetXmin(), 0.5, h_gl1_clock_diff[start]->GetXaxis()->GetXmax(), 0.5);
+  TLine line(h_gl1_clock_diff[start]->GetXaxis()->GetXmin(), h_gl1_clock_diff[start]->GetMaximum()/2, h_gl1_clock_diff[start]->GetXaxis()->GetXmax(), h_gl1_clock_diff[start]->GetMaximum()/2);
   line.SetLineColor(kBlack);
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -231,35 +232,20 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   transparent[0]->cd();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
   line.Draw();
+  
+  TLatex latex;
+  latex.SetNDC();
+  latex.SetTextFont(62);
 
-  //  TC[0]->Show();
+  if(IsMisMatch){
+      latex.SetTextSize(0.035);
+      latex.SetTextColor(kRed);
+      latex.DrawLatex(0.21,0.84,"#bf{STOP THE RUN NOW!!}");
+      latex.DrawLatex(0.21,0.68,"#bf{GL1 Clock Mismatch! Put a special note in the e-log}");
+  }
+
   TC[0]->SetEditable(false);
   gStyle->SetOptStat(0);
-  /*
-  line.Draw("same");
-  gROOT->SetStyle("daqStyle");
-  gROOT->ForceStyle();
-  TC[0]->Update();
-  line.Draw("same");
-  gStyle->SetPalette(2, color);
-  gStyle->SetOptStat(0);
-  Pad[0]->Update();
-  line.Draw("same");
-  TC[0]->Update();
-  line.Draw("same");
-  //gStyle->SetOptStat(0);
-  gROOT->SetStyle("daqStyle");
-  gROOT->ForceStyle();
-  //gStyle->SetPalette(2, color);
-  //Pad[0]->Update();
-  //TC[0]->Update();
-  //gStyle->SetPalette(2, color);
-  gStyle->SetOptStat(0);
-  gROOT->SetStyle("daqStyle");
-  gROOT->ForceStyle();
-  TC[0]->Show();
-  //TC[0]->SetEditable(true);
- */
   return 0;
 }
 
@@ -345,13 +331,14 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   latex.SetTextFont(62);
 
   if(IsMisMatch){
-      latex.SetTextSize(0.028);
+      latex.SetTextSize(0.035);
       latex.SetTextColor(kRed);
-      latex.DrawLatex(0.25,0.94,"#bf{Calo FEM Mismatch!! Put a special note in the e-log}");
+      latex.DrawLatex(0.21,0.74,"#bf{STOP THE RUN NOW!!}");
+      latex.DrawLatex(0.21,0.6,"#bf{Calo FEM Mismatch! Put a special note in the e-log}");
   }
   else{
       latex.SetTextColor(kGreen+1);
-      latex.SetTextSize(0.032);
+      latex.SetTextSize(0.035);
       latex.DrawLatex(0.25,0.7,"#bf{Good! FEMs are locked}");
       latex.DrawLatex(0.25,0.5,"#bf{Continue data taking}");
   }
