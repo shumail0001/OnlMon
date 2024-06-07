@@ -571,14 +571,14 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
 
   // modify palette to black, green, and red
   // Int_t palette[3] = {kGray + 2, 8, 2};
-  Int_t palette[3] = {kBlack, 8, 2};
-  cemcStyle->SetPalette(3, palette);
+  Int_t palette[4] = {kBlack, kBlue, 8, 2};
+  cemcStyle->SetPalette(4, palette);
   gROOT->SetStyle("cemcStyle");
   gROOT->ForceStyle();
-  gStyle->SetPalette(3, palette);
-  double_t levels[4] = {0, 0.5, 2, 4};
+  gStyle->SetPalette(4, palette);
+  double_t levels[5] = {0, 0.01, 0.5, 2, 4};
   h_cemc_datahits->GetZaxis()->SetRangeUser(0, 4);
-  h_cemc_datahits->SetContour(4, levels);
+  h_cemc_datahits->SetContour(5, levels);
   gStyle->SetOptStat(0);
   h_cemc_datahits->DrawCopy("colz");
   // h2_cemc_mean[start[1]]->DrawCopy("colz");
@@ -625,17 +625,21 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
+  std::ostringstream runnostream3;
   std::string runstring;
   time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << ": tower occupancy (threshold 100ADC) running mean divided by template";
-  runnostream2 << "Run " << cl->RunNumber()<<", Event: " << avgevents << ", Time: " << ctime(&evttime);
+  runnostream << ThisName << ": tower occupancy running mean/template";
+  runnostream2 << " threshold: 100ADC, Run " << cl->RunNumber()<<", Event: " << avgevents;
+  runnostream3 << "Time: " << ctime(&evttime);
   
   transparent[0]->cd();
   runstring = runnostream.str();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
   runstring = runnostream2.str();
   PrintRun.DrawText(0.5, 0.96, runstring.c_str());
+  runstring = runnostream3.str();
+  PrintRun.DrawText(0.5, 0.93, runstring.c_str());
 
   TC[0]->Update();
   TC[0]->Show();
@@ -1732,25 +1736,24 @@ int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit)
 {
   float nhott = 0;
   float ndeadt = 0;
-  int displaylimit = 15;
+  float ncoldt = 0;
+  int displaylimit = 10;
   std::ostringstream hottowerlist;
   std::ostringstream deadtowerlist;
+  std::ostringstream coldtowerlist;
   float hot_threshold = 2.0;
-  float dead_threshold = 0.5;
+  float dead_threshold = 0.01;
+  float cold_threshold = 0.5;
   // float nTowerTotal = 24576. - 384.;  // to account for the non-functioning towers at the edge of the south
   for (int ieta = 0; ieta < nTowersEta; ieta++)
   {
     for (int iphi = 0; iphi < nTowersPhi; iphi++)
     {
-      if ((ieta < 32 && ieta >= 24) && ((iphi >= 144) && (iphi < 152)))
+      if ((ieta < 40 && ieta >= 32) && ((iphi >= 144) && (iphi < 152)))
       {
         continue;  // uninstrumented
       }
-      else if ((ieta < 40 && ieta >= 32) && ((iphi >= 112) && (iphi < 120)))
-      {
-        continue;  // uninstrumented
-      }
-      else if ((ieta < 72 && ieta >= 64) && ((iphi >= 32) && (iphi < 40)))
+      else if ((ieta < 64 && ieta >= 56) && ((iphi >= 32) && (iphi < 40)))
       {
         continue;  // uninstrumented
       }
@@ -1777,6 +1780,14 @@ int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit)
         }
         ndeadt++;
       }
+      else if (nhit < cold_threshold)
+      {
+        if (ncoldt <= displaylimit)
+        {
+          coldtowerlist << " (" << ieta << "," << iphi << ")";
+        }
+        ncoldt++;
+      }
     }
   }
 
@@ -1788,6 +1799,10 @@ int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit)
   {
     deadtowerlist << "... " << ndeadt << " total";
   }
+  if (ncoldt > displaylimit)
+  {
+    coldtowerlist << "... " << ncoldt << " total";
+  }
   if (nhott == 0)
   {
     hottowerlist << " None";
@@ -1795,6 +1810,10 @@ int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit)
   if (ndeadt == 0)
   {
     deadtowerlist << " None";
+  }
+  if (ncoldt == 0)
+  {
+    coldtowerlist << " None";
   }
   // draw warning here
   warningpad->cd();
@@ -1826,10 +1845,15 @@ int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit)
   warn.DrawText(0.5, 0.9, "Hot towers (ieta,iphi):");
   warn.DrawText(0.5, 0.8, hottowerlist.str().c_str());
 
+  warn.SetTextColor(1);
+  warn.SetTextAlign(23);
+  warn.DrawText(0.5, 0.3, "Dead towers (ieta,iphi):");
+  warn.DrawText(0.5, 0.2, deadtowerlist.str().c_str());
+
   warn.SetTextColor(4);
-  warn.SetTextAlign(22);
-  warn.DrawText(0.5, 0.6, "Dead towers (ieta,iphi):");
-  warn.DrawText(0.5, 0.5, deadtowerlist.str().c_str());
+  warn.SetTextAlign(23);
+  warn.DrawText(0.5, 0.6, "Cold towers (ieta,iphi):");
+  warn.DrawText(0.5, 0.5, coldtowerlist.str().c_str());  
 
   warningpad->Update();
   return 0;

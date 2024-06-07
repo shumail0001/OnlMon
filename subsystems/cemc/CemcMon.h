@@ -95,6 +95,7 @@ class CemcMon : public OnlMon
     if (pid == 6030 && channelid == 159) return true;
     if (pid == 6076 && channelid == 93) return true;
     if (pid == 6127 && channelid == 29) return true;
+    return false;
   }
 };
 
