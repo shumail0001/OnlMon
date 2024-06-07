@@ -106,8 +106,8 @@ const int packet_depth = 1000;
 const int historyLength = 100;
 const int historyScaleDown = 100;
 // const int n_channel = 48;
-const float hit_threshold = 30;
-const float waveform_hit_threshold = 100;
+float hit_threshold = 30;
+float waveform_hit_threshold = 100;
 const int n_samples_show = 31;
 
 int HcalMon::Init()
@@ -316,6 +316,10 @@ std::vector<float> HcalMon::anaWaveform(Packet* p, const int channel)
 
 int HcalMon::BeginRun(const int /* runno */)
 {
+  //reset the thresholds
+  hit_threshold = 30;
+  waveform_hit_threshold = 100;
+
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
 
@@ -407,14 +411,21 @@ int HcalMon::process_event(Event* e /* evt */)
       std::cout << "GL1 event is null" << std::endl;
       h_evtRec->Fill(0.0, 0.0);
     }
-    // this is for only process event with the MBD>=1 trigger
-    if (usembdtrig)
+    // this is for only fill certain histogram with the MBD>=1 trigger or cosmic single trigger(and they should never run together!!)
+    if (usetrig4_10)
     {
-      if (trig_bools.at(10) == 0)
+      if (trig_bools.at(10) == 0 && trig_bools.at(4) == 0)
       {
         fillhist = false;
       }
+      //if we have hcal single cosmic trigger we are in cosmic running mode and need to adjust thresholds accordingly
+      else if(trig_bools.at(4))
+      {
+        hit_threshold = 1000;
+        waveform_hit_threshold = 1000;
+      }
     }
+    
   }
 
   for (int packet = packetlow; packet <= packethigh; packet++)

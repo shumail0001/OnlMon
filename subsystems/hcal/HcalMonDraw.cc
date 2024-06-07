@@ -87,6 +87,22 @@ int HcalMonDraw::Init()
     std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_mean_template in file " << TEMPFILENAME << std::endl;
     exit(1);
   }
+  sprintf(TEMPFILENAME, "%s/%s_cosmic_45022_1000ADC.root", hcalcalib, prefix.c_str());
+  TFile* tempfile2 = new TFile(TEMPFILENAME, "READ");
+  if (!tempfile2->IsOpen())
+  {
+    std::cout << "HcalMonDraw::Init() ERROR: Could not open file " << TEMPFILENAME << std::endl;
+    exit(1);
+  }
+  h2_mean_template_cosmic = (TH2*) tempfile2->Get("h2_hcal_hits_template_cosmic");
+
+  if (!h2_mean_template_cosmic)
+  {
+    std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_mean_template_cosmic in file " << TEMPFILENAME << std::endl;
+    exit(1);
+  }
+
+
   h1_zs = new TH1F("h1_zs", "unsuppressed rate ", 100, 0, 1.1);
   h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1.1);
   h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1.1);
@@ -109,7 +125,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     // gSystem->ProcessEvents(), otherwise your process will grow and
     // grow and grow but will not show a definitely lost memory leak
     gSystem->ProcessEvents();
-    Pad[0] = new TPad("hist", "On the top", 0., 0.2, 1., 1.);
+    Pad[0] = new TPad("hist", "On the top", 0., 0.2, 1., 0.97);
     Pad[0]->Draw();
     // Pad[1]->Draw();
     //  this one is used to plot the run number on the canvas
@@ -367,11 +383,13 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   TH2* hist1_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_rm");
   TH1* h_event_1 =  cl->getHisto(hcalmon[1], "h_event");
 
+  TH1* h_hcal_trig =  cl->getHisto(hcalmon[0], "h_hcal_trig");
+
   if (!gROOT->FindObject("HcalMon1"))
   {
     MakeCanvas("HcalMon1");
   }
-  if (!hist1 || !hist1_1 || !h_event || !h_event_1)
+  if (!hist1 || !hist1_1 || !h_event || !h_event_1 || !h_hcal_trig)
   {
     DrawDeadServer(transparent[0]);
     TC[0]->SetEditable(false);
@@ -384,7 +402,16 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   }
 
   hist1->Add(hist1_1);
+  bool iscosmic = false;
+  if(h_hcal_trig->GetBinContent(5) > 0)
+  {
+    iscosmic = true;
+    hist1->Divide(h2_mean_template_cosmic);
+  }
+  else
+  {
   hist1->Divide(h2_mean_template);
+  }
   int avgevents = h_event->GetEntries() + h_event_1->GetEntries();
   avgevents /= 2;
   // h_event->Add(h_event_1);
@@ -472,13 +499,13 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
     line_ieta[i_line].DrawLine((i_line + 1), 0, (i_line + 1), 64);
   }
 
-  Int_t palette[3] = {1, 8, 2};
-  hcalStyle->SetPalette(3, palette);
+  Int_t palette[4] = {kBlack, kBlue, 8, 2};
+  hcalStyle->SetPalette(4, palette);
   gROOT->SetStyle("hcalStyle");
   gROOT->ForceStyle();
-  gStyle->SetPalette(3, palette);
-  double_t levels[4] = {0, 0.5, 2, 4};
-  hist1->SetContour(4, levels);
+  gStyle->SetPalette(4, palette);
+  double_t levels[5] = {0, 0.01, 0.5, 2, 4};
+  hist1->SetContour(5, levels);
 
   FindHotTower(warning[0], hist1);
   TText PrintRun;
@@ -488,16 +515,26 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
+  std::ostringstream runnostream3;
   std::string runstring;
   time_t evttime = getTime();
+  float threshold = 30;
+  if(iscosmic)
+  {
+    threshold = 1000;
+  }
   // fill run number and event time into string
-  runnostream << ThisName << ": tower occupancy(threshold 30ADC) running mean divided by template";
-  runnostream2 << "Run" << cl->RunNumber() << " Event: " << avgevents << " " << ctime(&evttime);
+  runnostream << ThisName << ": tower occupancy running mean/template";
+  runnostream2 << " threshold: "<<threshold <<"ADC, Run " << cl->RunNumber()<<", Event: " << avgevents;
+  runnostream3 << "Time: " << ctime(&evttime);
+  
   transparent[0]->cd();
   runstring = runnostream.str();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
   runstring = runnostream2.str();
-  PrintRun.DrawText(0.5, 0.966, runstring.c_str());
+  PrintRun.DrawText(0.5, 0.96, runstring.c_str());
+  runstring = runnostream3.str();
+  PrintRun.DrawText(0.5, 0.93, runstring.c_str());
   /*
   // make a TButton at bottom left to pop up a window with average ADC for all tower
   TButton* but1 = new TButton("Draw Template", "", 0.01, 0.01, 0.5, 0.05);
@@ -1316,14 +1353,16 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
 
 int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
 {
-  int nhott = 0;
-  int ndeadt = 0;
-  int displaylimit = 15;
-  // get histogram
+  float nhott = 0;
+  float ndeadt = 0;
+  float ncoldt = 0;
+  int displaylimit = 10;
   std::ostringstream hottowerlist;
   std::ostringstream deadtowerlist;
-  float hot_threshold = 2;
-  float dead_threshold = 0.5;
+  std::ostringstream coldtowerlist;
+  float hot_threshold = 2.0;
+  float dead_threshold = 0.01;
+  float cold_threshold = 0.5;
 
   for (int ieta = 0; ieta < 24; ieta++)
   {
@@ -1348,16 +1387,28 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
         }
         ndeadt++;
       }
+      else if (nhit < cold_threshold)
+      {
+        if (ncoldt <= displaylimit)
+        {
+          coldtowerlist << " (" << ieta << "," << iphi << ")";
+        }
+        ncoldt++;
+      }
     }
   }
 
-  if (nhott > displaylimit)
+   if (nhott > displaylimit)
   {
     hottowerlist << "... " << nhott << " total";
   }
   if (ndeadt > displaylimit)
   {
     deadtowerlist << "... " << ndeadt << " total";
+  }
+  if (ncoldt > displaylimit)
+  {
+    coldtowerlist << "... " << ncoldt << " total";
   }
   if (nhott == 0)
   {
@@ -1366,6 +1417,10 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
   if (ndeadt == 0)
   {
     deadtowerlist << " None";
+  }
+  if (ncoldt == 0)
+  {
+    coldtowerlist << " None";
   }
 
   // draw warning here
@@ -1376,13 +1431,18 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
   Warn.SetTextColor(2);
   Warn.SetNDC();
   Warn.SetTextAlign(23);
-  Warn.DrawText(0.5, 1, "Hot towers:");
-  Warn.DrawText(0.5, 0.9, hottowerlist.str().c_str());
+  Warn.DrawText(0.5, 0.9, "Hot towers (ieta,iphi):");
+  Warn.DrawText(0.5, 0.8, hottowerlist.str().c_str());
+
+  Warn.SetTextColor(1);
+  Warn.SetTextAlign(23);
+  Warn.DrawText(0.5, 0.3, "Dead towers (ieta,iphi):");
+  Warn.DrawText(0.5, 0.2, deadtowerlist.str().c_str());
 
   Warn.SetTextColor(4);
-  Warn.SetTextAlign(22);
-  Warn.DrawText(0.5, 0.7, "Dead towers:");
-  Warn.DrawText(0.5, 0.6, deadtowerlist.str().c_str());
+  Warn.SetTextAlign(23);
+  Warn.DrawText(0.5, 0.6, "Cold towers (ieta,iphi):");
+  Warn.DrawText(0.5, 0.5, coldtowerlist.str().c_str());  
 
   warningpad->Update();
   return 0;
