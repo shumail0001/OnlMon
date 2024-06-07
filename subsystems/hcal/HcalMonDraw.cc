@@ -798,14 +798,18 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   PrintRun.SetNDC();          // set to normalized coordinates
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
+  std::ostringstream runnostream2;
   std::string runstring;
+  std::string runstring2;
   time_t evttime = getTime();
   // fill run number and event time into string
-  runnostream << ThisName << ": Pulse fitting, Run" << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+  runnostream << ThisName << ": Pulse fitting, Run" << cl->RunNumber();
+  runnostream2 << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
+  runstring2 = runnostream2.str();
   transparent[3]->cd();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+  PrintRun.DrawText(0.5, 0.96, runstring2.c_str());
 
   Pad[7]->cd();
 
@@ -1436,13 +1440,13 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
 
   Warn.SetTextColor(1);
   Warn.SetTextAlign(23);
-  Warn.DrawText(0.5, 0.3, "Dead towers (ieta,iphi):");
-  Warn.DrawText(0.5, 0.2, deadtowerlist.str().c_str());
+  Warn.DrawText(0.5, 0.5, "Dead towers (ieta,iphi):");
+  Warn.DrawText(0.5, 0.4, deadtowerlist.str().c_str());
 
   Warn.SetTextColor(4);
   Warn.SetTextAlign(23);
-  Warn.DrawText(0.5, 0.6, "Cold towers (ieta,iphi):");
-  Warn.DrawText(0.5, 0.5, coldtowerlist.str().c_str());  
+  Warn.DrawText(0.5, 0.7, "Cold towers (ieta,iphi):");
+  Warn.DrawText(0.5, 0.6, coldtowerlist.str().c_str());  
 
   warningpad->Update();
   return 0;
@@ -2464,14 +2468,18 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   PrintRun.SetNDC();          // set to normalized coordinates
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
+  std::ostringstream runnostream2;
   std::string runstring;
+  std::string runstring2;
   time_t evttime = getTime();
   // fill run number and event time into string
-  runnostream << ThisName << ": Unsuppressed event fraction, Run" << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+  runnostream << ThisName << ": Unsuppressed event fraction, Run" << cl->RunNumber();
+  runnostream2 << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
+  runstring2 = runnostream2.str();
   transparent[9]->cd();
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+  PrintRun.DrawText(0.5, 0.95, runstring2.c_str());
 
   TC[9]->Update();
   TC[9]->Show();
