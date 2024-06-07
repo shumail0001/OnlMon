@@ -42,7 +42,7 @@ case "$1" in
     start)
 	#echo starting
 	#echo $hostname.$2.cmd
-	nohup  nohup root.exe -l $ONLMON_SERVERWATCHER/$hostname.monitorserver.$2.cmd >& /scratch/phnxrc/onlmon/${hostname}.monitorserver.$2.log &
+	nohup root.exe -l $ONLMON_SERVERWATCHER/$hostname.monitorserver.$2.cmd >& /scratch/phnxrc/onlmon/${hostname}.monitorserver.$2.log &
 	pid=`echo $!`
 	echo $pid > $pidfile
 	;;
