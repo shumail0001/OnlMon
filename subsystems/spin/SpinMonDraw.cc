@@ -12,6 +12,7 @@
 #include <TH2I.h>
 #include <TLatex.h>
 #include <TLegend.h>
+#include <TLine.h>
 #include <TPad.h>
 #include <TROOT.h>
 #include <TStyle.h>
@@ -82,7 +83,7 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
   if (name == "SpinMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "SpinMon Shift Crew", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
+    TC[0] = new TCanvas(name.c_str(), "SpinMon Shift Crew", -1, ysize, xsize * 0.95, ysize);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -113,7 +114,7 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SpinMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "SpinMon Experts", -xsize * 0.9, -ysize * 0.9, xsize * 0.9, ysize * 0.9);
+    TC[1] = new TCanvas(name.c_str(), "SpinMon Experts", -1, ysize, xsize * 0.95, ysize);
     gSystem->ProcessEvents();
 
     Pad[7] = new TPad("spinpad8", "who needs this?", 0.05, 0.725, 0.35, 0.95, 0);
@@ -167,6 +168,19 @@ int SpinMonDraw::MakeCanvas(const std::string &name)
     transparent[1]->SetFillStyle(4000);
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
+  } else if (name == "SpinMon3")
+  {
+    TC[2] = new TCanvas(name.c_str(), "SpinMon Bunch Numbers", -1, ysize, xsize * 0.95, ysize);
+    gSystem->ProcessEvents();
+
+    Pad[29] = new TPad("spinpad30", "who needs this?", 0.05, 0.05, 0.95, 0.95, 0);
+    Pad[29]->Draw();
+
+    // this one is used to plot the run number on the canvas
+    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
+    TC[2]->SetEditable(false);
   }
   return 0;
 }
@@ -183,6 +197,11 @@ int SpinMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SECOND")
   {
     iret += DrawSecond(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "THIRD")
+  {
+    iret += DrawThird(what);
     idraw++;
   }
   if (!idraw)
@@ -776,6 +795,64 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   {
     MakeCanvas("SpinMon2");
   }
+
+  
+  for (int i = 0; i < NTRIG; i++)
+  {
+    gl1_counter[i] = cl->getHisto("SPINMON_0", Form("gl1_counter_trig%d", i));
+    if (!gl1_counter[i])
+    {
+      DrawDeadServer(transparent[1]);
+      TC[1]->SetEditable(false);
+      if (isHtml())
+      {
+        delete TC[1];
+        TC[1] = nullptr;
+      }
+      return -1;
+    }
+  }
+
+
+  gl1ptriggers["MBD_NS"] = gl1_counter[MBD_NS];
+  gl1ptriggers["MBD_NS"]->SetTitle("gl1p MBD NS");
+  
+  gl1ptriggers["MBD_VTX"] = gl1_counter[MBD_VTX];
+  gl1ptriggers["MBD_VTX"]->SetTitle("gl1p MBD VTX");
+
+  gl1ptriggers["MBD_10cm_VTX"] = gl1_counter[MBD_10cm_VTX];
+  gl1ptriggers["MBD_10cm_VTX"]->SetTitle("gl1p MBD +/-10cm VTX");
+
+  gl1ptriggers["MBD_S"] = gl1_counter[MBD_S];
+  gl1ptriggers["MBD_S"]->SetTitle("gl1p MBD S");
+  gl1ptriggers["MBD_N"] = gl1_counter[MBD_N];
+  gl1ptriggers["MBD_N"]->SetTitle("gl1p MBD N");
+  gl1ptriggers["ZDC_NS"] = gl1_counter[ZDC_NS];
+  gl1ptriggers["ZDC_NS"]->SetTitle("gl1p ZDC NS");
+
+  gl1ptriggers["ZDC_S"] = gl1_counter[ZDC_S];
+  gl1ptriggers["ZDC_S"]->SetTitle("gl1p ZDC S");
+  gl1ptriggers["ZDC_N"] = gl1_counter[ZDC_N];
+  gl1ptriggers["ZDC_N"]->SetTitle("gl1p ZDC N");
+  gl1ptriggers["EMPTY1"] = gl1_counter[EMPTY1];
+  gl1ptriggers["EMPTY1"]->SetTitle("gl1p empty1");
+  gl1ptriggers["EMPTY2"] = gl1_counter[EMPTY2];
+  gl1ptriggers["EMPTY2"]->SetTitle("gl1p empty2");
+  gl1ptriggers["EMPTY3"] = gl1_counter[EMPTY3];
+  gl1ptriggers["EMPTY3"]->SetTitle("gl1p empty3");
+  gl1ptriggers["EMPTY4"] = gl1_counter[EMPTY4];
+  gl1ptriggers["EMPTY4"]->SetTitle("gl1p empty4");
+  gl1ptriggers["EMPTY5"] = gl1_counter[EMPTY5];
+  gl1ptriggers["EMPTY5"]->SetTitle("gl1p empty5");
+  gl1ptriggers["EMPTY6"] = gl1_counter[EMPTY6];
+  gl1ptriggers["EMPTY6"]->SetTitle("gl1p empty6");
+  gl1ptriggers["EMPTY7"] = gl1_counter[EMPTY7];
+  gl1ptriggers["EMPTY7"]->SetTitle("gl1p empty7");
+  gl1ptriggers["EMPTY8"] = gl1_counter[EMPTY8];
+  gl1ptriggers["EMPTY8"]->SetTitle("gl1p empty8");
+  
+
+
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
 
@@ -783,6 +860,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   gStyle->SetTitleAlign(33);
   gStyle->SetTitleX(0.75);
   float labelsize = 0.05;
+
+  
 
   if (gl1ptriggers["MBD_NS"] && gl1ptriggers["MBD_VTX"])
   {
@@ -793,8 +872,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   else
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[1]);
+    TC[1]->SetEditable(false);
     return -1;
   }
 
@@ -807,8 +886,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   else
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[1]);
+    TC[1]->SetEditable(false);
     return -1;
   }
 
@@ -821,8 +900,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   else
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[1]);
+    TC[1]->SetEditable(false);
     return -1;
   }
 
@@ -835,8 +914,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   else
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[1]);
+    TC[1]->SetEditable(false);
     return -1;
   }
 
@@ -849,8 +928,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   else
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[1]);
+    TC[1]->SetEditable(false);
     return -1;
   }
 
@@ -863,8 +942,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   }
   else
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[1]);
+    TC[1]->SetEditable(false);
     return -1;
   }
 
@@ -895,8 +974,8 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
     }
     else
     {
-      DrawDeadServer(transparent[0]);
-      TC[0]->SetEditable(false);
+      DrawDeadServer(transparent[1]);
+      TC[1]->SetEditable(false);
       return -1;
     }
   }
@@ -920,6 +999,131 @@ int SpinMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->SetEditable(false);
   return 0;
 }
+
+int SpinMonDraw::DrawThird(const std::string & /* what */)
+{
+
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1F *hCorrect = (TH1F *) cl->getHisto("SPINMON_0", "hCorrect");
+  TH1F *hAbortgap = (TH1F *) cl->getHisto("SPINMON_0", "hAbortgap");
+  TH1F *hForbidden = (TH1F *) cl->getHisto("SPINMON_0", "hForbidden");
+
+  if (!gROOT->FindObject("SpinMon3"))
+  {
+    MakeCanvas("SpinMon3");
+  }
+  
+  TC[2]->SetEditable(true);
+  TC[2]->Clear("D");
+
+
+  Pad[29]->cd();
+  Pad[29]->SetTopMargin(0.25);
+  Pad[29]->SetBottomMargin(0.25);
+  Pad[29]->SetLeftMargin(0.15);
+  Pad[29]->SetRightMargin(0.15);
+
+  
+  if (!hCorrect || !hAbortgap || !hForbidden)
+  {
+    DrawDeadServer(transparent[2]);
+    TC[2]->SetEditable(false);
+    return -1;
+  }
+  else
+  {
+    hCorrect->SetTitle("");
+    hCorrect->GetXaxis()->SetTitle("Bunch Number");
+    hCorrect->GetYaxis()->SetTitle("Count");
+    hCorrect->SetFillColor(kGreen+2);
+    hCorrect->SetLineWidth(0);
+    hCorrect->SetStats(0);
+
+    hAbortgap->GetXaxis()->SetTitle("Bunch Number");
+    hAbortgap->GetYaxis()->SetTitle("Count");
+    hAbortgap->SetFillColor(kOrange);
+    hAbortgap->SetLineWidth(0);
+
+    hForbidden->GetXaxis()->SetTitle("Bunch Number");
+    hForbidden->GetYaxis()->SetTitle("Count");
+    hForbidden->SetFillColor(kRed+2);
+    hForbidden->SetLineWidth(0);
+
+    double ymax = hCorrect->GetMaximum();
+    if ( hAbortgap->GetMaximum() > ymax ) 
+    {
+      ymax = hAbortgap->GetMaximum();
+    }
+    if ( hForbidden->GetMaximum() > ymax )
+    {
+      ymax = hForbidden->GetMaximum();
+    }
+
+    hCorrect->DrawCopy("hist");
+    hAbortgap->DrawCopy("hist,same");
+    hForbidden->DrawCopy("hist,same");
+
+    TLine *tl111 = new TLine(110.5,0,110.5,ymax);
+    tl111->SetLineWidth(2);
+    tl111->SetLineColor(kBlue);
+    //tl111->SetLineStyle(3);
+    tl111->Draw();
+
+    TLine *tl120 = new TLine(120,0,120,ymax);
+    tl120->SetLineWidth(2);
+    tl120->SetLineColor(kBlue);
+    //tl120->SetLineStyle(3);
+    tl120->Draw();
+
+    TText annotation;
+    annotation.SetTextFont(62);
+    annotation.SetTextSize(0.04);
+    //annotation.SetNDC();          // set to normalized coordinates
+    annotation.SetTextAlign(22);  // center alignment
+    annotation.DrawText(55, 0.3*ymax, "Collisions");
+
+    TText ag;
+    ag.SetTextAngle(90);
+    ag.SetTextFont(62);
+    ag.SetTextSize(0.04);
+    //  ag.SetNDC();          // set to normalized coordinates
+    ag.SetTextAlign(22);  // center/top alignment
+    ag.DrawText(115, ymax/3., "Abort Gap");
+
+
+    TText fg;
+    fg.SetTextAngle(90);
+    fg.SetTextFont(62);
+    fg.SetTextSize(0.04);
+    //  fg.SetNDC();          // set to normalized coordinates
+    fg.SetTextAlign(22);  // center alignment
+    fg.DrawText(125, ymax/3., "Forbidden");
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_3 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[2]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[2]->Update();
+  TC[2]->Show();
+  TC[2]->SetEditable(false);
+  return 0;
+
+
+}
+
+
 
 int SpinMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
@@ -962,6 +1166,9 @@ int SpinMonDraw::MakeHtml(const std::string &what)
   pngfile = cl->htmlRegisterPage(*this, "Expert", "2", "png");
   cl->CanvasToPng(TC[1], pngfile);
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
+
+  pngfile = cl->htmlRegisterPage(*this, "Bunch numbers", "3", "png");
+  cl->CanvasToPng(TC[2], pngfile);
 
   /*
   std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");

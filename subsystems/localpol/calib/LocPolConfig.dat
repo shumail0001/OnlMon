@@ -1,9 +1,10 @@
-trigger 1024
-testfake 1
-sphenixgap 117
+trigger 2
+testfake 0
+sphenixgap 111
 threshold 6000
 X0north 0.0
 Y0north 0.0
 X0south 0.0
 Y0south 0.0
 verbosity 0
+thresholdasymnewpoint 5000

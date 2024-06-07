@@ -119,7 +119,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   if (name == "HcalMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "Hcal Towers", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[0] = new TCanvas(name.c_str(), "Hcal Towers", -1, ysize, xsize / 3, ysize);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -143,7 +143,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   else if (name == "HcalMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "Hcal Sector Running Mean", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[1] = new TCanvas(name.c_str(), "Hcal Sector Running Mean", -1, ysize, xsize / 3, ysize);
     gSystem->ProcessEvents();
     Pad[2] = new TPad("hcalpad3", "who needs this?", 0.0, 0.0, 1, 0.92, 0);
     // Pad[3] = new TPad("hcalpad4", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
@@ -157,7 +157,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalMon3")
   {
-    TC[3] = new TCanvas(name.c_str(), "HcalMon3 Waveform Info", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[3] = new TCanvas(name.c_str(), "HcalMon3 Waveform Info", -1, ysize, xsize / 3, ysize);
     gSystem->ProcessEvents();
     Pad[6] = new TPad("hcalpad6", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
     Pad[7] = new TPad("hcalpad7", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
@@ -174,7 +174,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   else if (name == "HcalMon4")
   {
     // xpos negative: do not draw menu bar
-    TC[5] = new TCanvas(name.c_str(), "HCAL Packet Information", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[5] = new TCanvas(name.c_str(), "HCAL Packet Information", -1, ysize, 2 * xsize / 3, ysize);
     gSystem->ProcessEvents();
     Pad[10] = new TPad("pad10", "packet event check", 0.0, 0.6, 1.0 / 2, 0.95, 0);
     Pad[11] = new TPad("pad11", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
@@ -203,7 +203,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalMon5")
   {
-    TC[6] = new TCanvas(name.c_str(), "Expert: Trigger Info", xsize / 2, 0, xsize / 2, ysize * 0.9);
+    TC[6] = new TCanvas(name.c_str(), "Expert: Trigger Info", -1, ysize, xsize / 2, ysize);
     gSystem->ProcessEvents();
     Pad[16] = new TPad("hcalpad16", "", 0.0, 0.6, 0.5, 0.95, 0);
     Pad[17] = new TPad("hcalpad17", "", 0.5, 0.6, 1.0, 0.95, 0);
@@ -223,7 +223,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalMon6")
   {
-    TC[7] = new TCanvas(name.c_str(), "Expert: Tower Information", xsize, 0, xsize, ysize * 0.9);
+    TC[7] = new TCanvas(name.c_str(), "Expert: Tower Information", -1, ysize, xsize*0.9, ysize);
     gSystem->ProcessEvents();
     Pad[21] = new TPad("hcalpad21", "", 0.0, 0.5, 0.5, 0.95, 0);
     Pad[22] = new TPad("hcalpad22", "", 0.5, 0.5, 1.0, 0.95, 0);
@@ -241,7 +241,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalMon7")
   {
-    TC[9] = new TCanvas(name.c_str(), "Channel unsuppressed event fraction ", -xsize / 2, 0, xsize / 2, ysize * 0.9);
+    TC[9] = new TCanvas(name.c_str(), "Channel unsuppressed event fraction ", -1, ysize, xsize / 2, ysize);
     gSystem->ProcessEvents();
     Pad[24] = new TPad("hcalpad24", "who needs this?", 0.00, 0.3, 1.00, 0.95);
     Pad[24]->SetRightMargin(0.15);
@@ -256,7 +256,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalPopUp")
   {
-    TC[4] = new TCanvas(name.c_str(), "!!!DO NOT CLOSE!!! OR THE CODE WILL CRASH!!!!(Maybe not...)", 2 * xsize / 3, 0, xsize / 2, 2 * ysize / 3);
+    TC[4] = new TCanvas(name.c_str(), "!!!DO NOT CLOSE!!! OR THE CODE WILL CRASH!!!!(Maybe not...)", -1, ysize, xsize / 2, 2 * ysize / 3);
     gSystem->ProcessEvents();
     Pad[9] = new TPad("hcalpad9", "for single tower running mean", 0.0, 0.0, 1, 0.92, 0);
     Pad[9]->Draw();
@@ -267,7 +267,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalServerStats")
   {
-    TC[8] = new TCanvas(name.c_str(), "HcalMon Server Stats", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[8] = new TCanvas(name.c_str(), "HcalMon Server Stats", -xsize / 3, 0, xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
     transparent[8] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);

@@ -41,7 +41,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // --- this is called by int DrawFirst(string&)
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - UNDER CONSTRUCTION - Hits/Event vs Tile", 1200, 600);
+    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - UNDER CONSTRUCTION - Hits/Event vs Tile", -1200, 600);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -61,7 +61,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // xpos negative: do not draw menu bar
     //TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1200, 600);
-    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - EXPERT - ADC Distributions", 1600, 800);
+    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - EXPERT - ADC Distributions", -1600, 800);
     gSystem->ProcessEvents();
     for ( int i = 0; i < 32; ++i )
       {
@@ -86,7 +86,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SepdMon3")
   {
     // xpos negative: do not draw menu bar
-    TC[2] = new TCanvas(name.c_str(), "sEPD Monitor 3 - North vs South Correlations", 1200, 600);
+    TC[2] = new TCanvas(name.c_str(), "sEPD Monitor 3 - North vs South Correlations", -1200, 600);
     gSystem->ProcessEvents();
     Pad[4] = new TPad("sepdpad4", "Left", 0., 0., 0.5, 1);
     Pad[5] = new TPad("sepdpad5", "Right", 0.5, 0., 1, 1);
@@ -100,7 +100,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "SepdMon4")
   {
-    TC[3] = new TCanvas(name.c_str(), "sEPD Monitor 4 - Waveform Info", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[3] = new TCanvas(name.c_str(), "sEPD Monitor 4 - Waveform Info", -1, ysize, xsize / 3, ysize);
     gSystem->ProcessEvents();
     Pad[6] = new TPad("sepdpad6", "ADC vs sample #", 0.0, 0.6, 1.0, 0.95, 0);
     Pad[7] = new TPad("sepdpad7", "counts vs sample #", 0.0, 0.3, 1.0, 0.6, 0);
@@ -117,7 +117,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SepdMon5")
   {
     // xpos negative: do not draw menu bar
-    TC[4] = new TCanvas(name.c_str(), "sEPD Monitor 5 - Packet Information", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[4] = new TCanvas(name.c_str(), "sEPD Monitor 5 - Packet Information", -1, ysize, xsize / 3, ysize);
     gSystem->ProcessEvents();
     Pad[10] = new TPad("sepdpad10", "packet event check", 0.0, 0.6, 1.0 / 2, 0.95, 0);
     Pad[11] = new TPad("sepdpad11", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);

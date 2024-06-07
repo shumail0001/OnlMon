@@ -117,17 +117,22 @@ class TpcMon : public OnlMon
   TH1 *RAWADC_1D_R1= nullptr;
   TH1 *MAXADC_1D_R1 = nullptr;
   TH1 *PEDEST_SUB_1D_R1 = nullptr;
+  TH1 *COUNTS_vs_SAMPLE_1D_R1 = nullptr;
 
   TH1 *RAWADC_1D_R2= nullptr;
   TH1 *MAXADC_1D_R2 = nullptr;
   TH1 *PEDEST_SUB_1D_R2 = nullptr;
+  TH1 *COUNTS_vs_SAMPLE_1D_R2 = nullptr;
 
   TH1 *RAWADC_1D_R3= nullptr;
   TH1 *MAXADC_1D_R3 = nullptr;
   TH1 *PEDEST_SUB_1D_R3 = nullptr;
+  TH1 *COUNTS_vs_SAMPLE_1D_R3 = nullptr;
 
   TH2 *Layer_ChannelPhi_ADC_weighted = nullptr;
   TH1 *NEvents_vs_EBDC = nullptr;
+
+  TH1 *NStreaks_vs_EventNo = nullptr;
 
   TpcMap M; //declare Martin's map
 

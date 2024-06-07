@@ -105,7 +105,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   if (name == "CemcMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "CemcMon Tower Hits", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[0] = new TCanvas(name.c_str(), "CemcMon Tower Hits", -1, ysize, xsize / 3, ysize);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -127,7 +127,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "CemcMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "Expert: CemcMon2 Packet Information", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[1] = new TCanvas(name.c_str(), "Expert: CemcMon2 Packet Information",  -1, ysize, xsize / 3, ysize);
     gSystem->ProcessEvents();
     Pad[1] = new TPad("cemcpad1", "packet event check", 0.0, 0.6, 1.0 / 2, 0.95, 0);
     Pad[2] = new TPad("cemcpad2", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
@@ -148,7 +148,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcMon3")
   {
-    TC[2] = new TCanvas(name.c_str(), "CemcMon Waveform Processing", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[2] = new TCanvas(name.c_str(), "CemcMon Waveform Processing", -1, ysize, xsize / 3, ysize);
     gSystem->ProcessEvents();
     Pad[4] = new TPad("cemcpad4", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
     Pad[5] = new TPad("cemcpad5", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
@@ -164,7 +164,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcMon4")
   {
-    TC[3] = new TCanvas(name.c_str(), "Expert: CemcMon Waveform Processing", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[3] = new TCanvas(name.c_str(), "Expert: CemcMon Waveform Processing", -1, ysize, xsize / 3, ysize);
     gSystem->ProcessEvents();
     Pad[7] = new TPad("cemcpad7", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
     Pad[8] = new TPad("cemcpad8", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
@@ -180,7 +180,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcMon5")
   {
-    TC[4] = new TCanvas(name.c_str(), "Expert: Trigger Info", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[4] = new TCanvas(name.c_str(), "Expert: Trigger Info", -1, ysize, xsize / 3, ysize);
     gSystem->ProcessEvents();
     Pad[10] = new TPad("cemcpad10", "who needs this?", 0.0, 0.6, 0.45, 0.95, 0);
     Pad[11] = new TPad("cemcpad11", "who needs this?", 0.45, 0.6, 0.9, 0.95, 0);
@@ -200,7 +200,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcMonServerStats")
   {
-    TC[5] = new TCanvas(name.c_str(), "CemcMon6 Server Stats", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[5] = new TCanvas(name.c_str(), "CemcMon6 Server Stats", -1, ysize, xsize / 3, ysize);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
     transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
@@ -244,7 +244,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   // }
   else if (name == "CemcMon8")
   {
-    TC[7] = new TCanvas(name.c_str(), "Channel unsuppressed event fraction", -xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[7] = new TCanvas(name.c_str(), "Channel unsuppressed event fraction", -1, ysize, xsize / 3, ysize);
     gSystem->ProcessEvents();
     Pad[19] = new TPad("cemcpad19", "who needs this?", 0.00, 0.3, 1.00, 0.95);
     Pad[19]->SetRightMargin(0.15);

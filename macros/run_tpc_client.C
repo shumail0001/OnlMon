@@ -78,12 +78,15 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("RAWADC_1D_R1",servername);
     cl->registerHisto("MAXADC_1D_R1",servername);
     cl->registerHisto("PEDEST_SUB_1D_R1",servername);
+    cl->registerHisto("COUNTS_vs_SAMPLE_1D_R1",servername);
     cl->registerHisto("RAWADC_1D_R2",servername);
     cl->registerHisto("MAXADC_1D_R2",servername);
     cl->registerHisto("PEDEST_SUB_1D_R2",servername);
+    cl->registerHisto("COUNTS_vs_SAMPLE_1D_R2",servername);
     cl->registerHisto("RAWADC_1D_R3",servername);
     cl->registerHisto("MAXADC_1D_R3",servername);
     cl->registerHisto("PEDEST_SUB_1D_R3",servername);
+    cl->registerHisto("COUNTS_vs_SAMPLE_1D_R3",servername);
 
     cl->registerHisto("NorthSideADC_clusterZY", servername);
     cl->registerHisto("SouthSideADC_clusterZY", servername);
@@ -93,6 +96,7 @@ void tpcDrawInit(const int online = 0)
 
     cl->registerHisto("Layer_ChannelPhi_ADC_weighted",servername);
     cl->registerHisto("NEvents_vs_EBDC",servername);
+    cl->registerHisto("NStreaks_vs_EventNo",servername);
   } //
 
 

@@ -120,6 +120,11 @@ class SpinMon : public OnlMon
 
   TH1 *gl1_counter[NTRIG] = {nullptr};
 
+  TH1 *hCorrect = nullptr;
+  TH1 *hAbortgap = nullptr;
+  TH1 *hForbidden = nullptr;
+  
+
   // uint64_t scalercounts[NTRIG][NBUNCHES]{};
 };
 

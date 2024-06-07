@@ -28,9 +28,10 @@ class SpinMonDraw : public OnlMonDraw
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
-  TCanvas *TC[2] = {nullptr};
-  TPad *transparent[2] = {nullptr};
-  TPad *Pad[29] = {nullptr};
+  int DrawThird(const std::string &what = "ALL");
+  TCanvas *TC[3] = {nullptr};
+  TPad *transparent[3] = {nullptr};
+  TPad *Pad[30] = {nullptr};
 
   std::map<std::string, std::string> preset_pattern_blue;
   std::map<std::string, std::string> preset_pattern_yellow;
