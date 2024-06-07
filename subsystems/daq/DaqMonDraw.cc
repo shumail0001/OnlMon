@@ -155,7 +155,7 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   Pad[0]->SetGrid(1, 0);
 
   int start = -1;
-  bool IsMisMatch=false;
+  bool IsGL1MisMatch=false;
   TH2 *h_gl1_clock_diff[m_ServerSet.size()];
   int i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
@@ -209,8 +209,8 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
       double content = h_gl1_clock_diff[start]->GetBinContent(ibx,iby);
       if(content >0){ 
           h_gl1_clock_diff[start]->SetBinContent(ibx,iby,iby);
-          if(iby==1) IsMisMatch = true;
       }
+      if(iby==1 && h_gl1_clock_diff[start]->GetBinContent(ibx,iby)>0) IsGL1MisMatch = true;
     }
   }
 
@@ -237,7 +237,7 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   latex.SetNDC();
   latex.SetTextFont(62);
 
-  if(IsMisMatch){
+  if(IsGL1MisMatch){
       latex.SetTextSize(0.035);
       latex.SetTextColor(kRed);
       latex.DrawLatex(0.21,0.84,"#bf{STOP THE RUN NOW!!}");
