@@ -51,7 +51,7 @@ void StartPoms()
 
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
-  subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average [Expert]");
+  //subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average [Expert]");
   subsys->AddAction("ihcalDraw(\"THIRD\")", "Wave Form");
   //subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ihcalDraw(\"FIFTH\")", "Trigger [Expert]");
@@ -63,7 +63,7 @@ void StartPoms()
 
   subsys = new SubSystem("Outer HCAL", "ohcal");
   subsys->AddAction("ohcalDraw(\"FIRST\")", "Towers");
-  subsys->AddAction("ohcalDraw(\"SECOND\")", "Sector Average [Expert]");
+  //subsys->AddAction("ohcalDraw(\"SECOND\")", "Sector Average [Expert]");
   subsys->AddAction("ohcalDraw(\"THIRD\")", "Wave Form");
   //subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ohcalDraw(\"FIFTH\")", "Trigger [Expert]");
