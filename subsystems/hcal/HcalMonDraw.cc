@@ -293,6 +293,7 @@ int HcalMonDraw::Draw(const std::string& what)
     }
     idraw++;
   }
+  /*
   if (what == "ALL" || what == "SECOND")
   {
     int retcode = DrawSecond(what);
@@ -302,6 +303,7 @@ int HcalMonDraw::Draw(const std::string& what)
     }
     idraw++;
   }
+  */
   if (what == "ALL" || what == "THIRD")
   {
     int retcode = DrawThird(what);
