@@ -105,7 +105,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   if (name == "LocalPolMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "LocalPolMon Asymmetries", -xsize / 2.5, 0, xsize / 2.5, ysize * 0.9);
+    TC[0] = new TCanvas(name.c_str(), "LocalPolMon Asymmetries", -1, 0, xsize / 2.5, ysize * 0.9);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -128,7 +128,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   else if (name == "LocalPolMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "LocalPolMon Polarisation direction", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[1] = new TCanvas(name.c_str(), "LocalPolMon Polarisation direction", -1, 0, xsize / 2.5, ysize);
     gSystem->ProcessEvents();
     for (int ipad = 0; ipad < 4; ipad++)
     {
@@ -145,7 +145,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   }
   else if(name=="LocalPolMon3"){
     // xpos negative: do not draw menu bar
-    TC[2] = new TCanvas(name.c_str(), "LocalPolMon Spin Pattern", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[2] = new TCanvas(name.c_str(), "LocalPolMon Spin Pattern", -1, 0, xsize / 2.5, ysize);
     gSystem->ProcessEvents();
     Pad[2][0] = new TPad(Form("locpolpad2%d", 0), "who needs this?", 0.05 , 0.05, 0.95, 0.95, 0);
     Pad[2][0]->SetTopMargin(0.15);
@@ -160,7 +160,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   }
   else if(name=="LocalPolMon4"){
     // xpos negative: do not draw menu bar
-    TC[3] = new TCanvas(name.c_str(), "Trigger distribution", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[3] = new TCanvas(name.c_str(), "Trigger distribution", -1, 0, xsize / 2.5, ysize);
     gSystem->ProcessEvents();
     for (int ipad = 0; ipad < 16; ipad++)
     {
@@ -178,7 +178,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   }
   else if(name=="LocalPolMon5"){
     // xpos negative: do not draw menu bar
-    TC[4] = new TCanvas(name.c_str(), "SMD distributions", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[4] = new TCanvas(name.c_str(), "SMD distributions", -1, 0, xsize / 2.5, ysize);
     gSystem->ProcessEvents();
     for (int ipad = 0; ipad < 12; ipad++)
     {
@@ -195,7 +195,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   }
   else if(name=="LocalPolMon6"){
     // xpos negative: do not draw menu bar
-    TC[5] = new TCanvas(name.c_str(), "Waveforms", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[5] = new TCanvas(name.c_str(), "Waveforms", -1, 0, xsize / 2.5, ysize);
     gSystem->ProcessEvents();
     for (int ipad = 0; ipad < 6; ipad++)
     {
@@ -212,7 +212,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   }
   else if(name=="LocalPolMon7"){
     // xpos negative: do not draw menu bar
-    TC[6] = new TCanvas(name.c_str(), "Dropped events", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[6] = new TCanvas(name.c_str(), "Dropped events", -1, 0, xsize / 2.5, ysize);
     gSystem->ProcessEvents();
     Pad[6][0] = new TPad(Form("locpolpad6%d", 0), "who needs this?", 0.0 , 0.05, 1.0, 0.95, 0);
     Pad[6][0]->SetLeftMargin(0.15);
@@ -226,7 +226,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   }
   else if(name=="LocalPolMon8"){
     // xpos negative: do not draw menu bar
-    TC[7] = new TCanvas(name.c_str(), "2D SMD profile", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[7] = new TCanvas(name.c_str(), "2D SMD profile", -1, 0, xsize / 2.5, ysize);
     gSystem->ProcessEvents();
     Pad[7][0] = new TPad(Form("locpolpad7%d", 0), "who needs this?", 0.0 , 0.05, 0.50, 0.95, 0);
     Pad[7][0]->SetLeftMargin(0.15);

@@ -146,7 +146,7 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   m_cnvs_height = ysize;
   if (name == "InttMonServerStats")
   {
-    TC[k_server_stats] = new TCanvas(name.c_str(), "InttMon Server Stats", xsize / 2, 0, xsize / 2, ysize);
+    TC[k_server_stats] = new TCanvas(name.c_str(), "InttMon Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     transparent[k_server_stats] = new TPad(Form("transparent%d", k_server_stats), "this does not show", 0, 0, 1, 1);
     transparent[k_server_stats]->SetFillColor(kGray);
@@ -157,7 +157,7 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   }
   if (name == "InttFelixBcoFphxBco")
   {
-    TC[k_felixbcofphxbco] = new TCanvas(name.c_str(), "Felix Fphx Bco", m_cnvs_width, m_cnvs_height);
+    TC[k_felixbcofphxbco] = new TCanvas(name.c_str(), "Felix Fphx Bco", -1, 0, m_cnvs_width, m_cnvs_height);
     gSystem->ProcessEvents();
     transparent[k_felixbcofphxbco] = new TPad(Form("transparent%d", k_felixbcofphxbco), "this does not show", 0, 0, 1, 1);
     transparent[k_felixbcofphxbco]->SetFillStyle(4000);  // Transparent
@@ -169,7 +169,7 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   }
   if (name == "InttHitMap")
   {
-    TC[k_hitmap] = new TCanvas(name.c_str(), "Intt Hit Map", m_cnvs_width, m_cnvs_height);
+    TC[k_hitmap] = new TCanvas(name.c_str(), "Intt Hit Map", -1, 0, m_cnvs_width, m_cnvs_height);
     gSystem->ProcessEvents();
     transparent[k_hitmap] = new TPad(Form("transparent%d", k_hitmap), "this does not show", 0, 0, 1, 1);
     transparent[k_hitmap]->SetFillStyle(4000);  // Transparent
@@ -181,7 +181,7 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   }
   if (name == "InttHitRates")
   {
-    TC[k_hitrates] = new TCanvas(name.c_str(), "Intt Hit Rates", m_cnvs_width, m_cnvs_height);
+    TC[k_hitrates] = new TCanvas(name.c_str(), "Intt Hit Rates", -1, 0, m_cnvs_width, m_cnvs_height);
     gSystem->ProcessEvents();
     transparent[k_hitrates] = new TPad(Form("transparent%d", k_hitrates), "this does not show", 0, 0, 1, 1);
     transparent[k_hitrates]->SetFillStyle(4000);  // Transparent
