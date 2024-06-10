@@ -156,7 +156,7 @@ void StartPoms()
   subsys->AddAction("tpotDraw(\"TPOT_counts_vs_sample\")", "Counts vs Sample");
   subsys->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit vs Strip");
   subsys->AddAction("tpotDraw(\"TPOT_counters\")", "Event counters [EXPERT]");
-  subsys->AddAction("tpotDraw(\"TPOT_waveform_vs_channel\")", "Waveform vs Strip");
+  subsys->AddAction("tpotDraw(\"TPOT_waveform_vs_channel\")", "Waveform vs Strip [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_detector_occupancy\")", "Detector Occupancy [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_resist_occupancy\")", "Resist Occupnacy [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC vs Sample [EXPERT]");
