@@ -438,7 +438,8 @@ int MvtxMon::process_event(Event* evt)
         int cur_strobes = plist[i]->iValue(feeId, "NR_STROBES");
         if (cur_strobes < min_strobes) min_strobes = cur_strobes;
       }
-      hStrobesDMA->SetBinContent((this->MonitorServerId() * 2) + i +1, hStrobesDMA->GetBinContent((this->MonitorServerId() * 2) + i +1) + min_strobes);
+      if(plist[i]->getIdentifier()%10 == 1) hStrobesDMA->SetBinContent((this->MonitorServerId() * 2) +1, hStrobesDMA->GetBinContent((this->MonitorServerId() * 2) +1) + min_strobes);
+      if(plist[i]->getIdentifier()%10 == 2) hStrobesDMA->SetBinContent((this->MonitorServerId() * 2) +2, hStrobesDMA->GetBinContent((this->MonitorServerId() * 2) +2) + min_strobes);
       for (int i_fee{0}; i_fee < num_feeId; ++i_fee)
       {
         auto feeId = plist[i]->iValue(i_fee, "FEEID");
