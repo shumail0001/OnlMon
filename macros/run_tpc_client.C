@@ -97,6 +97,7 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("Layer_ChannelPhi_ADC_weighted",servername);
     cl->registerHisto("NEvents_vs_EBDC",servername);
     cl->registerHisto("NStreaks_vs_EventNo",servername);
+    cl->registerHisto("Packet_Type_Fraction",servername);
   } //
 
 
