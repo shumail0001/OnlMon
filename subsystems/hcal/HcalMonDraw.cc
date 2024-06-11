@@ -1913,13 +1913,13 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   TH2* h2_hcal_hits = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_hits");
   TH2* h_evtRec = (TH2*) cl->getHisto(hcalmon[0], "h_evtRec");
   TH1* h_hcal_trig =  cl->getHisto(hcalmon[0], "h_hcal_trig");
-  TH2* h_caloPack_gl1_clock_diff = (TH2*) cl->getHisto(hcalmon[0], "h_caloPack_gl1_clock_diff");
+
 
 
   TC[6]->SetEditable(true);
   TC[6]->Clear("D");
   Pad[16]->cd();
-  if ( !h2_hcal_hits || !h_hcal_trig || !h_caloPack_gl1_clock_diff || !h_evtRec )
+  if ( !h2_hcal_hits || !h_hcal_trig || !h_evtRec )
   {
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(false);
