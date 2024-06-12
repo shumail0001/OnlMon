@@ -525,7 +525,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     TextZVertex[0]->SetText(xpos[0], 0.65, "Zbbc [BBLL1]");       // RUN11 pp
     */
     TC[0]->cd();
-    transparent[0] = new TPad("transparent3", "this does not show", 0, 0, 1, 1, 0, 0);
+    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1, 0, 0);
     transparent[0]->SetFillStyle(4000);
     transparent[0]->Draw();
 
@@ -820,7 +820,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     PadAdc->Draw();
     */
 
-    transparent[2] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
     transparent[2]->SetFillStyle(4000);
     transparent[2]->Draw();
 
@@ -880,20 +880,21 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     ifnew(TText, TextnHitStatus);
     TextnHitStatus->SetTextSize(0.7);
     TextnHitStatus->SetText(0.05, 0.5, "Red Square : Collision Event  / Blue Triangle : Laser Event");
-    transparent[3] = new TPad("transparent2", "this does not show", 0, 0, 1, 1, 0, 0);
+    transparent[3] = new TPad("transparent3", "this does not show", 0, 0, 1, 1, 0, 0);
     transparent[3]->SetFillStyle(4000);
     transparent[3]->Draw();
   }
 
   else if (name == "BbcVertexSend")
   {
-    TC[4] = new TCanvas(name.c_str(), "Bbc Vertex Sender", 2 * xsize / 3, 0, 2 * xsize / 3, ysize * 0.9);
+    TC[4] = new TCanvas(name.c_str(), "Bbc Vertex Sender", -1, 0, 2 * xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
+    TC[4]->cd();
     // this one is used to plot the run number on the canvas
-    transparent[4] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
-    transparent[4]->Draw();
+    transparent[4] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
     transparent[4]->SetFillColor(kGray);
-    TC[4]->SetEditable(false);
+   transparent[4]->Draw();
+     TC[4]->SetEditable(false);
   }
   //
 
@@ -965,46 +966,46 @@ int BbcMonDraw::Draw(const std::string &what)
 
   //
   if ( what == "MBD2MCR" )
-  {
-  if (!gROOT->FindObject("BbcVertexSend"))
     {
-      MakeCanvas("BbcVertexSend");
-    }
-  TC[4]->Clear("D");
-  TC[4]->SetEditable(true);
-  transparent[4]->cd();
+      if (!gROOT->FindObject("BbcVertexSend"))
+	{
+	  MakeCanvas("BbcVertexSend");
+	}
+      TC[4]->Clear("D");
+      TC[4]->SetEditable(true);
+      transparent[4]->cd();
 
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetTextColor(1);
+      TText PrintRun;
+      PrintRun.SetTextFont(62);
+      PrintRun.SetNDC();          // set to normalized coordinates
+      PrintRun.SetTextAlign(23);  // center/top alignment
+      PrintRun.SetTextSize(0.04);
+      PrintRun.SetTextColor(1);
 
-    GetSendFlag();
-    if ( sendflag==0 )
-    {
-      UpdateSendFlag( 1 );
-      PrintRun.DrawText(0.5, 0.5, "MBD: NOW Sending vertex to MCR");
-      std::cout << "MBD: NOW Sending vertex to MCR" << std::endl;
+      GetSendFlag();
+      if ( sendflag==0 )
+	{
+	  UpdateSendFlag( 1 );
+	  PrintRun.DrawText(0.5, 0.5, "MBD: NOW Sending vertex to MCR");
+	  std::cout << "MBD: NOW Sending vertex to MCR" << std::endl;
+	}
+      else if ( sendflag==1 )
+	{
+	  UpdateSendFlag( 0 );
+	  PrintRun.DrawText(0.5, 0.5, "MBD: STOP sending vertex to MCR");
+	  std::cout << "MBD: STOP sending vertex to MCR" << std::endl;
+	}
+      else
+	{
+	  UpdateSendFlag( 0 );
+	  PrintRun.DrawText(0.5, 0.5, "MBD: something wrong with sendflag, setting to 0");
+	  std::cout << "MBD: something wrong with sendflag, setting to 0" << std::endl;
+	}
+      TC[4]->Update();
+      TC[4]->Show();
+      TC[4]->SetEditable(false);
+      return 0;
     }
-    else if ( sendflag==1 )
-    {
-      UpdateSendFlag( 0 );
-      PrintRun.DrawText(0.5, 0.5, "MBD: STOP sending vertex to MCR");
-      std::cout << "MBD: STOP sending vertex to MCR" << std::endl;
-    }
-    else
-    {
-      UpdateSendFlag( 0 );
-      PrintRun.DrawText(0.5, 0.5, "MBD: something wrong with sendflag, setting to 0");
-      std::cout << "MBD: something wrong with sendflag, setting to 0" << std::endl;
-    }
-  TC[4]->Update();
-  TC[4]->Show();
-  TC[4]->SetEditable(false);
-  return 0;
-  }
 
   ClearWarning();
 
@@ -1023,9 +1024,9 @@ int BbcMonDraw::Draw(const std::string &what)
   TH1 *bbc_trigs = static_cast<TH1 *>(cl->getHisto("BBCMON_0", "bbc_trigs"));
   ifdelete(Trigs);
   if ( bbc_trigs!=0 )
-  {
-    Trigs = static_cast<TH1 *>(bbc_trigs->Clone());
-  }
+    {
+      Trigs = static_cast<TH1 *>(bbc_trigs->Clone());
+    }
 
   std::ostringstream name;
 
@@ -1090,7 +1091,7 @@ int BbcMonDraw::Draw(const std::string &what)
   ifdelete(Adc);
   for (int i = 0; i < nCANVAS; i++)
   {
-    if (TC[i])
+    if (TC[i] && i != 4)
     {
       transparent[i]->Clear();  // clear dead server msg if it was printed before
     }
