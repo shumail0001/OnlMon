@@ -402,7 +402,7 @@ int LocalPolMon::Init()
 	else
 	  {
 	    std::cout<< key << " Changed from "<< SMDthr << " to "<<val.Atof()<<std::endl;
-	    MultiHigh = val.Atof();
+	    SMDthr = val.Atof();
 	  }
       }
     else
