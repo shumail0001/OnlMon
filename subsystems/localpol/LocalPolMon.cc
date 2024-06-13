@@ -122,8 +122,6 @@ int LocalPolMon::Init()
       {
         std::cout << key << ": expecting 0/1 for true or false\n Keep false as default.\n";
         fake = false;
-        erc = new eventReceiverClient("gl1daq");
-        //erc = new eventReceiverClient("localhost");
       }
       else
       {
@@ -132,8 +130,6 @@ int LocalPolMon::Init()
         {
           std::cout << key << ": expecting 0/1 for true or false\n Keep false as default.\n";
           fake = false;
-          erc = new eventReceiverClient("gl1daq");
-          //erc = new eventReceiverClient("localhost");
         }
         else
         {
@@ -146,17 +142,29 @@ int LocalPolMon::Init()
           {
             fake = false;
           }
-          erc = new eventReceiverClient("gl1daq");
-          //erc = new eventReceiverClient("localhost");
         }
+      }
+    }
+    else if (key == "monitoring"){
+      val.ToLower();
+      if (val == "online"){
+	erc = new eventReceiverClient("gl1daq");
+      }
+      else if (val == "offline" ){
+	erc = new eventReceiverClient("localhost");
+      }
+      else {
+	std::cout<< key << ": expecting either online (data stream)/offline (with eventServer -d 5263250 -s 5 -i -v -f path to gl1 prdf) "<<std::endl;
+	std::cout<<"Fall back to online monitoring"<<std::endl;
+	erc = new eventReceiverClient("gl1daq");
       }
     }
     else if (key == "sphenixgap")
     {
       if (!val.IsDigit())
       {
-        std::cout << key << ": expecting an integer as the first bunch number of the continuous gap sequence\n Keep 117 as default.\n";
-        ExpectedsPhenixGapPosition = 117;
+        std::cout << key << ": expecting an integer as the first bunch number of the continuous gap sequence\n Keep 111 as default.\n";
+        ExpectedsPhenixGapPosition = 111;
       }
       else
       {
@@ -168,7 +176,7 @@ int LocalPolMon::Init()
         else
         {
           std::cout << key << ": value outside expected range [0;119]\n Keep 117 as default value\n";
-          ExpectedsPhenixGapPosition = 117;
+          ExpectedsPhenixGapPosition = 111;
         }
       }
     }
@@ -212,6 +220,28 @@ int LocalPolMon::Init()
         {
           std::cout << "Making it verbose" << std::endl;
           verbosity = true;
+        }
+      }
+    }
+    else if (key == "integrated")
+    {
+      if (!val.IsDigit())
+      {
+        std::cout << key << ": expecting 0/1 for false or true\n Keep 0(false) as default\n";
+        Integrated = false;
+      }
+      else
+      {
+        int ival = val.Atoi();
+        if (ival != 0 && ival != 1)
+        {
+          std::cout << key << ": value should be 0 or 1 for false of true\n Keep 0(false) as default\n";
+          Integrated = false;
+        }
+        else if (ival == 1)
+        {
+          std::cout << "Making it integrated" << std::endl;
+          Integrated = true;
         }
       }
     }
@@ -303,10 +333,82 @@ int LocalPolMon::Init()
         EventsAsymmetryNewPoint = val.Atoi();
       }
     }
+    else if (key == "zdc1cut")
+      {
+	if(!val.IsFloat())
+	  {
+	    std::cout<< key << " : value is expected to be a positive float\n Keeping default value of 60."<<std::endl; 
+	  }
+	else
+	  {
+	    std::cout<< key << " Changed from "<< ZDC1Cut << " to "<<val.Atof()<<std::endl;
+	    ZDC1Cut = val.Atof();
+	  }
+      }
+    else if (key == "zdc2cut")
+      {
+	if(!val.IsFloat())
+	  {
+	    std::cout<< key << " : value is expected to be a positive float\n Keeping default value of 15."<<std::endl; 
+	  }
+	else
+	  {
+	    std::cout<< key << " Changed from "<< ZDC2Cut << " to "<<val.Atof()<<std::endl;
+	    ZDC2Cut = val.Atof();
+	  }
+      }
+    else if (key == "vetocut")
+      {
+	if(!val.IsFloat())
+	  {
+	    std::cout<< key << " : value is expected to be a positive float\n Keeping default value of 150."<<std::endl; 
+	  }
+	else
+	  {
+	    std::cout<< key << " Changed from "<< VetoCut << " to "<<val.Atof()<<std::endl;
+	    VetoCut = val.Atof();
+	  }
+      }
+    else if (key == "multiplicitylow")
+      {
+	if(!val.IsDigit())
+	  {
+	    std::cout<< key << " : value is expected to be a positive integer\n Keeping default value of 1"<<std::endl; 
+	  }
+	else
+	  {
+	    std::cout<< key << " Changed from "<< MultiLow << " to "<<val.Atoi()<<std::endl;
+	    MultiLow = val.Atoi();
+	  }
+      }
+    else if (key == "multiplicityhigh")
+      {
+	if(!val.IsDigit())
+	  {
+	    std::cout<< key << " : value is expected to be a positive integer\n Keeping default value of 7 (for vertical and +1 for horizontal)"<<std::endl; 
+	  }
+	else
+	  {
+	    std::cout<< key << " Changed from "<< MultiHigh << " to "<<val.Atoi()<<std::endl;
+	    MultiHigh = val.Atoi();
+	  }
+      }
+    else if (key == "smdthreshold")
+      {
+	if(!val.IsFloat())
+	  {
+	    std::cout<< key << " : value is expected to be a positive float\n Keeping default value of 5"<<std::endl; 
+	  }
+	else
+	  {
+	    std::cout<< key << " Changed from "<< SMDthr << " to "<<val.Atof()<<std::endl;
+	    MultiHigh = val.Atof();
+	  }
+      }
     else
     {
       err_counter++;
-      std::cout << "Unknown configuration \n Expected: verbosity, threshold, sphenixgap, testfake or trigger key words" << std::endl;
+      std::cout << "Unknown configuration \n Expected:\n -verbosity\n -threshold\n -sphenixgap\n -testfake\n -monitoring\n -multiplicitylow\n -multiplicityHigh\n -trigger\n -X0north\n -X0south\n -Y0north\n -Y0south\n -thresholdasymnewpoint\n -nVetocut\n -SMDthreshold\n -ZDC1cut\n -ZDC2cut\n -Integrated\n key words" << std::endl;
     }
     if (err_counter > 3)
     {
@@ -475,6 +577,9 @@ int LocalPolMon::Init()
  
   Yellowspace=new TH2D("Yellowspace","Yellowspace",50,-5,5,50,-5,5);
   se->registerHisto(this,Yellowspace);
+
+  hclocks = new TH2D("hclocks","hclocks",8192,0,8192,8192,0,8192);
+  se->registerHisto(this, hclocks);
 
   WaveformProcessingFast = new CaloWaveformFitting();
   myRandomBunch = new TRandom(0);
@@ -725,8 +830,8 @@ int LocalPolMon::process_event(Event* e /* evt */)
         }
       }
     }
-    double rnorth2=pow(AveragePosition[0],2)+pow(AveragePosition[1],2);
-    double rsouth2=pow(AveragePosition[2],2)+pow(AveragePosition[3],2);
+    double rnorth2=pow(AveragePosition[0]-ZeroPosition[0],2)+pow(AveragePosition[1]-ZeroPosition[1],2);
+    double rsouth2=pow(AveragePosition[2]-ZeroPosition[2],2)+pow(AveragePosition[3]-ZeroPosition[3],2);
     if(rnorth2>1 && GoodSelection(0)){
       Bluespace->Fill(AveragePosition[1],AveragePosition[0]);
     }
@@ -789,6 +894,12 @@ int LocalPolMon::process_event(Event* e /* evt */)
     // Now that everything has been calculated, let move to the next point for next event
     iPoint++;
     evtcntA=0;
+    if(!Integrated){
+      for(int i =0; i<4; i++){
+	h_Counts[i]->Reset();
+	h_CountsScramble[i]->Reset();
+      }
+    }
   }
 
   return 0;
@@ -819,19 +930,19 @@ bool LocalPolMon::GoodSelection(int i)
     double sumH=0;
     double sumV=0;
     for(int ch=0; ch<8; ch++) {
-      nh +=(smd_adc[ch]  >5)?1:0;
+      nh +=(smd_adc[ch]  >SMDthr)?1:0;
       sumH+=smd_adc[ch];
     }
     for(int ch=0; ch<7; ch++) {
-      nv +=(smd_adc[ch+8]>5)?1:0;
+      nv +=(smd_adc[ch+8]>SMDthr)?1:0;
       sumV+=smd_adc[ch+8];
     }
-    goodselection &=(signalZDCN1>75 && signalZDCN2>10);
-    goodselection &=(vetoNF<150&&vetoNB<150);
-    goodselection &=(nv>1&&nh>1);
-    goodselection &=(nv<7&&nh<8);
-    hmultiplicity[0]->Fill(nh);
-    hmultiplicity[1]->Fill(nv);
+    goodselection &=(signalZDCN1>ZDC1Cut && signalZDCN2>ZDC2Cut);
+    goodselection &=(vetoNF<VetoCut&&vetoNB<VetoCut);
+    if(goodselection) hmultiplicity[0]->Fill(nh);
+    if(goodselection) hmultiplicity[1]->Fill(nv);
+    goodselection &=(nv>MultiLow&&nh>MultiLow);
+    goodselection &=(nv<MultiHigh&&nh<MultiHigh+1);
     if((sumH>0)&&goodselection) hadcsum[0]->Fill(log10(sumH));
     if((sumV>0)&&goodselection) hadcsum[1]->Fill(log10(sumV));
   }
@@ -841,19 +952,19 @@ bool LocalPolMon::GoodSelection(int i)
     double sumH=0;
     double sumV=0;
     for(int ch=0; ch<8; ch++) {
-      nh +=(smd_adc[ch+16] >5)?1:0;
+      nh +=(smd_adc[ch+16] >SMDthr)?1:0;
       sumH+=smd_adc[ch+16];
     }
     for(int ch=0; ch<7; ch++) {
-      nv +=(smd_adc[ch+24] >5)?1:0;
+      nv +=(smd_adc[ch+24] >SMDthr)?1:0;
       sumV+=smd_adc[ch+24];
     }
-    goodselection &=(signalZDCS1>75 && signalZDCS2>10);
-    goodselection &=(vetoSF<150&&vetoSB<150);
-    goodselection &=(nv>1&&nh>1);
-    goodselection &=(nv<7&&nh<8);
-    hmultiplicity[2]->Fill(nh);
-    hmultiplicity[3]->Fill(nv);
+    goodselection &=(signalZDCS1>ZDC1Cut && signalZDCS2>ZDC2Cut);
+    goodselection &=(vetoSF<VetoCut&&vetoSB<VetoCut);
+    if(goodselection) hmultiplicity[2]->Fill(nh);
+    if(goodselection) hmultiplicity[3]->Fill(nv);
+    goodselection &=(nv>MultiLow&&nh>MultiLow);
+    goodselection &=(nv<MultiHigh+1&&nh<MultiHigh+1);
     if((sumH>0)&&goodselection) hadcsum[2]->Fill(log10(sumH));
     if((sumV>0)&&goodselection) hadcsum[3]->Fill(log10(sumV));
   }
@@ -1002,6 +1113,7 @@ int LocalPolMon::RetrieveAbortGapData(){
     if (!goodtrigger[i]){
       continue;
     }
+    if(h_trigger[i]->GetEntries()<1000) continue;
     std::map<int, long long> tmpmap = gl1_counter[i];
     for (int emptyfill = 0; emptyfill < 9; emptyfill++){
       int myminimum = min_element(tmpmap.begin(), tmpmap.end(), [](const std::pair<int, long long>& lhs, const std::pair<int, long long>& rhs)
@@ -1027,7 +1139,8 @@ int LocalPolMon::RetrieveAbortGapData(){
 	std::cout << " Weird abort gap not in the same location between trigger bit 0 and trigger bit " << ib->second << std::endl;
       }
   }
-  return (begingap.begin()->second) % 120;
+  if (begingap.empty()) return 111;
+  else return (begingap.begin()->second) % 120;
 }
 
 
@@ -1088,6 +1201,7 @@ int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
 	egl1=nullptr;
 	return bunch;
       }
+      hclocks->Fill((gl1_clock-Prevgl1_clock)%8192,(zdc_clock-Prevzdc_clock)%8192);
       if((gl1_clock-Prevgl1_clock)!=(zdc_clock-Prevzdc_clock)){
 	if(verbosity){
 	  std::cout<<"Mismatched: "<<EvtShift<<" zdc: "<<(zdc_clock-Prevzdc_clock) <<"    gl1p: "<<(gl1_clock-Prevgl1_clock) <<std::endl;
