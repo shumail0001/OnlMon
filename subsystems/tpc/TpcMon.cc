@@ -231,7 +231,7 @@ int TpcMon::Init()
   char ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
   sprintf(ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
-  ADC_vs_SAMPLE = new TH2F("ADC_vs_SAMPLE", ADC_vs_SAMPLE_str, 360, 0, 360, 256, 0, 1024);
+  ADC_vs_SAMPLE = new TH2F("ADC_vs_SAMPLE", ADC_vs_SAMPLE_str, 400, 0, 400, 256, 0, 1024);
   ADC_vs_SAMPLE -> SetXTitle(ADC_vs_SAMPLE_xaxis_str);
   ADC_vs_SAMPLE -> SetYTitle("ADC [ADU]");
 
@@ -246,7 +246,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
-  PEDEST_SUB_ADC_vs_SAMPLE = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE", PEDEST_SUB_ADC_vs_SAMPLE_str, 360, 0, 360, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE", PEDEST_SUB_ADC_vs_SAMPLE_str, 400, 0, 400, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE -> SetYTitle("ADC-ped. [ADU]");
 
@@ -261,7 +261,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_str,"ADC Counts vs Sample: SECTOR %i R1",MonitorServerId());
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str,"Sector %i R1: ADC Time bin [1/20MHz]",MonitorServerId());
-  PEDEST_SUB_ADC_vs_SAMPLE_R1 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R1", PEDEST_SUB_ADC_vs_SAMPLE_R1_str, 360, 0, 360, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE_R1 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R1", PEDEST_SUB_ADC_vs_SAMPLE_R1_str, 400, 0, 400, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R1 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R1 -> SetYTitle("ADC-ped. [ADU]");
 
@@ -276,7 +276,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_str,"ADC Counts vs Sample: SECTOR %i R2",MonitorServerId());
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str,"Sector %i R2: ADC Time bin [1/20MHz]",MonitorServerId());
-  PEDEST_SUB_ADC_vs_SAMPLE_R2 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R2", PEDEST_SUB_ADC_vs_SAMPLE_R2_str, 360, 0, 360, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE_R2 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R2", PEDEST_SUB_ADC_vs_SAMPLE_R2_str, 400, 0, 400, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R2 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R2 -> SetYTitle("ADC-ped. [ADU]");
   
@@ -291,7 +291,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_str,"ADC Counts vs Sample: SECTOR %i R3",MonitorServerId());
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str,"Sector %i R3: ADC Time bin [1/20MHz]",MonitorServerId());
-  PEDEST_SUB_ADC_vs_SAMPLE_R3 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R3", PEDEST_SUB_ADC_vs_SAMPLE_R3_str, 360, 0, 360, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE_R3 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R3", PEDEST_SUB_ADC_vs_SAMPLE_R3_str, 400, 0, 400, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R3 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R3 -> SetYTitle("ADC-ped. [ADU]");
 
@@ -415,7 +415,7 @@ int TpcMon::Init()
   char ZS_ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(ZS_ADC_vs_SAMPLE_str,"ADC Counts vs Sample - Trigger QA: SECTOR %i",MonitorServerId());
   sprintf(ZS_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
-  ZS_Trigger_ADC_vs_Sample = new TH2F("ZS_Trigger_ADC_vs_Sample", ZS_ADC_vs_SAMPLE_str, 360, -0.5, 359.5, 1024, 0, 1024);
+  ZS_Trigger_ADC_vs_Sample = new TH2F("ZS_Trigger_ADC_vs_Sample", ZS_ADC_vs_SAMPLE_str, 400, -0.5, 399.5, 1024, 0, 1024);
   ZS_Trigger_ADC_vs_Sample -> SetXTitle(ZS_ADC_vs_SAMPLE_xaxis_str);
   ZS_Trigger_ADC_vs_Sample -> SetYTitle("ADC [ADU]");
 
@@ -430,7 +430,7 @@ int TpcMon::Init()
   char First_ADC_vs_First_Time_Bin_xaxis_str[100];
   sprintf(First_ADC_vs_First_Time_Bin_str,"1st nonZS ADC vs 1st nonZS Sample Time: SECTOR %i",MonitorServerId());
   sprintf(First_ADC_vs_First_Time_Bin_xaxis_str,"Sector %i: 1st non-ZS Time bin [1/20MHz]",MonitorServerId());
-  First_ADC_vs_First_Time_Bin = new TH2F("First_ADC_vs_First_Time_Bin", First_ADC_vs_First_Time_Bin_str, 360, -0.5, 359.5, 256, 0, 1024);
+  First_ADC_vs_First_Time_Bin = new TH2F("First_ADC_vs_First_Time_Bin", First_ADC_vs_First_Time_Bin_str, 400, -0.5, 399.5, 256, 0, 1024);
   First_ADC_vs_First_Time_Bin -> SetXTitle(First_ADC_vs_First_Time_Bin_xaxis_str);
   First_ADC_vs_First_Time_Bin -> SetYTitle("1st non-ZS ADC [ADU]");
 
@@ -475,7 +475,7 @@ int TpcMon::Init()
   RAWADC_1D_R1 = new TH1F("RAWADC_1D_R1",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R1 = new TH1F("MAXADC_1D_R1",MAXADC_1D_titlestr,1025,-0.5,1024.5);
   PEDEST_SUB_1D_R1 = new TH1F("PEDEST_SUB_1D_R1",SUBADC_1D_titlestr,1125,-100.5,1024.5);
-  COUNTS_vs_SAMPLE_1D_R1 = new TH1F("COUNTS_vs_SAMPLE_1D_R1",COUNTS_SAMPLE_1D_titlestr,360,0,360);
+  COUNTS_vs_SAMPLE_1D_R1 = new TH1F("COUNTS_vs_SAMPLE_1D_R1",COUNTS_SAMPLE_1D_titlestr,400,0,400);
   
   RAWADC_1D_R1->SetYTitle("Entries");
   RAWADC_1D_R1->SetXTitle("ADC [ADU]");
@@ -531,7 +531,7 @@ int TpcMon::Init()
   RAWADC_1D_R2 = new TH1F("RAWADC_1D_R2",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R2 = new TH1F("MAXADC_1D_R2",MAXADC_1D_titlestr,1025,-0.5,1024.5);
   PEDEST_SUB_1D_R2 = new TH1F("PEDEST_SUB_1D_R2",SUBADC_1D_titlestr,1125,-100.5,1024.5);
-  COUNTS_vs_SAMPLE_1D_R2 = new TH1F("COUNTS_vs_SAMPLE_1D_R2",COUNTS_SAMPLE_1D_titlestr,360,0,360);
+  COUNTS_vs_SAMPLE_1D_R2 = new TH1F("COUNTS_vs_SAMPLE_1D_R2",COUNTS_SAMPLE_1D_titlestr,400,0,400);
 
   RAWADC_1D_R2->SetYTitle("Entries");
   RAWADC_1D_R2->SetXTitle("ADC [ADU]");
@@ -583,7 +583,7 @@ int TpcMon::Init()
   RAWADC_1D_R3 = new TH1F("RAWADC_1D_R3",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R3 = new TH1F("MAXADC_1D_R3",MAXADC_1D_titlestr,1025,-0.5,1024.5);
   PEDEST_SUB_1D_R3 = new TH1F("PEDEST_SUB_1D_R3",SUBADC_1D_titlestr,1125,-100.5,1024.5);
-  COUNTS_vs_SAMPLE_1D_R3 = new TH1F("COUNTS_vs_SAMPLE_1D_R3",COUNTS_SAMPLE_1D_titlestr,360,0,360);
+  COUNTS_vs_SAMPLE_1D_R3 = new TH1F("COUNTS_vs_SAMPLE_1D_R3",COUNTS_SAMPLE_1D_titlestr,400,0,400);
 
   RAWADC_1D_R3->SetYTitle("Entries");
   RAWADC_1D_R3->SetXTitle("ADC [ADU]");
@@ -654,16 +654,38 @@ int TpcMon::Init()
 
   char Packet_Type_Fraction_title_str[256];
   sprintf(Packet_Type_Fraction_title_str,"Numer of Waveforms per Packet Type, Sector # %i",MonitorServerId());
-  Packet_Type_Fraction = new TH1F("Packet_Type_Fraction",Packet_Type_Fraction_title_str,7,0,7);
-  //Packet_Type_Fraction->SetXTitle("EBDC #");
-  Packet_Type_Fraction->SetYTitle("N_{Waveforms}");
+  Packet_Type_Fraction_HB = new TH1F("Packet_Type_Fraction_HB",Packet_Type_Fraction_title_str,7,0,7);
+  Packet_Type_Fraction_HB->SetYTitle("N_{Waveforms}");
+  Packet_Type_Fraction_HB->SetLineColor(4);
+  Packet_Type_Fraction_HB->SetFillColor(4);  
  
+  Packet_Type_Fraction_NORM = new TH1F("Packet_Type_Fraction_NORM",Packet_Type_Fraction_title_str,7,0,7);
+  Packet_Type_Fraction_NORM->SetYTitle("N_{Waveforms}");
+  Packet_Type_Fraction_NORM->SetLineColor(3);
+  Packet_Type_Fraction_NORM->SetFillColor(3); 
+
+  Packet_Type_Fraction_ELSE = new TH1F("Packet_Type_Fraction_ELSE",Packet_Type_Fraction_title_str,7,0,7);
+  Packet_Type_Fraction_ELSE->SetYTitle("N_{Waveforms}");
+  Packet_Type_Fraction_ELSE->SetLineColor(2);
+  Packet_Type_Fraction_ELSE->SetFillColor(2); 
+
   const char* label[7] = { "HEARTBEAT_T", "TRUNCATED_DATA_T ", "TRUNCATED_TRIG_EARLY_DATA_T", "NORMAL_DATA_T", "LARGE_DATA_T", "TRIG_EARLY_DATA_T", "TRIG_EARLY_LARGE_DATA_T" };
-  for (int i=0; i!=7; ++i) {Packet_Type_Fraction->GetXaxis()->SetBinLabel(i+1,label[i]);}
-  Packet_Type_Fraction -> GetXaxis() -> SetLabelSize(0.08);
-  Packet_Type_Fraction -> GetYaxis() -> SetLabelSize(0.08);
-  Packet_Type_Fraction -> GetYaxis() -> SetTitleSize(0.08);
-  Packet_Type_Fraction -> GetYaxis() -> SetTitleOffset(0.6);
+  for (int i=0; i!=7; ++i) {Packet_Type_Fraction_HB->GetXaxis()->SetBinLabel(i+1,label[i]);Packet_Type_Fraction_NORM->GetXaxis()->SetBinLabel(i+1,label[i]);Packet_Type_Fraction_ELSE->GetXaxis()->SetBinLabel(i+1,label[i]);}
+
+  Packet_Type_Fraction_HB -> GetXaxis() -> SetLabelSize(0.08);
+  Packet_Type_Fraction_HB -> GetYaxis() -> SetLabelSize(0.08);
+  Packet_Type_Fraction_HB -> GetYaxis() -> SetTitleSize(0.08);
+  Packet_Type_Fraction_HB -> GetYaxis() -> SetTitleOffset(0.6);
+
+  Packet_Type_Fraction_NORM -> GetXaxis() -> SetLabelSize(0.08);
+  Packet_Type_Fraction_NORM -> GetYaxis() -> SetLabelSize(0.08);
+  Packet_Type_Fraction_NORM -> GetYaxis() -> SetTitleSize(0.08);
+  Packet_Type_Fraction_NORM -> GetYaxis() -> SetTitleOffset(0.6);
+
+  Packet_Type_Fraction_ELSE -> GetXaxis() -> SetLabelSize(0.08);
+  Packet_Type_Fraction_ELSE -> GetYaxis() -> SetLabelSize(0.08);
+  Packet_Type_Fraction_ELSE -> GetYaxis() -> SetTitleSize(0.08);
+  Packet_Type_Fraction_ELSE -> GetYaxis() -> SetTitleOffset(0.6);
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
@@ -740,7 +762,9 @@ int TpcMon::Init()
   se->registerHisto(this, Layer_ChannelPhi_ADC_weighted); 
   se->registerHisto(this, NEvents_vs_EBDC);
   se->registerHisto(this, NStreaks_vs_EventNo);
-  se->registerHisto(this, Packet_Type_Fraction);
+  se->registerHisto(this, Packet_Type_Fraction_HB);
+  se->registerHisto(this, Packet_Type_Fraction_NORM);
+  se->registerHisto(this, Packet_Type_Fraction_ELSE);
 
   Reset();
   return 0;
@@ -840,13 +864,13 @@ int TpcMon::process_event(Event *evt/* evt */)
         }
 
 
-        if( p->iValue(wf,"TYPE")==0 ){Packet_Type_Fraction->Fill(0.5);} //HEARTBEAT_T 0b000
-        if( p->iValue(wf,"TYPE")==1 ){Packet_Type_Fraction->Fill(1.5);} //TRUNCATED_DATA_T 0b001
-        if( p->iValue(wf,"TYPE")==3 ){Packet_Type_Fraction->Fill(2.5);} //TRUNCATED_TRIG_EARLY_DATA_T 0b011
-        if( p->iValue(wf,"TYPE")==4 ){Packet_Type_Fraction->Fill(3.5);} //NORMAL_DATA_T 0b100
-        if( p->iValue(wf,"TYPE")==5 ){Packet_Type_Fraction->Fill(4.5);} //LARGE_DATA_T 0b101
-        if( p->iValue(wf,"TYPE")==6 ){Packet_Type_Fraction->Fill(5.5);} //TRIG_EARLY_DATA_T 0b110
-        if( p->iValue(wf,"TYPE")==7 ){Packet_Type_Fraction->Fill(6.5);} //TRIG_EARLY_LARGE_DATA_T 0b111
+        if( p->iValue(wf,"TYPE")==0 ){Packet_Type_Fraction_HB->Fill(0.5);} //HEARTBEAT_T 0b000
+        if( p->iValue(wf,"TYPE")==1 ){Packet_Type_Fraction_ELSE->Fill(1.5);} //TRUNCATED_DATA_T 0b001
+        if( p->iValue(wf,"TYPE")==3 ){Packet_Type_Fraction_ELSE->Fill(2.5);} //TRUNCATED_TRIG_EARLY_DATA_T 0b011
+        if( p->iValue(wf,"TYPE")==4 ){Packet_Type_Fraction_NORM->Fill(3.5);} //NORMAL_DATA_T 0b100
+        if( p->iValue(wf,"TYPE")==5 ){Packet_Type_Fraction_ELSE->Fill(4.5);} //LARGE_DATA_T 0b101
+        if( p->iValue(wf,"TYPE")==6 ){Packet_Type_Fraction_ELSE->Fill(5.5);} //TRIG_EARLY_DATA_T 0b110
+        if( p->iValue(wf,"TYPE")==7 ){Packet_Type_Fraction_ELSE->Fill(6.5);} //TRIG_EARLY_LARGE_DATA_T 0b111
 
         int fee = p->iValue(wf, "FEE");
         int sampaAddress = p->iValue(wf, "SAMPAADDRESS");
