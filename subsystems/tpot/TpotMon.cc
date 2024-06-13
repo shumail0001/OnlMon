@@ -211,6 +211,13 @@ int TpotMon::Init()
       MicromegasDefs::m_nchannels_fee+5, 0, MicromegasDefs::m_nchannels_fee+5 );
     se->registerHisto(this, detector_histograms.m_hit_multiplicity);
 
+    // waveform per channel
+    detector_histograms.m_wf_vs_channel = new TH1F(
+      Form( "m_wf_vs_channel_%s", detector_name.c_str() ),
+      Form( "waveform profile (%s);strip", detector_name.c_str() ),
+      MicromegasDefs::m_nchannels_fee, 0, MicromegasDefs::m_nchannels_fee );
+    se->registerHisto(this, detector_histograms.m_wf_vs_channel);
+
     // hit per channel
     detector_histograms.m_hit_vs_channel = new TH1F(
       Form( "m_hit_vs_channel_%s", detector_name.c_str() ),
@@ -335,6 +342,7 @@ int TpotMon::process_event(Event* event)
           << std::endl;
       }
 
+      // fill 2D histograms ADC vs sample and ADC vs sample
       for( int is = 0; is < samples; ++is )
       {
         const uint16_t adc =  packet->iValue( i, is );
@@ -347,6 +355,9 @@ int TpotMon::process_event(Event* event)
         detector_histograms.m_adc_channel->Fill( strip_index, adc );
 
       }
+
+      // fill waveform profile for this channel
+      detector_histograms.m_wf_vs_channel->Fill( strip_index );
 
       // define if hit is signal
       bool is_signal = false;
@@ -422,7 +433,14 @@ int TpotMon::Reset()
 
   for( const auto& [fee_id,hlist]:m_detector_histograms )
   {
-    for( TH1* h:std::initializer_list<TH1*>{hlist.m_counts_sample, hlist.m_adc_sample, hlist.m_adc_channel, hlist.m_hit_charge,  hlist.m_hit_multiplicity,   hlist.m_hit_vs_channel } )
+    for( TH1* h:std::initializer_list<TH1*>{
+      hlist.m_counts_sample,
+      hlist.m_adc_sample,
+      hlist.m_adc_channel,
+      hlist.m_hit_charge,
+      hlist.m_hit_multiplicity,
+      hlist.m_wf_vs_channel,
+      hlist.m_hit_vs_channel } )
     { h->Reset(); }
   }
 

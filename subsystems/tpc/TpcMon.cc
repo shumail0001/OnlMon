@@ -652,6 +652,19 @@ int TpcMon::Init()
   NEvents_vs_EBDC->SetXTitle("EBDC #");
   NEvents_vs_EBDC->SetYTitle("N_{Events}");  
 
+  char Packet_Type_Fraction_title_str[256];
+  sprintf(Packet_Type_Fraction_title_str,"Numer of Waveforms per Packet Type, Sector # %i",MonitorServerId());
+  Packet_Type_Fraction = new TH1F("Packet_Type_Fraction",Packet_Type_Fraction_title_str,7,0,7);
+  //Packet_Type_Fraction->SetXTitle("EBDC #");
+  Packet_Type_Fraction->SetYTitle("N_{Waveforms}");
+ 
+  const char* label[7] = { "HEARTBEAT_T", "TRUNCATED_DATA_T ", "TRUNCATED_TRIG_EARLY_DATA_T", "NORMAL_DATA_T", "LARGE_DATA_T", "TRIG_EARLY_DATA_T", "TRIG_EARLY_LARGE_DATA_T" };
+  for (int i=0; i!=7; ++i) {Packet_Type_Fraction->GetXaxis()->SetBinLabel(i+1,label[i]);}
+  Packet_Type_Fraction -> GetXaxis() -> SetLabelSize(0.08);
+  Packet_Type_Fraction -> GetYaxis() -> SetLabelSize(0.08);
+  Packet_Type_Fraction -> GetYaxis() -> SetTitleSize(0.08);
+  Packet_Type_Fraction -> GetYaxis() -> SetTitleOffset(0.6);
+
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, NorthSideADC);
@@ -727,6 +740,7 @@ int TpcMon::Init()
   se->registerHisto(this, Layer_ChannelPhi_ADC_weighted); 
   se->registerHisto(this, NEvents_vs_EBDC);
   se->registerHisto(this, NStreaks_vs_EventNo);
+  se->registerHisto(this, Packet_Type_Fraction);
 
   Reset();
   return 0;
@@ -825,6 +839,14 @@ int TpcMon::process_event(Event *evt/* evt */)
           current_BCOBIN++;
         }
 
+
+        if( p->iValue(wf,"TYPE")==0 ){Packet_Type_Fraction->Fill(0.5);} //HEARTBEAT_T 0b000
+        if( p->iValue(wf,"TYPE")==1 ){Packet_Type_Fraction->Fill(1.5);} //TRUNCATED_DATA_T 0b001
+        if( p->iValue(wf,"TYPE")==3 ){Packet_Type_Fraction->Fill(2.5);} //TRUNCATED_TRIG_EARLY_DATA_T 0b011
+        if( p->iValue(wf,"TYPE")==4 ){Packet_Type_Fraction->Fill(3.5);} //NORMAL_DATA_T 0b100
+        if( p->iValue(wf,"TYPE")==5 ){Packet_Type_Fraction->Fill(4.5);} //LARGE_DATA_T 0b101
+        if( p->iValue(wf,"TYPE")==6 ){Packet_Type_Fraction->Fill(5.5);} //TRIG_EARLY_DATA_T 0b110
+        if( p->iValue(wf,"TYPE")==7 ){Packet_Type_Fraction->Fill(6.5);} //TRIG_EARLY_LARGE_DATA_T 0b111
 
         int fee = p->iValue(wf, "FEE");
         int sampaAddress = p->iValue(wf, "SAMPAADDRESS");

@@ -1784,11 +1784,11 @@ std::vector<MvtxMonDraw::Quality> MvtxMonDraw::analyseForError(TH2Poly *lane, TH
     double mins = 100000000;
     double avrs = 0;
     double maxs = 0;
-    for (int ibin = 1; ibin < strobes->GetNbinsX(); ibin++){
+    for (int ibin = 1; ibin <= strobes->GetNbinsX(); ibin++){
       double binc = static_cast<double>(strobes->GetBinContent(ibin));
       if(mins > binc) mins = binc;
       if(maxs < binc) maxs = binc;
-      avrs =+ binc;
+      avrs += binc;
     }
     if(strobes->GetNbinsX() > 0) avrs = avrs/strobes->GetNbinsX();
     if(mins < 0.3*avrs || maxs > 1.7*avrs){

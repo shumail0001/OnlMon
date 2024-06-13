@@ -1064,14 +1064,14 @@ int SpinMonDraw::DrawThird(const std::string & /* what */)
     hAbortgap->DrawCopy("hist,same");
     hForbidden->DrawCopy("hist,same");
 
-    TLine *tl111 = new TLine(111,0,111,ymax);
-    tl111->SetLineWidth(4);
+    TLine *tl111 = new TLine(110.5,0,110.5,ymax);
+    tl111->SetLineWidth(2);
     tl111->SetLineColor(kBlue);
     //tl111->SetLineStyle(3);
     tl111->Draw();
 
     TLine *tl120 = new TLine(120,0,120,ymax);
-    tl120->SetLineWidth(4);
+    tl120->SetLineWidth(2);
     tl120->SetLineColor(kBlue);
     //tl120->SetLineStyle(3);
     tl120->Draw();
@@ -1166,6 +1166,9 @@ int SpinMonDraw::MakeHtml(const std::string &what)
   pngfile = cl->htmlRegisterPage(*this, "Expert", "2", "png");
   cl->CanvasToPng(TC[1], pngfile);
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
+
+  pngfile = cl->htmlRegisterPage(*this, "Bunch numbers", "3", "png");
+  cl->CanvasToPng(TC[2], pngfile);
 
   /*
   std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");

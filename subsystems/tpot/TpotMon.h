@@ -132,8 +132,12 @@ class TpotMon : public OnlMon
     /// number of signal hits per event in each detector
     TH1* m_hit_multiplicity = nullptr;
 
+    /// number of wafeforms per strip in each detector
+    TH1* m_wf_vs_channel = nullptr;
+
     /// number of signal hits per strip in each detector
     TH1* m_hit_vs_channel = nullptr;
+
   };
   //@}
 

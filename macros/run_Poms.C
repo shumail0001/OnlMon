@@ -44,15 +44,14 @@ void StartPoms()
 
   subsys = new SubSystem("DAQ", "daq");
   subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
-  subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check [Expert]");
-  // subsys->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
-   subsys->AddAction("daqDraw(\"SERVERSTATS\")", "Server Stats");
-   subsys->AddAction(new SubSystemActionSavePlot(subsys));
-   pmf->RegisterSubSystem(subsys);
+  subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check");
+  subsys->AddAction("daqDraw(\"SERVERSTATS\")", "Server Stats");
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
-  subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average [Expert]");
+  //subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average [Expert]");
   subsys->AddAction("ihcalDraw(\"THIRD\")", "Wave Form");
   //subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ihcalDraw(\"FIFTH\")", "Trigger [Expert]");
@@ -64,7 +63,7 @@ void StartPoms()
 
   subsys = new SubSystem("Outer HCAL", "ohcal");
   subsys->AddAction("ohcalDraw(\"FIRST\")", "Towers");
-  subsys->AddAction("ohcalDraw(\"SECOND\")", "Sector Average [Expert]");
+  //subsys->AddAction("ohcalDraw(\"SECOND\")", "Sector Average [Expert]");
   subsys->AddAction("ohcalDraw(\"THIRD\")", "Wave Form");
   //subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ohcalDraw(\"FIFTH\")", "Trigger [Expert]");
@@ -115,6 +114,7 @@ void StartPoms()
   subsys = new SubSystem("SPIN", "spin");
   subsys->AddAction("spinDraw(\"FIRST\")", "Spin");
   subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
+  subsys->AddAction("spinDraw(\"THIRD\")", "Abort Gap");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -140,6 +140,8 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R1\")", "TPC Pedest Sub. ADC vs Sample R1 ONLY");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R2\")", "TPC Pedest Sub. ADC vs Sample R2 ONLY");
   subsys->AddAction("tpcDraw(\"TPCPEDESTSUBADCVSSAMPLE_R3\")", "TPC Pedest Sub. ADC vs Sample R3 ONLY");
+  subsys->AddAction("tpcDraw(\"TPCNSTREAKERSVSEVENTNO\")", "TPC HORIZONTALS MONITOR ");
+  subsys->AddAction("tpcDraw(\"TPCDRIFTWINDOW\")", "TPC DRIFT WINDOW PLOTS");
   subsys->AddAction("tpcDraw(\"TPCSTUCKCHANNELS\")", "TPC Stuck Channels in FEE");
   subsys->AddAction("tpcDraw(\"TPCCHANSINPACKETNS\")", "TPC NS Chan. Per Packet per RCDAQ EVENT");
   subsys->AddAction("tpcDraw(\"TPCCHANSINPACKETSS\")", "TPC SS Chan. Per Packet per RCDAQ EVENT");
@@ -154,6 +156,7 @@ void StartPoms()
   subsys->AddAction("tpotDraw(\"TPOT_counts_vs_sample\")", "Counts vs Sample");
   subsys->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit vs Strip");
   subsys->AddAction("tpotDraw(\"TPOT_counters\")", "Event counters [EXPERT]");
+  subsys->AddAction("tpotDraw(\"TPOT_waveform_vs_channel\")", "Waveform vs Strip [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_detector_occupancy\")", "Detector Occupancy [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_resist_occupancy\")", "Resist Occupnacy [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC vs Sample [EXPERT]");

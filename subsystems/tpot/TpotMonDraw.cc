@@ -94,14 +94,13 @@ namespace
   }
 
   // draw text in relative coordinate
-  TLatex* draw_text( Double_t x_ndc, Double_t y_ndc, const TString& value, double text_size = 0.1 )
+  void draw_text( Double_t x_ndc, Double_t y_ndc, const TString& value, double text_size = 0.1 )
   {
-    auto text = new TLatex;
-    text->SetNDC( true );
-    text->SetTextColor(1);
-    text->SetTextSize(text_size);
-    text->DrawLatex( x_ndc, y_ndc, value );
-    return text;
+    TLatex text;
+    text.SetNDC( true );
+    text.SetTextColor(1);
+    text.SetTextSize(text_size);
+    text.DrawLatex( x_ndc, y_ndc, value );
   }
 
   void mask_scoz( double xmin, double ymin, double xmax, double ymax )
@@ -448,6 +447,18 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     m_canvas.push_back( cv );
     return cv;
 
+  } else if (name == "TPOT_waveform_vs_channel") {
+
+    auto cv = new TCanvas(name.c_str(), "TpotMon waveform vs channel", -1, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    divide_canvas(cv, 4, 4);
+    hide_margins(cv,0.2);
+    create_transparent_pad(name);
+    cv->SetEditable(false);
+    m_canvas.push_back( cv );
+    return cv;
+
+
   } else if (name == "TPOT_hit_vs_channel") {
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
@@ -459,8 +470,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     m_canvas.push_back( cv );
     return cv;
 
-  }
-  return nullptr;
+  }  return nullptr;
 }
 
 //_______________________________________________________________________________
@@ -640,6 +650,35 @@ int TpotMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPOT_hit_multiplicity")
   {
     iret += draw_array("TPOT_hit_multiplicity", get_histograms( "m_hit_multiplicity" ), get_ref_histograms_scaled( "m_hit_multiplicity" ), DrawOptions::Logy|DrawOptions::MatchRange );
+    ++idraw;
+  }
+
+  if (what == "ALL" || what == "TPOT_waveform_vs_channel")
+  {
+    iret += draw_array("TPOT_waveform_vs_channel", get_histograms( "m_wf_vs_channel" ), get_ref_histograms_scaled( "m_wf_vs_channel" ), DrawOptions::Logy|DrawOptions::MatchRange|DrawOptions::Normalize);
+    auto cv = get_canvas("TPOT_waveform_vs_channel");
+    if( cv )
+    {
+      CanvasEditor cv_edit(cv);
+      cv->Update();
+      for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
+      {
+        // draw vertical lines that match HV sectors
+        // also set log y
+        auto&& pad = cv->GetPad(i+1);
+        pad->cd();
+        pad->Update();
+        for( const int& channel:{64, 128, 196} )
+        {
+          const auto line = vertical_line( pad, channel );
+          line->SetLineStyle(2);
+          line->SetLineColor(1);
+          line->SetLineWidth(1);
+          line->Draw();
+        }
+      }
+    }
+
     ++idraw;
   }
 
@@ -1046,6 +1085,7 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
       {
         copy = histograms[i]->DrawCopy( "col" );
       } else {
+
         histograms[i]->SetFillStyle(1001);
         histograms[i]->SetFillColor(kYellow );
         copy = histograms[i]->DrawCopy( "h" );
@@ -1056,8 +1096,8 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
         copy->SetTitle("");
         copy->SetStats(false);
         copy->GetXaxis()->SetTitleOffset(1.);
-        copy->GetXaxis()->SetTitleSize( 0.08 );
-        copy->GetXaxis()->SetLabelSize( 0.08 );
+        copy->GetXaxis()->SetTitleSize( i==12 ? 0.075:0.08 );
+        copy->GetXaxis()->SetLabelSize( i==12 ? 0.075:0.08 );
 
         copy->GetYaxis()->SetTitleOffset( i<12 ? 1.4:1.6);
         copy->GetYaxis()->SetTitleSize( i<12 ? 0.08:0.07 );
@@ -1109,7 +1149,7 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
       { gPad->SetLogz( true ); }
 
       // draw detector name
-      draw_text( 0.7, 0.9, m_detnames_sphenix[i].c_str() );
+      draw_text( 0.7, 0.9, m_detnames_sphenix[i].c_str(), (i%4) ? 0.1:0.094 );
       drawn = true;
     }
   }

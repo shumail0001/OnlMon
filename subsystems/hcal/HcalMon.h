@@ -86,7 +86,7 @@ class HcalMon : public OnlMon
   int trig4 {4};
 
   bool anaGL1 {true};
-  bool usembdtrig {true};
+  bool usetrig4_10 {true};
 
 
   std::vector<runningMean*> rm_vector_sectAvg;

@@ -51,7 +51,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   int ysize = cl->GetDisplaySizeY();
   if (name == "TPCModules")
   {
-    TC[0] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1350, 700);
+    TC[0] = new TCanvas(name.c_str(), "ADC Count by GEM Example", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     TC[0]->Divide(2,1);
     //gStyle->SetPalette(57); //kBird CVD friendly
@@ -127,7 +127,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCClusterXY")
   {
-    TC[7] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, WEIGHTED", 1350, 700);
+    TC[7] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, WEIGHTED", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[7]->Divide(2,1);
@@ -139,7 +139,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCClusterXY_unw")
   {
-    TC[8] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, UNWEIGHTED", 1350, 700);
+    TC[8] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, UNWEIGHTED", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[8]->Divide(2,1);
@@ -163,7 +163,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
 
   else if (name == "TPCClusterZY")
   {
-    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, WEIGHTED", 1350, 700);
+    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, WEIGHTED", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[10]->Divide(1,1);
@@ -176,7 +176,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
 
   else if (name == "TPCClusterZY_unw")
   {
-    TC[11] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, UNWEIGHTED", 1350, 700);
+    TC[11] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, UNWEIGHTED", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[11]->Divide(1,1);
@@ -189,7 +189,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
 
   else if (name == "TPCLayerPhi")
   {
-    TC[12] = new TCanvas(name.c_str(), "Layer vs Channel Phi for NS and SS, WEIGHTED by Sum(ADC-pedestal)",1350,700);
+    TC[12] = new TCanvas(name.c_str(), "Layer vs Channel Phi for NS and SS, WEIGHTED by Sum(ADC-pedestal)", -1, 0, 1350,700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[12]->Divide(1,1);
@@ -268,7 +268,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCClusterXY_laser")
   {
-    TC[19] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, LASER FLASH ONLY, WEIGHTED", 1350, 700);
+    TC[19] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, LASER FLASH ONLY, WEIGHTED", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[19]->Divide(2,1);
@@ -301,7 +301,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCClusterXY_u5")
   {
-    TC[22] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, <= 5 EVENTS WEIGHTED", 1350, 700);
+    TC[22] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, <= 5 EVENTS WEIGHTED", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[22]->Divide(2,1);
@@ -385,6 +385,18 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[29]->Draw();
     TC[29]->SetEditable(false);
   }
+  else if (name == "TPCPacketType")
+  {
+    TC[30] = new TCanvas(name.c_str(), "",-1, 0, xsize , ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[30]->Divide(4,7);
+    transparent[30] = new TPad("transparent30", "this does not show", 0, 0, 1, 1);
+    transparent[30]->SetFillStyle(4000);
+    transparent[30]->Draw();
+    TC[30]->SetEditable(false);
+  }
+
      
   return 0;
 }
@@ -541,6 +553,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCNSTREAKERSVSEVENTNO")
   {
     iret += DrawTPCNStreaksvsEventNo(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCPACKETYPEFRACTION")
+  {
+    iret +=  DrawTPCPacketTypes(what);
     idraw++;
   }
   if (!idraw)
@@ -3340,6 +3357,67 @@ int TpcMonDraw::DrawTPCNStreaksvsEventNo(const std::string & /* what */)
 
   return 0;
 }
+
+int TpcMonDraw::DrawTPCPacketTypes(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_PacketType[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_PacketType[i] = (TH1*) cl->getHisto(TPCMON_STR,"Packet_Type_Fraction");
+  }
+
+  if (!gROOT->FindObject("TPCPacketType"))
+  {
+    MakeCanvas("TPCPacketType");
+  }
+
+  TCanvas *MyTC = TC[30];
+  TPad *TransparentTPad = transparent[30];
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57); //kBird CVD friendly
+
+  for( int i=0; i<24; i++ ) 
+  {
+    if( tpcmon_PacketType[i] )
+    {
+      MyTC->cd(i+5);
+      if(tpcmon_PacketType[i]->GetEntries() > 0){tpcmon_PacketType[i]->Scale(1/(tpcmon_PacketType[i]->GetEntries()),"width");}
+      gPad->SetLogy(kTRUE);
+      tpcmon_PacketType[i]->DrawCopy("HIST");
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_WF PACKET FRACTION Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+
+  return 0;
+}
+
 
 int TpcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {

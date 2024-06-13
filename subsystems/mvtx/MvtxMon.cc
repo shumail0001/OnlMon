@@ -54,11 +54,13 @@ MvtxMon::MvtxMon(const std::string& name)
 MvtxMon::~MvtxMon()
 {
   // you can delete NULL pointers it results in a NOOP (No Operation)
+  delete [] plist;
   return;
 }
 
 int MvtxMon::Init()
 {
+  plist = new Packet*[2];
   // read our calibrations from MvtxMonData.dat
   const char* mvtxcalib = getenv("MVTXCALIB");
   if (!mvtxcalib)
@@ -364,7 +366,6 @@ int MvtxMon::process_event(Event* evt)
 
   OnlMonServer* se = OnlMonServer::instance();
 
-  plist = new Packet*[2];
 
   //per event resets
   for (int iLayer = 0; iLayer < 3; iLayer++) 
@@ -405,14 +406,17 @@ int MvtxMon::process_event(Event* evt)
 
   if (npackets > 2)
   {
+    delete plist[0];
+    delete plist[1];
     return 0;
   }
 
   for (int i = 0; i < npackets; i++)
   {
-    // Ignoring packet not from MVTX detector
+    // Ignoring packet not from MVTX detector (e.g. begin/end run)
     if ((plist[i]->getIdentifier() < 2001) || (plist[i]->getIdentifier() > 2052))
     {
+      delete plist[i];
       continue;
     }
     if (Verbosity() > 1)
@@ -434,7 +438,8 @@ int MvtxMon::process_event(Event* evt)
         int cur_strobes = plist[i]->iValue(feeId, "NR_STROBES");
         if (cur_strobes < min_strobes) min_strobes = cur_strobes;
       }
-      hStrobesDMA->SetBinContent((this->MonitorServerId() * 2) + i +1, hStrobesDMA->GetBinContent((this->MonitorServerId() * 2) + i +1) + min_strobes);
+      if(plist[i]->getIdentifier()%10 == 1) hStrobesDMA->SetBinContent((this->MonitorServerId() * 2) +1, hStrobesDMA->GetBinContent((this->MonitorServerId() * 2) +1) + min_strobes);
+      if(plist[i]->getIdentifier()%10 == 2) hStrobesDMA->SetBinContent((this->MonitorServerId() * 2) +2, hStrobesDMA->GetBinContent((this->MonitorServerId() * 2) +2) + min_strobes);
       for (int i_fee{0}; i_fee < num_feeId; ++i_fee)
       {
         auto feeId = plist[i]->iValue(i_fee, "FEEID");

@@ -62,7 +62,7 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   {
     // xpos negative: do not draw menu bar
     gStyle->SetOptStat(0);
-    TC[1] = new TCanvas(name.c_str(), "ll1Mon2 Monitor - MBD", -xsize / 2, 0, xsize / 2, ysize/2);
+    TC[1] = new TCanvas(name.c_str(), "ll1Mon2 Monitor - MBD", -1, 0, xsize / 2, ysize/2);
     TC[1]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
@@ -73,7 +73,7 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "LL1Mon3")
   {
-    TC[2] = new TCanvas(name.c_str(), "ll1Mon3 Monitor - MBD", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[2] = new TCanvas(name.c_str(), "ll1Mon3 Monitor - MBD", -1, 0, xsize / 2, ysize/2);
     TC[2]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
@@ -84,7 +84,7 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "LL1Mon4")
   {
-    TC[3] = new TCanvas(name.c_str(), "ll1Mon4 Monitor - Photon", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[3] = new TCanvas(name.c_str(), "ll1Mon4 Monitor - Photon", -1, 0, xsize / 2, ysize/2);
     TC[3]->SetTicks(1,1);
     gSystem->ProcessEvents();
 
@@ -96,7 +96,7 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "LL1Mon5")
   {
-    TC[4] = new TCanvas(name.c_str(), "ll1Mon5 Monitor - HCAL", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[4] = new TCanvas(name.c_str(), "ll1Mon5 Monitor - HCAL", -1, 0, xsize / 2, ysize/2);
     TC[4]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
@@ -111,7 +111,7 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "LL1Mon6")
   {
-    TC[5] = new TCanvas(name.c_str(), "ll1Mon6 Monitor - Jet", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[5] = new TCanvas(name.c_str(), "ll1Mon6 Monitor - Jet", -1, 0, xsize / 2, ysize/2);
     TC[5]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // 
@@ -124,7 +124,7 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "LL1Mon7")
   {
-    TC[6] = new TCanvas(name.c_str(), "ll1Mon7 Monitor - EMCAL 2x2", xsize / 2, 0, xsize / 2, ysize/2);
+    TC[6] = new TCanvas(name.c_str(), "ll1Mon7 Monitor - EMCAL 2x2", -1, 0, xsize / 2, ysize/2);
     TC[6]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // 
