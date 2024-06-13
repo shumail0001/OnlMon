@@ -1,6 +1,6 @@
 trigger 2047
 testfake 0
-monitoring offline
+monitoring online
 sphenixgap 111
 threshold 6000
 X0north 0.0
@@ -8,7 +8,7 @@ Y0north 0.0
 X0south 0.0
 Y0south 0.0
 verbosity 0
-thresholdasymnewpoint 5000
+thresholdasymnewpoint 10000
 ZDC1cut 75
 ZDC2cut 10
 MultiplicityLow 1
