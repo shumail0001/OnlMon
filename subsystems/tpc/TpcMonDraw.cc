@@ -51,7 +51,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   int ysize = cl->GetDisplaySizeY();
   if (name == "TPCModules")
   {
-    TC[0] = new TCanvas(name.c_str(), "ADC Count by GEM Example", 1350, 700);
+    TC[0] = new TCanvas(name.c_str(), "ADC Count by GEM Example", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     TC[0]->Divide(2,1);
     //gStyle->SetPalette(57); //kBird CVD friendly
@@ -127,7 +127,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCClusterXY")
   {
-    TC[7] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, WEIGHTED", 1350, 700);
+    TC[7] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, WEIGHTED", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[7]->Divide(2,1);
@@ -139,7 +139,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCClusterXY_unw")
   {
-    TC[8] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, UNWEIGHTED", 1350, 700);
+    TC[8] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, UNWEIGHTED", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[8]->Divide(2,1);
@@ -163,7 +163,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
 
   else if (name == "TPCClusterZY")
   {
-    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, WEIGHTED", 1350, 700);
+    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, WEIGHTED", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[10]->Divide(1,1);
@@ -176,7 +176,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
 
   else if (name == "TPCClusterZY_unw")
   {
-    TC[11] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, UNWEIGHTED", 1350, 700);
+    TC[11] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, UNWEIGHTED", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[11]->Divide(1,1);
@@ -189,7 +189,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
 
   else if (name == "TPCLayerPhi")
   {
-    TC[12] = new TCanvas(name.c_str(), "Layer vs Channel Phi for NS and SS, WEIGHTED by Sum(ADC-pedestal)",1350,700);
+    TC[12] = new TCanvas(name.c_str(), "Layer vs Channel Phi for NS and SS, WEIGHTED by Sum(ADC-pedestal)", -1, 0, 1350,700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[12]->Divide(1,1);
@@ -268,7 +268,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCClusterXY_laser")
   {
-    TC[19] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, LASER FLASH ONLY, WEIGHTED", 1350, 700);
+    TC[19] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> (20 ADC || 5sigma) for NS and SS, LASER FLASH ONLY, WEIGHTED", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[19]->Divide(2,1);
@@ -301,7 +301,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCClusterXY_u5")
   {
-    TC[22] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, <= 5 EVENTS WEIGHTED", 1350, 700);
+    TC[22] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>  (20 ADC || 5sigma) for NS and SS, <= 5 EVENTS WEIGHTED", -1, 0, 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[22]->Divide(2,1);
