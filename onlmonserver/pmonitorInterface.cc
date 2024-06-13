@@ -145,6 +145,7 @@ int process_event(Event *evt)
 #endif
     eorticks = borticks;
   }
+  /*
   if (evt->getEvtLength() <= 0 || evt->getEvtLength() > 2500000)
   {
     std::ostringstream msg;
@@ -154,7 +155,7 @@ int process_event(Event *evt)
     se->AddBadEvent();
     return 0;
   }
-
+  */
   int oldrun;
   if ((oldrun = se->RunNumber()) != evt->getRunNumber())
   {
