@@ -36,6 +36,7 @@ class LocalPolMonDraw : public OnlMonDraw
   int DrawSixth(const std::string &what = "ALL");
   int DrawSeventh(const std::string &what = "ALL");
   int DrawEightth(const std::string &what = "ALL");
+  int DrawNineth(const std::string &what = "ALL");
 
   TCanvas *TC[10] = {nullptr};
 

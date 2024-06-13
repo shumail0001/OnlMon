@@ -84,7 +84,7 @@ int LocalPolMonDraw::Init()
       g_Polar[beam][method] = nullptr;
     }
   }
-  Pad = new TPad **[8];  // Who is taking care of the deletion?
+  Pad = new TPad **[9];  // Who is taking care of the deletion?
   Pad[0] = new TPad *[16];
   Pad[1] = new TPad *[4];
   Pad[2] = new TPad *[1];
@@ -93,6 +93,7 @@ int LocalPolMonDraw::Init()
   Pad[5] = new TPad *[6];
   Pad[6] = new TPad *[1];
   Pad[7] = new TPad *[2];
+  Pad[8] = new TPad *[1];
 
   return 0;
 }
@@ -105,7 +106,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   if (name == "LocalPolMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "LocalPolMon Asymmetries", -xsize / 2.5, 0, xsize / 2.5, ysize * 0.9);
+    TC[0] = new TCanvas(name.c_str(), "LocalPolMon Asymmetries", -xsize , 0, xsize , ysize * 0.9);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -128,7 +129,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   else if (name == "LocalPolMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "LocalPolMon Polarisation direction", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[1] = new TCanvas(name.c_str(), "LocalPolMon Polarisation direction", -xsize, 0, xsize, ysize);
     gSystem->ProcessEvents();
     for (int ipad = 0; ipad < 4; ipad++)
     {
@@ -145,7 +146,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   }
   else if(name=="LocalPolMon3"){
     // xpos negative: do not draw menu bar
-    TC[2] = new TCanvas(name.c_str(), "LocalPolMon Spin Pattern", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[2] = new TCanvas(name.c_str(), "LocalPolMon Spin Pattern", -xsize, 0, xsize, ysize);
     gSystem->ProcessEvents();
     Pad[2][0] = new TPad(Form("locpolpad2%d", 0), "who needs this?", 0.05 , 0.05, 0.95, 0.95, 0);
     Pad[2][0]->SetTopMargin(0.15);
@@ -160,7 +161,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   }
   else if(name=="LocalPolMon4"){
     // xpos negative: do not draw menu bar
-    TC[3] = new TCanvas(name.c_str(), "Trigger distribution", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[3] = new TCanvas(name.c_str(), "Trigger distribution", -xsize, 0, xsize, ysize);
     gSystem->ProcessEvents();
     for (int ipad = 0; ipad < 16; ipad++)
     {
@@ -178,7 +179,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   }
   else if(name=="LocalPolMon5"){
     // xpos negative: do not draw menu bar
-    TC[4] = new TCanvas(name.c_str(), "SMD distributions", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[4] = new TCanvas(name.c_str(), "SMD distributions", -xsize, 0, xsize, ysize);
     gSystem->ProcessEvents();
     for (int ipad = 0; ipad < 12; ipad++)
     {
@@ -195,7 +196,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   }
   else if(name=="LocalPolMon6"){
     // xpos negative: do not draw menu bar
-    TC[5] = new TCanvas(name.c_str(), "Waveforms", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[5] = new TCanvas(name.c_str(), "Waveforms", -xsize, 0, xsize, ysize);
     gSystem->ProcessEvents();
     for (int ipad = 0; ipad < 6; ipad++)
     {
@@ -212,7 +213,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   }
   else if(name=="LocalPolMon7"){
     // xpos negative: do not draw menu bar
-    TC[6] = new TCanvas(name.c_str(), "Dropped events", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[6] = new TCanvas(name.c_str(), "Dropped events", -xsize, 0, xsize, ysize);
     gSystem->ProcessEvents();
     Pad[6][0] = new TPad(Form("locpolpad6%d", 0), "who needs this?", 0.0 , 0.05, 1.0, 0.95, 0);
     Pad[6][0]->SetLeftMargin(0.15);
@@ -226,7 +227,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   }
   else if(name=="LocalPolMon8"){
     // xpos negative: do not draw menu bar
-    TC[7] = new TCanvas(name.c_str(), "2D SMD profile", -xsize / 2.5, 0, xsize / 2.5, ysize);
+    TC[7] = new TCanvas(name.c_str(), "2D SMD profile", -xsize / 2., 0, xsize / 2., ysize);
     gSystem->ProcessEvents();
     Pad[7][0] = new TPad(Form("locpolpad7%d", 0), "who needs this?", 0.0 , 0.05, 0.50, 0.95, 0);
     Pad[7][0]->SetLeftMargin(0.15);
@@ -241,6 +242,20 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
     transparent[7]->SetFillStyle(4000);
     transparent[7]->Draw();
     TC[7]->SetEditable(false);
+  }
+  else if(name=="LocalPolMon9"){
+    // xpos negative: do not draw menu bar
+    TC[8] = new TCanvas(name.c_str(), "Dropped events", -xsize, 0, xsize, ysize);
+    gSystem->ProcessEvents();
+    Pad[8][0] = new TPad(Form("locpolpad6%d", 0), "who needs this?", 0.0 , 0.05, 1.0, 0.95, 0);
+    Pad[8][0]->SetLeftMargin(0.15);
+    Pad[8][0]->SetBottomMargin(0.15);
+    Pad[8][0]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[8] = new TPad("locpoltransparent8", "this does not show", 0, 0, 1, 1);
+    transparent[8]->SetFillStyle(4000);
+    transparent[8]->Draw();
+    TC[8]->SetEditable(false);
   }
 
 
@@ -291,6 +306,11 @@ int LocalPolMonDraw::Draw(const std::string &what)
     iret += DrawEightth(what);
     idraw++;
   }
+  if (what == "ALL" || what == "NINETH")
+  {
+    iret += DrawNineth(what);
+    idraw++;
+  }
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -313,6 +333,7 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
   TC[0]->Clear("D");
   gStyle->SetOptStat(0);
   bool IsGood = true;
+  bool AtLeastOnePoint=true;
   TString BeamName[2] = {"Blue", "Yell"};
   TString MethodName[2] = {"Arithmetic", "Geometric"};
   TString Orientation[2] = {"LR", "UD"};
@@ -327,11 +348,17 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
         {
           IsGood = false;
         }
+	else if(h_Asym[ibeam][method][orient]->GetBinError(1)==0){
+	  AtLeastOnePoint=false;
+	}
         h_ScrambleAsym[ibeam][method][orient] = (TH1D *) cl->getHisto("LOCALPOLMON_0", Form("h_AsymScramble%s%s%s", BeamName[ibeam].Data(), MethodName[method].Data(), Orientation[orient].Data()));
         if (!h_ScrambleAsym[ibeam][method][orient])
         {
           IsGood = false;
         }
+	else if(h_ScrambleAsym[ibeam][method][orient]->GetBinError(1)==0){
+	  AtLeastOnePoint=false;
+	}
       }
     }
   }
@@ -346,6 +373,37 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
     TC[0]->SetEditable(false);
     return -1;
   }
+  if( !AtLeastOnePoint)//could also be simply check h_events->GetBinContent(12+1)>0;
+    {
+      TText NotEnough;
+      NotEnough.SetTextFont(62);
+      NotEnough.SetTextSize(0.04);
+      NotEnough.SetNDC();
+      NotEnough.SetTextAlign(23);
+      std::ostringstream textstream;
+      std::string runstring;
+      textstream<< ThisName<< "_1 Run "<<cl->RunNumber()
+		<< ", Time: "<< ctime(&evttime);
+      runstring = textstream.str();
+      transparent[0]->cd();
+      NotEnough.DrawText(0.5,0.99,runstring.c_str());
+      textstream.str("");
+      textstream.clear();
+      //std::ostringstream textstream2;
+      textstream<< " Not enought selected neutron events for asymmetry measurement ";
+      runstring = textstream.str();
+      NotEnough.DrawText(0.5,0.5,runstring.c_str());
+      textstream.str("");
+      textstream.clear();
+      textstream<< " Keep accumulating statistics and check later ";
+      runstring = textstream.str();
+      NotEnough.DrawText(0.5,0.3,runstring.c_str());
+      TC[0]->Update();
+      TC[0]->Show();
+      TC[0]->SetEditable(false);
+      return 0;
+    }
+
 
   for (int ibeam = 0; ibeam < 2; ibeam++)
   {
@@ -659,6 +717,10 @@ int LocalPolMonDraw::DrawThird(const std::string & /* what */)
   }
   
   Pad[2][0]->cd();
+  hspin->GetXaxis()->SetTitle("Bunch number");
+  hspin->GetYaxis()->SetBinLabel(1,"Blue Beam");
+  hspin->GetYaxis()->SetBinLabel(2,"Yellow Beam");
+  hspin->SetStats(kFALSE);
   hspin->DrawCopy("colz");
   
   TC[2]->Update();
@@ -704,6 +766,9 @@ int LocalPolMonDraw::DrawFourth(const std::string & /* what */)
     else{
       Pad[3][i]->cd();
       htrig[i]->SetFillColor(kBlue);
+      htrig[i]->GetXaxis()->SetTitle("Bunch number");
+      htrig[i]->GetYaxis()->SetTitle("Counts");
+      htrig[i]->SetStats(kFALSE);
       htrig[i]->DrawCopy();
     }   
   }
@@ -750,6 +815,9 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
     return -1;
   }
   else{
+    htmp->GetXaxis()->SetTitle("North-SMD hor. multiplicity");
+    htmp->GetYaxis()->SetTitle("Counts");
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy();
   }
   Pad[4][1]->cd();
@@ -760,6 +828,9 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
     return -1;
   }
   else{
+    htmp->GetXaxis()->SetTitle("North-SMD ver. multiplicity");
+    htmp->GetYaxis()->SetTitle("Counts");
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy();
   }
   Pad[4][2]->cd();
@@ -770,6 +841,9 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
     return -1;
   }
   else{
+    htmp->GetXaxis()->SetTitle("South-SMD hor. multiplicity");
+    htmp->GetYaxis()->SetTitle("Counts");
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy();
   }
   Pad[4][3]->cd();
@@ -780,6 +854,9 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
     return -1;
   }
   else{
+    htmp->GetXaxis()->SetTitle("South-SMD ver. multiplicity");
+    htmp->GetYaxis()->SetTitle("Counts");
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy();
   }
 
@@ -792,6 +869,9 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
     return -1;
   }
   else{
+    htmp->GetXaxis()->SetTitle("North-SMD hor. sum ADC");
+    htmp->GetYaxis()->SetTitle("Counts");
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy();
   }
   Pad[4][5]->cd();
@@ -803,6 +883,9 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
     return -1;
   }
   else{
+    htmp->GetXaxis()->SetTitle("North-SMD ver. sum ADC");
+    htmp->GetYaxis()->SetTitle("Counts");
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy();
   }
   Pad[4][6]->cd();
@@ -814,6 +897,9 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
     return -1;
   }
   else{
+    htmp->GetXaxis()->SetTitle("South-SMD hor. sum ADC");
+    htmp->GetYaxis()->SetTitle("Counts");
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy();
   }
   Pad[4][7]->cd();
@@ -825,6 +911,9 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
     return -1;
   }
   else{
+    htmp->GetXaxis()->SetTitle("South-SMD ver. sum ADC");
+    htmp->GetYaxis()->SetTitle("Counts");
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy();
   }
 
@@ -837,6 +926,9 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
   }
   else{
     htmp->SetLineColor(kRed);
+    htmp->GetXaxis()->SetTitle("y-North-SMD [cm]");
+    htmp->GetYaxis()->SetTitle("Counts");
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy();
   }
   htmp=(TH1D*)cl->getHisto("LOCALPOLMON_0","hpositionSMD_NH_dn");
@@ -847,6 +939,7 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
   }
   else{
     htmp->SetLineColor(kBlue);
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy("same");
   }
   Pad[4][9]->cd();
@@ -858,6 +951,9 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
   }
   else{
     htmp->SetLineColor(kRed);
+    htmp->GetXaxis()->SetTitle("x-North-SMD [cm]");
+    htmp->GetYaxis()->SetTitle("Counts");
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy();
   }
   htmp=(TH1D*)cl->getHisto("LOCALPOLMON_0","hpositionSMD_NV_dn");
@@ -868,6 +964,7 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
   }
   else{
     htmp->SetLineColor(kBlue);
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy("same");
   }
   Pad[4][10]->cd();
@@ -879,6 +976,9 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
   }
   else{
     htmp->SetLineColor(kRed);
+    htmp->GetXaxis()->SetTitle("y-South-SMD [cm]");
+    htmp->GetYaxis()->SetTitle("Counts");
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy();
   }
   htmp=(TH1D*)cl->getHisto("LOCALPOLMON_0","hpositionSMD_SH_dn");
@@ -889,6 +989,7 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
   }
   else{
     htmp->SetLineColor(kBlue);
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy("same");
   }
   Pad[4][11]->cd();
@@ -900,6 +1001,9 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
   }
   else{
     htmp->SetLineColor(kRed);
+    htmp->GetXaxis()->SetTitle("x-South-SMD [cm]");
+    htmp->GetYaxis()->SetTitle("Counts");
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy();
   }
   htmp=(TH1D*)cl->getHisto("LOCALPOLMON_0","hpositionSMD_SV_dn");
@@ -910,6 +1014,7 @@ int LocalPolMonDraw::DrawFifth(const std::string & /* what */)
   }
   else{
     htmp->SetLineColor(kBlue);
+    htmp->SetStats(kFALSE);
     htmp->DrawCopy("same");
   }
 
@@ -948,6 +1053,7 @@ int LocalPolMonDraw::DrawSixth(const std::string & /* what */)
   gStyle->SetOptStat(0);
   for(int i=0; i<6; i++){
     Pad[5][i]->cd();
+    Pad[5][i]->cd()->SetLogz();
     TH2D* h2=(TH2D*)cl->getHisto("LOCALPOLMON_0",Form("hwaveform%d",i));
     if(!h2){
       DrawDeadServer(transparent[5]);
@@ -955,6 +1061,9 @@ int LocalPolMonDraw::DrawSixth(const std::string & /* what */)
       return -1;
     }
     else{
+      h2->GetXaxis()->SetTitle("Sample #");
+      h2->GetYaxis()->SetTitle("ADC counts");
+      h2->SetStats(kFALSE);
       h2->DrawCopy("colz");
     }
   }
@@ -991,6 +1100,7 @@ int LocalPolMonDraw::DrawSeventh(const std::string & /* what */)
   TC[6]->Clear("D");
   gStyle->SetOptStat(0);
   TH1D* hsyncfrac=(TH1D*)cl->getHisto("LOCALPOLMON_0","hsyncfrac");
+  TH1D* hevent=(TH1D*)cl->getHisto("LOCALPOLMON_0","h_events");
   if(!hsyncfrac){
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(false);
@@ -998,6 +1108,16 @@ int LocalPolMonDraw::DrawSeventh(const std::string & /* what */)
   }
   else{
     Pad[6][0]->cd();
+    Pad[6][0]->SetLogy();
+    if(hevent){
+      if(hevent->GetBinContent(2)){
+	hsyncfrac->Scale(1./hevent->GetBinContent(2));
+      }
+    }
+    hsyncfrac->GetXaxis()->SetBinLabel(1,"dropped events");
+    hsyncfrac->GetXaxis()->SetBinLabel(2,"sync events");
+    hsyncfrac->GetYaxis()->SetTitle("fraction %");
+    hsyncfrac->SetStats(kFALSE);
     hsyncfrac->DrawCopy();
   }
   TC[6]->Update();
@@ -1041,6 +1161,9 @@ int LocalPolMonDraw::DrawEightth(const std::string & /* what */)
   }
   else{
     Pad[7][0]->cd();
+    h2d->GetXaxis()->SetTitle("SMD-North-x [cm]");
+    h2d->GetYaxis()->SetTitle("SMD-North-y [cm]");
+    h2d->SetStats(kFALSE);
     h2d->DrawCopy("colz");
   }
   h2d=(TH2D*)cl->getHisto("LOCALPOLMON_0","Yellowspace");
@@ -1051,6 +1174,9 @@ int LocalPolMonDraw::DrawEightth(const std::string & /* what */)
   }
   else{
     Pad[7][1]->cd();
+    h2d->GetXaxis()->SetTitle("SMD-South-x [cm]");
+    h2d->GetYaxis()->SetTitle("SMD-South-y [cm]");
+    h2d->SetStats(kFALSE);
     h2d->DrawCopy("colz");
   }
   TC[7]->Update();
@@ -1073,6 +1199,54 @@ int LocalPolMonDraw::DrawEightth(const std::string & /* what */)
   TC[7]->SetEditable(false);
   return 0;
 }
+
+int LocalPolMonDraw::DrawNineth(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  
+  if (!gROOT->FindObject("LocalPolMon9"))
+  {
+    MakeCanvas("LocalPolMon9");
+  }
+  TC[8]->SetEditable(true);
+  TC[8]->Clear("D");
+  gStyle->SetOptStat(0);
+  TH2D* hclocks=(TH2D*)cl->getHisto("LOCALPOLMON_0","hclocks");
+  if(!hclocks){
+    DrawDeadServer(transparent[8]);
+    TC[8]->SetEditable(false);
+    return -1;
+  }
+  else{
+    Pad[8][0]->cd();
+    hclocks->GetXaxis()->SetTitle("GL1 clock diff%8192");
+    hclocks->GetYaxis()->SetTitle("ZDC clock diff%8192");
+    hclocks->SetMarkerStyle(kFullCircle);
+    hclocks->SetStats(kFALSE);
+    //hclocks->Fit("pol1");
+    hclocks->DrawCopy();
+  }
+  TC[8]->Update();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_9 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[8]->cd();
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+  TC[8]->Update();
+  TC[8]->Show();
+  TC[8]->SetEditable(false);
+  return 0;
+}
+
 
 int LocalPolMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
@@ -1107,13 +1281,25 @@ int LocalPolMonDraw::MakeHtml(const std::string &what)
 
   OnlMonClient *cl = OnlMonClient::instance();
 
-  // Register the 1st canvas png file to the menu and produces the png file.
-  std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
-  cl->CanvasToPng(TC[0], pngfile);
-
-  // idem for 2nd canvas.
-  pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
-  cl->CanvasToPng(TC[1], pngfile);
+  int icnt = 0;
+  for (TCanvas *canvas : TC)
+  {
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    icnt++;
+    // Register the canvas png file to the menu and produces the png file.
+    std::string pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), std::to_string(icnt), "png");
+    cl->CanvasToPng(canvas, pngfile);
+  }
+  //// Register the 1st canvas png file to the menu and produces the png file.
+  //std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
+  //cl->CanvasToPng(TC[0], pngfile);
+  //
+  //// idem for 2nd canvas.
+  //pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
+  //cl->CanvasToPng(TC[1], pngfile);
 
   return 0;
 }

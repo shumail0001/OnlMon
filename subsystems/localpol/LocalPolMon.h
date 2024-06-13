@@ -70,10 +70,17 @@ class LocalPolMon : public OnlMon
   bool fake = false;                     // config
   bool verbosity = false;                // config
   bool Initfirstbunch=false;
-  int ExpectedsPhenixGapPosition = 117;  // from config
+  bool Integrated=false;
+  int ExpectedsPhenixGapPosition = 111;  // from config
   int EventCountThresholdGap = 6000;     // from config
   int EventsAsymmetryNewPoint = 10000;   // from config
   int nEmptyAbort=0;
+  int MultiLow=1;
+  int MultiHigh=7;
+  float ZDC1Cut=60.;
+  float ZDC2Cut=10.;
+  float VetoCut=0.;
+  float SMDthr=5.;
   long long int Prevgl1_clock;
   long long int Prevzdc_clock;
   int lowSample[52]={0};
@@ -125,6 +132,7 @@ class LocalPolMon : public OnlMon
   TH2D* Bluespace=nullptr;
   TH2D* Yellowspace=nullptr;
   TH2D* hwaveform[6]={nullptr};
+  TH2D* hclocks=nullptr;
   TRandom *myRandomBunch = nullptr;
   //std::map<int, int> stored_gl1p_files;
   eventReceiverClient *erc = nullptr;

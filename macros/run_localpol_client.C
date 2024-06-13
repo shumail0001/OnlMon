@@ -74,6 +74,8 @@ void localpolDrawInit(const int online = 0)
   cl->registerHisto("Bluespace","LOCALPOLMON_0");
   cl->registerHisto("Yellowspace","LOCALPOLMON_0");
 
+  cl->registerHisto("hclocks","LOCALPOLMON_0");
+
   // for local host, just call localpolDrawInit(2)
   //cl->AddServerHost("localhost");  // check local host first
   CreateSubsysHostlist("localpol_hosts.list", online);
