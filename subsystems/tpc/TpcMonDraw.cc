@@ -3390,7 +3390,7 @@ int TpcMonDraw::DrawTPCPacketTypes(const std::string & /* what */)
     if( tpcmon_PacketType[i] )
     {
       MyTC->cd(i+5);
-      tpcmon_PacketType[i]->Scale(1/(tpcmon_PacketType[i]->GetEntries()),"width");
+      if(tpcmon_PacketType[i]->GetEntries() > 0){tpcmon_PacketType[i]->Scale(1/(tpcmon_PacketType[i]->GetEntries()),"width");}
       gPad->SetLogy(kTRUE);
       tpcmon_PacketType[i]->DrawCopy("HIST");
     }
