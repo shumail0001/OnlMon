@@ -312,7 +312,7 @@ int TpotMon::process_event(Event* event)
       const int type = packet->iValue(i, "TYPE");
 
       // ignore heartbear
-      if( type == MicromegasDefs::HEARTBEAT_T ) continue;
+      if( type == HEARTBEAT_T ) continue;
 
       // get channel
       const auto channel = packet->iValue( i, "CHANNEL" );
