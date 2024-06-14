@@ -133,7 +133,10 @@ class TpcMon : public OnlMon
   TH1 *NEvents_vs_EBDC = nullptr;
 
   TH1 *NStreaks_vs_EventNo = nullptr;
-  TH1 *Packet_Type_Fraction = nullptr;
+
+  TH1 *Packet_Type_Fraction_HB = nullptr;
+  TH1 *Packet_Type_Fraction_NORM = nullptr;
+  TH1 *Packet_Type_Fraction_ELSE = nullptr;
 
   TpcMap M; //declare Martin's map
 
