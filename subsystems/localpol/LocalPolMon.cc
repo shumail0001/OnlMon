@@ -581,6 +581,12 @@ int LocalPolMon::Init()
   hclocks = new TH2D("hclocks","hclocks",8192,0,8192,8192,0,8192);
   se->registerHisto(this, hclocks);
 
+  hevolsync = new TH2D("hevolsync","",10000,0,30000000,2,0,2);
+  se->registerHisto(this,hevolsync);
+
+  hshiftevol=new TH2D("hshiftevol","",10000,0,30000000,20,0,20);
+  se->registerHisto(this,hshiftevol);
+  
   WaveformProcessingFast = new CaloWaveformFitting();
   myRandomBunch = new TRandom(0);
   Reset();
@@ -987,6 +993,7 @@ double* LocalPolMon::ComputeAsymmetries(double L_U, double R_D, double L_D, doub
     result[0] = tmpNumA / tmpDenA;
     result[1] = 2 * sqrt(pow(rightA, 2) * leftA + pow(leftA, 2) * rightA) / pow(tmpDenA, 2);
   }
+  std::cout<<leftA<<" "<<rightA<<"\t\t"<<result[0]<<" +/- "<<result[1]<<std::endl;
 
   double leftG = sqrt(L_U * R_D);
   double rightG = sqrt(L_D * R_U);
@@ -1165,6 +1172,7 @@ int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
     failuredepth=0;
     return -1;
   }
+  //std::cout<<e->getEvtSequence()<<std::endl;
   if (erc){
     if(verbosity){
       std::cout<<"Inside RetrieveBunchNumber::ERC "<<e->getEvtSequence() <<" "<<EvtShift <<std::endl;
@@ -1206,6 +1214,10 @@ int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
 	if(verbosity){
 	  std::cout<<"Mismatched: "<<EvtShift<<" zdc: "<<(zdc_clock-Prevzdc_clock) <<"    gl1p: "<<(gl1_clock-Prevgl1_clock) <<std::endl;
         }
+	std::cerr<<"Mismatched: "<< e->getEvtSequence()<<" shift: "<<EvtShift<<" zdc: "<<zdc_clock<<" - "<<Prevzdc_clock<<" = "<<(zdc_clock-Prevzdc_clock) <<"    gl1p: "<<gl1_clock<<" - "<<Prevgl1_clock<<" = "<<(gl1_clock-Prevgl1_clock) <<std::endl;
+	if((zdc_clock-Prevzdc_clock)<0){
+	  exit(1) ;
+	}
 	EvtShift++;
 	delete pgl1p;
 	pgl1p=nullptr;
@@ -1213,13 +1225,16 @@ int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
 	egl1=nullptr;
 	failuredepth++;
 	hsyncfrac->Fill(0.);
+	hevolsync->Fill(e->getEvtSequence(),0);
 	bunch=RetrieveBunchNumber(e,zdc_clock);
       }
       else{
 	Prevgl1_clock=gl1_clock;
 	Prevzdc_clock=zdc_clock;
 	EvtShiftValid=EvtShiftValid;
-	hsyncfrac->Fill(1.);	
+	hsyncfrac->Fill(1.);
+	hevolsync->Fill(e->getEvtSequence(),1);
+	hshiftevol->Fill(e->getEvtSequence(),EvtShift);
 	bunch = pgl1p->lValue(0, "BunchNumber");
 	//failuredepth=0;
 	if(verbosity){
