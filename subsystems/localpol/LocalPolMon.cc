@@ -1214,7 +1214,7 @@ int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
 	if(verbosity){
 	  std::cout<<"Mismatched: "<<EvtShift<<" zdc: "<<(zdc_clock-Prevzdc_clock) <<"    gl1p: "<<(gl1_clock-Prevgl1_clock) <<std::endl;
         }
-	std::cerr<<"Mismatched: "<< e->getEvtSequence()<<" shift: "<<EvtShift<<" zdc: "<<zdc_clock<<" - "<<Prevzdc_clock<<" = "<<(zdc_clock-Prevzdc_clock) <<"    gl1p: "<<gl1_clock<<" - "<<Prevgl1_clock<<" = "<<(gl1_clock-Prevgl1_clock) <<std::endl;
+	//std::cerr<<"Mismatched: "<< e->getEvtSequence()<<" shift: "<<EvtShift<<" zdc: "<<zdc_clock<<" - "<<Prevzdc_clock<<" = "<<(zdc_clock-Prevzdc_clock) <<"    gl1p: "<<gl1_clock<<" - "<<Prevgl1_clock<<" = "<<(gl1_clock-Prevgl1_clock) <<std::endl;
 	if((zdc_clock-Prevzdc_clock)<0){
 	  exit(1) ;
 	}
