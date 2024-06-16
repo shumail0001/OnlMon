@@ -3362,14 +3362,16 @@ int TpcMonDraw::DrawTPCPacketTypes(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *tpcmon_PacketType[24] = {nullptr};
+  TH1 *tpcmon_PacketType[24][3] = {nullptr};
 
   char TPCMON_STR[100];
   for( int i=0; i<24; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_PacketType[i] = (TH1*) cl->getHisto(TPCMON_STR,"Packet_Type_Fraction");
+    tpcmon_PacketType[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"Packet_Type_Fraction_HB");
+    tpcmon_PacketType[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"Packet_Type_Fraction_NORM");
+    tpcmon_PacketType[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"Packet_Type_Fraction_ELSE");
   }
 
   if (!gROOT->FindObject("TPCPacketType"))
@@ -3385,15 +3387,44 @@ int TpcMonDraw::DrawTPCPacketTypes(const std::string & /* what */)
   gStyle->SetOptStat(0);
   gStyle->SetPalette(57); //kBird CVD friendly
 
+  double normfactor = 0;
+
+  int index_arr[3] = {1, 0, 2} ;
+
+  double norm_highest = 0.;
+  int index_highest = 1;
+
   for( int i=0; i<24; i++ ) 
   {
-    if( tpcmon_PacketType[i] )
-    {
-      MyTC->cd(i+5);
-      if(tpcmon_PacketType[i]->GetEntries() > 0){tpcmon_PacketType[i]->Scale(1/(tpcmon_PacketType[i]->GetEntries()),"width");}
-      gPad->SetLogy(kTRUE);
-      tpcmon_PacketType[i]->DrawCopy("HIST");
+
+    for( int k=0; k<3; k++)
+    { 
+      if(tpcmon_PacketType[i][k])
+      { 
+        normfactor += (tpcmon_PacketType[i][k]->GetEntries()); 
+        if(tpcmon_PacketType[i][k]->GetEntries()>norm_highest){ norm_highest = (tpcmon_PacketType[i][k]->GetEntries());index_highest=k; } 
+      }  
     }
+
+    if(index_highest == 0){ index_arr[0] = 0; index_arr[1] = 1; index_arr[2] = 2; }
+    if(index_highest == 2){ index_arr[0] = 2; index_arr[1] = 1; index_arr[2] = 0; }
+
+    for( int j=0; j< 3; j++)
+    {
+      if( tpcmon_PacketType[i][index_arr[j]] )
+      {
+        MyTC->cd(i+5);
+        if(normfactor > 0){tpcmon_PacketType[i][index_arr[j]]->Scale(1/(normfactor),"width");}
+        gPad->SetLogy(kTRUE);
+        if(j == 0){ tpcmon_PacketType[i][index_arr[j]]->DrawCopy("HIST"); }
+        else{  tpcmon_PacketType[i][index_arr[j]]->DrawCopy("HISTsame");}  
+      } 
+    }
+
+    gPad->Update();
+ 
+    normfactor = 0; //reset this after scaling each histogram at end of iteration of outer for loop (i loop)
+
   }
 
   TText PrintRun;

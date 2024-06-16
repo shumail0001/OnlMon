@@ -148,6 +148,7 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCNONZSCHANNELS\")", "TPC Non-ZS channels Per SAMPA chip");
   subsys->AddAction("tpcDraw(\"TPCZSTRIGGERADCVSSAMPLE\")", "TPC ZS trigger threshold QA");
   subsys->AddAction("tpcDraw(\"TPCFIRSTNONZSADCVSFIRSTNONZSSAMPLE\")", "TPC 1st nonZS ADC vs 1st nonZS Sample");
+  subsys->AddAction("tpcDraw(\"TPCPACKETYPEFRACTION\")", "TPC PACKET TYPE WF FRACTION");
   subsys->AddAction("tpcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);

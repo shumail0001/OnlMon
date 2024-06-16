@@ -31,10 +31,6 @@ namespace
     FILLMESSAGE = 2
   };
 
-  //! number of active packets used by TPOT.
-  /** This is used to properly normalize the number of trigger received */
-  static constexpr int m_npackets_active = 2;
-
   /*
    * on May 29 2024, we the fiber arriving on fee_id 11 was moved to fee_id 21
    * since fee_id 11 was not assigned before, we can internally convert all call to fee_id 21 to fee_id11,
@@ -69,6 +65,19 @@ namespace
     o << "{ " << window.first << ", " << window.second << "}";
     return o;
   }
+
+  /* see: https://git.racf.bnl.gov/gitea/Instrumentation/sampa_data/src/branch/fmtv2/README.md */
+  // TODO: should move to online_distribution
+  enum SampaDataType
+  {
+    HEARTBEAT_T = 0b000,
+    TRUNCATED_DATA_T = 0b001,
+    TRUNCATED_TRIG_EARLY_DATA_T = 0b011,
+    NORMAL_DATA_T = 0b100,
+    LARGE_DATA_T = 0b101,
+    TRIG_EARLY_DATA_T = 0b110,
+    TRIG_EARLY_LARGE_DATA_T = 0b111,
+  };
 
 }
 
@@ -288,8 +297,8 @@ int TpotMon::process_event(Event* event)
     }
 
     // increment counter
-    increment( m_counters, TpotMonDefs::kTriggerCounter, double(n_lvl1_tagger)/m_npackets_active );
-    m_triggercnt += double(n_lvl1_tagger)/m_npackets_active;
+    increment( m_counters, TpotMonDefs::kTriggerCounter, double(n_lvl1_tagger)/MicromegasDefs::m_npackets_active );
+    m_triggercnt += double(n_lvl1_tagger)/MicromegasDefs::m_npackets_active;
 
     // get number of datasets (also call waveforms)
     const auto n_waveforms = packet->iValue(0, "NR_WF" );
@@ -298,6 +307,14 @@ int TpotMon::process_event(Event* event)
     { std::cout << "TpotMon::process_event - n_waveforms: " << n_waveforms << std::endl; }
     for( int i=0; i<n_waveforms; ++i )
     {
+
+      // get waveform type
+      const int type = packet->iValue(i, "TYPE");
+
+      // ignore heartbear
+      if( type == HEARTBEAT_T ) continue;
+
+      // get channel
       const auto channel = packet->iValue( i, "CHANNEL" );
 
       // bound check channel
