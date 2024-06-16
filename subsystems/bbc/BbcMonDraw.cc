@@ -8,6 +8,7 @@
 #include <TCanvas.h>
 #include <TDatime.h>
 #include <TF1.h>
+#include <TFrame.h>
 #include <TGraph.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
@@ -1649,6 +1650,10 @@ int BbcMonDraw::Draw(const std::string &what)
       PadTimeWave->cd();
       TimeWave->GetXaxis()->SetRangeUser(-0.5,15.5);
       TimeWave->Draw("colz");
+      TLine aline;
+      aline.SetLineWidth(3);
+      aline.DrawLine( 7,gPad->GetFrame()->GetY1(), 7,gPad->GetFrame()->GetY2());
+      aline.DrawLine(10,gPad->GetFrame()->GetY1(),10,gPad->GetFrame()->GetY2());
     }
 
     if (PadSouthHitTime)
