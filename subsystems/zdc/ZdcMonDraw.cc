@@ -1457,7 +1457,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     }
 
     
-  TLine *t1 = new TLine(6,0.0,6,x1*20);
+  TLine *t1 = new TLine(5,0.0,5,x1*20);
   t1->SetLineWidth(3);
   t1->SetLineStyle(1);
   t1->SetLineColor(kRed);
@@ -1520,7 +1520,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
      h_waveform_timez->Scale(1. / h_waveform_timez->GetEntries());
    }
        
-  TLine *t11 = new TLine(6,0.0,6,h_waveform_timez->GetMaximum() * 1.05);
+  TLine *t11 = new TLine(5,0.0,5,h_waveform_timez->GetMaximum() * 1.05);
   t11->SetLineWidth(3);
   t11->SetLineStyle(1);
   t11->SetLineColor(kRed);
@@ -1574,7 +1574,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
       }
     
     
-    TLine *t3 = new TLine(10,0.0,10,  x2 * 20);
+    TLine *t3 = new TLine(9,0.0,9,  x2 * 20);
     t3->SetLineWidth(3);
     t3->SetLineStyle(1);
     t3->SetLineColor(kRed);
@@ -1598,7 +1598,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     h_waveformSMD_North->GetXaxis()->SetRangeUser(0, 16);
     h_waveformSMD_North->SetTitle("SMD NORTH");
     h_waveformSMD_North->SetXTitle("Sample Number");
-     h_waveformSMD_North->SetYTitle("Waveform [ADC]");
+    h_waveformSMD_North->SetYTitle("Waveform [ADC]");
     h_waveformSMD_North->GetXaxis()->SetLabelSize(tsize);
     h_waveformSMD_North->GetYaxis()->SetLabelSize(tsize);
     h_waveformSMD_North->GetXaxis()->SetTitleSize(tsize);
@@ -1637,7 +1637,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
         h_waveform_timesn->Scale(1. / h_waveform_timesn->GetEntries());
      }
     
-    TLine *t33 = new TLine(10,0.0,10, h_waveform_timesn->GetMaximum() * 1.05);
+    TLine *t33 = new TLine(9,0.0,9, h_waveform_timesn->GetMaximum() * 1.05);
     t33->SetLineWidth(3);
     t33->SetLineStyle(1);
     t33->SetLineColor(kRed);
@@ -1693,7 +1693,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
       }
     
     
-  TLine *t5 = new TLine(7,0.0,7, x3 * 20);
+  TLine *t5 = new TLine(6,0.0,6, x3 * 20);
   t5->SetLineWidth(3);
   t5->SetLineStyle(1);
   t5->SetLineColor(kRed);
@@ -1758,7 +1758,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
         h_waveform_timess->Scale(1. / h_waveform_timess->GetEntries());
      }
     
-  TLine *t55 = new TLine(7,0.0,7,h_waveform_timess->GetMaximum() * 1.05);
+  TLine *t55 = new TLine(6,0.0,6,h_waveform_timess->GetMaximum() * 1.05);
   t55->SetLineWidth(3);
   t55->SetLineStyle(1);
   t55->SetLineColor(kRed);
@@ -1814,7 +1814,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
       }
     
     
-  TLine *t7 = new TLine(6,0.0,6, x4 * 20);
+  TLine *t7 = new TLine(5,0.0,5, x4 * 20);
   t7->SetLineWidth(3);
   t7->SetLineStyle(1);
   t7->SetLineColor(kRed);
@@ -1880,7 +1880,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     
 
 
-  TLine *t77 = new TLine(6,0.0,6,h_waveform_timevn->GetMaximum() * 1.05);
+  TLine *t77 = new TLine(5,0.0,5,h_waveform_timevn->GetMaximum() * 1.05);
   t77->SetLineWidth(3);
   t77->SetLineStyle(1);
   t77->SetLineColor(kRed);
@@ -1937,7 +1937,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
       }
     
 
-  TLine *t9 = new TLine(7,0.0,7,x5 * 20);
+  TLine *t9 = new TLine(6,0.0,6,x5 * 20);
   t9->SetLineWidth(3);
   t9->SetLineStyle(1);
   t9->SetLineColor(kRed);
@@ -2002,7 +2002,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
      }
     
 
-  TLine *t99 = new TLine(7,0.0,7,h_waveform_timevs->GetMaximum() * 1.05);
+  TLine *t99 = new TLine(6,0.0,6,h_waveform_timevs->GetMaximum() * 1.05);
   t99->SetLineWidth(3);
   t99->SetLineStyle(1);
   t99->SetLineColor(kRed);
