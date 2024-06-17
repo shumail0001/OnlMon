@@ -252,7 +252,7 @@ int InttMonDraw::DrawServerStats()
 
 int InttMonDraw::MakeDispPad(int icnvs, double lgnd_frac)
 {
-  std::string name = Form("disp_pad_%d", icnvs);
+  std::string name = Form("intt_disp_pad_%d", icnvs);
   m_disp_pad[icnvs] = new TPad(
       name.c_str(), name.c_str(),  //
       0.0, 1.0 - m_disp_frac,      // Southwest x, y
@@ -266,7 +266,7 @@ int InttMonDraw::MakeDispPad(int icnvs, double lgnd_frac)
   // Some methods do not need a legend, test this member variable
   if (std::isfinite(lgnd_frac))
   {
-    name = Form("lgnd_pad_%d", icnvs);
+    name = Form("intt_lgnd_pad_%d", icnvs);
     m_lgnd_pad[icnvs] = new TPad(
         name.c_str(), name.c_str(),  //
         1.0 - lgnd_frac, 0.0,        // Southwest x, y
@@ -284,7 +284,7 @@ int InttMonDraw::MakeDispPad(int icnvs, double lgnd_frac)
 
   for (int i = 0; i < 8; ++i)
   {
-    name = Form("hist_pad_%d_%01d", icnvs, i);
+    name = Form("intt_hist_pad_%d_%01d", icnvs, i);
     m_hist_pad[icnvs][i] = new TPad(
         name.c_str(), name.c_str(),                                                          //
         (i % 4 + 0.0) / 4.0 * (1.0 - lgnd_frac), (i / 4 + 0.0) / 2.0 * (1.0 - m_disp_frac),  // Southwest x, y
@@ -294,6 +294,17 @@ int InttMonDraw::MakeDispPad(int icnvs, double lgnd_frac)
     m_hist_pad[icnvs][i]->SetFillStyle(4000);  // Transparent
     m_hist_pad[icnvs][i]->Range(0.0, 0.0, 1.0, 1.0);
     m_hist_pad[icnvs][i]->Draw();
+
+    name = Form("intt_transparent_pad_%d_%01d", icnvs, i);
+    m_transparent_pad[icnvs][i] = new TPad(
+        name.c_str(), name.c_str(),                                                          //
+        (i % 4 + 0.0) / 4.0 * (1.0 - lgnd_frac), (i / 4 + 0.0) / 2.0 * (1.0 - m_disp_frac),  // Southwest x, y
+        (i % 4 + 1.0) / 4.0 * (1.0 - lgnd_frac), (i / 4 + 1.0) / 2.0 * (1.0 - m_disp_frac)   // Northeast x, y
+    );
+    TC[icnvs]->cd();
+    m_transparent_pad[icnvs][i]->SetFillStyle(4000);  // Transparent
+    m_transparent_pad[icnvs][i]->Range(0.0, 0.0, 1.0, 1.0);
+    m_transparent_pad[icnvs][i]->Draw();
   }
 
   return 0;
@@ -365,11 +376,11 @@ int InttMonDraw::Draw_FelixBcoFphxBco()
   }
 
   TC[k_felixbcofphxbco]->SetEditable(true);
-
-  //  m_lgnd_frac = 0.15;
   m_style->cd();
-
-  DrawDispPad_Generic(k_felixbcofphxbco, TC[1]->GetTitle());
+  if(DrawDispPad_Generic(k_felixbcofphxbco, TC[k_felixbcofphxbco]->GetTitle()) == -1)
+  {
+    return -1;
+  }
 
   // Draw Legend
   double lgnd_text_size = 0.08;
@@ -415,7 +426,7 @@ int InttMonDraw::Draw_FelixBcoFphxBco()
   for (int i = 0; i < 8; ++i)
   {
     // If any subdraw succeeds, say the entire call succeeds
-    iret = DrawHistPad_FelixBcoFphxBco(i) && iret;
+    iret = DrawHistPad_FelixBcoFphxBco(i, k_felixbcofphxbco) && iret;
   }
 
   TC[k_felixbcofphxbco]->Update();
@@ -426,13 +437,14 @@ int InttMonDraw::Draw_FelixBcoFphxBco()
 }
 
 int InttMonDraw::DrawHistPad_FelixBcoFphxBco(
-    int i)
+    int i, int icnvs)
 {
   for (int fee = 0; fee < 14; ++fee)
   {
-    std::string name = Form("intt_bco_hist_%02d_%02d", i, fee);
+    std::string name = Form("intt_hist_%d_%02d_%02d", icnvs, i, fee);
     if (!m_hist_felixbcofphxbco[i][fee])
     {
+      TC[icnvs]->cd();
       m_hist_felixbcofphxbco[i][fee] = new TH1D(
           name.c_str(), name.c_str(),  //
           128, 0, 128                  //
@@ -455,8 +467,14 @@ int InttMonDraw::DrawHistPad_FelixBcoFphxBco(
   TH1* bco_hist = cl->getHisto(Form("INTTMON_%d", i), "InttBcoHist");
   if (!bco_hist)
   {
-    DrawDeadServer(transparent[k_felixbcofphxbco]);
-    return -1;
+    m_transparent_pad[k_hitrates][i]->cd();
+	TText dead_text;
+	dead_text.SetTextColor(kBlue);
+	dead_text.SetTextAlign(22);
+	dead_text.SetTextSize(0.1);
+	dead_text.SetTextAngle(45);
+	dead_text.DrawText(0.5, 0.5, "Dead Server");
+    return 1;
   }
 
   // Fill
@@ -518,13 +536,12 @@ int InttMonDraw::Draw_HitMap()
     MakeCanvas("InttHitMap");
   }
 
-  m_style->cd();
-
-  std::string name;
-
   TC[k_hitmap]->SetEditable(true);
-
-  DrawDispPad_Generic(k_hitmap, TC[k_hitmap]->GetTitle());
+  m_style->cd();
+  if(DrawDispPad_Generic(k_hitmap, TC[k_hitmap]->GetTitle()) == -1)
+  {
+    return -1;
+  }
 
   // Legend Pad
   double lgnd_box_width = 0.16;
@@ -606,12 +623,13 @@ int InttMonDraw::Draw_HitMap()
 
 int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
 {
-  double lower = 10e-4;
-  double upper = 10e-2;
+  double lower = 0.005;
+  double upper = 0.025;
 
-  std::string name = Form("hist_%d_%01d", icnvs, i);
+  std::string name = Form("intt_hist_%d_%01d", icnvs, i);
   if (!m_hist_hitmap[i])
   {
+    TC[icnvs]->cd();
     m_hist_hitmap[i] = new TH2D(
         name.c_str(), name.c_str(),
         26, 0, 26,  // 26, -0.5, 25.5,
@@ -636,17 +654,17 @@ int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
   OnlMonClient* cl = OnlMonClient::instance();
 
   TH1* evt_hist = cl->getHisto(Form("INTTMON_%d", i), "InttEvtHist");
-  if (!evt_hist)
+  TH1* hit_hist = cl->getHisto(Form("INTTMON_%d", i), "InttHitHist");
+  if (!evt_hist || !hit_hist)
   {
-    DrawDeadServer(transparent[icnvs]);
-    return -1;
-  }
-
-  TH1* bco_hist = cl->getHisto(Form("INTTMON_%d", i), "InttHitHist");
-  if (!bco_hist)
-  {
-    DrawDeadServer(transparent[icnvs]);
-    return -1;
+    m_transparent_pad[k_hitrates][i]->cd();
+	TText dead_text;
+	dead_text.SetTextColor(kBlue);
+	dead_text.SetTextAlign(22);
+	dead_text.SetTextSize(0.1);
+	dead_text.SetTextAngle(45);
+	dead_text.DrawText(0.5, 0.5, "Dead Server");
+    return 1;
   }
 
   // Fill
@@ -654,10 +672,8 @@ int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
   {
     for (int chp = 0; chp < NCHIPS; ++chp)
     {
-      // int bin = InttMonDraw::HitBin(fee*NCHIPS+chp+1);           // Which bin has the data we want
-      // std::cout << "bin: " << bin << ", me: " << (hit_data.fee*NCHIPS+hit_data.chp+1) << std::endl;
-      double bincont = bco_hist->GetBinContent(fee * NCHIPS + chp + 1);  // Reuse the index as the value in that bin
-      bincont /= evt_hist->GetBinContent(1);                             // Normalize by number of events
+      double bincont = hit_hist->GetBinContent(fee * NCHIPS + chp + 1);
+      bincont /= evt_hist->GetBinContent(2); // Normalize by number of unique BCOs
 
       // Assign a value to this bin
       // that will give it the appropriate color
@@ -691,11 +707,12 @@ int InttMonDraw::Draw_HitRates()
     MakeCanvas("InttHitRates");
   }
 
-  m_style->cd();
-
   TC[k_hitrates]->SetEditable(true);
-
-  DrawDispPad_Generic(k_hitrates, TC[k_hitrates]->GetTitle());
+  m_style->cd();
+  if(DrawDispPad_Generic(k_hitrates, TC[k_hitrates]->GetTitle()) == -1)
+  {
+    return -1;
+  }
 
   int iret = 1;
   for (int i = 0; i < 8; ++i)
@@ -714,20 +731,20 @@ int InttMonDraw::Draw_HitRates()
 int InttMonDraw::DrawHistPad_HitRates(
     int i, int icnvs)
 {
-  double m_lower = 0.0;
-  double m_upper = 0.02;
+  double lower = 0.0;
+  double upper = 0.025;
 
   // Validate member histos
-  std::string name = Form("hist_%d_%01d", icnvs, i);
+  std::string name = Form("intt_hitrate_hist_%d_%01d", icnvs, i);
   if (!m_hist_hitrates[i])
   {
     m_hist_hitrates[i] = new TH1D(
-        name.c_str(), name.c_str(),  //
-        112, m_lower, m_upper        //
+        name.c_str(), name.c_str(), //
+        112, lower, upper           //
     );
     m_hist_hitrates[i]->SetTitle(Form("intt%01d;Hits/Event (overflow is shown in last bin);Entries (One Hitrate per Chip)", i));
     m_hist_hitrates[i]->GetXaxis()->SetNdivisions(8, true);
-    m_hist_hitrates[i]->SetFillStyle(4000);  // Transparent
+    m_hist_hitrates[i]->SetFillStyle(4000); // Transparent
   }
   m_hist_pad[k_hitrates][i]->cd();
 
@@ -738,17 +755,18 @@ int InttMonDraw::DrawHistPad_HitRates(
   OnlMonClient* cl = OnlMonClient::instance();
 
   TH1* evt_hist = cl->getHisto(Form("INTTMON_%d", i), "InttEvtHist");
-  if (!evt_hist)
+  TH1* hit_hist = cl->getHisto(Form("INTTMON_%d", i), "InttHitHist");
+  m_transparent_pad[k_hitrates][i]->Clear();
+  if (!evt_hist || !hit_hist)
   {
-    DrawDeadServer(transparent[icnvs]);
-    return -11;
-  }
-
-  TH1* bco_hist = cl->getHisto(Form("INTTMON_%d", i), "InttHitHist");
-  if (!bco_hist)
-  {
-    DrawDeadServer(transparent[icnvs]);
-    return -1;
+    m_transparent_pad[k_hitrates][i]->cd();
+	TText dead_text;
+	dead_text.SetTextColor(kBlue);
+	dead_text.SetTextAlign(22);
+	dead_text.SetTextSize(0.1);
+	dead_text.SetTextAngle(45);
+	dead_text.DrawText(0.5, 0.5, "Dead Server");
+    return 1;
   }
 
   // Fill
@@ -756,13 +774,13 @@ int InttMonDraw::DrawHistPad_HitRates(
   {
     for (int chp = 0; chp < NCHIPS; ++chp)
     {
-      double bincont = bco_hist->GetBinContent(fee * NCHIPS + chp + 1);  // Reuse the index as the value in that bin
-      bincont /= evt_hist->GetBinContent(1);                             // Normalize by number of events
+      double bincont = hit_hist->GetBinContent(fee * NCHIPS + chp + 1);
+      bincont /= evt_hist->GetBinContent(2); // Normalize by number of events
 
       // Manually catch overflows and put them in the last displayed bin
-      if (m_upper <= bincont)
+      if (upper <= bincont)
       {
-        bincont = m_upper - m_hist_hitrates[i]->GetXaxis()->GetBinWidth(1);
+        bincont = upper - m_hist_hitrates[i]->GetXaxis()->GetBinWidth(1);
       }
 
       m_hist_hitrates[i]->Fill(bincont);
