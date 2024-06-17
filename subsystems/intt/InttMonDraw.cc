@@ -465,9 +465,10 @@ int InttMonDraw::DrawHistPad_FelixBcoFphxBco(
   OnlMonClient* cl = OnlMonClient::instance();
 
   TH1* bco_hist = cl->getHisto(Form("INTTMON_%d", i), "InttBcoHist");
+  m_transparent_pad[k_felixbcofphxbco][i]->Clear();
   if (!bco_hist)
   {
-    m_transparent_pad[k_hitrates][i]->cd();
+    m_transparent_pad[k_felixbcofphxbco][i]->cd();
 	TText dead_text;
 	dead_text.SetTextColor(kBlue);
 	dead_text.SetTextAlign(22);
@@ -655,9 +656,10 @@ int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
 
   TH1* evt_hist = cl->getHisto(Form("INTTMON_%d", i), "InttEvtHist");
   TH1* hit_hist = cl->getHisto(Form("INTTMON_%d", i), "InttHitHist");
+  m_transparent_pad[k_hitmap][i]->Clear();
   if (!evt_hist || !hit_hist)
   {
-    m_transparent_pad[k_hitrates][i]->cd();
+    m_transparent_pad[k_hitmap][i]->cd();
 	TText dead_text;
 	dead_text.SetTextColor(kBlue);
 	dead_text.SetTextAlign(22);
