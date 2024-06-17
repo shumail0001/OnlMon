@@ -1650,8 +1650,10 @@ int BbcMonDraw::Draw(const std::string &what)
       PadTimeWave->cd();
       TimeWave->GetXaxis()->SetRangeUser(-0.5,15.5);
       TimeWave->Draw("colz");
+      PadTimeWave->Update();
       TLine aline;
-      aline.SetLineWidth(3);
+      aline.SetLineColor(kRed);
+      aline.SetLineWidth(4);
       aline.DrawLine( 7,gPad->GetFrame()->GetY1(), 7,gPad->GetFrame()->GetY2());
       aline.DrawLine(10,gPad->GetFrame()->GetY1(),10,gPad->GetFrame()->GetY2());
     }

@@ -1163,9 +1163,9 @@ int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
   if(verbosity){
     std::cout<<"Inside RetrieveBunchNumber"<<std::endl;
   }
-  if(failuredepth>100){
+  if(failuredepth>1000){
     if(verbosity){
-      std::cout<<"ZDC and GL1p asynchronous by more than 100 events"<<std::endl;
+      std::cout<<"ZDC and GL1p asynchronous by more than 1000 events"<<std::endl;
       std::cout<<"Giving up this event and go to the next one"<<std::endl;
     }
     EvtShift=EvtShiftValid;
@@ -1209,15 +1209,22 @@ int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
 	egl1=nullptr;
 	return bunch;
       }
+      if(zdc_clock<Prevzdc_clock){
+	//Prevzdc_clock=Prevzdc_clock-4294967296;//despite the long long, it seems it is only 32 bits
+	//std::cerr<<"Mismatched: "<< e->getEvtSequence()<<" shift: "<<EvtShift<<" zdc: "<<zdc_clock<<" - "<<Prevzdc_clock<<" = "<<(zdc_clock-Prevzdc_clock) <<"    gl1p: "<<gl1_clock<<" - "<<Prevgl1_clock<<" = "<<(gl1_clock-Prevgl1_clock) <<std::endl;
+	zdc_clock+=(long long int)1<<32;
+	//std::cerr<<"And now Mismatched: "<< e->getEvtSequence()<<" shift: "<<EvtShift<<" zdc: "<<zdc_clock<<" - "<<Prevzdc_clock<<" = "<<(zdc_clock-Prevzdc_clock) <<"    gl1p: "<<gl1_clock<<" - "<<Prevgl1_clock<<" = "<<(gl1_clock-Prevgl1_clock) <<std::endl;
+	//exit(1);
+      }
       hclocks->Fill((gl1_clock-Prevgl1_clock)%8192,(zdc_clock-Prevzdc_clock)%8192);
       if((gl1_clock-Prevgl1_clock)!=(zdc_clock-Prevzdc_clock)){
 	if(verbosity){
 	  std::cout<<"Mismatched: "<<EvtShift<<" zdc: "<<(zdc_clock-Prevzdc_clock) <<"    gl1p: "<<(gl1_clock-Prevgl1_clock) <<std::endl;
         }
 	//std::cerr<<"Mismatched: "<< e->getEvtSequence()<<" shift: "<<EvtShift<<" zdc: "<<zdc_clock<<" - "<<Prevzdc_clock<<" = "<<(zdc_clock-Prevzdc_clock) <<"    gl1p: "<<gl1_clock<<" - "<<Prevgl1_clock<<" = "<<(gl1_clock-Prevgl1_clock) <<std::endl;
-	if((zdc_clock-Prevzdc_clock)<0){
-	  exit(1) ;
-	}
+	//if((zdc_clock-Prevzdc_clock)<0){
+	//  exit(1) ;
+	//}
 	EvtShift++;
 	delete pgl1p;
 	pgl1p=nullptr;
@@ -1230,6 +1237,9 @@ int LocalPolMon::RetrieveBunchNumber(Event* e, long long int zdc_clock){
       }
       else{
 	Prevgl1_clock=gl1_clock;
+	if(zdc_clock>(long long int)1<<32){
+	  zdc_clock-=(long long int)1<<32;
+	}
 	Prevzdc_clock=zdc_clock;
 	EvtShiftValid=EvtShiftValid;
 	hsyncfrac->Fill(1.);
