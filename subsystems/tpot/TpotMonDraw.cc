@@ -9,7 +9,6 @@
 #include <TAxis.h>  // for TAxis
 #include <TCanvas.h>
 #include <TDatime.h>
-#include <TGraphErrors.h>
 #include <TH1.h>
 #include <TLine.h>
 #include <TLatex.h>
@@ -501,8 +500,10 @@ int TpotMonDraw::Draw(const std::string &what)
     if( m_counters )
     {
       m_triggercnt =  m_counters->GetBinContent( TpotMonDefs::kTriggerCounter );
+      m_heartbeatcnt =  m_counters->GetBinContent( TpotMonDefs::kHeartBeatCounter );
     } else {
       m_triggercnt = 0;
+      m_heartbeatcnt = 0;
     }
 
     if( m_counters && Verbosity() )
@@ -668,7 +669,12 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_waveform_vs_channel")
   {
-    iret += draw_array("TPOT_waveform_vs_channel", get_histograms( "m_wf_vs_channel" ), get_ref_histograms_scaled( "m_wf_vs_channel" ), DrawOptions::Logy|DrawOptions::MatchRange|DrawOptions::Normalize);
+    iret += draw_array(
+      "TPOT_waveform_vs_channel",
+      get_histograms( "m_wf_vs_channel" ),
+      get_ref_histograms_scaled( "m_wf_vs_channel" ),
+      DrawOptions::Logy|DrawOptions::MatchRange|DrawOptions::Normalize,
+      m_triggercnt);
     auto cv = get_canvas("TPOT_waveform_vs_channel");
     if( cv )
     {
@@ -697,7 +703,12 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_hit_vs_channel")
   {
-    iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ), get_ref_histograms_scaled( "m_hit_vs_channel" ), DrawOptions::Logy|DrawOptions::MatchRange|DrawOptions::Normalize);
+    iret += draw_array(
+      "TPOT_hit_vs_channel",
+      get_histograms( "m_hit_vs_channel" ),
+      get_ref_histograms_scaled( "m_hit_vs_channel" ),
+      DrawOptions::Logy|DrawOptions::MatchRange|DrawOptions::Normalize,
+      m_triggercnt);
     auto cv = get_canvas("TPOT_hit_vs_channel");
     if( cv )
     {
@@ -735,7 +746,12 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_heartbeat_vs_channel")
   {
-    iret += draw_array("TPOT_heartbeat_vs_channel", get_histograms( "m_heartbeat_vs_channel" ), get_ref_histograms_scaled( "m_heartbeat_vs_channel" ), DrawOptions::MatchRange);
+    iret += draw_array(
+      "TPOT_heartbeat_vs_channel",
+      get_histograms( "m_heartbeat_vs_channel" ),
+      get_ref_histograms_scaled( "m_heartbeat_vs_channel" ),
+      DrawOptions::MatchRange|DrawOptions::Normalize,
+      m_heartbeatcnt);
     auto cv = get_canvas("TPOT_heartbeat_vs_channel");
     if( cv )
     {
@@ -869,6 +885,7 @@ int TpotMonDraw::draw_counters()
     cv->cd(1);
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
+    gPad->SetBottomMargin( 0.2 );
     m_counters->SetFillStyle(1001);
     m_counters->SetFillColor(kYellow );
     auto copy = m_counters->DrawCopy( "h" );
@@ -1095,7 +1112,7 @@ TH1* TpotMonDraw::normalize( TH1* source, double scale ) const
 }
 
 //__________________________________________________________________________________
-int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogram_array_t& histograms, const TpotMonDraw::histogram_array_t& ref_histograms, unsigned int options )
+int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogram_array_t& histograms, const TpotMonDraw::histogram_array_t& ref_histograms, unsigned int options, double norm_factor )
 {
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_array - name: " << name << std::endl;
 
@@ -1115,8 +1132,8 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
   }
 
   // also scale by number of triggers if normalization is required
-  if((options&DrawOptions::Normalize) && (m_triggercnt>0))
-  { maximum/=m_triggercnt; }
+  if((options&DrawOptions::Normalize) && (norm_factor>0))
+  { maximum/=norm_factor; }
 
   // draw
   for( size_t i = 0; i < histograms.size(); ++i )
@@ -1148,9 +1165,9 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
         copy->GetYaxis()->SetLabelSize( i<12 ? 0.08:0.07 );
 
         // normalize
-        if((options&DrawOptions::Normalize) && (m_triggercnt>0))
+        if((options&DrawOptions::Normalize) && (norm_factor>0))
         {
-          copy->Scale( 1./m_triggercnt );
+          copy->Scale( 1./norm_factor );
           copy->GetYaxis()->SetTitle("counts/trigger");
         }
 
@@ -1172,8 +1189,8 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
         ref_copy->SetStats(false);
 
         // normalize
-        if((options&DrawOptions::Normalize) && (m_triggercnt>0))
-        { ref_copy->Scale( 1./m_triggercnt ); }
+        if((options&DrawOptions::Normalize) && (norm_factor>0))
+        { ref_copy->Scale( 1./norm_factor ); }
 
       }
 
@@ -1184,9 +1201,9 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
       if( options&DrawOptions::Logy && histograms[i]->GetEntries() > 0 )
       {
         gPad->SetLogy( true );
-        if((options&DrawOptions::Normalize) && (m_triggercnt>0))
+        if((options&DrawOptions::Normalize) && (norm_factor>0))
         {
-          copy->SetMinimum(1./m_triggercnt);
+          copy->SetMinimum(1./norm_factor);
         } else {
           copy->SetMinimum(1);
         }
