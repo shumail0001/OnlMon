@@ -459,6 +459,17 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     return cv;
 
 
+  } else if (name == "TPOT_heartbeat_vs_channel") {
+
+    auto cv = new TCanvas(name.c_str(), "TpotMon heartbeat vs channel", -1, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    divide_canvas(cv, 4, 4);
+    hide_margins(cv,0.2);
+    create_transparent_pad(name);
+    cv->SetEditable(false);
+    m_canvas.push_back( cv );
+    return cv;
+
   } else if (name == "TPOT_hit_vs_channel") {
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
@@ -470,7 +481,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     m_canvas.push_back( cv );
     return cv;
 
-  }  return nullptr;
+  }
+
+  return nullptr;
 }
 
 //_______________________________________________________________________________
@@ -713,8 +726,39 @@ int TpotMonDraw::Draw(const std::string &what)
         auto&& pad = cv->GetPad(9);
         pad->cd();
         mask_scoz(0.22,0.02,0.58, 0.98);
-        // mask_scoz(0.17,0.02,0.55, 0.98);
       }
+    }
+
+    ++idraw;
+  }
+
+
+  if (what == "ALL" || what == "TPOT_heartbeat_vs_channel")
+  {
+    iret += draw_array("TPOT_heartbeat_vs_channel", get_histograms( "m_heartbeat_vs_channel" ), get_ref_histograms_scaled( "m_heartbeat_vs_channel" ), DrawOptions::MatchRange);
+    auto cv = get_canvas("TPOT_heartbeat_vs_channel");
+    if( cv )
+    {
+      CanvasEditor cv_edit(cv);
+      cv->Update();
+      for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
+      {
+        // draw vertical lines that match HV sectors
+        // also set log y
+        auto&& pad = cv->GetPad(i+1);
+        pad->cd();
+        pad->Update();
+        for( const int& channel:{64, 128, 196} )
+        {
+          const auto line = vertical_line( pad, channel );
+          line->SetLineStyle(2);
+          line->SetLineColor(1);
+          line->SetLineWidth(1);
+          line->Draw();
+        }
+
+      }
+
     }
 
     ++idraw;
@@ -1112,7 +1156,10 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
 
         // equalize maximum
         if(options&DrawOptions::MatchRange)
-        { copy->SetMaximum( 1.2*maximum ); }
+        {
+          copy->SetMaximum( 1.2*maximum );
+          copy->SetMinimum(0);
+        }
 
       }
 
