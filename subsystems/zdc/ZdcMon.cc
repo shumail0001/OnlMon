@@ -335,19 +335,19 @@ int ZdcMon::process_event(Event *e /* evt */)
   std::vector<float> resultFast;
   resultFast.clear();
 
-  float zdctimelow  = 6.0;
+  float zdctimelow  = 5.0;
   float zdctimehigh  = 9.0;
     
-  float smdNtimelow  = 10.0;
+  float smdNtimelow  = 9.0;
   float smdNtimehigh  = 14.0;
 
-  float smdStimelow  = 7.0;
+  float smdStimelow  = 6.0;
   float smdStimehigh  = 12.0;
     
-  float vetoStimelow  = 7.0;
+  float vetoStimelow  = 5.0;
   float vetoStimehigh  = 12.0;
     
-  float vetoNtimelow  = 6.0;
+  float vetoNtimelow  = 5.0;
   float vetoNtimehigh  = 9.0;
  
   Packet *p = e->getPacket(packet);
