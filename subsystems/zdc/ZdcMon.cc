@@ -344,7 +344,7 @@ int ZdcMon::process_event(Event *e /* evt */)
   float smdStimelow  = 6.0;
   float smdStimehigh  = 12.0;
     
-  float vetoStimelow  = 5.0;
+  float vetoStimelow  = 6.0;
   float vetoStimehigh  = 12.0;
     
   float vetoNtimelow  = 5.0;
