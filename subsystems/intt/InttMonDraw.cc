@@ -402,7 +402,7 @@ int InttMonDraw::Draw_FelixBcoFphxBco()
     lgnd_text.SetTextAlign(12);
     lgnd_text.SetTextSize(lgnd_text_size);
     lgnd_text.SetTextColor(kBlack);
-    lgnd_text.DrawText(x0 + 1.5 * lgnd_box_width, y0, Form("Chip %2d", fee));
+    lgnd_text.DrawText(x0 + 1.5 * lgnd_box_width, y0, Form("FChn %2d", fee));
 
     x[0] = -1, x[1] = +1, x[2] = +1, x[3] = -1;
     y[0] = -1, y[1] = -1, y[2] = +1, y[3] = +1;
