@@ -885,10 +885,10 @@ int TpotMonDraw::draw_counters()
     cv->cd(1);
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
-    gPad->SetBottomMargin( 0.2 );
+    gPad->SetBottomMargin( 0.15 );
     m_counters->SetFillStyle(1001);
     m_counters->SetFillColor(kYellow );
-    auto copy = m_counters->DrawCopy( "h" );
+    auto copy = m_counters->DrawCopy( "hist" );
     copy->SetStats(false);
 
     if( m_counters_ref )
@@ -1149,7 +1149,7 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
 
         histograms[i]->SetFillStyle(1001);
         histograms[i]->SetFillColor(kYellow );
-        copy = histograms[i]->DrawCopy( "h" );
+        copy = histograms[i]->DrawCopy( "hist" );
       }
 
       if( copy )
