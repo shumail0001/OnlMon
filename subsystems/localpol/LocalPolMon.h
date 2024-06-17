@@ -133,6 +133,9 @@ class LocalPolMon : public OnlMon
   TH2D* Yellowspace=nullptr;
   TH2D* hwaveform[6]={nullptr};
   TH2D* hclocks=nullptr;
+  TH2D* hevolsync=nullptr;
+  TH2D* hshiftevol=nullptr;
+  
   TRandom *myRandomBunch = nullptr;
   //std::map<int, int> stored_gl1p_files;
   eventReceiverClient *erc = nullptr;

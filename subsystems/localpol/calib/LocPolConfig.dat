@@ -14,5 +14,5 @@ ZDC2cut 10
 MultiplicityLow 1
 MultiplicityHigh 7
 VetoCut 1250
-SMDthreshold 5
+SMDthreshold 35
 integrated 1

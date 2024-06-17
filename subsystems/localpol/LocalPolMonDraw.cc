@@ -301,14 +301,14 @@ int LocalPolMonDraw::Draw(const std::string &what)
     iret += DrawSeventh(what);
     idraw++;
   }
-  if (what == "ALL" || what == "EIGHTTH")
+  if (what == "ALL" || what == "EIGHTH")
   {
-    iret += DrawEightth(what);
+    iret += DrawEighth(what);
     idraw++;
   }
-  if (what == "ALL" || what == "NINETH")
+  if (what == "ALL" || what == "NINTH")
   {
-    iret += DrawNineth(what);
+    iret += DrawNinth(what);
     idraw++;
   }
   if (!idraw)
@@ -1141,7 +1141,7 @@ int LocalPolMonDraw::DrawSeventh(const std::string & /* what */)
   return 0;
 }
 
-int LocalPolMonDraw::DrawEightth(const std::string & /* what */)
+int LocalPolMonDraw::DrawEighth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   
@@ -1200,7 +1200,7 @@ int LocalPolMonDraw::DrawEightth(const std::string & /* what */)
   return 0;
 }
 
-int LocalPolMonDraw::DrawNineth(const std::string & /* what */)
+int LocalPolMonDraw::DrawNinth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   

@@ -187,7 +187,8 @@ void StartPoms()
   subsys->AddAction("localpolDraw(\"FIFTH\")", "SMD [expert]");
   subsys->AddAction("localpolDraw(\"SIXTH\")", "waveforms [expert]");
   subsys->AddAction("localpolDraw(\"SEVENTH\")", "ZDC/GL1 matching [expert]");
-  subsys->AddAction("localpolDraw(\"EIGHTTH\")", "SMD 2D distributions [expert]");
+  subsys->AddAction("localpolDraw(\"EIGHTH\")", "SMD 2D distributions [expert]");
+  subsys->AddAction("localpolDraw(\"NINTH\")", "SMD 2D distributions [expert]");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
