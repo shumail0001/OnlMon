@@ -396,7 +396,26 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[30]->Draw();
     TC[30]->SetEditable(false);
   }
-
+  else if (name == "TPCChan_per_LVL1_NS")
+  {
+    TC[31] = new TCanvas(name.c_str(), "TPC Channels per LVL_1 in RCDAQ Event, NS ONLY", -1, 0, xsize , ysize );
+    gSystem->ProcessEvents();
+    TC[31]->Divide(2,7);
+    transparent[31] = new TPad("transparent31", "this does not show", 0, 0, 1, 1);
+    transparent[31]->SetFillStyle(4000);
+    transparent[31]->Draw();
+    TC[31]->SetEditable(false);
+  }
+  else if (name == "TPCChan_per_LVL1_SS")
+  {
+    TC[32] = new TCanvas(name.c_str(), "TPC Channels per LVL_1 in RCDAQ Event, SS ONLY", -1, 0, xsize , ysize );
+    gSystem->ProcessEvents();
+    TC[32]->Divide(2,7);
+    transparent[32] = new TPad("transparent32", "this does not show", 0, 0, 1, 1);
+    transparent[32]->SetFillStyle(4000);
+    transparent[32]->Draw();
+    TC[32]->SetEditable(false);
+  }
      
   return 0;
 }
@@ -523,6 +542,16 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCCHANSINPACKETSS")
   {
     iret +=  DrawTPCChansinPacketSS(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCCHANSPERLVL1NS")
+  {
+    iret +=  DrawTPCChansperLVL1_NS(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCCHANSPERLVL1SS")
+  {
+    iret +=  DrawTPCChansperLVL1_SS(what);
     idraw++;
   }
   if (what == "ALL" || what == "TPCNONZSCHANNELS")
@@ -3449,6 +3478,202 @@ int TpcMonDraw::DrawTPCPacketTypes(const std::string & /* what */)
   return 0;
 }
 
+
+int TpcMonDraw::DrawTPCChansperLVL1_NS(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_chanlvl1NS[12] = {nullptr};
+  TH1 *lvl1_per_EBDC[12] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<12; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_chanlvl1NS[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
+    lvl1_per_EBDC[i] = (TH1*) cl->getHisto(TPCMON_STR,"LVL_1_TAGGER_per_EBDC");
+  }
+
+  if (!gROOT->FindObject("TPCChan_per_LVL1_NS"))
+  {
+    MakeCanvas("TPCChan_per_LVL1_NS");
+  }
+
+  TCanvas *MyTC = TC[31];
+  TPad *TransparentTPad = transparent[31];
+
+  TLine *t1 = new TLine(); t1->SetLineWidth(2);
+  TLine *t2 = new TLine(); t2->SetLineStyle(2);
+  TText *tt1= new TText(); tt1->SetTextSize(0.05);
+
+  int FEEid[26]={2,4,3,13,17,16, // R1
+                 11,12,19,18,0,1,15,14, // R2
+                 20,22,21,23,25,24,10,9,8,6,7,5 // R3
+                };
+
+  char title[50];
+
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+  for( int i=0; i<12; i++ ) 
+  {
+    if( tpcmon_chanlvl1NS[i] && lvl1_per_EBDC[i] )
+    {
+      MyTC->cd(i+3);
+      gStyle->SetPadLeftMargin(0.05);
+      gStyle->SetPadRightMargin(0.02);
+      tpcmon_chanlvl1NS[i]->Scale(1/(lvl1_per_EBDC[i]->GetBinContent(i+1)),"width");
+      double Yrange_upper = 1.32*tpcmon_chanlvl1NS[i]->GetMaximum();
+      tpcmon_chanlvl1NS[i]->GetYaxis()->SetRangeUser(0, Yrange_upper);
+
+      tpcmon_chanlvl1NS[i]->SetMarkerColor(4);
+      tpcmon_chanlvl1NS[i]->SetLineColor(4);
+      tpcmon_chanlvl1NS[i]->SetFillColor(5);
+      tpcmon_chanlvl1NS[i]->DrawCopy("HIST");
+      
+      MyTC->Update();
+
+      for(int j=0;j<25;j++)
+      {
+        t2->DrawLine((j+1)*256,-0.01,(j+1)*256,Yrange_upper);
+      }
+      for(int k=0;k<26;k++)
+      {
+        sprintf(title,"%d",FEEid[k]);
+        tt1->DrawText(k*256+128,0.84*Yrange_upper,title);
+      }
+      tt1->SetTextSize(0.06);
+      tt1->DrawText(800,0.92*Yrange_upper,"R1");
+      tt1->DrawText(2450,0.92*Yrange_upper,"R2");
+      tt1->DrawText(5200,0.92*Yrange_upper,"R3");
+      tt1->SetTextSize(0.05); 
+
+      t1->DrawLine(1536,0,1536,Yrange_upper);
+      t1->DrawLine(3584,0,3584,Yrange_upper);
+
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_NS_Channels per LEVEL_1 TAGGER Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCChansperLVL1_SS(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_chanlvl1SS[12] = {nullptr};
+  TH1 *lvl1_per_EBDC[12] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=12; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_chanlvl1SS[i-12] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
+    lvl1_per_EBDC[i-12] = (TH1*) cl->getHisto(TPCMON_STR,"LVL_1_TAGGER_per_EBDC");
+  }
+
+  if (!gROOT->FindObject("TPCChan_per_LVL1_SS"))
+  {
+    MakeCanvas("TPCChan_per_LVL1_SS");
+  }
+
+  TCanvas *MyTC = TC[32];
+  TPad *TransparentTPad = transparent[32];
+
+  TLine *t1 = new TLine(); t1->SetLineWidth(2);
+  TLine *t2 = new TLine(); t2->SetLineStyle(2);
+  TText *tt1= new TText(); tt1->SetTextSize(0.05);
+
+  int FEEid[26]={2,4,3,13,17,16, // R1
+                 11,12,19,18,0,1,15,14, // R2
+                 20,22,21,23,25,24,10,9,8,6,7,5 // R3
+                };
+
+  char title[50];
+
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+  for( int i=0; i<12; i++ ) 
+  {
+    if( tpcmon_chanlvl1SS[i] && lvl1_per_EBDC[i] )
+    {
+      MyTC->cd(i+3);
+      gStyle->SetPadLeftMargin(0.05);
+      gStyle->SetPadRightMargin(0.02);
+      tpcmon_chanlvl1SS[i]->Scale(1/(lvl1_per_EBDC[i]->GetBinContent(i+13)),"width");
+      double Yrange_upper = 1.32*tpcmon_chanlvl1SS[i]->GetMaximum();
+      tpcmon_chanlvl1SS[i]->GetYaxis()->SetRangeUser(0, Yrange_upper);
+
+      tpcmon_chanlvl1SS[i]->SetMarkerColor(4);
+      tpcmon_chanlvl1SS[i]->SetLineColor(4);
+      tpcmon_chanlvl1SS[i]->SetFillColor(5);
+      tpcmon_chanlvl1SS[i]->DrawCopy("HIST");
+      
+      MyTC->Update();
+
+      for(int j=0;j<25;j++)
+      {
+        t2->DrawLine((j+1)*256,-0.01,(j+1)*256,Yrange_upper);
+      }
+      for(int k=0;k<26;k++)
+      {
+        sprintf(title,"%d",FEEid[k]);
+        tt1->DrawText(k*256+128,0.84*Yrange_upper,title);
+      }
+      tt1->SetTextSize(0.06);
+      tt1->DrawText(800,0.92*Yrange_upper,"R1");
+      tt1->DrawText(2450,0.92*Yrange_upper,"R2");
+      tt1->DrawText(5200,0.92*Yrange_upper,"R3");
+      tt1->SetTextSize(0.05); 
+
+      t1->DrawLine(1536,0,1536,Yrange_upper);
+      t1->DrawLine(3584,0,3584,Yrange_upper);
+
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_SS_Channels per LEVEL_1 TAGGER Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+
+  return 0;
+}
 
 int TpcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
