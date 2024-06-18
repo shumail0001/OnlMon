@@ -111,11 +111,11 @@ class TpotMonDraw : public OnlMonDraw
   TH1* normalize( TH1*, double scale = 1 ) const;
 
   /// draw histogram array
-  int draw_array( const std::string& name, const histogram_array_t& array, unsigned int options = DrawOptions::None )
-  { return draw_array( name, array, {{nullptr}}, options ); }
+  int draw_array( const std::string& name, const histogram_array_t& array, unsigned int options = DrawOptions::None, double norm_factor = 1 )
+  { return draw_array( name, array, {{nullptr}}, options, norm_factor ); }
 
   /// draw histogram array and reference histgorams
-  int draw_array( const std::string& name, const histogram_array_t&, const histogram_array_t& /*reference*/, unsigned int /*options*/ = DrawOptions::None );
+  int draw_array( const std::string& name, const histogram_array_t&, const histogram_array_t& /*reference*/, unsigned int /*options*/ = DrawOptions::None, double /*norm_factor*/ = 1 );
 
   /// draw detector names in current canvas
   /** only works if canvas contains one of the properly formated TH2Poly histograms */
@@ -123,6 +123,9 @@ class TpotMonDraw : public OnlMonDraw
 
   /// keep track of trigger count
   double m_triggercnt = 0;
+
+  /// keep track of heartbeat count
+  double m_heartbeatcnt = 0;
 
   /// mapping
   MicromegasMapping m_mapping;
