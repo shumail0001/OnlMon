@@ -238,7 +238,7 @@ int TpotMon::Init()
     // heartbeat hit per channel
     detector_histograms.m_heartbeat_vs_channel = new TH1F(
       Form( "m_heartbeat_vs_channel_%s", detector_name.c_str() ),
-      Form( "heartbeat profile (%s);strip", detector_name.c_str() ),
+      Form( "heartbeat profile (%s);channel", detector_name.c_str() ),
       m_nsampa_fee, 0, MicromegasDefs::m_nchannels_fee );
     se->registerHisto(this, detector_histograms.m_heartbeat_vs_channel);
 
