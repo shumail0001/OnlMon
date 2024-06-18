@@ -53,7 +53,7 @@ class InttMonDraw : public OnlMonDraw
   int DrawDispPad_Generic(int icnvs, const std::string& title);
 
   int Draw_FelixBcoFphxBco();
-  int DrawHistPad_FelixBcoFphxBco(int icnvs);
+  int DrawHistPad_FelixBcoFphxBco(int i, int icnvs);
   Color_t static GetFeeColor(int const&);
 
   int Draw_HitMap();
@@ -90,6 +90,8 @@ class InttMonDraw : public OnlMonDraw
   TPad* m_disp_pad[k_end]{nullptr};
   TPad* m_lgnd_pad[k_end]{nullptr};
   TPad* m_hist_pad[k_end][10]{{nullptr}};
+  TPad* m_transparent_pad[k_end][10]{{nullptr}};
+
   TH1* m_hist_felixbcofphxbco[8][14]{{nullptr}};
   TH1* m_hist_hitrates[8]{nullptr};
   TH2* m_hist_hitmap[8]{nullptr};
