@@ -497,6 +497,8 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
   PrintTitle.SetTextSize(0.06);
   PrintTitle.SetNDC();          // set to normalized coordinates
   PrintTitle.SetTextAlign(23);  // center/top alignment
+  double reflow[2]={-0.03,-0.01};
+  double refhig[2]={-0.01, 0.01};
   for (int ibeam = 0; ibeam < 2; ibeam++)
   {
     for (int orient = 0; orient < 2; orient++)
@@ -521,8 +523,10 @@ int LocalPolMonDraw::DrawFirst(const std::string & /* what */)
         hframe->GetYaxis()->SetRangeUser(-0.1, 0.1);
         hframe->GetYaxis()->SetLabelSize(0.06);
         l.DrawLine(start, 0.00, stop, 0.00);
-        lref.DrawLine(start, 0.01, stop, 0.01);
-        lref.DrawLine(start, 0.02, stop, 0.02);
+        //lref.DrawLine(start, 0.01, stop, 0.01);
+        //lref.DrawLine(start, 0.02, stop, 0.02);
+        lref.DrawLine(start, reflow[orient], stop, reflow[orient]);
+        lref.DrawLine(start, refhig[orient], stop, refhig[orient]);
         g_Asym[ibeam][method][orient]->Draw("epsame");
         PrintTitle.DrawText(0.5, 0.95, Form("%s %s %s Asym.", BeamName[ibeam].Data(), Orientation[orient].Data(), MethodName[method].Data()));
 
@@ -655,7 +659,7 @@ int LocalPolMonDraw::DrawSecond(const std::string & /* what */)
         double y = h_Asym[ibeam][method][0]->GetBinContent(i + 1);  // top-bottom
         double ex = h_Asym[ibeam][method][1]->GetBinError(i + 1);
         double ey = h_Asym[ibeam][method][0]->GetBinError(i + 1);
-        double theta = atan2(y, x);
+        double theta = atan2(y,-1* x);
         double radius = sqrt(x * x + y * y);
         if (radius < 1e-7)
         {

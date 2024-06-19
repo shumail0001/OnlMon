@@ -500,7 +500,8 @@ int LocalPolMon::Init()
 
   TString BeamName[2] = {"Blue", "Yell"};
   TString MethodName[2] = {"Arithmetic", "Geometric"};
-  TString Orientation[2] = {"LR", "UD"};
+  //TString Orientation[2] = {"LR", "UD"};
+  TString Orientation[2] = {"UD", "LR"};
   h_Asym = new TH1D***[2];
   h_AsymScramble = new TH1D***[2];
   for (int beam = 0; beam < 2; beam++)
@@ -847,6 +848,8 @@ int LocalPolMon::process_event(Event* e /* evt */)
     h_time->Fill(iPoint, e->getTime());
     evtcnt++;
     evtcntA++;
+    delete psmd;
+    psmd=nullptr;
   }
   else
   {
@@ -945,8 +948,8 @@ bool LocalPolMon::GoodSelection(int i)
     }
     goodselection &=(signalZDCN1>ZDC1Cut && signalZDCN2>ZDC2Cut);
     goodselection &=(vetoNF<VetoCut&&vetoNB<VetoCut);
-    if(goodselection) hmultiplicity[0]->Fill(nh);
-    if(goodselection) hmultiplicity[1]->Fill(nv);
+    if(goodselection&&(nv>MultiLow&&nv<MultiHigh+1)) hmultiplicity[0]->Fill(nh);
+    if(goodselection&&(nh>MultiLow&&nh<MultiHigh+1)) hmultiplicity[1]->Fill(nv);
     goodselection &=(nv>MultiLow&&nh>MultiLow);
     goodselection &=(nv<MultiHigh&&nh<MultiHigh+1);
     if((sumH>0)&&goodselection) hadcsum[0]->Fill(log10(sumH));
@@ -967,8 +970,8 @@ bool LocalPolMon::GoodSelection(int i)
     }
     goodselection &=(signalZDCS1>ZDC1Cut && signalZDCS2>ZDC2Cut);
     goodselection &=(vetoSF<VetoCut&&vetoSB<VetoCut);
-    if(goodselection) hmultiplicity[2]->Fill(nh);
-    if(goodselection) hmultiplicity[3]->Fill(nv);
+    if(goodselection&&(nv>MultiLow&&nv<MultiHigh+1)) hmultiplicity[2]->Fill(nh);
+    if(goodselection&&(nh>MultiLow&&nh<MultiHigh+1)) hmultiplicity[3]->Fill(nv);
     goodselection &=(nv>MultiLow&&nh>MultiLow);
     goodselection &=(nv<MultiHigh+1&&nh<MultiHigh+1);
     if((sumH>0)&&goodselection) hadcsum[2]->Fill(log10(sumH));
@@ -993,7 +996,7 @@ double* LocalPolMon::ComputeAsymmetries(double L_U, double R_D, double L_D, doub
     result[0] = tmpNumA / tmpDenA;
     result[1] = 2 * sqrt(pow(rightA, 2) * leftA + pow(leftA, 2) * rightA) / pow(tmpDenA, 2);
   }
-  std::cout<<leftA<<" "<<rightA<<"\t\t"<<result[0]<<" +/- "<<result[1]<<std::endl;
+  //std::cout<<leftA<<" "<<rightA<<"\t\t"<<result[0]<<" +/- "<<result[1]<<std::endl;
 
   double leftG = sqrt(L_U * R_D);
   double rightG = sqrt(L_D * R_U);
@@ -1038,7 +1041,7 @@ void LocalPolMon::RetrieveSpinPattern(int runnb){
       std::cout<<"Retrieving SpinPattern from GL1 "<<runtype.Data() <<" prdf file for run "<<runnb<<std::endl;
     }
   }
-
+  int flip=-1;//https://phenix-intra.sdcc.bnl.gov/phenix/WWW/offline/wikioff/index.php/Spin_Database_:_Note_for_Analyzer
   TObjArray* BunchSpinBlue=retvalBlue.Tokenize(" ");
   BunchSpinBlue->SetOwner(kTRUE);
   int nFilledBunchesBlue=BunchSpinBlue->GetEntries();
@@ -1049,7 +1052,7 @@ void LocalPolMon::RetrieveSpinPattern(int runnb){
   int stepBlue=(112-nFilledBunchesBlue)/28+1;
   //for(int i=0; i<120; i=i+stepBlue){
   for(int i=0; i<nFilledBunchesBlue; i++){
-    SpinPatterns[BLUE][stepBlue*i]=((TObjString*)BunchSpinBlue->At(i))->String().Atoi();
+    SpinPatterns[BLUE][stepBlue*i]=flip*((TObjString*)BunchSpinBlue->At(i))->String().Atoi();
     hspinpattern->Fill(stepBlue*i,1,((TObjString*)BunchSpinBlue->At(i))->String().Atoi());
   }
   BunchSpinBlue->Clear();
@@ -1065,7 +1068,7 @@ void LocalPolMon::RetrieveSpinPattern(int runnb){
   int stepYellow=(112-nFilledBunchesYell)/28+1;
   //for(int i=0; i<120; i=i+stepYellow){
   for(int i=0; i<nFilledBunchesYell; i++){
-    SpinPatterns[YELLOW][stepYellow*i]=((TObjString*)BunchSpinYellow->At(i))->String().Atoi();
+    SpinPatterns[YELLOW][stepYellow*i]=flip*((TObjString*)BunchSpinYellow->At(i))->String().Atoi();
     hspinpattern->Fill(stepYellow*i,0.,((TObjString*)BunchSpinYellow->At(i))->String().Atoi());
   }
   //Check if consitent information (as the method works only with multiples of 28 filled bunches and a constant abort gap of 9 bunches

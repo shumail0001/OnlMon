@@ -94,7 +94,7 @@ class LocalPolMon : public OnlMon
   int StartAbortGapData = 111;
   int CrossingShift = 0;
   int iPoint = 0;
-  int ConversionSign[4] = {1, -1, 1, 1};  // NorthY (bottom to top), NorthX (left to righ from IR->ZDC, while x points outside the ring), SouthY (bottom to top), SouthX (left to right from IR->ZDC and x points outside ring)
+  int ConversionSign[4] = {1, -1, 1, -1};  // NorthY (bottom to top), NorthX (left to righ from IR->ZDC, while x points outside the ring), SouthY (bottom to top), SouthX (left to right from IR->ZDC and x points outside ring but z is going from south to north, need extra minus one when considering yellow direction)
   float smd_north_relatgain[16]={0.};
   float smd_south_relatgain[16]={0.}; 
   float smd_adc[32];
