@@ -395,7 +395,7 @@ int TpcMon::Init()
   Channels_in_Packet -> GetYaxis() -> SetLabelSize(0.05);
   Channels_in_Packet -> GetYaxis() -> SetTitleSize(0.05);
   Channels_in_Packet -> GetYaxis() -> SetTitleOffset(1.0);  
-
+  
   // # of times channels could be in packet per RCDAQ event
   char chans_always_title_str[100];
   sprintf(chans_always_title_str,"Channel counts vs all channels (filled once per event w/ packets): SECTOR %i",MonitorServerId());  
@@ -409,6 +409,11 @@ int TpcMon::Init()
   Channels_Always -> GetYaxis() -> SetLabelSize(0.05);
   Channels_Always -> GetYaxis() -> SetTitleSize(0.05);
   Channels_Always -> GetYaxis() -> SetTitleOffset(1.0);
+
+  // # of LVL 1 tagger per EBDC
+  LVL_1_TAGGER_per_EBDC = new TH1F("LVL_1_TAGGER_per_EBDC","Number of LEVEL 1 TAGGERS PER EBDC",24,-0.5,23.5);
+  LVL_1_TAGGER_per_EBDC->SetXTitle("EBDC #");
+  LVL_1_TAGGER_per_EBDC->SetYTitle("N_{LVL_1_TAGGER}");  
 
   //ZS ADC vs Sample (small)
   char ZS_ADC_vs_SAMPLE_str[100];
@@ -697,7 +702,7 @@ int TpcMon::Init()
   se->registerHisto(this, Stuck_Channels);
   se->registerHisto(this, Channels_in_Packet);
   se->registerHisto(this, Channels_Always);
-  se->registerHisto(this, Channels_Always);
+  se->registerHisto(this, LVL_1_TAGGER_per_EBDC);
   se->registerHisto(this, Num_non_ZS_channels_vs_SAMPA);
   se->registerHisto(this, ZS_Trigger_ADC_vs_Sample);
   se->registerHisto(this, First_ADC_vs_First_Time_Bin);
@@ -871,6 +876,13 @@ int TpcMon::process_event(Event *evt/* evt */)
         if( p->iValue(wf,"TYPE")==5 ){Packet_Type_Fraction_ELSE->Fill(4.5);} //LARGE_DATA_T 0b101
         if( p->iValue(wf,"TYPE")==6 ){Packet_Type_Fraction_ELSE->Fill(5.5);} //TRIG_EARLY_DATA_T 0b110
         if( p->iValue(wf,"TYPE")==7 ){Packet_Type_Fraction_ELSE->Fill(6.5);} //TRIG_EARLY_LARGE_DATA_T 0b111
+
+        const int n_tagger = p->lValue(0, "N_TAGGER");
+        for (int t = 0; t < n_tagger; t++)
+        {
+          const bool is_lvl1_tagger( static_cast<uint8_t>(p->lValue(t, "IS_LEVEL1_TRIGGER" )));
+          if( is_lvl1_tagger ){ LVL_1_TAGGER_per_EBDC->Fill(MonitorServerId()); }
+	}
 
         int fee = p->iValue(wf, "FEE");
         int sampaAddress = p->iValue(wf, "SAMPAADDRESS");

@@ -78,6 +78,7 @@ void StartPoms()
   // subsys->AddAction("inttDraw(\"ladder_hitmap\")", "Ladder Hitmap");
   //  subsys->AddAction("inttDraw(\"chip_nll\")", "Chip NLL");
   subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff");
+  subsys->AddAction("inttDraw(\"hitrates\")", "Hitrates");
   subsys->AddAction("inttDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
@@ -157,6 +158,7 @@ void StartPoms()
   subsys->AddAction("tpotDraw(\"TPOT_counts_vs_sample\")", "Counts vs Sample");
   subsys->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit vs Strip");
   subsys->AddAction("tpotDraw(\"TPOT_counters\")", "Event counters [EXPERT]");
+  subsys->AddAction("tpotDraw(\"TPOT_heartbeat_vs_channel\")", "Heartbit vs sampa [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_waveform_vs_channel\")", "Waveform vs Strip [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_detector_occupancy\")", "Detector Occupancy [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_resist_occupancy\")", "Resist Occupnacy [EXPERT]");

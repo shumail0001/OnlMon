@@ -243,6 +243,11 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
       latex.DrawLatex(0.21,0.84,"#bf{STOP THE RUN NOW!!}");
       latex.DrawLatex(0.21,0.68,"#bf{GL1 Clock Mismatch! Put a special note in the e-log}");
   }
+  else{
+      latex.SetTextSize(0.035);
+      latex.SetTextColor(kGreen);
+      latex.DrawLatex(0.21,0.42,"#bf{Good! GL1 Clock aligned!}");
+  }
 
   TC[0]->SetEditable(false);
   gStyle->SetOptStat(0);

@@ -141,6 +141,9 @@ class TpotMon : public OnlMon
     /// number of signal hits per strip in each detector
     TH1* m_hit_vs_channel = nullptr;
 
+    /// number hearbeat per strip in each detector
+    TH1* m_heartbeat_vs_channel = nullptr;
+
   };
   //@}
 

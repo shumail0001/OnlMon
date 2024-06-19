@@ -32,6 +32,6 @@ void run_tpot_server(
   se->registerMonitor(m);
 
   // and start
-  start_server(prdffile);
+  start_server(evtfile);
   return;
 }

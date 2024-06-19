@@ -120,6 +120,12 @@ int MvtxMon::Init()
   hStrobesDMA->SetStats(false);
   se->registerHisto(this, hStrobesDMA);
 
+  hDMAstatus = new TH1I("hDMAstatus", "Is DMA receiving Strobes", 12, -0.5, 11.5);
+  hDMAstatus->GetXaxis()->SetTitle("DMA");
+  hDMAstatus->GetYaxis()->SetTitle("Alive");
+  hDMAstatus->SetStats(false);
+  se->registerHisto(this, hDMAstatus);
+
   for (int i = 0; i < NFlags+1; i++)
   {
     mvtxmon_LaneStatusOverview[i] = new TH2Poly();
@@ -396,6 +402,10 @@ int MvtxMon::process_event(Event* evt)
   hChipStaveNoisy[2]->Reset("ICESM");
   //hStrobesDMA->Reset("ICESM");
 
+  //set DMA dead
+  hDMAstatus->SetBinContent((this->MonitorServerId() * 2) + 1, 0);
+  hDMAstatus->SetBinContent((this->MonitorServerId() * 2) + 2, 0);
+
 
   int nChipStrobes[8 * 9 * 6] = {0};
 
@@ -432,14 +442,22 @@ int MvtxMon::process_event(Event* evt)
     if (num_feeId > 0)
     {
       int  min_strobes = 1000000000;
+      int sum_strobes = 0;
       for (int i_fee{0}; i_fee < num_feeId; ++i_fee)
       {      
         auto feeId = plist[i]->iValue(i_fee, "FEEID");
         int cur_strobes = plist[i]->iValue(feeId, "NR_STROBES");
         if (cur_strobes < min_strobes) min_strobes = cur_strobes;
+        sum_strobes += cur_strobes;
       }
       if(plist[i]->getIdentifier()%10 == 1) hStrobesDMA->SetBinContent((this->MonitorServerId() * 2) +1, hStrobesDMA->GetBinContent((this->MonitorServerId() * 2) +1) + min_strobes);
       if(plist[i]->getIdentifier()%10 == 2) hStrobesDMA->SetBinContent((this->MonitorServerId() * 2) +2, hStrobesDMA->GetBinContent((this->MonitorServerId() * 2) +2) + min_strobes);
+
+      if(sum_strobes > 0){ //alive
+        if(plist[i]->getIdentifier()%10 == 1) hDMAstatus->SetBinContent((this->MonitorServerId() * 2) +1, 1);
+        if(plist[i]->getIdentifier()%10 == 2) hDMAstatus->SetBinContent((this->MonitorServerId() * 2) +2, 1);
+      }
+      
       for (int i_fee{0}; i_fee < num_feeId; ++i_fee)
       {
         auto feeId = plist[i]->iValue(i_fee, "FEEID");
