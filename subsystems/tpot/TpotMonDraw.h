@@ -42,7 +42,7 @@ class TpotMonDraw : public OnlMonDraw
   { m_calibration_filename = value; }
 
 
-  // define signal sample window
+  // define sample window
   using sample_window_t = std::pair<int, int>;
   void set_sample_window( const sample_window_t& value )
   { m_sample_window = value; }
