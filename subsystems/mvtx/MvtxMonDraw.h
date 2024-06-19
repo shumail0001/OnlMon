@@ -44,7 +44,7 @@ class MvtxMonDraw : public OnlMonDraw
   template <typename T>
   int MergeServers(T *h);
   void formatPaveText(TPaveText *aPT, float aTextSize, Color_t aTextColor, short aTextAlign, const char *aText);
-  std::vector<Quality> analyseForError(TH2Poly *lane, TH2Poly *noisy, TH1 *strobes, TH1 *decErr, TH1 *decErrTime);
+  std::vector<Quality> analyseForError(TH2Poly *lane, TH2Poly *noisy, TH1 *strobes, TH1 *decErr, TH1 *decErrTime, TH1 *DMAstat);
   void DrawPave(std::vector<MvtxMonDraw::Quality> status, int position, const char *what = "");
 
  private:

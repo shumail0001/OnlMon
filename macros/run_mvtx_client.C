@@ -38,6 +38,7 @@ void mvtxDrawInit(const int online = 0)
     cl->registerHisto("General_feeL1", servername);
 
     cl->registerHisto("hStrobesDMA", servername);
+    cl->registerHisto("hDMAstatus", servername);
 
     // FEE
 
