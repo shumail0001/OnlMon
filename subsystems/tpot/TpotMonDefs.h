@@ -11,7 +11,8 @@ namespace TpotMonDefs
   {
     kEventCounter = 1,
     kValidEventCounter = 2,
-    kTriggerCounter = 3
+    kTriggerCounter = 3,
+    kHeartBeatCounter = 4
   };
 }
 #endif

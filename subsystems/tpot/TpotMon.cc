@@ -66,17 +66,17 @@ namespace
     return o;
   }
 
+  // number of sampa chips per fee
+  static constexpr int m_nsampa_fee = 8;
+
   /* see: https://git.racf.bnl.gov/gitea/Instrumentation/sampa_data/src/branch/fmtv2/README.md */
-  // TODO: should move to online_distribution
-  enum SampaDataType
+  enum ModeBitType
   {
-    HEARTBEAT_T = 0b000,
-    TRUNCATED_DATA_T = 0b001,
-    TRUNCATED_TRIG_EARLY_DATA_T = 0b011,
-    NORMAL_DATA_T = 0b100,
-    LARGE_DATA_T = 0b101,
-    TRIG_EARLY_DATA_T = 0b110,
-    TRIG_EARLY_LARGE_DATA_T = 0b111,
+    BX_COUNTER_SYNC_T = 0,
+    ELINK_HEARTBEAT_T = 1,
+    SAMPA_EVENT_TRIGGER_T = 2,
+    CLEAR_LV1_LAST_T = 6,
+    CLEAR_LV1_ENDAT_T = 7
   };
 
 }
@@ -137,6 +137,7 @@ int TpotMon::Init()
   m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kEventCounter, "RCDAQ frame" );
   m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kValidEventCounter, "valid RCDAQ frames" );
   m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kTriggerCounter, "triggers" );
+  m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kHeartBeatCounter, "heartbeats" );
   se->registerHisto(this, m_counters);
 
   // global occupancy
@@ -234,6 +235,13 @@ int TpotMon::Init()
       MicromegasDefs::m_nchannels_fee, 0, MicromegasDefs::m_nchannels_fee );
     se->registerHisto(this, detector_histograms.m_hit_vs_channel);
 
+    // heartbeat hit per channel
+    detector_histograms.m_heartbeat_vs_channel = new TH1F(
+      Form( "m_heartbeat_vs_channel_%s", detector_name.c_str() ),
+      Form( "heartbeat profile (%s);channel", detector_name.c_str() ),
+      m_nsampa_fee, 0, MicromegasDefs::m_nchannels_fee );
+    se->registerHisto(this, detector_histograms.m_heartbeat_vs_channel);
+
     // store in map
     m_detector_histograms.emplace( fee_id, std::move( detector_histograms ) );
 
@@ -290,14 +298,28 @@ int TpotMon::process_event(Event* event)
     // get number of lvl1 tagger
     const int n_tagger = packet->lValue(0, "N_TAGGER");
     int n_lvl1_tagger = 0;
+    int n_heartbeat_tagger = 0;
     for (int t = 0; t < n_tagger; t++)
     {
       const bool is_lvl1_tagger( static_cast<uint8_t>(packet->lValue(t, "IS_LEVEL1_TRIGGER" )));
-      if( is_lvl1_tagger ) ++n_lvl1_tagger;
+      if( is_lvl1_tagger )
+      { ++n_lvl1_tagger; }
+
+      // also save hearbeat bco
+      const bool is_modebit = static_cast<uint8_t>(packet->lValue(t, "IS_MODEBIT"));
+      if( is_modebit )
+      {
+        // get modebits
+        uint64_t modebits = static_cast<uint8_t>(packet->lValue(t, "MODEBITS"));
+        if( modebits&(1<<ELINK_HEARTBEAT_T) )
+        { ++n_heartbeat_tagger; }
+      }
     }
 
-    // increment counter
+    // increment counters
     increment( m_counters, TpotMonDefs::kTriggerCounter, double(n_lvl1_tagger)/MicromegasDefs::m_npackets_active );
+    increment( m_counters, TpotMonDefs::kHeartBeatCounter, double(n_heartbeat_tagger)/MicromegasDefs::m_npackets_active );
+
     m_triggercnt += double(n_lvl1_tagger)/MicromegasDefs::m_npackets_active;
 
     // get number of datasets (also call waveforms)
@@ -310,9 +332,6 @@ int TpotMon::process_event(Event* event)
 
       // get waveform type
       const int type = packet->iValue(i, "TYPE");
-
-      // ignore heartbear
-      if( type == HEARTBEAT_T ) continue;
 
       // get channel
       const auto channel = packet->iValue( i, "CHANNEL" );
@@ -328,13 +347,6 @@ int TpotMon::process_event(Event* event)
       // account for fiber swapping
       const int fee_id = get_old_fee_id( packet->iValue(i, "FEE" ) );
 
-      const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
-      const int samples = packet->iValue( i, "SAMPLES" );
-
-      // get channel rms and pedestal from calibration data
-      const double pedestal = m_calibration_data.get_pedestal( fee_id, channel );
-      const double rms = m_calibration_data.get_rms( fee_id, channel );
-
       // get detector index from fee id
       const auto iter = m_detector_histograms.find( fee_id );
       if( iter == m_detector_histograms.end() )
@@ -344,22 +356,29 @@ int TpotMon::process_event(Event* event)
       }
       const auto& detector_histograms = iter->second;
 
+      // strip
+      const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
+
+      // heartbeat hits
+      if( type == MicromegasDefs::HEARTBEAT_T )
+      {
+        // fill dedicated histogram, ignore the rest
+        detector_histograms.m_heartbeat_vs_channel->Fill( channel );
+        continue;
+      }
+
+      // get channel rms and pedestal from calibration data
+      const double pedestal = m_calibration_data.get_pedestal( fee_id, channel );
+      const double rms = m_calibration_data.get_rms( fee_id, channel );
+
+
       // get tile center, segmentation
       const auto& [tile_x, tile_y]  = m_tile_centers.at(fee_id);
       const auto segmentation = MicromegasDefs::getSegmentationType( m_mapping.get_hitsetkey(fee_id));
 
-      if( Verbosity()>1 )
-      {
-        std::cout
-          << "TpotMon::process_event -"
-          << " waveform: " << i
-          << " fee: " << fee_id
-          << " channel: " << channel
-          << " samples: " << samples
-          << std::endl;
-      }
 
       // fill 2D histograms ADC vs sample and ADC vs sample
+      const int samples = packet->iValue( i, "SAMPLES" );
       for( int is = 0; is < samples; ++is )
       {
         const uint16_t adc =  packet->iValue( i, is );
