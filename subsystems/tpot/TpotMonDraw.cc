@@ -600,7 +600,7 @@ int TpotMonDraw::Draw(const std::string &what)
 		}
 	    }
 	  {
-	    // mask scoz take this box                                                                                                                                     
+	    // mask scoz                                                                                                                                     
 	    auto&& pad = cv->GetPad(9);
 	    pad->cd();
 	    mask_scoz(0.22,0.02,0.58, 0.98);
@@ -612,11 +612,11 @@ int TpotMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPOT_adc_vs_channel")
   {
     iret += draw_array("TPOT_adc_vs_channel", get_histograms( "m_adc_channel" ), DrawOptions::Colz|DrawOptions::Logz );
-    auto cv = get_canvas("TPOT_adc_vs_channel"); //take this
+    auto cv = get_canvas("TPOT_adc_vs_channel"); 
     if( cv )
     {
-      CanvasEditor cv_edit(cv); //makes the canvas editable until the end of the bracket
-      cv->Update(); //need this
+      CanvasEditor cv_edit(cv); 
+      cv->Update(); 
       for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
       {
 
@@ -627,7 +627,7 @@ int TpotMonDraw::Draw(const std::string &what)
         if( m_threshold_histograms[i] )
         { m_threshold_histograms[i]->Draw("h same"); }
 
-        // draw vertical lines that match HV sectors (take this)
+        // draw vertical lines that match HV sectors 
         for( const int& channel:{64, 128, 196} )
         {
           const auto line = vertical_line( pad, channel );
@@ -639,7 +639,7 @@ int TpotMonDraw::Draw(const std::string &what)
       }
 
       {
-        // mask scoz take this box
+        // mask scoz 
         auto&& pad = cv->GetPad(9);
         pad->cd();
         mask_scoz(0.22,0.02,0.58, 0.98);
