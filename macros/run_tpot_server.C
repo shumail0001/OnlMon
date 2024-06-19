@@ -11,9 +11,9 @@ R__LOAD_LIBRARY(libonltpotmon_server.so)
 void run_tpot_server(
   const std::string &name = "TPOTMON",
   unsigned int serverid = 0,
-  // const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/TPOT/junk/TPOT_ebdc39_junk-00041227-0000.evt"
-  // const std::string &prdffile = "/sphenix/lustre01/sphnxpro/physics/TPOT/junk/TPOT_ebdc39_junk-00043402-0000.evt"
-  const std::string &prdffile = "/sphenix/lustre01/sphnxpro/physics/TPOT/physics/TPOT_ebdc39_physics-00045625-0000.evt"  )
+  // const std::string &evtfile = "/sphenix/lustre01/sphnxpro/commissioning/TPOT/junk/TPOT_ebdc39_junk-00041227-0000.evt"
+  // const std::string &evtfile = "/sphenix/lustre01/sphnxpro/physics/TPOT/junk/TPOT_ebdc39_junk-00043402-0000.evt"
+  const std::string &evtfile = "/sphenix/lustre01/sphnxpro/physics/TPOT/physics/TPOT_ebdc39_physics-00045625-0000.evt"  )
 {
   // create subsystem Monitor object
   auto m = new TpotMon(name);
