@@ -107,6 +107,7 @@ class TpcMon : public OnlMon
   TH1 *Stuck_Channels = nullptr;
   TH1 *Channels_in_Packet = nullptr;
   TH1 *Channels_Always = nullptr;
+  TH1 *LVL_1_TAGGER_per_EBDC = nullptr;
 
   TH2 *Num_non_ZS_channels_vs_SAMPA = nullptr;
   TH2 *ZS_Trigger_ADC_vs_Sample = nullptr;
