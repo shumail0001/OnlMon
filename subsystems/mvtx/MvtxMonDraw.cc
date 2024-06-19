@@ -434,6 +434,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   TH2D *mvtxmon_mGeneralErrorFile[NFlx + 1] = {nullptr};
   TH1D *mvtxmon_ChipStave1D[NFlx + 1] = {nullptr};
   TH1I *hStrobesDMA[NFlx + 1] = {nullptr};
+  TH1I *hDMAstatus[NFlx + 1] = {nullptr};
 
   for (int iFelix = 0; iFelix < NFlx; iFelix++)
   {
@@ -447,6 +448,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
     mvtxmon_mGeneralErrorFile[iFelix] = dynamic_cast<TH2D *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "General_DecErrorsEndpoint"));
     mvtxmon_ChipStave1D[iFelix] = dynamic_cast<TH1D *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "OCC_ChipStave1D"));
     hStrobesDMA[iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "hStrobesDMA"));
+    hDMAstatus[iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "hDMAstatus"));
   }
 
 
@@ -486,6 +488,9 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   bitsetOR |= bitset;
   bitsetAND &= bitset;
   bitset = MergeServers<TH1I *>(hStrobesDMA);
+  bitsetOR |= bitset;
+  bitsetAND &= bitset;
+  bitset = MergeServers<TH1I *>(hDMAstatus);
   bitsetOR |= bitset;
   bitsetAND &= bitset;
 
@@ -590,7 +595,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
    Pad[padID]->cd(2)->SetRightMargin(0.16);
 
   std::vector<MvtxMonDraw::Quality> status;
-  status = analyseForError(mvtxmon_LaneStatusOverview[NFlx], mGeneralNoisyPixel[NFlx], hChipStrobes[NFlx], mvtxmon_mGeneralErrorFile[NFlx], mvtxmon_mGeneralErrorPlotsTime[NFlx]);
+  status = analyseForError(mvtxmon_LaneStatusOverview[NFlx], mGeneralNoisyPixel[NFlx], hChipStrobes[NFlx], mvtxmon_mGeneralErrorFile[NFlx], mvtxmon_mGeneralErrorPlotsTime[NFlx],hDMAstatus[NFlx]);
 
   returnCode += PublishHistogram(Pad[padID], 1, mvtxmon_LaneStatusOverview[NFlx], "lcolz");
   //DrawPave(status, 0);
@@ -690,7 +695,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
 
   Quality q = Quality::Good;
 
-   for (int i = 0 ; i < 17 ; i++){
+   for (int i = 0 ; i < 18 ; i++){
     //std::cout<<i<<" "<<status.at(i)<<std::endl;
     if(status.at(i) == Quality::Medium) q = Quality::Medium;
     if(status.at(i) == Quality::Bad) q = Quality::Bad;
@@ -704,7 +709,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   }
   
   
- for (int i = 0 ; i < 17 ; i++){
+ for (int i = 0 ; i < 18 ; i++){
     if(status.at(i) == Quality::Medium) q = Quality::Medium;
   }
 
@@ -778,6 +783,14 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
     {
        ptt4->AddText("#color[808]{FELIX 5 DMA 1 Decoder errors detected}");
     }
+    if (status.at(17) == Quality::Medium)
+    {
+       ptt4->AddText("#color[808]{1 DMA dead check grafana data rate}");
+       for(int ibin = 1; ibin <= hDMAstatus[NFlx]->GetNbinsX(); ibin++)
+       {
+         if(hDMAstatus[NFlx]->GetBinContent(ibin) == 0) ptt4->AddText(Form("#color[808]{FELIX %d DMA %d no data}",(ibin-1)/2,(ibin-1)%2));
+       }
+    }
     
 
     bulb->SetFillColor(kYellow);
@@ -785,7 +798,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
     bulbYellow->Draw("same");
   }
 
-   for (int i = 0 ; i < 17 ; i++){
+   for (int i = 0 ; i < 18 ; i++){
     if(status.at(i) == Quality::Bad) q = Quality::Bad;
   }
 
@@ -808,6 +821,14 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
       ptt4->AddText("#color[2]{Too many noisy pixels}");
     }
     if (status.at(17) == Quality::Bad)
+    {
+       ptt4->AddText("#color[2]{2 or more DMA dead check grafana data rate}");
+       for(int ibin = 1; ibin <= hDMAstatus[NFlx]->GetNbinsX(); ibin++)
+       {
+         if(hDMAstatus[NFlx]->GetBinContent(ibin) == 0) ptt4->AddText(Form("#color[2]{FELIX %d DMA %d no data}",(ibin-1)/2,(ibin-1)%2));
+       }
+    }
+    if (status.at(18) == Quality::Bad)
     {
       ptt4->AddText("#color[2]{Decoder errors in the last 10 events}");
     }
@@ -1726,11 +1747,11 @@ void MvtxMonDraw::formatPaveText(TPaveText *aPT, float aTextSize, Color_t aTextC
   aPT->AddText(aText);
 }
 
-std::vector<MvtxMonDraw::Quality> MvtxMonDraw::analyseForError(TH2Poly *lane, TH2Poly *noisy, TH1 *strobes, TH1 *decErr, TH1 *decErrTime)
+std::vector<MvtxMonDraw::Quality> MvtxMonDraw::analyseForError(TH2Poly *lane, TH2Poly *noisy, TH1 *strobes, TH1 *decErr, TH1 *decErrTime, TH1 *DMAstat)
 {
   std::vector<Quality> result;
 
-  for (int i = 0; i < 18; i++)
+  for (int i = 0; i < 19; i++)
   {
     result.push_back(Quality::Good);
   }
@@ -1814,6 +1835,20 @@ std::vector<MvtxMonDraw::Quality> MvtxMonDraw::analyseForError(TH2Poly *lane, TH
   if (decErrTime)
   {
     if (decErrTime->Integral(decErrTime->GetNbinsX() - 10, decErrTime->GetNbinsX()) > 0)
+    {
+      result.at(18) = Quality::Bad;
+    }
+  }
+
+  if(DMAstat)
+  {
+    double integral = DMAstat->Integral();
+
+    if (integral == 11)
+    {
+      result.at(17) = Quality::Medium;
+    }
+    else if (integral <= 10)
     {
       result.at(17) = Quality::Bad;
     }

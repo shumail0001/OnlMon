@@ -86,6 +86,7 @@ class MvtxMon : public OnlMon
 
   // raw task
   TH1I* hStrobesDMA = nullptr;
+  TH1I* hDMAstatus = nullptr;
   TH1D* hErrorPlots = nullptr;
   TH2D* hErrorFile = nullptr;
   TH1D* hOccupancyPlot[NLAYERS] = {nullptr};
