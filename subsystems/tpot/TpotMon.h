@@ -126,6 +126,9 @@ class TpotMon : public OnlMon
     /// adc counts vs strip id in each detector
     TH2* m_adc_channel = nullptr;
 
+    /// sample vs channel above threshold
+    TH2* m_sample_channel = nullptr;
+
     /// total charge per hit in each detector
     TH1* m_hit_charge = nullptr;
 
