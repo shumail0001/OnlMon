@@ -624,8 +624,8 @@ int InttMonDraw::Draw_HitMap()
 
 int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
 {
-  double lower = 0.005;
-  double upper = 0.025;
+  double lower = 0.015;
+  double upper = 0.100;
 
   std::string name = Form("intt_hist_%d_%01d", icnvs, i);
   if (!m_hist_hitmap[i])
@@ -733,8 +733,8 @@ int InttMonDraw::Draw_HitRates()
 int InttMonDraw::DrawHistPad_HitRates(
     int i, int icnvs)
 {
-  double lower = 0.0;
-  double upper = 0.025;
+  double lower = 0.00;
+  double upper = 0.10;
 
   // Validate member histos
   std::string name = Form("intt_hitrate_hist_%d_%01d", icnvs, i);
@@ -772,12 +772,16 @@ int InttMonDraw::DrawHistPad_HitRates(
   }
 
   // Fill
+  // double mean = 0.0, fraction = 0.0;
   for (int fee = 0; fee < NFEES; ++fee)
   {
     for (int chp = 0; chp < NCHIPS; ++chp)
     {
       double bincont = hit_hist->GetBinContent(fee * NCHIPS + chp + 1);
       bincont /= evt_hist->GetBinContent(2); // Normalize by number of events
+
+	  // mean += bincont;
+	  // if(bincont < upper)++fraction;
 
       // Manually catch overflows and put them in the last displayed bin
       if (upper <= bincont)
@@ -788,6 +792,9 @@ int InttMonDraw::DrawHistPad_HitRates(
       m_hist_hitrates[i]->Fill(bincont);
     }
   }
+  // mean /= (NFEES * NCHIPS);
+  // fraction /= (NFEES * NCHIPS);
+  // std::cout << "mean: " << mean << " fraction less than " << upper << ": " << fraction << std::endl;
 
   return 0;
 }
