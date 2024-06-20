@@ -101,7 +101,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SepdMon4")
   {
     //TC[3] = new TCanvas(name.c_str(), "sEPD Monitor 4 - Waveform Info", -1, 0, xsize / 3, ysize);
-    TC[3] = new TCanvas(name.c_str(), "sEPD Monitor 4 - Waveform Info", -1, 0, 600, 800);
+    TC[3] = new TCanvas(name.c_str(), "sEPD Monitor 4 - Waveform Info", -1, 0, 650, 850);
     gSystem->ProcessEvents();
     Pad[6] = new TPad("sepdpad6", "ADC vs sample #", 0.0, 0.6, 1.0, 0.95, 0);
     Pad[7] = new TPad("sepdpad7", "counts vs sample #", 0.0, 0.3, 1.0, 0.6, 0);
@@ -758,18 +758,10 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   h1_packet_number->GetXaxis()->SetTitle("Packet #");
   h1_packet_number->GetYaxis()->SetTitle("% Of Events Present");
   // the sizing is funny on this pad...
-  // h1_packet_number->GetXaxis()->SetLabelSize(tsize/1.2);
-  // h1_packet_number->GetYaxis()->SetLabelSize(tsize/1.2);
-  // h1_packet_number->GetXaxis()->SetTitleSize(tsize/1.2);
-  // h1_packet_number->GetYaxis()->SetTitleSize(tsize/1.2);
   h1_packet_number->GetXaxis()->SetLabelSize(tsize/1.15);
   h1_packet_number->GetYaxis()->SetLabelSize(tsize/1.15);
   h1_packet_number->GetXaxis()->SetTitleSize(tsize/1.15);
   h1_packet_number->GetYaxis()->SetTitleSize(tsize/1.15);
-  // h1_packet_number->GetXaxis()->SetLabelSize(tsize);
-  // h1_packet_number->GetYaxis()->SetLabelSize(tsize);
-  // h1_packet_number->GetXaxis()->SetTitleSize(tsize);
-  // h1_packet_number->GetYaxis()->SetTitleSize(tsize);
   h1_packet_number->GetXaxis()->SetTitleOffset(1);
   gPad->SetBottomMargin(0.16);
   gPad->SetRightMargin(0.05);
@@ -897,7 +889,8 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   // --- draw the packet information
   TText PacketWarn;
   PacketWarn.SetTextFont(42);
-  PacketWarn.SetTextSize(0.04);
+  //PacketWarn.SetTextSize(0.04);
+  PacketWarn.SetTextSize(0.05);
   PacketWarn.SetTextColor(kBlack);
   PacketWarn.SetNDC();
   //PacketWarn.SetTextAlign(23);
@@ -905,11 +898,15 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   for (int i = 1; i <= 6; i++)
     {
       if ( packet_is_bad[i] ) PacketWarn.SetTextColor(kRed);
-      PacketWarn.DrawText(0.01, 0.7 - 0.05 * i, Form("%d: %d%% events, %d size, %d channels, %d offset", i+9000,
-                                                    int(100*h1_packet_number->GetBinContent(i)+0.5),
-                                                    (int)h1_packet_length->GetBinContent(i),
-                                                    (int)h1_packet_chans->GetBinContent(i),
-                                                    (int)h1_packet_event->GetBinContent(i)) );
+      // PacketWarn.DrawText(0.01, 0.7 - 0.05 * i, Form("%d: %d%% events, %d size, %d channels, %d offset", i+9000,
+      //                                               int(100*h1_packet_number->GetBinContent(i)+0.5),
+      //                                               (int)h1_packet_length->GetBinContent(i),
+      //                                               (int)h1_packet_chans->GetBinContent(i),
+      //                                               (int)h1_packet_event->GetBinContent(i)) );
+      PacketWarn.DrawText(0.01, 0.7 - 0.05 * i, Form("%d: %d%% events, %d size, %d channels", i+9000,
+                                                     int(100*h1_packet_number->GetBinContent(i)+0.5),
+                                                     (int)h1_packet_length->GetBinContent(i),
+                                                     (int)h1_packet_chans->GetBinContent(i)) );
       PacketWarn.SetTextColor(kBlack);
     }
   if ( badPackets.size() == 0 )
