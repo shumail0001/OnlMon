@@ -404,6 +404,18 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     m_canvas.push_back( cv );
     return cv;
 
+  } else if (name == "TPOT_sample_vs_channel") {
+
+    auto cv = new TCanvas(name.c_str(), "TpotMon sample vs channel", -1, 0, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    divide_canvas(cv, 4, 4);
+    hide_margins(cv,0.2);
+    create_transparent_pad(name);
+
+    cv->SetEditable(false);
+    m_canvas.push_back( cv );
+    return cv;
+
   } else if (name == "TPOT_adc_vs_channel") {
 
     auto cv = new TCanvas(name.c_str(), "TpotMon adc vs channel", -1, 0, xsize / 2, ysize);
@@ -580,14 +592,47 @@ int TpotMonDraw::Draw(const std::string &what)
     ++idraw;
   }
 
+  if (what == "ALL" || what == "TPOT_sample_vs_channel")
+    {
+      iret += draw_array("TPOT_sample_vs_channel", get_histograms( "m_sample_channel" ), DrawOptions::Colz);
+      auto cv = get_canvas("TPOT_sample_vs_channel");   
+      if( cv )
+	{
+	  CanvasEditor cv_edit(cv);                                                                                                
+	  cv->Update();                                                                                                                                                          
+	  for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
+	    {
+	      auto&& pad = cv->GetPad(i+1);
+	      pad->cd();
+
+    	      // draw vertical lines that match HV sectors
+	      for( const int& channel:{64, 128, 196} )
+		{
+		  const auto line = vertical_line( pad, channel );
+		  line->SetLineStyle(2);
+		  line->SetLineColor(2);
+		  line->SetLineWidth(1);
+		  line->Draw();
+		}
+	    }
+	  {
+	    // mask scoz                                                                                                                                     
+	    auto&& pad = cv->GetPad(9);
+	    pad->cd();
+	    mask_scoz(0.22,0.02,0.58, 0.98);
+	  }
+	}
+      ++idraw;
+    }
+
   if (what == "ALL" || what == "TPOT_adc_vs_channel")
   {
     iret += draw_array("TPOT_adc_vs_channel", get_histograms( "m_adc_channel" ), DrawOptions::Colz|DrawOptions::Logz );
-    auto cv = get_canvas("TPOT_adc_vs_channel");
+    auto cv = get_canvas("TPOT_adc_vs_channel"); 
     if( cv )
     {
-      CanvasEditor cv_edit(cv);
-      cv->Update();
+      CanvasEditor cv_edit(cv); 
+      cv->Update(); 
       for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
       {
 
@@ -598,7 +643,7 @@ int TpotMonDraw::Draw(const std::string &what)
         if( m_threshold_histograms[i] )
         { m_threshold_histograms[i]->Draw("h same"); }
 
-        // draw vertical lines that match HV sectors
+        // draw vertical lines that match HV sectors 
         for( const int& channel:{64, 128, 196} )
         {
           const auto line = vertical_line( pad, channel );
@@ -610,7 +655,7 @@ int TpotMonDraw::Draw(const std::string &what)
       }
 
       {
-        // maks scoz
+        // mask scoz 
         auto&& pad = cv->GetPad(9);
         pad->cd();
         mask_scoz(0.22,0.02,0.58, 0.98);

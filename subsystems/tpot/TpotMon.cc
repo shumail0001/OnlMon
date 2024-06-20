@@ -194,6 +194,15 @@ int TpotMon::Init()
       max_adc, 0, max_adc );
     se->registerHisto(this, detector_histograms.m_adc_channel);
 
+
+    static constexpr int max_sample = 25;
+    detector_histograms.m_sample_channel = new TH2I(
+      Form("m_sample_channel_%s", detector_name.c_str() ), 
+      Form("strip vs sample (%s);strip;sample", detector_name.c_str()), 
+      MicromegasDefs::m_nchannels_fee, 0, MicromegasDefs::m_nchannels_fee, 
+      max_sample, 0 , max_sample );
+    se->registerHisto(this, detector_histograms.m_sample_channel);
+
     // hit charge
     static constexpr double max_hit_charge = 1100;
     detector_histograms.m_hit_charge = new TH1I(
@@ -365,14 +374,16 @@ int TpotMon::process_event(Event* event)
       const auto segmentation = MicromegasDefs::getSegmentationType( m_mapping.get_hitsetkey(fee_id));
 
 
-      // fill 2D histograms ADC vs sample and ADC vs sample
+      // fill 2D histograms ADC vs sample and hit charge vs sample
       const int samples = packet->iValue( i, "SAMPLES" );
       for( int is = 0; is < samples; ++is )
       {
         const uint16_t adc =  packet->iValue( i, is );
         if( adc == MicromegasDefs::m_adc_invalid ) continue;
         const bool is_signal = rms>0 && (adc > m_min_adc) && (adc> pedestal+m_n_sigma*rms);
-        if( is_signal ) detector_histograms.m_counts_sample->Fill( is );
+        if( is_signal ) 
+	  {detector_histograms.m_counts_sample->Fill( is ); 
+	  detector_histograms.m_sample_channel->Fill( strip_index, is);}
         detector_histograms.m_adc_sample->Fill( is, adc );
         detector_histograms.m_hit_charge->Fill( adc );
 
@@ -461,6 +472,7 @@ int TpotMon::Reset()
       hlist.m_counts_sample,
       hlist.m_adc_sample,
       hlist.m_adc_channel,
+      hlist.m_sample_channel,
       hlist.m_hit_charge,
       hlist.m_hit_multiplicity,
       hlist.m_wf_vs_channel,
