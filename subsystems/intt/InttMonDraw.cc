@@ -625,7 +625,7 @@ int InttMonDraw::Draw_HitMap()
 int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
 {
   double lower = 0.015;
-  double upper = 0.100;
+  double upper = 0.350;
 
   std::string name = Form("intt_hist_%d_%01d", icnvs, i);
   if (!m_hist_hitmap[i])
@@ -734,7 +734,7 @@ int InttMonDraw::DrawHistPad_HitRates(
     int i, int icnvs)
 {
   double lower = 0.00;
-  double upper = 0.10;
+  double upper = 0.35;
 
   // Validate member histos
   std::string name = Form("intt_hitrate_hist_%d_%01d", icnvs, i);
