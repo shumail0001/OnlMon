@@ -156,6 +156,7 @@ void StartPoms()
 
   subsys = new SubSystem("TPOT", "tpot");
   subsys->AddAction("tpotDraw(\"TPOT_counts_vs_sample\")", "Counts vs Sample");
+  subsys->AddAction("tpotDraw(\"TPOT_hit_charge\")", "Hit Charge");
   subsys->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit vs Strip");
   subsys->AddAction("tpotDraw(\"TPOT_counters\")", "Event counters [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_heartbeat_vs_channel\")", "Heartbit vs sampa [EXPERT]");
@@ -165,7 +166,6 @@ void StartPoms()
   subsys->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC vs Sample [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_sample_vs_channel\")", "Sample vs Channel [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_adc_vs_channel\")", "ADC vs Strip [EXPERT]");
-  subsys->AddAction("tpotDraw(\"TPOT_hit_charge\")", "Hit Charge [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_hit_multiplicity\")", "Hit Multiplicity [EXPERT]");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
