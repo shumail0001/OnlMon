@@ -77,6 +77,12 @@ int InttMonDraw::Draw(const std::string& what)
     ++idraw;
   }
 
+  if (what == "ALL" || what == "history")
+  {
+    iret += Draw_History();
+    ++idraw;
+  }
+
   if (!idraw)
   {
     std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
@@ -190,6 +196,18 @@ int InttMonDraw::MakeCanvas(const std::string& name)
     TC[k_hitrates]->SetEditable(false);
     TC[k_hitrates]->SetTopMargin(0.05);
     TC[k_hitrates]->SetBottomMargin(0.05);
+  }
+  if (name == "InttHistory")
+  {
+    TC[k_history] = new TCanvas(name.c_str(), "Intt History", m_cnvs_width, m_cnvs_height);
+    gSystem->ProcessEvents();
+    transparent[k_history] = new TPad(Form("transparent%d", k_history), "this does not show", 0, 0, 1, 1);
+    transparent[k_history]->SetFillStyle(4000);  // Transparent
+    transparent[k_history]->Draw();
+    MakeDispPad(k_history, 0.15);
+    TC[k_history]->SetEditable(false);
+    TC[k_history]->SetTopMargin(0.05);
+    TC[k_history]->SetBottomMargin(0.05);
   }
   return 0;
 }
@@ -306,6 +324,30 @@ int InttMonDraw::MakeDispPad(int icnvs, double lgnd_frac)
     m_transparent_pad[icnvs][i]->Range(0.0, 0.0, 1.0, 1.0);
     m_transparent_pad[icnvs][i]->Draw();
   }
+
+  name = Form("intt_single_hist_pad_%d", icnvs);
+  m_single_hist_pad[icnvs] = new TPad(
+      name.c_str(), name.c_str(),        //
+      0.0,             0.0,              // Southwest x, y
+      1.0 - lgnd_frac, 1.0 - m_disp_frac // Southwest x, y
+
+  );
+  TC[icnvs]->cd();
+  m_single_hist_pad[icnvs]->SetFillStyle(4000);  // Transparent
+  m_single_hist_pad[icnvs]->Range(0.0, 0.0, 1.0, 1.0);
+  m_single_hist_pad[icnvs]->Draw();
+
+  name = Form("intt_single_transparent_pad_%d", icnvs);
+  m_single_transparent_pad[icnvs] = new TPad(
+      name.c_str(), name.c_str(),        //
+      0.0,             0.0,              // Southwest x, y
+      1.0 - lgnd_frac, 1.0 - m_disp_frac // Southwest x, y
+
+  );
+  TC[icnvs]->cd();
+  m_single_transparent_pad[icnvs]->SetFillStyle(4000);  // Transparent
+  m_single_transparent_pad[icnvs]->Range(0.0, 0.0, 1.0, 1.0);
+  m_single_transparent_pad[icnvs]->Draw();
 
   return 0;
 }
@@ -469,12 +511,12 @@ int InttMonDraw::DrawHistPad_FelixBcoFphxBco(
   if (!bco_hist)
   {
     m_transparent_pad[k_felixbcofphxbco][i]->cd();
-	TText dead_text;
-	dead_text.SetTextColor(kBlue);
-	dead_text.SetTextAlign(22);
-	dead_text.SetTextSize(0.1);
-	dead_text.SetTextAngle(45);
-	dead_text.DrawText(0.5, 0.5, "Dead Server");
+    TText dead_text;
+    dead_text.SetTextColor(kBlue);
+    dead_text.SetTextAlign(22);
+    dead_text.SetTextSize(0.1);
+    dead_text.SetTextAngle(45);
+    dead_text.DrawText(0.5, 0.5, "Dead Server");
     return 1;
   }
 
@@ -510,7 +552,7 @@ InttMonDraw::GetFeeColor(
   switch (fee % 7)
   {
   case 0:
-    return (fee / 7) ? kGray + 3 : kBlack;
+    return (fee / 7) ? kOrange : kBlack;
   case 1:
     return kRed + 3 * (fee / 7);
   case 2:
@@ -633,8 +675,8 @@ int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
     TC[icnvs]->cd();
     m_hist_hitmap[i] = new TH2D(
         name.c_str(), name.c_str(),
-        26, 0, 26,  // 26, -0.5, 25.5,
-        14, 0, 14   // 14, -0.5, 13.5
+        26, -0.5, 25.5, //
+        14, -0.5, 13.5  //
     );
     m_hist_hitmap[i]->SetTitle(Form("intt%01d;Chip ID (0-base);Felix Channel", i));
 
@@ -646,6 +688,7 @@ int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
     Double_t levels[4] = {0, 1, 2, 3};
     m_hist_hitmap[i]->SetContour(4, levels);
   }
+  m_hist_pad[k_hitmap][i]->SetGrid(1);
   m_hist_pad[k_hitmap][i]->cd();
 
   m_hist_hitmap[i]->Reset();
@@ -660,12 +703,12 @@ int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
   if (!evt_hist || !hit_hist)
   {
     m_transparent_pad[k_hitmap][i]->cd();
-	TText dead_text;
-	dead_text.SetTextColor(kBlue);
-	dead_text.SetTextAlign(22);
-	dead_text.SetTextSize(0.1);
-	dead_text.SetTextAngle(45);
-	dead_text.DrawText(0.5, 0.5, "Dead Server");
+    TText dead_text;
+    dead_text.SetTextColor(kBlue);
+    dead_text.SetTextAlign(22);
+    dead_text.SetTextSize(0.1);
+    dead_text.SetTextAngle(45);
+    dead_text.DrawText(0.5, 0.5, "Dead Server");
     return 1;
   }
 
@@ -762,12 +805,12 @@ int InttMonDraw::DrawHistPad_HitRates(
   if (!evt_hist || !hit_hist)
   {
     m_transparent_pad[k_hitrates][i]->cd();
-	TText dead_text;
-	dead_text.SetTextColor(kBlue);
-	dead_text.SetTextAlign(22);
-	dead_text.SetTextSize(0.1);
-	dead_text.SetTextAngle(45);
-	dead_text.DrawText(0.5, 0.5, "Dead Server");
+    TText dead_text;
+    dead_text.SetTextColor(kBlue);
+    dead_text.SetTextAlign(22);
+    dead_text.SetTextSize(0.1);
+    dead_text.SetTextAngle(45);
+    dead_text.DrawText(0.5, 0.5, "Dead Server");
     return 1;
   }
 
@@ -780,8 +823,8 @@ int InttMonDraw::DrawHistPad_HitRates(
       double bincont = hit_hist->GetBinContent(fee * NCHIPS + chp + 1);
       bincont /= evt_hist->GetBinContent(2); // Normalize by number of events
 
-	  // mean += bincont;
-	  // if(bincont < upper)++fraction;
+      // mean += bincont;
+      // if(bincont < upper)++fraction;
 
       // Manually catch overflows and put them in the last displayed bin
       if (upper <= bincont)
@@ -798,3 +841,142 @@ int InttMonDraw::DrawHistPad_HitRates(
 
   return 0;
 }
+
+//====== History ======//
+
+int InttMonDraw::Draw_History()
+{
+  if (!gROOT->FindObject("InttHistory"))
+  {
+    MakeCanvas("InttHistory");
+  }
+
+  TC[k_history]->SetEditable(true);
+  m_style->cd();
+  if(DrawDispPad_Generic(k_history, TC[k_history]->GetTitle()) == -1)
+  {
+    return -1;
+  }
+
+  // hist
+  double max = 0.0;
+  m_single_transparent_pad[k_history]->Clear();
+  for(int i = 0; i < 8; ++i)
+  {
+    // Access client
+    OnlMonClient* cl = OnlMonClient::instance();
+
+    TH1* log_hist = cl->getHisto(Form("INTTMON_%d", i), "InttLogHist");
+    if(!log_hist)
+    {
+      m_single_transparent_pad[k_history]->cd();
+      TText dead_text;
+      dead_text.SetTextColor(kBlue);
+      dead_text.SetTextAlign(22);
+      dead_text.SetTextSize(0.1);
+      dead_text.SetTextAngle(45);
+      // dead_text.DrawText(0.5, 0.5, "Dead Server");
+      continue;
+    }
+
+    // Validate member histos
+	int N = log_hist->GetNbinsX();
+	double w = log_hist->GetXaxis()->GetBinWidth(0);
+    std::string name = Form("intt_history_hist_%d", i);
+    if (!m_hist_history[i])
+    {
+      m_hist_history[i] = new TH1D(
+          name.c_str(), name.c_str(), //
+          N, -w * N, 0.0 //
+      );
+      m_hist_history[i]->SetTitle("Rate of BCO decoding;Time ago (s);Decoded BCOs / s");
+      m_hist_history[i]->SetFillStyle(4000); // Transparent
+      m_hist_history[i]->SetLineColor(GetFeeColor(i)); // Transparent
+    }
+    m_single_hist_pad[k_history]->cd();
+
+    m_hist_history[i]->Reset();
+    m_hist_history[i]->Draw("Same");
+    // Fill
+    // log_hist is used as a ring buffer for [0, N)
+    // the current index is stored in bin N
+    // whether the ring buffer has been wrapped is stored in bin N+1
+    //     (used for early return)
+    int buff_index = log_hist->GetBinContent(N);
+    for(int n = N; 0 < n; --n)
+    {
+	  double rate = log_hist->GetBinContent(buff_index) / w;
+      m_hist_history[i]->SetBinContent(n, rate);
+	  if(max < rate)
+	  {
+        max = rate;
+	  }
+
+      // wrap around if a flag stored in log_hist[N+1] is set
+      // otherwise, break
+      if(buff_index == 0 && log_hist->GetBinContent(N + 1) == 0)
+      {
+        break;
+      }
+
+      buff_index = (buff_index + N - 1) % N;
+    }
+  }
+
+  for(int i = 0; i < 8; ++i)
+  {
+    if(!m_hist_history[i])
+    {
+      continue;
+    }
+    m_hist_history[i]->GetYaxis()->SetRangeUser(0, 1.5 * max);
+  }
+
+  // Draw Legend
+  double lgnd_text_size = 0.08;
+  double lgnd_box_width = 0.16;
+  double lgnd_box_height = 0.01;
+
+  std::string name;
+
+  m_lgnd_pad[k_history]->Clear();
+  m_lgnd_pad[k_history]->cd();
+
+  double x0, y0, x[4], y[4];
+  for (int i = 0; i < 8; ++i)
+  {
+    x0 = 0.5 - lgnd_box_width;
+    y0 = (2.0 * i + 1.0) / (2.0 * 8);
+
+    TText lgnd_text;
+    lgnd_text.SetTextAlign(12);
+    lgnd_text.SetTextSize(lgnd_text_size);
+    lgnd_text.SetTextColor(kBlack);
+    lgnd_text.DrawText(x0 + 1.5 * lgnd_box_width, y0, Form("intt%01d", i));
+
+    x[0] = -1, x[1] = +1, x[2] = +1, x[3] = -1;
+    y[0] = -1, y[1] = -1, y[2] = +1, y[3] = +1;
+    for (int j = 0; j < 4; ++j)
+    {
+      x[j] *= 0.5 * lgnd_box_width;
+      x[j] += x0;
+
+      y[j] *= 0.5 * lgnd_box_height;
+      y[j] += y0;
+    }
+
+    TPolyLine box;
+    box.SetFillColor(GetFeeColor(i));
+    box.SetLineColor(kBlack);
+    box.SetLineWidth(1);
+    box.DrawPolyLine(4, x, y, "f");
+  }
+
+  TC[k_history]->Update();
+  TC[k_history]->Show();
+  TC[k_history]->SetEditable(false);
+
+  return 0;
+}
+
+
