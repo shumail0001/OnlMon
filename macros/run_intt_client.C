@@ -20,6 +20,7 @@ void inttDrawInit(const int online = 0)
     cl->registerHisto("InttEvtHist",servername);
     cl->registerHisto("InttHitHist",servername);
     cl->registerHisto("InttBcoHist",servername);
+    cl->registerHisto("InttLogHist",servername);
 	//...
   }
 

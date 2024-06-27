@@ -69,6 +69,8 @@ class InttMonDraw : public OnlMonDraw
   // TMultiGraph* m_hist_hitrates[8] = {nullptr};
   // ...
 
+  int Draw_History();
+
   enum
   {
     k_server_stats = 0,  // Reserved for Chris
@@ -78,6 +80,7 @@ class InttMonDraw : public OnlMonDraw
     k_hitmap,
     k_hitrates,
     k_peaks,
+    k_history,
     k_end
   };
 
@@ -91,10 +94,13 @@ class InttMonDraw : public OnlMonDraw
   TPad* m_lgnd_pad[k_end]{nullptr};
   TPad* m_hist_pad[k_end][10]{{nullptr}};
   TPad* m_transparent_pad[k_end][10]{{nullptr}};
+  TPad* m_single_hist_pad[k_end]{nullptr};
+  TPad* m_single_transparent_pad[k_end]{nullptr};
 
   TH1* m_hist_felixbcofphxbco[8][14]{{nullptr}};
   TH1* m_hist_hitrates[8]{nullptr};
   TH2* m_hist_hitmap[8]{nullptr};
+  TH1* m_hist_history[8]{nullptr};
 
   // Some things are universal
   int m_cnvs_width = 1280;

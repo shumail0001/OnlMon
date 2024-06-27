@@ -80,6 +80,7 @@ void StartPoms()
   //  subsys->AddAction("inttDraw(\"chip_nll\")", "Chip NLL");
   subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff");
   subsys->AddAction("inttDraw(\"hitrates\")", "Hitrates");
+  subsys->AddAction("inttDraw(\"history\")", "History");
   subsys->AddAction("inttDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
