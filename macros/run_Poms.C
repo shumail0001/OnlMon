@@ -76,11 +76,11 @@ void StartPoms()
 
   subsys = new SubSystem("INTT", "intt");
   subsys->AddAction("inttDraw(\"chip_hitmap\")", "Chip Hitmap");
-  // subsys->AddAction("inttDraw(\"ladder_hitmap\")", "Ladder Hitmap");
-  //  subsys->AddAction("inttDraw(\"chip_nll\")", "Chip NLL");
   subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff");
-  subsys->AddAction("inttDraw(\"hitrates\")", "Hitrates");
-  subsys->AddAction("inttDraw(\"history\")", "History");
+  subsys->AddAction("inttDraw(\"zoomed_fphx_bco\")", "Zoomed Fphx BCO");
+  subsys->AddAction("inttDraw(\"fphx_bco\")", "Fphx BCO [Expert]");
+  subsys->AddAction("inttDraw(\"hitrates\")", "Hitrates [Expert]");
+  subsys->AddAction("inttDraw(\"history\")", "History [Expert]");
   subsys->AddAction("inttDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);

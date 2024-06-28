@@ -49,11 +49,17 @@ class InttMonDraw : public OnlMonDraw
   int DrawServerStats();
 
   int MakeDispPad(int icnvs, double lgnd_frac = std::numeric_limits<double>::quiet_NaN());
-
   int DrawDispPad_Generic(int icnvs, const std::string& title);
 
   int Draw_FelixBcoFphxBco();
   int DrawHistPad_FelixBcoFphxBco(int i, int icnvs);
+
+  int Draw_JustFphxBco();
+  int DrawHistPad_JustFphxBco(int i, int icnvs);
+
+  int Draw_ZoomedFphxBco();
+  int DrawHistPad_ZoomedFphxBco(int i, int icnvs);
+
   Color_t static GetFeeColor(int const&);
 
   int Draw_HitMap();
@@ -77,6 +83,8 @@ class InttMonDraw : public OnlMonDraw
     // I don't use it, it just offsets the enum
 
     k_felixbcofphxbco,
+    k_justfphxbco,
+    k_zoomedfphxbco,
     k_hitmap,
     k_hitrates,
     k_peaks,
@@ -92,12 +100,17 @@ class InttMonDraw : public OnlMonDraw
 
   TPad* m_disp_pad[k_end]{nullptr};
   TPad* m_lgnd_pad[k_end]{nullptr};
-  TPad* m_hist_pad[k_end][10]{{nullptr}};
-  TPad* m_transparent_pad[k_end][10]{{nullptr}};
+  TPad* m_hist_pad[k_end][8]{{nullptr}};
+  TPad* m_left_hist_pad[k_end][8]{{nullptr}};
+  TPad* m_right_hist_pad[k_end][8]{{nullptr}};
+  TPad* m_transparent_pad[k_end][8]{{nullptr}};
   TPad* m_single_hist_pad[k_end]{nullptr};
   TPad* m_single_transparent_pad[k_end]{nullptr};
 
   TH1* m_hist_felixbcofphxbco[8][14]{{nullptr}};
+  TH1* m_hist_justfphxbco[8][14]{{nullptr}};
+  TH1* m_left_hist_zoomedfphxbco[8][14]{{nullptr}};
+  TH1* m_right_hist_zoomedfphxbco[8][14]{{nullptr}};
   TH1* m_hist_hitrates[8]{nullptr};
   TH2* m_hist_hitmap[8]{nullptr};
   TH1* m_hist_history[8]{nullptr};

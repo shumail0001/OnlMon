@@ -6,6 +6,7 @@
 #include <Event/packet.h>
 
 #include <TH1.h>
+#include <TH2.h>
 
 #include <iostream>
 #include <limits>
@@ -32,7 +33,7 @@ int InttMon::Init()
   // 26*14
   HitHist = new TH1I("InttHitHist", "InttHitHist", (NFEES * NCHIPS), 0.0, 1.0);
   // 128*14
-  BcoHist = new TH1I("InttBcoHist", "InttBcoHist", (NFEES * NBCOS), 0.0, 1.0);
+  BcoHist = new TH2I("InttBcoHist", "InttBcoHist", 2, 0.0, 1.0, (NFEES * NBCOS), 0.0, 1.0);
   // Decoded BCOs as function of real time, implemented as ring buffer
   LogHist = new TH1I("InttLogHist", "InttLogHist", m_LOG_DURATION / m_LOG_INTERVAL, 0.0, m_LOG_DURATION);
 
@@ -80,9 +81,11 @@ int InttMon::process_event(Event *evt)
     {
       int fee = pkt->iValue(n, "FEE");
       int chp = (pkt->iValue(n, "CHIP_ID") + 25) % 26;
-      int bco = ((0x7f & pkt->lValue(n, "BCO")) - pkt->iValue(n, "FPHX_BCO") + 128) % 128;
+	  int fphx_bco = pkt->iValue(n, "FPHX_BCO");
+      int bco_diff = ((0x7f & pkt->lValue(n, "BCO")) - fphx_bco + 128) % 128;
       HitHist->AddBinContent(fee * NCHIPS + chp + 1);  // +1 to start at bin 1
-      BcoHist->AddBinContent(fee * NBCOS + bco + 1);   // +1 to start at bin 1
+      BcoHist->AddBinContent(BcoHist->GetBin(1, fee * NBCOS + bco_diff + 1));   // +1 to start at bin 1
+      BcoHist->AddBinContent(BcoHist->GetBin(2, fee * NBCOS + fphx_bco + 1));   // +1 to start at bin 1
     }
 
 	// bcos
