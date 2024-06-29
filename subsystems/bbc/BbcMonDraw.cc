@@ -1361,7 +1361,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
     Zvtx_ns->SetLineColor(4);
     Zvtx_ns->SetFillColor(7);
-
+    Zvtx_ns->SetMinimum(0); // start plots at zero
     // Get Maximum at the inside of BBC which is 130cm from center;
     float maxEntries = 10;
 
