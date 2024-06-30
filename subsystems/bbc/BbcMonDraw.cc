@@ -1955,6 +1955,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
       if (Zvtx_ns->GetEntries() > 0)
       {
+        Zvtx_ns->SetMinimum(0); // start plots at zero
         Zvtx_ns->GetXaxis()->SetRangeUser(-60, 60);
         Zvtx_ns->Draw("hist");
 
