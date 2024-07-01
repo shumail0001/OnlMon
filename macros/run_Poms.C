@@ -77,9 +77,9 @@ void StartPoms()
   subsys->AddAction("inttDraw(\"chip_hitmap\")", "Chip Hitmap");
   subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff");
   subsys->AddAction("inttDraw(\"zoomed_fphx_bco\")", "Zoomed Fphx BCO");
+  subsys->AddAction("inttDraw(\"history\")", "Decoding Rate");
   subsys->AddAction("inttDraw(\"fphx_bco\")", "Fphx BCO [Expert]");
   subsys->AddAction("inttDraw(\"hitrates\")", "Hitrates [Expert]");
-  subsys->AddAction("inttDraw(\"history\")", "History [Expert]");
   subsys->AddAction("inttDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
