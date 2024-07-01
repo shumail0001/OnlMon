@@ -470,6 +470,7 @@ int OnlMonClient::MakePS(const char *who, const char *what)
 
 int OnlMonClient::MakeHtml(const char *who, const char *what)
 {
+  isHtml(true); // so the client knows we run in html mode
   GetServerInfo();
   mode_t old_umask;
   int runno = RunNumber();
@@ -523,7 +524,6 @@ int OnlMonClient::DoSomething(const std::string &who, const std::string &what, c
           std::cout << __PRETTY_FUNCTION__ << " creating html output for "
                     << iter->second->Name() << std::endl;
         }
-        isHtml(true);
         iter->second->isHtml(true);
         if (iter->second->MakeHtml(what))
         {
