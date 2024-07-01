@@ -540,10 +540,16 @@ int BbcMon::Init()
   m_mbdpmts = new MbdPmtContainerV1();
 
   // prep the vtx to MCR info
-  sendflagfname = "/home/phnxrc/operations/mbd/mbd2mcr.seb18";
-  std::cout << "sendflagfname " << sendflagfname << std::endl;
+  char hname[1024];
+  gethostname(hname,sizeof(hname)-1);
+  sendflagfname = "/home/phnxrc/operations/mbd/mbd2mcr.";
+  sendflagfname += hname;
+  std::cout << "sendflagfname " << sendflagfname << "\t" << hname << std::endl;
   fillnumber = 0;
-  UpdateSendFlag( 0 );
+  if ( useGL1==1 )
+  {
+    UpdateSendFlag( 0 );
+  }
 
   return 0;
 }
@@ -563,7 +569,10 @@ int BbcMon::BeginRun(const int runno)
   {
     std::cout << "MBD: Found new fill " << current_fill << std::endl;
     fillnumber = current_fill;
-    UpdateSendFlag( 0 );
+    if ( useGL1==1 )
+    {
+      UpdateSendFlag( 0 );
+    }
   }
 
   return 0;
@@ -619,6 +628,7 @@ int BbcMon::EndRun(const int /* runno */)
 
 int BbcMon::process_event(Event *evt)
 {
+  /*
   if (evt->getEvtType() == 9)  // spin patterns stored in BeginRun
   {
     std::cout << "Found begin run event " << std::endl;
@@ -631,6 +641,7 @@ int BbcMon::process_event(Event *evt)
       delete pBlueFillNumber;
     }
   }
+  */
 
   if (evt->getEvtType() != DATAEVENT)
   {
@@ -683,7 +694,7 @@ int BbcMon::process_event(Event *evt)
   delete p[1];
 
   int f_evt = evt->getEvtSequence();
-  if ( f_evt%1000 == 0 && Verbosity() )
+  if ( Verbosity() && f_evt%1000 == 0 )
   {
     std::cout << "mbd evt " << f_evt << "\t" << useGL1 << std::endl;
   }
@@ -693,7 +704,11 @@ int BbcMon::process_event(Event *evt)
   {
     triggervec = 0UL;
     triginput = 0UL;
-    Event *gl1Event = erc->getEvent(f_evt);
+    trigraw = 0UL;
+    triglive = 0UL;
+    trigscaled = 0UL;
+    Event *gl1Event = erc->getEvent( f_evt );
+
     if (gl1Event)
     {
       //std::cout << "Found gl1event " << f_evt << std::endl;
@@ -704,6 +719,24 @@ int BbcMon::process_event(Event *evt)
         triggervec = static_cast<uint64_t>( p_gl1->lValue(0,"TriggerVector") );
         triginput = static_cast<uint64_t>( p_gl1->lValue(0,"TriggerInput") );
         //std::cout << "trig " << std::hex << triggervec << "\t" << triginput << std::dec << std::endl;
+        
+        trigraw = static_cast<uint64_t>( p_gl1->lValue(0,"TriggerInput") );
+        triglive = static_cast<uint64_t>( p_gl1->lValue(0,"LiveVector") );
+        trigscaled = static_cast<uint64_t>( p_gl1->lValue(0,"ScaledVector") );
+
+        triggervec = trigscaled;
+
+        /*
+        std::cout << "TRIGS" << std::hex << std::endl;
+        std::cout << "TrigInp\t" << std::setw(12) << triginput << std::endl;
+        std::cout << "TrigVec\t" << std::setw(12) << triggervec << std::endl;
+        std::cout << "RAW\t" << std::setw(12) << trigraw << std::endl;
+        std::cout << "LIVE\t" << std::setw(12) << triglive << std::endl;
+        std::cout << "SCALED\t" << std::setw(12) << trigscaled << std::endl;
+        std::cout << "BUSY\t" << std::setw(12) << busy << std::endl;
+        std::cout << std::dec << std::endl;
+        */
+
         for (int itrig = 0; itrig < 64; itrig++ )
         {
           uint64_t trigbit = 0x1UL << itrig;
@@ -839,7 +872,7 @@ int BbcMon::process_event(Event *evt)
     se->send_message(this, MSG_SOURCE_BBC, MSG_SEV_INFORMATIONAL, msg.str(), 1);
     std::cout << "MBD zvtx mean/width: " << mean << " " << rms << std::endl;
 
-    if ( GetSendFlag() == 1 )
+    if ( useGL1==1 && GetSendFlag() == 1 )
     {
       TString cmd = "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zMeanM "; cmd += mean;
       cmd += "; /home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zRmsM "; cmd += rms;
@@ -848,9 +881,16 @@ int BbcMon::process_event(Event *evt)
     else
     {
       // Set to 0 if we aren't sending
-      TString cmd = "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zMeanM 0";
-      cmd += "; /home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zRmsM 0";
-      gSystem->Exec( cmd );
+      /*
+      TString retval = gSystem->GetFromPipe( "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -g sphenix.detector zRmsM" );
+      std::cout << "retval " << retval << std::endl;
+      if ( retval != "0" )
+      {
+        TString cmd = "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zMeanM 0";
+        cmd += "; /home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zRmsM 0";
+        gSystem->Exec( cmd );
+      }
+      */
     }
 
     bbc_zvertex_short->Reset();
