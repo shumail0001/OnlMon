@@ -450,9 +450,10 @@ int InttMonDraw::DrawDispPad_Generic(int icnvs, const std::string& title)
   title_text.DrawText(0.5, 0.75, title.c_str());
 
   // Display text
-  std::time_t evttime = cl->EventTime("CURRENT");  // BOR, CURRENT, or EOR
-  std::string text = "Run " + std::to_string(cl->RunNumber()) + ", Events: " + std::to_string((int) evt_hist->GetBinContent(1)) + ", " + ctime(&evttime);
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");  // BOR, CURRENT, or EOR
+  std::string text = "Run " + std::to_string(cl->RunNumber()) + ", Events: " + std::to_string((int) evt_hist->GetBinContent(1)) + ", " + ctime(&evttime.first);
   TText disp_text;
+  disp_text.SetTextColor(evttime.second);
   disp_text.SetTextAlign(22);
   disp_text.SetTextSize(m_disp_text_size);
   disp_text.DrawText(0.5, 0.5, text.c_str());

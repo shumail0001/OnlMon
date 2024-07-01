@@ -198,8 +198,7 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   //TH1D *h_ADC_all_channel = (TH1D *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
   TH1D *h_hits_all_channel = (TH1D *) cl->getHisto("SEPDMON_0", "h_hits_all_channel");
   TH1 *h_event = (TH1*)cl->getHisto("SEPDMON_0", "h_event");
-  time_t evttime = cl->EventTime("CURRENT");
-
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("SepdMon1"))
   {
     MakeCanvas("SepdMon1");
@@ -315,9 +314,10 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << "UNDER CONSTRUCTION " << ThisName << "_1 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[0]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[0]->Update();
   TC[0]->Show();
@@ -339,7 +339,7 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
 
   TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
   int nevt = h_event->GetEntries();
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
 
   if (!gROOT->FindObject("SepdMon2"))
   {
@@ -413,9 +413,10 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << "EXPERT ONLY " << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[1]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[1]->Update();
   TC[1]->Show();
@@ -433,7 +434,7 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
 
   TH2 *h_ADC_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC_corr");
   TH2 *h_hits_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_corr");
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("SepdMon3"))
   {
     MakeCanvas("SepdMon3");
@@ -489,9 +490,10 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[1]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[2]->Update();
   TC[2]->Show();
@@ -581,12 +583,13 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Pulse fitting, Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[3]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
   Pad[7]->cd();
@@ -933,14 +936,15 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   std::ostringstream runnostream2;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
 
   runnostream << "Packet Information";
-  runnostream2 << " Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
+  runnostream2 << " Run " << cl->RunNumber() << ", Time: " << ctime(&evttime.first);
   transparent[4]->cd();
 
   runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, .99, runstring.c_str());
 
   runstring = runnostream2.str();
@@ -1018,15 +1022,6 @@ int SepdMonDraw::MakeHtml(const std::string &what)
   // out2.close();
   // cl->SaveLogFile(*this);
   return 0;
-}
-
-time_t SepdMonDraw::getTime()
-{
-  OnlMonClient *cl = OnlMonClient::instance();
-  time_t currtime = 0;
-
-  currtime = cl->EventTime("CURRENT");
-  return currtime;
 }
 
 int SepdMonDraw::returnRing(int ch)

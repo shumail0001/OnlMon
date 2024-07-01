@@ -224,12 +224,13 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Calo-GL1 Lock Full History, Run" << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[0]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
   line.Draw();
   
@@ -323,12 +324,13 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Calo ADC FEM Check, Run" << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[1]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
   TLatex latex;
@@ -438,13 +440,6 @@ int DaqMonDraw::MakeHtml(const std::string &what)
   // out2.close();
   // cl->SaveLogFile(*this);
   return 0;
-}
-
-time_t DaqMonDraw::getTime()
-{
-  OnlMonClient *cl = OnlMonClient::instance();
-  time_t currtime = cl->EventTime("CURRENT");
-  return currtime;
 }
 
 int DaqMonDraw::DrawServerStats()

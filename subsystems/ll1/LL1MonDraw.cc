@@ -205,7 +205,7 @@ int LL1MonDraw::DrawFirst(const std::string & /* what */)
   TH1 *h_nhit_n2 = cl->getHisto("LL1MON_0","h_nhit_n2");
   TH1 *h_nhit_s1 = cl->getHisto("LL1MON_0","h_nhit_s1");
   TH1 *h_nhit_s2 = cl->getHisto("LL1MON_0","h_nhit_s2");
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon1"))
   {
     MakeCanvas("LL1Mon1");
@@ -239,9 +239,10 @@ int LL1MonDraw::DrawFirst(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[0]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   gStyle->SetOptStat(0);
   TC[0]->Update();
@@ -255,7 +256,7 @@ int LL1MonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   TH2 *h_nhit_corr= (TH2D*) cl->getHisto("LL1MON_0","h_nhit_corr");
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon2"))
   {
     MakeCanvas("LL1Mon2");
@@ -281,9 +282,10 @@ int LL1MonDraw::DrawSecond(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[1]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[1]->SetTicks(1,1);
   TC[1]->Update();
@@ -296,7 +298,7 @@ int LL1MonDraw::DrawThird(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   TH2 *h_line_up= (TH2*) cl->getHisto("LL1MON_0","h_line_up");
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon3"))
   {
     MakeCanvas("LL1Mon3");
@@ -323,9 +325,10 @@ int LL1MonDraw::DrawThird(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << ThisName << "_3 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[2]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[2]->Update();
   TC[2]->SetTicks(1,1);
@@ -359,7 +362,7 @@ int LL1MonDraw::DrawFourth(const std::string & /* what */)
      TC[3]->SetEditable(false);
      return -1;
    }
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon4"))
   {
     MakeCanvas("LL1Mon4");
@@ -462,8 +465,9 @@ int LL1MonDraw::DrawFourth(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << "EMCAL 8x8 Photon Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[3]->Update();
   TC[3]->SetTicks(1,1);
@@ -490,7 +494,7 @@ int LL1MonDraw::DrawFifth(const std::string & /* what */)
       TC[4]->SetEditable(false);
       return -1;
     }
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon5"))
   {
     MakeCanvas("LL1Mon5");
@@ -529,13 +533,14 @@ int LL1MonDraw::DrawFifth(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << ThisName << "_3 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   TC[4]->cd();
   TPad *tr = new TPad("tr", "this does not show", 0, 0, 1, 1);
   tr->SetFillStyle(4000);
   tr->Draw();
   tr->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[4]->Update();
   TC[4]->SetTicks(1,1);
@@ -563,7 +568,7 @@ int LL1MonDraw::DrawSixth(const std::string & /* what */)
       return -1;
     }
   h_jet_output_above_threshold->SetTitle("Jet <8x8> Overlapping Hits above Threshold; #eta <8x8> Sum; #phi <8x8> Sum");
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon6"))
   {
     MakeCanvas("LL1Mon6");
@@ -597,13 +602,14 @@ int LL1MonDraw::DrawSixth(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << ThisName << "_3 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   TC[5]->cd();
   TPad *tr = new TPad("tr", "this does not show", 0, 0, 1, 1);
   tr->SetFillStyle(4000);
   tr->Draw();
   tr->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[5]->Update();
   TC[5]->SetTicks(1,1);
@@ -615,7 +621,7 @@ int LL1MonDraw::DrawSixth(const std::string & /* what */)
 int LL1MonDraw::DrawSeventh(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon7"))
   {
     MakeCanvas("LL1Mon7");
@@ -652,13 +658,14 @@ int LL1MonDraw::DrawSeventh(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << ThisName << "_3 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   TC[6]->cd();
   TPad *tr = new TPad("tr", "this does not show", 0, 0, 1, 1);
   tr->SetFillStyle(4000);
   tr->Draw();
   tr->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[6]->Update();
   TC[6]->SetTicks(1,1);

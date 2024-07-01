@@ -1336,14 +1336,15 @@ int BbcMonDraw::Draw(const std::string &what)
   PRINT_DEBUG("Drawing Graphs on Canvas");
 
   // Make TopPave
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
 
   otext.str("");
   otext << "Run #" << cl->RunNumber();
   otext << " Events: " << nhit_total;
-  otext << " Date:" << ctime(&evttime);
+  otext << " Date:" << ctime(&evttime.first);
   text = otext.str();
   //ifnew(TText, TextTop);
+  TextTop->SetTextColor(evttime.second);
   TextTop->SetText(0.01, 0.25, text.c_str());
 
   if (TC[0])
@@ -2406,10 +2407,10 @@ int BbcMonDraw::DrawFirst(const std::string & /*unused*/)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[0]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
@@ -2455,13 +2456,14 @@ int BbcMonDraw::DrawSecond(const std::string & /*unused*/)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
 
   // fill run number and event time into string
   runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[1]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[1]->Update();
   TC[1]->Show();

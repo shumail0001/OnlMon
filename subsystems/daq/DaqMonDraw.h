@@ -30,7 +30,6 @@ class DaqMonDraw : public OnlMonDraw
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
   int DrawServerStats();
-  time_t getTime();
   //  int DrawHistory(const std::string &what = "ALL");
   int TimeOffsetTicks = -1;
   TCanvas *TC[3] = {nullptr};

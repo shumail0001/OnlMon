@@ -470,6 +470,7 @@ int OnlMonClient::MakePS(const char *who, const char *what)
 
 int OnlMonClient::MakeHtml(const char *who, const char *what)
 {
+  isHtml(true); // so the client knows we run in html mode
   GetServerInfo();
   mode_t old_umask;
   int runno = RunNumber();
@@ -1328,9 +1329,10 @@ int OnlMonClient::GetServerInfo()
   return (runno);
 }
 
-time_t OnlMonClient::EventTime(const std::string &which)
+std::pair<time_t,int> OnlMonClient::EventTime(const std::string &which)
 {
   time_t tret = 0;
+  int color = 1; // default is black
   for (const auto &frwrkiter : m_MonitorFetchedSet)
   {
     tret = std::max(tret, EventTime(frwrkiter, which));
@@ -1340,7 +1342,15 @@ time_t OnlMonClient::EventTime(const std::string &which)
   {
     std::cout << "Time is " << ctime(&tret) << std::endl;
   }
-  return (tret);
+  if (!make_html)
+    {
+      time_t clienttime = time(nullptr);
+      if ((clienttime - tret) > 600)
+	{
+	  color = 2; // turn red if time is off
+	}
+    }
+  return (std::make_pair(tret,color));
 }
 
 time_t OnlMonClient::EventTime(const std::string &servername, const std::string &which)
