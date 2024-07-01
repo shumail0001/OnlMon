@@ -35,14 +35,13 @@ class SepdMonDraw : public OnlMonDraw
   int returnTile(int ch);
   int returnArm(int ch);
   int returnRing(int ch);
-  time_t getTime();
 
-  TCanvas* TC[9] = {nullptr};
-  TPad* transparent[9] = {nullptr};
-  TPad* Pad[18] = {nullptr};
-  TPad* adc_dist_pad[32] = {nullptr};
-  TPad* warning[18] = {nullptr};
-  TGraphErrors *gr[2] = {nullptr};
+  TCanvas* TC[9] {nullptr};
+  TPad* transparent[9] {nullptr};
+  TPad* Pad[18] {nullptr};
+  TPad* adc_dist_pad[32] {nullptr};
+  TPad* warning[18] {nullptr};
+  TGraphErrors *gr[2] {nullptr};
 };
 
 #endif /* SEPD_SEPDMONDRAW_H */

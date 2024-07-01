@@ -72,7 +72,6 @@ class MvtxMonDraw : public OnlMonDraw
   int DrawFHR(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
   int DrawServerStats();
-  time_t getTime();
   int TimeOffsetTicks = -1;
   int lastStrobes[12] = {0};
   TCanvas *TC[7] = {nullptr};

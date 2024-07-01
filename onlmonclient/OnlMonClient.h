@@ -63,7 +63,7 @@ class OnlMonClient : public OnlMonBase
 
   int LocateHistogram(const std::string &hname, const std::string &subsys);
   int RunNumber();
-  time_t EventTime(const std::string &which);
+  std::pair<time_t,int> EventTime(const std::string &which);
   time_t EventTime(const std::string &servername, const std::string &which);
   int SendCommand(const char *hostname, const int port, const char *cmd);
 
@@ -90,6 +90,8 @@ class OnlMonClient : public OnlMonBase
   OnlMonDraw *GetDrawer(const std::string &name);
   void SaveServerHistoMap(const std::string &cachefile = "HistoMap.save");
   void ReadServerHistoMap(const std::string &cachefile = "HistoMap.save");
+  bool isHtml() const { return make_html; }
+  void isHtml(const bool b) { make_html = b; }
 
  private:
   OnlMonClient(const std::string &name = "ONLMONCLIENT");
@@ -106,7 +108,7 @@ class OnlMonClient : public OnlMonBase
   int cosmicrun {0};
   int standalone {0};
   int cachedrun {0};
-
+  bool make_html {false};
   std::string runtype {"unknown_runtype"};
   std::set<std::string> m_MonitorFetchedSet;
   std::map<std::string, std::map<const std::string, ClientHistoList *>> SubsysHisto;

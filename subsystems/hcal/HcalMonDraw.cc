@@ -519,7 +519,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   std::ostringstream runnostream2;
   std::ostringstream runnostream3;
   std::string runstring;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   float threshold = 30;
   if(iscosmic)
   {
@@ -528,10 +528,11 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   // fill run number and event time into string
   runnostream << ThisName << ": tower occupancy running mean/template";
   runnostream2 << " threshold: "<<threshold <<"ADC, Run " << cl->RunNumber()<<", Event: " << avgevents;
-  runnostream3 << "Time: " << ctime(&evttime);
+  runnostream3 << "Time: " << ctime(&evttime.first);
   
   transparent[0]->cd();
   runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
   runstring = runnostream2.str();
   PrintRun.DrawText(0.5, 0.96, runstring.c_str());
@@ -654,12 +655,13 @@ int HcalMonDraw::DrawSecond(const std::string& /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_running mean, Run" << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[1]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[1]->Update();
   TC[1]->Show();
@@ -803,13 +805,14 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   std::ostringstream runnostream2;
   std::string runstring;
   std::string runstring2;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Pulse fitting, Run" << cl->RunNumber();
-  runnostream2 << ", Time: " << ctime(&evttime);
+  runnostream2 << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   runstring2 = runnostream2.str();
   transparent[3]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
   PrintRun.DrawText(0.5, 0.96, runstring2.c_str());
 
@@ -1338,14 +1341,15 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   std::ostringstream runnostream2;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
 
   runnostream << "Packet Information";
-  runnostream2 << " Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
+  runnostream2 << " Run " << cl->RunNumber() << ", Time: " << ctime(&evttime.first);
   transparent[5]->cd();
 
   runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, .99, runstring.c_str());
 
   runstring = runnostream2.str();
@@ -1541,12 +1545,13 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_running mean, Run" << cl->RunNumber()
-  << ", Time: " << ctime(&evttime);
+  << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[1]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
   TC[1]->Update();
   TC[1]->Show();
@@ -2003,12 +2008,13 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Pulse fitting, Run" << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[6]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
   Pad[17]->cd();
@@ -2311,12 +2317,13 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Tower status, Run" << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[7]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
   TC[7]->Update();
@@ -2473,13 +2480,14 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   std::ostringstream runnostream2;
   std::string runstring;
   std::string runstring2;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Unsuppressed event fraction, Run" << cl->RunNumber();
-  runnostream2 << ", Time: " << ctime(&evttime);
+  runnostream2 << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   runstring2 = runnostream2.str();
   transparent[9]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
   PrintRun.DrawText(0.5, 0.95, runstring2.c_str());
 
@@ -2488,13 +2496,6 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   TC[9]->SetEditable(false);
 
   return 0;
-}
-
-time_t HcalMonDraw::getTime()
-{
-  OnlMonClient* cl = OnlMonClient::instance();
-  time_t currtime = cl->EventTime("CURRENT");
-  return currtime;
 }
 
 int HcalMonDraw::DrawServerStats()

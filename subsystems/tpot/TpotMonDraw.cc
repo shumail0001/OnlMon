@@ -331,13 +331,14 @@ void TpotMonDraw::draw_time( TPad* pad )
 
   std::ostringstream runnostream;
   auto cl = OnlMonClient::instance();
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
 
   runnostream
     << ThisName << " Run " << cl->RunNumber()
-    << ", Time: " << ctime(&evttime);
+    << ", Time: " << ctime(&evttime.first);
 
   pad->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.5, runnostream.str().c_str());
 }
 

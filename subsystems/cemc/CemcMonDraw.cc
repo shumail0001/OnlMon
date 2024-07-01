@@ -629,14 +629,15 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   std::ostringstream runnostream2;
   std::ostringstream runnostream3;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": tower occupancy running mean/template";
   runnostream2 << " threshold: 100ADC, Run " << cl->RunNumber()<<", Event: " << avgevents;
-  runnostream3 << "Time: " << ctime(&evttime);
+  runnostream3 << "Time: " << ctime(&evttime.first);
   
   transparent[0]->cd();
   runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
   runstring = runnostream2.str();
   PrintRun.DrawText(0.5, 0.96, runstring.c_str());
@@ -955,14 +956,15 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   std::ostringstream runnostream2;
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
 
   runnostream << "Packet Information";
-  runnostream2 << " Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
+  runnostream2 << " Run " << cl->RunNumber() << ", Time: " << ctime(&evttime.first);
   transparent[1]->cd();
 
   runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, .99, runstring.c_str());
 
   runstring = runnostream2.str();
@@ -1153,14 +1155,15 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Pulse fitting";
-  runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
+  runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime.first);
 
   transparent[2]->cd();
 
   runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
   runstring = runnostream2.str();
@@ -1359,14 +1362,15 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << "Waveform Template vs. Fast Fitting";
-  runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
+  runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime.first);
 
   transparent[3]->cd();
 
   runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
   runstring = runnostream2.str();
@@ -1597,12 +1601,13 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Trigger Info, Run" << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[4]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
   Pad[10]->cd();
@@ -1958,13 +1963,6 @@ std::vector<int> CemcMonDraw::getBadPackets(TH1 *hist, int what, float cutoff)
   return badpacks;
 }
 
-time_t CemcMonDraw::getTime()
-{
-  OnlMonClient *cl = OnlMonClient::instance();
-  time_t currtime = cl->EventTime("CURRENT");
-  return currtime;
-}
-
 int CemcMonDraw::DrawServerStats()
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -2150,12 +2148,13 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = getTime();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Unsuppressed event fraction, Run" << cl->RunNumber()
-              << ", Time: " << ctime(&evttime);
+              << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[7]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
   TC[7]->Update();
@@ -2336,10 +2335,11 @@ int CemcMonDraw::DrawSixth(const std::string &  ){
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
-  runnostream << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime);
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  runnostream << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[6]->cd();
+  PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
   TC[6]->Update();
