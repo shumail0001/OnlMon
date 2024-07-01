@@ -295,10 +295,12 @@ int BbcMonDraw::Init()
   bbcStyle->SetCanvasBorderMode(0);
   oldStyle->cd();
 
+  /*
   for ( auto server : m_ServerSet )
   {
       std::cout << "servers " << server << std::endl;
   }
+  */
   
   // prep the vtx to MCR info
   sendflagfname = "/home/phnxrc/operations/mbd/mbd2mcr.seb18";
@@ -1602,7 +1604,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
       float rangemin;
       float rangemax;
-      int npeak = tspec->Search(AvrHitTime, 2, "goff");  // finds the highest peak, draws marker
+      int npeak = tspec->Search(AvrHitTime, 5, "goff",0.2);  // finds the highest peak, draws marker
       if (npeak < 3)                                     // no center peak
       {
         AvrHitTime->Fit("FitAvrHitTime", "QN0L");
@@ -1655,8 +1657,8 @@ int BbcMonDraw::Draw(const std::string &what)
       TLine aline;
       aline.SetLineColor(kRed);
       aline.SetLineWidth(4);
-      aline.DrawLine( 7,gPad->GetFrame()->GetY1(), 7,gPad->GetFrame()->GetY2());
-      aline.DrawLine(10,gPad->GetFrame()->GetY1(),10,gPad->GetFrame()->GetY2());
+      aline.DrawLine( 6.5,gPad->GetFrame()->GetY1(), 6.5,gPad->GetFrame()->GetY2());
+      aline.DrawLine(10.5,gPad->GetFrame()->GetY1(),10.5,gPad->GetFrame()->GetY2());
     }
 
     if (PadSouthHitTime)
@@ -1665,8 +1667,10 @@ int BbcMonDraw::Draw(const std::string &what)
       SouthHitTime->Draw();
       float rangemin;
       float rangemax;
-      int npeak = tspec->Search(SouthHitTime, 2, "goff");  // finds the highest peak, draws marker
-      if (npeak < 3)                                       // no center peak
+      int npeak = tspec->Search(SouthHitTime, 5, "goff",0.2);  // finds the highest peak, draws marker
+
+      //std::cout << "NPEAKS " << npeak << std::endl;
+      if (npeak < 3)                                       
       {
         SouthHitTime->Fit("FitSouthHitTime", "QN0L");
         rangemin = FitSouthHitTime->GetParameter(1) - 1.0*FitSouthHitTime->GetParameter(2);
@@ -1691,10 +1695,10 @@ int BbcMonDraw::Draw(const std::string &what)
         rangemax = centerpeak + (sidepeak[1] - centerpeak) / 2.;
       }
 
+      rangemin = -5;
+      rangemax = 5;
       FitSouthHitTime->SetRange(rangemin, rangemax);
       SouthHitTime->Fit("FitSouthHitTime", "QRL");
-      FitSouthHitTime->Draw("same");
-
       FitSouthHitTime->Draw("same");
 
       /*
@@ -1718,7 +1722,7 @@ int BbcMonDraw::Draw(const std::string &what)
       NorthHitTime->Draw();
       float rangemin;
       float rangemax;
-      int npeak = tspec->Search(NorthHitTime, 2, "goff");  // finds the highest peak, draws marker
+      int npeak = tspec->Search(NorthHitTime, 5, "goff",0.2);  // finds the highest peak, draws marker
       if (npeak < 3)                                       // no center peak
       {
         NorthHitTime->Fit("FitNorthHitTime", "QN0L");
@@ -1744,10 +1748,10 @@ int BbcMonDraw::Draw(const std::string &what)
         rangemax = centerpeak + (sidepeak[1] - centerpeak) / 2.;
       }
 
+      rangemin = -5;
+      rangemax = 5;
       FitNorthHitTime->SetRange(rangemin, rangemax);
       NorthHitTime->Fit("FitNorthHitTime", "QRL");
-      FitNorthHitTime->Draw("same");
-
       FitNorthHitTime->Draw("same");
 
       /*
@@ -1954,10 +1958,21 @@ int BbcMonDraw::Draw(const std::string &what)
     {
       PadZvtx->cd();
 
+
       if (Zvtx_ns->GetEntries() > 0)
       {
         Zvtx_ns->SetMinimum(0); // start plots at zero
+
+        std::vector<double> max;
+        max.push_back( Zvtx_ns->GetBinContent( Zvtx_ns->GetMaximumBin() ) );
+        max.push_back( Zvtx_60->GetBinContent( Zvtx_60->GetMaximumBin() ) );
+        max.push_back( Zvtx_30->GetBinContent( Zvtx_30->GetMaximumBin() ) );
+        max.push_back( Zvtx_10->GetBinContent( Zvtx_10->GetMaximumBin() ) );
+        max.push_back( Zvtx_zdcns->GetBinContent( Zvtx_zdcns->GetMaximumBin() ) );
+        double maximum = *std::max_element(max.begin(), max.end());
+
         Zvtx_ns->GetXaxis()->SetRangeUser(-60, 60);
+        Zvtx_ns->SetMaximum(maximum*1.1);
         Zvtx_ns->Draw("hist");
 
         Zvtx_60->SetLineColor(40);
@@ -2005,12 +2020,18 @@ int BbcMonDraw::Draw(const std::string &what)
     {
       PadNhits->cd();
 
+      std::vector<double> max;
+      max.push_back( South_Nhit->GetBinContent( South_Nhit->GetMaximumBin() ) );
+      max.push_back( North_Nhit->GetBinContent( North_Nhit->GetMaximumBin() ) );
+      double maximum = *std::max_element(max.begin(), max.end());
+
       South_Nhit->SetLineColor(2);
       North_Nhit->SetLineColor(4);
       South_Nhit->GetXaxis()->SetRangeUser(0,30);
       North_Nhit->GetXaxis()->SetRangeUser(0,30);
       South_Nhit->SetTitle("MBD Nhits, MBD trig");
       North_Nhit->SetTitle("MBD Nhits, MBD trig");
+      South_Nhit->SetMaximum( maximum*1.1 );
       South_Nhit->Draw();
       North_Nhit->Draw("same");
     }

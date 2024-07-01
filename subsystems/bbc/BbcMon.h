@@ -40,6 +40,9 @@ class BbcMon : public OnlMon
   int useGL1{1};    // whether to use the GL1 data
   uint64_t triggervec{0};
   uint64_t triginput{0};
+  uint64_t trigraw{0};
+  uint64_t triglive{0};
+  uint64_t trigscaled{0};
   //uint64_t gl1_bco{0};
   uint64_t trigmask{0};       // accepted triggers
   uint64_t mbdtrig{0};        // main mbd trigger
