@@ -944,7 +944,7 @@ InttMonDraw::GetFeeColor(
   case 1:
     return kRed + 3 * (fee / 7);
   case 2:
-    return kYellow + 3 * (fee / 7);
+    return kViolet + 3 + 7 * (fee / 7);
   case 3:
     return kGreen + 3 * (fee / 7);
   case 4:
@@ -1106,6 +1106,11 @@ int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
     for (int chp = 0; chp < NCHIPS; ++chp)
     {
       double bincont = hit_hist->GetBinContent(fee * NCHIPS + chp + 1);
+	  if(!bincont)
+	  {
+        continue;
+		std::cout << "filled 0" << std::endl;
+	  }
       bincont /= evt_hist->GetBinContent(2); // Normalize by number of unique BCOs
 
       // Assign a value to this bin
@@ -1275,9 +1280,9 @@ int InttMonDraw::Draw_History()
     {
       m_hist_history[i] = new TH1D(
           name.c_str(), name.c_str(), //
-          N, -w * N, 0.0 //
+          N, 0.0, w * N //
       );
-      m_hist_history[i]->SetTitle("Rate of BCO decoding;Time ago (s);Decoded BCOs / s");
+      m_hist_history[i]->SetTitle(Form("Rate of BCO decoding;Most recent %.0lf seconds;Decoded BCOs / s", (double)(w * N)));
       m_hist_history[i]->SetFillStyle(4000); // Transparent
       m_hist_history[i]->SetLineColor(GetFeeColor(i)); // Transparent
     }
@@ -1285,30 +1290,38 @@ int InttMonDraw::Draw_History()
 
     m_hist_history[i]->Reset();
     m_hist_history[i]->Draw("Same");
+
     // Fill
-    // log_hist is used as a ring buffer for [0, N)
-    // the current index is stored in bin N
-    // whether the ring buffer has been wrapped is stored in bin N+1
-    //     (used for early return)
     int buff_index = log_hist->GetBinContent(N);
-    for(int n = N; 0 < n; --n)
-    {
-	  double rate = log_hist->GetBinContent(buff_index) / w;
-      m_hist_history[i]->SetBinContent(n, rate);
-	  if(max < rate)
-	  {
-        max = rate;
-	  }
-
-      // wrap around if a flag stored in log_hist[N+1] is set
-      // otherwise, break
-      if(buff_index == 0 && log_hist->GetBinContent(N + 1) == 0)
+	if(log_hist->GetBinContent(N + 1))
+	{
+      // The contents have been wrapped around
+	  // start from right edge and go backward in time
+      for(int n = N; 0 < n; --n)
       {
-        break;
+	    double rate = log_hist->GetBinContent(buff_index) / w;
+        m_hist_history[i]->SetBinContent(n, rate);
+	    if(max < rate)
+	    {
+          max = rate;
+	    }
+        buff_index = (buff_index + N - 1) % N;
       }
-
-      buff_index = (buff_index + N - 1) % N;
-    }
+	}
+	else
+	{
+      // The contents have not wrapped
+	  // start from left edge and go forward in time
+      for(int n = 0; n < buff_index; ++n)
+	  {
+        double rate = log_hist->GetBinContent(n + 1) / w;
+        m_hist_history[i]->SetBinContent(n + 1, rate);
+	    if(max < rate)
+	    {
+          max = rate;
+	    }
+	  }
+	}
   }
 
   for(int i = 0; i < 8; ++i)
