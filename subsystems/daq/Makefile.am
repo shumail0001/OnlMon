@@ -18,6 +18,7 @@ libonldaqmon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
+  -lonlmonutils \
   -lonlmondb
 
 libonldaqmon_client_la_LIBADD = \
