@@ -17,11 +17,12 @@ class Packet;
 class runningMean;
 class eventReceiverClient;
 class CDBTTree;
+class GL1Manager;
 
 class CemcMon : public OnlMon
 {
  public:
-  explicit CemcMon(const std::string& name);
+  explicit CemcMon(const std::string& name, const std::string& gl1_host = "gl1daq");
   virtual ~CemcMon();
 
   int process_event(Event* evt);
@@ -38,6 +39,8 @@ class CemcMon : public OnlMon
   std::vector<float> getSignal(Packet* p, const int channel);
   std::vector<float> anaWaveformFast(Packet* p, const int channel);
   std::vector<float> anaWaveformTemp(Packet* p, const int channel);
+
+  std::string GL1host;
 
   int idummy = 0;
   TH1* h1_cemc_adc = nullptr;
@@ -82,7 +85,8 @@ class CemcMon : public OnlMon
 
   std::string runtypestr = "Unknown";
 
-  eventReceiverClient* erc = {nullptr};
+  //eventReceiverClient* erc = {nullptr};
+  GL1Manager *gl1mgr =  {nullptr};
   bool anaGL1 = true;
   bool usembdtrig = true;
 
