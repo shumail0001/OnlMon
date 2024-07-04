@@ -41,7 +41,8 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // --- this is called by int DrawFirst(string&)
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - UNDER CONSTRUCTION - Hits/Event vs Tile", -1, 0, 1200, 600);
+    //TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - UNDER CONSTRUCTION - Hits/Event vs Tile", -1, 0, 1200, 600);
+    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - Hits/Event vs Tile", -1, 0, 1200, 600);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -268,7 +269,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 
   // --- may need to update these depending on whether there are "hot" tiles
   double zmin = 0.0;
-  double zmax = 1.0;
+  double zmax = 0.1;
+  //double zmax = 1.0;
   //double zmax = 300;
   //double zmax = 1.1*h_ADC_all_channel->GetMaximum();
 
@@ -313,7 +315,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   // fill run number and event time into string
-  runnostream << "UNDER CONSTRUCTION " << ThisName << "_1 Run " << cl->RunNumber()
+  //runnostream << "UNDER CONSTRUCTION " << ThisName << "_1 Run " << cl->RunNumber()
+  runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[0]->cd();
