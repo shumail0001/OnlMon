@@ -1572,8 +1572,8 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
 
   for (int itrig = 0; itrig < 64; itrig++)
   {
-    // Priority to the bits between 16 and 31
-    if (n_entries[itrig].second >= 16 && n_entries[itrig].second <= 31)
+    // Priority to the bits between 24 and 31 (draw photon trig first)
+    if (n_entries[itrig].second >= 24 && n_entries[itrig].second <= 31)
     {
       if (n_entries[itrig].first > 0. && priority_triggers.size() < 4)
       {
@@ -1582,12 +1582,12 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
     }
   }
 
-  // If trigger bits from 16 to 31 do not have 4 with entries, plot the others
+  // If trigger bits from 24 to 31 do not have 4 with entries, plot the others
   if (priority_triggers.size() < 4)
   {
     for (int itrig = 0; itrig < 64; itrig++)
     {
-      if (priority_triggers.size() < 4 && n_entries[itrig].second < 16)
+      if (priority_triggers.size() < 4 && n_entries[itrig].second < 24)
       {
         priority_triggers.push_back(n_entries[itrig].second);
       }
