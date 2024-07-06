@@ -241,7 +241,7 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   if(IsGL1MisMatch){
       latex.SetTextSize(0.035);
       latex.SetTextColor(kRed);
-      latex.DrawLatex(0.21,0.84,"#bf{STOP THE RUN NOW!!}");
+      latex.DrawLatex(0.21,0.84,"#bf{If this happened within 1 min of the run --> Stop the run}");
       latex.DrawLatex(0.21,0.68,"#bf{GL1 Clock Mismatch! Put a special note in the e-log}");
   }
   else{
@@ -340,7 +340,7 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   if(IsMisMatch){
       latex.SetTextSize(0.035);
       latex.SetTextColor(kRed);
-      latex.DrawLatex(0.21,0.74,"#bf{STOP THE RUN NOW!!}");
+      latex.DrawLatex(0.21,0.74,"#bf{If this happened within 1 min of the run --> Stop the run}");
       latex.DrawLatex(0.21,0.6,"#bf{Calo FEM Mismatch! Put a special note in the e-log}");
   }
   else{
