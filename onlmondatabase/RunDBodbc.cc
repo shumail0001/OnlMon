@@ -188,3 +188,67 @@ int RunDBodbc::GetRunNumbers(std::set<int> &result, const std::string &type, con
   delete con;
   return 0;
 }
+
+int RunDBodbc::GetScaledowns(std::vector<int> &result, const int runno) const
+{
+  odbc::Connection *con = nullptr;
+  odbc::Statement *query = nullptr;
+  odbc::ResultSet *rs = nullptr;
+  std::ostringstream cmd;
+
+  result.clear();   // clear result, in case it is not empty
+
+  try
+  {
+    con = odbc::DriverManager::getConnection(dbname.c_str(), dbowner.c_str(), dbpasswd.c_str());
+  }
+  catch (odbc::SQLException &e)
+  {
+    std::cout << __PRETTY_FUNCTION__
+              << " Exception caught during DriverManager::getConnection" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
+    return -1;
+  }
+
+  query = con->createStatement();
+  cmd << "SELECT * FROM gl1_scaledown WHERE runnumber = " << runno;
+  if (verbosity > 0)
+  {
+    std::cout << "command: " << cmd.str() << std::endl;
+  }
+  try
+  {
+    rs = query->executeQuery(cmd.str());
+  }
+  catch (odbc::SQLException &e)
+  {
+    std::cout << "Exception caught" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
+    delete con;
+  }
+
+  while (rs->next())
+  {
+    int runnumber = rs->getInt("runnumber");
+    if ( runnumber != runno )
+    {
+      std::cout << "ODBC ERROR, runnumber is not equal to runno, " << runnumber << "\t" << runno << std::endl;
+      continue;
+    }
+    char column_name[BUFSIZ];
+    for (int itrig=0; itrig<64; itrig++)
+    {
+      sprintf(column_name,"scaledown%02d",itrig);
+      int scaledown = rs->getInt(column_name);
+      result.push_back( scaledown );
+
+      //    if (verbosity > 0)
+      {
+          std::cout << column_name << "\t" << result[itrig] << std::endl;
+      }
+    }
+  }
+  delete rs;
+  delete con;
+  return 0;
+}
