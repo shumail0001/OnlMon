@@ -17,12 +17,11 @@ class Packet;
 class runningMean;
 class eventReceiverClient;
 class CDBTTree;
-class GL1Manager;
 
 class CemcMon : public OnlMon
 {
  public:
-  explicit CemcMon(const std::string& name, const std::string& gl1_host = "gl1daq");
+  explicit CemcMon(const std::string& name);
   virtual ~CemcMon();
 
   int process_event(Event* evt);
@@ -39,8 +38,6 @@ class CemcMon : public OnlMon
   std::vector<float> getSignal(Packet* p, const int channel);
   std::vector<float> anaWaveformFast(Packet* p, const int channel);
   std::vector<float> anaWaveformTemp(Packet* p, const int channel);
-
-  std::string GL1host;
 
   int idummy = 0;
   TH1* h1_cemc_adc = nullptr;
@@ -85,8 +82,7 @@ class CemcMon : public OnlMon
 
   std::string runtypestr = "Unknown";
 
-  //eventReceiverClient* erc = {nullptr};
-  GL1Manager *gl1mgr =  {nullptr};
+  eventReceiverClient* erc = {nullptr};
   bool anaGL1 = true;
   bool usembdtrig = true;
 
@@ -95,10 +91,10 @@ class CemcMon : public OnlMon
 
   bool isHottower(int pid, int channelid)
   {
-    if (pid == 6014 && channelid == 158) return true;
-    if (pid == 6030 && channelid == 158) return true;
-    if (pid == 6076 && channelid == 92) return true;
-    if (pid == 6127 && channelid == 28) return true;
+    if (pid == 6014 && channelid == 159) return true;
+    if (pid == 6030 && channelid == 159) return true;
+    if (pid == 6076 && channelid == 93) return true;
+    if (pid == 6127 && channelid == 29) return true;
     return false;
   }
 };
