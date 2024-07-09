@@ -1,4 +1,4 @@
-MBDNS           0x7c00
+MBDNS           0x0c00
 MBDTRIG         0x7c00
 MBDNSVTX10      0x1000
 MBDNSVTX30      0x2000

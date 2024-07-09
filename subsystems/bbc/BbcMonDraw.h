@@ -137,6 +137,9 @@ class BbcMonDraw : public OnlMonDraw
   TH1 *Zvtx_10{nullptr};
   TH1 *Zvtx_30{nullptr};
   TH1 *Zvtx_60{nullptr};
+  TH1 *Zvtx_10_chk{nullptr};
+  TH1 *Zvtx_30_chk{nullptr};
+  TH1 *Zvtx_60_chk{nullptr};
   TH1 *Zvtx_zdcns{nullptr};
   TH1 *Zvtx_emcal{nullptr};
   TH1 *Zvtx_hcal{nullptr};

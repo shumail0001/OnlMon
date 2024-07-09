@@ -9,6 +9,7 @@
 #include <onlmon/OnlMon.h>
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
+#include <onlmon/RunDBodbc.h>
 
 #include <Event/msg_profile.h>
 
@@ -90,7 +91,7 @@ int BbcMon::Init()
     {
       if ( label == "MBDTRIG" )
       {
-          mbdtrig = trigbit;
+          mbdtrig = trigbit;            // any mbd trigge
       }
       else if ( label == "MBDNS" )
       {
@@ -155,11 +156,13 @@ int BbcMon::Init()
   if ( useGL1==1 )
   {
     erc = new eventReceiverClient("gl1daq");
+    rdb = new RunDBodbc;
   }
   else if ( useGL1==2 )
   {
     std::cout << "Connecting to eventserver on localhost" << std::endl;
     erc = new eventReceiverClient("localhost");
+    rdb = new RunDBodbc;
   }
 
   // Book Histograms
@@ -290,6 +293,39 @@ int BbcMon::Init()
   bbc_zvertex_60->GetXaxis()->SetLabelSize(0.05);
   bbc_zvertex_60->GetXaxis()->SetTickSize(0.1);
 
+  bbc_zvertex_10_chk = new TH1F("bbc_zvertex_10_chk", "MBD ZVertex (|z|<10)",
+                             BbcMonDefs::zvtnbin, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
+  bbc_zvertex_10_chk->GetXaxis()->SetTitle("ZVertex [cm]");
+  bbc_zvertex_10_chk->GetYaxis()->SetTitle("Number of Event");
+  bbc_zvertex_10_chk->GetXaxis()->SetTitleSize(0.05);
+  bbc_zvertex_10_chk->GetYaxis()->SetTitleSize(0.05);
+  bbc_zvertex_10_chk->GetXaxis()->SetTitleOffset(0.70);
+  bbc_zvertex_10_chk->GetYaxis()->SetTitleOffset(1.75);
+  bbc_zvertex_10_chk->GetXaxis()->SetLabelSize(0.05);
+  bbc_zvertex_10_chk->GetXaxis()->SetTickSize(0.1);
+
+  bbc_zvertex_30_chk = new TH1F("bbc_zvertex_30_chk", "MBD ZVertex (|z|<30)",
+                            BbcMonDefs::zvtnbin, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
+  bbc_zvertex_30_chk->GetXaxis()->SetTitle("ZVertex [cm]");
+  bbc_zvertex_30_chk->GetYaxis()->SetTitle("Number of Event");
+  bbc_zvertex_30_chk->GetXaxis()->SetTitleSize(0.05);
+  bbc_zvertex_30_chk->GetYaxis()->SetTitleSize(0.05);
+  bbc_zvertex_30_chk->GetXaxis()->SetTitleOffset(0.70);
+  bbc_zvertex_30_chk->GetYaxis()->SetTitleOffset(1.75);
+  bbc_zvertex_30_chk->GetXaxis()->SetLabelSize(0.05);
+  bbc_zvertex_30_chk->GetXaxis()->SetTickSize(0.1);
+
+  bbc_zvertex_60_chk = new TH1F("bbc_zvertex_60_chk", "MBD ZVertex (|z|<60)",
+                            BbcMonDefs::zvtnbin, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
+  bbc_zvertex_60_chk->GetXaxis()->SetTitle("ZVertex [cm]");
+  bbc_zvertex_60_chk->GetYaxis()->SetTitle("Number of Event");
+  bbc_zvertex_60_chk->GetXaxis()->SetTitleSize(0.05);
+  bbc_zvertex_60_chk->GetYaxis()->SetTitleSize(0.05);
+  bbc_zvertex_60_chk->GetXaxis()->SetTitleOffset(0.70);
+  bbc_zvertex_60_chk->GetYaxis()->SetTitleOffset(1.75);
+  bbc_zvertex_60_chk->GetXaxis()->SetLabelSize(0.05);
+  bbc_zvertex_60_chk->GetXaxis()->SetTickSize(0.1);
+
   bbc_zvertex_zdcns = new TH1F("bbc_zvertex_zdcns", "MBD zvertex, ZDCNS trig", BbcMonDefs::zvtnbin, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
   bbc_zvertex_zdcns->GetXaxis()->SetTitle("zvertex [cm]");
   bbc_zvertex_zdcns->GetYaxis()->SetTitle("Number of Event");
@@ -402,7 +438,8 @@ int BbcMon::Init()
   bbc_south_chargesum->GetYaxis()->SetTitleOffset(1.75);
 
   // scale down factor for each trigger
-  bbc_prescale_hist = new TH1F("bbc_prescale_hist", "", 100, 0, 100);
+  bbc_prescale_hist = new TH1F("bbc_prescale_hist", "prescales", 64, 0, 64);
+  bbc_prescale_hist->SetXTitle("trigger");
 
   // waveforms
   bbc_time_wave = new TH2F("bbc_time_wave", "MBD time waveforms by ch", BbcMonDefs::BBC_MAXSAMPLES, -0.5, BbcMonDefs::BBC_MAXSAMPLES - 0.5, 128, 0, 128);
@@ -508,6 +545,9 @@ int BbcMon::Init()
   se->registerHisto(this, bbc_zvertex_10);
   se->registerHisto(this, bbc_zvertex_30);
   se->registerHisto(this, bbc_zvertex_60);
+  se->registerHisto(this, bbc_zvertex_10_chk);
+  se->registerHisto(this, bbc_zvertex_30_chk);
+  se->registerHisto(this, bbc_zvertex_60_chk);
   se->registerHisto(this, bbc_zvertex_zdcns);
   se->registerHisto(this, bbc_zvertex_emcal);
   se->registerHisto(this, bbc_zvertex_hcal);
@@ -572,6 +612,18 @@ int BbcMon::BeginRun(const int runno)
     if ( useGL1==1 )
     {
       UpdateSendFlag( 0 );
+    }
+  }
+
+  if ( rdb != nullptr )
+  {
+    std::vector<int> scaledowns;
+    rdb->GetScaledowns( scaledowns, runno );
+    bbc_prescale_hist->Reset();
+    for ( int itrig = 0; itrig < 64; itrig++)
+    {
+      bbc_prescale_hist->SetBinContent( itrig+1, scaledowns[itrig] );
+      std::cout << "scaledowns " << itrig << "\t" << scaledowns[itrig] << std::endl;
     }
   }
 
@@ -800,49 +852,63 @@ int BbcMon::process_event(Event *evt)
   // vertex and t0
   if ( triggervec&mbdns )
   {
+    bbc_zvertex->Fill(zvtx);
     bbc_zvertex_ns->Fill(zvtx);
     bbc_south_nhit->Fill( south_nhits );
     bbc_north_nhit->Fill( north_nhits );
+
+    if ( triginput&mbdnsvtx10 )
+    {
+        bbc_zvertex_10_chk->Fill(zvtx);
+    }
+    if ( triginput&mbdnsvtx30 )
+    {
+        bbc_zvertex_30_chk->Fill(zvtx);
+    }
+    if ( triginput&mbdnsvtx60 )
+    {
+        bbc_zvertex_60_chk->Fill(zvtx);
+    }
   }
-  if ( triginput&mbdnsvtx10 )
+  if ( triggervec&mbdnsvtx10 )
   {
-    bbc_zvertex_10->Fill(zvtx);
+      bbc_zvertex_10->Fill(zvtx);
   }
-  if ( triginput&mbdnsvtx30 )
+  if ( triggervec&mbdnsvtx30 )
   {
-    bbc_zvertex_30->Fill(zvtx);
+      bbc_zvertex_30->Fill(zvtx);
   }
-  if ( triginput&mbdnsvtx60 )
+  if ( triggervec&mbdnsvtx60 )
   {
-    bbc_zvertex_60->Fill(zvtx);
+      bbc_zvertex_60->Fill(zvtx);
   }
   if ( triggervec&zdcns )
   {
-    bbc_zvertex_zdcns->Fill(zvtx);
+      bbc_zvertex_zdcns->Fill(zvtx);
   }
   if ( triggervec&emcal )
   {
-    bbc_zvertex_emcal->Fill(zvtx);
-    bbc_nhit_emcal[0]->Fill( south_nhits );
-    bbc_nhit_emcal[1]->Fill( north_nhits );
+      bbc_zvertex_emcal->Fill(zvtx);
+      bbc_nhit_emcal[0]->Fill( south_nhits );
+      bbc_nhit_emcal[1]->Fill( north_nhits );
   }
   if ( triggervec&hcal )
   {
-    bbc_zvertex_hcal->Fill(zvtx);
-    bbc_nhit_hcal[0]->Fill( south_nhits );
-    bbc_nhit_hcal[1]->Fill( north_nhits );
+      bbc_zvertex_hcal->Fill(zvtx);
+      bbc_nhit_hcal[0]->Fill( south_nhits );
+      bbc_nhit_hcal[1]->Fill( north_nhits );
   }
   if ( triggervec&emcalmbd )
   {
-    bbc_zvertex_emcalmbd->Fill(zvtx);
-    bbc_nhit_emcalmbd[0]->Fill( south_nhits );
-    bbc_nhit_emcalmbd[1]->Fill( north_nhits );
+      bbc_zvertex_emcalmbd->Fill(zvtx);
+      bbc_nhit_emcalmbd[0]->Fill( south_nhits );
+      bbc_nhit_emcalmbd[1]->Fill( north_nhits );
   }
   if ( triggervec&hcalmbd )
   {
-    bbc_zvertex_hcalmbd->Fill(zvtx);
-    bbc_nhit_hcalmbd[0]->Fill( south_nhits );
-    bbc_nhit_hcalmbd[1]->Fill( north_nhits );
+      bbc_zvertex_hcalmbd->Fill(zvtx);
+      bbc_nhit_hcalmbd[0]->Fill( south_nhits );
+      bbc_nhit_hcalmbd[1]->Fill( north_nhits );
   }
 
   // only process for primary mbd trigger
@@ -851,7 +917,6 @@ int BbcMon::process_event(Event *evt)
     return 0;
   }
 
-  bbc_zvertex->Fill(zvtx);
   bbc_tzero_zvtx->Fill(zvtx, t0);
   bbc_zvertex_short->Fill(zvtx);
 
@@ -997,6 +1062,9 @@ int BbcMon::Reset()
   bbc_zvertex_10->Reset();
   bbc_zvertex_30->Reset();
   bbc_zvertex_60->Reset();
+  bbc_zvertex_10_chk->Reset();
+  bbc_zvertex_30_chk->Reset();
+  bbc_zvertex_60_chk->Reset();
   bbc_zvertex_zdcns->Reset();
   bbc_zvertex_emcal->Reset();
   bbc_zvertex_hcal->Reset();

@@ -203,6 +203,9 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete(Zvtx_10);
   ifdelete(Zvtx_30);
   ifdelete(Zvtx_60);
+  ifdelete(Zvtx_10_chk);
+  ifdelete(Zvtx_30_chk);
+  ifdelete(Zvtx_60_chk);
   ifdelete(Zvtx_zdcns);
   ifdelete(Zvtx_emcal);
   ifdelete(Zvtx_hcal);
@@ -1027,21 +1030,21 @@ int BbcMonDraw::Draw(const std::string &what)
   TH1 *bbc_trigs = static_cast<TH1 *>(cl->getHisto("BBCMON_0", "bbc_trigs"));
   ifdelete(Trigs);
   if ( bbc_trigs!=0 )
-    {
-      Trigs = static_cast<TH1 *>(bbc_trigs->Clone());
-    }
+  {
+    Trigs = static_cast<TH1 *>(bbc_trigs->Clone());
+  }
 
   std::ostringstream name;
 
   TH1 *bbc_south_nhit = cl->getHisto("BBCMON_0", "bbc_south_nhit");
   if (! bbc_south_nhit)
-    {
-      if (canvasindex >= 0)
+  {
+    if (canvasindex >= 0)
 	{
 	  DrawDeadServer(transparent[canvasindex]);
 	}
-      return -1;
-    }
+    return -1;
+  }
   ifdelete(South_Nhit);
   South_Nhit = static_cast<TH1 *>(bbc_south_nhit->Clone());
 
@@ -1144,6 +1147,18 @@ int BbcMonDraw::Draw(const std::string &what)
   TH1 *bbc_zvertex_60 = cl->getHisto("BBCMON_0", "bbc_zvertex_60");
   ifdelete(Zvtx_60);
   Zvtx_60 = static_cast<TH1 *>(bbc_zvertex_60->Clone());
+
+  TH1 *bbc_zvertex_10_chk = cl->getHisto("BBCMON_0", "bbc_zvertex_10_chk");
+  ifdelete(Zvtx_10_chk);
+  Zvtx_10_chk = static_cast<TH1 *>(bbc_zvertex_10_chk->Clone());
+
+  TH1 *bbc_zvertex_30_chk = cl->getHisto("BBCMON_0", "bbc_zvertex_30_chk");
+  ifdelete(Zvtx_30_chk);
+  Zvtx_30_chk = static_cast<TH1 *>(bbc_zvertex_30_chk->Clone());
+
+  TH1 *bbc_zvertex_60_chk = cl->getHisto("BBCMON_0", "bbc_zvertex_60_chk");
+  ifdelete(Zvtx_60_chk);
+  Zvtx_60_chk = static_cast<TH1 *>(bbc_zvertex_60_chk->Clone());
 
   TH1 *bbc_zvertex_zdcns = cl->getHisto("BBCMON_0", "bbc_zvertex_zdcns");
   ifdelete(Zvtx_zdcns);
@@ -1362,9 +1377,29 @@ int BbcMonDraw::Draw(const std::string &what)
     Zvtx->SetLineColor(4);
     Zvtx->SetFillColor(7);
 
+    Zvtx_ns->SetTitle("MBD zvertex");
     Zvtx_ns->SetLineColor(4);
     Zvtx_ns->SetFillColor(7);
     Zvtx_ns->SetMinimum(0); // start plots at zero
+
+    double nevt = Trigs->GetBinContent(11); // trig 10 is MBDNS>=1, +1 for bin
+    double prescale = Prescale_hist->GetBinContent(11);
+    std::cout << "TRIG 10 " << nevt << "\t" << prescale << std::endl;
+    if ( prescale!= -1.0 )
+    {
+      Zvtx_ns->Scale( prescale+1 );
+    }
+
+    Zvtx_10->SetLineColor(2);
+    Zvtx_10->SetFillColor(2);
+    nevt = Trigs->GetBinContent(13); // trig 10 is MBDNS, |vtx|<10
+    prescale = Prescale_hist->GetBinContent(13);
+    std::cout << "TRIG 12 " << nevt << "\t" << prescale << std::endl;
+    if ( prescale!= -1.0 )
+    {
+      Zvtx_10->Scale( prescale+1 );
+    }
+
     // Get Maximum at the inside of BBC which is 130cm from center;
     float maxEntries = 10;
 
@@ -1514,7 +1549,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
     // Draw Status
     otext.str("");
-    otext << "Z_{All Trigs}^{Fit}= " << ((float) int(FitZvtx->GetParameter(1) * 10)) / 10.0 
+    otext << "Z_{MBDNS}^{Fit}= " << ((float) int(FitZvtx->GetParameter(1) * 10)) / 10.0 
     	  << " #pm " << ((float)int(FitZvtx->GetParError(1)*10))/10.0
           << " cm";
 
@@ -1541,6 +1576,7 @@ int BbcMonDraw::Draw(const std::string &what)
     {
       Zvtx_ns->GetXaxis()->SetRangeUser(-60, 60);
       Zvtx_ns->Draw("hist");
+      Zvtx_10->Draw("histsame");
     }
 
     // Status of sending vertex
@@ -1963,11 +1999,16 @@ int BbcMonDraw::Draw(const std::string &what)
       {
         Zvtx_ns->SetMinimum(0); // start plots at zero
 
+        double prescale = Prescale_hist->GetBinContent(11);
+        Zvtx_10_chk->Scale( prescale+1.0 );
+        Zvtx_30_chk->Scale( prescale+1.0 );
+        Zvtx_60_chk->Scale( prescale+1.0 );
+
         std::vector<double> max;
         max.push_back( Zvtx_ns->GetBinContent( Zvtx_ns->GetMaximumBin() ) );
-        max.push_back( Zvtx_60->GetBinContent( Zvtx_60->GetMaximumBin() ) );
-        max.push_back( Zvtx_30->GetBinContent( Zvtx_30->GetMaximumBin() ) );
-        max.push_back( Zvtx_10->GetBinContent( Zvtx_10->GetMaximumBin() ) );
+        max.push_back( Zvtx_60_chk->GetBinContent( Zvtx_60_chk->GetMaximumBin() ) );
+        max.push_back( Zvtx_30_chk->GetBinContent( Zvtx_30_chk->GetMaximumBin() ) );
+        max.push_back( Zvtx_10_chk->GetBinContent( Zvtx_10_chk->GetMaximumBin() ) );
         max.push_back( Zvtx_zdcns->GetBinContent( Zvtx_zdcns->GetMaximumBin() ) );
         double maximum = *std::max_element(max.begin(), max.end());
 
@@ -1975,19 +2016,19 @@ int BbcMonDraw::Draw(const std::string &what)
         Zvtx_ns->SetMaximum(maximum*1.1);
         Zvtx_ns->Draw("hist");
 
-        Zvtx_60->SetLineColor(40);
-        Zvtx_60->SetFillColor(6);
+        Zvtx_60_chk->SetLineColor(40);
+        Zvtx_60_chk->SetFillColor(6);
 
-        Zvtx_30->SetLineColor(30);
-        Zvtx_30->SetFillColor(3);
+        Zvtx_30_chk->SetLineColor(30);
+        Zvtx_30_chk->SetFillColor(3);
 
-        Zvtx_10->SetLineColor(46);
-        Zvtx_10->SetFillColor(2);
+        Zvtx_10_chk->SetLineColor(46);
+        Zvtx_10_chk->SetFillColor(2);
 
-        Zvtx_zdcns->Draw("same");
-        Zvtx_60->Draw("same");
-        Zvtx_30->Draw("same");
-        Zvtx_10->Draw("same");
+        Zvtx_zdcns->Draw("histsame");
+        Zvtx_60_chk->Draw("histsame");
+        Zvtx_30_chk->Draw("histsame");
+        Zvtx_10_chk->Draw("histsame");
         //std::cout << "aaa " << Zvtx_ns->GetEntries() << " " << Zvtx_10->GetEntries() << " " << Zvtx_30->GetEntries() << " " << Zvtx_60->GetEntries() << " " << Zvtx_zdcns->GetEntries() << " " << std::endl;
       }
 

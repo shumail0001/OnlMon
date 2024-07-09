@@ -7,10 +7,14 @@
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlbbcmon_client.so)
 
+// 0 is default (looks for things online)
+// 1 is online (shift crew)
+// 2 localhost
 void bbcDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
+  cl->Verbosity(100);
   cl->registerHisto("bbc_south_nhit", "BBCMON_0");
   cl->registerHisto("bbc_north_nhit", "BBCMON_0");
   cl->registerHisto("bbc_nhit_emcal0", "BBCMON_0");
@@ -30,6 +34,9 @@ void bbcDrawInit(const int online = 0)
   cl->registerHisto("bbc_zvertex_10", "BBCMON_0");
   cl->registerHisto("bbc_zvertex_30", "BBCMON_0");
   cl->registerHisto("bbc_zvertex_60", "BBCMON_0");
+  cl->registerHisto("bbc_zvertex_10_chk", "BBCMON_0");
+  cl->registerHisto("bbc_zvertex_30_chk", "BBCMON_0");
+  cl->registerHisto("bbc_zvertex_60_chk", "BBCMON_0");
   cl->registerHisto("bbc_zvertex_zdcns", "BBCMON_0");
   cl->registerHisto("bbc_zvertex_emcal", "BBCMON_0");
   cl->registerHisto("bbc_zvertex_hcal", "BBCMON_0");
@@ -38,6 +45,7 @@ void bbcDrawInit(const int online = 0)
   cl->registerHisto("bbc_nevent_counter", "BBCMON_0");
   cl->registerHisto("bbc_tzero_zvtx", "BBCMON_0");
   cl->registerHisto("bbc_prescale_hist", "BBCMON_0");
+  cl->registerHisto("bbc_trigs", "BBCMON_0");
   cl->registerHisto("bbc_avr_hittime", "BBCMON_0");
   cl->registerHisto("bbc_north_hittime", "BBCMON_0");
   cl->registerHisto("bbc_south_hittime", "BBCMON_0");
