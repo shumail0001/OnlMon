@@ -16,9 +16,6 @@
 #include <Event/eventReceiverClient.h>
 #include <Event/msg_profile.h>
 
-#include <onlmon/GL1Manager.h>
-
-
 #include <TH1.h>
 #include <TH2.h>
 #include <TRandom.h>
@@ -36,17 +33,14 @@ enum
   FILLMESSAGE = 2
 };
 
-DaqMon::DaqMon(const std::string &name, const std::string& gl1_host)
+DaqMon::DaqMon(const std::string &name)
   : OnlMon(name)
 {
-  GL1host = gl1_host;
-
   return;
 }
 
 DaqMon::~DaqMon()
 {
-  delete gl1mgr;
   return;
 }
 
@@ -90,8 +84,7 @@ int DaqMon::Init()
   se->registerHisto(this, h_gl1_clock_diff);  
   se->registerHisto(this, h_fem_match); 
   Reset();
-  //erc = new eventReceiverClient("gl1daq");
-  gl1mgr= new GL1Manager(GL1host.c_str());
+  erc = new eventReceiverClient("gl1daq");
 
 
   std::string mappingfile = std::string(daqcalib) + "/" + "packetid_seb_mapping.txt";
@@ -102,11 +95,6 @@ int DaqMon::Init()
 
 int DaqMon::BeginRun(const int /* runno */)
 {
-
-  gl1mgr->Reset();
-  // we need to reset the previousdiff values. 200 is hard-coded in the header
-  for (int i = 0; i < 200; i++) previousdiff[i] = 0;
-
   return 0;
 }
 
@@ -125,68 +113,53 @@ int DaqMon::process_event(Event *e /* evt */)
 
   evtcnt++;
   long long int gl1_clock = 0;
+  Event *gl1Event = erc->getEvent(evtnr);
 
+  if (!gl1Event)
+  {
+    return 0;
+  }
+  Packet *pgl1 = gl1Event->getPacket(14001);
+  if (pgl1)
+  {
+    gl1_clock = pgl1->lValue(0, "BCO");
+    delete pgl1;
+  }
+  delete gl1Event;
 
   Packet *plist[100];
   int npackets = e->getPacketList(plist,100);
-
-  int gl1status = -3; // outside of the range for getClockSync
-
-  if ( plist[0])
-    {
-      gl1status = gl1mgr->getClockSync(e->getEvtSequence(), plist[0] );
-
-      Packet *pgl1 = gl1mgr->getGL1Packet();
-      if (pgl1)
-	{
-	  gl1_clock = pgl1->lValue(0, "BCO");
-	  delete pgl1;
-	}
-    }
-
   bool mismatchfem = true;
   int femevtref = 0;
   int femclkref = 0;
   int sebid = 0;
+  for (int ipacket = 0; ipacket < npackets; ipacket++) {
+      Packet * p = plist[ipacket];
+      if (p) {
+          int pnum = p->getIdentifier();
+          int calomapid = CaloPacketMap(pnum);
+          long int packet_clock = p->lValue(0,"CLOCK");
+          clockdiff[ipacket] = gl1_clock  - packet_clock;
+          int fdiff = (clockdiff[ipacket] != previousdiff[ipacket]) ? 0 : 1;
+          previousdiff[ipacket] = clockdiff[ipacket];
 
-  if ( gl1status == 0) // ignore all events with gl1 issues
-    {
-      { 
-	for (int ipacket = 0; ipacket < npackets; ipacket++) {
-	  Packet * p = plist[ipacket];
-	  if (p) {
-	    int pnum = p->getIdentifier();
-	    int calomapid = CaloPacketMap(pnum);
-	    long int packet_clock = p->lValue(0,"CLOCK");
-	    clockdiff[ipacket] = gl1_clock  - packet_clock;
-	    int fdiff = (clockdiff[ipacket] != previousdiff[ipacket]) ? 0 : 1;
-
-	    // this check will tell us if we have the first event where the previous diff is still 0
-	    if( previousdiff[ipacket] ) h_gl1_clock_diff->Fill(calomapid,fdiff);
-
-	    previousdiff[ipacket] = clockdiff[ipacket];
-	    
-	    int nADCs = p->iValue(0,"NRMODULES");
-	    for(int iadc = 0; iadc<nADCs ; iadc++){
+          int nADCs = p->iValue(0,"NRMODULES");
+          for(int iadc = 0; iadc<nADCs ; iadc++){
               if(ipacket==0 && iadc==0){ femevtref = p->iValue(iadc,"FEMEVTNR"); femclkref = p->iValue(iadc,"FEMCLOCK");}
-	      
+
               if(femevtref !=  p->iValue(iadc,"FEMEVTNR") && fabs(femclkref - p->iValue(0,"FEMCLOCK"))>2)
-		{
+              {
                   mismatchfem = false;
                   sebid = getmapping(pnum);
-		}
-	    }
-          
+              }
           }
-	}
+          
+          if(evtcnt>3) h_gl1_clock_diff->Fill(calomapid,fdiff);
+          
       }
-      if(mismatchfem == false) h_fem_match->Fill(sebid,1);
-    }
-
-  for (int ipacket = 0; ipacket < npackets; ipacket++) 
-    {
-      delete plist[ipacket];
-    }
+      delete p;
+  }
+  if(mismatchfem == false) h_fem_match->Fill(sebid,1);
 
   return 0;
 }

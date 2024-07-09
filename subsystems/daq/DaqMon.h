@@ -14,13 +14,13 @@ class Event;
 class TH1;
 class TH2;
 class runningMean;
-class GL1Manager;
+class eventReceiverClient;
 class Packet;
 
 class DaqMon : public OnlMon
 {
  public:
-  DaqMon(const std::string &name, const std::string& gl1_host = "gl1daq");
+  DaqMon(const std::string &name);
   virtual ~DaqMon();
 
   int process_event(Event *evt);
@@ -72,10 +72,7 @@ class DaqMon : public OnlMon
   //TH1D* h_unlock_hist = nullptr;
   //TH2* h_unlock_clock = nullptr;
 
-  //  eventReceiverClient *erc = {nullptr};
-  GL1Manager *gl1mgr =  {nullptr};
-  std::string GL1host;
-
+  eventReceiverClient *erc = {nullptr};
 };
 
 void DaqMon::loadpacketMapping(const std::string& filename) {
