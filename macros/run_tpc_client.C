@@ -60,6 +60,7 @@ void tpcDrawInit(const int online = 0)
 
     cl->registerHisto("sample_size_hist",servername);
     cl->registerHisto("Check_Sum_Error",servername);
+    cl->registerHisto("Parity_Error",servername);
     cl->registerHisto("Check_Sums",servername);
     cl->registerHisto("Stuck_Channels",servername);
     cl->registerHisto("Channels_in_Packet",servername);

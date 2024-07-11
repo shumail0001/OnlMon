@@ -359,7 +359,7 @@ int TpcMon::Init()
   sprintf(checksum_title_str,"Check Sum Error Probability vs Fee*8 + SAMPA in Events: SECTOR %i",MonitorServerId());
   Check_Sum_Error = new TH1F("Check_Sum_Error" , checksum_title_str,208,-0.5, 207.5);
   Check_Sum_Error->SetXTitle("FEE_NUM*8 + SAMPA_ADDR");
-  Check_Sum_Error->SetYTitle("Prob. Check. Sum. Err.");
+  Check_Sum_Error->SetYTitle("Prob. Check Sum. Err.");
   Check_Sum_Error->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
 
   Check_Sum_Error -> GetXaxis() -> SetLabelSize(0.05);
@@ -367,6 +367,20 @@ int TpcMon::Init()
   Check_Sum_Error -> GetYaxis() -> SetLabelSize(0.05);
   Check_Sum_Error -> GetYaxis() -> SetTitleSize(0.05);
   Check_Sum_Error -> GetYaxis() -> SetTitleOffset(1.0);
+
+  // Parity error vs FEE*8 + SAMPA Number
+  char parity_title_str[100];
+  sprintf(parity_title_str,"Parity Error Probability vs Fee*8 + SAMPA in Events: SECTOR %i",MonitorServerId());
+  Parity_Error = new TH1F("Parity_Error" , checksum_title_str,208,-0.5, 207.5);
+  Parity_Error->SetXTitle("FEE_NUM*8 + SAMPA_ADDR");
+  Parity_Error->SetYTitle("Prob. Parity Err.");
+  Parity_Error->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
+
+  Parity_Error -> GetXaxis() -> SetLabelSize(0.05);
+  Parity_Error -> GetXaxis() -> SetTitleSize(0.05);
+  Parity_Error -> GetYaxis() -> SetLabelSize(0.05);
+  Parity_Error -> GetYaxis() -> SetTitleSize(0.05);
+  Parity_Error -> GetYaxis() -> SetTitleOffset(1.0);
  
   // number of nonZS channels - <number of channels in sampa with values != 65 K ADC> vs sampa number + (feeID * sampa number)
   char num_nonZS_channels_title_str[100];
@@ -698,6 +712,7 @@ int TpcMon::Init()
   se->registerHisto(this, SouthSideADC);
   se->registerHisto(this, sample_size_hist);
   se->registerHisto(this, Check_Sum_Error);
+  se->registerHisto(this, Parity_Error);
   se->registerHisto(this, Check_Sums);
   se->registerHisto(this, Stuck_Channels);
   se->registerHisto(this, Channels_in_Packet);
@@ -887,12 +902,14 @@ int TpcMon::process_event(Event *evt/* evt */)
         int fee = p->iValue(wf, "FEE");
         int sampaAddress = p->iValue(wf, "SAMPAADDRESS");
         int checksumError = p->iValue(wf, "CHECKSUMERROR");
+        int parityError = p->iValue(wf, "DATAPARITYERROR");
         int channel = p->iValue(wf, "CHANNEL");
 
         Check_Sums->Fill(FEE_transform[fee]*8 + sampaAddress); 
         if( checksumError == 1){Check_Sum_Error->Fill(FEE_transform[fee]*8 + sampaAddress);}
+        if( parityError == 1){Parity_Error->Fill(FEE_transform[fee]*8 + sampaAddress);}
 
-        if( checksumError == 0 && p->iValue(wf,"TYPE")!= 0){Channels_in_Packet->Fill(channel + (256*FEE_transform[fee]));} // do not fill for heartbeat WFs
+        if( (checksumError == 0 && parityError == 0) &&  p->iValue(wf,"TYPE")!= 0){Channels_in_Packet->Fill(channel + (256*FEE_transform[fee]));} // do not fill for heartbeat WFs
 
         int nr_Samples = p->iValue(wf, "SAMPLES");
         sample_size_hist->Fill(nr_Samples);
@@ -1048,7 +1065,7 @@ int TpcMon::process_event(Event *evt/* evt */)
              
             int max_of_previous_10 = *max_element(store_ten.begin(), store_ten.end());
 
-            if(adc == max_of_previous_10 && (checksumError == 0 && is_channel_stuck == 0)) //if the new value is greater than the previous 9
+            if((adc == max_of_previous_10 && checksumError == 0) && (parityError == 0 && is_channel_stuck == 0))//if the new value is greater than the previous 9
             {
                MAXADC->Fill(adc - pedestal,Module_ID(fee)); 
                if(Module_ID(fee)==0){MAXADC_1D_R1->Fill(adc - pedestal);} //Raw 1D for R1
@@ -1060,7 +1077,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           //if( R < 290 ){std::cout<<"R = "<<R<<" mm, layer:" <<layer<<std::endl; ADC_vs_SAMPLE -> Fill(s, adc);}
 
-          if( checksumError == 0 && is_channel_stuck == 0)
+          if( (checksumError == 0 && parityError == 0) && is_channel_stuck == 0)
           {
             ADC_vs_SAMPLE -> Fill(s, adc);
             PEDEST_SUB_ADC_vs_SAMPLE -> Fill(s, adc-pedestal);
