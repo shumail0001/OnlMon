@@ -28,8 +28,8 @@ int InttMon::Init()
   OnlMonServer *se = OnlMonServer::instance();
 
   // histograms
-  // GetBinContent(1): # of rcdaq events, GetBinContent(2): # of unique BCOs, GetBinContent(3): BCO order error
-  EvtHist = new TH1I("InttEvtHist", "InttEvtHist", 3, 0.0, 1.0);
+  // GetBinContent(1): # of rcdaq events, GetBinContent(2): # of unique BCOs, GetBinContent(3): BCO order error, GetBinContent(4): Time since last BCO
+  EvtHist = new TH1I("InttEvtHist", "InttEvtHist", 4, 0.0, 1.0);
   // 26*14
   HitHist = new TH1I("InttHitHist", "InttHitHist", (NFEES * NCHIPS), 0.0, 1.0);
   // 128*14
@@ -61,7 +61,7 @@ int InttMon::BeginRun(const int /* run_num */)
   m_log_bin = 0;
   m_logged_bcos = 0;
 
-  m_start = std::chrono::system_clock::now();
+  m_prev_time = std::chrono::system_clock::now();
 
   return 0;
 }
@@ -108,6 +108,7 @@ int InttMon::process_event(Event *evt)
   	  }
 
   	  m_unique_bcos.insert(bco_full);
+      m_last_decode_time = std::chrono::system_clock::now();
 	}
 
     delete pkt;
@@ -132,18 +133,22 @@ int InttMon::process_event(Event *evt)
 
   // I'm being pedantic with this block since I don't use chrono that much
   auto now = std::chrono::system_clock::now();
-  std::chrono::duration<double> duration = now - m_start;
+  std::chrono::duration<double> duration = now - m_last_decode_time; // Time since we actually decoded a BCO
   double seconds = duration.count();
+  EvtHist->SetBinContent(4, seconds);
+
+  duration = now - m_prev_time; // Time since we updated the decoding rate histogram--we update this every m_LOG_INTERVAL even if we don't decode BCOs
+  seconds = duration.count();
 
   // See if we should increment m_log_bin
   while(m_LOG_INTERVAL < seconds)
   {
-    m_start = now;
+    m_prev_time = now;
     int N = LogHist->GetNbinsX();
 
 	if(m_log_bin == N - 1)
 	{
-	  LogHist->SetBinContent(N + 1, 1); // flag that content was wrapped
+	  LogHist->AddBinContent(N + 1); // flag that content was wrapped
 	}
 
 	m_log_bin = (m_log_bin + 1) % N;
