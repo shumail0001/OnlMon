@@ -494,6 +494,15 @@ int LL1MonDraw::DrawFifth(const std::string & /* what */)
       TC[4]->SetEditable(false);
       return -1;
     }
+
+  TH1 *h_hit_format = (TH1*) cl->getHisto("LL1MON_0", "h_hit_format");
+  if (!h_hit_format)
+    {
+      DrawDeadServer(transparent[4]);
+      TC[4]->SetEditable(false);
+      return -1;
+    }
+
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon5"))
   {
@@ -510,6 +519,14 @@ int LL1MonDraw::DrawFifth(const std::string & /* what */)
   left_pad->cd();
   left_pad->SetLogz();
 
+
+  std::string hf_name = "HCAL";
+  int hitformat = static_cast<int>(h_hit_format->GetBinCenter(h_hit_format->GetMaximumBin()));
+  if (hitformat%2 == 0)
+    {
+      hf_name = "EMCAL";
+    }
+  std::string title = "Jet Input (" + hf_name + ") 2x2 Tower Sums; #eta ; #phi";
   h_jet_input->SetTitle("Jet Input (HCAL) 2x2 Tower Sums; #eta ; #phi");
   h_jet_input->Draw("colz");
   
