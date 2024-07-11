@@ -827,9 +827,9 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
       );
       m_left_hist_zoomedfphxbco[i][fee]->SetTitle(Form("intt%01d;FPHX BCO;Counts (Hits)", i));
       m_left_hist_zoomedfphxbco[i][fee]->SetTitleSize(0.04);
-      m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetNdivisions(20);
-      m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelSize(0);
-      m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelOffset(999);
+      m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetNdivisions(10);
+      // m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelSize(0);
+      // m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelOffset(999);
       m_left_hist_zoomedfphxbco[i][fee]->GetYaxis()->SetLabelSize(0.04);
       m_left_hist_zoomedfphxbco[i][fee]->SetLineColor(GetFeeColor(fee));
       m_left_hist_zoomedfphxbco[i][fee]->SetFillStyle(4000);  // Transparent
@@ -850,9 +850,9 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
       m_right_hist_zoomedfphxbco[i][fee]->SetTitle(Form("intt%01d;FPHX BCO;Counts (Hits)", i));
       m_right_hist_zoomedfphxbco[i][fee]->SetTitleSize(0.0);
       m_right_hist_zoomedfphxbco[i][fee]->SetTitleOffset(999);
-      m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetNdivisions(20);
-      m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelSize(0);
-      m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelOffset(999);
+      m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetNdivisions(10);
+      // m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelSize(0);
+      // m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelOffset(999);
       m_right_hist_zoomedfphxbco[i][fee]->GetYaxis()->SetLabelSize(0);
       m_right_hist_zoomedfphxbco[i][fee]->GetYaxis()->SetLabelOffset(999);
       m_right_hist_zoomedfphxbco[i][fee]->SetLineColor(GetFeeColor(fee));
