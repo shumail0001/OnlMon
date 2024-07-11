@@ -824,13 +824,13 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
       TC[icnvs]->cd();
       m_left_hist_zoomedfphxbco[i][fee] = new TH1D(
           name.c_str(), name.c_str(),  //
-		  num_fphx_bins, 0, num_fphx_bins
+          num_fphx_bins, 0, num_fphx_bins
       );
       m_left_hist_zoomedfphxbco[i][fee]->SetTitle(Form("intt%01d;FPHX BCO;Counts (Hits)", i));
       m_left_hist_zoomedfphxbco[i][fee]->SetTitleSize(0.04);
-      m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetNdivisions(20);
-      m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelSize(0);
-      m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelOffset(999);
+      m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetNdivisions(10);
+      // m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelSize(0);
+      // m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelOffset(999);
       m_left_hist_zoomedfphxbco[i][fee]->GetYaxis()->SetLabelSize(0.04);
       m_left_hist_zoomedfphxbco[i][fee]->SetLineColor(GetFeeColor(fee));
       m_left_hist_zoomedfphxbco[i][fee]->SetFillStyle(4000);  // Transparent
@@ -846,14 +846,14 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
       TC[icnvs]->cd();
       m_right_hist_zoomedfphxbco[i][fee] = new TH1D(
           name.c_str(), name.c_str(),  //
-		  num_fphx_bins, 128 - num_fphx_bins, 128
+          num_fphx_bins, 128 - num_fphx_bins, 128
       );
       m_right_hist_zoomedfphxbco[i][fee]->SetTitle(Form("intt%01d;FPHX BCO;Counts (Hits)", i));
       m_right_hist_zoomedfphxbco[i][fee]->SetTitleSize(0.0);
       m_right_hist_zoomedfphxbco[i][fee]->SetTitleOffset(999);
-      m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetNdivisions(20);
-      m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelSize(0);
-      m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelOffset(999);
+      m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetNdivisions(10);
+      // m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelSize(0);
+      // m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelOffset(999);
       m_right_hist_zoomedfphxbco[i][fee]->GetYaxis()->SetLabelSize(0);
       m_right_hist_zoomedfphxbco[i][fee]->GetYaxis()->SetLabelOffset(999);
       m_right_hist_zoomedfphxbco[i][fee]->SetLineColor(GetFeeColor(fee));
@@ -923,11 +923,13 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
     TLine line;
     line.SetLineWidth(2);
     line.SetLineColor(kBlack);
+    line.SetLineStyle(2);
   
     m_left_hist_pad[k_zoomedfphxbco][i]->cd();
     line.DrawLine(5, 0, 5, max);
   
     m_right_hist_pad[k_zoomedfphxbco][i]->cd();
+    line.DrawLine(116, 0, 116, max);
     line.DrawLine(120, 0, 120, max);
   }
 
@@ -1107,11 +1109,11 @@ int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
     for (int chp = 0; chp < NCHIPS; ++chp)
     {
       double bincont = hit_hist->GetBinContent(fee * NCHIPS + chp + 1);
-	  if(!bincont)
-	  {
+      if(!bincont)
+      {
         continue;
-		std::cout << "filled 0" << std::endl;
-	  }
+        std::cout << "filled 0" << std::endl;
+      }
       bincont /= evt_hist->GetBinContent(2); // Normalize by number of unique BCOs
 
       // Assign a value to this bin
@@ -1254,11 +1256,33 @@ int InttMonDraw::Draw_History()
 
   // hist
   double max = 0.0;
+  int num_dead = 0;
   m_single_transparent_pad[k_history]->Clear();
   for(int i = 0; i < 8; ++i)
   {
     // Access client
     OnlMonClient* cl = OnlMonClient::instance();
+
+    // check to see if the most recent intervals are identically dead
+    TH1* evt_hist = cl->getHisto(Form("INTTMON_%d", i), "InttEvtHist");
+    if(!evt_hist)
+    {
+      m_single_transparent_pad[k_history]->cd();
+      TText dead_text;
+      dead_text.SetTextColor(kBlue);
+      dead_text.SetTextAlign(22);
+      dead_text.SetTextSize(0.1);
+      dead_text.SetTextAngle(45);
+      // dead_text.DrawText(0.5, 0.5, "Dead Server");
+      ++num_dead;
+      continue;
+    }
+
+    // Server has been running for 3 minutes without recieving decodable BCOs
+    if(180 < evt_hist->GetBinContent(4))
+    {
+      ++num_dead;
+    }
 
     TH1* log_hist = cl->getHisto(Form("INTTMON_%d", i), "InttLogHist");
     if(!log_hist)
@@ -1270,12 +1294,13 @@ int InttMonDraw::Draw_History()
       dead_text.SetTextSize(0.1);
       dead_text.SetTextAngle(45);
       // dead_text.DrawText(0.5, 0.5, "Dead Server");
+      ++num_dead;
       continue;
     }
 
     // Validate member histos
-	int N = log_hist->GetNbinsX();
-	double w = log_hist->GetXaxis()->GetBinWidth(0);
+    int N = log_hist->GetNbinsX();
+    double w = log_hist->GetXaxis()->GetBinWidth(0);
     std::string name = Form("intt_history_hist_%d", i);
     if (!m_hist_history[i])
     {
@@ -1294,35 +1319,47 @@ int InttMonDraw::Draw_History()
 
     // Fill
     int buff_index = log_hist->GetBinContent(N);
-	if(log_hist->GetBinContent(N + 1))
-	{
-      // The contents have been wrapped around
-	  // start from right edge and go backward in time
+    if(log_hist->GetBinContent(N + 1))
+    {
+      // The contents should be displayed as being wrapped
+      // start from right edge and go backward in time
       for(int n = N; 0 < n; --n)
       {
-	    double rate = log_hist->GetBinContent(buff_index) / w;
+        double rate = log_hist->GetBinContent(buff_index) / w;
         m_hist_history[i]->SetBinContent(n, rate);
-	    if(max < rate)
-	    {
+        if(max < rate)
+        {
           max = rate;
-	    }
+        }
         buff_index = (buff_index + N - 1) % N;
       }
-	}
-	else
-	{
-      // The contents have not wrapped
-	  // start from left edge and go forward in time
+    }
+    else
+    {
+      // The contents should not be displayed as being wrapped
+      // start from left edge and go forward in time
       for(int n = 0; n < buff_index; ++n)
-	  {
+      {
         double rate = log_hist->GetBinContent(n + 1) / w;
         m_hist_history[i]->SetBinContent(n + 1, rate);
-	    if(max < rate)
-	    {
+        if(max < rate)
+        {
           max = rate;
-	    }
-	  }
-	}
+        }
+      }
+    }
+  }
+
+  if(2 < num_dead)
+  {
+    m_single_transparent_pad[k_history]->cd();
+    TText dead_text;
+    dead_text.SetTextColor(kRed);
+    dead_text.SetTextAlign(22);
+    dead_text.SetTextSize(0.1);
+    // dead_text.SetTextAngle(45);
+    dead_text.DrawText(0.5, 0.65, "Dead Felix Servers");
+    dead_text.DrawText(0.5, 0.35, "Restart Run");
   }
 
   for(int i = 0; i < 8; ++i)

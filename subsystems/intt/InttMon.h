@@ -52,7 +52,8 @@ class InttMon : public OnlMon
   int m_log_bin = 0;
   int m_logged_bcos = 0;
 
-  std::chrono::time_point<std::chrono::system_clock> m_start{};
+  std::chrono::time_point<std::chrono::system_clock> m_prev_time{};
+  std::chrono::time_point<std::chrono::system_clock> m_last_decode_time{};
 };
 
 #endif
