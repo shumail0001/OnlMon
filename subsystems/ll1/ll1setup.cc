@@ -131,7 +131,11 @@ void process_jet(Packet *p, LL1HEADER *&ll1h)
 {
   
   // go through all input fibers
-
+  static int jet_event_counter = 0;
+  if (jet_event_counter == 0)
+    {
+      ll1h->hit_format_jet = p->getHitFormat();
+    }
   for (int i = 0; i < 16; i++)
     {
       ll1h->jet_sample[i] = -1;
