@@ -922,11 +922,13 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
     TLine line;
     line.SetLineWidth(2);
     line.SetLineColor(kBlack);
+    line.SetLineStyle(2);
   
     m_left_hist_pad[k_zoomedfphxbco][i]->cd();
     line.DrawLine(5, 0, 5, max);
   
     m_right_hist_pad[k_zoomedfphxbco][i]->cd();
+    line.DrawLine(116, 0, 116, max);
     line.DrawLine(120, 0, 120, max);
   }
 
