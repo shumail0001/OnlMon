@@ -202,7 +202,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcMonServerStats")
   {
-    TC[5] = new TCanvas(name.c_str(), "CemcMon6 Server Stats", -1, ysize, xsize / 3, ysize);
+    TC[5] = new TCanvas(name.c_str(), "CemcMon6 Server Stats", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
     transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
@@ -2214,8 +2214,8 @@ int CemcMonDraw::DrawServerStats()
   PrintRun.DrawText(0.5, 0.99, "Server Statistics");
 
   PrintRun.SetTextSize(0.02);
-  double vdist = 0.05;
-  double vpos = 0.9;
+  double vdist = 0.04;
+  double vpos = 0.92;
   for (const auto &server : m_ServerSet)
   {
     std::ostringstream txt;
@@ -2228,10 +2228,15 @@ int CemcMonDraw::DrawServerStats()
     }
     else
     {
+      int gl1counts = std::get<4>(servermapiter->second);
       txt << "Server " << server
           << ", run number " << std::get<1>(servermapiter->second)
-          << ", event count: " << std::get<2>(servermapiter->second)
-          << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+          << ", event count: " << std::get<2>(servermapiter->second);
+      if (gl1counts >= 0)
+	{
+          txt << ", gl1 count: " << std::get<4>(servermapiter->second);
+	}
+        txt  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
         PrintRun.SetTextColor(kGray + 2);
