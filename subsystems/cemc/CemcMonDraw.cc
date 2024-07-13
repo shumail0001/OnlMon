@@ -202,7 +202,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcMonServerStats")
   {
-    TC[5] = new TCanvas(name.c_str(), "CemcMon6 Server Stats", -1, ysize, xsize / 3, ysize);
+    TC[5] = new TCanvas(name.c_str(), "CemcMon6 Server Stats", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
     transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
@@ -2214,8 +2214,8 @@ int CemcMonDraw::DrawServerStats()
   PrintRun.DrawText(0.5, 0.99, "Server Statistics");
 
   PrintRun.SetTextSize(0.02);
-  double vdist = 0.05;
-  double vpos = 0.9;
+  double vdist = 0.04;
+  double vpos = 0.92;
   for (const auto &server : m_ServerSet)
   {
     std::ostringstream txt;
