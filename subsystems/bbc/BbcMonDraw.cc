@@ -284,6 +284,41 @@ int BbcMonDraw::GetSendFlag()
   return sendflag;
 }
 
+int BbcMonDraw::UpdateGL1BadFlag(const int flag)
+{
+  gl1badflag = flag;
+  std::ofstream gl1badflagfile( gl1badflagfname );
+  if ( gl1badflagfile.is_open() )
+  {
+    gl1badflagfile << gl1badflag << std::endl;
+  }
+  else
+  {
+    std::cout << "unable to open file " << gl1badflagfname << std::endl;
+    return 0;
+  }
+  gl1badflagfile.close();
+  return 1;
+}
+
+int BbcMonDraw::GetGL1BadFlag()
+{
+  std::ifstream gl1badflagfile( gl1badflagfname );
+  if ( gl1badflagfile.is_open() )
+  {
+    gl1badflagfile >> gl1badflag;
+  }
+  else
+  {
+    std::cout << "unable to open file " << gl1badflagfname << std::endl;
+    gl1badflag = 0;
+  }
+  gl1badflagfile.close();
+
+  return gl1badflag;
+}
+
+
 int BbcMonDraw::Init()
 {
   PRINT_DEBUG("In BbcMonDraw::Init()");
@@ -972,46 +1007,64 @@ int BbcMonDraw::Draw(const std::string &what)
 
   //
   if ( what == "MBD2MCR" )
-    {
-      if (!gROOT->FindObject("BbcVertexSend"))
+  {
+    if (!gROOT->FindObject("BbcVertexSend"))
 	{
 	  MakeCanvas("BbcVertexSend");
 	}
-      TC[4]->Clear("D");
-      TC[4]->SetEditable(true);
-      transparent[4]->cd();
+    TC[4]->Clear("D");
+    TC[4]->SetEditable(true);
+    transparent[4]->cd();
 
-      TText PrintRun;
-      PrintRun.SetTextFont(62);
-      PrintRun.SetNDC();          // set to normalized coordinates
-      PrintRun.SetTextAlign(23);  // center/top alignment
-      PrintRun.SetTextSize(0.04);
-      PrintRun.SetTextColor(1);
+    TText PrintRun;
+    PrintRun.SetTextFont(62);
+    PrintRun.SetNDC();          // set to normalized coordinates
+    PrintRun.SetTextAlign(23);  // center/top alignment
+    PrintRun.SetTextSize(0.04);
+    PrintRun.SetTextColor(1);
 
-      GetSendFlag();
-      if ( sendflag==0 )
-	{
-	  UpdateSendFlag( 1 );
-	  PrintRun.DrawText(0.5, 0.5, "MBD: NOW Sending vertex to MCR");
-	  std::cout << "MBD: NOW Sending vertex to MCR" << std::endl;
-	}
-      else if ( sendflag==1 )
-	{
-	  UpdateSendFlag( 0 );
-	  PrintRun.DrawText(0.5, 0.5, "MBD: STOP sending vertex to MCR");
-	  std::cout << "MBD: STOP sending vertex to MCR" << std::endl;
-	}
-      else
-	{
-	  UpdateSendFlag( 0 );
-	  PrintRun.DrawText(0.5, 0.5, "MBD: something wrong with sendflag, setting to 0");
-	  std::cout << "MBD: something wrong with sendflag, setting to 0" << std::endl;
-	}
-      TC[4]->Update();
-      TC[4]->Show();
-      TC[4]->SetEditable(false);
-      return 0;
+    GetSendFlag();
+    if ( sendflag==0 )
+    {
+      UpdateSendFlag( 1 );
+      PrintRun.DrawText(0.5, 0.5, "MBD: NOW Sending vertex to MCR");
+      std::cout << "MBD: NOW Sending vertex to MCR" << std::endl;
     }
+    else if ( sendflag==1 )
+    {
+      UpdateSendFlag( 0 );
+      PrintRun.DrawText(0.5, 0.5, "MBD: STOP sending vertex to MCR");
+      std::cout << "MBD: STOP sending vertex to MCR" << std::endl;
+    }
+    else
+    {
+      UpdateSendFlag( 0 );
+      PrintRun.DrawText(0.5, 0.5, "MBD: something wrong with sendflag, setting to 0");
+      std::cout << "MBD: something wrong with sendflag, setting to 0" << std::endl;
+    }
+    TC[4]->Update();
+    TC[4]->Show();
+    TC[4]->SetEditable(false);
+    return 0;
+  }
+
+  if ( what == "BADGL1" )
+  {
+    GetGL1BadFlag();
+    if ( gl1badflag==0 )
+    {
+      UpdateGL1BadFlag( 1 );
+    }
+    else if ( gl1badflag==1 )
+    {
+      UpdateGL1BadFlag( 0 );
+    }
+    else
+    {
+      UpdateGL1BadFlag( 0 );
+    }
+    return 0;
+  }
 
   ClearWarning();
 

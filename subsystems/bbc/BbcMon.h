@@ -58,6 +58,7 @@ class BbcMon : public OnlMon
   uint64_t emcalmbd{0};       // all emcal triggers, with bbc
   uint64_t hcalmbd{0};        // all hcal triggers, with bbc
   eventReceiverClient *erc{nullptr};
+  //GL1Manager *gl1mgr{nullptr};
   RunDBodbc *rdb{nullptr};
 
   int evtcnt{0};
@@ -74,6 +75,12 @@ class BbcMon : public OnlMon
   int GetFillNumber();
   int GetSendFlag();
   int UpdateSendFlag(const int flag);
+
+  // kludge to work around situations when gl1 events are being received
+  int gl1badflag{0};   // 0 = normal, 1 = gl1 bad, accept all events
+  std::string gl1badflagfname;
+  int GetGL1BadFlag();
+  int UpdateGL1BadFlag(const int flag);
 
   TH1 *bbc_trigs{nullptr};
   TH2 *bbc_adc{nullptr};

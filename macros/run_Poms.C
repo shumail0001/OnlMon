@@ -29,6 +29,7 @@ void StartPoms()
   subsys->AddAction("bbcDraw(\"SECOND\")", "MBD Timing Monitor");
   subsys->AddAction("bbcDraw(\"THIRD\")", "MBD Triggered Monitor");
   subsys->AddAction("bbcDraw(\"MBD2MCR\")", "MBD TOGGLE VTX TO MCR");
+  subsys->AddAction("bbcDraw(\"BADGL1\")", "MBD TOGGLE IGNORE GL1 MISS");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
