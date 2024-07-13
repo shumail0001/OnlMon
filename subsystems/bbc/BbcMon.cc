@@ -604,6 +604,11 @@ int BbcMon::BeginRun(const int runno)
   // this is the place to do it
   std::cout << "BbcMon::BeginRun(), run " << runno << std::endl;
   Reset();
+  if ( useGL1 )
+  {
+    OnlMonServer *se = OnlMonServer::instance();
+    se->UseGl1();
+  }
   bevt->InitRun();
 
   // stop sending vtx on a new fill
@@ -755,7 +760,6 @@ int BbcMon::process_event(Event *evt)
   // Check that we have both MBD/BBC packets
   if (!p[0] || !p[1])
   {
-    se = OnlMonServer::instance();
     std::ostringstream msg;
     msg << "MBD packet not found";
     se->send_message(this, MSG_SOURCE_BBC, MSG_SEV_WARNING, msg.str(), 1);
@@ -772,7 +776,6 @@ int BbcMon::process_event(Event *evt)
   if ((p[0]->iValue(0, "EVENCHECKSUMOK") == 0) || (p[0]->iValue(0, "ODDCHECKSUMOK") == 0) ||
       (p[1]->iValue(0, "EVENCHECKSUMOK") == 0) || (p[1]->iValue(0, "ODDCHECKSUMOK") == 0))
   {
-    se = OnlMonServer::instance();
     std::ostringstream msg;
     msg << "MBD packets have bad checksum(s)";
     se->send_message(this, MSG_SOURCE_BBC, MSG_SEV_WARNING, msg.str(), 1);
@@ -802,6 +805,7 @@ int BbcMon::process_event(Event *evt)
   // Get Trigger Info
   if ( useGL1 )
   {
+    
     triggervec = 0UL;
     triginput = 0UL;
     trigraw = 0UL;
@@ -810,10 +814,11 @@ int BbcMon::process_event(Event *evt)
     Event *gl1Event = erc->getEvent( f_evt );
 
     if (gl1Event)
-    {
-      //std::cout << "Found gl1event " << f_evt << std::endl;
-      Packet* p_gl1 = gl1Event->getPacket(14001);
-      if (p_gl1)
+      {      
+	se->IncrementGl1FoundCounter();
+	//std::cout << "Found gl1event " << f_evt << std::endl;
+	Packet* p_gl1 = gl1Event->getPacket(14001);
+	if (p_gl1)
       {
         //gl1_bco = p_gl1->lValue(0,"BCO");
         triggervec = static_cast<uint64_t>( p_gl1->lValue(0,"TriggerVector") );
@@ -854,7 +859,7 @@ int BbcMon::process_event(Event *evt)
   else
   {
     // if we don't use GL1, set every trig bit true
-    triggervec = 0xffffffffffffffffUL;
+    triggervec = std::numeric_limits<uint64_t>::max();
   }
 
   // calculate BBC
