@@ -591,6 +591,10 @@ int BbcMon::Init()
     UpdateSendFlag( 0 );
   }
 
+  gl1badflagfname = "/home/phnxrc/operations/mbd/mbdgl1bypass.";
+  gl1badflagfname += hname;
+  std::cout << "gl1badflagfname " << gl1badflagfname << "\t" << hname << std::endl;
+
   return 0;
 }
 
@@ -614,6 +618,9 @@ int BbcMon::BeginRun(const int runno)
       UpdateSendFlag( 0 );
     }
   }
+
+  // get gl1badflag on new run
+  GetGL1BadFlag();
 
   if ( rdb != nullptr )
   {
@@ -669,6 +676,42 @@ int BbcMon::GetSendFlag()
   sendflagfile.close();
 
   return sendflag;
+}
+
+int BbcMon::UpdateGL1BadFlag(const int flag)
+{
+  gl1badflag = flag;
+  std::ofstream gl1badflagfile( gl1badflagfname );
+  if ( gl1badflagfile.is_open() )
+  {
+    gl1badflagfile << gl1badflag << std::endl;
+  }
+  else
+  {
+    std::cout << "unable to open file " << gl1badflagfname << std::endl;
+    return 0;
+  }
+  gl1badflagfile.close();
+  std::cout << "YYY setting gl1bad " << gl1badflag << std::endl;
+  return 1;
+}
+
+int BbcMon::GetGL1BadFlag()
+{
+  std::ifstream gl1badflagfile( gl1badflagfname );
+  if ( gl1badflagfile.is_open() )
+  {
+    gl1badflagfile >> gl1badflag;
+  }
+  else
+  {
+    std::cout << "unable to open file " << gl1badflagfname << std::endl;
+    gl1badflag = 0;
+  }
+  gl1badflagfile.close();
+  std::cout << "XXX gl1bad " << gl1badflag << std::endl;
+
+  return gl1badflag;
 }
 
 int BbcMon::EndRun(const int /* runno */)
@@ -751,6 +794,11 @@ int BbcMon::process_event(Event *evt)
     std::cout << "mbd evt " << f_evt << "\t" << useGL1 << std::endl;
   }
 
+  if ( (f_evt%1000)==0 )
+  {
+    GetGL1BadFlag();
+  }
+
   // Get Trigger Info
   if ( useGL1 )
   {
@@ -820,7 +868,7 @@ int BbcMon::process_event(Event *evt)
 
   // Skip if this doesn't have a relevant trigger
   // (Can use any trigger for sampmax calib, in principle)
-  if ( (triggervec&trigmask) == 0UL )
+  if ( ((triggervec&trigmask) == 0UL) && (gl1badflag==0) )
   {
     if ( f_evt%1000 == 0 )
     {
@@ -850,7 +898,7 @@ int BbcMon::process_event(Event *evt)
   }
 
   // vertex and t0
-  if ( triggervec&mbdns )
+  if ( (triggervec&mbdns)!=0 )
   {
     bbc_zvertex->Fill(zvtx);
     bbc_zvertex_ns->Fill(zvtx);
@@ -911,8 +959,15 @@ int BbcMon::process_event(Event *evt)
       bbc_nhit_hcalmbd[1]->Fill( north_nhits );
   }
 
+  // now fill in histograms when gl1 bypass is requested
+  if ( gl1badflag )
+  {
+    bbc_zvertex_ns->Fill(zvtx);
+    bbc_zvertex_10->Fill(zvtx);
+  }
+
   // only process for primary mbd trigger
-  if ( (triggervec&mbdtrig) == 0 )
+  if ( ((triggervec&mbdtrig) == 0) && (gl1badflag==0) )
   {
     return 0;
   }

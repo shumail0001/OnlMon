@@ -60,6 +60,12 @@ class BbcMonDraw : public OnlMonDraw
   int GetSendFlag();
   int UpdateSendFlag(const int flag);
 
+  // bad gl1 variables
+  int gl1badflag{0};      // 0 = normal, 1 = gl1bad
+  std::string gl1badflagfname;
+  int GetGL1BadFlag();
+  int UpdateGL1BadFlag(const int flag);
+
   TCanvas *TC[nCANVAS] = {nullptr};
   TPad *transparent[nCANVAS] = {nullptr};
 
