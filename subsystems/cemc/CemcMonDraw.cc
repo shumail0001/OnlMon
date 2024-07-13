@@ -210,6 +210,28 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     transparent[5]->Draw();
     TC[5]->SetEditable(false);
   }
+  else if (name == "CemcAllTrigHits")
+  {
+    // xpos (-1) negative: do not draw menu bar
+    TC[6] = new TCanvas(name.c_str(), "CemcMon Tower Hits", -1, ysize, xsize / 3, ysize);
+    // root is pathetic, whenever a new TCanvas is created root piles up
+    // 6kb worth of X11 events which need to be cleared with
+    // gSystem->ProcessEvents(), otherwise your process will grow and
+    // grow and grow but will not show a definitely lost memory leak
+    gSystem->ProcessEvents();
+    Pad[15] = new TPad("cemcpad15", "hit map", 0., 0.15, 1., 0.95);
+    Pad[15]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
+
+    // warning
+    warning[2] = new TPad("warning6", "hot tower warnings", 0, 0, 1, 0.15);
+    warning[2]->SetFillStyle(4000);
+    warning[2]->Draw();
+    TC[6]->SetEditable(false);
+  }
   // Commented until potential replacement with TProfile3D
   // else if (name == "CemcPopup"){
   //   PopUpCanvas = new TCanvas(name.c_str(),"Waveforms Expert",-xsize-0.3,0,xsize*0.3,ysize*0.9);
@@ -306,6 +328,13 @@ int CemcMonDraw::Draw(const std::string &what)
     iret += DrawServerStats();
     idraw++;
   }
+  if (what == "ALL" || what == "ALLTRIGHITS")
+  {
+    iret += DrawAllTrigHits(what);
+    idraw++;
+  }
+
+
 // DO NOT CHANGE THE ORDER, DrawSeventh crashes DrawServerStats with an X11 error in the virtual framebuffer in the html
   if (what == "ALL" || what == "SEVENTH")
   {
@@ -619,7 +648,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   }
 
   // FindHotTower(warning[0], hist1[start[0]]);
-  FindHotTower(warning[0], h_cemc_datahits);
+  FindHotTower(warning[0], h_cemc_datahits, true);
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.03);
@@ -650,6 +679,175 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   if (save)
   {
     TC[0]->SaveAs("plots/towerHits.pdf");
+  }
+  return 0;
+}
+
+int CemcMonDraw::DrawAllTrigHits(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  // watch the absolute insanity as we merge all these
+  // histograms from across seven different machines
+  if (!h_cemc_datahits)
+  {
+    h_cemc_datahits = new TH2D("h_cemc_datahits", "", 96, 0, 96, 256, 0, 256);
+  }
+  else
+  {
+    h_cemc_datahits->Reset();
+  }
+  TH2 *htmp2d;
+  int deadservercount = 0;
+  int Nservers = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    Nservers++;
+    htmp2d = (TH2 *) cl->getHisto(*server, "h2_cemc_rmhits_alltrig");
+  
+    if (htmp2d)
+    {
+      h_cemc_datahits->Add(htmp2d);
+    }
+    else
+    {
+      deadservercount++;
+    }
+  }
+  int avgevents = 0;
+  int neventhist = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    TH1* h_eventSource  = cl->getHisto(*server, "h1_event");
+    if (h_eventSource )
+    {
+      avgevents += h_eventSource->GetEntries();
+      neventhist++;
+    }
+  }
+  if (neventhist)
+  {
+    avgevents /= neventhist;
+  }
+  
+
+ 
+  if (!gROOT->FindObject("CemcAllTrigHits"))
+  {
+    MakeCanvas("CemcAllTrigHits");
+  }
+
+  if (deadservercount == Nservers)
+  {
+    DrawDeadServer(transparent[6]);
+    TC[6]->SetEditable(false);
+    return -1;
+  }
+
+  
+
+  TC[6]->SetEditable(true);
+  TC[6]->Clear("D");
+  Pad[15]->cd();
+
+  
+  h_cemc_datahits->GetXaxis()->SetTitle("eta index");
+  h_cemc_datahits->GetYaxis()->SetTitle("phi index");
+  h_cemc_datahits->GetZaxis()->SetTitle("Tower Running Mean with all trig");
+  h_cemc_datahits->GetXaxis()->CenterTitle();
+  h_cemc_datahits->GetYaxis()->CenterTitle();
+  h_cemc_datahits->GetZaxis()->CenterTitle();
+  h_cemc_datahits->GetXaxis()->SetNdivisions(12, kFALSE);
+  h_cemc_datahits->GetYaxis()->SetNdivisions(32, kFALSE);
+
+  float tsize = 0.03;
+  h_cemc_datahits->GetXaxis()->SetLabelSize(tsize);
+  h_cemc_datahits->GetYaxis()->SetLabelSize(tsize);
+  h_cemc_datahits->GetYaxis()->SetTitleOffset(1.4);
+  h_cemc_datahits->GetZaxis()->SetLabelSize(tsize);
+  h_cemc_datahits->GetXaxis()->SetTitleSize(tsize);
+  h_cemc_datahits->GetYaxis()->SetTitleSize(tsize);
+  h_cemc_datahits->GetXaxis()->SetTickLength(0.02);
+  h_cemc_datahits->GetZaxis()->SetTitleOffset(1.6);
+
+ 
+
+  gPad->SetTopMargin(0.08);
+  gPad->SetBottomMargin(0.07);
+  gPad->SetLeftMargin(0.08);
+  gPad->SetRightMargin(0.2);
+
+  // modify palette to black, green, and red
+  
+  h_cemc_datahits->GetZaxis()->SetRangeUser(0, 0.002);
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57);
+  h_cemc_datahits->DrawCopy("colz");
+  // h2_cemc_mean[start[1]]->DrawCopy("colz");
+  TLine line_sector[32];
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line] = TLine(0, (i_line + 1) * 8, 96, (i_line + 1) * 8);
+    line_sector[i_line].SetLineColor(1);
+    line_sector[i_line].SetLineWidth(1);
+    line_sector[i_line].SetLineStyle(1);
+  }
+
+  const int numVertDiv = 12;
+  int dEI = 96 / numVertDiv;
+  TLine l_board[numVertDiv - 1];
+  for (int il = 1; il < numVertDiv; il++)
+  {
+    l_board[il - 1] = TLine(dEI * il, 0, dEI * il, 256);
+    l_board[il - 1].SetLineColor(1);
+    l_board[il - 1].SetLineWidth(1);
+    l_board[il - 1].SetLineStyle(1);
+    if (il == 6)
+    {
+      l_board[il - 1].SetLineWidth(2);
+    }
+  }
+
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line].DrawLine(0, (i_line + 1) * 8, 96, (i_line + 1) * 8);
+  }
+
+  for (int il = 1; il < numVertDiv; il++)
+  {
+    l_board[il - 1].DrawLine(dEI * il, 0, dEI * il, 256);
+  }
+
+  FindHotTower(warning[2], h_cemc_datahits, false);
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.03);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::ostringstream runnostream2;
+  std::ostringstream runnostream3;
+  std::string runstring;
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << ": tower occupancy running mean with all trig";
+  runnostream2 << " threshold: 100ADC, Run " << cl->RunNumber();
+  runnostream3 << "Time: " << ctime(&evttime.first);
+  
+  transparent[6]->cd();
+  runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+  runstring = runnostream2.str();
+  PrintRun.DrawText(0.5, 0.96, runstring.c_str());
+  runstring = runnostream3.str();
+  PrintRun.DrawText(0.5, 0.93, runstring.c_str());
+
+  TC[6]->Update();
+  TC[6]->Show();
+  TC[6]->SetEditable(false);
+  if (save)
+  {
+    TC[6]->SaveAs("plots/towerHits.pdf");
   }
   return 0;
 }
@@ -1739,7 +1937,7 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   return 0;
 }
 
-int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit)
+int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit, bool usetemplate)
 {
   float nhott = 0;
   float ndeadt = 0;
@@ -1751,6 +1949,40 @@ int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit)
   float hot_threshold = 2.0;
   float dead_threshold = 0.01;
   float cold_threshold = 0.5;
+  if(!usetemplate){
+    float mean = 0;
+    float rms = 0;
+    int ntower = 0;
+    for (int ieta = 0; ieta < nTowersEta; ieta++)
+    {
+      for (int iphi = 0; iphi < nTowersPhi; iphi++)
+      {
+        if ((ieta < 40 && ieta >= 32) && ((iphi >= 144) && (iphi < 152)))
+        {
+          continue;  // uninstrumented
+        }
+        else if ((ieta < 64 && ieta >= 56) && ((iphi >= 32) && (iphi < 40)))
+        {
+          continue;  // uninstrumented
+        }
+        if (hhit->GetBinContent(ieta + 1, iphi + 1) == 0)
+        {
+          continue;
+        }
+        double nhit = hhit->GetBinContent(ieta + 1, iphi + 1);
+        mean += nhit;
+        rms += nhit * nhit;
+        ntower++;
+      }
+    }
+    mean /= ntower;
+    rms = sqrt(rms / ntower - mean * mean);
+    hot_threshold = mean + 10 * rms;
+    cold_threshold = mean - 3 * rms;
+    dead_threshold = 0.01*mean;
+  }
+
+
   // float nTowerTotal = 24576. - 384.;  // to account for the non-functioning towers at the edge of the south
   for (int ieta = 0; ieta < nTowersEta; ieta++)
   {

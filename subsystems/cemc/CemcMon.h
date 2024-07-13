@@ -71,6 +71,7 @@ class CemcMon : public OnlMon
   TH1* h1_waveform_time{nullptr};
   TH1* h1_waveform_pedestal{nullptr};
   TH2* h2_cemc_rm{nullptr};
+  TH2* h2_cemc_rmhits_alltrig{nullptr};
   TH2* h2_cemc_rmhits{nullptr};
   TH2* h2_cemc_mean{nullptr};
   TH1* h1_sectorAvg_total{nullptr};
@@ -79,6 +80,7 @@ class CemcMon : public OnlMon
   // TProfile*** h2_waveform= {nullptr};
   std::vector<runningMean*> rm_vector_twr;
   std::vector<runningMean*> rm_vector_twrhits;
+  std::vector<runningMean*> rm_vector_twrhits_alltrig;
 
   std::string runtypestr = "Unknown";
 

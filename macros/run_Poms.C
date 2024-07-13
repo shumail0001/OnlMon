@@ -37,6 +37,7 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Health [Expert]");
   subsys->AddAction("cemcDraw(\"THIRD\")", "Wave Forms");
   subsys->AddAction("cemcDraw(\"FIFTH\")", "Trigger [Expert]");
+  subsys->AddAction("cemcDraw(\"ALLTRIGHITS\")", "All Trigger Tower Hits");
   subsys->AddAction("cemcDraw(\"SEVENTH\")", "Zero-suppression info");
   subsys->AddAction("cemcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
@@ -56,6 +57,7 @@ void StartPoms()
   //subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ihcalDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("ihcalDraw(\"SIXTH\")", "Tower Status [Expert]");
+  subsys->AddAction("ihcalDraw(\"ALLTRIGHITS\")", "All Trigger Tower Hits");
   subsys->AddAction("ihcalDraw(\"SEVENTH\")", "Zero-suppression info");
   subsys->AddAction("ihcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
@@ -68,6 +70,7 @@ void StartPoms()
   //subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ohcalDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("ohcalDraw(\"SIXTH\")", "Tower Status [Expert]");
+  subsys->AddAction("ohcalDraw(\"ALLTRIGHITS\")", "All Trigger Tower Hits");
   subsys->AddAction("ohcalDraw(\"SEVENTH\")", "Zero-suppression info");
   subsys->AddAction("ohcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));

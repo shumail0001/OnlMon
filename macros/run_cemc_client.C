@@ -30,6 +30,7 @@ void cemcDrawInit(const int online = 0)
       cl->registerHisto("h_evtRec", servername.c_str());
       cl->registerHisto("h2_cemc_rm", servername.c_str());
       cl->registerHisto("h2_cemc_rmhits", servername.c_str());
+      cl->registerHisto("h2_cemc_rmhits_alltrig", servername.c_str());
       cl->registerHisto("h2_cemc_mean", servername.c_str());
       cl->registerHisto("h1_event", servername.c_str());
       cl->registerHisto("h2_waveform_twrAvg", servername.c_str());

@@ -285,12 +285,12 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     Pad[26] = new TPad("hist", "On the top", 0., 0.2, 1., 0.97);
     Pad[26]->Draw();
     //  this one is used to plot the run number on the canvas
-    transparent[10] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[10] = new TPad("transparent10", "this does not show", 0, 0, 1, 1);
     transparent[10]->SetFillStyle(4000);
     transparent[10]->Draw();
 
     // warning
-    warning[2] = new TPad("warning0", "this does not show", 0, 0, 0.9, 0.2);
+    warning[2] = new TPad("warning2", "this does not show", 0, 0, 0.9, 0.2);
     warning[2]->SetFillStyle(4000);
     warning[2]->Draw();
 
@@ -637,6 +637,7 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
   TC[10]->SetEditable(true);
   TC[10]->Clear("D");
   Pad[26]->cd();
+  gStyle->SetPalette(57);
 
   hist1->GetXaxis()->SetTitle("eta index");
   hist1->GetYaxis()->SetTitle("phi index");
