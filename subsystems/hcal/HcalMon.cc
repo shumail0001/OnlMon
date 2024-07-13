@@ -363,6 +363,11 @@ int HcalMon::BeginRun(const int /* runno */)
   {
     (*rm_it)->Reset();
   }
+  if (anaGL1)
+  {
+    OnlMonServer *se = OnlMonServer::instance();
+    se->UseGl1();
+  }
   return 0;
 }
 
@@ -394,6 +399,8 @@ int HcalMon::process_event(Event* e /* evt */)
     Event* gl1Event = erc->getEvent(evtnr);
     if (gl1Event)
     {
+      OnlMonServer *se = OnlMonServer::instance();
+      se->IncrementGl1FoundCounter();
       have_gl1 = true;
       Packet* p = gl1Event->getPacket(14001);
       h_evtRec->Fill(0.0, 1.0);
