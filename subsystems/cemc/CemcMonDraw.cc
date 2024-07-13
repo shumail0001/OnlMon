@@ -202,7 +202,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcMonServerStats")
   {
-    TC[5] = new TCanvas(name.c_str(), "CemcMon6 Server Stats", -1, 0, xsize / 2, ysize);
+    TC[5] = new TCanvas(name.c_str(), "CemcMon6 Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
     transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);

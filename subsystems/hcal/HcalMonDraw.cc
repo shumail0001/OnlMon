@@ -268,7 +268,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalServerStats")
   {
-    TC[8] = new TCanvas(name.c_str(), "HcalMon Server Stats", -1, 0, xsize/2, ysize);
+    TC[8] = new TCanvas(name.c_str(), "HcalMon Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
     transparent[8] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
@@ -2739,13 +2739,13 @@ int HcalMonDraw::DrawServerStats()
     }
     else
     {
-      int gl1counts = std::get<4>(servermapiter->second);
+      int gl1counts = std::get<4>(servermapiter->second)/2;
       txt << "Server " << server
           << ", run number " << std::get<1>(servermapiter->second)
           << ", event count: " << std::get<2>(servermapiter->second);
       if (gl1counts >= 0)
 	{
-          txt << ", gl1 count: " << std::get<4>(servermapiter->second);
+          txt << ", gl1 count: " << gl1counts;
 	}
         txt  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
