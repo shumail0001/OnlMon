@@ -18,6 +18,7 @@ void ihcalDrawInit(const int online = 0)
     hcalmon->AddServer(servername);
     cl->registerHisto("h2_hcal_hits", servername);
     cl->registerHisto("h2_hcal_rm", servername);
+    cl->registerHisto("h2_hcal_rm_alltrig", servername);
     cl->registerHisto("h2_hcal_mean", servername);
     cl->registerHisto("h2_hcal_time", servername);
     cl->registerHisto("h2_hcal_waveform", servername);

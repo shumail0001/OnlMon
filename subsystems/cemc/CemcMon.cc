@@ -65,6 +65,11 @@ CemcMon::~CemcMon()
   {
     delete iter;
   }
+  for (auto iter : rm_vector_twrhits_alltrig)
+  {
+    delete iter;
+  }
+
   delete WaveformProcessingFast;
   delete WaveformProcessingTemp;
   delete erc;
@@ -104,6 +109,7 @@ int CemcMon::Init()
   h2_cemc_hits = new TH2F("h2_cemc_hits", "", 96, 0, 96, 256, 0, 256);
   h2_cemc_rm = new TH2F("h2_cemc_rm", "", 96, 0, 96, 256, 0, 256);
   h2_cemc_rmhits = new TH2F("h2_cemc_rmhits", "", 96, 0, 96, 256, 0, 256);
+  h2_cemc_rmhits_alltrig = new TH2F("h2_cemc_rmhits_alltrig", "", 96, 0, 96, 256, 0, 256);
   h2_cemc_mean = new TH2F("h2_cemc_mean", "", 96, 0, 96, 256, 0, 256);
   h1_cemc_adc = new TH1F("h1_cemc_adc", "", 1000, 0.5, pow(2, 14));
   // event counter
@@ -130,11 +136,11 @@ int CemcMon::Init()
   for (int i = 0; i < Ntower; i++)
   {
     rm_vector_twr.push_back(new pseudoRunningMean(1, depth));
-  }
-  for (int i = 0; i < Ntower; i++)
-  {
     rm_vector_twrhits.push_back(new pseudoRunningMean(1, depth));
+    rm_vector_twrhits_alltrig.push_back(new pseudoRunningMean(1, depth));
   }
+  
+
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
@@ -153,6 +159,7 @@ int CemcMon::Init()
   se->registerHisto(this, h2_cemc_hits);
   se->registerHisto(this, h2_cemc_rm);
   se->registerHisto(this, h2_cemc_rmhits);
+  se->registerHisto(this, h2_cemc_rmhits_alltrig);
   se->registerHisto(this, h2_cemc_mean);
   se->registerHisto(this, h1_event);
 
@@ -217,6 +224,10 @@ int CemcMon::BeginRun(const int /* runno */)
     (*rm_it)->Reset();
   }
   for (rm_it = rm_vector_twrhits.begin(); rm_it != rm_vector_twrhits.end(); ++rm_it)
+  {
+    (*rm_it)->Reset();
+  }
+  for (rm_it = rm_vector_twrhits_alltrig.begin(); rm_it != rm_vector_twrhits_alltrig.end(); ++rm_it)
   {
     (*rm_it)->Reset();
   }
@@ -429,7 +440,7 @@ int CemcMon::process_event(Event *e /* evt */)
         float signalFast = resultFast.at(0);
         float timeFast = resultFast.at(1);
         float pedestalFast = resultFast.at(2);
-
+        int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
         //________________________________for this part we only want to deal with the MBD>=1 trigger
         if (fillhist)
         {
@@ -443,14 +454,9 @@ int CemcMon::process_event(Event *e /* evt */)
           }
 
           h1_waveform_pedestal->Fill(pedestalFast);
-
-          int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
-
+          
           rm_vector_twr[towerNumber - 1]->Add(&signalFast);
 
-         
-
-         
           if (signalFast > hit_threshold)
           {
             rm_vector_twrhits[towerNumber - 1]->Add(&one);
@@ -466,6 +472,9 @@ int CemcMon::process_event(Event *e /* evt */)
           h1_cemc_adc->Fill(signalFast);
         }
         //_______________________________________________________end of MBD trigger requirement
+
+
+
         if (signalFast > waveform_hit_threshold)
         {
           // check if hot tower and skip it
@@ -491,7 +500,13 @@ int CemcMon::process_event(Event *e /* evt */)
               }
             }
           }
+          rm_vector_twrhits_alltrig[towerNumber - 1]->Add(&one);
         }
+        else
+        {
+          rm_vector_twrhits_alltrig[towerNumber - 1]->Add(&zero);
+        }
+        h2_cemc_rmhits_alltrig->SetBinContent(bin, rm_vector_twrhits_alltrig[towerNumber - 1]->getMean(0));
 
         /*
         if (!((eventCounter - 2) % 10000))

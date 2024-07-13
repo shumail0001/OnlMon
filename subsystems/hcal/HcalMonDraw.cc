@@ -140,6 +140,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
 
     TC[0]->SetEditable(false);
   }
+ 
   else if (name == "HcalMon2")
   {
     // xpos negative: do not draw menu bar
@@ -275,6 +276,26 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     transparent[8]->SetFillColor(kGray);
     TC[8]->SetEditable(false);
   }
+  else if (name == "HcalAllTrigHits")
+  {
+    // xpos (-1) negative: do not draw menu bar
+    TC[10] = new TCanvas(name.c_str(), "Hcal Towers", -1, ysize, xsize / 3, ysize);
+
+    gSystem->ProcessEvents();
+    Pad[26] = new TPad("hist", "On the top", 0., 0.2, 1., 0.97);
+    Pad[26]->Draw();
+    //  this one is used to plot the run number on the canvas
+    transparent[10] = new TPad("transparent10", "this does not show", 0, 0, 1, 1);
+    transparent[10]->SetFillStyle(4000);
+    transparent[10]->Draw();
+
+    // warning
+    warning[2] = new TPad("warning2", "this does not show", 0, 0, 0.9, 0.2);
+    warning[2]->SetFillStyle(4000);
+    warning[2]->Draw();
+
+    TC[10]->SetEditable(false);
+  }
   return 0;
 }
 
@@ -360,6 +381,16 @@ int HcalMonDraw::Draw(const std::string& what)
     }
     idraw++;
   }
+  if(what == "ALL" || what == "ALLTRIGHITS")
+  {
+    int retcode = DrawAllTrigHits(what);
+    if (!retcode)
+    {
+      isuccess++;
+    }
+    idraw++;
+  }
+ 
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -509,7 +540,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   double_t levels[5] = {0, 0.01, 0.5, 2, 4};
   hist1->SetContour(5, levels);
 
-  FindHotTower(warning[0], hist1);
+  FindHotTower(warning[0], hist1, true);
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.03);
@@ -564,6 +595,159 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
 
   // TC[0]->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", "TCanvas", TC[0],
   //           "Paint()");
+  return 0;
+}
+
+int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
+{
+  OnlMonClient* cl = OnlMonClient::instance();
+
+  TH2* hist1 = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_rm_alltrig");
+  TH1* h_event =  cl->getHisto(hcalmon[0], "h_event");
+
+  TH2* hist1_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_rm_alltrig");
+  TH1* h_event_1 =  cl->getHisto(hcalmon[1], "h_event");
+
+
+  if (!gROOT->FindObject("HcalAllTrigHits"))
+  {
+    MakeCanvas("HcalAllTrigHits");
+  }
+  if (!hist1 || !hist1_1 || !h_event || !h_event_1 )
+  {
+    DrawDeadServer(transparent[10]);
+    TC[10]->SetEditable(false);
+    if (isHtml())
+    {
+      delete TC[10];
+      TC[10] = nullptr;
+    }
+    return -1;
+  }
+
+  hist1->Add(hist1_1);
+ 
+  int avgevents = h_event->GetEntries() + h_event_1->GetEntries();
+  avgevents /= 2;
+  // h_event->Add(h_event_1);
+
+  // h2_hcal_mean->Scale(1. / h_event->GetEntries());
+  // hist1->Divide(h2_hcal_mean);
+
+  TC[10]->SetEditable(true);
+  TC[10]->Clear("D");
+  Pad[26]->cd();
+  gStyle->SetPalette(57);
+
+  hist1->GetXaxis()->SetTitle("eta index");
+  hist1->GetYaxis()->SetTitle("phi index");
+  hist1->GetXaxis()->CenterTitle();
+  hist1->GetYaxis()->CenterTitle();
+  hist1->GetXaxis()->SetNdivisions(24);
+  hist1->GetYaxis()->SetNdivisions(232);
+
+  float tsize = 0.025;
+  hist1->GetXaxis()->SetLabelSize(tsize);
+  hist1->GetYaxis()->SetLabelSize(tsize);
+  hist1->GetZaxis()->SetLabelSize(tsize);
+  hist1->GetXaxis()->SetTitleSize(tsize);
+  hist1->GetYaxis()->SetTitleSize(tsize);
+  hist1->GetXaxis()->SetTickLength(0.02);
+
+  hist1->GetZaxis()->SetRangeUser(0, 0.015);
+
+  gPad->SetTopMargin(0.08);
+  gPad->SetBottomMargin(0.07);
+  gPad->SetLeftMargin(0.08);
+  gPad->SetRightMargin(0.11);
+
+  hist1->Draw("colz");
+
+  TLine line_sector[32];
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line] = TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+    line_sector[i_line].SetLineColor(1);
+    line_sector[i_line].SetLineWidth(4);
+    line_sector[i_line].SetLineStyle(1);
+  }
+  TLine line_board1(8, 0, 8, 64);
+  line_board1.SetLineColor(1);
+  line_board1.SetLineWidth(4);
+  line_board1.SetLineStyle(1);
+  TLine line_board2(16, 0, 16, 64);
+  line_board2.SetLineColor(1);
+  line_board2.SetLineWidth(4);
+  line_board2.SetLineStyle(1);
+
+  TLine line_iphi[64];
+  for (int i_line = 0; i_line < 64; i_line++)
+  {
+    line_iphi[i_line] = TLine(0, (i_line + 1), 24, (i_line + 1));
+    line_iphi[i_line].SetLineColor(1);
+    line_iphi[i_line].SetLineWidth(1);
+    line_iphi[i_line].SetLineStyle(1);
+  }
+  TLine line_ieta[24];
+  for (int i_line = 0; i_line < 24; i_line++)
+  {
+    line_ieta[i_line] = TLine((i_line + 1), 0, (i_line + 1), 64);
+    line_ieta[i_line].SetLineColor(1);
+    line_ieta[i_line].SetLineWidth(1);
+    line_ieta[i_line].SetLineStyle(1);
+  }
+
+
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line].DrawLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+  }
+
+  line_board1.DrawLine(8, 0, 8, 64);
+  line_board2.DrawLine(16, 0, 16, 64);
+
+  for (int i_line = 0; i_line < 64; i_line++)
+  {
+    line_iphi[i_line].DrawLine(0, (i_line + 1), 24, (i_line + 1));
+  }
+  for (int i_line = 0; i_line < 24; i_line++)
+  {
+    line_ieta[i_line].DrawLine((i_line + 1), 0, (i_line + 1), 64);
+  }
+
+
+  FindHotTower(warning[2], hist1, false);
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.03);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::ostringstream runnostream2;
+  std::ostringstream runnostream3;
+  std::string runstring;
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  float threshold = 30;
+  // fill run number and event time into string
+  runnostream << ThisName << ": tower occupancy running mean with all trigger";
+  runnostream2 << " threshold: "<<threshold <<"ADC, Run " << cl->RunNumber();
+  runnostream3 << "Time: " << ctime(&evttime.first);
+  
+  transparent[10]->cd();
+  runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+  runstring = runnostream2.str();
+  PrintRun.DrawText(0.5, 0.96, runstring.c_str());
+  runstring = runnostream3.str();
+  PrintRun.DrawText(0.5, 0.93, runstring.c_str());
+
+  TC[10]->Update();
+
+  TC[10]->Show();
+
+  TC[10]->SetEditable(false);
+
   return 0;
 }
 
@@ -1361,7 +1545,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   return 0;
 }
 
-int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
+int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit, bool usetemplate)
 {
   float nhott = 0;
   float ndeadt = 0;
@@ -1373,7 +1557,31 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
   float hot_threshold = 2.0;
   float dead_threshold = 0.01;
   float cold_threshold = 0.5;
-
+  if(!usetemplate)
+  {
+    //loop over histogram to find mean and rms
+    double mean = 0;
+    double rms = 0;
+    double n = 0;
+    for (int ieta = 0; ieta < 24; ieta++)
+    {
+      for (int iphi = 0; iphi < 64; iphi++)
+      {
+        double nhit = hhit->GetBinContent(ieta + 1, iphi + 1);
+        if (hhit->GetBinContent(ieta + 1, iphi + 1) != 0)
+        {
+          mean += nhit;
+          rms += nhit * nhit;
+          n++;
+        }
+      }
+    }
+    mean /= n;
+    rms = sqrt(rms / n - mean * mean);
+    hot_threshold = mean + 10 * rms;
+    cold_threshold = mean - 3 * rms;
+    dead_threshold = 0.01*mean;
+  }
   for (int ieta = 0; ieta < 24; ieta++)
   {
     for (int iphi = 0; iphi < 64; iphi++)
