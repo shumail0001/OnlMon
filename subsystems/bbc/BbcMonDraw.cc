@@ -1109,11 +1109,15 @@ int BbcMonDraw::Draw(const std::string &what)
     }
     else
     {
+      int gl1counts = std::get<4>(servermapiter->second);
       txt << "Server " << server
           << ", run number " << std::get<1>(servermapiter->second)
-          << ", event count: " << std::get<2>(servermapiter->second)
-          << ", gl1 count: " << std::get<4>(servermapiter->second)
-          << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+          << ", event count: " << std::get<2>(servermapiter->second);
+      if (gl1counts >= 0)
+	{
+          txt << ", gl1 count: " << std::get<4>(servermapiter->second);
+	}
+      txt << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
         PrintRun.SetTextColor(kGray + 2);
