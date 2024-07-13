@@ -1146,7 +1146,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
   PRINT_DEBUG("Start Getting Histogram");
 
-  TH1 *bbc_trigs = static_cast<TH1 *>(cl->getHisto("BBCMON_0", "bbc_trigs"));
+  TH1 *bbc_trigs = cl->getHisto("BBCMON_0", "bbc_trigs");
   ifdelete(Trigs);
   if ( bbc_trigs!=0 )
   {
@@ -1216,7 +1216,7 @@ int BbcMonDraw::Draw(const std::string &what)
   ifdelete(Adc);
   for (int i = 0; i < nCANVAS; i++)
   {
-    if (TC[i] && i != 4)
+    if (TC[i] && i != 4 && i != 5)
     {
       transparent[i]->Clear();  // clear dead server msg if it was printed before
     }
