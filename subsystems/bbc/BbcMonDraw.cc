@@ -937,6 +937,17 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
    transparent[4]->Draw();
      TC[4]->SetEditable(false);
   }
+  else if (name == "BbcMonServerStats")
+    {
+      TC[5] = new TCanvas(name.c_str(), "BbcMon Server Stats", -1, 0, 2 * xsize / 3, ysize * 0.9);
+      gSystem->ProcessEvents();
+      TC[5]->cd();
+      // this one is used to plot the run number on the canvas
+      transparent[5] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
+      transparent[5]->SetFillColor(kGray);
+      transparent[5]->Draw();
+      TC[5]->SetEditable(false);
+    }
   //
 
   /*
@@ -1065,6 +1076,61 @@ int BbcMonDraw::Draw(const std::string &what)
     }
     return 0;
   }
+  if ( what == "BbcMonServerStats" )
+  {
+  OnlMonClient *cl = OnlMonClient::instance();
+    if (!gROOT->FindObject("BbcMonServerStats"))
+	{
+	  MakeCanvas("BbcMonServerStats");
+	}
+    TC[5]->Clear("D");
+    TC[5]->SetEditable(true);
+    transparent[5]->cd();
+
+    TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  for (const auto &server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = cl->GetServerMap(server);
+    if (servermapiter == cl->GetServerMapEnd())
+    {
+      txt << "Server " << server
+          << " is dead ";
+      PrintRun.SetTextColor(kRed);
+    }
+    else
+    {
+      txt << "Server " << server
+          << ", run number " << std::get<1>(servermapiter->second)
+          << ", event count: " << std::get<2>(servermapiter->second)
+          << ", gl1 count: " << std::get<4>(servermapiter->second)
+          << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+      if (std::get<0>(servermapiter->second))
+      {
+        PrintRun.SetTextColor(kGray + 2);
+      }
+      else
+      {
+        PrintRun.SetTextColor(kRed);
+      }
+    }
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+    TC[5]->Update();
+    TC[5]->Show();
+    TC[5]->SetEditable(false);
+    return 0;
+  }
 
   ClearWarning();
 
@@ -1080,7 +1146,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
   PRINT_DEBUG("Start Getting Histogram");
 
-  TH1 *bbc_trigs = static_cast<TH1 *>(cl->getHisto("BBCMON_0", "bbc_trigs"));
+  TH1 *bbc_trigs = cl->getHisto("BBCMON_0", "bbc_trigs");
   ifdelete(Trigs);
   if ( bbc_trigs!=0 )
   {
@@ -1150,7 +1216,7 @@ int BbcMonDraw::Draw(const std::string &what)
   ifdelete(Adc);
   for (int i = 0; i < nCANVAS; i++)
   {
-    if (TC[i] && i != 4)
+    if (TC[i] && i != 4 && i != 5)
     {
       transparent[i]->Clear();  // clear dead server msg if it was printed before
     }

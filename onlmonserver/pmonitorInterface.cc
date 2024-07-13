@@ -230,6 +230,7 @@ int process_event(Event *evt)
   se->IncrementEventCounter();
   FrameWorkVars->SetBinContent(EVENTCOUNTERBIN,se->EventCounter());
   se->process_event(evt);
+  FrameWorkVars->SetBinContent(GL1COUNTERBIN,se->Gl1FoundCounter());
 #ifdef USE_MUTEX
   pthread_mutex_unlock(&mutex);
 #endif

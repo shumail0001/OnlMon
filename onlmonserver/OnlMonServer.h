@@ -45,6 +45,9 @@ class OnlMonServer : public OnlMonBase
   void EventNumber(const int iev) { eventnumber = iev; }
   int EventCounter() const {return eventcounter;}
   void IncrementEventCounter() {eventcounter++;}
+  int Gl1FoundCounter() const {return gl1foundcounter;}
+  void IncrementGl1FoundCounter() {gl1foundcounter++;}
+  void UseGl1() {gl1foundcounter = 0;}
   int PortNumber() const { return portnumber; }
   void PortNumber(const int i) { portnumber = i; }
   void Print(const std::string &what = "ALL", std::ostream& os = std::cout) const;
@@ -111,6 +114,7 @@ class OnlMonServer : public OnlMonBase
   int runnumber = -1;
   int eventnumber = 0;
   int eventcounter {0};
+  int gl1foundcounter {-1};
   int portnumber = OnlMonDefs::MONIPORT;
   int badevents = 0;
   time_t currentticks = 0;
