@@ -638,7 +638,7 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
   TC[10]->Clear("D");
   Pad[26]->cd();
   gStyle->SetPalette(57);
-
+  gStyle->SetOptStat(0);
   hist1->GetXaxis()->SetTitle("eta index");
   hist1->GetYaxis()->SetTitle("phi index");
   hist1->GetXaxis()->CenterTitle();
@@ -715,7 +715,7 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
     line_ieta[i_line].DrawLine((i_line + 1), 0, (i_line + 1), 64);
   }
 
-
+  
   FindHotTower(warning[2], hist1, false);
   TText PrintRun;
   PrintRun.SetTextFont(62);
