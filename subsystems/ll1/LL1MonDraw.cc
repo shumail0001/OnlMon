@@ -38,11 +38,13 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
   int ysize = cl->GetDisplaySizeY();
 
   gStyle->SetOptStat(0);
-  if (name == "LL1Mon1")
+  if (name == "LL1Mon0")
   {
+    int canvasindex = 0;
+    std::string tctitle = name + " Monitor - MBD";
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "LL1Mon Monitor - MBD", -1, 0, xsize/2, ysize/2);
-    TC[0]->SetTicks(1,1);
+    TC[canvasindex] = new TCanvas(name.c_str(), tctitle.c_str(), -1, 0, xsize/2, ysize/2);
+    TC[canvasindex]->SetTicks(1,1);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -53,79 +55,87 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
       Pad[ipad]->Draw();
       Pad[ipad]->SetTicks(1,1);
     }
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
-    TC[0]->SetEditable(false);
+    transparent[canvasindex] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(false);
+  }
+  else if (name == "LL1Mon1")
+  {
+    int canvasindex = 1;
+    std::string tctitle = name + " Monitor - MBD";
+    // xpos negative: do not draw menu bar
+    gStyle->SetOptStat(0);
+    TC[canvasindex] = new TCanvas(name.c_str(), tctitle.c_str(), -1, 0, xsize / 2, ysize/2);
+    TC[canvasindex]->SetTicks(1,1);
+    gSystem->ProcessEvents();
+    // this one is used to plot the run number on the canvas
+    transparent[canvasindex] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(false);
   }
   else if (name == "LL1Mon2")
   {
-    // xpos negative: do not draw menu bar
-    gStyle->SetOptStat(0);
-    TC[1] = new TCanvas(name.c_str(), "ll1Mon2 Monitor - MBD", -1, 0, xsize / 2, ysize/2);
-    TC[1]->SetTicks(1,1);
+    int canvasindex = 2;
+    std::string tctitle = name + " Monitor - MBD";
+    TC[canvasindex] = new TCanvas(name.c_str(), tctitle.c_str(), -1, 0, xsize / 2, ysize/2);
+    TC[canvasindex]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
-    transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
-    transparent[1]->SetFillStyle(4000);
-    transparent[1]->Draw();
-    TC[1]->SetEditable(false);
+    transparent[canvasindex] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(0);
   }
   else if (name == "LL1Mon3")
   {
-    TC[2] = new TCanvas(name.c_str(), "ll1Mon3 Monitor - MBD", -1, 0, xsize / 2, ysize/2);
-    TC[2]->SetTicks(1,1);
+    int canvasindex = 3;
+    std::string tctitle = name + " Monitor - Photon";
+    TC[canvasindex] = new TCanvas(name.c_str(), tctitle.c_str(), -1, 0, xsize / 2, ysize/2);
+    TC[canvasindex]->SetTicks(1,1);
     gSystem->ProcessEvents();
-    // this one is used to plot the run number on the canvas
-    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
-    transparent[2]->SetFillStyle(4000);
-    transparent[2]->Draw();
-    TC[2]->SetEditable(0);
+
+    transparent[canvasindex] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(0);
+
   }
   else if (name == "LL1Mon4")
   {
-    TC[3] = new TCanvas(name.c_str(), "ll1Mon4 Monitor - Photon", -1, 0, xsize / 2, ysize/2);
-    TC[3]->SetTicks(1,1);
-    gSystem->ProcessEvents();
-
-    transparent[3] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
-    transparent[3]->SetFillStyle(4000);
-    transparent[3]->Draw();
-    TC[3]->SetEditable(0);
-
-  }
-  else if (name == "LL1Mon5")
-  {
-    TC[4] = new TCanvas(name.c_str(), "ll1Mon5 Monitor - HCAL", -1, 0, xsize / 2, ysize/2);
-    TC[4]->SetTicks(1,1);
+    int canvasindex = 4;
+    std::string tctitle = name + " Monitor - HCAL";
+    TC[canvasindex] = new TCanvas(name.c_str(), tctitle.c_str(), -1, 0, xsize / 2, ysize/2);
+    TC[canvasindex]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
 
 
-    transparent[4] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
-    transparent[4]->SetFillStyle(4000);
-    transparent[4]->Draw();
-    TC[4]->SetEditable(0);
-
-
+    transparent[canvasindex] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(0);
+  }
+  else if (name == "LL1Mon5")
+  {
+    int canvasindex = 5;
+    std::string tctitle = name + " Monitor - Jet";
+    TC[canvasindex] = new TCanvas(name.c_str(), tctitle.c_str(), -1, 0, xsize / 2, ysize/2);
+    TC[canvasindex]->SetTicks(1,1);
+    gSystem->ProcessEvents();
+    // 
+    transparent[canvasindex] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(0);
   }
   else if (name == "LL1Mon6")
   {
-    TC[5] = new TCanvas(name.c_str(), "ll1Mon6 Monitor - Jet", -1, 0, xsize / 2, ysize/2);
-    TC[5]->SetTicks(1,1);
-    gSystem->ProcessEvents();
-    // 
-    transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
-    transparent[5]->SetFillStyle(4000);
-    transparent[5]->Draw();
-    TC[5]->SetEditable(0);
-
-
-  }
-  else if (name == "LL1Mon7")
-  {
-    TC[6] = new TCanvas(name.c_str(), "ll1Mon7 Monitor - EMCAL 2x2", -1, 0, xsize / 2, ysize/2);
-    TC[6]->SetTicks(1,1);
+    int canvasindex = 6;
+    std::string tctitle = name + " Monitor - EMCAL 2x2";
+    TC[canvasindex] = new TCanvas(name.c_str(), tctitle.c_str(), -1, 0, xsize / 2, ysize/2);
+    TC[canvasindex]->SetTicks(1,1);
     gSystem->ProcessEvents();
     // 
     float topbrim = 0.96;
@@ -140,10 +150,10 @@ int LL1MonDraw::MakeCanvas(const std::string &name)
 	emcalpad[i] = new TPad(padname.c_str(),"", x*dx, y*dy,(x+1)*dx, (y+1)*dy); 
 	emcalpad[i]->Draw();
       }
-    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
-    transparent[6]->SetFillStyle(4000);
-    transparent[6]->Draw();
-    TC[6]->SetEditable(0);
+    transparent[canvasindex] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(0);
   }
 
   return 0;
@@ -203,9 +213,9 @@ int LL1MonDraw::DrawFirst(const std::string & /* what */)
   // index of TC and transparent TPad array 
   // so we don't make cut and paste errors
   int canvasindex = 0;
-  if (!gROOT->FindObject("LL1Mon1"))
+  if (!gROOT->FindObject("LL1Mon0"))
   {
-    MakeCanvas("LL1Mon1");
+    MakeCanvas("LL1Mon0");
   }
 // set canvas to editable before the dead server drawing otherwise
 // canvas will not be updated
@@ -263,9 +273,9 @@ int LL1MonDraw::DrawSecond(const std::string & /* what */)
   // index of TC and transparent TPad array 
   // so we don't make cut and paste errors
   int canvasindex = 1;
-  if (!gROOT->FindObject("LL1Mon2"))
+  if (!gROOT->FindObject("LL1Mon1"))
   {
-    MakeCanvas("LL1Mon2");
+    MakeCanvas("LL1Mon1");
   }
 
 // set canvas to editable before the dead server drawing otherwise
@@ -312,9 +322,9 @@ int LL1MonDraw::DrawThird(const std::string & /* what */)
   // index of TC and transparent TPad array 
   // so we don't make cut and paste errors
   int canvasindex = 2;
-  if (!gROOT->FindObject("LL1Mon3"))
+  if (!gROOT->FindObject("LL1Mon2"))
   {
-    MakeCanvas("LL1Mon3");
+    MakeCanvas("LL1Mon2");
   }
 
 // set canvas to editable before the dead server drawing otherwise
@@ -363,9 +373,9 @@ int LL1MonDraw::DrawFourth(const std::string & /* what */)
   // so we don't make cut and paste errors
   int canvasindex = 3;
 
-  if (!gROOT->FindObject("LL1Mon4"))
+  if (!gROOT->FindObject("LL1Mon3"))
   {
-    MakeCanvas("LL1Mon4");
+    MakeCanvas("LL1Mon3");
   }
 
 // set canvas to editable before the dead server drawing otherwise
@@ -507,9 +517,9 @@ int LL1MonDraw::DrawFifth(const std::string & /* what */)
   // index of TC and transparent TPad array 
   // so we don't make cut and paste errors
   int canvasindex = 4;
-  if (!gROOT->FindObject("LL1Mon5"))
+  if (!gROOT->FindObject("LL1Mon4"))
   {
-    MakeCanvas("LL1Mon5");
+    MakeCanvas("LL1Mon4");
   }
 
 // set canvas to editable before the dead server drawing otherwise
@@ -605,9 +615,9 @@ int LL1MonDraw::DrawSixth(const std::string & /* what */)
   // index of TC and transparent TPad array 
   // so we don't make cut and paste errors
   int canvasindex = 5;
-  if (!gROOT->FindObject("LL1Mon6"))
+  if (!gROOT->FindObject("LL1Mon5"))
   {
-    MakeCanvas("LL1Mon6");
+    MakeCanvas("LL1Mon5");
   }
 
 // set canvas to editable before the dead server drawing otherwise
@@ -682,9 +692,9 @@ int LL1MonDraw::DrawSeventh(const std::string & /* what */)
   // index of TC and transparent TPad array 
   // so we don't make cut and paste errors
   int canvasindex = 6;
-  if (!gROOT->FindObject("LL1Mon7"))
+  if (!gROOT->FindObject("LL1Mon6"))
   {
-    MakeCanvas("LL1Mon7");
+    MakeCanvas("LL1Mon6");
   }
 
 // set canvas to editable before the dead server drawing otherwise
