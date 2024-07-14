@@ -200,16 +200,16 @@ int LL1MonDraw::Draw(const std::string &what)
 
 int LL1MonDraw::DrawFirst(const std::string & /* what */)
 {
+  if (!gROOT->FindObject("LL1Mon1"))
+  {
+    MakeCanvas("LL1Mon1");
+  }
   OnlMonClient *cl = OnlMonClient::instance();
   TH1 *h_nhit_n1 = cl->getHisto("LL1MON_0","h_nhit_n1");
   TH1 *h_nhit_n2 = cl->getHisto("LL1MON_0","h_nhit_n2");
   TH1 *h_nhit_s1 = cl->getHisto("LL1MON_0","h_nhit_s1");
   TH1 *h_nhit_s2 = cl->getHisto("LL1MON_0","h_nhit_s2");
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
-  if (!gROOT->FindObject("LL1Mon1"))
-  {
-    MakeCanvas("LL1Mon1");
-  }
   TC[0]->SetEditable(true);
   TC[0]->Clear("D");
   Pad[0]->cd();
@@ -254,13 +254,13 @@ int LL1MonDraw::DrawFirst(const std::string & /* what */)
 
 int LL1MonDraw::DrawSecond(const std::string & /* what */)
 {
-  OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *h_nhit_corr= (TH2D*) cl->getHisto("LL1MON_0","h_nhit_corr");
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon2"))
   {
     MakeCanvas("LL1Mon2");
   }
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH2 *h_nhit_corr= (TH2D*) cl->getHisto("LL1MON_0","h_nhit_corr");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
   if (h_nhit_corr)
@@ -296,13 +296,13 @@ int LL1MonDraw::DrawSecond(const std::string & /* what */)
 
 int LL1MonDraw::DrawThird(const std::string & /* what */)
 {
-  OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *h_line_up= (TH2*) cl->getHisto("LL1MON_0","h_line_up");
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon3"))
   {
     MakeCanvas("LL1Mon3");
   }
+  OnlMonClient *cl = OnlMonClient::instance();
+  TH2 *h_line_up= (TH2*) cl->getHisto("LL1MON_0","h_line_up");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   TC[2]->SetEditable(true);
   TC[2]->Clear("D");
   gStyle->SetOptStat(0);
@@ -339,8 +339,12 @@ int LL1MonDraw::DrawThird(const std::string & /* what */)
 
 int LL1MonDraw::DrawFourth(const std::string & /* what */)
 {
-  OnlMonClient *cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("LL1Mon4"))
+  {
+    MakeCanvas("LL1Mon4");
+  }
 
+  OnlMonClient *cl = OnlMonClient::instance();
   TH2 *h_8x8_sum_emcal= (TH2*) cl->getHisto("LL1MON_0","h_8x8_sum_emcal");
   if (!h_8x8_sum_emcal)
    {
@@ -363,10 +367,6 @@ int LL1MonDraw::DrawFourth(const std::string & /* what */)
      return -1;
    }
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
-  if (!gROOT->FindObject("LL1Mon4"))
-  {
-    MakeCanvas("LL1Mon4");
-  }
   TC[3]->SetEditable(true);
   TC[3]->Clear("D");
   gStyle->SetOptStat(0);
@@ -477,10 +477,15 @@ int LL1MonDraw::DrawFourth(const std::string & /* what */)
 }
 int LL1MonDraw::DrawFifth(const std::string & /* what */)
 {
+  if (!gROOT->FindObject("LL1Mon5"))
+  {
+    MakeCanvas("LL1Mon5");
+  }
   OnlMonClient *cl = OnlMonClient::instance();
   TH2 *h_jet_input= (TH2*) cl->getHisto("LL1MON_0","h_jet_input");
   if (!h_jet_input)
     {
+      //      TC[4]->SetEditable(true);
       DrawDeadServer(transparent[4]);
       TC[4]->SetEditable(false);
       return -1;
@@ -490,6 +495,7 @@ int LL1MonDraw::DrawFifth(const std::string & /* what */)
   TH2 *h_sample_diff_jet_input = (TH2*) cl->getHisto("LL1MON_0","h_sample_diff_jet_input");
   if (!h_sample_diff_jet_input)
     {
+      //      TC[4]->SetEditable(true);
       DrawDeadServer(transparent[4]);
       TC[4]->SetEditable(false);
       return -1;
@@ -498,16 +504,13 @@ int LL1MonDraw::DrawFifth(const std::string & /* what */)
   TH1 *h_hit_format = (TH1*) cl->getHisto("LL1MON_0", "h_hit_format");
   if (!h_hit_format)
     {
+      //      TC[4]->SetEditable(true);
       DrawDeadServer(transparent[4]);
       TC[4]->SetEditable(false);
       return -1;
     }
 
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
-  if (!gROOT->FindObject("LL1Mon5"))
-  {
-    MakeCanvas("LL1Mon5");
-  }
   TC[4]->SetEditable(true);
   TC[4]->Clear("D");
   gStyle->SetOptStat(0);
@@ -568,6 +571,11 @@ int LL1MonDraw::DrawFifth(const std::string & /* what */)
 
 int LL1MonDraw::DrawSixth(const std::string & /* what */)
 {
+  if (!gROOT->FindObject("LL1Mon6"))
+  {
+    MakeCanvas("LL1Mon6");
+  }
+
   OnlMonClient *cl = OnlMonClient::instance();
   TH2 *h_jet_output= (TH2*) cl->getHisto("LL1MON_0","h_jet_output");
   if (!h_jet_output)
@@ -586,10 +594,6 @@ int LL1MonDraw::DrawSixth(const std::string & /* what */)
     }
   h_jet_output_above_threshold->SetTitle("Jet <8x8> Overlapping Hits above Threshold; #eta <8x8> Sum; #phi <8x8> Sum");
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
-  if (!gROOT->FindObject("LL1Mon6"))
-  {
-    MakeCanvas("LL1Mon6");
-  }
   TC[5]->SetEditable(true);
   TC[5]->Clear("D");
   gStyle->SetOptStat(0);
@@ -637,12 +641,12 @@ int LL1MonDraw::DrawSixth(const std::string & /* what */)
 
 int LL1MonDraw::DrawSeventh(const std::string & /* what */)
 {
-  OnlMonClient *cl = OnlMonClient::instance();
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   if (!gROOT->FindObject("LL1Mon7"))
   {
     MakeCanvas("LL1Mon7");
   }
+  OnlMonClient *cl = OnlMonClient::instance();
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
 
   TC[6]->SetEditable(true);
   TC[6]->Clear("D");
