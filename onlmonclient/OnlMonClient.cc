@@ -1288,7 +1288,7 @@ int OnlMonClient::GetServerInfo()
       {
         std::cout << "Run number for " << frwrkiter << " is "
                   << runnumber
-                  << " events take: " << eventcounter;
+                  << " events taken: " << eventcounter;
 	if (gl1foundcounter > -1)
 	  {
 	    std::cout << " gl1 found " << gl1foundcounter; 

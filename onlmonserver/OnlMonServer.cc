@@ -433,6 +433,7 @@ int OnlMonServer::Reset()
   }
   eventnumber = 0;
   eventcounter = 0;
+  gl1foundcounter = -1;
   std::map<std::string, MessageSystem *>::const_iterator miter;
   for (miter = MsgSystem.begin(); miter != MsgSystem.end(); ++miter)
   {

@@ -115,6 +115,7 @@ void StartPoms()
   subsys->AddAction("sepdDraw(\"THIRD\")", "North vs South Correlations");
   subsys->AddAction("sepdDraw(\"FOURTH\")", "Wave Forms");
   subsys->AddAction("sepdDraw(\"FIFTH\")", "Packet Status");
+  subsys->AddAction("sepdDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
