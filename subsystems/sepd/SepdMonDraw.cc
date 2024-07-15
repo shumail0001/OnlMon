@@ -225,7 +225,7 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   }
   OnlMonClient *cl = OnlMonClient::instance();
   //TH1D *h_ADC_all_channel = cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
-  TH1D *h_hits_all_channel = cl->getHisto("SEPDMON_0", "h_hits_all_channel");
+  TH1 *h_hits_all_channel = cl->getHisto("SEPDMON_0", "h_hits_all_channel");
   TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
   std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   TC[canvasindex]->SetEditable(true);
