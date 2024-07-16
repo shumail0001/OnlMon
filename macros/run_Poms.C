@@ -174,6 +174,7 @@ void StartPoms()
   subsys->AddAction("tpotDraw(\"TPOT_sample_vs_channel\")", "Sample vs Channel [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_adc_vs_channel\")", "ADC vs Strip [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_hit_multiplicity\")", "Hit Multiplicity [EXPERT]");
+  subsys->AddAction("tpotDraw(\"TPOT_server_stats\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
