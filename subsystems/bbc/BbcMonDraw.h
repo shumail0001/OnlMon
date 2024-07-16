@@ -138,7 +138,8 @@ class BbcMonDraw : public OnlMonDraw
   // TText * TextBbcSummaryTrigRate = nullptr;
   TLatex *TextBbcSummaryTrigRate = nullptr;
 
-  TH1 *Zvtx = nullptr;
+  TH1 *Zvtx{nullptr};
+  TH1 *Zvtx_alltrigger{nullptr};
   TH1 *Zvtx_ns{nullptr};
   TH1 *Zvtx_10{nullptr};
   TH1 *Zvtx_30{nullptr};

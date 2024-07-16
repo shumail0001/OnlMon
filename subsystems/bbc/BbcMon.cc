@@ -240,6 +240,18 @@ int BbcMon::Init()
   bbc_zvertex->GetXaxis()->SetLabelSize(0.07);
   bbc_zvertex->GetXaxis()->SetTickSize(0.1);
 
+  bbc_zvertex_alltrigger = new TH1F("bbc_zvertex_alltrigger", "MBD ZVertex, all triggers",
+                                    128, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
+  bbc_zvertex_alltrigger->Sumw2();
+  bbc_zvertex_alltrigger->GetXaxis()->SetTitle("ZVertex [cm]");
+  bbc_zvertex_alltrigger->GetYaxis()->SetTitle("Number of Event");
+  bbc_zvertex_alltrigger->GetXaxis()->SetTitleSize(0.05);
+  bbc_zvertex_alltrigger->GetYaxis()->SetTitleSize(0.05);
+  bbc_zvertex_alltrigger->GetXaxis()->SetTitleOffset(0.70);
+  bbc_zvertex_alltrigger->GetYaxis()->SetTitleOffset(1.75);
+  bbc_zvertex_alltrigger->GetXaxis()->SetLabelSize(0.07);
+  bbc_zvertex_alltrigger->GetXaxis()->SetTickSize(0.1);
+
   bbc_zvertex_short = new TH1F("bbc_zvertex_short", "MBD ZVertex (NS, wide), short time scale",
                                BbcMonDefs::zvtnbin, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
   bbc_zvertex_short->Sumw2();
@@ -541,6 +553,7 @@ int BbcMon::Init()
 
   se->registerHisto(this, bbc_tdc_armhittime);
   se->registerHisto(this, bbc_zvertex);
+  se->registerHisto(this, bbc_zvertex_alltrigger);
   se->registerHisto(this, bbc_zvertex_ns);
   se->registerHisto(this, bbc_zvertex_10);
   se->registerHisto(this, bbc_zvertex_30);
@@ -970,6 +983,8 @@ int BbcMon::process_event(Event *evt)
     bbc_zvertex_ns->Fill(zvtx);
     bbc_zvertex_10->Fill(zvtx);
   }
+  //with all triggers
+  bbc_zvertex_alltrigger->Fill(zvtx);
 
   // only process for primary mbd trigger
   if ( ((triggervec&mbdtrig) == 0) && (gl1badflag==0) )
