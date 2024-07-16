@@ -857,53 +857,9 @@ int TpotMonDraw::Draw(const std::string &what)
     ++idraw;
   }
 
-
   if ( what == "ALL" || what == "TPOT_server_stats" )
   {
-    auto client = OnlMonClient::instance();
-    auto cv = get_canvas("TPOT_server_stats");
-    auto transparent = get_transparent_pad( cv, "TPOT_server_stats");
-    CanvasEditor cv_edit(cv);
-    transparent->cd();
-
-    TText PrintRun;
-    PrintRun.SetTextFont(62);
-    PrintRun.SetNDC();          // set to normalized coordinates
-    PrintRun.SetTextAlign(23);  // center/top alignment
-    PrintRun.SetTextSize(0.04);
-    PrintRun.SetTextColor(1);
-    PrintRun.DrawText(0.5, 0.99, "Server Statistics");
-    PrintRun.SetTextSize(0.02);
-    double vdist = 0.05;
-    double vpos = 0.9;
-    for (const auto &server : m_ServerSet)
-    {
-      std::ostringstream txt;
-      auto servermapiter = client->GetServerMap(server);
-      if (servermapiter == client->GetServerMapEnd())
-      {
-        txt << "Server " << server << " is dead ";
-        PrintRun.SetTextColor(kRed);
-      } else {
-        const auto gl1counts = std::get<4>(servermapiter->second);
-        txt
-          << "Server " << server
-          << ", run number " << std::get<1>(servermapiter->second)
-          << ", event count: " << std::get<2>(servermapiter->second);
-        if( gl1counts > 0 )
-        { txt << ", gl1 count: " << gl1counts; }
-        txt << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
-        if (std::get<0>(servermapiter->second))
-        {
-          PrintRun.SetTextColor(kGray + 2);
-        } else {
-          PrintRun.SetTextColor(kRed);
-        }
-      }
-      PrintRun.DrawText(0.5, vpos, txt.str().c_str());
-      vpos -= vdist;
-    }
-
+    iret += draw_server_statistics();
     ++idraw;
   }
 
@@ -1142,6 +1098,57 @@ int TpotMonDraw::draw_resist_occupancy()
     DrawDeadServer(transparent);
     return -1;
   }
+}
+
+
+//__________________________________________________________________________________
+int TpotMonDraw::draw_server_statistics()
+{
+  auto client = OnlMonClient::instance();
+  auto cv = get_canvas("TPOT_server_stats");
+  auto transparent = get_transparent_pad( cv, "TPOT_server_stats");
+  CanvasEditor cv_edit(cv);
+  transparent->cd();
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  for (const auto &server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = client->GetServerMap(server);
+    if (servermapiter == client->GetServerMapEnd())
+    {
+      txt << "Server " << server << " is dead ";
+      PrintRun.SetTextColor(kRed);
+    } else {
+      const auto gl1counts = std::get<4>(servermapiter->second);
+      txt
+        << "Server " << server
+        << ", run number " << std::get<1>(servermapiter->second)
+        << ", event count: " << std::get<2>(servermapiter->second);
+      if( gl1counts > 0 )
+      { txt << ", gl1 count: " << gl1counts; }
+      txt << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+      if (std::get<0>(servermapiter->second))
+      {
+        PrintRun.SetTextColor(kGray + 2);
+      } else {
+        PrintRun.SetTextColor(kRed);
+      }
+    }
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+
+  return 0;
 }
 
 //__________________________________________________________________________________
