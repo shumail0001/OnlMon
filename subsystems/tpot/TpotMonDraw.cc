@@ -1109,6 +1109,7 @@ int TpotMonDraw::draw_server_statistics()
   auto transparent = get_transparent_pad( cv, "TPOT_server_stats");
   CanvasEditor cv_edit(cv);
   transparent->cd();
+  transparent->Clear();
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
