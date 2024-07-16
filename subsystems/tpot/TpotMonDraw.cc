@@ -1119,8 +1119,9 @@ int TpotMonDraw::draw_server_statistics()
   PrintRun.SetTextColor(1);
   PrintRun.DrawText(0.5, 0.99, "Server Statistics");
   PrintRun.SetTextSize(0.02);
-  double vdist = 0.05;
+  const double vdist = 0.05;
   double vpos = 0.9;
+  time_t clienttime = time(nullptr);
   for (const auto &server : m_ServerSet)
   {
     std::ostringstream txt;
@@ -1131,6 +1132,7 @@ int TpotMonDraw::draw_server_statistics()
       PrintRun.SetTextColor(kRed);
     } else {
       const auto gl1counts = std::get<4>(servermapiter->second);
+      const time_t currtime = std::get<3>(servermapiter->second);
       txt
         << "Server " << server
         << ", run number " << std::get<1>(servermapiter->second)
@@ -1138,13 +1140,23 @@ int TpotMonDraw::draw_server_statistics()
       if( gl1counts > 0 )
       { txt << ", gl1 count: " << gl1counts; }
       txt << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
-      if (std::get<0>(servermapiter->second))
+
+      if (isHtml())
+      {
+        // just prevent the font from getting red
+        clienttime = currtime;
+      } else {
+        txt  << ", minutes since last evt: " << (clienttime - currtime)/60;
+      }
+
+      if (std::get<0>(servermapiter->second) && ((clienttime - currtime)/60) < 10)
       {
         PrintRun.SetTextColor(kGray + 2);
       } else {
         PrintRun.SetTextColor(kRed);
       }
     }
+
     PrintRun.DrawText(0.5, vpos, txt.str().c_str());
     vpos -= vdist;
   }
