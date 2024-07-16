@@ -495,6 +495,15 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     m_canvas.push_back( cv );
     return cv;
 
+  } else if (name == "TPOT_server_stats") {
+
+    auto cv = new TCanvas(name.c_str(), "TPOT Server Statistics", -1, 0, 2*xsize/3, ysize);
+    gSystem->ProcessEvents();
+    create_transparent_pad(name);
+    cv->SetEditable(false);
+    m_canvas.push_back( cv );
+    return cv;
+
   }
 
   return nullptr;
@@ -848,6 +857,12 @@ int TpotMonDraw::Draw(const std::string &what)
     ++idraw;
   }
 
+  if ( what == "ALL" || what == "TPOT_server_stats" )
+  {
+    iret += draw_server_statistics();
+    ++idraw;
+  }
+
   if (!idraw)
   {
     std::cout << "TpotMonDraw::Draw - Unimplemented Drawing option: " << what << std::endl;
@@ -1083,6 +1098,70 @@ int TpotMonDraw::draw_resist_occupancy()
     DrawDeadServer(transparent);
     return -1;
   }
+}
+
+
+//__________________________________________________________________________________
+int TpotMonDraw::draw_server_statistics()
+{
+  auto client = OnlMonClient::instance();
+  auto cv = get_canvas("TPOT_server_stats");
+  auto transparent = get_transparent_pad( cv, "TPOT_server_stats");
+  CanvasEditor cv_edit(cv);
+  transparent->cd();
+  transparent->Clear();
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+  PrintRun.SetTextSize(0.02);
+  const double vdist = 0.05;
+  double vpos = 0.9;
+  time_t clienttime = time(nullptr);
+  for (const auto &server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = client->GetServerMap(server);
+    if (servermapiter == client->GetServerMapEnd())
+    {
+      txt << "Server " << server << " is dead ";
+      PrintRun.SetTextColor(kRed);
+    } else {
+      const auto gl1counts = std::get<4>(servermapiter->second);
+      const time_t currtime = std::get<3>(servermapiter->second);
+      txt
+        << "Server " << server
+        << ", run number " << std::get<1>(servermapiter->second)
+        << ", event count: " << std::get<2>(servermapiter->second);
+      if( gl1counts > 0 )
+      { txt << ", gl1 count: " << gl1counts; }
+      txt << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+
+      if (isHtml())
+      {
+        // just prevent the font from getting red
+        clienttime = currtime;
+      } else {
+        txt  << ", minutes since last evt: " << (clienttime - currtime)/60;
+      }
+
+      if (std::get<0>(servermapiter->second) && ((clienttime - currtime)/60) < 10)
+      {
+        PrintRun.SetTextColor(kGray + 2);
+      } else {
+        PrintRun.SetTextColor(kRed);
+      }
+    }
+
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+
+  return 0;
 }
 
 //__________________________________________________________________________________
