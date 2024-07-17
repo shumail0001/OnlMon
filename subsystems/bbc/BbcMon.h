@@ -98,6 +98,7 @@ class BbcMon : public OnlMon
   TH1 *bbc_nevent_counter{nullptr};
 
   TH1 *bbc_zvertex{nullptr};        // whatever primary trigger is
+  TH1 *bbc_zvertex_alltrigger{nullptr};  // all triggers
   TH1 *bbc_zvertex_short{nullptr};  // Used for short time scales
   TH1 *bbc_zvertex_ns{nullptr};     // no vtx cut
   TH1 *bbc_zvertex_10{nullptr};     // 10 cm cut

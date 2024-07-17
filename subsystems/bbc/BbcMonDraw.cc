@@ -199,6 +199,7 @@ BbcMonDraw::~BbcMonDraw()
   }
 
   ifdelete(Zvtx);
+  ifdelete(Zvtx_alltrigger);
   ifdelete(Zvtx_ns);
   ifdelete(Zvtx_10);
   ifdelete(Zvtx_30);
@@ -925,7 +926,6 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     transparent[3]->SetFillStyle(4000);
     transparent[3]->Draw();
   }
-
   else if (name == "BbcVertexSend")
   {
     TC[4] = new TCanvas(name.c_str(), "Bbc Vertex Sender", -1, 0, 2 * xsize / 3, ysize * 0.9);
@@ -948,6 +948,59 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
       transparent[5]->Draw();
       TC[5]->SetEditable(false);
     }
+
+  else if (name == "BbcMon5")
+  {
+    std::cout << "Creating Canvas BbcMon5..." << std::endl;
+
+    TC[5] = new TCanvas("BbcMon5", "MBD Z-Vertex View for Shift crew", -1, 0, xsize / 2, ysize);
+
+    // root is pathetic, whenever a new TCanvas is created root piles up
+    // 6kb worth of X11 events which need to be cleared with
+    // gSystem->ProcessEvents(), otherwise your process will grow and
+    // grow and grow but will not show a definitely lost memory leak
+    gSystem->ProcessEvents();
+
+    TC[5]->cd();
+    PadTop[4] = new TPad("PadTop0", "PadTop0", 0.00, 0.90, 1.00, 1.00, 0, 0, 0);
+    PadZVertex = new TPad("PadZVertex", "PadZVertex", 0.00, 0.60, 1.00, 0.90, 0, 0, 0);
+    PadZVertexSummary = new TPad("PadZVertexSummary", "PadZVertexSummary", 0.00, 0.40, 1.00, 0.60, 0, 0, 0);
+    PadSouthHitMap = new TPad("PadSouthHitMap", "PadSouthHitMap", 0.00, 0.00, 0.495, 0.40, 0, 0, 0);
+    PadNorthHitMap = new TPad("PadNorthHitMap", "PadNorthHitMap", 0.505, 0.00, 1.0, 0.40, 0, 0, 0);
+    // PadTzeroZVertex = new TPad("PadTzeroZVertex", "PadTzeroZVertex", 0.00, 0.00, 1.00, 0.40, 0, 0, 0);
+
+    PadTop[4]->Draw();
+    // PadZVertex->SetLogy();
+    PadZVertex->Draw();
+    // PadTzeroZVertex->Draw();
+    PadSouthHitMap->Draw();
+    PadNorthHitMap->Draw();
+    PadZVertexSummary->Draw();
+
+    PadZVertexSummary->cd();
+    // for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 1; i++)  //  pp
+    {
+      ifnew(TText, TextZVertex[i]);
+      TextZVertex[i]->SetTextColor(BbcMonDefs::BBC_COLOR_ZVTX[i]);
+      // TextZVertex[i]->SetTextSize(0.15);
+      TextZVertex[i]->SetTextSize(0.08);
+
+      ifnew(TText, TextZVertex_scale[i]);
+      ifnew(TText, TextZVertex_mean[i]);
+      TextZVertex_scale[i]->SetTextColor(BbcMonDefs::BBC_COLOR_ZVTX[i]);
+      TextZVertex_mean[i]->SetTextColor(BbcMonDefs::BBC_COLOR_ZVTX[i]);
+      TextZVertex_scale[i]->SetTextSize(0.08);
+      TextZVertex_mean[i]->SetTextSize(0.08);
+    }
+    /*chiu
+    TextZVertex[0]->SetText(xpos[0], 0.65, "Zbbc [BBLL1]");       // RUN11 pp
+    */
+    TC[5]->cd();
+    transparent[6] = new TPad("transparent0", "this does not show", 0, 0, 1, 1, 0, 0);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
+  }
   //
 
   /*
@@ -1013,6 +1066,15 @@ int BbcMonDraw::Draw(const std::string &what)
     {
       canvasindex = 3;
       MakeCanvas("BbcMon4");
+    }
+  }
+  if (!gROOT->FindObject("BbcMon5"))
+  {
+    TC[6] = nullptr;
+    if (what == "BbcMon5" || what == "VertexMonitor")
+    {
+      canvasindex = 6;
+      MakeCanvas("BbcMon5");
     }
   }
 
@@ -1254,6 +1316,10 @@ int BbcMonDraw::Draw(const std::string &what)
   TH1 *bbc_zvertex = cl->getHisto("BBCMON_0", "bbc_zvertex");
   ifdelete(Zvtx);
   Zvtx = static_cast<TH1 *>(bbc_zvertex->Clone());
+
+  TH1 *bbc_zvertex_alltrigger = cl->getHisto("BBCMON_0", "bbc_zvertex_alltrigger");
+  ifdelete(Zvtx_alltrigger);
+  Zvtx_alltrigger = static_cast<TH1 *>(bbc_zvertex_alltrigger->Clone());
 
   TH1 *bbc_zvertex_ns = cl->getHisto("BBCMON_0", "bbc_zvertex_ns");
   ifdelete(Zvtx_ns);
@@ -1732,6 +1798,152 @@ int BbcMonDraw::Draw(const std::string &what)
     TextTzeroZvtx->SetText(10, 4, "Good region");
     TextTzeroZvtx->Draw();
     */
+
+    double nevents = bbc_nevent_counter->GetBinContent(2);
+    PadSouthHitMap->cd();
+    SouthHitMap->Scale(1.0 / nevents);
+    SouthHitMap->Draw("colz");
+
+    PadNorthHitMap->cd();
+    NorthHitMap->Scale(1.0 / nevents);
+    NorthHitMap->Draw("colz");
+  }
+  //copy for all triggers plot
+  if (TC[6])
+  {
+    TC[6]->cd();
+
+    PadTop[4]->cd();
+    PaveTop->Draw();
+    TextTop->Draw();
+
+    PadZVertexSummary->cd();
+
+    Zvtx_alltrigger->SetLineColor(4);
+    Zvtx_alltrigger->SetFillColor(7);
+
+    Zvtx_alltrigger->SetTitle("MBD zvertex");
+    Zvtx_alltrigger->SetLineColor(4);
+    Zvtx_alltrigger->SetFillColor(7);
+    Zvtx_alltrigger->SetMinimum(0); // start plots at zero
+
+
+    // Get Maximum at the inside of BBC which is 130cm from center;
+    float maxEntries = 10;
+
+    for (int i = 0; i < Zvtx_alltrigger->GetNbinsX(); i++)
+    {
+      if (fabs(Zvtx_alltrigger->GetBinCenter(i)) < 130)
+      {
+        if (maxEntries < Zvtx_alltrigger->GetBinContent(i + 1))
+        {
+          maxEntries = Zvtx_alltrigger->GetBinContent(i + 1);
+        }
+      }
+    }
+    
+    // Fit No-Vertex Distribution
+    FitZvtx->SetRange(-75, 75);
+    FitZvtx->SetLineColor(1);
+    // Zvtx->Fit("FitZvtx", "LRQ");
+    Zvtx_alltrigger->Fit("FitZvtx", "R");
+
+    // here we get the relative scaling right to put all on the same plot
+    // the binning might be different, so we first find the bins corresponding to
+    // +- 20cm and then get the Integral corrected for the binwidth
+    // this is then used to get the histograms on the same scale
+
+    Zvtx_alltrigger->SetMaximum(maxEntries * 1.05);
+    Zvtx_alltrigger->SetTitle("MBD ZVertex (south<-->north)");
+
+    if (Zvtx_alltrigger->GetEntries() > 0)
+    {
+      Zvtx_alltrigger->Draw("hist");
+      FitZvtx->Draw("same");
+    }
+    // trigger rate between BBCLL1 and Zvertex within +- BBC_ZVERTEX_CUT_FOR_TRIG_RATE
+    // bbll1, zdc, bbll1_novtx
+
+    float trig_rate[3], trig_rate_err[3];
+    double nevent[3];
+    memset(trig_rate, 0, sizeof(trig_rate));
+    memset(trig_rate_err, 0, sizeof(trig_rate_err));
+    memset(nevent, 0, sizeof(nevent));
+
+    TH1 *Zvtx_array[4];  // with narrow
+    // TH1 *Zvtx_array[3];
+    Zvtx_array[0] = Zvtx;
+
+    int i = 0;
+
+  
+    otext.str("");
+   
+    otext << " ( " << Prescale_hist->GetBinContent(i + 1) << " ) "
+          << " ";
+    // otext << nevent[i]/Prescale_hist->GetBinContent(i+1) ;
+    otext << Zvtx_array[i]->GetEntries();
+
+    text = otext.str();
+    TextZVertex_scale[i]->SetText(xpos[i], 0.50, text.c_str());
+    // TextZVertex_scale[i]->Draw();
+
+    // mean and RMS ---------------------------------------------------------------------
+    otext.str("");
+    otext << ((float) int(Zvtx_array[i]->GetMean() * 10)) / 10.0 << "cm ( "
+          << ((float) int(Zvtx_array[i]->GetRMS() * 10)) / 10.0 << " cm) ";
+    text = otext.str();
+
+    TextZVertex_mean[i]->SetText(xpos[i], 0.25, text.c_str());
+   
+    // Draw Status
+    otext.str("");
+    otext << "Z_{MBDNS}^{Fit}= " << ((float) int(FitZvtx->GetParameter(1) * 10)) / 10.0 
+    	  << " #pm " << ((float)int(FitZvtx->GetParError(1)*10))/10.0
+          << " cm";
+
+    text = otext.str();
+    // TextZvtxStatus[0]->SetText(0.0, 0.85, text.c_str());
+    TextZvtxStatus[0]->SetText(-230., maxEntries * 0.8, text.c_str());
+    TextZvtxStatus[0]->SetTextSize(0.10);
+    TextZvtxStatus[0]->Draw();
+
+    otext.str("");
+    otext << "#sigma = " << int(FitZvtx->GetParameter(2))
+    	  << " #pm " << ((float)int(FitZvtx->GetParError(2)*10))/10.0
+          << " cm";
+    text = otext.str();
+    TextZvtxStatus[1]->SetText(100., maxEntries * 0.8, text.c_str());
+    TextZvtxStatus[1]->SetTextSize(0.10);
+    TextZvtxStatus[1]->Draw();
+
+    // chiu TextBbcSummaryTrigRate->Draw();
+
+    PadZVertex->cd();
+
+    if (Zvtx_alltrigger->GetEntries() > 0)
+    {
+      Zvtx_alltrigger->GetXaxis()->SetRangeUser(-60, 60);
+      Zvtx_alltrigger->Draw("hist");
+      Zvtx_10->Draw("histsame");
+    }
+
+    // Status of sending vertex
+    GetSendFlag();
+    if ( sendflag==1 )
+    {
+      text = "Sending Vertex to MCR";
+    }
+    else
+    {
+      text = "NOT Sending Vertex to MCR";
+    }
+
+    TextZvtxStatus[2]->SetText(-55., Zvtx_alltrigger->GetMaximum()*0.95, text.c_str());
+    TextZvtxStatus[2]->SetTextSize(0.05);
+    TextZvtxStatus[2]->Draw();
+
+  
 
     double nevents = bbc_nevent_counter->GetBinContent(2);
     PadSouthHitMap->cd();
