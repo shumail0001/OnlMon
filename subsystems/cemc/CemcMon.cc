@@ -100,6 +100,7 @@ int CemcMon::Init()
     h2_cemc_hits_trig[itrig] = new TH2F(Form("h2_cemc_hits_trig_bit_%d", itrig), "", 96, 0, 96, 256, 0, 256);
   }
   p2_zsFrac_etaphi = new TProfile2D("p2_zsFrac_etaphi", "", 96, 0, 96, 256, 0, 256);
+  p2_zsFrac_etaphi_all = new TProfile2D("p2_zsFrac_etaphi_all", "", 96, 0, 96, 256, 0, 256);
   h1_cemc_trig = new TH1F("h1_cemc_trig", "", 64, -0.5, 63.5);
   h1_packet_event = new TH1F("h1_packet_event", "", 8, packetlow - 0.5, packethigh + 0.5);
   h2_caloPack_gl1_clock_diff = new TH2F("h2_caloPack_gl1_clock_diff", "", 8, packetlow - 0.5, packethigh + 0.5, 65536, 0, 65536);
@@ -151,6 +152,7 @@ int CemcMon::Init()
     se->registerHisto(this, h2_cemc_hits_trig[itrig]);
   }
   se->registerHisto(this, p2_zsFrac_etaphi);
+  se->registerHisto(this, p2_zsFrac_etaphi_all);
   se->registerHisto(this, h1_cemc_trig);
   se->registerHisto(this, h1_packet_event);
   se->registerHisto(this, h2_caloPack_gl1_clock_diff);
@@ -478,6 +480,15 @@ int CemcMon::process_event(Event *e /* evt */)
           h1_cemc_adc->Fill(signalFast);
         }
         //_______________________________________________________end of MBD trigger requirement
+
+         if (p->iValue(c, "SUPPRESSED"))
+          {
+            p2_zsFrac_etaphi_all->Fill(eta_bin, phi_bin, 0);
+          }
+          else
+          {
+            p2_zsFrac_etaphi_all->Fill(eta_bin, phi_bin, 1);
+          }
 
 
 

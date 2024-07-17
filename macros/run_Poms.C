@@ -41,6 +41,7 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("cemcDraw(\"ALLTRIGHITS\")", "All Trigger Tower Hits");
   subsys->AddAction("cemcDraw(\"SEVENTH\")", "Zero-suppression info");
+  subsys->AddAction("cemcDraw(\"ALLTRIGZS\")", "All Trigger ZS info");
   subsys->AddAction("cemcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
@@ -61,6 +62,7 @@ void StartPoms()
   subsys->AddAction("ihcalDraw(\"SIXTH\")", "Tower Status [Expert]");
   subsys->AddAction("ihcalDraw(\"ALLTRIGHITS\")", "All Trigger Tower Hits");
   subsys->AddAction("ihcalDraw(\"SEVENTH\")", "Zero-suppression info");
+  subsys->AddAction("ihcalDraw(\"ALLTRIGZS\")", "All Trigger ZS info");
   subsys->AddAction("ihcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
@@ -74,6 +76,7 @@ void StartPoms()
   subsys->AddAction("ohcalDraw(\"SIXTH\")", "Tower Status [Expert]");
   subsys->AddAction("ohcalDraw(\"ALLTRIGHITS\")", "All Trigger Tower Hits");
   subsys->AddAction("ohcalDraw(\"SEVENTH\")", "Zero-suppression info");
+  subsys->AddAction("ohcalDraw(\"ALLTRIGZS\")", "All Trigger ZS info");
   subsys->AddAction("ohcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
