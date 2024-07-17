@@ -59,6 +59,7 @@ class CemcMon : public OnlMon
   TH2* h2_caloPack_gl1_clock_diff{nullptr};
   TProfile* h_evtRec{nullptr};
   TProfile2D* p2_zsFrac_etaphi{nullptr};
+  TProfile2D* p2_zsFrac_etaphi_all{nullptr};
 
   TH1* h1_packet_chans{nullptr};
   TH1* h1_packet_length{nullptr};

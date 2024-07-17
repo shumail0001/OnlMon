@@ -213,7 +213,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "CemcAllTrigHits")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[6] = new TCanvas(name.c_str(), "CemcMon Tower Hits", -1, ysize, xsize / 3, ysize);
+    TC[6] = new TCanvas(name.c_str(), "CemcMon Tower Hits all trig", -1, ysize, xsize / 3, ysize);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -336,7 +336,14 @@ int CemcMonDraw::Draw(const std::string &what)
 
 
 // DO NOT CHANGE THE ORDER, DrawSeventh crashes DrawServerStats with an X11 error in the virtual framebuffer in the html
-  if (what == "ALL" || what == "SEVENTH")
+  if (what == "ALL")
+  {
+    iret += DrawSeventh("SEVENTH");
+    idraw++;
+    iret += DrawSeventh("ALLTRIGZS");
+    idraw++;
+  }
+  if(what == "SEVENTH" || what == "ALLTRIGZS")
   {
     iret += DrawSeventh(what);
     idraw++;
@@ -2256,7 +2263,7 @@ int CemcMonDraw::DrawServerStats()
   return 0;
 }
 
-int CemcMonDraw::DrawSeventh(const std::string & /* what */)
+int CemcMonDraw::DrawSeventh(const std::string &  what)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // watch the absolute insanity as we merge all these
@@ -2266,7 +2273,14 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
   TProfile2D *proftmp;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    proftmp = (TProfile2D *) cl->getHisto(*server, "p2_zsFrac_etaphi");
+    if(what=="SEVENTH")
+    {
+      proftmp = (TProfile2D *) cl->getHisto(*server, "p2_zsFrac_etaphi");
+    }
+    else
+    {
+      proftmp = (TProfile2D *) cl->getHisto(*server, "p2_zsFrac_etaphi_all");
+    }
     if (proftmp)
     {
       if (p2_zsFrac_etaphiCombined)
@@ -2286,6 +2300,14 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
   }
   TC[7]->SetEditable(true);
   TC[7]->Clear("D");
+  if(what == "SEVENTH")
+  {
+    TC[7]->SetTitle("Channel unsuppressed event fraction");
+  }
+  else
+  {
+    TC[7]->SetTitle("Channel unsuppressed event fraction (all triggers)");
+  }
   if (!p2_zsFrac_etaphiCombined)
   {
     DrawDeadServer(transparent[7]);

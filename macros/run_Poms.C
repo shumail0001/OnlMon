@@ -41,6 +41,7 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("cemcDraw(\"ALLTRIGHITS\")", "All Trigger Tower Hits");
   subsys->AddAction("cemcDraw(\"SEVENTH\")", "Zero-suppression info");
+  subsys->AddAction("cemcDraw(\"ALLTRIGZS\")", "All Trigger ZS info");
   subsys->AddAction("cemcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
