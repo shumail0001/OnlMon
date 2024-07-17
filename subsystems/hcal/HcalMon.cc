@@ -139,6 +139,7 @@ int HcalMon::Init()
   }
 
   pr_zsFrac_etaphi = new TProfile2D("pr_zsFrac_etaphi", "", 24, 0, 24, 64, 0, 64);
+  pr_zsFrac_etaphi_all = new TProfile2D("pr_zsFrac_etaphi_all", "", 24, 0, 24, 64, 0, 64);
   h_hcal_trig = new TH1F("h_hcal_trig", "", 64, 0, 64);
   h2_hcal_rm = new TH2F("h2_hcal_rm", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_rm_alltrig = new TH2F("h2_hcal_rm_alltrig", "", 24, 0, 24, 64, 0, 64);
@@ -202,6 +203,7 @@ int HcalMon::Init()
   }
 
   se->registerHisto(this, pr_zsFrac_etaphi);
+  se->registerHisto(this, pr_zsFrac_etaphi_all);
   se->registerHisto(this, h_hcal_trig);
   se->registerHisto(this, h_evtRec);
   se->registerHisto(this, h_caloPack_gl1_clock_diff);
@@ -554,6 +556,14 @@ int HcalMon::process_event(Event* e /* evt */)
           }
         }
         //_______________________________________________________end of MBD trigger requirement
+          if (suppressed == 1)
+          {
+            pr_zsFrac_etaphi_all->Fill(eta_bin, phi_bin, 0);
+          }
+          else
+          {
+            pr_zsFrac_etaphi_all->Fill(eta_bin, phi_bin, 1);
+          }
         // record waveform
         for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
         {

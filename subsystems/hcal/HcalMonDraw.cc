@@ -363,7 +363,21 @@ int HcalMonDraw::Draw(const std::string& what)
     }
     idraw++;
   }
-  if (what == "ALL" || what == "SEVENTH")
+  if (what == "ALL")
+  {
+    int retcode = DrawSeventh("SEVENTH");
+    if (!retcode)
+    {
+      isuccess++;
+    }
+    idraw++;
+    retcode = DrawSeventh("ALLTRIGZS");
+    if (!retcode)
+    {
+      isuccess++;
+    }
+  }
+  if(what == "SEVENTH" || what == "ALLTRIGZS")
   {
     int retcode = DrawSeventh(what);
     if (!retcode)
@@ -2541,12 +2555,19 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   return 0;
 }
 
-int HcalMonDraw::DrawSeventh(const std::string& /* what */)
+int HcalMonDraw::DrawSeventh(const std::string&  what)
 {
   OnlMonClient* cl = OnlMonClient::instance();
-
-  TH2* pr_zsFrac_etaphi = (TH2*) cl->getHisto(hcalmon[0], "pr_zsFrac_etaphi");
-  TH2* pr_zsFrac_etaphi_1 = (TH2*) cl->getHisto(hcalmon[1], "pr_zsFrac_etaphi");
+  TH2* pr_zsFrac_etaphi = nullptr;
+  TH2* pr_zsFrac_etaphi_1 = nullptr;
+  if(what == "SEVENTH"){
+    pr_zsFrac_etaphi = (TH2*) cl->getHisto(hcalmon[0], "pr_zsFrac_etaphi");
+    pr_zsFrac_etaphi_1 = (TH2*) cl->getHisto(hcalmon[1], "pr_zsFrac_etaphi");
+  }
+  else{
+    pr_zsFrac_etaphi = (TH2*) cl->getHisto(hcalmon[0], "pr_zsFrac_etaphi_all");
+    pr_zsFrac_etaphi_1 = (TH2*) cl->getHisto(hcalmon[1], "pr_zsFrac_etaphi_all");
+  }
 
   if (!gROOT->FindObject("HcalMon7"))
   {
@@ -2570,6 +2591,13 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
 
   TC[9]->SetEditable(true);
   TC[9]->Clear("D");
+
+  if(what == "SEVENTH"){
+    TC[9]->SetTitle("Unsuppressed Rate");
+  }
+  else{
+    TC[9]->SetTitle("Unsuppressed Rate All triggers");
+  }
 
   Pad[24]->cd();
 
