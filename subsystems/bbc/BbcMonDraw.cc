@@ -953,7 +953,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
   {
     std::cout << "Creating Canvas BbcMon5..." << std::endl;
 
-    TC[5] = new TCanvas("BbcMon5", "MBD Z-Vertex View for Shift crew", -1, 0, xsize / 2, ysize);
+    TC[6] = new TCanvas("BbcMon5", "MBD Z-Vertex View for Shift crew", -1, 0, xsize / 2, ysize);
 
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
@@ -961,7 +961,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     // grow and grow but will not show a definitely lost memory leak
     gSystem->ProcessEvents();
 
-    TC[5]->cd();
+    TC[6]->cd();
     PadTop[4] = new TPad("PadTop0", "PadTop0", 0.00, 0.90, 1.00, 1.00, 0, 0, 0);
     PadZVertex = new TPad("PadZVertex", "PadZVertex", 0.00, 0.60, 1.00, 0.90, 0, 0, 0);
     PadZVertexSummary = new TPad("PadZVertexSummary", "PadZVertexSummary", 0.00, 0.40, 1.00, 0.60, 0, 0, 0);
@@ -996,8 +996,8 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     /*chiu
     TextZVertex[0]->SetText(xpos[0], 0.65, "Zbbc [BBLL1]");       // RUN11 pp
     */
-    TC[5]->cd();
-    transparent[6] = new TPad("transparent0", "this does not show", 0, 0, 1, 1, 0, 0);
+    TC[6]->cd();
+    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1, 0, 0);
     transparent[6]->SetFillStyle(4000);
     transparent[6]->Draw();
   }
@@ -1872,7 +1872,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
     TH1 *Zvtx_array[4];  // with narrow
     // TH1 *Zvtx_array[3];
-    Zvtx_array[0] = Zvtx;
+    Zvtx_array[0] = Zvtx_alltrigger;
 
     int i = 0;
 
@@ -1925,7 +1925,7 @@ int BbcMonDraw::Draw(const std::string &what)
     {
       Zvtx_alltrigger->GetXaxis()->SetRangeUser(-60, 60);
       Zvtx_alltrigger->Draw("hist");
-      Zvtx_10->Draw("histsame");
+      //      Zvtx_10->Draw("histsame");
     }
 
     // Status of sending vertex
@@ -1945,14 +1945,14 @@ int BbcMonDraw::Draw(const std::string &what)
 
   
 
-    double nevents = bbc_nevent_counter->GetBinContent(2);
-    PadSouthHitMap->cd();
-    SouthHitMap->Scale(1.0 / nevents);
-    SouthHitMap->Draw("colz");
+    // double nevents = bbc_nevent_counter->GetBinContent(2);
+    // PadSouthHitMap->cd();
+    // SouthHitMap->Scale(1.0 / nevents);
+    // SouthHitMap->Draw("colz");
 
-    PadNorthHitMap->cd();
-    NorthHitMap->Scale(1.0 / nevents);
-    NorthHitMap->Draw("colz");
+    // PadNorthHitMap->cd();
+    // NorthHitMap->Scale(1.0 / nevents);
+    // NorthHitMap->Draw("colz");
   }
 
   //  bbc_t0_pave->Draw("same");
