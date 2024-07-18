@@ -18,8 +18,20 @@ void bbcDrawInit(const int online = 0)
   OnlMonDraw *bbcmon = new BbcMonDraw("BBCMONDRAW");  // create Drawing Object
   std::string servername = "BBCMON_0";
   bbcmon->AddServer(servername);
-  cl->registerHisto("bbc_south_nhit", servername);
+  // south/north to keep them together
+  cl->registerHisto("bbc_north_chargesum", servername);
+  cl->registerHisto("bbc_south_chargesum", servername);
+  cl->registerHisto("bbc_north_hitmap", servername);
+  cl->registerHisto("bbc_south_hitmap", servername);
+  cl->registerHisto("bbc_north_hittime", servername);
+  cl->registerHisto("bbc_south_hittime", servername);
   cl->registerHisto("bbc_north_nhit", servername);
+  cl->registerHisto("bbc_south_nhit", servername);
+  // all others alphabetically
+  cl->registerHisto("bbc_adc", servername);
+  cl->registerHisto("bbc_avr_hittime", servername);
+  cl->registerHisto("bbc_charge_wave", servername);
+  cl->registerHisto("bbc_nevent_counter", servername);
   cl->registerHisto("bbc_nhit_emcal0", servername);
   cl->registerHisto("bbc_nhit_hcal0", servername);
   cl->registerHisto("bbc_nhit_emcalmbd0", servername);
@@ -28,11 +40,15 @@ void bbcDrawInit(const int online = 0)
   cl->registerHisto("bbc_nhit_hcal1", servername);
   cl->registerHisto("bbc_nhit_emcalmbd1", servername);
   cl->registerHisto("bbc_nhit_hcalmbd1", servername);
-  cl->registerHisto("bbc_adc", servername);
+  cl->registerHisto("bbc_prescale_hist", servername);
   cl->registerHisto("bbc_tdc", servername);
   cl->registerHisto("bbc_tdc_overflow", servername);
   cl->registerHisto("bbc_tdc_armhittime", servername);
+  cl->registerHisto("bbc_time_wave", servername);
+  cl->registerHisto("bbc_trigs", servername);
+  cl->registerHisto("bbc_tzero_zvtx", servername);
   cl->registerHisto("bbc_zvertex", servername);
+  cl->registerHisto("bbc_zvertex_alltrigger", servername);
   cl->registerHisto("bbc_zvertex_ns", servername);
   cl->registerHisto("bbc_zvertex_10", servername);
   cl->registerHisto("bbc_zvertex_30", servername);
@@ -45,19 +61,6 @@ void bbcDrawInit(const int online = 0)
   cl->registerHisto("bbc_zvertex_hcal", servername);
   cl->registerHisto("bbc_zvertex_emcalmbd", servername);
   cl->registerHisto("bbc_zvertex_hcalmbd", servername);
-  cl->registerHisto("bbc_nevent_counter", servername);
-  cl->registerHisto("bbc_tzero_zvtx", servername);
-  cl->registerHisto("bbc_prescale_hist", servername);
-  cl->registerHisto("bbc_trigs", servername);
-  cl->registerHisto("bbc_avr_hittime", servername);
-  cl->registerHisto("bbc_north_hittime", servername);
-  cl->registerHisto("bbc_south_hittime", servername);
-  cl->registerHisto("bbc_north_chargesum", servername);
-  cl->registerHisto("bbc_south_chargesum", servername);
-  cl->registerHisto("bbc_time_wave", servername);
-  cl->registerHisto("bbc_charge_wave", servername);
-  cl->registerHisto("bbc_south_hitmap", servername);
-  cl->registerHisto("bbc_north_hitmap", servername);
 
   // for local host, just call bbcDrawInit(2)
   //cl->AddServerHost("localhost");  // check local host first
