@@ -10,8 +10,6 @@
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TH2.h>
-#include <TH2D.h>
-#include <TH2F.h>
 #include <TLegend.h>
 #include <TLine.h>
 #include <TPad.h>
@@ -340,8 +338,8 @@ int CemcMonDraw::Draw(const std::string &what)
   {
     iret += DrawSeventh("SEVENTH");
     idraw++;
-    iret += DrawSeventh("ALLTRIGZS");
-    idraw++;
+    // iret += DrawSeventh("ALLTRIGZS");
+    // idraw++;
   }
   if(what == "SEVENTH" || what == "ALLTRIGZS")
   {
