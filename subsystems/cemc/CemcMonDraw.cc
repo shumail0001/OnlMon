@@ -334,6 +334,7 @@ int CemcMonDraw::Draw(const std::string &what)
 
 
 // DO NOT CHANGE THE ORDER, DrawSeventh crashes DrawServerStats with an X11 error in the virtual framebuffer in the html
+// DO NOT ADD ANY OTHER METHOD AFTER THIS which gets called by "ALL"
   if (what == "ALL")
   {
     iret += DrawSeventh("SEVENTH");
