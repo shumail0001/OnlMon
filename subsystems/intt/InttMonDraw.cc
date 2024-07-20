@@ -59,11 +59,11 @@ int InttMonDraw::Draw(const std::string& what)
     ++idraw;
   }
 
-  if (what == "ALL" || what == "bco_diff")
-  {
-    iret += Draw_FelixBcoFphxBco();
-    ++idraw;
-  }
+  // if (what == "ALL" || what == "bco_diff")
+  // {
+  //   iret += Draw_FelixBcoFphxBco();
+  //   ++idraw;
+  // }
 
   if (what == "ALL" || what == "fphx_bco")
   {
@@ -921,8 +921,8 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
 
     // TLines
     TLine line;
-    line.SetLineWidth(2);
-    line.SetLineColor(kBlack);
+    line.SetLineWidth(6);
+    line.SetLineColor(kMagenta);
     line.SetLineStyle(2);
   
     m_left_hist_pad[k_zoomedfphxbco][i]->cd();
