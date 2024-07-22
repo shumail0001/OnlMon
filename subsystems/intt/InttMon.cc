@@ -28,12 +28,15 @@ int InttMon::Init()
   OnlMonServer *se = OnlMonServer::instance();
 
   // histograms
-  // GetBinContent(1): # of rcdaq events, GetBinContent(2): # of unique BCOs, GetBinContent(3): BCO order error, GetBinContent(4): Time since last BCO
-  EvtHist = new TH1I("InttEvtHist", "InttEvtHist", 4, 0.0, 1.0);
-  // 26*14
-  HitHist = new TH1I("InttHitHist", "InttHitHist", (NFEES * NCHIPS), 0.0, 1.0);
-  // 128*14
-  BcoHist = new TH2I("InttBcoHist", "InttBcoHist", 2, 0.0, 1.0, (NFEES * NBCOS), 0.0, 1.0);
+  // GetBinContent(1): # of rcdaq events
+  // GetBinContent(2): # of unique BCOs
+  // GetBinContent(3): BCO order error
+  // GetBinContent(4): Time at SOR as seconds since epoch
+  // GetBinContent(4): Time at present or EOR as seconds since epoch
+  EvtHist = new TH1I("InttEvtHist", "InttEvtHist", 5, 0.0, 1.0);
+  HitHist = new TH1I("InttHitHist", "InttHitHist", (NFEES * NCHIPS), 0.0, 1.0); // 26*14
+  BcoHist = new TH2I("InttBcoHist", "InttBcoHist", 2, 0.0, 1.0, (NFEES * NBCOS), 0.0, 1.0); // 128*14
+
   // Decoded BCOs as function of real time, implemented as ring buffer
   LogHist = new TH1I("InttLogHist", "InttLogHist", m_LOG_DURATION / m_LOG_INTERVAL, 0.0, m_LOG_DURATION);
 
@@ -62,6 +65,13 @@ int InttMon::BeginRun(const int /* run_num */)
   m_logged_bcos = 0;
 
   m_prev_time = std::chrono::system_clock::now();
+
+  // I'm being pedantic with this block (instead of using auto)
+  // since I don't use chrono that much
+  std::chrono::time_point<std::chrono::system_clock> const now = std::chrono::system_clock::now();
+  std::chrono::duration<double> duration = now.time_since_epoch();
+  double seconds = duration.count();
+  EvtHist->SetBinContent(4, (int)seconds); // Time at SOR as seconds since epoch
 
   return 0;
 }
@@ -131,11 +141,11 @@ int InttMon::process_event(Event *evt)
   EvtHist->AddBinContent(1);
   EvtHist->SetBinContent(2, m_unique_bco_count + m_unique_bcos.size());
 
-  // I'm being pedantic with this block since I don't use chrono that much
-  auto now = std::chrono::system_clock::now();
-  std::chrono::duration<double> duration = now - m_last_decode_time; // Time since we actually decoded a BCO
+
+  std::chrono::time_point<std::chrono::system_clock> const now = std::chrono::system_clock::now();
+  std::chrono::duration<double> duration = now.time_since_epoch();
   double seconds = duration.count();
-  EvtHist->SetBinContent(4, seconds);
+  EvtHist->SetBinContent(5, (int)seconds); // Time at present or EOR as seconds since epoch
 
   duration = now - m_prev_time; // Time since we updated the decoding rate histogram--we update this every m_LOG_INTERVAL even if we don't decode BCOs
   seconds = duration.count();
@@ -148,7 +158,7 @@ int InttMon::process_event(Event *evt)
 
 	if(m_log_bin == N - 1)
 	{
-	  LogHist->AddBinContent(N + 1); // flag that content was wrapped
+	  LogHist->AddBinContent(N + 1); // number of times content was wrapped
 	}
 
 	m_log_bin = (m_log_bin + 1) % N;
@@ -161,6 +171,10 @@ int InttMon::process_event(Event *evt)
   }
 
   LogHist->SetBinContent(m_log_bin, m_unique_bco_count + m_unique_bcos.size() - m_logged_bcos);
+  // if(m_unique_bco_count + m_unique_bcos.size() - m_logged_bcos)
+  // {
+  //   std::cout << "decoded " << m_unique_bco_count + m_unique_bcos.size() - m_logged_bcos << std::endl;
+  // }
 
   return 0;
 }
