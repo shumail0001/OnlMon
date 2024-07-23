@@ -1114,7 +1114,6 @@ int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
       if(!bincont)
       {
         continue;
-        std::cout << "filled 0" << std::endl;
       }
       bincont /= evt_hist->GetBinContent(2); // Normalize by number of unique BCOs
 
@@ -1263,13 +1262,12 @@ int InttMonDraw::Draw_History()
   int oldest = std::numeric_limits<int>::max();
   int newest = std::numeric_limits<int>::min();
 
-  m_single_transparent_pad[k_history]->Clear();
   for(int i = 0; i < 8; ++i)
   {
     // Access client
     OnlMonClient* cl = OnlMonClient::instance();
 
-    TH1* evt_hist = cl->getHisto(Form("INTTMON_%d", i), "InttEvtHist");
+    TH1I* evt_hist = dynamic_cast<TH1I*>(cl->getHisto(Form("INTTMON_%d", i), "InttEvtHist"));
     if(!evt_hist)
     {
       m_single_transparent_pad[k_history]->cd();
@@ -1345,7 +1343,7 @@ int InttMonDraw::Draw_History()
     // Access client
     OnlMonClient* cl = OnlMonClient::instance();
 
-    TH1* evt_hist = cl->getHisto(Form("INTTMON_%d", i), "InttEvtHist");
+    TH1I* evt_hist = dynamic_cast<TH1I*>(cl->getHisto(Form("INTTMON_%d", i), "InttEvtHist"));
     if(!evt_hist)
     {
       continue;
@@ -1382,14 +1380,11 @@ int InttMonDraw::Draw_History()
       // Draw it conventionally
 	  // Present/EOR is aligned on right edge
       int buff_index = log_hist->GetBinContent(N);
-	  int N_0 = log_hist->GetBinContent(N + 1) ? N : buff_index;
       for(int n = 0; n < N; ++n)
       {
         double rate = log_hist->GetBinContent(buff_index) / w;
-	    double time = (evt_hist->GetBinContent(5) - newest) + w * (N_0 - n);
+	    double time = (evt_hist->GetBinContent(5) - newest) + w * (N - n);
 	    int bin = m_hist_history[i]->FindBin(time);
-
-	    // if(n < 20)std::cout << "i: " << i << " time: " << time << " bin: " << bin << " N: " << N << " rate: " << rate << std::endl;
 
 	    m_hist_history[i]->SetBinContent(bin, rate);
         if(max < rate)
@@ -1411,14 +1406,11 @@ int InttMonDraw::Draw_History()
       // I don't know why people want this but here it is
 	  // SOR is aligned with left edge
 	  int buff_index = log_hist->GetBinContent(N);
-	  int N_0 = log_hist->GetBinContent(N + 1) ? N : buff_index;
       for(int n = 0; n < N; ++n)
       {
-        double rate = log_hist->GetBinContent(buff_index) / w;
-	    double time = (evt_hist->GetBinContent(4) - oldest) + w * (N_0 - n);
+        double rate = log_hist->GetBinContent(buff_index % N) / w;
+	    double time = evt_hist->GetBinContent(5) - oldest - w * n;
 	    int bin = m_hist_history[i]->FindBin(time);
-
-	    // if(n < 20)std::cout << "i: " << i << " time: " << time << " bin: " << bin << " N: " << N << " rate: " << rate << std::endl;
 
 	    m_hist_history[i]->SetBinContent(bin, rate);
         if(max < rate)
@@ -1437,6 +1429,7 @@ int InttMonDraw::Draw_History()
 	}
   }
 
+  m_single_transparent_pad[k_history]->Clear();
   if(2 < num_dead)
   {
     m_single_transparent_pad[k_history]->cd();
