@@ -1436,10 +1436,11 @@ int InttMonDraw::Draw_History()
     TText dead_text;
     dead_text.SetTextColor(kRed);
     dead_text.SetTextAlign(22);
-    dead_text.SetTextSize(0.1);
+    dead_text.SetTextSize(0.06);
     // dead_text.SetTextAngle(45);
     dead_text.DrawText(0.5, 0.65, "Dead Felix Servers");
-    dead_text.DrawText(0.5, 0.35, "Restart Run");
+    dead_text.DrawText(0.5, 0.50, "Check server stats");
+    dead_text.DrawText(0.5, 0.35, "If no dead OnlMon servers, restart run");
   }
 
   for(int i = 0; i < 8; ++i)
