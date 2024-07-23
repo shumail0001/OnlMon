@@ -64,7 +64,7 @@ int InttMon::BeginRun(const int /* run_num */)
   m_log_bin = 0;
   m_logged_bcos = 0;
 
-  m_prev_time = std::chrono::system_clock::now();
+  m_start_time = std::chrono::system_clock::now();
 
   // I'm being pedantic with this block (instead of using auto)
   // since I don't use chrono that much
@@ -118,7 +118,6 @@ int InttMon::process_event(Event *evt)
   	  }
 
   	  m_unique_bcos.insert(bco_full);
-      m_last_decode_time = std::chrono::system_clock::now();
 	}
 
     delete pkt;
@@ -147,30 +146,31 @@ int InttMon::process_event(Event *evt)
   double seconds = duration.count();
   EvtHist->SetBinContent(5, (int)seconds); // Time at present or EOR as seconds since epoch
 
-  duration = now - m_prev_time; // Time since we updated the decoding rate histogram--we update this every m_LOG_INTERVAL even if we don't decode BCOs
+  duration = now - m_start_time; // Time since we updated the decoding rate histogram--we update this every m_LOG_INTERVAL even if we don't decode BCOs
   seconds = duration.count();
 
+  int N = LogHist->GetNbinsX();
+  int logged_seconds = m_LOG_INTERVAL * (N * LogHist->GetBinContent(N + 1) + m_log_bin);
+
   // See if we should increment m_log_bin
-  while(m_LOG_INTERVAL < seconds)
+  while(logged_seconds < seconds)
   {
-    m_prev_time = now;
-    int N = LogHist->GetNbinsX();
+    m_logged_bcos = m_unique_bco_count + m_unique_bcos.size();
 
 	if(m_log_bin == N - 1)
 	{
 	  LogHist->AddBinContent(N + 1); // number of times content was wrapped
 	}
-
 	m_log_bin = (m_log_bin + 1) % N;
-    m_logged_bcos = m_unique_bco_count + m_unique_bcos.size();
 
 	LogHist->SetBinContent(m_log_bin, 0);
 	LogHist->SetBinContent(N, m_log_bin);
 
-	seconds -= m_LOG_INTERVAL;
+	logged_seconds += m_LOG_INTERVAL;
   }
 
   LogHist->SetBinContent(m_log_bin, m_unique_bco_count + m_unique_bcos.size() - m_logged_bcos);
+
   // if(m_unique_bco_count + m_unique_bcos.size() - m_logged_bcos)
   // {
   //   std::cout << "decoded " << m_unique_bco_count + m_unique_bcos.size() - m_logged_bcos << std::endl;
