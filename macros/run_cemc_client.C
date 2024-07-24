@@ -27,6 +27,7 @@ void cemcDrawInit(const int online = 0)
       }
       cl->registerHisto("p2_zsFrac_etaphi"  , servername.c_str());
       cl->registerHisto("p2_zsFrac_etaphi_all", servername.c_str());
+      cl->registerHisto("p2_bad_chi2", servername.c_str());
       cl->registerHisto("h1_cemc_trig", servername.c_str());
       cl->registerHisto("h_evtRec", servername.c_str());
       cl->registerHisto("h2_cemc_rm", servername.c_str());
