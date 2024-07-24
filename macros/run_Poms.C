@@ -28,8 +28,9 @@ void StartPoms()
   subsys->AddAction("bbcDraw(\"FIRST\")", "MBD Vertex Monitor");
   subsys->AddAction("bbcDraw(\"SECOND\")", "MBD Timing Monitor");
   subsys->AddAction("bbcDraw(\"THIRD\")", "MBD Triggered Monitor");
+  subsys->AddAction("bbcDraw(\"BbcMon5\")", "Vertex for All Triggers");
   subsys->AddAction("bbcDraw(\"MBD2MCR\")", "MBD TOGGLE VTX TO MCR");
-  subsys->AddAction("bbcDraw(\"BADGL1\")", "MBD TOGGLE IGNORE GL1 MISS");
+  //  subsys->AddAction("bbcDraw(\"BADGL1\")", "MBD TOGGLE IGNORE GL1 MISS");
   subsys->AddAction("bbcDraw(\"BbcMonServerStats\")", "MBD Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
@@ -47,12 +48,12 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("DAQ", "daq");
-  subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
-  subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check");
-  subsys->AddAction("daqDraw(\"SERVERSTATS\")", "Server Stats");
-  subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  pmf->RegisterSubSystem(subsys);
+  // subsys = new SubSystem("DAQ", "daq");
+  // subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
+  // subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check");
+  // subsys->AddAction("daqDraw(\"SERVERSTATS\")", "Server Stats");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
@@ -84,7 +85,7 @@ void StartPoms()
 
   subsys = new SubSystem("INTT", "intt");
   subsys->AddAction("inttDraw(\"chip_hitmap\")", "Chip Hitmap");
-  subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff");
+  // subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff");
   subsys->AddAction("inttDraw(\"zoomed_fphx_bco\")", "Zoomed Fphx BCO");
   subsys->AddAction("inttDraw(\"history\")", "Decoding Rate");
   subsys->AddAction("inttDraw(\"fphx_bco\")", "Fphx BCO [Expert]");
@@ -134,6 +135,7 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCMODULE\")", "TPC SUM[ADC]");
   subsys->AddAction("tpcDraw(\"TPCSAMPLESIZE\")", "TPC Sample Size");
   subsys->AddAction("tpcDraw(\"TPCCHECKSUMERROR\")", "TPC Checksum Error Prob.");
+  subsys->AddAction("tpcDraw(\"TPCPARITYERROR\")", "TPC Parity Error Prob.");
   subsys->AddAction("tpcDraw(\"TPCADCVSSAMPLE\")", "TPC ADC vs. Sample");
   subsys->AddAction("tpcDraw(\"TPCADCVSSAMPLELARGE\")", "TPC ADC vs. Large Sample");
   subsys->AddAction("tpcDraw(\"TPCMAXADCMODULE\")", "TPC MAX10ADC-Pedestal 1D");

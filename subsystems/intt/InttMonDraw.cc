@@ -2,6 +2,8 @@
 
 #include <TPolyLine.h>
 
+#include <limits>
+
 InttMonDraw::InttMonDraw(const std::string& name)
   : OnlMonDraw(name)
 {
@@ -59,11 +61,11 @@ int InttMonDraw::Draw(const std::string& what)
     ++idraw;
   }
 
-  if (what == "ALL" || what == "bco_diff")
-  {
-    iret += Draw_FelixBcoFphxBco();
-    ++idraw;
-  }
+  // if (what == "ALL" || what == "bco_diff")
+  // {
+  //   iret += Draw_FelixBcoFphxBco();
+  //   ++idraw;
+  // }
 
   if (what == "ALL" || what == "fphx_bco")
   {
@@ -921,8 +923,8 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
 
     // TLines
     TLine line;
-    line.SetLineWidth(2);
-    line.SetLineColor(kBlack);
+    line.SetLineWidth(6);
+    line.SetLineColor(kMagenta);
     line.SetLineStyle(2);
   
     m_left_hist_pad[k_zoomedfphxbco][i]->cd();
@@ -1112,7 +1114,6 @@ int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
       if(!bincont)
       {
         continue;
-        std::cout << "filled 0" << std::endl;
       }
       bincont /= evt_hist->GetBinContent(2); // Normalize by number of unique BCOs
 
@@ -1257,14 +1258,16 @@ int InttMonDraw::Draw_History()
   // hist
   double max = 0.0;
   int num_dead = 0;
-  m_single_transparent_pad[k_history]->Clear();
+
+  int oldest = std::numeric_limits<int>::max();
+  int newest = std::numeric_limits<int>::min();
+
   for(int i = 0; i < 8; ++i)
   {
     // Access client
     OnlMonClient* cl = OnlMonClient::instance();
 
-    // check to see if the most recent intervals are identically dead
-    TH1* evt_hist = cl->getHisto(Form("INTTMON_%d", i), "InttEvtHist");
+    TH1I* evt_hist = dynamic_cast<TH1I*>(cl->getHisto(Form("INTTMON_%d", i), "InttEvtHist"));
     if(!evt_hist)
     {
       m_single_transparent_pad[k_history]->cd();
@@ -1273,15 +1276,9 @@ int InttMonDraw::Draw_History()
       dead_text.SetTextAlign(22);
       dead_text.SetTextSize(0.1);
       dead_text.SetTextAngle(45);
-      // dead_text.DrawText(0.5, 0.5, "Dead Server");
+      // dead_text.DrawText(0.5, 0.5, "Dead Onlmon Server");
       ++num_dead;
       continue;
-    }
-
-    // Server has been running for 3 minutes without recieving decodable BCOs
-    if(180 < evt_hist->GetBinContent(4))
-    {
-      ++num_dead;
     }
 
     TH1* log_hist = cl->getHisto(Form("INTTMON_%d", i), "InttLogHist");
@@ -1293,8 +1290,68 @@ int InttMonDraw::Draw_History()
       dead_text.SetTextAlign(22);
       dead_text.SetTextSize(0.1);
       dead_text.SetTextAngle(45);
-      // dead_text.DrawText(0.5, 0.5, "Dead Server");
+      // dead_text.DrawText(0.5, 0.5, "Dead Onlmon Server");
       ++num_dead;
+      continue;
+    }
+    int N = log_hist->GetNbinsX();
+    double w = log_hist->GetXaxis()->GetBinWidth(0);
+
+	// Step through most recent 180 seconds of the histogram
+	// if the rate is identically 0, say it is dead
+	bool is_dead = true;
+    int buff_index = log_hist->GetBinContent(N);
+    for(double duration = 0; duration < 180; duration += w)
+    {
+      double rate = log_hist->GetBinContent(buff_index);
+	  if(0 < rate)
+	  {
+        is_dead = false;
+        break;
+	  }
+
+	  // N + 1 bin stores how many times the data has been wrapped
+	  // if it's not wrapped and we're at bin 0, break b/c we don't have the duration of data yet
+	  if(buff_index == 0 && (log_hist->GetBinContent(N + 1) == 0))
+	  {
+        is_dead = false;
+        break;
+	  }
+
+	  buff_index = (buff_index + N - 1) % N;
+    }
+
+	if(is_dead)
+	{
+      ++num_dead;
+	}
+
+    // Get the time frame of server relative to Unix Epoch
+    // stored in bins 4 and 5 of EvtHist
+    if(evt_hist->GetBinContent(4) < oldest)
+    {
+      oldest = evt_hist->GetBinContent(4); // SOR time relative to epoch
+    }
+    if(newest < evt_hist->GetBinContent(5))
+    {
+      newest = evt_hist->GetBinContent(5); // present or EOR time relative to epoch
+    }
+  }
+
+  for(int i = 0; i < 8; ++i)
+  {
+    // Access client
+    OnlMonClient* cl = OnlMonClient::instance();
+
+    TH1I* evt_hist = dynamic_cast<TH1I*>(cl->getHisto(Form("INTTMON_%d", i), "InttEvtHist"));
+    if(!evt_hist)
+    {
+      continue;
+    }
+
+    TH1* log_hist = cl->getHisto(Form("INTTMON_%d", i), "InttLogHist");
+    if(!log_hist)
+    {
       continue;
     }
 
@@ -1318,48 +1375,72 @@ int InttMonDraw::Draw_History()
     m_hist_history[i]->Draw("Same");
 
     // Fill
-    int buff_index = log_hist->GetBinContent(N);
-    if(log_hist->GetBinContent(N + 1))
-    {
-      // The contents should be displayed as being wrapped
-      // start from right edge and go backward in time
-      for(int n = N; 0 < n; --n)
+	if(w * N < newest - oldest)
+	{
+      // Draw it conventionally
+	  // Present/EOR is aligned on right edge
+      int buff_index = log_hist->GetBinContent(N);
+      for(int n = 0; n < N; ++n)
       {
         double rate = log_hist->GetBinContent(buff_index) / w;
-        m_hist_history[i]->SetBinContent(n, rate);
+	    double time = (evt_hist->GetBinContent(5) - newest) + w * (N - n);
+	    int bin = m_hist_history[i]->FindBin(time);
+
+	    m_hist_history[i]->SetBinContent(bin, rate);
         if(max < rate)
         {
           max = rate;
         }
-        buff_index = (buff_index + N - 1) % N;
+
+	    // N + 1 bin stores how many times the data has been wrapped
+	    // if it's not wrapped and we're at bin 0, break b/c we don't have the duration of data yet
+	    if(buff_index == 0 && (log_hist->GetBinContent(N + 1) == 0))
+	    {
+          break;
+	    }
+	    buff_index = (buff_index + N - 1) % N;
       }
-    }
-    else
-    {
-      // The contents should not be displayed as being wrapped
-      // start from left edge and go forward in time
-      for(int n = 0; n < buff_index; ++n)
+	}
+	else
+	{
+      // I don't know why people want this but here it is
+	  // SOR is aligned with left edge
+	  int buff_index = log_hist->GetBinContent(N);
+      for(int n = 0; n < N; ++n)
       {
-        double rate = log_hist->GetBinContent(n + 1) / w;
-        m_hist_history[i]->SetBinContent(n + 1, rate);
+        double rate = log_hist->GetBinContent(buff_index % N) / w;
+	    double time = evt_hist->GetBinContent(5) - oldest - w * n;
+	    int bin = m_hist_history[i]->FindBin(time);
+
+	    m_hist_history[i]->SetBinContent(bin, rate);
         if(max < rate)
         {
           max = rate;
         }
+
+	    // N + 1 bin stores how many times the data has been wrapped
+	    // if it's not wrapped and we're at bin 0, break b/c we don't have the duration of data yet
+	    if(buff_index == 0 && (log_hist->GetBinContent(N + 1) == 0))
+	    {
+          break;
+	    }
+	    buff_index = (buff_index + N - 1) % N;
       }
-    }
+	}
   }
 
+  m_single_transparent_pad[k_history]->Clear();
   if(2 < num_dead)
   {
     m_single_transparent_pad[k_history]->cd();
     TText dead_text;
     dead_text.SetTextColor(kRed);
     dead_text.SetTextAlign(22);
-    dead_text.SetTextSize(0.1);
+    dead_text.SetTextSize(0.06);
     // dead_text.SetTextAngle(45);
     dead_text.DrawText(0.5, 0.65, "Dead Felix Servers");
-    dead_text.DrawText(0.5, 0.35, "Restart Run");
+    dead_text.DrawText(0.5, 0.50, "Check server stats");
+    dead_text.DrawText(0.5, 0.35, "If no dead OnlMon servers, restart run");
   }
 
   for(int i = 0; i < 8; ++i)
@@ -1368,7 +1449,7 @@ int InttMonDraw::Draw_History()
     {
       continue;
     }
-    m_hist_history[i]->GetYaxis()->SetRangeUser(0, 1.5 * max);
+    m_hist_history[i]->GetYaxis()->SetRangeUser(-0.2 * max, 1.2 * max);
   }
 
   // Draw Legend
