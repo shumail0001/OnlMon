@@ -44,6 +44,7 @@ class CemcMonDraw : public OnlMonDraw
   int DrawSixth(const std::string &what = "ALL");
   int DrawSeventh(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
+  int DrawBadChi2(const std::string &what = "ALL");
   int DrawServerStats();
 
   int FindHotTower(TPad *warn, TH2 *, bool usetemplate = true);

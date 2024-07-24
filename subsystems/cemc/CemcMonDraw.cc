@@ -2,6 +2,8 @@
 
 #include <onlmon/OnlMonClient.h>
 
+#include <calobase/TowerInfoDefs.h>
+
 #include <TAxis.h>  // for TAxis
 #include <TCanvas.h>
 #include <TFile.h>
@@ -230,6 +232,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     warning[2]->Draw();
     TC[6]->SetEditable(false);
   }
+
   // Commented until potential replacement with TProfile3D
   // else if (name == "CemcPopup"){
   //   PopUpCanvas = new TCanvas(name.c_str(),"Waveforms Expert",-xsize-0.3,0,xsize*0.3,ysize*0.9);
@@ -278,6 +281,18 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     transparent[7]->SetFillStyle(4000);
     transparent[7]->Draw();
     TC[7]->SetEditable(false);
+  }
+  else if (name == "CemcBadChi2")
+  {
+    TC[8] = new TCanvas(name.c_str(), "Bad Chi2", -1, ysize, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    Pad[21] = new TPad("cemcpad21", "who needs this?", 0.00, 0.00, 1.00, 0.95);
+    Pad[21]->SetRightMargin(0.15);
+    Pad[21]->Draw();
+    transparent[8] = new TPad("transparent8", "this does not show", 0, 0, 1, 1);
+    transparent[8]->SetFillStyle(4000);
+    transparent[8]->Draw();
+    TC[8]->SetEditable(false);
   }
 
   return 0;
@@ -329,6 +344,11 @@ int CemcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "ALLTRIGHITS")
   {
     iret += DrawAllTrigHits(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "BADCHI2")
+  {
+    iret += DrawBadChi2(what);
     idraw++;
   }
 
@@ -2260,6 +2280,110 @@ int CemcMonDraw::DrawServerStats()
   TC[5]->SetEditable(false);
 
   return 0;
+}
+
+int CemcMonDraw::DrawBadChi2(const std::string & /* what */)
+{
+   OnlMonClient *cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("CemcBadChi2"))
+  {
+    MakeCanvas("CemcBadChi2");
+  }
+  TC[8]->Clear("D");
+  TC[8]->SetEditable(true);
+  transparent[8]->cd();
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.03);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::ostringstream runnostream2;
+  std::string runstring;
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << "Tower with bad chi2";
+  runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime.first);
+
+  runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+
+  runstring = runnostream2.str();
+  PrintRun.DrawText(0.5, 0.966, runstring.c_str());
+
+  TProfile2D *p2_bad_chi2 = nullptr;
+  TProfile2D *proftmp;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    proftmp = (TProfile2D *) cl->getHisto(*server, "p2_bad_chi2");
+    if (proftmp)
+    {
+      if (p2_bad_chi2)
+      {
+        p2_bad_chi2->Add(proftmp);
+      }
+      else
+      {
+        p2_bad_chi2 = proftmp;
+      }
+    }
+  }
+  Pad[21] -> cd();
+  std::vector<std::pair<int, int>> badchi2;
+  //loop over TProfile to find bad chi2
+  for (int i = 1; i <= p2_bad_chi2->GetNbinsX(); i++)
+  {
+    for (int j = 1; j <= p2_bad_chi2->GetNbinsY(); j++)
+    {
+      float bad_chi2_prob = p2_bad_chi2->GetBinContent(i, j);
+      if (bad_chi2_prob > 0)
+      {
+        //do stuff here find the sector and IB and display the text
+        badchi2.push_back(std::make_pair(i-1, j-1));
+      }
+    }
+  }
+  //text display
+  double vdist = 0.04; // Vertical distance between lines
+  double vpos = 0.92;  // Starting vertical position
+  int displayedTowers = 0;
+  TText printChi2;
+  printChi2.SetTextFont(62);
+  printChi2.SetNDC();          // Set to normalized coordinates
+  printChi2.SetTextAlign(23);  // Center/top alignment
+  printChi2.SetTextSize(0.04);
+  printChi2.SetTextColor(1);
+  for (const auto& [x, y] : badchi2)
+  {
+    float badChi2Rate = p2_bad_chi2->GetBinContent(x + 1, y + 1); // Adjusting for ROOT's 1-based indexing
+    std::ostringstream txt;
+    txt << "Tower(" << x << "," << y << "): bad chi2 rate=" << badChi2Rate;
+    
+    
+    printChi2.DrawText(0.5, vpos, txt.str().c_str());
+
+    vpos -= vdist; // Move to the next line
+    displayedTowers++;
+    if (vpos < 0.1) break; // Prevent drawing outside the canvas
+  }
+
+  int remainingTowers = badchi2.size() - displayedTowers;
+  if (remainingTowers > 0)
+  {
+    // Use TText to draw a message indicating how many more towers there are
+    std::ostringstream moreTxt;
+    moreTxt << "And " << remainingTowers << " more...";
+    printChi2.DrawText(0.5, 0.05, moreTxt.str().c_str()); // Draw at the bottom
+  }
+
+  TC[8]->Update();
+  TC[8]->Show();
+  TC[8]->SetEditable(false);
+ 
+  return 0;
+
 }
 
 int CemcMonDraw::DrawSeventh(const std::string &  what)
