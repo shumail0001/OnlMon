@@ -61,11 +61,11 @@ int InttMonDraw::Draw(const std::string& what)
     ++idraw;
   }
 
-  // if (what == "ALL" || what == "bco_diff")
-  // {
-  //   iret += Draw_FelixBcoFphxBco();
-  //   ++idraw;
-  // }
+  if (what == "ALL" || what == "bco_diff")
+  {
+    iret += Draw_FelixBcoFphxBco();
+    ++idraw;
+  }
 
   if (what == "ALL" || what == "fphx_bco")
   {
