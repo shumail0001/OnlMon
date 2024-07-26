@@ -51,6 +51,7 @@ class InttMon : public OnlMon
   int m_unique_bco_count = {};
   int m_log_bin = 0;
   int m_logged_bcos = 0;
+  int m_evt_per_cout = 50000;
 
   std::chrono::time_point<std::chrono::system_clock> m_start_time{};
 };
