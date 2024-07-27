@@ -28,10 +28,10 @@ class InttMon : public OnlMon
   static constexpr int NFEES = 14;
   static constexpr int NBCOS = 128;
 
-  int static const m_MAX_BCO_DIFF = 1000;
+  // int static const m_MAX_BCO_DIFF = 1000;
 
   int static const m_LOG_DURATION = 3600; // seconds
-  int static const m_LOG_INTERVAL = 3;    // seconds
+  int static const m_LOG_INTERVAL = 15;   // seconds
 
   Packet** plist{nullptr};
   TH1* EvtHist{nullptr};
