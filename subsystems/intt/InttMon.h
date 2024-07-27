@@ -28,10 +28,10 @@ class InttMon : public OnlMon
   static constexpr int NFEES = 14;
   static constexpr int NBCOS = 128;
 
-  int static const m_MAX_BCO_DIFF = 1000;
+  // int static const m_MAX_BCO_DIFF = 1000;
 
   int static const m_LOG_DURATION = 3600; // seconds
-  int static const m_LOG_INTERVAL = 3;    // seconds
+  int static const m_LOG_INTERVAL = 15;   // seconds
 
   Packet** plist{nullptr};
   TH1* EvtHist{nullptr};
@@ -51,6 +51,7 @@ class InttMon : public OnlMon
   int m_unique_bco_count = {};
   int m_log_bin = 0;
   int m_logged_bcos = 0;
+  int m_evt_per_cout = 50000;
 
   std::chrono::time_point<std::chrono::system_clock> m_start_time{};
 };

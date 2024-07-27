@@ -1301,7 +1301,7 @@ int InttMonDraw::Draw_History()
 	// if the rate is identically 0, say it is dead
 	bool is_dead = true;
     int buff_index = log_hist->GetBinContent(N);
-    for(double duration = 0; duration < 180; duration += w)
+    for(double duration = 0; duration < 90; duration += w)
     {
       double rate = log_hist->GetBinContent(buff_index);
 	  if(0 < rate)
@@ -1430,7 +1430,7 @@ int InttMonDraw::Draw_History()
   }
 
   m_single_transparent_pad[k_history]->Clear();
-  if(2 < num_dead)
+  if(0 < num_dead)
   {
     m_single_transparent_pad[k_history]->cd();
     TText dead_text;

@@ -124,18 +124,29 @@ int InttMon::process_event(Event *evt)
   }
 
   // Go through our list of unique BCOs and "flush" them into a counter
-  std::set<unsigned long long, bco_comparator_s>::const_iterator bco_itr = m_unique_bcos.begin();
-  for(bco_itr = m_unique_bcos.begin(); bco_itr != m_unique_bcos.end(); ++bco_itr)
+  if(100 < m_unique_bcos.size())
   {
-    if((m_most_recent_bco == std::numeric_limits<unsigned long long>::max()) || m_bco_less(m_most_recent_bco - m_MAX_BCO_DIFF, *bco_itr))
+    std::set<unsigned long long, bco_comparator_s>::const_iterator bco_itr = m_unique_bcos.begin();
+    // for(bco_itr = m_unique_bcos.begin(); bco_itr != m_unique_bcos.end(); ++bco_itr)
+    for(int n = 0; n < 10; ++n)
     {
-      break;
-    }
+      if(bco_itr == m_unique_bcos.end())
+      {
+	    break;
+      }
 
-    ++m_unique_bco_count;
-    m_last_flushed_bco = *bco_itr;
+      // if((m_most_recent_bco == std::numeric_limits<unsigned long long>::max()) || m_bco_less(m_most_recent_bco - m_MAX_BCO_DIFF, *bco_itr))
+      if( m_most_recent_bco == std::numeric_limits<unsigned long long>::max() )
+      {
+        break;
+      }
+
+      ++m_unique_bco_count;
+      m_last_flushed_bco = *bco_itr;
+	  ++bco_itr;
+    }
+    m_unique_bcos.erase(m_unique_bcos.begin(), bco_itr);
   }
-  m_unique_bcos.erase(m_unique_bcos.begin(), bco_itr);
 
   EvtHist->AddBinContent(1);
   EvtHist->SetBinContent(2, m_unique_bco_count + m_unique_bcos.size());
@@ -176,6 +187,15 @@ int InttMon::process_event(Event *evt)
   //   std::cout << "decoded " << m_unique_bco_count + m_unique_bcos.size() - m_logged_bcos << std::endl;
   // }
 
+  // if(!((int)(EvtHist->GetBinContent(1)) % m_evt_per_cout))
+  // {
+  //   std::cout << std::hex;
+  //   std::cout << "last flushed: 0x" << m_last_flushed_bco << std::endl;
+  //   std::cout << "most recent:  0x" << m_most_recent_bco << std::endl;
+  //   std::cout << std::dec;
+  // }
+
+
   return 0;
 }
 
@@ -186,21 +206,21 @@ int InttMon::Reset()
 
 int InttMon::MiscDebug()
 {
-  for (int fee = 0; fee < 14; ++fee)
-  {
-    for (int chp = 0; chp < 26; ++chp)
-    {
-      HitHist->SetBinContent(fee * NCHIPS + chp + 1, chp);
-    }
-  }
+  // for (int fee = 0; fee < 14; ++fee)
+  // {
+  //   for (int chp = 0; chp < 26; ++chp)
+  //   {
+  //     HitHist->SetBinContent(fee * NCHIPS + chp + 1, chp);
+  //   }
+  // }
 
-  for (int fee = 0; fee < 14; ++fee)
-  {
-    for (int bco = 0; bco < 128; ++bco)
-    {
-      BcoHist->SetBinContent(fee * NBCOS + bco + 1, fee);
-    }
-  }
+  // for (int fee = 0; fee < 14; ++fee)
+  // {
+  //   for (int bco = 0; bco < 128; ++bco)
+  //   {
+  //     BcoHist->SetBinContent(fee * NBCOS + bco + 1, fee);
+  //   }
+  // }
 
   return 0;
 }
