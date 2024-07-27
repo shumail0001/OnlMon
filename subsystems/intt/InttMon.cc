@@ -187,13 +187,13 @@ int InttMon::process_event(Event *evt)
   //   std::cout << "decoded " << m_unique_bco_count + m_unique_bcos.size() - m_logged_bcos << std::endl;
   // }
 
-  if(!((int)(EvtHist->GetBinContent(1)) % m_evt_per_cout))
-  {
-    std::cout << std::hex;
-    std::cout << "last flushed: 0x" << m_last_flushed_bco << std::endl;
-    std::cout << "most recent:  0x" << m_most_recent_bco << std::endl;
-    std::cout << std::dec;
-  }
+  // if(!((int)(EvtHist->GetBinContent(1)) % m_evt_per_cout))
+  // {
+  //   std::cout << std::hex;
+  //   std::cout << "last flushed: 0x" << m_last_flushed_bco << std::endl;
+  //   std::cout << "most recent:  0x" << m_most_recent_bco << std::endl;
+  //   std::cout << std::dec;
+  // }
 
 
   return 0;
