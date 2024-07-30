@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <ctime>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <set>
 #include <string>
