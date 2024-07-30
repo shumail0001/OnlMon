@@ -920,6 +920,7 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   //TH1I *mLaneStatusSummaryIB[NFlx + 1] = {nullptr};
   TH1D *mvtxmon_mGeneralErrorPlots[NFlx + 1] = {nullptr};
   TH2D *mvtxmon_mGeneralErrorFile[NFlx + 1] = {nullptr};
+  TH1I *hRDHErrors[NFlx + 1] = {nullptr};
 
   for (int iFelix = 0; iFelix < NFlx; iFelix++)
   {
@@ -935,6 +936,7 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
       mLaneStatusCumulative[i][iFelix] = dynamic_cast<TH2I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), Form("FEE_LaneStatusFromSOX_Flag_%s", mLaneStatusFlag[i].c_str())));
       //mLaneStatusSummary[i][iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), Form("FEE_LaneStatusSummary_Layer_%i", i)));
     }
+    hRDHErrors[iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "RDHErrors_hfeeRDHErrors"));
   }
 
   for (int i = 0; i < 3; i++)
@@ -949,6 +951,7 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   MergeServers<TH2I *>(FHR_ErrorVsFeeid);
     MergeServers<TH1D *>(mvtxmon_mGeneralErrorPlots);
       MergeServers<TH2D *>(mvtxmon_mGeneralErrorFile);
+  MergeServers<TH1I *>(hRDHErrors);
 
   if (!gROOT->FindObject("MvtxMon_FEE"))
   {
@@ -957,7 +960,7 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
 
   TC[canvasID]->SetEditable(true);
   TC[canvasID]->Clear("D");
-  Pad[padID]->Divide(3, 3);
+  Pad[padID]->Divide(4, 3);
 
   for (int i = 0; i < 3; i++)
   {
@@ -1036,9 +1039,10 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
 
   int returnCode = 0;
  // Pad[padID]->cd(1)->SetLeftMargin(0.16);
-  returnCode += PublishHistogram(Pad[padID], 7, mvtxmon_mGeneralErrorPlots[NFlx]);
-  returnCode += PublishHistogram(Pad[padID], 8, mvtxmon_mGeneralErrorFile[NFlx], "lcol");
-  returnCode += PublishHistogram(Pad[padID], 9, FHR_ErrorVsFeeid[NFlx], "lcol");
+  returnCode += PublishHistogram(Pad[padID], 9, mvtxmon_mGeneralErrorPlots[NFlx]);
+  returnCode += PublishHistogram(Pad[padID], 10, mvtxmon_mGeneralErrorFile[NFlx], "lcol");
+  returnCode += PublishHistogram(Pad[padID], 11, FHR_ErrorVsFeeid[NFlx], "lcol");
+  returnCode += PublishHistogram(Pad[padID], 12, hRDHErrors[NFlx], "lcol");
   //returnCode += PublishHistogram(Pad[padID], 1, mTriggerVsFeeId[NFlx], "lcol");
   //returnCode += PublishHistogram(Pad[padID], 5, mTrigger[NFlx]);
   // returnCode += PublishHistogram(Pad[9],3,mLaneInfo[NFlx]);
@@ -1057,17 +1061,17 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   {
     i->Draw();
   }*/
-  returnCode += PublishHistogram(Pad[padID], 4, mLaneStatusCumulative[0][NFlx], "lcol");
+  returnCode += PublishHistogram(Pad[padID], 5, mLaneStatusCumulative[0][NFlx], "lcol");
   /*for (auto &i : tlayer)
   {
     i->Draw();
   }*/
-  returnCode += PublishHistogram(Pad[padID], 5, mLaneStatusCumulative[1][NFlx], "lcol");
+  returnCode += PublishHistogram(Pad[padID], 6, mLaneStatusCumulative[1][NFlx], "lcol");
   /*for (auto &i : tlayer)
   {
     i->Draw();
   }*/
-  returnCode += PublishHistogram(Pad[padID], 6, mLaneStatusCumulative[2][NFlx], "lcol");
+  returnCode += PublishHistogram(Pad[padID], 7, mLaneStatusCumulative[2][NFlx], "lcol");
   /*for (auto &i : tlayer)
   {
     i->Draw();

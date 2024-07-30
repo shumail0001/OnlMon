@@ -69,6 +69,9 @@ void mvtxDrawInit(const int online = 0)
     {
       cl->registerHisto(Form("MVTXMON_Occupancy_Layer%d_Layer%dDeadChipPos", mLayer, mLayer), servername);
     }
+
+    cl->registerHisto("RDHErrors_hfeeRDHErrors", servername);
+
   }
 
   // for local host, just call mvtxDrawInit(2)
