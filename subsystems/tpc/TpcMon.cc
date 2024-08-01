@@ -905,10 +905,12 @@ int TpcMon::process_event(Event *evt/* evt */)
         int parityError = p->iValue(wf, "DATAPARITYERROR");
         int channel = p->iValue(wf, "CHANNEL");
 
-        Check_Sums->Fill(FEE_transform[fee]*8 + sampaAddress); 
-        if( checksumError == 1){Check_Sum_Error->Fill(FEE_transform[fee]*8 + sampaAddress);}
-        if( parityError == 1){Parity_Error->Fill(FEE_transform[fee]*8 + sampaAddress);}
-
+        if( p->iValue(wf,"TYPE")!=0 ){
+          Check_Sums->Fill(FEE_transform[fee]*8 + sampaAddress); 
+          if( checksumError == 1){Check_Sum_Error->Fill(FEE_transform[fee]*8 + sampaAddress);}
+          if( parityError == 1){Parity_Error->Fill(FEE_transform[fee]*8 + sampaAddress);}
+        }
+ 
         if( (checksumError == 0 && parityError == 0) &&  p->iValue(wf,"TYPE")!= 0){Channels_in_Packet->Fill(channel + (256*FEE_transform[fee]));} // do not fill for heartbeat WFs
 
         int nr_Samples = p->iValue(wf, "SAMPLES");
