@@ -34,8 +34,8 @@ int InttMon::Init()
   // GetBinContent(4): Time at SOR as seconds since epoch
   // GetBinContent(4): Time at present or EOR as seconds since epoch
   EvtHist = new TH1I("InttEvtHist", "InttEvtHist", 5, 0.0, 1.0);
-  HitHist = new TH1I("InttHitHist", "InttHitHist", (NFEES * NCHIPS), 0.0, 1.0); // 26*14
-  BcoHist = new TH2I("InttBcoHist", "InttBcoHist", 2, 0.0, 1.0, (NFEES * NBCOS), 0.0, 1.0); // 128*14
+  HitHist = new TH1D("InttHitHist", "InttHitHist", (NFEES * NCHIPS), 0.0, 1.0); // 26*14
+  BcoHist = new TH2D("InttBcoHist", "InttBcoHist", 2, 0.0, 1.0, (NFEES * NBCOS), 0.0, 1.0); // 128*14
 
   // Decoded BCOs as function of real time, implemented as ring buffer
   LogHist = new TH1I("InttLogHist", "InttLogHist", m_LOG_DURATION / m_LOG_INTERVAL, 0.0, m_LOG_DURATION);
