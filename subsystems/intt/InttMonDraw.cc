@@ -189,7 +189,7 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   }
   if (name == "InttFelixBcoFphxBco")
   {
-    TC[k_felixbcofphxbco] = new TCanvas(name.c_str(), "Felix Fphx Bco", -1, 0, m_cnvs_width, m_cnvs_height);
+    TC[k_felixbcofphxbco] = new TCanvas(name.c_str(), "Felix Fphx Bco (Triggered)", -1, 0, m_cnvs_width, m_cnvs_height);
     gSystem->ProcessEvents();
     transparent[k_felixbcofphxbco] = new TPad(Form("transparent%d", k_felixbcofphxbco), "this does not show", 0, 0, 1, 1);
     transparent[k_felixbcofphxbco]->SetFillStyle(4000);  // Transparent
@@ -201,7 +201,7 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   }
   if (name == "InttJustFphxBco")
   {
-    TC[k_justfphxbco] = new TCanvas(name.c_str(), "Just Fphx Bco", m_cnvs_width, m_cnvs_height);
+    TC[k_justfphxbco] = new TCanvas(name.c_str(), "Just Fphx Bco (Streaming)", m_cnvs_width, m_cnvs_height);
     gSystem->ProcessEvents();
     transparent[k_justfphxbco] = new TPad(Form("transparent%d", k_justfphxbco), "this does not show", 0, 0, 1, 1);
     transparent[k_justfphxbco]->SetFillStyle(4000);  // Transparent
@@ -213,7 +213,7 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   }
   if (name == "InttZoomedFphxBco")
   {
-    TC[k_zoomedfphxbco] = new TCanvas(name.c_str(), "Zoomed Fphx Bco", m_cnvs_width, m_cnvs_height);
+    TC[k_zoomedfphxbco] = new TCanvas(name.c_str(), "Zoomed Fphx Bco (Streaming)", m_cnvs_width, m_cnvs_height);
     gSystem->ProcessEvents();
     transparent[k_zoomedfphxbco] = new TPad(Form("transparent%d", k_zoomedfphxbco), "this does not show", 0, 0, 1, 1);
     transparent[k_zoomedfphxbco]->SetFillStyle(4000);  // Transparent
