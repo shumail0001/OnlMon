@@ -35,17 +35,19 @@ class MvtxMonDraw : public OnlMonDraw
   int MakeHtml(const std::string &what = "ALL") override;
   int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
 
-  int PublishHistogram(TCanvas *c, int pad, TH1 *h, const char *opt = "");
-  int PublishHistogram(TPad *p, TH1 *h, const char *opt = "");
+  int PublishHistogram(TCanvas *c, int pad, TH1 *h, const char *opt = "", int palettestyle=0);
+  int PublishHistogram(TPad *p, TH1 *h, const char *opt = "", int palettestyle=0);
   // template <typename T>
   // int PublishHistogram(TPad *p, int pad, T h, const char* opt = "");
-  int PublishHistogram(TPad *p, int pad, TH1 *h, const char *opt = "");
+  int PublishHistogram(TPad *p, int pad, TH1 *h, const char *opt = "", int palettestyle=0);
   void PublishStatistics(int canvasid, OnlMonClient *cl);
   template <typename T>
   int MergeServers(T *h);
   void formatPaveText(TPaveText *aPT, float aTextSize, Color_t aTextColor, short aTextAlign, const char *aText);
   std::vector<Quality> analyseForError(TH2Poly *lane, TH2Poly *noisy, TH1 *strobes, TH1 *decErr, TH1 *decErrTime, TH1 *DMAstat);
   void DrawPave(std::vector<MvtxMonDraw::Quality> status, int position, const char *what = "");
+  static void setPalDefault();
+  static void setPalUser();
 
  private:
   const static int NSTAVE = 48;
@@ -81,6 +83,7 @@ class MvtxMonDraw : public OnlMonDraw
   OnlMonDB *dbvars[NFlx] = {nullptr};
 
   int maxbadchips = 2;
+
 };
 
 #endif /* MVTX_MVTXMONDRAW_H */

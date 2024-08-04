@@ -21,6 +21,7 @@
 #include <TStyle.h>
 #include <TSystem.h>
 #include <TText.h>
+#include <TExec.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -601,8 +602,8 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   //DrawPave(status, 0);
   //returnCode += PublishHistogram(Pad[padID], 2, mvtxmon_mGeneralOccupancy[NFlx]);
   returnCode += PublishHistogram(Pad[padID], 2, mvtxmon_mGeneralOccupancy[NFlx], "colz");
-  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx]);
-  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "colz same");
+  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "", 1);
+  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "colz same", 1);
   returnCode += PublishHistogram(Pad[padID], 5, mvtxmon_mGeneralErrorPlotsTime[NFlx]);
   //returnCode += PublishHistogram(Pad[padID], 5, hStrobesDMA[NFlx]);
   
@@ -1416,7 +1417,7 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
   int returnCode = 0;
   // returnCode += PublishHistogram(Pad[padID],1,mErrorVsFeeid[0]);
   // returnCode += PublishHistogram(Pad[padID],6,mGeneralOccupancy[NFlx],"COLZ");
-  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "COLZ");
+  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "COLZ", 0);
   returnCode += PublishHistogram(Pad[padID], 1, mDeadChipPos[0][NFlx], "COL");
   returnCode += PublishHistogram(Pad[padID], 4, mDeadChipPos[1][NFlx], "COL");
   returnCode += PublishHistogram(Pad[padID], 7, mDeadChipPos[2][NFlx], "COL");
@@ -1637,8 +1638,25 @@ int MvtxMonDraw::DrawHistory(const std::string & /* what */)
   return 0;
 }
 
+void MvtxMonDraw::setPalDefault()
+{
+    gStyle->SetPalette(1);
+}
+
+void MvtxMonDraw::setPalUser()
+{
+   const int numColorsUser = 3;
+   int colorsUser[numColorsUser] = {
+        TColor::GetColor(0, 255, 0), //green
+        TColor::GetColor(255, 255, 0), //yellow
+        TColor::GetColor(255, 0, 0) //red
+   };
+
+   gStyle->SetPalette(numColorsUser, colorsUser);
+}
+
 // template <typename T>
-int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, TH1 *h, const char *opt)
+int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, TH1 *h, const char *opt, int palettestyle)
 {
   if (c && pad != 0)
   {
@@ -1647,7 +1665,25 @@ int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, TH1 *h, const char *opt)
   }
   if (h)
   {
-    h->DrawCopy(opt);
+    if (palettestyle==0)
+    {
+      TExec *ex1 = new TExec("ex1","MvtxMonDraw::setPalDefault();");
+      ex1->Draw();
+      h->DrawCopy(opt);
+    }
+    else if (palettestyle==1)
+    {
+      h->SetMinimum(-1);
+      h->SetMaximum(1200);
+      // palette only for noisy pixel
+      h->DrawCopy(opt);
+      const int numLevels = 3;
+      double levels[numLevels] = { 0, 200, 1000 };
+      h->SetContour(numLevels, levels);
+      TExec *ex1 = new TExec("ex1","MvtxMonDraw::setPalUser();");
+      ex1->Draw();
+      h->DrawCopy(opt);
+    }
     return 0;
   }
   else
@@ -1658,13 +1694,13 @@ int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, TH1 *h, const char *opt)
 }
 
 // template <typename T>
-int MvtxMonDraw::PublishHistogram(TPad *p, int pad, TH1 *h, const char *opt)
+int MvtxMonDraw::PublishHistogram(TPad *p, int pad, TH1 *h, const char *opt, int palettestyle)
 {
   if (p && pad != 0)
   {
     p->cd(pad);
     TCanvas *c = nullptr;
-    return PublishHistogram(c, 0, h, opt);
+    return PublishHistogram(c, 0, h, opt, palettestyle);
   }
   else
   {
@@ -1673,13 +1709,13 @@ int MvtxMonDraw::PublishHistogram(TPad *p, int pad, TH1 *h, const char *opt)
 }
 
 // template <typename T>
-int MvtxMonDraw::PublishHistogram(TPad *p, TH1 *h, const char *opt)
+int MvtxMonDraw::PublishHistogram(TPad *p, TH1 *h, const char *opt, int palettestyle)
 {
   if (p)
   {
     p->cd();
     TCanvas *c = nullptr;
-    return PublishHistogram(c, 0, h, opt);
+    return PublishHistogram(c, 0, h, opt, palettestyle);
   }
 
   else
