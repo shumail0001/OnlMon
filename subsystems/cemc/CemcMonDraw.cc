@@ -2338,7 +2338,7 @@ int CemcMonDraw::DrawBadChi2(const std::string & /* what */)
     for (int j = 1; j <= p2_bad_chi2->GetNbinsY(); j++)
     {
       float bad_chi2_prob = p2_bad_chi2->GetBinContent(i, j);
-      if (bad_chi2_prob > 0)
+      if (bad_chi2_prob > 0.5)
       {
         //do stuff here find the sector and IB and display the text
         badchi2.push_back(std::make_pair(i-1, j-1));
@@ -2357,10 +2357,27 @@ int CemcMonDraw::DrawBadChi2(const std::string & /* what */)
   printChi2.SetTextColor(1);
   for (const auto& [x, y] : badchi2)
   {
+    bool ifknownbad = false;
+    for (const auto& [i, j] : hotChannels)
+    {
+      if (i == x && j == y)
+      {
+        ifknownbad = true;
+        break;
+      }
+    }
     float badChi2Rate = p2_bad_chi2->GetBinContent(x + 1, y + 1); // Adjusting for ROOT's 1-based indexing
     std::ostringstream txt;
     txt << "Tower(" << x << "," << y << "): bad chi2 rate=" << badChi2Rate;
-    
+    // If the tower is known to be bad, draw it in red
+    if (ifknownbad)
+    {
+      printChi2.SetTextColor(kRed);
+    }
+    else
+    {
+      printChi2.SetTextColor(kBlack);
+    }
     
     printChi2.DrawText(0.5, vpos, txt.str().c_str());
 
