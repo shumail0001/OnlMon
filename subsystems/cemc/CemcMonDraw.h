@@ -92,6 +92,8 @@ class CemcMonDraw : public OnlMonDraw
       ZSPalette[i] = FI + i;
     }
   }
+  //know hot channels (4,24)
+  std::set<std::pair<int, int>> hotChannels =  {{4, 24}, {4, 56}, {83, 179}, {51, 253}};
 };
 
 #endif /* CEMC_CEMCMONDRAW_H */
