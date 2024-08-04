@@ -325,6 +325,8 @@ int MvtxMon::Init()
   mGeneralNoisyPixel->GetXaxis()->SetTitle("");
   mGeneralNoisyPixel->GetYaxis()->SetTitle("");
   mGeneralNoisyPixel->SetStats(false);
+  mGeneralNoisyPixel->SetMinimum(-1);
+  mGeneralNoisyPixel->SetMaximum(1200);
 
   createPoly(mGeneralOccupancy);
   createPoly(mGeneralNoisyPixel);
