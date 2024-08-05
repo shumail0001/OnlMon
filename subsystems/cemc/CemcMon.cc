@@ -533,7 +533,8 @@ int CemcMon::process_event(Event *e /* evt */)
         {
           std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
           float chi2 = resultTemp.at(3);
-          if(chi2 > 100000)
+          float signalTemp = resultTemp.at(0);
+          if(chi2 > signalTemp*signalTemp / 50. )
           {
             p2_bad_chi2->Fill(eta_bin, phi_bin, 1);
           }
