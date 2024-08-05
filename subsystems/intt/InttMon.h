@@ -31,7 +31,7 @@ class InttMon : public OnlMon
   // int static const m_MAX_BCO_DIFF = 1000;
 
   int static const m_LOG_DURATION = 3600; // seconds
-  int static const m_LOG_INTERVAL = 15;   // seconds
+  int static const m_LOG_INTERVAL = 30;   // seconds
 
   Packet** plist{nullptr};
   TH1* EvtHist{nullptr};
