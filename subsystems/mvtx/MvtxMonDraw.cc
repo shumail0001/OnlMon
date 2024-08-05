@@ -1714,12 +1714,12 @@ int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, TH1 *h, const char *opt, 
     }
     else if (palettestyle==1)
     {
-      h->SetMinimum(-1);
-      h->SetMaximum(1200);
+      h->SetMinimum(-1/48);
+      h->SetMaximum(1200/48);
       // palette only for noisy pixel
       h->DrawCopy(opt);
       const int numLevels = 3;
-      double levels[numLevels] = { 0, 200, 1000 };
+      double levels[numLevels] = { 0, 200/48, 1000/48 };
       h->SetContour(numLevels, levels);
       h->SetMarkerSize(2);
       TExec *ex1 = new TExec("ex1","MvtxMonDraw::setPalUser();");
