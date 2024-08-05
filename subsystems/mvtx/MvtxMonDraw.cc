@@ -506,6 +506,9 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   if (mvtxmon_mGeneralOccupancy[NFlx])
   {
     mvtxmon_mGeneralOccupancy[NFlx]->GetYaxis()->SetTitleOffset(0.6);
+    mvtxmon_mGeneralOccupancy[NFlx]->SetMinimum(0);
+    mvtxmon_mGeneralOccupancy[NFlx]->SetMaximum(100E-6); // set max to 0.6% occupancy
+    mvtxmon_mGeneralOccupancy[NFlx]->SetContour(100);
   }
 
    if (mvtxmon_ChipStave1D[NFlx])
@@ -602,8 +605,8 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   //DrawPave(status, 0);
   //returnCode += PublishHistogram(Pad[padID], 2, mvtxmon_mGeneralOccupancy[NFlx]);
   returnCode += PublishHistogram(Pad[padID], 2, mvtxmon_mGeneralOccupancy[NFlx], "colz");
-  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "", 1);
-  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "colz same", 1);
+  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "colz", 1);
+  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "colztext same", 1);
   returnCode += PublishHistogram(Pad[padID], 5, mvtxmon_mGeneralErrorPlotsTime[NFlx]);
   //returnCode += PublishHistogram(Pad[padID], 5, hStrobesDMA[NFlx]);
   
@@ -718,15 +721,18 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   {
     if (status.at(0) == Quality::Medium)
     {
-      ptt4->AddText("#color[808]{QA Layer 0 Medium}");
+      // ptt4->AddText("#color[808]{Layer 0 Medium}");
+      ptt4->AddText("#color[808]{Lane error(s) in Layer 0}");
     }
     if (status.at(1) == Quality::Medium)
     {
-      ptt4->AddText("#color[808]{QA Layer 1 Medium}");
+      // ptt4->AddText("#color[808]{QA Layer 1 Medium}");
+      ptt4->AddText("#color[808]{Lane error(s) in Layer 1}");
     }
     if (status.at(2) == Quality::Medium)
     {
-      ptt4->AddText("#color[808]{QA Layer 2 Medium}");
+      // ptt4->AddText("#color[808]{QA Layer 2 Medium}");
+      ptt4->AddText("#color[808]{Lane error(s) in Layer 2}");
     }
     if (status.at(3) == Quality::Medium)
     {
@@ -807,15 +813,15 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   {
     if (status.at(0) == Quality::Bad)
     {
-      ptt4->AddText("#color[2]{QA Layer 0 Bad}");
+      ptt4->AddText("#color[2]{>1/5 of staves in Layer 0 BAD}");
     }
     if (status.at(1) == Quality::Bad)
     {
-      ptt4->AddText("#color[2]{QA Layer 1 Bad}");
+      ptt4->AddText("#color[2]{>1/5 of staves in Layer 1 BAD}");
     }
     if (status.at(2) == Quality::Bad)
     {
-      ptt4->AddText("#color[2]{QA Layer 2 Bad}");
+      ptt4->AddText("#color[2]{>1/5 of staves in Layer 2 BAD}");
     }
     if (status.at(3) == Quality::Bad)
     {
@@ -1680,6 +1686,7 @@ int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, TH1 *h, const char *opt, 
       const int numLevels = 3;
       double levels[numLevels] = { 0, 200, 1000 };
       h->SetContour(numLevels, levels);
+      h->SetMarkerSize(2);
       TExec *ex1 = new TExec("ex1","MvtxMonDraw::setPalUser();");
       ex1->Draw();
       h->DrawCopy(opt);

@@ -320,7 +320,7 @@ int MvtxMon::Init()
   mGeneralOccupancy->SetStats(false);
 
   mGeneralNoisyPixel = new TH2Poly();
-  mGeneralNoisyPixel->SetTitle("Noisy Pixel Number; ; ");
+  mGeneralNoisyPixel->SetTitle("Unmasked Noisy Pixel Number; ; ");
   mGeneralNoisyPixel->SetName("MVTXMON_General_Noisy_Pixel");
   mGeneralNoisyPixel->GetXaxis()->SetTitle("");
   mGeneralNoisyPixel->GetYaxis()->SetTitle("");
