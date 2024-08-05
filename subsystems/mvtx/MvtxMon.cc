@@ -203,7 +203,7 @@ int MvtxMon::Init()
 
   se->registerHisto(this, hErrorPlots);
 
-  hErrorPlotsTime = new TH1D("General_DecErrorsTime", "Decoding Errors Time Serie", 50, 0.5, 50.5);
+  hErrorPlotsTime = new TH1D("General_DecErrorsTime", "Rolling History Of Decoding Errors", 50, 0.5, 50.5);
   hErrorPlotsTime->GetYaxis()->SetTitle("Number of Errors");
   hErrorPlotsTime->GetXaxis()->SetTitle("Time");
   hErrorPlotsTime->SetMinimum(0);       // remove
@@ -320,7 +320,7 @@ int MvtxMon::Init()
   mGeneralOccupancy->SetStats(false);
 
   mGeneralNoisyPixel = new TH2Poly();
-  mGeneralNoisyPixel->SetTitle("Noisy Pixel Number; ; ");
+  mGeneralNoisyPixel->SetTitle("Unmasked Noisy Pixel Number; ; ");
   mGeneralNoisyPixel->SetName("MVTXMON_General_Noisy_Pixel");
   mGeneralNoisyPixel->GetXaxis()->SetTitle("");
   mGeneralNoisyPixel->GetYaxis()->SetTitle("");
