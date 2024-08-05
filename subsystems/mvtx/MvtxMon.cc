@@ -203,7 +203,7 @@ int MvtxMon::Init()
 
   se->registerHisto(this, hErrorPlots);
 
-  hErrorPlotsTime = new TH1D("General_DecErrorsTime", "Decoding Errors Time Serie", 50, 0.5, 50.5);
+  hErrorPlotsTime = new TH1D("General_DecErrorsTime", "Rolling History Of Decoding Errors", 50, 0.5, 50.5);
   hErrorPlotsTime->GetYaxis()->SetTitle("Number of Errors");
   hErrorPlotsTime->GetXaxis()->SetTitle("Time");
   hErrorPlotsTime->SetMinimum(0);       // remove
