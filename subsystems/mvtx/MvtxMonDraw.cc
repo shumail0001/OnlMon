@@ -583,9 +583,11 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
     mvtxmon_mGeneralErrorPlotsTime[NFlx]->GetXaxis()->SetTickLength(0);
   }
 
-
-  hChipStrobes[NFlx]->SetMinimum(0);
-  hChipStrobes[NFlx]->SetTitle("Strobe & L1 vs Chip");
+ if(hChipStrobes[NFlx])
+  {
+    hChipStrobes[NFlx]->SetMinimum(0);
+    hChipStrobes[NFlx]->SetTitle("Strobe & L1 vs Chip");
+  }
 
     TPaveText *tlayer[3] = {nullptr};
 
@@ -639,19 +641,22 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   //returnCode += PublishHistogram(Pad[padID], 5, hStrobesDMA[NFlx]);
   
   returnCode += PublishHistogram(Pad[padID], 4, hChipStrobes[NFlx]);
-
+if(hChipStrobes[NFlx]){
   for (const int& lay : LayerBoundaryFEE)
     {
       auto l = new TLine(lay, 0, lay, 1.1*hChipStrobes[NFlx]->GetMaximum());
       l->Draw("same");
     }
-
-  Float_t rightmax = 2 * hChipL1[NFlx]->GetMaximum();
+}
+Float_t rightmax = 0.1;
+if(hChipL1[NFlx] && hChipStrobes[NFlx]){
+  rightmax = 2 * hChipL1[NFlx]->GetMaximum();
   Float_t scale = hChipStrobes[NFlx]->GetMaximum() / rightmax;
   hChipL1[NFlx]->SetLineColor(kRed);
   hChipL1[NFlx]->Scale(scale);
+}
   returnCode += PublishHistogram(Pad[padID], 4, hChipL1[NFlx], "same hist");
-
+if(hChipStrobes[NFlx]){
   TGaxis *axis = new TGaxis(48 * 3, 0, 48 * 3, hChipStrobes[NFlx]->GetMaximum(), 0, rightmax, 510, "+L");
   axis->SetLineColor(kRed);
   axis->SetLabelColor(kRed);
@@ -660,7 +665,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   axis->SetTitleColor(kRed);
   axis->SetTitle("Number of L1 triggers");
   axis->Draw();
-
+}
   for (auto &i : tlayer)
   {
     i->Draw();
@@ -673,13 +678,13 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
    
 
   returnCode += PublishHistogram(Pad[padID], 6, mvtxmon_ChipStave1D[NFlx]);
-
+if(mvtxmon_ChipStave1D[NFlx]){
   for (const int& lay : LayerBoundaryChip)
     {
       auto ll = new TLine(lay, 0, lay, 1.1* mvtxmon_ChipStave1D[NFlx]->GetMaximum());
       ll->Draw("same");
     }
-
+}
     for (auto &i : tlayer)
   {
     i->Draw();
@@ -891,7 +896,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   tlegend->Draw();
 
 bool DMA_error[12] = {false};
-
+if(hStrobesDMA[NFlx]){
 for (int iDMA = 0; iDMA < NFlx*2; iDMA++){
   if(lastStrobes[iDMA] > static_cast<int>(hStrobesDMA[NFlx]->GetBinContent(iDMA+1))){
     lastStrobes[iDMA] = static_cast<int>(hStrobesDMA[NFlx]->GetBinContent(iDMA+1));
@@ -904,6 +909,7 @@ for (int iDMA = 0; iDMA < NFlx*2; iDMA++){
     DMA_error[iDMA] = false;
     lastStrobes[iDMA] = static_cast<int>(hStrobesDMA[NFlx]->GetBinContent(iDMA+1));
   }
+}
 }
 
   
