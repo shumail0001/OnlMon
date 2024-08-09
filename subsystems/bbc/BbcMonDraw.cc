@@ -2072,6 +2072,14 @@ int BbcMonDraw::Draw(const std::string &what)
       SouthHitTime->Fit("FitSouthHitTime", "QRL");
       FitSouthHitTime->Draw("same");
 
+      PadSouthHitTime->Update();
+      TLine aline;
+      aline.SetLineStyle(7);
+      aline.SetLineColor(kRed);
+      aline.SetLineWidth(4);
+      aline.DrawLine(-5.0, gPad->GetFrame()->GetY1(), -5.0, gPad->GetFrame()->GetY2());
+      aline.DrawLine(+5.0, gPad->GetFrame()->GetY1(), +5.0, gPad->GetFrame()->GetY2());
+
       /*
       // Lines to indicate good mean
       float height = SouthHitTime->GetMaximum();
@@ -2091,6 +2099,7 @@ int BbcMonDraw::Draw(const std::string &what)
     {
       PadNorthHitTime->cd();
       NorthHitTime->Draw();
+
       float rangemin;
       float rangemax;
       int npeak = tspec->Search(NorthHitTime, 5, "goff",0.2);  // finds the highest peak, draws marker
@@ -2124,6 +2133,14 @@ int BbcMonDraw::Draw(const std::string &what)
       FitNorthHitTime->SetRange(rangemin, rangemax);
       NorthHitTime->Fit("FitNorthHitTime", "QRL");
       FitNorthHitTime->Draw("same");
+
+      PadNorthHitTime->Update();
+      TLine aline;
+      aline.SetLineStyle(7);
+      aline.SetLineColor(kRed);
+      aline.SetLineWidth(4);
+      aline.DrawLine(-5.0 ,gPad->GetFrame()->GetY1(),-5.0,gPad->GetFrame()->GetY2());
+      aline.DrawLine(+5.0,gPad->GetFrame()->GetY1(),+5.0,gPad->GetFrame()->GetY2());
 
       /*
       // Lines to indicate good mean
