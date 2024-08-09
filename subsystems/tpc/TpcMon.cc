@@ -231,7 +231,7 @@ int TpcMon::Init()
   char ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
   sprintf(ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
-  ADC_vs_SAMPLE = new TH2F("ADC_vs_SAMPLE", ADC_vs_SAMPLE_str, 425, 0, 425, 256, 0, 1024);
+  ADC_vs_SAMPLE = new TH2F("ADC_vs_SAMPLE", ADC_vs_SAMPLE_str, 500, 0, 500, 256, 0, 1024);
   ADC_vs_SAMPLE -> SetXTitle(ADC_vs_SAMPLE_xaxis_str);
   ADC_vs_SAMPLE -> SetYTitle("ADC [ADU]");
 
@@ -246,7 +246,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
-  PEDEST_SUB_ADC_vs_SAMPLE = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE", PEDEST_SUB_ADC_vs_SAMPLE_str, 425, 0, 425, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE", PEDEST_SUB_ADC_vs_SAMPLE_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE -> SetYTitle("ADC-ped. [ADU]");
 
@@ -261,7 +261,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_str,"ADC Counts vs Sample: SECTOR %i R1",MonitorServerId());
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str,"Sector %i R1: ADC Time bin [1/20MHz]",MonitorServerId());
-  PEDEST_SUB_ADC_vs_SAMPLE_R1 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R1", PEDEST_SUB_ADC_vs_SAMPLE_R1_str, 425, 0, 425, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE_R1 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R1", PEDEST_SUB_ADC_vs_SAMPLE_R1_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R1 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R1 -> SetYTitle("ADC-ped. [ADU]");
 
@@ -276,7 +276,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_str,"ADC Counts vs Sample: SECTOR %i R2",MonitorServerId());
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str,"Sector %i R2: ADC Time bin [1/20MHz]",MonitorServerId());
-  PEDEST_SUB_ADC_vs_SAMPLE_R2 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R2", PEDEST_SUB_ADC_vs_SAMPLE_R2_str, 425, 0, 425, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE_R2 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R2", PEDEST_SUB_ADC_vs_SAMPLE_R2_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R2 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R2 -> SetYTitle("ADC-ped. [ADU]");
   
@@ -291,7 +291,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_str,"ADC Counts vs Sample: SECTOR %i R3",MonitorServerId());
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str,"Sector %i R3: ADC Time bin [1/20MHz]",MonitorServerId());
-  PEDEST_SUB_ADC_vs_SAMPLE_R3 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R3", PEDEST_SUB_ADC_vs_SAMPLE_R3_str, 425, 0, 425, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE_R3 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R3", PEDEST_SUB_ADC_vs_SAMPLE_R3_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R3 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R3 -> SetYTitle("ADC-ped. [ADU]");
 
@@ -434,7 +434,7 @@ int TpcMon::Init()
   char ZS_ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(ZS_ADC_vs_SAMPLE_str,"ADC Counts vs Sample - Trigger QA: SECTOR %i",MonitorServerId());
   sprintf(ZS_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
-  ZS_Trigger_ADC_vs_Sample = new TH2F("ZS_Trigger_ADC_vs_Sample", ZS_ADC_vs_SAMPLE_str, 425, -0.5, 424.5, 1024, 0, 1024);
+  ZS_Trigger_ADC_vs_Sample = new TH2F("ZS_Trigger_ADC_vs_Sample", ZS_ADC_vs_SAMPLE_str, 500, -0.5, 499.5, 1024, 0, 1024);
   ZS_Trigger_ADC_vs_Sample -> SetXTitle(ZS_ADC_vs_SAMPLE_xaxis_str);
   ZS_Trigger_ADC_vs_Sample -> SetYTitle("ADC [ADU]");
 
@@ -449,7 +449,7 @@ int TpcMon::Init()
   char First_ADC_vs_First_Time_Bin_xaxis_str[100];
   sprintf(First_ADC_vs_First_Time_Bin_str,"1st nonZS ADC vs 1st nonZS Sample Time: SECTOR %i",MonitorServerId());
   sprintf(First_ADC_vs_First_Time_Bin_xaxis_str,"Sector %i: 1st non-ZS Time bin [1/20MHz]",MonitorServerId());
-  First_ADC_vs_First_Time_Bin = new TH2F("First_ADC_vs_First_Time_Bin", First_ADC_vs_First_Time_Bin_str, 425, -0.5, 424.5, 256, 0, 1024);
+  First_ADC_vs_First_Time_Bin = new TH2F("First_ADC_vs_First_Time_Bin", First_ADC_vs_First_Time_Bin_str, 500, -0.5, 499.5, 256, 0, 1024);
   First_ADC_vs_First_Time_Bin -> SetXTitle(First_ADC_vs_First_Time_Bin_xaxis_str);
   First_ADC_vs_First_Time_Bin -> SetYTitle("1st non-ZS ADC [ADU]");
 
@@ -494,7 +494,7 @@ int TpcMon::Init()
   RAWADC_1D_R1 = new TH1F("RAWADC_1D_R1",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R1 = new TH1F("MAXADC_1D_R1",MAXADC_1D_titlestr,1025,-0.5,1024.5);
   PEDEST_SUB_1D_R1 = new TH1F("PEDEST_SUB_1D_R1",SUBADC_1D_titlestr,1125,-100.5,1024.5);
-  COUNTS_vs_SAMPLE_1D_R1 = new TH1F("COUNTS_vs_SAMPLE_1D_R1",COUNTS_SAMPLE_1D_titlestr,425,0,425);
+  COUNTS_vs_SAMPLE_1D_R1 = new TH1F("COUNTS_vs_SAMPLE_1D_R1",COUNTS_SAMPLE_1D_titlestr,500,0,500);
   
   RAWADC_1D_R1->SetYTitle("Entries");
   RAWADC_1D_R1->SetXTitle("ADC [ADU]");
@@ -550,7 +550,7 @@ int TpcMon::Init()
   RAWADC_1D_R2 = new TH1F("RAWADC_1D_R2",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R2 = new TH1F("MAXADC_1D_R2",MAXADC_1D_titlestr,1025,-0.5,1024.5);
   PEDEST_SUB_1D_R2 = new TH1F("PEDEST_SUB_1D_R2",SUBADC_1D_titlestr,1125,-100.5,1024.5);
-  COUNTS_vs_SAMPLE_1D_R2 = new TH1F("COUNTS_vs_SAMPLE_1D_R2",COUNTS_SAMPLE_1D_titlestr,425,0,425);
+  COUNTS_vs_SAMPLE_1D_R2 = new TH1F("COUNTS_vs_SAMPLE_1D_R2",COUNTS_SAMPLE_1D_titlestr,500,0,500);
 
   RAWADC_1D_R2->SetYTitle("Entries");
   RAWADC_1D_R2->SetXTitle("ADC [ADU]");
@@ -602,7 +602,7 @@ int TpcMon::Init()
   RAWADC_1D_R3 = new TH1F("RAWADC_1D_R3",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R3 = new TH1F("MAXADC_1D_R3",MAXADC_1D_titlestr,1025,-0.5,1024.5);
   PEDEST_SUB_1D_R3 = new TH1F("PEDEST_SUB_1D_R3",SUBADC_1D_titlestr,1125,-100.5,1024.5);
-  COUNTS_vs_SAMPLE_1D_R3 = new TH1F("COUNTS_vs_SAMPLE_1D_R3",COUNTS_SAMPLE_1D_titlestr,425,0,425);
+  COUNTS_vs_SAMPLE_1D_R3 = new TH1F("COUNTS_vs_SAMPLE_1D_R3",COUNTS_SAMPLE_1D_titlestr,500,0,500);
 
   RAWADC_1D_R3->SetYTitle("Entries");
   RAWADC_1D_R3->SetXTitle("ADC [ADU]");
@@ -991,7 +991,7 @@ int TpcMon::process_event(Event *evt/* evt */)
             if( (p->iValue(wf,si)) > 64500 && prev_sample < 1025){ tr_samp = 0; start_flag = 0; prev_sample =  (p->iValue(wf,si)); }  // end condition to record
             if( start_flag == 1){ ZS_Trigger_ADC_vs_Sample->Fill(tr_samp, p->iValue(wf,si)); tr_samp++; prev_sample = p->iValue(wf,si);} // record the ZS trigger histo if you should
             
-	    if( (p->iValue(wf,si)) > 64500 && si > 425){ break; } //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 400, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
+	    if( (p->iValue(wf,si)) > 64500 && si > 500){ break; } //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 400, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
             if( (p->iValue(wf,si)) > 64500 ){ continue; }  //only use reasonable values to calculate median
             median_and_stdev_vec.push_back(p->iValue(wf,si));
             num_of_nonZS_samples++; 
@@ -1043,7 +1043,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
 	  //std::cout<<"adc = "<<adc<<" ADC, FEE = "<<fee<<", channel: "<<channel<<", layer: "<<layer<<", phi: "<<phi<<", event num: "<<evtcnt<<std::endl;
 
-          if( adc > 64500 && s > 425 ) { break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 399, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
+          if( adc > 64500 && s > 500 ) { break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 399, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
           else if( adc > 64500 ) { continue; } // we do not care about 65K ADC entries - ignore them
 
           Layer_ChannelPhi_ADC_weighted->Fill(padphi,layer,adc-pedestal);
