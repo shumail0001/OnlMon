@@ -1050,7 +1050,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           if( adc > wf_max){ wf_max = adc; t_max = s; pedest_sub_wf_max = adc - pedestal;}
 
-          if( (s> 410 && s < 422) && (adc > wf_max_laser_peak) ){ wf_max_laser_peak = adc; pedest_sub_wf_max_laser_peak = adc - pedestal; }   
+          if( (s> 440 && s < 452) && (adc > wf_max_laser_peak) ){ wf_max_laser_peak = adc; pedest_sub_wf_max_laser_peak = adc - pedestal; }   
 
           if( (store_ten.size() < 10) ) // get first 10
           {
