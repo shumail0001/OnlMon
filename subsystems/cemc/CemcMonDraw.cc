@@ -59,6 +59,7 @@ int CemcMonDraw::Init()
 
   const char *CEMCcalib = getenv("CEMCCALIB");
   TFile *inputTemplate = nullptr;
+  TFile *inputTemplate_alltrig = nullptr;
   if (!CEMCcalib)
   {
     std::cout << "CEMCCALIB environment variable not set, empty refence will be used" << std::endl;
@@ -86,6 +87,22 @@ int CemcMonDraw::Init()
       {
         std::cout << "h2_cemc_hits_template could not be retrieved from file. Empty reference will be used" << std::endl;
         h2_template_hit = new TH2D("templateHit", "", 96, 0, 96, 256, 0, 256);
+      }
+    }
+    std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_49435_100ADC_alltrig.root";
+    inputTemplate_alltrig = new TFile(Templatefilename_alltrig.c_str(), "READ");
+    if (!inputTemplate_alltrig->IsOpen())
+    {
+      std::cout << Templatefilename_alltrig << " could not be opened. Empty reference will be used" << std::endl;
+      h2_template_hit_alltrig = new TH2D("templateHit_alltrig", "", 96, 0, 96, 256, 0, 256);
+    }
+    else
+    {
+      h2_template_hit_alltrig = (TH2 *) inputTemplate_alltrig->Get("h2_cemc_rmhits_alltrig");
+      if (!h2_template_hit_alltrig)
+      {
+        std::cout << "h2_cemc_hits_template could not be retrieved from file. Empty reference will be used" << std::endl;
+        h2_template_hit_alltrig = new TH2D("templateHit_alltrig", "", 96, 0, 96, 256, 0, 256);
       }
     }
   }
@@ -775,6 +792,7 @@ int CemcMonDraw::DrawAllTrigHits(const std::string & /* what */)
   TC[6]->Clear("D");
   Pad[15]->cd();
 
+  h_cemc_datahits->Divide(h2_template_hit_alltrig);
   
   h_cemc_datahits->GetXaxis()->SetTitle("eta index");
   h_cemc_datahits->GetYaxis()->SetTitle("phi index");
@@ -804,9 +822,16 @@ int CemcMonDraw::DrawAllTrigHits(const std::string & /* what */)
 
   // modify palette to black, green, and red
   
-  h_cemc_datahits->GetZaxis()->SetRangeUser(0, 0.002);
+  Int_t palette[4] = {kBlack, kBlue, 8, 2};
+  cemcStyle->SetPalette(4, palette);
+  gROOT->SetStyle("cemcStyle");
+  gROOT->ForceStyle();
+  gStyle->SetPalette(4, palette);
+  double_t levels[5] = {0, 0.01, 0.5, 2, 4};
+  h_cemc_datahits->GetZaxis()->SetRangeUser(0, 4);
+  h_cemc_datahits->SetContour(5, levels);
+
   gStyle->SetOptStat(0);
-  gStyle->SetPalette(57);
   h_cemc_datahits->DrawCopy("colz");
   // h2_cemc_mean[start[1]]->DrawCopy("colz");
   TLine line_sector[32];
@@ -843,7 +868,7 @@ int CemcMonDraw::DrawAllTrigHits(const std::string & /* what */)
     l_board[il - 1].DrawLine(dEI * il, 0, dEI * il, 256);
   }
 
-  FindHotTower(warning[2], h_cemc_datahits, false);
+  FindHotTower(warning[2], h_cemc_datahits, true);
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.03);
@@ -855,7 +880,7 @@ int CemcMonDraw::DrawAllTrigHits(const std::string & /* what */)
   std::string runstring;
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << ": tower occupancy running mean with all trig";
+  runnostream << ThisName << ": tower occupancy/template running mean with all trig";
   runnostream2 << " threshold: 100ADC, Run " << cl->RunNumber();
   runnostream3 << "Time: " << ctime(&evttime.first);
   
