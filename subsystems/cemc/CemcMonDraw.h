@@ -70,6 +70,7 @@ class CemcMonDraw : public OnlMonDraw
   // TProfile *AllProfiles[256][96]{{nullptr}};
   TH2 *h2_template_hit{nullptr};
   TH2 *h_cemc_datahits{nullptr};
+  TH2 *h2_template_hit_alltrig{nullptr};
   TStyle *cemcStyle{nullptr};
 
   TH1 *h1_zs {nullptr};
