@@ -347,6 +347,7 @@ int TpcMon::Init()
   Check_Sums->SetXTitle("FEE_NUM*8 + SAMPA_ADRR");
   Check_Sums->SetYTitle("Entries");
   Check_Sums->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
+  Check_Sums->SetFillColor(4);
 
   Check_Sums -> GetXaxis() -> SetLabelSize(0.05);
   Check_Sums -> GetXaxis() -> SetTitleSize(0.05);
@@ -361,6 +362,7 @@ int TpcMon::Init()
   Check_Sum_Error->SetXTitle("FEE_NUM*8 + SAMPA_ADDR");
   Check_Sum_Error->SetYTitle("Prob. Check Sum. Err.");
   Check_Sum_Error->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
+  Check_Sum_Error->SetFillColor(4);
 
   Check_Sum_Error -> GetXaxis() -> SetLabelSize(0.05);
   Check_Sum_Error -> GetXaxis() -> SetTitleSize(0.05);
@@ -375,6 +377,7 @@ int TpcMon::Init()
   Parity_Error->SetXTitle("FEE_NUM*8 + SAMPA_ADDR");
   Parity_Error->SetYTitle("Prob. Parity Err.");
   Parity_Error->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
+  Parity_Error->SetFillColor(4);
 
   Parity_Error -> GetXaxis() -> SetLabelSize(0.05);
   Parity_Error -> GetXaxis() -> SetTitleSize(0.05);
