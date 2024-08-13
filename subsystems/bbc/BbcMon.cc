@@ -92,10 +92,12 @@ int BbcMon::Init()
       if ( label == "MBDTRIG" )
       {
           mbdtrig = trigbit;            // any mbd trigge
+          orig_mbdtrig = trigbit;
       }
       else if ( label == "MBDNS" )
       {
           mbdns = trigbit;
+          orig_mbdns = trigbit;
       }
       else if ( label == "MBDNSVTX10" )
       {
@@ -132,6 +134,7 @@ int BbcMon::Init()
       else if ( label == "TRIGMASK" )
       {
           trigmask = trigbit;
+          orig_trigmask = trigbit;
       }
       else if ( label == "USEGL1" )
       {
@@ -640,6 +643,7 @@ int BbcMon::BeginRun(const int runno)
   // get gl1badflag on new run
   GetGL1BadFlag();
 
+  ntrigs_defined = 0;
   if ( rdb != nullptr )
   {
     std::vector<int> scaledowns;
@@ -649,7 +653,27 @@ int BbcMon::BeginRun(const int runno)
     {
       bbc_prescale_hist->SetBinContent( itrig+1, scaledowns[itrig] );
       std::cout << "scaledowns " << itrig << "\t" << scaledowns[itrig] << std::endl;
+
+      if ( scaledowns[itrig] >= 0 )
+      {
+        ntrigs_defined++;
+      }
     }
+  }
+  std::cout << "ntrigs_defined " << ntrigs_defined << std::endl;
+
+  if ( ntrigs_defined==1 )
+  {
+    std::cout << "Oddball run, setting to use all triggers" << std::endl;
+    mbdns = 0xffffffffffffffffUL;
+    mbdtrig = 0xffffffffffffffffUL;
+    trigmask = 0xffffffffffffffffUL;
+  }
+  else
+  {
+    mbdns = orig_mbdns;
+    mbdtrig = orig_mbdtrig;
+    trigmask = orig_trigmask;
   }
 
   return 0;
@@ -727,7 +751,7 @@ int BbcMon::GetGL1BadFlag()
     gl1badflag = 0;
   }
   gl1badflagfile.close();
-  std::cout << "XXX gl1bad " << gl1badflag << std::endl;
+  //std::cout << "XXX gl1badflag " << gl1badflag << std::endl;
 
   return gl1badflag;
 }
@@ -810,6 +834,15 @@ int BbcMon::process_event(Event *evt)
     std::cout << "mbd evt " << f_evt << "\t" << useGL1 << std::endl;
   }
 
+  if ( f_evt < skipto )
+  {
+      if ( (f_evt%10000)==0 )
+      {
+          std::cout << "skipping " << f_evt << std::endl;
+      }
+      return 0;
+  }
+
   if ( (f_evt%1000)==0 )
   {
     GetGL1BadFlag();
@@ -825,12 +858,12 @@ int BbcMon::process_event(Event *evt)
     triglive = 0UL;
     trigscaled = 0UL;
     Event *gl1Event = erc->getEvent( f_evt );
-    std::cout << "gl1event " << (uint64_t)gl1Event << "\t" << f_evt << std::endl;
+    //std::cout << "gl1event " << (uint64_t)gl1Event << "\t" << f_evt << std::endl;
 
     if (gl1Event)
     {      
         se->IncrementGl1FoundCounter();
-        std::cout << "Found gl1event " << f_evt << std::endl;
+        //std::cout << "Found gl1event " << f_evt << std::endl;
         Packet* p_gl1 = gl1Event->getPacket(14001);
         if (p_gl1)
         {
@@ -891,7 +924,8 @@ int BbcMon::process_event(Event *evt)
   {
       if ( f_evt%1000 == 0 )
       {
-          std::cout << "skipping " << f_evt << "\t" << std::hex << triggervec << std::dec << std::endl;
+          std::cout << "skipping " << f_evt << "\t" << std::hex << triggervec
+              << "\t" << trigmask << std::dec << std::endl;
       }
       return 0;
   }
@@ -917,6 +951,7 @@ int BbcMon::process_event(Event *evt)
   }
 
   // vertex and t0
+  //std::cout << "mbdns " << std::hex << mbdns << std::dec << std::endl;
   if ( (triggervec&mbdns)!=0 )
   {
       bbc_zvertex->Fill(zvtx);
