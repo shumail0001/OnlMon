@@ -51,6 +51,8 @@ class BbcMonDraw : public OnlMonDraw
   int Warning(TPad *pad, const float x, const float y, const int r, const std::string &msg);
   int ClearWarning(void);
 
+  void GetMinBiasTrigName();
+
   OnlMonDB *dbvars = nullptr;
 
   
@@ -231,6 +233,8 @@ class BbcMonDraw : public OnlMonDraw
   // Scale down factor
   TH1 *Prescale_hist = nullptr;
   TSpectrum *tspec = nullptr;
+
+  std::string TrigName;
 
  private:
   int DrawDeadServer(TPad *transparent_pad) override;
