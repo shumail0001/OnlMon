@@ -242,7 +242,7 @@ int RunDBodbc::GetScaledowns(std::vector<int> &result, const int runno) const
       int scaledown = rs->getInt(column_name);
       result.push_back( scaledown );
 
-      //    if (verbosity > 0)
+      if (verbosity > 0)
       {
           std::cout << column_name << "\t" << result[itrig] << std::endl;
       }

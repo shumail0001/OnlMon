@@ -92,12 +92,10 @@ int BbcMon::Init()
       if ( label == "MBDTRIG" )
       {
           mbdtrig = trigbit;            // any mbd trigge
-          orig_mbdtrig = trigbit;
       }
       else if ( label == "MBDNS" )
       {
           mbdns = trigbit;
-          orig_mbdns = trigbit;
       }
       else if ( label == "MBDNSVTX10" )
       {
@@ -643,7 +641,7 @@ int BbcMon::BeginRun(const int runno)
   // get gl1badflag on new run
   GetGL1BadFlag();
 
-  ntrigs_defined = 0;
+  uint64_t trigs_enabled = 0;
   if ( rdb != nullptr )
   {
     std::vector<int> scaledowns;
@@ -656,23 +654,22 @@ int BbcMon::BeginRun(const int runno)
 
       if ( scaledowns[itrig] >= 0 )
       {
-        ntrigs_defined++;
+        trigs_enabled |= (0x1UL<<itrig);
       }
     }
   }
-  std::cout << "ntrigs_defined " << ntrigs_defined << std::endl;
+  std::cout << "trigs_enabled 0x" << std::hex << trigs_enabled << std::dec << std::endl;
 
-  if ( ntrigs_defined==1 )
+  mbdns = GetMinBiasTrigBit( trigs_enabled );
+
+  if ( mbdns == std::numeric_limits<uint64_t>::max() )
   {
-    std::cout << "Oddball run, setting to use all triggers" << std::endl;
-    mbdns = 0xffffffffffffffffUL;
-    mbdtrig = 0xffffffffffffffffUL;
-    trigmask = 0xffffffffffffffffUL;
+    std::cout << "Oddball run without a proper MB trigger, using all triggers instead" << std::endl;
+    trigmask = std::numeric_limits<uint64_t>::max();
+    std::cout << std::hex << "trigmask " << trigmask << std::dec << std::endl;
   }
   else
   {
-    mbdns = orig_mbdns;
-    mbdtrig = orig_mbdtrig;
     trigmask = orig_trigmask;
   }
 
@@ -684,6 +681,23 @@ int BbcMon::GetFillNumber()
   TString retval = gSystem->GetFromPipe( "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -g ringSpec.blue fillNumberM | awk 'NR==1 {print $3}'" );
   int fill = retval.Atoi();
   return fill;
+}
+
+uint64_t BbcMon::GetMinBiasTrigBit(uint64_t trigs_enabled)
+{
+  // look for MB triggers, in order (bits 10-14)
+  for (int ibit=10; ibit<=14; ibit++)
+  {
+    uint64_t mb_bit = 0x1UL<<ibit;
+    if ( (mb_bit&trigs_enabled) == mb_bit )
+    {
+      return mb_bit;
+    }
+  }
+  // maybe here we could fall back to a coincidence with an MBD trigger?
+
+  // no match, use any trigger
+  return std::numeric_limits<uint64_t>::max();
 }
 
 int BbcMon::UpdateSendFlag(const int flag)
@@ -972,6 +986,7 @@ int BbcMon::process_event(Event *evt)
           bbc_zvertex_60_chk->Fill(zvtx);
       }
   }
+
   if ( triggervec&mbdnsvtx10 )
   {
       bbc_zvertex_10->Fill(zvtx);
@@ -1036,39 +1051,42 @@ int BbcMon::process_event(Event *evt)
   {
       f_zvtx->SetRange(-75., 75.);
       f_zvtx->SetParameters(250, 0., 10);
-      bbc_zvertex_short->Fit(f_zvtx, "RNQ");
-
-      // Report z-vertex mean and width
-      Double_t mean = f_zvtx->GetParameter(1);
-      Double_t rms = f_zvtx->GetParameter(2);
-      // we should do a check of a good fit here (skip for now)
-
-      std::ostringstream msg;
-      msg << "MBD zvertex mean/width: " << mean << " " << rms;
-      se->send_message(this, MSG_SOURCE_BBC, MSG_SEV_INFORMATIONAL, msg.str(), 1);
-      std::cout << "MBD zvtx mean/width: " << mean << " " << rms << std::endl;
-
-      if ( useGL1==1 && GetSendFlag() == 1 )
+      if ( bbc_zvertex_short->Integral() != 0 )
       {
+        bbc_zvertex_short->Fit(f_zvtx, "RNQ");
+
+        // Report z-vertex mean and width
+        Double_t mean = f_zvtx->GetParameter(1);
+        Double_t rms = f_zvtx->GetParameter(2);
+        // we should do a check of a good fit here (skip for now)
+
+        std::ostringstream msg;
+        msg << "MBD zvertex mean/width: " << mean << " " << rms;
+        se->send_message(this, MSG_SOURCE_BBC, MSG_SEV_INFORMATIONAL, msg.str(), 1);
+        std::cout << "MBD zvtx mean/width: " << mean << " " << rms << std::endl;
+
+        if ( useGL1==1 && GetSendFlag() == 1 )
+        {
           TString cmd = "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zMeanM "; cmd += mean;
           cmd += "; /home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zRmsM "; cmd += rms;
           gSystem->Exec( cmd );
-      }
-      else
-      {
-          // Set to 0 if we aren't sending
-          /*
-             TString retval = gSystem->GetFromPipe( "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -g sphenix.detector zRmsM" );
-             std::cout << "retval " << retval << std::endl;
-             if ( retval != "0" )
-             {
-             TString cmd = "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zMeanM 0";
-             cmd += "; /home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zRmsM 0";
-             gSystem->Exec( cmd );
-             }
-             */
-      }
+        }
+        else
+        {
+            // Set to 0 if we aren't sending
+            /*
+               TString retval = gSystem->GetFromPipe( "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -g sphenix.detector zRmsM" );
+               std::cout << "retval " << retval << std::endl;
+               if ( retval != "0" )
+               {
+               TString cmd = "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zMeanM 0";
+               cmd += "; /home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zRmsM 0";
+               gSystem->Exec( cmd );
+               }
+               */
+        }
 
+      }
       bbc_zvertex_short->Reset();
   }
 

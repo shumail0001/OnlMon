@@ -58,14 +58,13 @@ class BbcMon : public OnlMon
   uint64_t hcal{0};           // all hcal triggers, no bbc
   uint64_t emcalmbd{0};       // all emcal triggers, with bbc
   uint64_t hcalmbd{0};        // all hcal triggers, with bbc
-  int      ntrigs_defined{0}; // for runs with one trigger defined
-  uint64_t orig_mbdns{0};     // store for recovering from runs with one trigger defined
-  uint64_t orig_mbdtrig{0};   // store for recovering from runs with one trigger defined
-  uint64_t orig_trigmask{0};   // store for recovering from runs with one trigger defined
+  uint64_t orig_trigmask{0};  // store for recovering from runs with one trigger defined
   eventReceiverClient *erc{nullptr};
   int      skipto{0};
   //GL1Manager *gl1mgr{nullptr};
   RunDBodbc *rdb{nullptr};
+
+  uint64_t GetMinBiasTrigBit(uint64_t trigs_enabled);
 
   int evtcnt{0};
   // OnlMonDB *dbvars = nullptr;
