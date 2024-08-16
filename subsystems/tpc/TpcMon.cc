@@ -1092,9 +1092,13 @@ int TpcMon::process_event(Event *evt/* evt */)
             if(Module_ID(fee)==1){RAWADC_1D_R2->Fill(adc);PEDEST_SUB_1D_R2->Fill(adc-pedestal);PEDEST_SUB_ADC_vs_SAMPLE_R2->Fill(s,adc-pedestal);} //Raw/pedest_sub 1D for R2
             if(Module_ID(fee)==2){RAWADC_1D_R3->Fill(adc);PEDEST_SUB_1D_R3->Fill(adc-pedestal);PEDEST_SUB_ADC_vs_SAMPLE_R3->Fill(s,adc-pedestal);} //Raw/pedest_sub 1D for R3
 
-            if(Module_ID(fee)==0 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R1->Fill(s);} //Drift window in R1
-	    if(Module_ID(fee)==1 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R2->Fill(s);} //Drift window in R2
-	    if(Module_ID(fee)==2 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R3->Fill(s);} //Drift window in R3
+            //if(Module_ID(fee)==0 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R1->Fill(s);} //Drift window in R1
+	    //if(Module_ID(fee)==1 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R2->Fill(s);} //Drift window in R2
+	    //if(Module_ID(fee)==2 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R3->Fill(s);} //Drift window in R3
+
+            if(Module_ID(fee)==0 && (layer != 0)){COUNTS_vs_SAMPLE_1D_R1->Fill(s);} //Drift window in R1
+	    if(Module_ID(fee)==1 && (layer != 0)){COUNTS_vs_SAMPLE_1D_R2->Fill(s);} //Drift window in R2
+	    if(Module_ID(fee)==2 && (layer != 0)){COUNTS_vs_SAMPLE_1D_R3->Fill(s);} //Drift window in R3
 
             if( (adc-pedestal) > 25 ){ num_samples_over_threshold++ ;}
           }

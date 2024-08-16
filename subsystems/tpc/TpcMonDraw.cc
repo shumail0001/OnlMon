@@ -3218,6 +3218,9 @@ int TpcMonDraw::DrawTPCDriftWindow(const std::string & /* what */)
 
     int min = std::numeric_limits<int>::max(); // start wih the largest possible value
     int max = std::numeric_limits<int>::min(); // start with smalles possible value
+    int no_laser_max =  std::numeric_limits<int>::min(); // start with smalles possible value
+
+    bool no_laser_window = 0;
     
     for( int j = 2; j>-1; j-- )
     {
@@ -3225,6 +3228,9 @@ int TpcMonDraw::DrawTPCDriftWindow(const std::string & /* what */)
       {
         for( int k = 1; k < tpcmon_DriftWindow[i][j]->GetEntries(); k++ )
 	{
+          if( (k>=0 && k<=390) || (k>420) ){ no_laser_window = 1;}
+          if( k>390 && k<=420){ no_laser_window = 0;}
+          if( (tpcmon_DriftWindow[i][j]->GetBinContent(k) > no_laser_max && tpcmon_DriftWindow[i][j]->GetBinContent(k) > 0) && (no_laser_window==1) ){no_laser_max = tpcmon_DriftWindow[i][j]->GetBinContent(k);}
           if( tpcmon_DriftWindow[i][j]->GetBinContent(k) > max && tpcmon_DriftWindow[i][j]->GetBinContent(k) > 0 ){max = tpcmon_DriftWindow[i][j]->GetBinContent(k);}
           if( tpcmon_DriftWindow[i][j]->GetBinContent(k) < min && tpcmon_DriftWindow[i][j]->GetBinContent(k) > 0 ){min = tpcmon_DriftWindow[i][j]->GetBinContent(k);}
 	}
@@ -3236,8 +3242,8 @@ int TpcMonDraw::DrawTPCDriftWindow(const std::string & /* what */)
     {
       if( tpcmon_DriftWindow[i][l] )
       {
-        if(l == 2){tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*max);tpcmon_DriftWindow[i][l] -> DrawCopy("HIST");}
-        else      {tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*max);tpcmon_DriftWindow[i][l] -> DrawCopy("HISTsame");} //assumes that R3 will always exist and is most entries
+        if(l == 2){tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*no_laser_max);tpcmon_DriftWindow[i][l] -> DrawCopy("HIST");} //used to be 
+        else      {tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*no_laser_max);tpcmon_DriftWindow[i][l] -> DrawCopy("HISTsame");} //assumes that R3 will always exist and is most entries
       }
     }
     
