@@ -994,7 +994,7 @@ int TpcMon::process_event(Event *evt/* evt */)
             if( (p->iValue(wf,si)) > 64500 && prev_sample < 1025){ tr_samp = 0; start_flag = 0; prev_sample =  (p->iValue(wf,si)); }  // end condition to record
             if( start_flag == 1){ ZS_Trigger_ADC_vs_Sample->Fill(tr_samp, p->iValue(wf,si)); tr_samp++; prev_sample = p->iValue(wf,si);} // record the ZS trigger histo if you should
             
-	    if( (p->iValue(wf,si)) > 64500 && si > 500){ break; } //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 400, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
+	    if( (p->iValue(wf,si)) > 64500 && si > 1023){ break; } //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 1023 (50 us window), that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
             if( (p->iValue(wf,si)) > 64500 ){ continue; }  //only use reasonable values to calculate median
             median_and_stdev_vec.push_back(p->iValue(wf,si));
             num_of_nonZS_samples++; 
@@ -1046,7 +1046,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
 	  //std::cout<<"adc = "<<adc<<" ADC, FEE = "<<fee<<", channel: "<<channel<<", layer: "<<layer<<", phi: "<<phi<<", event num: "<<evtcnt<<std::endl;
 
-          if( adc > 64500 && s > 500 ) { break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 399, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
+          if( adc > 64500 && s > 1023 ) { break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 1023 (50 us), that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
           else if( adc > 64500 ) { continue; } // we do not care about 65K ADC entries - ignore them
 
           Layer_ChannelPhi_ADC_weighted->Fill(padphi,layer,adc-pedestal);
