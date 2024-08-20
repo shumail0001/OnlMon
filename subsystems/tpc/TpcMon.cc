@@ -841,8 +841,11 @@ int TpcMon::process_event(Event *evt/* evt */)
   if (evt->existPacket(4000))
     {
       Packet *p = evt->getPacket(4000);
-      if (p->getHitFormat() == IDTPCFEEV3 || p->getHitFormat() == IDTPCFEEV4) firstpacket = 4000;
-      delete p;
+      if(p)
+      {
+        if (p->getHitFormat() == IDTPCFEEV3 || p->getHitFormat() == IDTPCFEEV4) firstpacket = 4000;
+        delete p;
+      }
     }
   int lastpacket = firstpacket+232;
 
@@ -1053,7 +1056,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           if( adc > wf_max){ wf_max = adc; t_max = s; pedest_sub_wf_max = adc - pedestal;}
 
-          if( (s> 400 && s < 412) && (adc > wf_max_laser_peak) ){ wf_max_laser_peak = adc; pedest_sub_wf_max_laser_peak = adc - pedestal; }   
+          if( (s> 410 && s < 422) && (adc > wf_max_laser_peak) ){ wf_max_laser_peak = adc; pedest_sub_wf_max_laser_peak = adc - pedestal; }   
 
           if( (store_ten.size() < 10) ) // get first 10
           {
