@@ -1140,13 +1140,13 @@ int TpcMon::process_event(Event *evt/* evt */)
         }
         //________________________________________________________________________________
         //XY laser peak
-        if( (serverid < 12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && layer != 0 )
+        if( (serverid < 12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && ((t_max > 410 && t_max < 422) && (layer != 0))) // only fill if the laser was the max
         {
           if(Module_ID(fee)==0){NorthSideADC_clusterXY_R1_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R1
           else if(Module_ID(fee)==1){NorthSideADC_clusterXY_R2_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R2
           else if(Module_ID(fee)==2){NorthSideADC_clusterXY_R3_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R3
         }
-        else if( (serverid >=12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && layer != 0)
+        else if( (serverid >=12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && ((t_max > 410 && t_max < 422) && (layer != 0))) // only fill if the laser was the max
         {
           if(Module_ID(fee)==0){SouthSideADC_clusterXY_R1_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R1
           else if(Module_ID(fee)==1){SouthSideADC_clusterXY_R2_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R2
