@@ -3242,8 +3242,8 @@ int TpcMonDraw::DrawTPCDriftWindow(const std::string & /* what */)
     {
       if( tpcmon_DriftWindow[i][l] )
       {
-        if(l == 2){tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*no_laser_max);tpcmon_DriftWindow[i][l] -> DrawCopy("HIST");} //used to be 
-        else      {tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*no_laser_max);tpcmon_DriftWindow[i][l] -> DrawCopy("HISTsame");} //assumes that R3 will always exist and is most entries
+        if(l == 2){tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*max);tpcmon_DriftWindow[i][l] -> DrawCopy("HIST");} //used to be 
+        else      {tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*max);tpcmon_DriftWindow[i][l] -> DrawCopy("HISTsame");} //assumes that R3 will always exist and is most entries
       }
     }
     
