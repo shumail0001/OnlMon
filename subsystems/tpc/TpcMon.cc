@@ -838,15 +838,16 @@ int TpcMon::process_event(Event *evt/* evt */)
   // we assume we start properly at 4001, but check if not
   
   int firstpacket=4001;
-  if (evt->existPacket(4000))
-    {
-      Packet *p = evt->getPacket(4000);
-      if(p)
-      {
-        if (p->getHitFormat() == IDTPCFEEV3 || p->getHitFormat() == IDTPCFEEV4) firstpacket = 4000;
-        delete p;
-      }
-    }
+  //if (evt->existPacket(4000))
+  //{
+  //Packet *p = evt->getPacket(4000);
+  if(evt->getPacket(4000))
+  {
+    Packet *p = evt->getPacket(4000);
+    if (p->getHitFormat() == IDTPCFEEV3 || p->getHitFormat() == IDTPCFEEV4) firstpacket = 4000;
+    delete p;
+  }
+  //}
   int lastpacket = firstpacket+232;
 
   NEvents_vs_EBDC->Fill(MonitorServerId());
