@@ -3935,7 +3935,7 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
       legend->AddEntry(tpcmon_DriftWindow_shifter[i][2], "R3");
       MyTC->cd(i+5);
       legend->Draw();
-      //draw_leg = 1; //for these plots draw legend everywhere
+      draw_leg = 1; //for these plots draw legend everywhere
     }
 
     //std::cout<<"R1_max = "<<R1_max<<" R2_max = "<<R2_max<<" R3_max = "<<R3_max<<std::endl;
