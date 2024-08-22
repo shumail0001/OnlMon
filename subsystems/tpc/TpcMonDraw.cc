@@ -3242,7 +3242,7 @@ int TpcMonDraw::DrawTPCDriftWindow(const std::string & /* what */)
     {
       if( tpcmon_DriftWindow[i][j] )
       {
-        for( int k = 1; k < tpcmon_DriftWindow[i][j]->GetEntries(); k++ )
+        for( int k = 1; k < tpcmon_DriftWindow[i][j]->GetNbinsX(); k++ )
 	{
           if( (k>=0 && k<=390) || (k>420) ){ no_laser_window = 1;}
           if( k>390 && k<=420){ no_laser_window = 0;}
@@ -3895,7 +3895,7 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
     {
       if( tpcmon_DriftWindow_shifter[i][j] )
       {
-        for( int k = 1; k < tpcmon_DriftWindow_shifter[i][j]->GetEntries(); k++ )
+        for( int k = 1; k < tpcmon_DriftWindow_shifter[i][j]->GetNbinsX(); k++ )
 	{
           if(j == 2 &&  (tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > R3_max && tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > 0) ){ R3_max = k; }
           if(j == 1 &&  (tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > R2_max && tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > 0) ){ R2_max = k; }
@@ -3923,8 +3923,8 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
       }
     }
 
-    t2->DrawLine(410,0.9*min,410,1.3*max);
-    t2->DrawLine(420,0.9*min,420,1.3*max);
+    t2->DrawLine(413,0.9*min,413,1.3*max);
+    t2->DrawLine(423,0.9*min,423,1.3*max);
     
     gPad->Update();  
 
@@ -3935,14 +3935,14 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
       legend->AddEntry(tpcmon_DriftWindow_shifter[i][2], "R3");
       MyTC->cd(i+5);
       legend->Draw();
-      //draw_leg = 1; //for these plots draw legend everywhere
+      draw_leg = 1; //for these plots draw legend everywhere
     }
 
-    // std::cout<<"R1_max = "<<R1_max<<" R2_max = "<<R2_max<<" R3_max = "<<R3_max<<std::endl;
+    //std::cout<<"R1_max = "<<R1_max<<" R2_max = "<<R2_max<<" R3_max = "<<R3_max<<std::endl;
     //messages->Clear();
     messages[i] = new TPaveText(0.1,0.5,0.4,0.9,"brNDC");  
     
-    if( ((R1_max>std::numeric_limits<int>::min() && (R1_max < 410 || R1_max > 422)) ||  (R2_max>std::numeric_limits<int>::min() && (R2_max < 410 || R2_max > 422))) || ( R3_max>std::numeric_limits<int>::min() && (R3_max < 410 || R3_max > 422)) )
+    if( ((R1_max>std::numeric_limits<int>::min() && (R1_max < 413 || R1_max > 423)) ||  (R2_max>std::numeric_limits<int>::min() && (R2_max < 413 || R2_max > 423))) || ( R3_max>std::numeric_limits<int>::min() && (R3_max < 413 || R3_max > 423)) )
     {
       //std::cout<<"made it into the if statement for bad timing"<<std::endl;
       sprintf(bad_message,"Sector %i BAD",i);
