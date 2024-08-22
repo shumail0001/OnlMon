@@ -968,6 +968,8 @@ int BbcMon::process_event(Event *evt)
   //std::cout << "mbdns " << std::hex << mbdns << std::dec << std::endl;
   if ( (triggervec&mbdns)!=0 )
   {
+      bbc_nevent_counter->Fill(5);  // num BBCNS triggers
+
       bbc_zvertex->Fill(zvtx);
       bbc_zvertex_short->Fill(zvtx);
       bbc_zvertex_ns->Fill(zvtx);
@@ -1046,12 +1048,12 @@ int BbcMon::process_event(Event *evt)
 
   bbc_tzero_zvtx->Fill(zvtx, t0);
 
-  int n_goodevt = bbc_nevent_counter->GetBinContent(2);
+  int n_goodevt = bbc_nevent_counter->GetBinContent(6);
   if (n_goodevt % 1000 == 0)
   {
       f_zvtx->SetRange(-75., 75.);
       f_zvtx->SetParameters(250, 0., 10);
-      if ( bbc_zvertex_short->Integral() != 0 )
+      if ( bbc_zvertex_short->Integral() == 1000 )
       {
         bbc_zvertex_short->Fit(f_zvtx, "RNQ");
 
