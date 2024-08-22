@@ -969,6 +969,7 @@ int BbcMon::process_event(Event *evt)
   if ( (triggervec&mbdns)!=0 )
   {
       bbc_zvertex->Fill(zvtx);
+      bbc_zvertex_short->Fill(zvtx);
       bbc_zvertex_ns->Fill(zvtx);
       bbc_south_nhit->Fill( south_nhits );
       bbc_north_nhit->Fill( north_nhits );
@@ -1044,7 +1045,6 @@ int BbcMon::process_event(Event *evt)
   }
 
   bbc_tzero_zvtx->Fill(zvtx, t0);
-  bbc_zvertex_short->Fill(zvtx);
 
   int n_goodevt = bbc_nevent_counter->GetBinContent(2);
   if (n_goodevt % 1000 == 0)
