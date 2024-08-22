@@ -3891,6 +3891,10 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
     int R2_max = std::numeric_limits<int>::min(); // start with smalles possible value
     int R3_max = std::numeric_limits<int>::min(); // start with smalles possible value
 
+    bool R1_bad = 0;
+    bool R2_bad = 0;
+    bool R3_bad = 0;
+
     for( int j = 2; j>-1; j-- )
     {
       if( tpcmon_DriftWindow_shifter[i][j] )
@@ -3906,6 +3910,10 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
       }
     }
 
+
+    if( (R1_max>std::numeric_limits<int>::min() && (R1_max < 413)) || R1_max > 423 ){ R1_bad = 1;} 
+    if( (R2_max>std::numeric_limits<int>::min() && (R2_max < 413)) || R2_max > 423 ){ R2_bad = 1;} 
+    if( (R3_max>std::numeric_limits<int>::min() && (R3_max < 413)) || R3_max > 423 ){ R3_bad = 1;}
 
     for( int l = 2; l>-1; l-- )
     {
@@ -3935,14 +3943,14 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
       legend->AddEntry(tpcmon_DriftWindow_shifter[i][2], "R3");
       MyTC->cd(i+5);
       legend->Draw();
-      draw_leg = 1; //for these plots draw legend everywhere
+      draw_leg = 1; //draw legend only once
     }
 
     //std::cout<<"R1_max = "<<R1_max<<" R2_max = "<<R2_max<<" R3_max = "<<R3_max<<std::endl;
     //messages->Clear();
     messages[i] = new TPaveText(0.1,0.5,0.4,0.9,"brNDC");  
     
-    if( ((R1_max>std::numeric_limits<int>::min() && (R1_max < 413 || R1_max > 423)) ||  (R2_max>std::numeric_limits<int>::min() && (R2_max < 413 || R2_max > 423))) || ( R3_max>std::numeric_limits<int>::min() && (R3_max < 413 || R3_max > 423)) )
+    if(  (R1_bad==1 || R2_bad==1) || R3_bad==1 )
     {
       //std::cout<<"made it into the if statement for bad timing"<<std::endl;
       sprintf(bad_message,"Sector %i BAD",i);
@@ -3954,6 +3962,12 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
     else if( tpcmon_DriftWindow_shifter[i][0] && (tpcmon_DriftWindow_shifter[i][1] && tpcmon_DriftWindow_shifter[i][2]) )
     {
       messages[i]->AddText("ALL GOOD"); ((TText*)messages[i]->GetListOfLines()->Last())->SetTextColor(kGreen);
+      MyTC->cd(i+5);
+      messages[i]->Draw("same");
+    }
+    else
+    {
+      messages[i]->AddText("MISSING DATA"); ((TText*)messages[i]->GetListOfLines()->Last())->SetTextColor(kBlack);
       MyTC->cd(i+5);
       messages[i]->Draw("same");
     }
