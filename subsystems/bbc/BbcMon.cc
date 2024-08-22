@@ -1048,12 +1048,11 @@ int BbcMon::process_event(Event *evt)
 
   bbc_tzero_zvtx->Fill(zvtx, t0);
 
-  int n_goodevt = bbc_nevent_counter->GetBinContent(6);
-  if (n_goodevt % 1000 == 0)
+  //int n_goodevt = bbc_nevent_counter->GetBinContent(6);
+  if ( bbc_zvertex_short->Integral() >= 200 )
   {
       f_zvtx->SetRange(-75., 75.);
       f_zvtx->SetParameters(250, 0., 10);
-      if ( bbc_zvertex_short->Integral() == 1000 )
       {
         bbc_zvertex_short->Fit(f_zvtx, "RNQ");
 
