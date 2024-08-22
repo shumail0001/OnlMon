@@ -3942,7 +3942,7 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
     //messages->Clear();
     messages[i] = new TPaveText(0.1,0.5,0.4,0.9,"brNDC");  
     
-    if( ((R1_max>std::numeric_limits<int>::min() && (R1_max < 410 || R1_max > 422)) ||  (R2_max>std::numeric_limits<int>::min() && (R2_max < 410 || R2_max > 422))) || ( R3_max>std::numeric_limits<int>::min() && (R3_max < 410 || R3_max > 422)) )
+    if( ((R1_max>std::numeric_limits<int>::min() && (R1_max < 413 || R1_max > 423)) ||  (R2_max>std::numeric_limits<int>::min() && (R2_max < 413 || R2_max > 423))) || ( R3_max>std::numeric_limits<int>::min() && (R3_max < 413 || R3_max > 423)) )
     {
       //std::cout<<"made it into the if statement for bad timing"<<std::endl;
       sprintf(bad_message,"Sector %i BAD",i);
