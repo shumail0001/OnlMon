@@ -3901,15 +3901,20 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
       {
         for( int k = 1; k < tpcmon_DriftWindow_shifter[i][j]->GetNbinsX(); k++ )
 	{
-          if(j == 2 &&  (tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > R3_max && tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > 0) ){ R3_max = k; }
-          if(j == 1 &&  (tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > R2_max && tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > 0) ){ R2_max = k; }
-          if(j == 0 &&  (tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > R1_max && tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > 0) ){ R1_max = k; }
+          //if(j == 2 &&  (tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > R3_max && tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > 0) ){ R3_max = k; }
+          //if(j == 1 &&  (tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > R2_max && tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > 0) ){ R2_max = k; }
+          //if(j == 0 &&  (tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > R1_max && tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > 0) ){ R1_max = k; }
+          //std::cout<<"In Progress: "<<"R1_max = "<<R1_max<<" R2_max = "<<R2_max<<" R3_max = "<<R3_max<<std::endl;
           if( tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > max && tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > 0 ){max = tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k);}
           if( tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) < min && tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k) > 0 ){min = tpcmon_DriftWindow_shifter[i][j]->GetBinContent(k);}
 	}
       }
     }
 
+
+    if( tpcmon_DriftWindow_shifter[i][0] ){  R1_max = tpcmon_DriftWindow_shifter[i][0]->GetBinCenter(tpcmon_DriftWindow_shifter[i][0]->GetMaximumBin());}
+    if( tpcmon_DriftWindow_shifter[i][1] ){  R2_max = tpcmon_DriftWindow_shifter[i][1]->GetBinCenter(tpcmon_DriftWindow_shifter[i][1]->GetMaximumBin());}
+    if( tpcmon_DriftWindow_shifter[i][2] ){  R3_max = tpcmon_DriftWindow_shifter[i][2]->GetBinCenter(tpcmon_DriftWindow_shifter[i][2]->GetMaximumBin());}
 
     if( (R1_max>std::numeric_limits<int>::min() && (R1_max < 413)) || R1_max > 423 ){ R1_bad = 1;} 
     if( (R2_max>std::numeric_limits<int>::min() && (R2_max < 413)) || R2_max > 423 ){ R2_bad = 1;} 
@@ -3954,14 +3959,16 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
     {
       //std::cout<<"made it into the if statement for bad timing"<<std::endl;
       sprintf(bad_message,"Sector %i BAD",i);
+      messages[i]->SetFillColor(kRed);
       messages[i]->AddText(bad_message); ((TText*)messages[i]->GetListOfLines()->Last())->SetTextColor(kRed);
-      messages[i]->AddText("REFRESH. IF PERSISTS, CALL EXPERT"); ((TText*)messages[i]->GetListOfLines()->Last())->SetTextColor(kRed);
+      messages[i]->AddText("REFRESH. IF PERSISTS, CALL EXPERT"); ((TText*)messages[i]->GetListOfLines()->Last())->SetTextColor(kBlack);
       MyTC->cd(i+5);
       messages[i]->Draw("same");
     }
     else if( tpcmon_DriftWindow_shifter[i][0] && (tpcmon_DriftWindow_shifter[i][1] && tpcmon_DriftWindow_shifter[i][2]) )
     {
-      messages[i]->AddText("ALL GOOD"); ((TText*)messages[i]->GetListOfLines()->Last())->SetTextColor(kGreen);
+      messages[i]->SetFillColor(kGreen);
+      messages[i]->AddText("ALL GOOD"); ((TText*)messages[i]->GetListOfLines()->Last())->SetTextColor(kBlack);
       MyTC->cd(i+5);
       messages[i]->Draw("same");
     }
