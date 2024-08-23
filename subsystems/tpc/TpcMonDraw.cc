@@ -3960,7 +3960,7 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
       //std::cout<<"made it into the if statement for bad timing"<<std::endl;
       sprintf(bad_message,"Sector %i BAD",i);
       messages[i]->SetFillColor(kRed);
-      messages[i]->AddText(bad_message); ((TText*)messages[i]->GetListOfLines()->Last())->SetTextColor(kRed);
+      messages[i]->AddText(bad_message); ((TText*)messages[i]->GetListOfLines()->Last())->SetTextColor(kBlack);
       messages[i]->AddText("REFRESH. IF PERSISTS, CALL EXPERT"); ((TText*)messages[i]->GetListOfLines()->Last())->SetTextColor(kBlack);
       MyTC->cd(i+5);
       messages[i]->Draw("same");
