@@ -10,6 +10,7 @@
 #include <TCanvas.h>
 #include <TDatime.h>
 #include <TH1.h>
+#include <TH2Poly.h>
 #include <TLine.h>
 #include <TLatex.h>
 #include <TPad.h>
@@ -996,8 +997,8 @@ int TpotMonDraw::draw_detector_occupancy()
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_detector_occupancy" << std::endl;
 
   // get histograms
-  auto m_detector_occupancy_phi =  get_histogram( "m_detector_occupancy_phi");
-  auto m_detector_occupancy_z =  get_histogram( "m_detector_occupancy_z");
+  auto m_detector_occupancy_phi =  static_cast<TH2Poly*>(get_histogram( "m_detector_occupancy_phi"));
+  auto m_detector_occupancy_z =  static_cast<TH2Poly*>(get_histogram( "m_detector_occupancy_z"));
 
   // turn off stat panel
   for( const auto& h:{m_detector_occupancy_phi,m_detector_occupancy_z} )
@@ -1023,7 +1024,7 @@ int TpotMonDraw::draw_detector_occupancy()
     copy->GetXaxis()->SetTitleOffset(1);
     copy->GetYaxis()->SetTitleOffset(0.65);
     draw_detnames_sphenix( "Z" );
-
+    draw_occupancy( m_detector_occupancy_z );
 
     cv->cd(2);
     gPad->SetLeftMargin( 0.07 );
@@ -1033,6 +1034,7 @@ int TpotMonDraw::draw_detector_occupancy()
     copy->GetXaxis()->SetTitleOffset(1);
     copy->GetYaxis()->SetTitleOffset(0.65);
     draw_detnames_sphenix( "P" );
+    draw_occupancy( m_detector_occupancy_phi );
 
     draw_time(transparent);
     return 0;
@@ -1173,10 +1175,23 @@ void TpotMonDraw::draw_detnames_sphenix( const std::string& suffix)
     const auto name = m_geometry.get_detname_sphenix(i)+suffix;
     const auto [x,y] = m_geometry.get_tile_center(i);
     auto text = new TText();
-    text->DrawText( x-0.8*m_geometry.m_tile_length/2, y-0.8*m_geometry.m_tile_width/2, name.c_str() );
+    text->DrawText( x-0.8*m_geometry.m_tile_length/2, y+0.5*m_geometry.m_tile_width/2, name.c_str() );
     text->Draw();
   }
+}
 
+//__________________________________________________________________________________
+void TpotMonDraw::draw_occupancy( TH2Poly* h)
+{
+  gPad->Update();
+  for( size_t i = 0; i < m_geometry.get_ntiles(); ++i )
+  {
+    const auto [x,y] = m_geometry.get_tile_center(i);
+    const auto bin = h->FindBin(x,y);
+    const auto value =h->GetBinContent(bin);
+    // const auto value = std::round(h->GetBinContent( bin )*100)/100;
+    TText().DrawText( x-0.8*m_geometry.m_tile_length/2, y, (boost::format("%.2f %%")%value).str().c_str() );
+  }
 }
 
 //__________________________________________________________________________________
