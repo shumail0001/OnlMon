@@ -40,16 +40,18 @@ case "$1" in
 	fi
 	;;
     start)
+	$0 stop $2
 	#echo starting
 	#echo $hostname.$2.cmd
-        if [[ "$(hostname)" =~ ^'mvtx'[0-5] ]] 
-        then
-          d=`date +%Y%m%d`
-          t=`date +%H%M`
-	  nohup root.exe -l $ONLMON_SERVERWATCHER/$hostname.monitorserver.$2.cmd > /scratch/phnxrc/onlmon/${hostname}.monitorserver.$2.log 2> /scratch/phnxrc/onlmon/${hostname}.monitorserver.$2_${d}_${t}.err &
-        else
-          nohup root.exe -l $ONLMON_SERVERWATCHER/$hostname.monitorserver.$2.cmd >& /scratch/phnxrc/onlmon/${hostname}.monitorserver.$2.log &
-        fi
+    if [[ "$(hostname)" =~ ^'mvtx'[0-5] ]]
+    then
+        d=`date +%Y%m%d`
+        t=`date +%H%M`
+        nohup root.exe -l $ONLMON_SERVERWATCHER/$hostname.monitorserver.$2.cmd > /scratch/phnxrc/onlmon/${hostname}.monitorserver.$2.log 2> /scratch/phnxrc/onlmon/${hostname}.monitorserver.$2_${d}_${t}.err &
+    else
+        nohup root.exe -l $ONLMON_SERVERWATCHER/$hostname.monitorserver.$2.cmd >& /scratch/phnxrc/onlmon/${hostname}.monitorserver.$2.log &
+    fi
+    #nohup root.exe -l $ONLMON_SERVERWATCHER/$hostname.monitorserver.$2.cmd >& /scratch/phnxrc/onlmon/${hostname}.monitorserver.$2.log &
 	pid=`echo $!`
 	echo $pid > $pidfile
 	;;
@@ -79,7 +81,6 @@ case "$1" in
 	fi
 	;;
     restart)
-	$0 stop $2
 	$0 start $2
 	;;
 esac
