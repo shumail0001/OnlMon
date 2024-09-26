@@ -2,6 +2,7 @@
 #define ONLMONDATABASE_RUNDBODBC_H
 
 #include <set>
+#include <vector>
 #include <string>
 
 class RunDBodbc
@@ -13,8 +14,8 @@ class RunDBodbc
   void identify() const;
   std::string RunType(const int runno = 0) const;
   void Verbosity(const int i) { verbosity = i; }
-  std::string RunTypeFromFile(const int runno, const std::string &runtype) const;
   int GetRunNumbers(std::set<int> &result, const std::string &type, const int nruns, const int lastrunexclusive) const;
+  int GetScaledowns(std::vector<int> &result, const int runno) const;
 
  private:
   int verbosity = 0;

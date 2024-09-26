@@ -12,7 +12,7 @@ dnl   no point in suppressing warnings people should
 dnl   at least see them, so here we go for g++: -Wall
 if test $ac_cv_cxx_compiler_gnu = yes; then
 dnl  CXXFLAGS="$CXXFLAGS -Wall"
-  CXXFLAGS="$CXXFLAGS -Wno-deprecated-declarations -Wall -Werror -Wextra -Wshadow -Woverloaded-virtual"
+  CXXFLAGS="$CXXFLAGS -Wall -Wextra -Wshadow -Werror"
 fi
 
 ROOTLIBS="`$ROOTSYS/bin/root-config --glibs`"
@@ -26,28 +26,37 @@ onlmonclient/Makefile
 onlmondatabase/Makefile 
 poms/Makefile 
 onlmonserver/Makefile 
-subsystems/Makefile 
+onlmonutils/Makefile 
+scripts/Makefile
+macros/Makefile
+subsystems/Makefile
+subsystems/bbc/Makefile
+subsystems/bbc/calib/Makefile
+subsystems/ll1/Makefile
+subsystems/ll1/calib/Makefile
 subsystems/cemc/Makefile
 subsystems/cemc/calib/Makefile
 subsystems/daq/Makefile
 subsystems/daq/calib/Makefile
-subsystems/epd/Makefile
-subsystems/epd/calib/Makefile
+subsystems/sepd/Makefile
+subsystems/sepd/calib/Makefile
 subsystems/example/Makefile
 subsystems/example/calib/Makefile
 subsystems/hcal/Makefile
 subsystems/hcal/calib/Makefile
 subsystems/intt/Makefile
-subsystems/intt/calib/Makefile
-subsystems/mbd/Makefile
-subsystems/mbd/calib/Makefile
-subsystems/mbdll1/Makefile
-subsystems/mbdll1/calib/Makefile
+subsystems/localpol/Makefile
+subsystems/localpol/calib/Makefile
 subsystems/mvtx/Makefile
 subsystems/mvtx/calib/Makefile
+subsystems/pktsize/Makefile
+subsystems/spin/Makefile
+subsystems/spin/calib/Makefile
 subsystems/tpc/Makefile
 subsystems/tpc/calib/Makefile
 subsystems/tpot/Makefile
 subsystems/tpot/calib/Makefile
+subsystems/zdc/Makefile
+subsystems/zdc/calib/Makefile
 ])
 AC_OUTPUT

@@ -1,0 +1,16 @@
+MBDNS           0x0c00
+MBDTRIG         0x7c00
+#MBDNS        0xffffffffffff
+#MBDTRIG      0xffffffffffff
+MBDNSVTX10      0x1000
+MBDNSVTX30      0x2000
+MBDNSVTX60      0x4000
+ANYMBDTRIG   0xf0fff00
+ZDCNS              0x8
+EMCAL       0xf0000000
+HCAL          0xf00000
+EMCALMBD     0xf000000
+HCALMBD        0xf0000
+TRIGMASK     0xf0fff00
+#TRIGMASK     0xffffffffffff
+#USEGL1              1

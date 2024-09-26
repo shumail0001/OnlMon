@@ -7,8 +7,7 @@ SUBDIRS = calib
 
 AM_CPPFLAGS = \
   -I$(includedir) \
-  -I$(ONLMON_MAIN)/include \
-  -I$(OFFLINE_MAIN)/include \
+  -isystem$(ONLINE_MAIN)/include \
   -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \
@@ -17,16 +16,17 @@ lib_LTLIBRARIES = \
 
 libonlcemcmon_server_la_LIBADD = \
   -L$(libdir) \
-  -L$(OFFLINE_MAIN)/lib \
+  -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
-  -lonlmondb
+  -lonlmonutils \
+  -lcalo_io \
+  -lcalo_reco \
+  -lcdbobjects
 
 libonlcemcmon_client_la_LIBADD = \
   -L$(libdir) \
-  -L$(OFFLINE_MAIN)/lib \
-  -lonlmonclient \
-  -lonlmondb
-
+  -L$(ONLINE_MAIN)/lib \
+  -lonlmonclient
 
 cemcincludedir=$(pkgincludedir)/cemc
 

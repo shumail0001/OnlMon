@@ -2,12 +2,11 @@
 
 #include <onlmon/RunDBodbc.h>
 
-#include <phool/phool.h>
-
 #include <dirent.h>
 #include <sys/stat.h>
 #include <algorithm>
 #include <cstddef>  // for size_t
+#include <cstring>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -105,7 +104,7 @@ void OnlMonHtml::addMenu(const std::string& header, const std::string& path,
   {
     if (verbosity())
     {
-      std::cout << PHWHERE << "File " << menufile.str() << " does not exist."
+      std::cout << __PRETTY_FUNCTION__ << "File " << menufile.str() << " does not exist."
                 << "I'm creating it now" << std::endl;
     }
     std::ofstream out(menufile.str().c_str());
@@ -115,7 +114,7 @@ void OnlMonHtml::addMenu(const std::string& header, const std::string& path,
   {
     if (verbosity())
     {
-      std::cout << PHWHERE << "Reading file " << menufile.str() << std::endl;
+      std::cout << __PRETTY_FUNCTION__ << "Reading file " << menufile.str() << std::endl;
     }
   }
 
@@ -124,7 +123,7 @@ void OnlMonHtml::addMenu(const std::string& header, const std::string& path,
   char str[1024];
   while (in.getline(str, 1024, '\n'))
   {
-    lines.push_back(str);
+    lines.emplace_back(str);
   }
   in.close();
 
@@ -189,7 +188,7 @@ void OnlMonHtml::plainHtmlMenu(const std::set<std::string>& olines)
   std::ofstream out(htmlmenufile.str().c_str());
   if (!out.good())
   {
-    std::cout << PHWHERE << " cannot open output file "
+    std::cout << __PRETTY_FUNCTION__ << " cannot open output file "
               << htmlmenufile.str() << std::endl;
     return;
   }
@@ -264,7 +263,7 @@ void OnlMonHtml::namer(const std::string& header,
 
   if (verbosity())
   {
-    std::cout << PHWHERE << "namer: header=" << header
+    std::cout << __PRETTY_FUNCTION__ << "namer: header=" << header
               << " basefilename=" << basefilename << " ext=" << ext
               << std::endl
               << "fullfilename=" << fullfilename
@@ -282,9 +281,15 @@ OnlMonHtml::registerPage(const std::string& header,
 {
   std::string fullfilename;
   std::string filename;
-
+  std::string menupath = path;
   namer(header, basefilename, ext, fullfilename, filename);
-  addMenu(header, path, filename);
+  if (path.find('/') != std::string::npos)
+  {
+    std::cout << "OnlMonHtml::registerPage: found fatal \"/\" in path: \"" << path 
+	      << "\" stripping it" << std::endl;
+  }
+  menupath.erase(remove(menupath.begin(),menupath.end(),'/'),menupath.end());
+  addMenu(header, menupath, filename);
   return fullfilename;
 }
 
@@ -296,37 +301,9 @@ void OnlMonHtml::runInit()
   // Then check (and create if necessary) the "menu" template file.
   std::string runtype = "unknowndata";
   std::string runtmp = rundb->RunType(fRunNumber);
-  if (runtmp == "JUNK")
+  if (!runtmp.empty())
   {
-    runtype = "junkdata";
-  }
-  else if (runtmp == "PHYSICS")
-  {
-    runtype = "eventdata";
-  }
-  else if (runtmp == "CALIBRATION")
-  {
-    runtype = "calibdata";
-  }
-  else if (runtmp == "PREJECTED")
-  {
-    runtype = "prejecteddata";
-  }
-  else if (runtmp == "LOCALPOLARIMETER")
-  {
-    runtype = "localpoldata";
-  }
-  else if (runtmp == "PEDESTAL")
-  {
-    runtype = "pedestaldata";
-  }
-  else if (runtmp == "VERNIERSCAN")
-  {
-    runtype = "vernierscandata";
-  }
-  else if (runtmp == "ZEROFIELD")
-  {
-    runtype = "zerofielddata";
+    runtype = runtmp;
   }
   std::cout << "runtype is " << runtype << std::endl;
 
@@ -343,7 +320,7 @@ void OnlMonHtml::runInit()
     mkdirlist.push_back(fulldir.str());
     std::string updir = fulldir.str();
     std::string::size_type pos1;
-    while ((pos1 = updir.rfind("/")) != std::string::npos)
+    while ((pos1 = updir.rfind('/')) != std::string::npos)
     {
       updir.erase(pos1, updir.size());
       htdir = opendir(updir.c_str());
@@ -362,11 +339,25 @@ void OnlMonHtml::runInit()
       std::string md = *(mkdirlist.rbegin());
       if (verbosity())
       {
-        std::cout << PHWHERE << "Trying to create dir " << md << std::endl;
+        std::cout << __PRETTY_FUNCTION__ << "Trying to create dir " << md << std::endl;
       }
-      if (mkdir(md.c_str(), S_IRWXU | S_IRWXG | S_IRWXO))
+      std::filesystem::perms permissions = std::filesystem::perms::owner_all | std::filesystem::perms::group_all | std::filesystem::perms::group_exec | std::filesystem::perms::others_read | std::filesystem::perms::others_exec;
+      if (std::filesystem::create_directory(md))
       {
-        std::cout << PHWHERE << "Error creating directory " << md << std::endl;
+	if (verbosity())
+	{
+	  std::cout << "created " << md << std::endl;
+	}
+        char* onlprod_real_html = getenv("ONLMON_REAL_HTML");
+        if (!onlprod_real_html)
+        {
+          std::filesystem::permissions(md, permissions);
+          set_group_sticky_bit(md);
+        }
+      }
+      else
+      {
+        std::cout << "Error creating directory " << md << std::endl;
         fHtmlRunDir = fHtmlDir;
         break;
       }
@@ -395,7 +386,7 @@ void OnlMonHtml::runInit()
 
   if (verbosity())
   {
-    std::cout << PHWHERE << "OK. fHtmlRunDir=" << fHtmlRunDir << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << "OK. fHtmlRunDir=" << fHtmlRunDir << std::endl;
   }
 }
 
@@ -419,4 +410,32 @@ OnlMonHtml::runRange()
     << "_" << std::setw(10) << std::setfill('0') << (start + 1) * range;
 
   return s.str();
+}
+
+void OnlMonHtml::set_group_sticky_bit(const std::filesystem::path& dir)
+{
+  struct stat st
+  {
+  };
+  if (stat(dir.c_str(), &st) != 0)
+  {
+    std::cout << "Failed to stat directory: " << std::strerror(errno) << std::endl;
+    return;
+  }
+
+  // Add the setgid bit to the existing permissions
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
+  mode_t new_mode = st.st_mode | S_ISGID;
+
+  if (chmod(dir.c_str(), new_mode) != 0)
+  {
+    std::cerr << "Failed to set group sticky bit: " << std::strerror(errno) << std::endl;
+  }
+  else
+  {
+    if (verbosity() > 0)
+    {
+      std::cout << "Group sticky bit set for directory: " << dir << std::endl;
+    }
+  }
 }

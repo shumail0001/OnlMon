@@ -1,19 +1,41 @@
-#include <ServerFuncs.C>
+#include "ServerFuncs.C"
 
 #include <onlmon/tpot/TpotMon.h>
-
 #include <onlmon/OnlMonServer.h>
 
+#include <fstream>
+
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpotmon_server.so)
 
-void run_tpot_server(const char *prdffile = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000221-0000.prdf")
+void run_tpot_server(
+  const std::string &name = "TPOTMON",
+  unsigned int serverid = 0,
+  // const std::string &evtfile = "/sphenix/lustre01/sphnxpro/commissioning/TPOT/junk/TPOT_ebdc39_junk-00041227-0000.evt"
+  // const std::string &evtfile = "/sphenix/lustre01/sphnxpro/physics/TPOT/junk/TPOT_ebdc39_junk-00043402-0000.evt"
+  // const std::string &evtfile = "/sphenix/lustre01/sphnxpro/physics/TPOT/physics/TPOT_ebdc39_physics-00045550-0000.evt"
+  // const std::string &evtfile = "/sphenix/lustre01/sphnxpro/physics/TPOT/physics/TPOT_ebdc39_physics-00045890-0000.evt"
+  const std::string &evtfile = "/sphenix/lustre01/sphnxpro/physics/TPOT/physics/TPOT_ebdc39_physics-00051926-0000.evt"
+  )
 {
+  // create subsystem Monitor object
+  auto m = new TpotMon(name);
+  m->SetMonitorServerId(serverid);
+  m->set_max_sample(1024);
+  m->set_sample_window_signal( {3, 18} );
 
-  OnlMon *m = new TpotMon();      // create subsystem Monitor object
-//  m->AddTrigger("PPG(Laser)");  // high efficiency triggers selection at et pool
-//  m->AddTrigger("ONLMONBBCLL1"); // generic bbcll1 minbias trigger (defined in ServerFuncs.C)
-  OnlMonServer *se = OnlMonServer::instance(); // get pointer to Server Framework
-  se->registerMonitor(m);       // register subsystem Monitor with Framework
-  start_server(prdffile);
-  return ;
+  // prefer local calibration filename if exists
+  const std::string local_calibration_filename( "TPOT_Pedestal-000.root" );
+  if( std::ifstream( local_calibration_filename ).good() )
+  { m->set_calibration_file( local_calibration_filename ); }
+
+  // get pointer to Server Framework
+  auto se = OnlMonServer::instance();
+
+  // register subsystem Monitor with Framework
+  se->registerMonitor(m);
+
+  // and start
+  start_server(evtfile);
+  return;
 }

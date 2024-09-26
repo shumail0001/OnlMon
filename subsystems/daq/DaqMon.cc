@@ -9,10 +9,19 @@
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
+#include <calobase/TowerInfoDefs.h>
+#include <caloreco/CaloWaveformFitting.h>
+
+#include <Event/Event.h>
+#include <Event/eventReceiverClient.h>
 #include <Event/msg_profile.h>
+
+#include <onlmon/GL1Manager.h>
+
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TRandom.h>
 
 #include <cmath>
 #include <cstdio>  // for printf
@@ -27,114 +36,198 @@ enum
   FILLMESSAGE = 2
 };
 
-DaqMon::DaqMon(const std::string &name)
+DaqMon::DaqMon(const std::string &name, const std::string& gl1_host)
   : OnlMon(name)
 {
-  // leave ctor fairly empty, its hard to debug if code crashes already
-  // during a new DaqMon()
+  GL1host = gl1_host;
+
   return;
 }
 
 DaqMon::~DaqMon()
 {
-  // you can delete NULL pointers it results in a NOOP (No Operation)
-  delete dbvars;
+  delete gl1mgr;
   return;
 }
 
 int DaqMon::Init()
 {
-  // read our calibrations from DaqMonData.dat
-  std::string fullfile = std::string(getenv("DAQCALIB")) + "/" + "DaqMonData.dat";
+  gRandom->SetSeed(rand());
+  const char *daqcalib = getenv("DAQCALIB");
+  if (!daqcalib)
+  {
+    std::cout << "DAQCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+  std::string fullfile = std::string(daqcalib) + "/" + "DaqMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
-  // use printf for stuff which should go the screen but not into the message
-  // system (all couts are redirected)
   printf("doing the Init\n");
-  daqhist1 = new TH1F("daqmon_hist1", "test 1d histo", 101, 0., 100.);
-  daqhist2 = new TH2F("daqmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
+
+  h_gl1_clock_diff = new TH2F("h_gl1_clock_diff","", 6, 0,6, 2, -0.5, 1.5);
+  h_gl1_clock_diff->GetXaxis()->SetTitleSize(0);
+  h_gl1_clock_diff->GetYaxis()->SetNdivisions(202);
+  h_gl1_clock_diff->GetXaxis()->SetNdivisions(101);
+  h_gl1_clock_diff->GetYaxis()->SetBinLabel(1,"#bf{Unlocked}");
+  h_gl1_clock_diff->GetYaxis()->SetBinLabel(2,"#bf{Locked}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(1,"#bf{MBD}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(2,"#bf{EMCal}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(3,"#bf{IHCal}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(4,"#bf{OHCal}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(5,"#bf{sEPD}");
+  h_gl1_clock_diff->GetXaxis()->SetBinLabel(6,"#bf{ZDC}");
+
+  h_fem_match = new TH2F("h_fem_match","", 20, -0.5,19.5, 1, 0.5, 1.5);
+  for(int is=0;is<10;is++){
+      h_fem_match->GetXaxis()->SetBinLabel(is+1,Form("seb0%d",is));
+  }
+  for(int is=10;is<19;is++){
+      h_fem_match->GetXaxis()->SetBinLabel(is+1,Form("seb%d",is));
+  }
+  h_fem_match->GetXaxis()->SetBinLabel(20,"seb20");
+  
   OnlMonServer *se = OnlMonServer::instance();
-  // register histograms with server otherwise client won't get them
-  se->registerHisto(this, daqhist1);  // uses the TH1->GetName() as key
-  se->registerHisto(this, daqhist2);
-  dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
-  DBVarInit();
+  se->registerHisto(this, h_gl1_clock_diff);  
+  se->registerHisto(this, h_fem_match); 
   Reset();
+  //erc = new eventReceiverClient("gl1daq");
+  gl1mgr= new GL1Manager(GL1host.c_str());
+
+
+  std::string mappingfile = std::string(daqcalib) + "/" + "packetid_seb_mapping.txt";
+  loadpacketMapping(mappingfile);
+
   return 0;
 }
 
 int DaqMon::BeginRun(const int /* runno */)
 {
-  // if you need to read calibrations on a run by run basis
-  // this is the place to do it
+
+  gl1mgr->Reset();
+  // we need to reset the previousdiff values. 200 is hard-coded in the header
+  for (int i = 0; i < 200; i++) previousdiff[i] = 0;
+
   return 0;
 }
 
-int DaqMon::process_event(Event * /* evt */)
+int DaqMon::process_event(Event *e /* evt */)
 {
-  evtcnt++;
-  OnlMonServer *se = OnlMonServer::instance();
-  // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
-  // e.g. if the BBCLL1 has problems or if it changes its name
-  if (!se->Trigger("ONLMONBBCLL1"))
-  {
-    std::ostringstream msg;
-    msg << "Processing Event " << evtcnt
-        << ", Trigger : 0x" << std::hex << se->Trigger()
-        << std::dec;
-    // severity levels and id's for message sources can be found in
-    // $ONLINE_MAIN/include/msg_profile.h
-    // The last argument is a message type. Messages of the same type
-    // are throttled together, so distinct messages should get distinct
-    // message types
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-  }
-  // get temporary pointers to histograms
-  // one can do in principle directly se->getHisto("daqhist1")->Fill()
-  // but the search in the histogram Map is somewhat expensive and slows
-  // things down if you make more than one operation on a histogram
-  daqhist1->Fill((float) idummy);
-  daqhist2->Fill((float) idummy, (float) idummy, 1.);
-
-  if (idummy++ > 10)
-  {
-    if (dbvars)
+    if (e->getEvtType() >= 8) 
     {
-      dbvars->SetVar("daqmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-      dbvars->SetVar("daqmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      dbvars->SetVar("daqmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
-      dbvars->DBcommit();
+        return 0;
     }
-    std::ostringstream msg;
-    msg << "Filling Histos";
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
-    idummy = 0;
+  
+  int evtnr = e->getEvtSequence();
+  if (evtnr < 3)
+  {
+    return 0;
   }
+
+  evtcnt++;
+  long long int gl1_clock = 0;
+
+
+  Packet *plist[100];
+  int npackets = e->getPacketList(plist,100);
+
+  int gl1status = -3; // outside of the range for getClockSync
+
+  if ( plist[0])
+    {
+      gl1status = gl1mgr->getClockSync(e->getEvtSequence(), plist[0] );
+
+      Packet *pgl1 = gl1mgr->getGL1Packet();
+      if (pgl1)
+	{
+          OnlMonServer *se = OnlMonServer::instance();
+          se->IncrementGl1FoundCounter();
+	  gl1_clock = pgl1->lValue(0, "BCO");
+	  delete pgl1;
+	}
+    }
+
+  bool mismatchfem = true;
+  int femevtref = 0;
+  int femclkref = 0;
+  int sebid = 0;
+
+  if ( gl1status == 0) // ignore all events with gl1 issues
+    {
+      { 
+	for (int ipacket = 0; ipacket < npackets; ipacket++) {
+	  Packet * p = plist[ipacket];
+	  if (p) {
+	    int pnum = p->getIdentifier();
+	    int calomapid = CaloPacketMap(pnum);
+	    long int packet_clock = p->lValue(0,"CLOCK");
+	    clockdiff[ipacket] = gl1_clock  - packet_clock;
+	    int fdiff = (clockdiff[ipacket] != previousdiff[ipacket]) ? 0 : 1;
+
+	    // this check will tell us if we have the first event where the previous diff is still 0
+	    if( previousdiff[ipacket] ) h_gl1_clock_diff->Fill(calomapid,fdiff);
+
+	    previousdiff[ipacket] = clockdiff[ipacket];
+	    
+	    int nADCs = p->iValue(0,"NRMODULES");
+	    for(int iadc = 0; iadc<nADCs ; iadc++){
+              if(ipacket==0 && iadc==0){ femevtref = p->iValue(iadc,"FEMEVTNR"); femclkref = p->iValue(iadc,"FEMCLOCK");}
+	      
+              if(femevtref !=  p->iValue(iadc,"FEMEVTNR") && fabs(femclkref - p->iValue(0,"FEMCLOCK"))>2)
+		{
+                  mismatchfem = false;
+                  sebid = getmapping(pnum);
+		}
+	    }
+          
+          }
+	}
+      }
+      if(mismatchfem == false) h_fem_match->Fill(sebid,1);
+    }
+
+  for (int ipacket = 0; ipacket < npackets; ipacket++) 
+    {
+      delete plist[ipacket];
+    }
+
   return 0;
 }
 
 int DaqMon::Reset()
 {
-  // reset our internal counters
   evtcnt = 0;
   idummy = 0;
+  OnlMonServer *se = OnlMonServer::instance();
+  se->UseGl1();
   return 0;
 }
 
-int DaqMon::DBVarInit()
+int DaqMon::CaloPacketMap(int pnum)
 {
-  // variable names are not case sensitive
-  std::string varname;
-  varname = "daqmoncount";
-  dbvars->registerVar(varname);
-  varname = "daqmondummy";
-  dbvars->registerVar(varname);
-  varname = "daqmonnew";
-  dbvars->registerVar(varname);
-  if (verbosity > 0)
+  int caloid = -1;
+  if (pnum >= packet_mbd_low && pnum <= packet_mbd_high)
   {
-    dbvars->Print();
+    caloid = 0;
   }
-  dbvars->DBInit();
-  return 0;
+  else if (pnum >= packet_emcal_low && pnum <= packet_emcal_high)
+  {
+    caloid = 1;
+  }
+  else if (pnum >= packet_ihcal_low && pnum <= packet_ihcal_high)
+  {
+    caloid = 2;
+  }
+  else if (pnum >= packet_ohcal_low && pnum <= packet_ohcal_high)
+  {
+    caloid = 3;
+  }
+  else if (pnum >= packet_sepd_low && pnum <= packet_sepd_high)
+  {
+    caloid = 4;
+  }
+  else if (pnum >= packet_zdc)
+  {
+    caloid = 5;
+  }
+  return caloid;
 }

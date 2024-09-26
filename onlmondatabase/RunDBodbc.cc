@@ -1,9 +1,5 @@
 #include "RunDBodbc.h"
 
-#include <phool/phool.h>
-
-#include <boost/tokenizer.hpp>
-
 #include <odbc++/connection.h>
 #include <odbc++/drivermanager.h>
 #include <odbc++/statement.h>  // for Statement
@@ -31,32 +27,27 @@ void RunDBodbc::identify() const
 }
 
 std::string
-RunDBodbc::RunType(const int runnoinput) const
+RunDBodbc::RunType(const int runno) const
 {
   std::string runtype = "UNKNOWN";
   odbc::Connection *con = nullptr;
   odbc::Statement *query = nullptr;
   odbc::ResultSet *rs = nullptr;
   std::ostringstream cmd;
-  int runno = 221;
-  if (runnoinput == 221)
-  {
-    runno = runnoinput;
-  }
   try
   {
     con = odbc::DriverManager::getConnection(dbname, dbowner, dbpasswd);
   }
   catch (odbc::SQLException &e)
   {
-    std::cout << PHWHERE
+    std::cout << __PRETTY_FUNCTION__
               << " Exception caught during DriverManager::getConnection" << std::endl;
     std::cout << "Message: " << e.getMessage() << std::endl;
     goto noopen;
   }
 
   query = con->createStatement();
-  cmd << "SELECT runtype,runstate,eventsinrun,brunixtime,erunixtime FROM RUN WHERE RUNNUMBER = "
+  cmd << "SELECT runtype FROM RUN WHERE RUNNUMBER = "
       << runno;
   if (verbosity > 0)
   {
@@ -74,69 +65,69 @@ RunDBodbc::RunType(const int runnoinput) const
   if (rs && rs->next())
   {
     runtype = rs->getString("runtype");
-    if (runtype == "PHYSICS")
-    {
-      std::string runstate = rs->getString("runstate");
-      unsigned int brunixtime = rs->getInt("brunixtime");
-      unsigned int erunixtime = rs->getInt("erunixtime");
-      if (erunixtime - brunixtime < 300 && runstate == "ENDED")  // 5 min limit
-      {
-        runtype = "PREJECTED";
-      }
-      else
-      {
-        int eventsinrun = rs->getInt("eventsinrun");
-        if (eventsinrun <= 100 && runstate != "ENDED")
-        {
-          if (verbosity > 0)
-          {
-            std::cout << "Run not ended and eventsinrun : " << eventsinrun << std::endl;
-          }
-          cmd.str("");
-          cmd << "SELECT sum(scalerupdatescaled) FROM trigger WHERE RUNNUMBER = "
-              << runno;
+    // if (runtype == "PHYSICS")
+    // {
+    //   std::string runstate = rs->getString("runstate");
+    //   unsigned int brunixtime = rs->getInt("brunixtime");
+    //   unsigned int erunixtime = rs->getInt("erunixtime");
+    //   if (erunixtime - brunixtime < 300 && runstate == "ENDED")  // 5 min limit
+    //   {
+    //     runtype = "PREJECTED";
+    //   }
+    //   else
+    //   {
+    //     int eventsinrun = rs->getInt("eventsinrun");
+    //     if (eventsinrun <= 100 && runstate != "ENDED")
+    //     {
+    //       if (verbosity > 0)
+    //       {
+    //         std::cout << "Run not ended and eventsinrun : " << eventsinrun << std::endl;
+    //       }
+    //       cmd.str("");
+    //       cmd << "SELECT sum(scalerupdatescaled) FROM trigger WHERE RUNNUMBER = "
+    //           << runno;
 
-          odbc::ResultSet *rs1 = 0;
+    //       odbc::ResultSet *rs1 = nullptr;
 
-          odbc::Statement *query1 = con->createStatement();
-          try
-          {
-            rs1 = query1->executeQuery(cmd.str());
-          }
-          catch (odbc::SQLException &e)
-          {
-            std::cout << "Exception caught" << std::endl;
-            std::cout << "Message: " << e.getMessage() << std::endl;
-          }
-          if (rs1 && rs1->next())
-          {
-            eventsinrun = rs1->getLong(1);
-          }
-          if (verbosity > 0)
-          {
-            std::cout << "Run not ended and eventsinrun < 500000, sum of scaled triggers: "
-                      << eventsinrun << std::endl;
-          }
-        }
-        if (eventsinrun <= 100)
-        {
-          runtype = "PREJECTED";
-        }
-      }
-    }
+    //       odbc::Statement *query1 = con->createStatement();
+    //       try
+    //       {
+    //         rs1 = query1->executeQuery(cmd.str());
+    //       }
+    //       catch (odbc::SQLException &e)
+    //       {
+    //         std::cout << "Exception caught" << std::endl;
+    //         std::cout << "Message: " << e.getMessage() << std::endl;
+    //       }
+    //       if (rs1 && rs1->next())
+    //       {
+    //         eventsinrun = rs1->getLong(1);
+    //       }
+    //       if (verbosity > 0)
+    //       {
+    //         std::cout << "Run not ended and eventsinrun < 500000, sum of scaled triggers: "
+    //                   << eventsinrun << std::endl;
+    //       }
+    //     }
+    //     if (eventsinrun <= 100)
+    //     {
+    //       runtype = "PREJECTED";
+    //     }
+    //   }
+    // }
   }
 noopen:
   delete con;
 
-  // try to get this info from the beginrun sql command saved in $ONLINE_LOG/runinfo
-  if (runtype == "UNKNOWN")
-  {
-    if (verbosity > 0)
-    {
-      std::cout << "Run unknown in DB trying from file" << std::endl;
-    }
-    runtype = RunTypeFromFile(runno, runtype);
-  }
+  // // try to get this info from the beginrun sql command saved in $ONLINE_LOG/runinfo
+  // if (runtype == "UNKNOWN")
+  // {
+  //   if (verbosity > 0)
+  //   {
+  //     std::cout << "Run unknown in DB trying from file" << std::endl;
+  //   }
+  //   //    runtype = RunTypeFromFile(runno, runtype);
+  // }
 
   if (verbosity > 0)
   {
@@ -146,48 +137,11 @@ noopen:
   return runtype;
 }
 
-std::string
-RunDBodbc::RunTypeFromFile(const int runno, const std::string &runtype) const
-{
-  std::ostringstream runfilename;
-  std::string returnruntype = runtype;
-  if (getenv("ONLINE_LOG"))
-  {
-    runfilename << getenv("ONLINE_LOG") << "/runinfo/";
-  }
-  runfilename << "beginrun_" << std::setw(7) << std::setfill('0') << runno << ".sql";
-  std::cout << "file: " << runfilename.str() << std::endl;
-  std::ifstream infile(runfilename.str());
-  if (infile.fail())
-  {
-    std::cout << "Failed to open file " << runfilename.str() << std::endl;
-    return returnruntype;
-  }
-  std::string FullLine;
-  getline(infile, FullLine);
-  boost::char_separator<char> sep("'");
-  typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-  while (!infile.eof())
-  {
-    if (FullLine.find("INSERT INTO run VALUES") != std::string::npos)
-    {
-      tokenizer tokens(FullLine, sep);
-      tokenizer::iterator tok_iter = tokens.begin();
-      ++tok_iter;
-      //	 	  std::cout << "run type: " << *tok_iter << std::endl;
-      returnruntype = *tok_iter;
-      break;
-    }
-    getline(infile, FullLine);
-  }
-  return returnruntype;
-}
-
 int RunDBodbc::GetRunNumbers(std::set<int> &result, const std::string &type, const int nruns, const int lastrunexclusive) const
 {
-  odbc::Connection *con = 0;
-  odbc::Statement *query = 0;
-  odbc::ResultSet *rs = 0;
+  odbc::Connection *con = nullptr;
+  odbc::Statement *query = nullptr;
+  odbc::ResultSet *rs = nullptr;
   std::ostringstream cmd;
 
   try
@@ -196,7 +150,7 @@ int RunDBodbc::GetRunNumbers(std::set<int> &result, const std::string &type, con
   }
   catch (odbc::SQLException &e)
   {
-    std::cout << PHWHERE
+    std::cout << __PRETTY_FUNCTION__
               << " Exception caught during DriverManager::getConnection" << std::endl;
     std::cout << "Message: " << e.getMessage() << std::endl;
     return -1;
@@ -228,6 +182,70 @@ int RunDBodbc::GetRunNumbers(std::set<int> &result, const std::string &type, con
     if (verbosity > 0)
     {
       std::cout << "Choosing " << runnumber << std::endl;
+    }
+  }
+  delete rs;
+  delete con;
+  return 0;
+}
+
+int RunDBodbc::GetScaledowns(std::vector<int> &result, const int runno) const
+{
+  odbc::Connection *con = nullptr;
+  odbc::Statement *query = nullptr;
+  odbc::ResultSet *rs = nullptr;
+  std::ostringstream cmd;
+
+  result.clear();   // clear result, in case it is not empty
+
+  try
+  {
+    con = odbc::DriverManager::getConnection(dbname.c_str(), dbowner.c_str(), dbpasswd.c_str());
+  }
+  catch (odbc::SQLException &e)
+  {
+    std::cout << __PRETTY_FUNCTION__
+              << " Exception caught during DriverManager::getConnection" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
+    return -1;
+  }
+
+  query = con->createStatement();
+  cmd << "SELECT * FROM gl1_scaledown WHERE runnumber = " << runno;
+  if (verbosity > 0)
+  {
+    std::cout << "command: " << cmd.str() << std::endl;
+  }
+  try
+  {
+    rs = query->executeQuery(cmd.str());
+  }
+  catch (odbc::SQLException &e)
+  {
+    std::cout << "Exception caught" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
+    delete con;
+  }
+
+  while (rs->next())
+  {
+    int runnumber = rs->getInt("runnumber");
+    if ( runnumber != runno )
+    {
+      std::cout << "ODBC ERROR, runnumber is not equal to runno, " << runnumber << "\t" << runno << std::endl;
+      continue;
+    }
+    char column_name[BUFSIZ];
+    for (int itrig=0; itrig<64; itrig++)
+    {
+      sprintf(column_name,"scaledown%02d",itrig);
+      int scaledown = rs->getInt(column_name);
+      result.push_back( scaledown );
+
+      if (verbosity > 0)
+      {
+          std::cout << column_name << "\t" << result[itrig] << std::endl;
+      }
     }
   }
   delete rs;

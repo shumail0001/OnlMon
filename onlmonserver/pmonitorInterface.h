@@ -1,5 +1,5 @@
-#ifndef __PMONITORINTERFACE_H__
-#define __PMONITORINTERFACE_H__
+#ifndef ONLMONSERVER_PMONITORINTERFACE_H
+#define ONLMONSERVER_PMONITORINTERFACE_H
 
 #include <string>
 
@@ -8,4 +8,4 @@ void handleconnection(void *arg);
 void handletest(void *arg);
 int send_message(const int severity, const std::string &msg);
 
-#endif /* __PMONITORINTERFACE_H__ */
+#endif /* ONLMONSERVER_PMONITORINTERFACE_H */
