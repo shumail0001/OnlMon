@@ -203,7 +203,7 @@ int MvtxMon::Init()
 
   se->registerHisto(this, hErrorPlots);
 
-  hErrorPlotsTime = new TH1D("General_DecErrorsTime", "Decoding Errors Time Serie", 50, 0.5, 50.5);
+  hErrorPlotsTime = new TH1D("General_DecErrorsTime", "Rolling History Of Decoding Errors", 50, 0.5, 50.5);
   hErrorPlotsTime->GetYaxis()->SetTitle("Number of Errors");
   hErrorPlotsTime->GetXaxis()->SetTitle("Time");
   hErrorPlotsTime->SetMinimum(0);       // remove
@@ -299,6 +299,12 @@ int MvtxMon::Init()
   hFeeL1->SetStats(0);
   se->registerHisto(this, hFeeL1);
 
+  hFeeRDHErrors = new TH1I("RDHErrors_hfeeRDHErrors", "RDH Errors vs FeeId", NFees,0,NFees);
+  hFeeRDHErrors->GetXaxis()->SetTitle("FEE ID");
+  hFeeRDHErrors->GetYaxis()->SetTitle("Number of MVTX RDH Errors");
+  hFeeRDHErrors->SetStats(0);
+  se->registerHisto(this, hFeeRDHErrors);
+
   // fhr
   mErrorVsFeeid = new TH2I("FHR_ErrorVsFeeid", "Decoder error vs FeeID", 3 * StaveBoundary[3], 0, 3 * StaveBoundary[3], NError, 0.5, NError + 0.5);;
   mErrorVsFeeid->GetXaxis()->SetTitle("FEE ID");
@@ -314,11 +320,13 @@ int MvtxMon::Init()
   mGeneralOccupancy->SetStats(false);
 
   mGeneralNoisyPixel = new TH2Poly();
-  mGeneralNoisyPixel->SetTitle("Noisy Pixel Number; ; ");
+  mGeneralNoisyPixel->SetTitle("Unmasked Noisy Pixel Number; ; ");
   mGeneralNoisyPixel->SetName("MVTXMON_General_Noisy_Pixel");
   mGeneralNoisyPixel->GetXaxis()->SetTitle("");
   mGeneralNoisyPixel->GetYaxis()->SetTitle("");
   mGeneralNoisyPixel->SetStats(false);
+  mGeneralNoisyPixel->SetMinimum(-1);
+  mGeneralNoisyPixel->SetMaximum(1200);
 
   createPoly(mGeneralOccupancy);
   createPoly(mGeneralNoisyPixel);
@@ -463,6 +471,7 @@ int MvtxMon::process_event(Event* evt)
         auto feeId = plist[i]->iValue(i_fee, "FEEID");
         auto link = DecodeFeeid(feeId);
         auto num_strobes = plist[i]->iValue(feeId, "NR_STROBES");
+        auto num_RDHErrors = plist[i]->iValue(feeId, "RDH_ERRORS");
         ntriggers = num_strobes;
         auto num_L1Trgs = plist[i]->iValue(feeId, "NR_PHYS_TRG");
         for (int iL1 = 0; iL1 < num_L1Trgs; ++iL1)
@@ -472,6 +481,11 @@ int MvtxMon::process_event(Event* evt)
           hChipL1->Fill((StaveBoundary[link.layer] + link.stave % 20) * 9 + 3 * link.gbtid + 1);
           hChipL1->Fill((StaveBoundary[link.layer] + link.stave % 20) * 9 + 3 * link.gbtid + 2);
           hFeeL1->Fill((StaveBoundary[link.layer] + link.stave % 20) * 3 + link.gbtid);
+        }
+
+        for (int irdhe = 0; irdhe < num_RDHErrors; ++irdhe)
+        {
+          hFeeRDHErrors->Fill((StaveBoundary[link.layer] + link.stave % 20) * 3 + link.gbtid);
         }
 
         for (int i_strb{0}; i_strb < num_strobes; ++i_strb)

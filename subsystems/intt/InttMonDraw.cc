@@ -2,6 +2,20 @@
 
 #include <TPolyLine.h>
 
+#include <limits>
+
+namespace // anonymous
+{
+  template <typename T>
+  bool has_nan(T const& t)
+  {
+    return !std::isfinite(t);
+    // return std::isnan(t);
+	// return t != t
+	// return std::numeric_limits<T>::has_quiet_NaN(t) || std::numeric_limits<T>::has_signaling_NaN(t);
+  }
+}
+
 InttMonDraw::InttMonDraw(const std::string& name)
   : OnlMonDraw(name)
 {
@@ -175,7 +189,7 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   }
   if (name == "InttFelixBcoFphxBco")
   {
-    TC[k_felixbcofphxbco] = new TCanvas(name.c_str(), "Felix Fphx Bco", -1, 0, m_cnvs_width, m_cnvs_height);
+    TC[k_felixbcofphxbco] = new TCanvas(name.c_str(), "Felix Fphx Bco (Triggered)", -1, 0, m_cnvs_width, m_cnvs_height);
     gSystem->ProcessEvents();
     transparent[k_felixbcofphxbco] = new TPad(Form("transparent%d", k_felixbcofphxbco), "this does not show", 0, 0, 1, 1);
     transparent[k_felixbcofphxbco]->SetFillStyle(4000);  // Transparent
@@ -187,7 +201,7 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   }
   if (name == "InttJustFphxBco")
   {
-    TC[k_justfphxbco] = new TCanvas(name.c_str(), "Just Fphx Bco", m_cnvs_width, m_cnvs_height);
+    TC[k_justfphxbco] = new TCanvas(name.c_str(), "Just Fphx Bco (Streaming)", m_cnvs_width, m_cnvs_height);
     gSystem->ProcessEvents();
     transparent[k_justfphxbco] = new TPad(Form("transparent%d", k_justfphxbco), "this does not show", 0, 0, 1, 1);
     transparent[k_justfphxbco]->SetFillStyle(4000);  // Transparent
@@ -199,7 +213,7 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   }
   if (name == "InttZoomedFphxBco")
   {
-    TC[k_zoomedfphxbco] = new TCanvas(name.c_str(), "Zoomed Fphx Bco", m_cnvs_width, m_cnvs_height);
+    TC[k_zoomedfphxbco] = new TCanvas(name.c_str(), "Zoomed Fphx Bco (Streaming)", m_cnvs_width, m_cnvs_height);
     gSystem->ProcessEvents();
     transparent[k_zoomedfphxbco] = new TPad(Form("transparent%d", k_zoomedfphxbco), "this does not show", 0, 0, 1, 1);
     transparent[k_zoomedfphxbco]->SetFillStyle(4000);  // Transparent
@@ -583,24 +597,40 @@ int InttMonDraw::DrawHistPad_FelixBcoFphxBco(
   }
 
   // Fill
-  int max = 0;
+  double max = 0;
   for (int fee = 0; fee < NFEES; ++fee)
   {
     for (int bco = 0; bco < NBCOS; ++bco)
     {
       int bincont = bco_hist->GetBinContent(bco_hist->GetBin(1, fee * NBCOS + bco + 1));
+
+      if (has_nan(bincont))
+      {
+        continue;
+      }
+
       if (bincont > max)
       {
         max = bincont;
       }
+
       m_hist_felixbcofphxbco[i][fee]->SetBinContent(bco + 1, bincont);  // + 1 is b/c the 0th bin is an underflow bin
     }
+  }
+
+  if(0 == max) // max was unset
+  {
+    max = 10;
+  }
+  else if(max < 0 || (max *= 10) < 0 || has_nan(max)) // max underflowed in the server or underflowed when mutliplying by 10
+  {
+    max = std::numeric_limits<int>::max();
   }
 
   // Noramlize ranges
   for (int fee = 0; fee < NFEES; ++fee)
   {
-    m_hist_felixbcofphxbco[i][fee]->GetYaxis()->SetRangeUser(1, max ? max * 10 : 10);
+    m_hist_felixbcofphxbco[i][fee]->GetYaxis()->SetRangeUser(1, max);
   }
 
   return 0;
@@ -719,12 +749,18 @@ int InttMonDraw::DrawHistPad_JustFphxBco(
   }
 
   // Fill
-  int max = 0;
+  double max = 0;
   for (int fee = 0; fee < NFEES; ++fee)
   {
     for (int bco = 0; bco < NBCOS; ++bco)
     {
       int bincont = bco_hist->GetBinContent(bco_hist->GetBin(2, fee * NBCOS + bco + 1));
+
+      if(has_nan(bincont))
+	  {
+        continue;
+	  }
+
       if (bincont > max)
       {
         max = bincont;
@@ -733,10 +769,19 @@ int InttMonDraw::DrawHistPad_JustFphxBco(
     }
   }
 
+  if(0 == max) // max was unset
+  {
+    max = 10;
+  }
+  else if(max < 0 || (max *= 10) < 0 || has_nan(max)) // max underflowed in the server or underflowed when mutliplying by 10
+  {
+    max = std::numeric_limits<int>::max();
+  }
+
   // Noramlize ranges
   for (int fee = 0; fee < NFEES; ++fee)
   {
-    m_hist_justfphxbco[i][fee]->GetYaxis()->SetRangeUser(1, max ? max * 10 : 10);
+    m_hist_justfphxbco[i][fee]->GetYaxis()->SetRangeUser(1, max);
   }
 
   return 0;
@@ -824,13 +869,13 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
       TC[icnvs]->cd();
       m_left_hist_zoomedfphxbco[i][fee] = new TH1D(
           name.c_str(), name.c_str(),  //
-		  num_fphx_bins, 0, num_fphx_bins
+          num_fphx_bins, 0, num_fphx_bins
       );
       m_left_hist_zoomedfphxbco[i][fee]->SetTitle(Form("intt%01d;FPHX BCO;Counts (Hits)", i));
       m_left_hist_zoomedfphxbco[i][fee]->SetTitleSize(0.04);
-      m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetNdivisions(20);
-      m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelSize(0);
-      m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelOffset(999);
+      m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetNdivisions(10);
+      // m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelSize(0);
+      // m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelOffset(999);
       m_left_hist_zoomedfphxbco[i][fee]->GetYaxis()->SetLabelSize(0.04);
       m_left_hist_zoomedfphxbco[i][fee]->SetLineColor(GetFeeColor(fee));
       m_left_hist_zoomedfphxbco[i][fee]->SetFillStyle(4000);  // Transparent
@@ -846,14 +891,14 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
       TC[icnvs]->cd();
       m_right_hist_zoomedfphxbco[i][fee] = new TH1D(
           name.c_str(), name.c_str(),  //
-		  num_fphx_bins, 128 - num_fphx_bins, 128
+          num_fphx_bins, 128 - num_fphx_bins, 128
       );
       m_right_hist_zoomedfphxbco[i][fee]->SetTitle(Form("intt%01d;FPHX BCO;Counts (Hits)", i));
       m_right_hist_zoomedfphxbco[i][fee]->SetTitleSize(0.0);
       m_right_hist_zoomedfphxbco[i][fee]->SetTitleOffset(999);
-      m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetNdivisions(20);
-      m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelSize(0);
-      m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelOffset(999);
+      m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetNdivisions(10);
+      // m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelSize(0);
+      // m_right_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelOffset(999);
       m_right_hist_zoomedfphxbco[i][fee]->GetYaxis()->SetLabelSize(0);
       m_right_hist_zoomedfphxbco[i][fee]->GetYaxis()->SetLabelOffset(999);
       m_right_hist_zoomedfphxbco[i][fee]->SetLineColor(GetFeeColor(fee));
@@ -883,12 +928,18 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
   }
 
   // Fill
-  int max = 0;
+  double max = 0;
   for (int fee = 0; fee < NFEES; ++fee)
   {
     for (int bco = 0; bco < num_fphx_bins; ++bco)
     {
       int bincont = bco_hist->GetBinContent(bco_hist->GetBin(2, fee * NBCOS + bco + 1));
+
+      if(has_nan(bincont))
+	  {
+        continue;
+	  }
+
       if (bincont > max)
       {
         max = bincont;
@@ -899,6 +950,12 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
     for (int bco = 128 - num_fphx_bins; bco < 128; ++bco)
     {
       int bincont = bco_hist->GetBinContent(bco_hist->GetBin(2, fee * NBCOS + bco + 1));
+
+      if(has_nan(bincont))
+	  {
+        continue;
+	  }
+
       if (bincont > max)
       {
         max = bincont;
@@ -907,10 +964,13 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
     }
   }
 
-  max *= 10;
-  if(max == 0)
+  if(0 == max) // max was unset
   {
     max = 10;
+  }
+  else if(max < 0 || (max *= 10) < 0 || has_nan(max)) // max underflowed in the server or underflowed when mutliplying by 10
+  {
+    max = std::numeric_limits<int>::max();
   }
 
   // Noramlize ranges
@@ -921,13 +981,15 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
 
     // TLines
     TLine line;
-    line.SetLineWidth(2);
-    line.SetLineColor(kBlack);
+    line.SetLineWidth(6);
+    line.SetLineColor(kMagenta);
+    line.SetLineStyle(2);
   
     m_left_hist_pad[k_zoomedfphxbco][i]->cd();
     line.DrawLine(5, 0, 5, max);
   
     m_right_hist_pad[k_zoomedfphxbco][i]->cd();
+    line.DrawLine(116, 0, 116, max);
     line.DrawLine(120, 0, 120, max);
   }
 
@@ -1107,12 +1169,16 @@ int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
     for (int chp = 0; chp < NCHIPS; ++chp)
     {
       double bincont = hit_hist->GetBinContent(fee * NCHIPS + chp + 1);
-	  if(!bincont)
-	  {
+      if(!bincont)
+      {
         continue;
-		std::cout << "filled 0" << std::endl;
-	  }
+      }
       bincont /= evt_hist->GetBinContent(2); // Normalize by number of unique BCOs
+
+      if (has_nan(bincont))
+      {
+        continue;
+      }
 
       // Assign a value to this bin
       // that will give it the appropriate color
@@ -1217,6 +1283,11 @@ int InttMonDraw::DrawHistPad_HitRates(
       double bincont = hit_hist->GetBinContent(fee * NCHIPS + chp + 1);
       bincont /= evt_hist->GetBinContent(2); // Normalize by number of events
 
+      if(has_nan(bincont))
+	  {
+        continue;
+	  }
+
       // mean += bincont;
       // if(bincont < upper)++fraction;
 
@@ -1254,11 +1325,29 @@ int InttMonDraw::Draw_History()
 
   // hist
   double max = 0.0;
-  m_single_transparent_pad[k_history]->Clear();
+  int num_dead = 0;
+
+  int oldest = std::numeric_limits<int>::max();
+  int newest = std::numeric_limits<int>::min();
+
   for(int i = 0; i < 8; ++i)
   {
     // Access client
     OnlMonClient* cl = OnlMonClient::instance();
+
+    TH1I* evt_hist = dynamic_cast<TH1I*>(cl->getHisto(Form("INTTMON_%d", i), "InttEvtHist"));
+    if(!evt_hist)
+    {
+      m_single_transparent_pad[k_history]->cd();
+      TText dead_text;
+      dead_text.SetTextColor(kBlue);
+      dead_text.SetTextAlign(22);
+      dead_text.SetTextSize(0.1);
+      dead_text.SetTextAngle(45);
+      // dead_text.DrawText(0.5, 0.5, "Dead Onlmon Server");
+      ++num_dead;
+      continue;
+    }
 
     TH1* log_hist = cl->getHisto(Form("INTTMON_%d", i), "InttLogHist");
     if(!log_hist)
@@ -1269,13 +1358,74 @@ int InttMonDraw::Draw_History()
       dead_text.SetTextAlign(22);
       dead_text.SetTextSize(0.1);
       dead_text.SetTextAngle(45);
-      // dead_text.DrawText(0.5, 0.5, "Dead Server");
+      // dead_text.DrawText(0.5, 0.5, "Dead Onlmon Server");
+      ++num_dead;
+      continue;
+    }
+    int N = log_hist->GetNbinsX();
+    double w = log_hist->GetXaxis()->GetBinWidth(0);
+
+	// Step through most recent 180 seconds of the histogram
+	// if the rate is identically 0, say it is dead
+	bool is_dead = true;
+    int buff_index = log_hist->GetBinContent(N);
+    for(double duration = 0; duration < 90; duration += w)
+    {
+      double rate = log_hist->GetBinContent(buff_index);
+	  if(0 < rate)
+	  {
+        is_dead = false;
+        break;
+	  }
+
+	  // N + 1 bin stores how many times the data has been wrapped
+	  // if it's not wrapped and we're at bin 0, break b/c we don't have the duration of data yet
+	  if(buff_index == 0 && (log_hist->GetBinContent(N + 1) == 0))
+	  {
+        is_dead = false;
+        break;
+	  }
+
+	  buff_index = (buff_index + N - 1) % N;
+    }
+
+	if(is_dead)
+	{
+      ++num_dead;
+	}
+
+    // Get the time frame of server relative to Unix Epoch
+    // stored in bins 4 and 5 of EvtHist
+    if(evt_hist->GetBinContent(4) < oldest)
+    {
+      oldest = evt_hist->GetBinContent(4); // SOR time relative to epoch
+    }
+    if(newest < evt_hist->GetBinContent(5))
+    {
+      newest = evt_hist->GetBinContent(5); // present or EOR time relative to epoch
+    }
+  }
+
+  for(int i = 0; i < 8; ++i)
+  {
+    // Access client
+    OnlMonClient* cl = OnlMonClient::instance();
+
+    TH1I* evt_hist = dynamic_cast<TH1I*>(cl->getHisto(Form("INTTMON_%d", i), "InttEvtHist"));
+    if(!evt_hist)
+    {
+      continue;
+    }
+
+    TH1* log_hist = cl->getHisto(Form("INTTMON_%d", i), "InttLogHist");
+    if(!log_hist)
+    {
       continue;
     }
 
     // Validate member histos
-	int N = log_hist->GetNbinsX();
-	double w = log_hist->GetXaxis()->GetBinWidth(0);
+    int N = log_hist->GetNbinsX();
+    double w = log_hist->GetXaxis()->GetBinWidth(0);
     std::string name = Form("intt_history_hist_%d", i);
     if (!m_hist_history[i])
     {
@@ -1293,36 +1443,91 @@ int InttMonDraw::Draw_History()
     m_hist_history[i]->Draw("Same");
 
     // Fill
-    int buff_index = log_hist->GetBinContent(N);
-	if(log_hist->GetBinContent(N + 1))
+	if(w * N < newest - oldest)
 	{
-      // The contents have been wrapped around
-	  // start from right edge and go backward in time
-      for(int n = N; 0 < n; --n)
+      // Draw it conventionally
+	  // Present/EOR is aligned on right edge
+      int buff_index = log_hist->GetBinContent(N);
+      for(int n = 0; n < N; ++n)
       {
-	    double rate = log_hist->GetBinContent(buff_index) / w;
-        m_hist_history[i]->SetBinContent(n, rate);
-	    if(max < rate)
+        double rate = log_hist->GetBinContent(buff_index) / w;
+	    double time = (evt_hist->GetBinContent(5) - newest) + w * (N - n);
+	    int bin = m_hist_history[i]->FindBin(time);
+
+        if(has_nan(rate))
 	    {
-          max = rate;
+          continue;
 	    }
-        buff_index = (buff_index + N - 1) % N;
+
+	    m_hist_history[i]->SetBinContent(bin, rate);
+        if(max < rate)
+        {
+          max = rate;
+        }
+
+	    // N + 1 bin stores how many times the data has been wrapped
+	    // if it's not wrapped and we're at bin 0, break b/c we don't have the duration of data yet
+	    if(buff_index == 0 && (log_hist->GetBinContent(N + 1) == 0))
+	    {
+          break;
+	    }
+	    buff_index = (buff_index + N - 1) % N;
       }
 	}
 	else
 	{
-      // The contents have not wrapped
-	  // start from left edge and go forward in time
-      for(int n = 0; n < buff_index; ++n)
-	  {
-        double rate = log_hist->GetBinContent(n + 1) / w;
-        m_hist_history[i]->SetBinContent(n + 1, rate);
-	    if(max < rate)
-	    {
+      // I don't know why people want this but here it is
+	  // SOR is aligned with left edge
+	  int buff_index = log_hist->GetBinContent(N);
+      for(int n = 0; n < N; ++n)
+      {
+        double rate = log_hist->GetBinContent(buff_index % N) / w;
+	    double time = evt_hist->GetBinContent(5) - oldest - w * n;
+	    int bin = m_hist_history[i]->FindBin(time);
+
+        if(has_nan(rate))
+        {
+          continue;
+        }
+
+	    m_hist_history[i]->SetBinContent(bin, rate);
+        if(max < rate)
+        {
           max = rate;
+        }
+
+	    // N + 1 bin stores how many times the data has been wrapped
+	    // if it's not wrapped and we're at bin 0, break b/c we don't have the duration of data yet
+	    if(buff_index == 0 && (log_hist->GetBinContent(N + 1) == 0))
+	    {
+          break;
 	    }
-	  }
+	    buff_index = (buff_index + N - 1) % N;
+      }
 	}
+  }
+
+  m_single_transparent_pad[k_history]->Clear();
+  if(0 < num_dead)
+  {
+    m_single_transparent_pad[k_history]->cd();
+    TText dead_text;
+    dead_text.SetTextColor(kRed);
+    dead_text.SetTextAlign(22);
+    dead_text.SetTextSize(0.06);
+    // dead_text.SetTextAngle(45);
+    dead_text.DrawText(0.5, 0.65, "Dead Felix Servers");
+    dead_text.DrawText(0.5, 0.50, "Check server stats");
+    dead_text.DrawText(0.5, 0.35, "If no dead OnlMon servers, restart run");
+  }
+
+  if(0 == max) // max was unset
+  {
+    max = 1;
+  }
+  else if(max < 0 || (max *= 1.2) < 0 || has_nan(max)) // max underflowed in the server or underflowed when mutliplying by 10
+  {
+    max = std::numeric_limits<int>::max();
   }
 
   for(int i = 0; i < 8; ++i)
@@ -1331,7 +1536,7 @@ int InttMonDraw::Draw_History()
     {
       continue;
     }
-    m_hist_history[i]->GetYaxis()->SetRangeUser(0, 1.5 * max);
+    m_hist_history[i]->GetYaxis()->SetRangeUser(-0.2 * max,  1.2 * max);
   }
 
   // Draw Legend

@@ -10,6 +10,7 @@
 #include <TCanvas.h>
 #include <TDatime.h>
 #include <TH1.h>
+#include <TH2Poly.h>
 #include <TLine.h>
 #include <TLatex.h>
 #include <TPad.h>
@@ -495,6 +496,15 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     m_canvas.push_back( cv );
     return cv;
 
+  } else if (name == "TPOT_server_stats") {
+
+    auto cv = new TCanvas(name.c_str(), "TPOT Server Statistics", -1, 0, 2*xsize/3, ysize);
+    gSystem->ProcessEvents();
+    create_transparent_pad(name);
+    cv->SetEditable(false);
+    m_canvas.push_back( cv );
+    return cv;
+
   }
 
   return nullptr;
@@ -848,6 +858,12 @@ int TpotMonDraw::Draw(const std::string &what)
     ++idraw;
   }
 
+  if ( what == "ALL" || what == "TPOT_server_stats" )
+  {
+    iret += draw_server_statistics();
+    ++idraw;
+  }
+
   if (!idraw)
   {
     std::cout << "TpotMonDraw::Draw - Unimplemented Drawing option: " << what << std::endl;
@@ -981,8 +997,8 @@ int TpotMonDraw::draw_detector_occupancy()
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_detector_occupancy" << std::endl;
 
   // get histograms
-  auto m_detector_occupancy_phi =  get_histogram( "m_detector_occupancy_phi");
-  auto m_detector_occupancy_z =  get_histogram( "m_detector_occupancy_z");
+  auto m_detector_occupancy_phi =  static_cast<TH2Poly*>(get_histogram( "m_detector_occupancy_phi"));
+  auto m_detector_occupancy_z =  static_cast<TH2Poly*>(get_histogram( "m_detector_occupancy_z"));
 
   // turn off stat panel
   for( const auto& h:{m_detector_occupancy_phi,m_detector_occupancy_z} )
@@ -1008,7 +1024,7 @@ int TpotMonDraw::draw_detector_occupancy()
     copy->GetXaxis()->SetTitleOffset(1);
     copy->GetYaxis()->SetTitleOffset(0.65);
     draw_detnames_sphenix( "Z" );
-
+    draw_occupancy( m_detector_occupancy_z );
 
     cv->cd(2);
     gPad->SetLeftMargin( 0.07 );
@@ -1018,6 +1034,7 @@ int TpotMonDraw::draw_detector_occupancy()
     copy->GetXaxis()->SetTitleOffset(1);
     copy->GetYaxis()->SetTitleOffset(0.65);
     draw_detnames_sphenix( "P" );
+    draw_occupancy( m_detector_occupancy_phi );
 
     draw_time(transparent);
     return 0;
@@ -1085,6 +1102,70 @@ int TpotMonDraw::draw_resist_occupancy()
   }
 }
 
+
+//__________________________________________________________________________________
+int TpotMonDraw::draw_server_statistics()
+{
+  auto client = OnlMonClient::instance();
+  auto cv = get_canvas("TPOT_server_stats");
+  auto transparent = get_transparent_pad( cv, "TPOT_server_stats");
+  CanvasEditor cv_edit(cv);
+  transparent->cd();
+  transparent->Clear();
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+  PrintRun.SetTextSize(0.02);
+  const double vdist = 0.05;
+  double vpos = 0.9;
+  time_t clienttime = time(nullptr);
+  for (const auto &server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = client->GetServerMap(server);
+    if (servermapiter == client->GetServerMapEnd())
+    {
+      txt << "Server " << server << " is dead ";
+      PrintRun.SetTextColor(kRed);
+    } else {
+      const auto gl1counts = std::get<4>(servermapiter->second);
+      const time_t currtime = std::get<3>(servermapiter->second);
+      txt
+        << "Server " << server
+        << ", run number " << std::get<1>(servermapiter->second)
+        << ", event count: " << std::get<2>(servermapiter->second);
+      if( gl1counts > 0 )
+      { txt << ", gl1 count: " << gl1counts; }
+      txt << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+
+      if (isHtml())
+      {
+        // just prevent the font from getting red
+        clienttime = currtime;
+      } else {
+        txt  << ", minutes since last evt: " << (clienttime - currtime)/60;
+      }
+
+      if (std::get<0>(servermapiter->second) && ((clienttime - currtime)/60) < 10)
+      {
+        PrintRun.SetTextColor(kGray + 2);
+      } else {
+        PrintRun.SetTextColor(kRed);
+      }
+    }
+
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+
+  return 0;
+}
+
 //__________________________________________________________________________________
 void TpotMonDraw::draw_detnames_sphenix( const std::string& suffix)
 {
@@ -1094,10 +1175,23 @@ void TpotMonDraw::draw_detnames_sphenix( const std::string& suffix)
     const auto name = m_geometry.get_detname_sphenix(i)+suffix;
     const auto [x,y] = m_geometry.get_tile_center(i);
     auto text = new TText();
-    text->DrawText( x-0.8*m_geometry.m_tile_length/2, y-0.8*m_geometry.m_tile_width/2, name.c_str() );
+    text->DrawText( x-0.8*m_geometry.m_tile_length/2, y+0.5*m_geometry.m_tile_width/2, name.c_str() );
     text->Draw();
   }
+}
 
+//__________________________________________________________________________________
+void TpotMonDraw::draw_occupancy( TH2Poly* h)
+{
+  gPad->Update();
+  for( size_t i = 0; i < m_geometry.get_ntiles(); ++i )
+  {
+    const auto [x,y] = m_geometry.get_tile_center(i);
+    const auto bin = h->FindBin(x,y);
+    const auto value =h->GetBinContent(bin);
+    // const auto value = std::round(h->GetBinContent( bin )*100)/100;
+    TText().DrawText( x-0.8*m_geometry.m_tile_length/2, y, (boost::format("%.2f %%")%value).str().c_str() );
+  }
 }
 
 //__________________________________________________________________________________

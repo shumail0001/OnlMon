@@ -23,6 +23,7 @@ void ll1DrawInit(const int online = 0)
   cl->registerHisto("h_8x8_sum_emcal_above_threshold_1", "LL1MON_0");
   cl->registerHisto("h_8x8_sum_emcal_above_threshold_2", "LL1MON_0");
   cl->registerHisto("h_8x8_sum_emcal_above_threshold_3", "LL1MON_0");
+  cl->registerHisto("h_hit_format", "LL1MON_0");
   cl->registerHisto("h_jet_input", "LL1MON_0");
   cl->registerHisto("h_jet_output", "LL1MON_0");
   cl->registerHisto("h_jet_output_above_threshold_0", "LL1MON_0");

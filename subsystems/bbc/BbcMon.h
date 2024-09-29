@@ -15,7 +15,9 @@ class MbdEvent;
 class MbdGeom;
 class MbdOut;
 class MbdPmtContainer;
+//class GL1Manager;
 class eventReceiverClient;
+class RunDBodbc;
 // class OnlMonDB;
 
 class BbcMon : public OnlMon
@@ -31,6 +33,7 @@ class BbcMon : public OnlMon
   int Reset() override;
 
   void set_GL1(const int g) { useGL1 = g; }
+  void set_skipto(const int s) { skipto = s; }
 
  protected:
   int DBVarInit();
@@ -55,7 +58,13 @@ class BbcMon : public OnlMon
   uint64_t hcal{0};           // all hcal triggers, no bbc
   uint64_t emcalmbd{0};       // all emcal triggers, with bbc
   uint64_t hcalmbd{0};        // all hcal triggers, with bbc
+  uint64_t orig_trigmask{0};  // store for recovering from runs with one trigger defined
   eventReceiverClient *erc{nullptr};
+  int      skipto{0};
+  //GL1Manager *gl1mgr{nullptr};
+  RunDBodbc *rdb{nullptr};
+
+  uint64_t GetMinBiasTrigBit(uint64_t trigs_enabled);
 
   int evtcnt{0};
   // OnlMonDB *dbvars = nullptr;
@@ -71,6 +80,12 @@ class BbcMon : public OnlMon
   int GetFillNumber();
   int GetSendFlag();
   int UpdateSendFlag(const int flag);
+
+  // kludge to work around situations when gl1 events are being received
+  int gl1badflag{0};   // 0 = normal, 1 = gl1 bad, accept all events
+  std::string gl1badflagfname;
+  int GetGL1BadFlag();
+  int UpdateGL1BadFlag(const int flag);
 
   TH1 *bbc_trigs{nullptr};
   TH2 *bbc_adc{nullptr};
@@ -88,11 +103,15 @@ class BbcMon : public OnlMon
   TH1 *bbc_nevent_counter{nullptr};
 
   TH1 *bbc_zvertex{nullptr};        // whatever primary trigger is
+  TH1 *bbc_zvertex_alltrigger{nullptr};  // all triggers
   TH1 *bbc_zvertex_short{nullptr};  // Used for short time scales
   TH1 *bbc_zvertex_ns{nullptr};     // no vtx cut
   TH1 *bbc_zvertex_10{nullptr};     // 10 cm cut
   TH1 *bbc_zvertex_30{nullptr};
   TH1 *bbc_zvertex_60{nullptr};
+  TH1 *bbc_zvertex_10_chk{nullptr};     // for checking the vertex cut only
+  TH1 *bbc_zvertex_30_chk{nullptr};
+  TH1 *bbc_zvertex_60_chk{nullptr};
   TH1 *bbc_zvertex_zdcns{nullptr};  // ZDCNS triggers
   TH1 *bbc_zvertex_emcal{nullptr};  // EMCAL triggers
   TH1 *bbc_zvertex_hcal{nullptr};   // HCAL triggers

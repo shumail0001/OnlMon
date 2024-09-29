@@ -94,8 +94,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SmdValues")
   {
     // xpos negative: do not draw menu bar
-    // TC[2] = new TCanvas(name.c_str(), "Smd Values", 0, -ysize / 2, xsize, ysize / 2);
-    TC[2] = new TCanvas(name.c_str(), "EXPERT - Smd Values", -1, ysize, xsize*0.9, ysize / 2);
+    TC[2] = new TCanvas(name.c_str(), " Smd Values", -1, ysize, xsize*0.9, ysize / 2);
 
     gSystem->ProcessEvents();
     Pad[10] = new TPad("Smd Value", "Smd Value", 0.05, 0.05, 0.35, 0.9, 0);
@@ -2083,8 +2082,8 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
   int icnt = 0;
   std::set <int> expert_indices; // these canvases end up under expert
   expert_indices.insert(2);
-  expert_indices.insert(4);
-  expert_indices.insert(5);
+  // expert_indices.insert(4);
+  // expert_indices.insert(5);
 
   for (TCanvas* canvas : TC)
   {
@@ -2095,7 +2094,7 @@ int ZdcMonDraw::MakeHtml(const std::string &what)
     std::string title = canvas->GetTitle();
     if (expert_indices.find(icnt) != expert_indices.end())
     {
-      title = "EXPERTS/" + title;
+      title = "EXPERT -/" + title;
     }
     std::string pngfile = cl->htmlRegisterPage(*this, title, std::to_string(icnt), "png");
     cl->CanvasToPng(canvas, pngfile);

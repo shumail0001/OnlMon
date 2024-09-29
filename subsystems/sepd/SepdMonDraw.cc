@@ -34,15 +34,17 @@ int SepdMonDraw::Init()
 
 int SepdMonDraw::MakeCanvas(const std::string &name)
 {
-  //OnlMonClient *cl = OnlMonClient::instance();
-  //int xsize = cl->GetDisplaySizeX();
-  //int ysize = cl->GetDisplaySizeY();
-  if (name == "SepdMon1")
+  OnlMonClient *cl = OnlMonClient::instance();
+  int xsize = cl->GetDisplaySizeX();
+  int ysize = cl->GetDisplaySizeY();
+  if (name == "SepdMon0")
   {
+    int canvasindex = 0;
+
     // --- this is called by int DrawFirst(string&)
     // xpos (-1) negative: do not draw menu bar
-    //TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - UNDER CONSTRUCTION - Hits/Event vs Tile", -1, 0, 1200, 600);
-    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - Hits/Event vs Tile", -1, 0, 1200, 600);
+    //TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 1 - UNDER CONSTRUCTION - Hits/Event vs Tile", -1, 0, 1200, 600);
+    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 1 - Hits/Event vs Tile", -1, 0, 1200, 600);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -53,16 +55,17 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
     Pad[0]->Draw();
     Pad[1]->Draw();
     // this one is used to plot the run number on the canvas
-    transparent[0] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
-    transparent[0]->SetFillStyle(4000);
-    transparent[0]->Draw();
-    TC[0]->SetEditable(false);
+    transparent[canvasindex] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(false);
   }
-  else if (name == "SepdMon2")
+  else if (name == "SepdMon1")
   {
+    int canvasindex = 1;
     // xpos negative: do not draw menu bar
-    //TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1200, 600);
-    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - EXPERT - ADC Distributions", -1, 0, 1600, 800);
+    //TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1200, 600);
+    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 2 - EXPERT - ADC Distributions", -1, 0, 1600, 800);
     gSystem->ProcessEvents();
     for ( int i = 0; i < 32; ++i )
       {
@@ -79,30 +82,32 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
         adc_dist_pad[i]->SetLeftMargin(0.2);
       }
     // this one is used to plot the run number on the canvas
-    transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
-    transparent[1]->SetFillStyle(4000);
-    transparent[1]->Draw();
-    TC[1]->SetEditable(false);
+    transparent[canvasindex] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(false);
   }
-  else if (name == "SepdMon3")
+  else if (name == "SepdMon2")
   {
+    int canvasindex = 2;
     // xpos negative: do not draw menu bar
-    TC[2] = new TCanvas(name.c_str(), "sEPD Monitor 3 - North vs South Correlations", -1, 0, 1200, 600);
+    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 3 - North vs South Correlations", -1, 0, 1200, 600);
     gSystem->ProcessEvents();
     Pad[4] = new TPad("sepdpad4", "Left", 0., 0., 0.5, 1);
     Pad[5] = new TPad("sepdpad5", "Right", 0.5, 0., 1, 1);
     Pad[4]->Draw();
     Pad[5]->Draw();
     // this one is used to plot the run number on the canvas
-    transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
-    transparent[1]->SetFillStyle(4000);
-    transparent[1]->Draw();
-    TC[2]->SetEditable(false);
+    transparent[canvasindex] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(false);
   }
-  else if (name == "SepdMon4")
+  else if (name == "SepdMon3")
   {
-    //TC[3] = new TCanvas(name.c_str(), "sEPD Monitor 4 - Waveform Info", -1, 0, xsize / 3, ysize);
-    TC[3] = new TCanvas(name.c_str(), "sEPD Monitor 4 - Waveform Info", -1, 0, 650, 850);
+    int canvasindex = 3;
+    //TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 4 - Waveform Info", -1, 0, xsize / 3, ysize);
+    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 4 - Waveform Info", -1, 0, 650, 850);
     gSystem->ProcessEvents();
     Pad[6] = new TPad("sepdpad6", "ADC vs sample #", 0.0, 0.6, 1.0, 0.95, 0);
     Pad[7] = new TPad("sepdpad7", "counts vs sample #", 0.0, 0.3, 1.0, 0.6, 0);
@@ -111,13 +116,14 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
     Pad[7]->Draw();
     Pad[8]->Draw();
     // this one is used to plot the run number on the canvas
-    transparent[3] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
-    transparent[3]->SetFillStyle(4000);
-    transparent[3]->Draw();
-    TC[3]->SetEditable(0);
+    transparent[canvasindex] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(0);
   }
-  else if (name == "SepdMon5")
+  else if (name == "SepdMon4")
   {
+    int canvasindex = 4;
     // xpos negative: do not draw menu bar
     //TC[4] = new TCanvas(name.c_str(), "sEPD Monitor 5 - Packet Information", -1, 0, xsize / 3, ysize);
     //TC[4] = new TCanvas(name.c_str(), "sEPD Monitor 5 - Packet Information", -1, 0, 1200, 850);
@@ -133,17 +139,29 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
     Pad[12]->Draw();
     Pad[13]->Draw();
     //  this one is used to plot the run number on the canvas
-    transparent[4] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
-    transparent[4]->SetFillStyle(4000);
-    transparent[4]->Draw();
+    transparent[canvasindex] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
 
     // packet warnings
     // xlow, ylow, xup, yup
     warning[1] = new TPad("warning1", "sEPD Packet Warnings", 0.5, 0, 1, 0.65);
     warning[1]->SetFillStyle(4000);
     warning[1]->Draw();
-    TC[4]->SetEditable(0);
+    TC[canvasindex]->SetEditable(0);
   }
+  else if (name == "SepdServerStats")
+  {
+    int canvasindex = 5;
+    TC[canvasindex] = new TCanvas(name.c_str(), "SepdMon Server Stats", -1, 0, xsize, ysize);
+    gSystem->ProcessEvents();
+    // this one is used to plot the run number on the canvas
+    transparent[canvasindex] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->Draw();
+    transparent[canvasindex]->SetFillColor(kGray);
+    TC[canvasindex]->SetEditable(false);
+  }
+
   return 0;
 }
 
@@ -176,6 +194,11 @@ int SepdMonDraw::Draw(const std::string &what)
     iret += DrawFifth(what);
     idraw++;
   }
+  if (what == "ALL" || what == "SERVERSTATS")
+  {
+    iret += DrawServerStats();
+    idraw++;
+  }
 
   /*
     if (what == "ALL" || what == "HISTORY")
@@ -196,23 +219,24 @@ int SepdMonDraw::Draw(const std::string &what)
 
 int SepdMonDraw::DrawFirst(const std::string & /* what */)
 {
-  OnlMonClient *cl = OnlMonClient::instance();
-  //TH1D *h_ADC_all_channel = (TH1D *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
-  TH1D *h_hits_all_channel = (TH1D *) cl->getHisto("SEPDMON_0", "h_hits_all_channel");
-  TH1 *h_event = (TH1*)cl->getHisto("SEPDMON_0", "h_event");
-  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
-  if (!gROOT->FindObject("SepdMon1"))
+  int canvasindex = 0;
+  if (!gROOT->FindObject("SepdMon0"))
   {
-    MakeCanvas("SepdMon1");
+    MakeCanvas("SepdMon0");
   }
-  TC[0]->SetEditable(true);
-  TC[0]->Clear("D");
+  OnlMonClient *cl = OnlMonClient::instance();
+  //TH1D *h_ADC_all_channel = cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
+  TH1 *h_hits_all_channel = cl->getHisto("SEPDMON_0", "h_hits_all_channel");
+  TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
+  TC[canvasindex]->SetEditable(true);
+  TC[canvasindex]->Clear("D");
 
   //if (!h_ADC_all_channel)
   if (!h_hits_all_channel)
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[canvasindex]);
+    TC[canvasindex]->SetEditable(false);
     return -1;
   }
 
@@ -220,21 +244,19 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   // --- begin Rosi (mostly ) ---
   // ----------------------------
 
-  float R_PI = 3.1415926535;
-
   TH2* polar_histS = new TH2F("polar_histS","polar_hist",
-                               24, 0, 2*R_PI,
+                               24, 0, 2*M_PI,
                                16, 0.15, 3.5);
   TH2* polar_histN = new TH2F("polar_histN","polar_hist",
-                               24, 0, 2*R_PI,
+                               24, 0, 2*M_PI,
                                16, 0.15, 3.5);
 
   //tile 0 is 2x the angular size of the rest of the tiles and needs a separate histogram
   TH2* polar_histS01 = new TH2F("polar_histS01","polar_hist",
-                                 12, 0, 2*R_PI,
+                                 12, 0, 2*M_PI,
                                  16, 0.15, 3.5);
   TH2* polar_histN01 = new TH2F("polar_histN01","polar_hist",
-                                 12, 0, 2*R_PI,
+                                 12, 0, 2*M_PI,
                                  16, 0.15, 3.5);
 
   // --- normalize
@@ -320,12 +342,12 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
-  transparent[0]->cd();
+  transparent[canvasindex]->cd();
   PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[0]->Update();
-  TC[0]->Show();
-  TC[0]->SetEditable(false);
+  TC[canvasindex]->Update();
+  TC[canvasindex]->Show();
+  TC[canvasindex]->SetEditable(false);
   return 0;
 }
 
@@ -333,25 +355,27 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 
 int SepdMonDraw::DrawSecond(const std::string & /* what */)
 {
+  int canvasindex = 1;
+  if (!gROOT->FindObject("SepdMon1"))
+  {
+    MakeCanvas("SepdMon1");
+  }
+
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH1 *h_ADC_channel[768];
   for ( int i = 0; i < 768; ++i )
     {
-      h_ADC_channel[i] = (TH1*)cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
+      h_ADC_channel[i] = cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
     }
 
   TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
   int nevt = h_event->GetEntries();
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
 
-  if (!gROOT->FindObject("SepdMon2"))
-  {
-    MakeCanvas("SepdMon2");
-  }
 
-  TC[1]->SetEditable(true);
-  TC[1]->Clear("D");
+  TC[canvasindex]->SetEditable(true);
+  TC[canvasindex]->Clear("D");
 
   gStyle->SetPalette(kRainBow);
   TText tring;
@@ -364,7 +388,7 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   tside.SetTextSize(0.1);
   for ( int i = 0; i < 768; ++i )
     {
-      h_ADC_channel[i] = (TH1*)cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
+      h_ADC_channel[i] = cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
       int tile = returnTile(i);
       if ( tile < 0 || tile > 31 ) continue;
       int odd = (tile+1)%2;
@@ -419,12 +443,12 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   runnostream << "EXPERT ONLY " << ThisName << "_2 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
-  transparent[1]->cd();
+  transparent[canvasindex]->cd();
   PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[1]->Update();
-  TC[1]->Show();
-  TC[1]->SetEditable(false);
+  TC[canvasindex]->Update();
+  TC[canvasindex]->Show();
+  TC[canvasindex]->SetEditable(false);
 
   return 0;
 
@@ -434,27 +458,28 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
 
 int SepdMonDraw::DrawThird(const std::string & /* what */)
 {
+  int canvasindex = 2;
+  if (!gROOT->FindObject("SepdMon2"))
+  {
+    MakeCanvas("SepdMon2");
+  }
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH2 *h_ADC_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC_corr");
   TH2 *h_hits_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_corr");
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
-  if (!gROOT->FindObject("SepdMon3"))
-  {
-    MakeCanvas("SepdMon3");
-  }
   if (!h_ADC_corr)
   {
-    DrawDeadServer(transparent[0]);
-    TC[0]->SetEditable(false);
+    DrawDeadServer(transparent[canvasindex]);
+    TC[canvasindex]->SetEditable(false);
     return -1;
   }
   // --- rebin histograms
   h_ADC_corr->Rebin2D(5,5);
   //h_hits_corr->Rebin2D(5,5);
   // ---
-  TC[2]->SetEditable(true);
-  TC[2]->Clear("D");
+  TC[canvasindex]->SetEditable(true);
+  TC[canvasindex]->Clear("D");
   Pad[4]->cd();
   h_ADC_corr->GetYaxis()->SetNdivisions(505);
   h_ADC_corr->GetXaxis()->SetNdivisions(505);
@@ -496,33 +521,35 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   runnostream << ThisName << "_2 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
-  transparent[1]->cd();
+  transparent[canvasindex]->cd();
   PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[2]->Update();
-  TC[2]->Show();
-  TC[2]->SetEditable(false);
+  TC[canvasindex]->Update();
+  TC[canvasindex]->Show();
+  TC[canvasindex]->SetEditable(false);
   return 0;
 }
 
 int SepdMonDraw::DrawFourth(const std::string & /* what */)
 {
+  int canvasindex = 3;
+  if (!gROOT->FindObject("SepdMon3"))
+  {
+    MakeCanvas("SepdMon3");
+  }
+
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *h_waveform_time = (TH1D *) cl->getHisto("SEPDMON_0", "h1_waveform_time");
-  TH1 *h_waveform_pedestal = (TH1D *) cl->getHisto("SEPDMON_0", "h1_waveform_pedestal");
-  TH2 *h2_sepd_waveform = (TH2F *) cl->getHisto("SEPDMON_0", "h2_sepd_waveform");
+  TH1 *h_waveform_time = cl->getHisto("SEPDMON_0", "h1_waveform_time");
+  TH1 *h_waveform_pedestal = cl->getHisto("SEPDMON_0", "h1_waveform_pedestal");
+  TH2 *h2_sepd_waveform = (TH2 *) cl->getHisto("SEPDMON_0", "h2_sepd_waveform");
 
   TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
   int nevt = h_event->GetEntries();
 
-  if (!gROOT->FindObject("SepdMon4"))
-  {
-    MakeCanvas("SepdMon4");
-  }
 
-  TC[3]->SetEditable(1);
-  TC[3]->Clear("D");
+  TC[canvasindex]->SetEditable(1);
+  TC[canvasindex]->Clear("D");
   Pad[6]->cd();
   if (!h2_sepd_waveform || !h_waveform_time || !h_waveform_pedestal)
   {
@@ -530,8 +557,8 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
     if (!h2_sepd_waveform) std::cout << "h2_sepd_waveform not found" << std::endl;
     if (!h_waveform_time) std::cout << "h_waveform_time not found" << std::endl;
     if (!h_waveform_pedestal) std::cout << "h_waveform_pedestal not found" << std::endl;
-    DrawDeadServer(transparent[3]);
-    TC[3]->SetEditable(0);
+    DrawDeadServer(transparent[canvasindex]);
+    TC[canvasindex]->SetEditable(0);
     return -1;
   }
 
@@ -592,7 +619,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   runnostream << ThisName << ": Pulse fitting, Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
-  transparent[3]->cd();
+  transparent[canvasindex]->cd();
   PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
 
@@ -662,9 +689,9 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   gPad->SetTicky();
   gPad->SetTickx();
 
-  TC[3]->Update();
-  TC[3]->Show();
-  TC[3]->SetEditable(0);
+  TC[canvasindex]->Update();
+  TC[canvasindex]->Show();
+  TC[canvasindex]->SetEditable(0);
 
   return 0;
 }
@@ -673,19 +700,20 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
 int SepdMonDraw::DrawFifth(const std::string & /* what */)
 {
+  int canvasindex = 4;
+  if (!gROOT->FindObject("SepdMon4"))
+  {
+    MakeCanvas("SepdMon4");
+  }
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *h1_packet_number = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_number");
-  TH1 *h1_packet_length = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_length");
-  TH1 *h1_packet_chans = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_chans");
-  TH1 *h1_packet_event = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_event");
+  TH1 *h1_packet_number = cl->getHisto("SEPDMON_0", "h1_packet_number");
+  TH1 *h1_packet_length = cl->getHisto("SEPDMON_0", "h1_packet_length");
+  TH1 *h1_packet_chans = cl->getHisto("SEPDMON_0", "h1_packet_chans");
+  TH1 *h1_packet_event = cl->getHisto("SEPDMON_0", "h1_packet_event");
 
-  if (!gROOT->FindObject("SepdMon5"))
-  {
-    MakeCanvas("SepdMon5");
-  }
-  TC[4]->SetEditable(1);
-  TC[4]->Clear("D");
+  TC[canvasindex]->SetEditable(1);
+  TC[canvasindex]->Clear("D");
 
   if (!h1_packet_number || !h1_packet_length || !h1_packet_chans || !h1_packet_event)
   {
@@ -695,8 +723,8 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
     if (!h1_packet_chans) std::cout << "h1_packet_chans not found" << std::endl;
     if (!h1_packet_event) std::cout << "h1_packet_event not found" << std::endl;
 
-    DrawDeadServer(transparent[5]);
-    TC[5]->SetEditable(0);
+    DrawDeadServer(transparent[canvasindex]);
+    TC[canvasindex]->SetEditable(0);
     return -1;
   }
 
@@ -949,7 +977,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   // runnostream2 << " Run " << cl->RunNumber() << ", Time: " << ctime(&evttime.first);
   runnostream << "EXPERT ONLY Packet Information";
   runnostream2 << " Run " << cl->RunNumber() << ", Time: " << ctime(&evttime.first);
-  transparent[4]->cd();
+  transparent[canvasindex]->cd();
 
   runstring = runnostream.str();
   PrintRun.SetTextColor(evttime.second);
@@ -957,10 +985,10 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
 
   runstring = runnostream2.str();
   PrintRun.DrawText(0.5, .966, runstring.c_str());
-  TC[4]->Update();
-  TC[4]->Show();
-  TC[4]->SetEditable(0);
-  // if (save) TC[5]->SaveAs("plots/packets.pdf");
+  TC[canvasindex]->Update();
+  TC[canvasindex]->Show();
+  TC[canvasindex]->SetEditable(0);
+  // if (save) TC[canvasindex]->SaveAs("plots/packets.pdf");
   return 0;
 }
 
@@ -2596,4 +2624,76 @@ int SepdMonDraw::returnTile(int ch){
     sEPD_adctotile[766] = 0;
     sEPD_adctotile[767] = 2;
     return sEPD_adctotile[ch];
+}
+
+int SepdMonDraw::DrawServerStats()
+{
+  int canvasindex=5;
+  OnlMonClient* cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("SepdServerStats"))
+  {
+    MakeCanvas("SepdServerStats");
+  }
+  TC[canvasindex]->Clear("D");
+  TC[canvasindex]->SetEditable(true);
+  transparent[canvasindex]->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  time_t clienttime = time(nullptr);
+  for (const auto& server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = cl->GetServerMap(server);
+    if (servermapiter == cl->GetServerMapEnd())
+    {
+      txt << "Server " << server
+          << " is dead ";
+      PrintRun.SetTextColor(kRed);
+    }
+    else
+    {
+      int gl1counts = std::get<4>(servermapiter->second);
+      time_t currtime = std::get<3>(servermapiter->second);
+      txt << "Server " << server
+          << ", run number: " << std::get<1>(servermapiter->second)
+          << ", event count: " << std::get<2>(servermapiter->second);
+      if (gl1counts >= 0)
+	{
+          txt << ", gl1 count: " << gl1counts;
+	}
+        txt  << ", current Event time: " << ctime(&currtime);
+	if (isHtml())
+	  {
+	    clienttime = currtime; // just prevent the font from getting red
+	  }
+	else // print time diff only for live display
+	  {
+        txt  << ", minutes since last evt: " << (clienttime - currtime)/60;
+          }
+	if (std::get<0>(servermapiter->second) && ((clienttime - currtime)/60) < 10)
+      {
+        PrintRun.SetTextColor(kGray + 2);
+      }
+      else
+      {
+        PrintRun.SetTextColor(kRed);
+      }
+    }
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+  TC[canvasindex]->Update();
+  TC[canvasindex]->Show();
+  TC[canvasindex]->SetEditable(false);
+
+  return 0;
 }

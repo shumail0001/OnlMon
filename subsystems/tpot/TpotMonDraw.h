@@ -16,6 +16,7 @@
 class OnlMonDB;
 class TCanvas;
 class TH1;
+class TH2Poly;
 class TPad;
 
 class TpotMonDraw : public OnlMonDraw
@@ -68,6 +69,7 @@ class TpotMonDraw : public OnlMonDraw
   int draw_counters();
   int draw_detector_occupancy();
   int draw_resist_occupancy();
+  int draw_server_statistics();
 
   using histogram_array_t = std::array<TH1*, MicromegasDefs::m_nfee>;
 
@@ -120,6 +122,9 @@ class TpotMonDraw : public OnlMonDraw
   /// draw detector names in current canvas
   /** only works if canvas contains one of the properly formated TH2Poly histograms */
   void draw_detnames_sphenix( const std::string& suffix = std::string());
+
+  /// draw occupancy
+  void draw_occupancy( TH2Poly* );
 
   /// keep track of trigger count
   double m_triggercnt = 0;

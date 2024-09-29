@@ -2,6 +2,8 @@
 
 #include <onlmon/OnlMonClient.h>
 
+#include <calobase/TowerInfoDefs.h>
+
 #include <TAxis.h>  // for TAxis
 #include <TCanvas.h>
 #include <TFile.h>
@@ -10,8 +12,6 @@
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TH2.h>
-#include <TH2D.h>
-#include <TH2F.h>
 #include <TLegend.h>
 #include <TLine.h>
 #include <TPad.h>
@@ -59,6 +59,7 @@ int CemcMonDraw::Init()
 
   const char *CEMCcalib = getenv("CEMCCALIB");
   TFile *inputTemplate = nullptr;
+  TFile *inputTemplate_alltrig = nullptr;
   if (!CEMCcalib)
   {
     std::cout << "CEMCCALIB environment variable not set, empty refence will be used" << std::endl;
@@ -70,8 +71,8 @@ int CemcMonDraw::Init()
     // std::string Templatefilename=std::string(CEMCcalib)+"/"+"Template_40929_50ADC_hits.root";
     // std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_40929_30ADC_hits.root";
     //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_43451_100ADC_hits.root";
-    std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_46915_100ADC_hits.root";
-    
+    //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_46915_100ADC_hits.root";
+    std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_52876_100ADC_hits.root";    
     
     inputTemplate = new TFile(Templatefilename.c_str(), "READ");
     if (!inputTemplate->IsOpen())
@@ -86,6 +87,22 @@ int CemcMonDraw::Init()
       {
         std::cout << "h2_cemc_hits_template could not be retrieved from file. Empty reference will be used" << std::endl;
         h2_template_hit = new TH2D("templateHit", "", 96, 0, 96, 256, 0, 256);
+      }
+    }
+    std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_49435_100ADC_alltrig.root";
+    inputTemplate_alltrig = new TFile(Templatefilename_alltrig.c_str(), "READ");
+    if (!inputTemplate_alltrig->IsOpen())
+    {
+      std::cout << Templatefilename_alltrig << " could not be opened. Empty reference will be used" << std::endl;
+      h2_template_hit_alltrig = new TH2D("templateHit_alltrig", "", 96, 0, 96, 256, 0, 256);
+    }
+    else
+    {
+      h2_template_hit_alltrig = (TH2 *) inputTemplate_alltrig->Get("h2_cemc_rmhits_alltrig");
+      if (!h2_template_hit_alltrig)
+      {
+        std::cout << "h2_cemc_hits_template could not be retrieved from file. Empty reference will be used" << std::endl;
+        h2_template_hit_alltrig = new TH2D("templateHit_alltrig", "", 96, 0, 96, 256, 0, 256);
       }
     }
   }
@@ -202,7 +219,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcMonServerStats")
   {
-    TC[5] = new TCanvas(name.c_str(), "CemcMon6 Server Stats", -1, ysize, xsize / 3, ysize);
+    TC[5] = new TCanvas(name.c_str(), "CemcMon6 Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
     transparent[5] = new TPad("transparent5", "this does not show", 0, 0, 1, 1);
@@ -210,6 +227,29 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     transparent[5]->Draw();
     TC[5]->SetEditable(false);
   }
+  else if (name == "CemcAllTrigHits")
+  {
+    // xpos (-1) negative: do not draw menu bar
+    TC[6] = new TCanvas(name.c_str(), "CemcMon Tower Hits all trig", -1, ysize, xsize / 3, ysize);
+    // root is pathetic, whenever a new TCanvas is created root piles up
+    // 6kb worth of X11 events which need to be cleared with
+    // gSystem->ProcessEvents(), otherwise your process will grow and
+    // grow and grow but will not show a definitely lost memory leak
+    gSystem->ProcessEvents();
+    Pad[15] = new TPad("cemcpad15", "hit map", 0., 0.15, 1., 0.95);
+    Pad[15]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
+
+    // warning
+    warning[2] = new TPad("warning6", "hot tower warnings", 0, 0, 1, 0.15);
+    warning[2]->SetFillStyle(4000);
+    warning[2]->Draw();
+    TC[6]->SetEditable(false);
+  }
+
   // Commented until potential replacement with TProfile3D
   // else if (name == "CemcPopup"){
   //   PopUpCanvas = new TCanvas(name.c_str(),"Waveforms Expert",-xsize-0.3,0,xsize*0.3,ysize*0.9);
@@ -259,6 +299,18 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     transparent[7]->Draw();
     TC[7]->SetEditable(false);
   }
+  else if (name == "CemcBadChi2")
+  {
+    TC[8] = new TCanvas(name.c_str(), "Bad Chi2", -1, ysize, xsize / 2, ysize);
+    gSystem->ProcessEvents();
+    Pad[21] = new TPad("cemcpad21", "who needs this?", 0.00, 0.00, 1.00, 0.95);
+    Pad[21]->SetRightMargin(0.15);
+    Pad[21]->Draw();
+    transparent[8] = new TPad("transparent8", "this does not show", 0, 0, 1, 1);
+    transparent[8]->SetFillStyle(4000);
+    transparent[8]->Draw();
+    TC[8]->SetEditable(false);
+  }
 
   return 0;
 }
@@ -306,8 +358,28 @@ int CemcMonDraw::Draw(const std::string &what)
     iret += DrawServerStats();
     idraw++;
   }
+  if (what == "ALL" || what == "ALLTRIGHITS")
+  {
+    iret += DrawAllTrigHits(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "BADCHI2")
+  {
+    iret += DrawBadChi2(what);
+    idraw++;
+  }
+
+
 // DO NOT CHANGE THE ORDER, DrawSeventh crashes DrawServerStats with an X11 error in the virtual framebuffer in the html
-  if (what == "ALL" || what == "SEVENTH")
+// DO NOT ADD ANY OTHER METHOD AFTER THIS which gets called by "ALL"
+  if (what == "ALL")
+  {
+    iret += DrawSeventh("SEVENTH");
+    idraw++;
+    // iret += DrawSeventh("ALLTRIGZS");
+    // idraw++;
+  }
+  if(what == "SEVENTH" || what == "ALLTRIGZS")
   {
     iret += DrawSeventh(what);
     idraw++;
@@ -619,7 +691,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   }
 
   // FindHotTower(warning[0], hist1[start[0]]);
-  FindHotTower(warning[0], h_cemc_datahits);
+  FindHotTower(warning[0], h_cemc_datahits, true);
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.03);
@@ -650,6 +722,183 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   if (save)
   {
     TC[0]->SaveAs("plots/towerHits.pdf");
+  }
+  return 0;
+}
+
+int CemcMonDraw::DrawAllTrigHits(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  // watch the absolute insanity as we merge all these
+  // histograms from across seven different machines
+  if (!h_cemc_datahits)
+  {
+    h_cemc_datahits = new TH2D("h_cemc_datahits", "", 96, 0, 96, 256, 0, 256);
+  }
+  else
+  {
+    h_cemc_datahits->Reset();
+  }
+  TH2 *htmp2d;
+  int deadservercount = 0;
+  int Nservers = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    Nservers++;
+    htmp2d = (TH2 *) cl->getHisto(*server, "h2_cemc_rmhits_alltrig");
+  
+    if (htmp2d)
+    {
+      h_cemc_datahits->Add(htmp2d);
+    }
+    else
+    {
+      deadservercount++;
+    }
+  }
+  int avgevents = 0;
+  int neventhist = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    TH1* h_eventSource  = cl->getHisto(*server, "h1_event");
+    if (h_eventSource )
+    {
+      avgevents += h_eventSource->GetEntries();
+      neventhist++;
+    }
+  }
+  if (neventhist)
+  {
+    avgevents /= neventhist;
+  }
+  
+
+ 
+  if (!gROOT->FindObject("CemcAllTrigHits"))
+  {
+    MakeCanvas("CemcAllTrigHits");
+  }
+
+  if (deadservercount == Nservers)
+  {
+    DrawDeadServer(transparent[6]);
+    TC[6]->SetEditable(false);
+    return -1;
+  }
+
+  
+
+  TC[6]->SetEditable(true);
+  TC[6]->Clear("D");
+  Pad[15]->cd();
+
+  h_cemc_datahits->Divide(h2_template_hit_alltrig);
+  
+  h_cemc_datahits->GetXaxis()->SetTitle("eta index");
+  h_cemc_datahits->GetYaxis()->SetTitle("phi index");
+  h_cemc_datahits->GetZaxis()->SetTitle("Tower Running Mean with all trig");
+  h_cemc_datahits->GetXaxis()->CenterTitle();
+  h_cemc_datahits->GetYaxis()->CenterTitle();
+  h_cemc_datahits->GetZaxis()->CenterTitle();
+  h_cemc_datahits->GetXaxis()->SetNdivisions(12, kFALSE);
+  h_cemc_datahits->GetYaxis()->SetNdivisions(32, kFALSE);
+
+  float tsize = 0.03;
+  h_cemc_datahits->GetXaxis()->SetLabelSize(tsize);
+  h_cemc_datahits->GetYaxis()->SetLabelSize(tsize);
+  h_cemc_datahits->GetYaxis()->SetTitleOffset(1.4);
+  h_cemc_datahits->GetZaxis()->SetLabelSize(tsize);
+  h_cemc_datahits->GetXaxis()->SetTitleSize(tsize);
+  h_cemc_datahits->GetYaxis()->SetTitleSize(tsize);
+  h_cemc_datahits->GetXaxis()->SetTickLength(0.02);
+  h_cemc_datahits->GetZaxis()->SetTitleOffset(1.6);
+
+ 
+
+  gPad->SetTopMargin(0.08);
+  gPad->SetBottomMargin(0.07);
+  gPad->SetLeftMargin(0.08);
+  gPad->SetRightMargin(0.2);
+
+  // modify palette to black, green, and red
+  
+  Int_t palette[4] = {kBlack, kBlue, 8, 2};
+  cemcStyle->SetPalette(4, palette);
+  gROOT->SetStyle("cemcStyle");
+  gROOT->ForceStyle();
+  gStyle->SetPalette(4, palette);
+  double_t levels[5] = {0, 0.01, 0.5, 2, 4};
+  h_cemc_datahits->GetZaxis()->SetRangeUser(0, 4);
+  h_cemc_datahits->SetContour(5, levels);
+
+  gStyle->SetOptStat(0);
+  h_cemc_datahits->DrawCopy("colz");
+  // h2_cemc_mean[start[1]]->DrawCopy("colz");
+  TLine line_sector[32];
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line] = TLine(0, (i_line + 1) * 8, 96, (i_line + 1) * 8);
+    line_sector[i_line].SetLineColor(1);
+    line_sector[i_line].SetLineWidth(1);
+    line_sector[i_line].SetLineStyle(1);
+  }
+
+  const int numVertDiv = 12;
+  int dEI = 96 / numVertDiv;
+  TLine l_board[numVertDiv - 1];
+  for (int il = 1; il < numVertDiv; il++)
+  {
+    l_board[il - 1] = TLine(dEI * il, 0, dEI * il, 256);
+    l_board[il - 1].SetLineColor(1);
+    l_board[il - 1].SetLineWidth(1);
+    l_board[il - 1].SetLineStyle(1);
+    if (il == 6)
+    {
+      l_board[il - 1].SetLineWidth(2);
+    }
+  }
+
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line].DrawLine(0, (i_line + 1) * 8, 96, (i_line + 1) * 8);
+  }
+
+  for (int il = 1; il < numVertDiv; il++)
+  {
+    l_board[il - 1].DrawLine(dEI * il, 0, dEI * il, 256);
+  }
+
+  FindHotTower(warning[2], h_cemc_datahits, true);
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.03);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::ostringstream runnostream2;
+  std::ostringstream runnostream3;
+  std::string runstring;
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << ": tower occupancy/template running mean with all trig";
+  runnostream2 << " threshold: 100ADC, Run " << cl->RunNumber();
+  runnostream3 << "Time: " << ctime(&evttime.first);
+  
+  transparent[6]->cd();
+  runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+  runstring = runnostream2.str();
+  PrintRun.DrawText(0.5, 0.96, runstring.c_str());
+  runstring = runnostream3.str();
+  PrintRun.DrawText(0.5, 0.93, runstring.c_str());
+
+  TC[6]->Update();
+  TC[6]->Show();
+  TC[6]->SetEditable(false);
+  if (save)
+  {
+    TC[6]->SaveAs("plots/towerHits.pdf");
   }
   return 0;
 }
@@ -1572,8 +1821,8 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
 
   for (int itrig = 0; itrig < 64; itrig++)
   {
-    // Priority to the bits between 16 and 31
-    if (n_entries[itrig].second >= 16 && n_entries[itrig].second <= 31)
+    // Priority to the bits between 24 and 31 (draw photon trig first)
+    if (n_entries[itrig].second >= 24 && n_entries[itrig].second <= 31)
     {
       if (n_entries[itrig].first > 0. && priority_triggers.size() < 4)
       {
@@ -1582,12 +1831,12 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
     }
   }
 
-  // If trigger bits from 16 to 31 do not have 4 with entries, plot the others
+  // If trigger bits from 24 to 31 do not have 4 with entries, plot the others
   if (priority_triggers.size() < 4)
   {
     for (int itrig = 0; itrig < 64; itrig++)
     {
-      if (priority_triggers.size() < 4 && n_entries[itrig].second < 16)
+      if (priority_triggers.size() < 4 && n_entries[itrig].second < 24)
       {
         priority_triggers.push_back(n_entries[itrig].second);
       }
@@ -1739,7 +1988,7 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   return 0;
 }
 
-int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit)
+int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit, bool usetemplate)
 {
   float nhott = 0;
   float ndeadt = 0;
@@ -1751,6 +2000,40 @@ int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit)
   float hot_threshold = 2.0;
   float dead_threshold = 0.01;
   float cold_threshold = 0.5;
+  if(!usetemplate){
+    float mean = 0;
+    float rms = 0;
+    int ntower = 0;
+    for (int ieta = 0; ieta < nTowersEta; ieta++)
+    {
+      for (int iphi = 0; iphi < nTowersPhi; iphi++)
+      {
+        if ((ieta < 40 && ieta >= 32) && ((iphi >= 144) && (iphi < 152)))
+        {
+          continue;  // uninstrumented
+        }
+        else if ((ieta < 64 && ieta >= 56) && ((iphi >= 32) && (iphi < 40)))
+        {
+          continue;  // uninstrumented
+        }
+        if (hhit->GetBinContent(ieta + 1, iphi + 1) == 0)
+        {
+          continue;
+        }
+        double nhit = hhit->GetBinContent(ieta + 1, iphi + 1);
+        mean += nhit;
+        rms += nhit * nhit;
+        ntower++;
+      }
+    }
+    mean /= ntower;
+    rms = sqrt(rms / ntower - mean * mean);
+    hot_threshold = mean + 10 * rms;
+    cold_threshold = mean - 3 * rms;
+    dead_threshold = 0.01*mean;
+  }
+
+
   // float nTowerTotal = 24576. - 384.;  // to account for the non-functioning towers at the edge of the south
   for (int ieta = 0; ieta < nTowersEta; ieta++)
   {
@@ -1982,8 +2265,8 @@ int CemcMonDraw::DrawServerStats()
   PrintRun.DrawText(0.5, 0.99, "Server Statistics");
 
   PrintRun.SetTextSize(0.02);
-  double vdist = 0.05;
-  double vpos = 0.9;
+  double vdist = 0.04;
+  double vpos = 0.92;
   for (const auto &server : m_ServerSet)
   {
     std::ostringstream txt;
@@ -1996,10 +2279,15 @@ int CemcMonDraw::DrawServerStats()
     }
     else
     {
+      int gl1counts = std::get<4>(servermapiter->second);
       txt << "Server " << server
           << ", run number " << std::get<1>(servermapiter->second)
-          << ", event count: " << std::get<2>(servermapiter->second)
-          << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+          << ", event count: " << std::get<2>(servermapiter->second);
+      if (gl1counts >= 0)
+	{
+          txt << ", gl1 count: " << std::get<4>(servermapiter->second);
+	}
+        txt  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
         PrintRun.SetTextColor(kGray + 2);
@@ -2019,7 +2307,128 @@ int CemcMonDraw::DrawServerStats()
   return 0;
 }
 
-int CemcMonDraw::DrawSeventh(const std::string & /* what */)
+int CemcMonDraw::DrawBadChi2(const std::string & /* what */)
+{
+   OnlMonClient *cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("CemcBadChi2"))
+  {
+    MakeCanvas("CemcBadChi2");
+  }
+  TC[8]->Clear("D");
+  TC[8]->SetEditable(true);
+  transparent[8]->cd();
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.03);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::ostringstream runnostream2;
+  std::string runstring;
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << "Tower with bad chi2";
+  runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime.first);
+
+  runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+
+  runstring = runnostream2.str();
+  PrintRun.DrawText(0.5, 0.966, runstring.c_str());
+
+  TProfile2D *p2_bad_chi2 = nullptr;
+  TProfile2D *proftmp;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    proftmp = (TProfile2D *) cl->getHisto(*server, "p2_bad_chi2");
+    if (proftmp)
+    {
+      if (p2_bad_chi2)
+      {
+        p2_bad_chi2->Add(proftmp);
+      }
+      else
+      {
+        p2_bad_chi2 = proftmp;
+      }
+    }
+  }
+  Pad[21] -> cd();
+  std::vector<std::pair<int, int>> badchi2;
+  //loop over TProfile to find bad chi2
+  for (int i = 1; i <= p2_bad_chi2->GetNbinsX(); i++)
+  {
+    for (int j = 1; j <= p2_bad_chi2->GetNbinsY(); j++)
+    {
+      float bad_chi2_prob = p2_bad_chi2->GetBinContent(i, j);
+      if (bad_chi2_prob > 0.5)
+      {
+        //do stuff here find the sector and IB and display the text
+        badchi2.push_back(std::make_pair(i-1, j-1));
+      }
+    }
+  }
+  //text display
+  double vdist = 0.04; // Vertical distance between lines
+  double vpos = 0.92;  // Starting vertical position
+  int displayedTowers = 0;
+  TText printChi2;
+  printChi2.SetTextFont(62);
+  printChi2.SetNDC();          // Set to normalized coordinates
+  printChi2.SetTextAlign(23);  // Center/top alignment
+  printChi2.SetTextSize(0.04);
+  printChi2.SetTextColor(1);
+  for (const auto& [x, y] : badchi2)
+  {
+    bool ifknownbad = false;
+    for (const auto& [i, j] : hotChannels)
+    {
+      if (i == x && j == y)
+      {
+        ifknownbad = true;
+        break;
+      }
+    }
+    float badChi2Rate = p2_bad_chi2->GetBinContent(x + 1, y + 1); // Adjusting for ROOT's 1-based indexing
+    std::ostringstream txt;
+    txt << "Tower(" << x << "," << y << "): bad chi2 rate=" << badChi2Rate;
+    // If the tower is known to be bad, draw it in red
+    if (ifknownbad)
+    {
+      printChi2.SetTextColor(kRed);
+    }
+    else
+    {
+      printChi2.SetTextColor(kBlack);
+    }
+    
+    printChi2.DrawText(0.5, vpos, txt.str().c_str());
+
+    vpos -= vdist; // Move to the next line
+    displayedTowers++;
+    if (vpos < 0.1) break; // Prevent drawing outside the canvas
+  }
+
+  int remainingTowers = badchi2.size() - displayedTowers;
+  if (remainingTowers > 0)
+  {
+    // Use TText to draw a message indicating how many more towers there are
+    std::ostringstream moreTxt;
+    moreTxt << "And " << remainingTowers << " more...";
+    printChi2.DrawText(0.5, 0.05, moreTxt.str().c_str()); // Draw at the bottom
+  }
+
+  TC[8]->Update();
+  TC[8]->Show();
+  TC[8]->SetEditable(false);
+ 
+  return 0;
+
+}
+
+int CemcMonDraw::DrawSeventh(const std::string &  what)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // watch the absolute insanity as we merge all these
@@ -2029,7 +2438,14 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
   TProfile2D *proftmp;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    proftmp = (TProfile2D *) cl->getHisto(*server, "p2_zsFrac_etaphi");
+    if(what=="SEVENTH")
+    {
+      proftmp = (TProfile2D *) cl->getHisto(*server, "p2_zsFrac_etaphi");
+    }
+    else
+    {
+      proftmp = (TProfile2D *) cl->getHisto(*server, "p2_zsFrac_etaphi_all");
+    }
     if (proftmp)
     {
       if (p2_zsFrac_etaphiCombined)
@@ -2049,6 +2465,14 @@ int CemcMonDraw::DrawSeventh(const std::string & /* what */)
   }
   TC[7]->SetEditable(true);
   TC[7]->Clear("D");
+  if(what == "SEVENTH")
+  {
+    TC[7]->SetTitle("Channel unsuppressed event fraction");
+  }
+  else
+  {
+    TC[7]->SetTitle("Channel unsuppressed event fraction (all triggers)");
+  }
   if (!p2_zsFrac_etaphiCombined)
   {
     DrawDeadServer(transparent[7]);

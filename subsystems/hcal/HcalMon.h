@@ -53,10 +53,12 @@ class HcalMon : public OnlMon
   TH2* h2_hcal_hits {nullptr};
   TH2* h2_hcal_hits_trig[64] {nullptr};
   TProfile2D* pr_zsFrac_etaphi {nullptr};
+  TProfile2D* pr_zsFrac_etaphi_all {nullptr};
   TH1* h_waveform_twrAvg {nullptr};
   TH1* h_waveform_time {nullptr};
   TH1* h_waveform_pedestal {nullptr};
   TH2* h2_hcal_rm {nullptr};
+  TH2* h2_hcal_rm_alltrig {nullptr};
   TH2* h2_hcal_mean {nullptr};
   TH2* h2_hcal_waveform {nullptr};
   TH2* h2_hcal_correlation {nullptr};
@@ -91,6 +93,7 @@ class HcalMon : public OnlMon
 
   std::vector<runningMean*> rm_vector_sectAvg;
   std::vector<runningMean*> rm_vector_twr;
+  std::vector<runningMean*> rm_vector_twrhit_alltrig;
   std::vector<runningMean*> rm_vector_twrhit;
   std::vector<runningMean*> rm_vector_twrTime;
   std::vector<runningMean*> rm_packet_number;

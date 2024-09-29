@@ -26,10 +26,13 @@ void cemcDrawInit(const int online = 0)
         cl->registerHisto(Form("h2_cemc_hits_trig_bit_%d", itrig), servername.c_str());
       }
       cl->registerHisto("p2_zsFrac_etaphi"  , servername.c_str());
+      cl->registerHisto("p2_zsFrac_etaphi_all", servername.c_str());
+      cl->registerHisto("p2_bad_chi2", servername.c_str());
       cl->registerHisto("h1_cemc_trig", servername.c_str());
       cl->registerHisto("h_evtRec", servername.c_str());
       cl->registerHisto("h2_cemc_rm", servername.c_str());
       cl->registerHisto("h2_cemc_rmhits", servername.c_str());
+      cl->registerHisto("h2_cemc_rmhits_alltrig", servername.c_str());
       cl->registerHisto("h2_cemc_mean", servername.c_str());
       cl->registerHisto("h1_event", servername.c_str());
       cl->registerHisto("h2_waveform_twrAvg", servername.c_str());

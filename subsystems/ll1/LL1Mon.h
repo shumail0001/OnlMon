@@ -22,6 +22,7 @@ class LL1Mon : public OnlMon
   int evtcnt = 0;
   int idummy = 0;
   int thresh=2;
+  TH1* h_hit_format=nullptr;
   TH2* h_line_up=nullptr;
   TH2* h_nhit_corr=nullptr;
   TH1 *h_hit_n= nullptr;

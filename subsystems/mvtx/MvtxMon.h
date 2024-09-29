@@ -74,6 +74,7 @@ class MvtxMon : public OnlMon
   TH1I* hChipL1 = nullptr;
   TH1I* hFeeStrobes = nullptr;
   TH1I* hFeeL1 = nullptr;
+  TH1I* hFeeRDHErrors = nullptr;
   // fee
   TH2I* mTriggerVsFeeId = nullptr;
   TH1I* mTrigger = nullptr;

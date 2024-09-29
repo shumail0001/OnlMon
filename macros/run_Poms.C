@@ -28,7 +28,10 @@ void StartPoms()
   subsys->AddAction("bbcDraw(\"FIRST\")", "MBD Vertex Monitor");
   subsys->AddAction("bbcDraw(\"SECOND\")", "MBD Timing Monitor");
   subsys->AddAction("bbcDraw(\"THIRD\")", "MBD Triggered Monitor");
+  subsys->AddAction("bbcDraw(\"BbcMon5\")", "Vertex for All Triggers");
   subsys->AddAction("bbcDraw(\"MBD2MCR\")", "MBD TOGGLE VTX TO MCR");
+  //  subsys->AddAction("bbcDraw(\"BADGL1\")", "MBD TOGGLE IGNORE GL1 MISS");
+  subsys->AddAction("bbcDraw(\"BbcMonServerStats\")", "MBD Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -37,17 +40,20 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Health [Expert]");
   subsys->AddAction("cemcDraw(\"THIRD\")", "Wave Forms");
   subsys->AddAction("cemcDraw(\"FIFTH\")", "Trigger [Expert]");
+  subsys->AddAction("cemcDraw(\"ALLTRIGHITS\")", "All Trigger Tower Hits");
   subsys->AddAction("cemcDraw(\"SEVENTH\")", "Zero-suppression info");
+  subsys->AddAction("cemcDraw(\"ALLTRIGZS\")", "All Trigger ZS info");
+  subsys->AddAction("cemcDraw(\"BADCHI2\")", "Bad Chi2 Towers [Expert]");
   subsys->AddAction("cemcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("DAQ", "daq");
-  subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
-  subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check");
-  subsys->AddAction("daqDraw(\"SERVERSTATS\")", "Server Stats");
-  subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  pmf->RegisterSubSystem(subsys);
+  // subsys = new SubSystem("DAQ", "daq");
+  // subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
+  // subsys->AddAction("daqDraw(\"SECOND\")", "Calo FEM Check");
+  // subsys->AddAction("daqDraw(\"SERVERSTATS\")", "Server Stats");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
@@ -56,7 +62,9 @@ void StartPoms()
   //subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ihcalDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("ihcalDraw(\"SIXTH\")", "Tower Status [Expert]");
+  subsys->AddAction("ihcalDraw(\"ALLTRIGHITS\")", "All Trigger Tower Hits");
   subsys->AddAction("ihcalDraw(\"SEVENTH\")", "Zero-suppression info");
+  subsys->AddAction("ihcalDraw(\"ALLTRIGZS\")", "All Trigger ZS info");
   subsys->AddAction("ihcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
@@ -68,17 +76,19 @@ void StartPoms()
   //subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health [Expert]");
   subsys->AddAction("ohcalDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("ohcalDraw(\"SIXTH\")", "Tower Status [Expert]");
+  subsys->AddAction("ohcalDraw(\"ALLTRIGHITS\")", "All Trigger Tower Hits");
   subsys->AddAction("ohcalDraw(\"SEVENTH\")", "Zero-suppression info");
+  subsys->AddAction("ohcalDraw(\"ALLTRIGZS\")", "All Trigger ZS info");
   subsys->AddAction("ohcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("INTT", "intt");
   subsys->AddAction("inttDraw(\"chip_hitmap\")", "Chip Hitmap");
-  subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff");
-  subsys->AddAction("inttDraw(\"zoomed_fphx_bco\")", "Zoomed Fphx BCO");
+  subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff (Triggered)");
+  subsys->AddAction("inttDraw(\"zoomed_fphx_bco\")", "Zoomed Fphx BCO (Streaming)");
   subsys->AddAction("inttDraw(\"history\")", "Decoding Rate");
-  subsys->AddAction("inttDraw(\"fphx_bco\")", "Fphx BCO [Expert]");
+  subsys->AddAction("inttDraw(\"fphx_bco\")", "Fphx BCO (Streaming) [Expert]");
   subsys->AddAction("inttDraw(\"hitrates\")", "Hitrates [Expert]");
   subsys->AddAction("inttDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
@@ -110,6 +120,7 @@ void StartPoms()
   subsys->AddAction("sepdDraw(\"THIRD\")", "North vs South Correlations");
   subsys->AddAction("sepdDraw(\"FOURTH\")", "Wave Forms");
   subsys->AddAction("sepdDraw(\"FIFTH\")", "Packet Status");
+  subsys->AddAction("sepdDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -120,10 +131,11 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("TPC", "tpc");
+  subsys = new SubSystem("TPC EXPERT", "tpc");
   subsys->AddAction("tpcDraw(\"TPCMODULE\")", "TPC SUM[ADC]");
   subsys->AddAction("tpcDraw(\"TPCSAMPLESIZE\")", "TPC Sample Size");
   subsys->AddAction("tpcDraw(\"TPCCHECKSUMERROR\")", "TPC Checksum Error Prob.");
+  subsys->AddAction("tpcDraw(\"TPCPARITYERROR\")", "TPC Parity Error Prob.");
   subsys->AddAction("tpcDraw(\"TPCADCVSSAMPLE\")", "TPC ADC vs. Sample");
   subsys->AddAction("tpcDraw(\"TPCADCVSSAMPLELARGE\")", "TPC ADC vs. Large Sample");
   subsys->AddAction("tpcDraw(\"TPCMAXADCMODULE\")", "TPC MAX10ADC-Pedestal 1D");
@@ -155,6 +167,15 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
+  subsys = new SubSystem("TPC SHIFTER", "tpc");
+  subsys->AddAction("tpcDraw(\"SHIFTER_DRIFT_PLOT\")", "SHIFTER TPC DRIFT");
+  subsys->AddAction("tpcDraw(\"TPCCLUSTERSXYWEIGTHED\")", "SHIFTER TPC ACCEPTANCE");
+  subsys->AddAction("tpcDraw(\"TPCCHANSPERLVL1NS\")", "SHIFTER TPC NS OCCUP.");
+  subsys->AddAction("tpcDraw(\"TPCCHANSPERLVL1SS\")", "SHIFTER TPC SS OCCUP.");
+  subsys->AddAction("tpcDraw(\"SERVERSTATS\")", "Server Stats");
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
+  
   subsys = new SubSystem("TPOT", "tpot");
   subsys->AddAction("tpotDraw(\"TPOT_counts_vs_sample\")", "Counts vs Sample");
   subsys->AddAction("tpotDraw(\"TPOT_hit_charge\")", "Hit Charge");
@@ -168,6 +189,7 @@ void StartPoms()
   subsys->AddAction("tpotDraw(\"TPOT_sample_vs_channel\")", "Sample vs Channel [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_adc_vs_channel\")", "ADC vs Strip [EXPERT]");
   subsys->AddAction("tpotDraw(\"TPOT_hit_multiplicity\")", "Hit Multiplicity [EXPERT]");
+  subsys->AddAction("tpotDraw(\"TPOT_server_stats\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 

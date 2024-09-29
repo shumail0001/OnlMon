@@ -241,7 +241,7 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
   if(IsGL1MisMatch){
       latex.SetTextSize(0.035);
       latex.SetTextColor(kRed);
-      latex.DrawLatex(0.21,0.84,"#bf{STOP THE RUN NOW!!}");
+      latex.DrawLatex(0.21,0.84,"#bf{If this happened within 1 min of the run --> Stop the run}");
       latex.DrawLatex(0.21,0.68,"#bf{GL1 Clock Mismatch! Put a special note in the e-log}");
   }
   else{
@@ -340,7 +340,7 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
   if(IsMisMatch){
       latex.SetTextSize(0.035);
       latex.SetTextColor(kRed);
-      latex.DrawLatex(0.21,0.74,"#bf{STOP THE RUN NOW!!}");
+      latex.DrawLatex(0.21,0.74,"#bf{If this happened within 1 min of the run --> Stop the run}");
       latex.DrawLatex(0.21,0.6,"#bf{Calo FEM Mismatch! Put a special note in the e-log}");
   }
   else{
@@ -461,10 +461,10 @@ int DaqMonDraw::DrawServerStats()
   PrintRun.DrawText(0.5, 0.99, "Server Statistics");
 
   PrintRun.SetTextSize(0.02);
-  double vdist = 0.05;
-  double vstart = 0.9;
+  double vdist = 0.04;
+  double vstart = 0.92;
   double vpos = vstart;
-  double hpos = 0.25;
+  double hpos = 0.5;
   int i = 0;
  for (const auto &server : m_ServerSet)
   {
@@ -478,10 +478,15 @@ int DaqMonDraw::DrawServerStats()
     }
     else
     {
+      int gl1counts = std::get<4>(servermapiter->second);
       txt << "Server " << server
 	  << ", run number " << std::get<1>(servermapiter->second)
-	  << ", event count: " << std::get<2>(servermapiter->second)
-	  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+	  << ", event count: " << std::get<2>(servermapiter->second);
+      if (gl1counts >= 0)
+	{
+          txt << ", gl1 count: " << std::get<4>(servermapiter->second);
+	}
+      txt << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
 	PrintRun.SetTextColor(kGray+2);
@@ -491,12 +496,6 @@ int DaqMonDraw::DrawServerStats()
 	PrintRun.SetTextColor(kRed);
       }
     }
-        if (i > 10)
-      {
-	hpos = 0.75;
-	vpos = vstart;
-	i = 0;
-      }
 
     PrintRun.DrawText(hpos, vpos, txt.str().c_str());
     vpos -= vdist;

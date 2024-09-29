@@ -17,12 +17,11 @@ class Packet;
 class runningMean;
 class eventReceiverClient;
 class CDBTTree;
-class GL1Manager;
 
 class CemcMon : public OnlMon
 {
  public:
-  explicit CemcMon(const std::string& name, const std::string& gl1_host = "gl1daq");
+  explicit CemcMon(const std::string& name);
   virtual ~CemcMon();
 
   int process_event(Event* evt);
@@ -39,8 +38,6 @@ class CemcMon : public OnlMon
   std::vector<float> getSignal(Packet* p, const int channel);
   std::vector<float> anaWaveformFast(Packet* p, const int channel);
   std::vector<float> anaWaveformTemp(Packet* p, const int channel);
-
-  std::string GL1host;
 
   int idummy = 0;
   TH1* h1_cemc_adc = nullptr;
@@ -62,6 +59,7 @@ class CemcMon : public OnlMon
   TH2* h2_caloPack_gl1_clock_diff{nullptr};
   TProfile* h_evtRec{nullptr};
   TProfile2D* p2_zsFrac_etaphi{nullptr};
+  TProfile2D* p2_zsFrac_etaphi_all{nullptr};
 
   TH1* h1_packet_chans{nullptr};
   TH1* h1_packet_length{nullptr};
@@ -74,19 +72,21 @@ class CemcMon : public OnlMon
   TH1* h1_waveform_time{nullptr};
   TH1* h1_waveform_pedestal{nullptr};
   TH2* h2_cemc_rm{nullptr};
+  TH2* h2_cemc_rmhits_alltrig{nullptr};
   TH2* h2_cemc_rmhits{nullptr};
   TH2* h2_cemc_mean{nullptr};
   TH1* h1_sectorAvg_total{nullptr};
   TH1* h1_event{nullptr};
   TH1* h1_rm_sectorAvg[100] = {nullptr};
+  TProfile2D* p2_bad_chi2{nullptr};
   // TProfile*** h2_waveform= {nullptr};
   std::vector<runningMean*> rm_vector_twr;
   std::vector<runningMean*> rm_vector_twrhits;
+  std::vector<runningMean*> rm_vector_twrhits_alltrig;
 
   std::string runtypestr = "Unknown";
 
-  //eventReceiverClient* erc = {nullptr};
-  GL1Manager *gl1mgr =  {nullptr};
+  eventReceiverClient* erc = {nullptr};
   bool anaGL1 = true;
   bool usembdtrig = true;
 

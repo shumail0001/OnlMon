@@ -51,6 +51,8 @@ class BbcMonDraw : public OnlMonDraw
   int Warning(TPad *pad, const float x, const float y, const int r, const std::string &msg);
   int ClearWarning(void);
 
+  void GetMinBiasTrigName();
+
   OnlMonDB *dbvars = nullptr;
 
   
@@ -59,6 +61,12 @@ class BbcMonDraw : public OnlMonDraw
   std::string sendflagfname;
   int GetSendFlag();
   int UpdateSendFlag(const int flag);
+
+  // bad gl1 variables
+  int gl1badflag{0};      // 0 = normal, 1 = gl1bad
+  std::string gl1badflagfname;
+  int GetGL1BadFlag();
+  int UpdateGL1BadFlag(const int flag);
 
   TCanvas *TC[nCANVAS] = {nullptr};
   TPad *transparent[nCANVAS] = {nullptr};
@@ -132,11 +140,15 @@ class BbcMonDraw : public OnlMonDraw
   // TText * TextBbcSummaryTrigRate = nullptr;
   TLatex *TextBbcSummaryTrigRate = nullptr;
 
-  TH1 *Zvtx = nullptr;
+  TH1 *Zvtx{nullptr};
+  TH1 *Zvtx_alltrigger{nullptr};
   TH1 *Zvtx_ns{nullptr};
   TH1 *Zvtx_10{nullptr};
   TH1 *Zvtx_30{nullptr};
   TH1 *Zvtx_60{nullptr};
+  TH1 *Zvtx_10_chk{nullptr};
+  TH1 *Zvtx_30_chk{nullptr};
+  TH1 *Zvtx_60_chk{nullptr};
   TH1 *Zvtx_zdcns{nullptr};
   TH1 *Zvtx_emcal{nullptr};
   TH1 *Zvtx_hcal{nullptr};
@@ -221,6 +233,8 @@ class BbcMonDraw : public OnlMonDraw
   // Scale down factor
   TH1 *Prescale_hist = nullptr;
   TSpectrum *tspec = nullptr;
+
+  std::string TrigName;
 
  private:
   int DrawDeadServer(TPad *transparent_pad) override;

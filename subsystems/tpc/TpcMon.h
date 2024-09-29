@@ -103,6 +103,7 @@ class TpcMon : public OnlMon
 
   TH1 *sample_size_hist = nullptr;
   TH1 *Check_Sum_Error = nullptr;
+  TH1 *Parity_Error = nullptr;
   TH1 *Check_Sums = nullptr;
   TH1 *Stuck_Channels = nullptr;
   TH1 *Channels_in_Packet = nullptr;

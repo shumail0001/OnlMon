@@ -15,6 +15,8 @@ void tpotDrawInit(const int online = 0)
 
   // create drawing object and register
   auto tpotmon = new TpotMonDraw("TPOT");
+  std::string servername = "TPOTMON_0";
+  tpotmon->AddServer(servername);
 
   // prefer local calibration filename if exists
   const std::string local_calibration_filename( "TPOT_Pedestal-000.root" );
@@ -23,7 +25,6 @@ void tpotDrawInit(const int online = 0)
 
   tpotmon->set_sample_window( {0, 50} );
   tpotmon->set_sample_window_signal( {3, 18} );
-
   cl->registerDrawer(tpotmon);
 
   // get detector names

@@ -19,7 +19,9 @@ libonlbbcmon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
   -lmbd_io \
-  -lonlmonserver
+  -lonlmonserver \
+  -lonlmonodbc
+
 
 libonlbbcmon_client_la_LIBADD = \
   -L$(libdir) \

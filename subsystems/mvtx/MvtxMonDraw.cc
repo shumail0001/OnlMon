@@ -21,6 +21,7 @@
 #include <TStyle.h>
 #include <TSystem.h>
 #include <TText.h>
+#include <TExec.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -202,7 +203,7 @@ int MvtxMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "MvtxMonServerStats")
   {
-    TC[6] = new TCanvas(name.c_str(), "MvtxMon Server Stats", xsize / 2, 0, xsize / 2, ysize);
+    TC[6] = new TCanvas(name.c_str(), "MvtxMon Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
     transparent[6]->SetFillColor(kGray);
@@ -505,6 +506,9 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   if (mvtxmon_mGeneralOccupancy[NFlx])
   {
     mvtxmon_mGeneralOccupancy[NFlx]->GetYaxis()->SetTitleOffset(0.6);
+    mvtxmon_mGeneralOccupancy[NFlx]->SetMinimum(0);
+    mvtxmon_mGeneralOccupancy[NFlx]->SetMaximum(100E-6); // set a fixed max value 
+    mvtxmon_mGeneralOccupancy[NFlx]->SetContour(100);
   }
 
    if (mvtxmon_ChipStave1D[NFlx])
@@ -545,7 +549,10 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   Pad[padID]->Divide(4, 2);
   int returnCode = 0;
 
-  Pad[padID]->cd(4)->SetRightMargin(0.2);
+  // Pad[padID]->cd(1)->SetRightMargin(0.15);
+  Pad[padID]->cd(3)->SetRightMargin(0.16);
+  Pad[padID]->cd(4)->SetRightMargin(0.15);
+  Pad[padID]->cd(4)->SetLeftMargin(0.15);
   Pad[padID]->cd(6)->SetLeftMargin(0.16);
   Pad[padID]->cd(6)->SetTopMargin(0.16);
   Pad[padID]->cd(6)->SetBottomMargin(0.14);
@@ -570,8 +577,17 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
     mvtxmon_mGeneralErrorPlots[NFlx]->GetYaxis()->SetTitleSize(0.045);
   }
 
-  hChipStrobes[NFlx]->SetMinimum(0);
-  hChipStrobes[NFlx]->SetTitle("Strobe & L1 vs Chip");
+   if (mvtxmon_mGeneralErrorPlotsTime[NFlx])
+  {
+    mvtxmon_mGeneralErrorPlotsTime[NFlx]->GetXaxis()->SetLabelOffset(999);
+    mvtxmon_mGeneralErrorPlotsTime[NFlx]->GetXaxis()->SetTickLength(0);
+  }
+
+ if(hChipStrobes[NFlx])
+  {
+    hChipStrobes[NFlx]->SetMinimum(0);
+    hChipStrobes[NFlx]->SetTitle("Strobe & L1 vs Chip");
+  }
 
     TPaveText *tlayer[3] = {nullptr};
 
@@ -597,29 +613,50 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   std::vector<MvtxMonDraw::Quality> status;
   status = analyseForError(mvtxmon_LaneStatusOverview[NFlx], mGeneralNoisyPixel[NFlx], hChipStrobes[NFlx], mvtxmon_mGeneralErrorFile[NFlx], mvtxmon_mGeneralErrorPlotsTime[NFlx],hDMAstatus[NFlx]);
 
-  returnCode += PublishHistogram(Pad[padID], 1, mvtxmon_LaneStatusOverview[NFlx], "lcolz");
+  returnCode += PublishHistogram(Pad[padID], 1, mvtxmon_LaneStatusOverview[NFlx], "col", 2);
+  returnCode += PublishHistogram(Pad[padID], 1, mvtxmon_LaneStatusOverview[NFlx], "colz same", 2);
   //DrawPave(status, 0);
   //returnCode += PublishHistogram(Pad[padID], 2, mvtxmon_mGeneralOccupancy[NFlx]);
-  returnCode += PublishHistogram(Pad[padID], 2, mvtxmon_mGeneralOccupancy[NFlx], "colz");
-  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx]);
-  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "colz same");
+  returnCode += PublishHistogram(Pad[padID], 2, mvtxmon_mGeneralOccupancy[NFlx], "col", 0);
+  returnCode += PublishHistogram(Pad[padID], 2, mvtxmon_mGeneralOccupancy[NFlx], "colz same", 0);
+  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "colz", 1);
+  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "colztext same", 1);
   returnCode += PublishHistogram(Pad[padID], 5, mvtxmon_mGeneralErrorPlotsTime[NFlx]);
+
+  if (mvtxmon_mGeneralErrorPlotsTime[NFlx])
+  {
+    // Redraw the new axis
+    gPad->Update();
+    TGaxis *newaxis = new TGaxis(gPad->GetUxmax(),
+                                  gPad->GetUymin(),
+                                  gPad->GetUxmin(),
+                                  gPad->GetUymin(),
+                                  mvtxmon_mGeneralErrorPlotsTime[NFlx]->GetXaxis()->GetXmin(),
+                                  mvtxmon_mGeneralErrorPlotsTime[NFlx]->GetXaxis()->GetXmax(),
+                                  510,"-");
+    newaxis->SetLabelOffset(-0.04);
+    newaxis->SetLabelSize(0.04);
+    newaxis->Draw();
+  }
   //returnCode += PublishHistogram(Pad[padID], 5, hStrobesDMA[NFlx]);
   
   returnCode += PublishHistogram(Pad[padID], 4, hChipStrobes[NFlx]);
-
+if(hChipStrobes[NFlx]){
   for (const int& lay : LayerBoundaryFEE)
     {
       auto l = new TLine(lay, 0, lay, 1.1*hChipStrobes[NFlx]->GetMaximum());
       l->Draw("same");
     }
-
-  Float_t rightmax = 2 * hChipL1[NFlx]->GetMaximum();
+}
+Float_t rightmax = 0.1;
+if(hChipL1[NFlx] && hChipStrobes[NFlx]){
+  rightmax = 2 * hChipL1[NFlx]->GetMaximum();
   Float_t scale = hChipStrobes[NFlx]->GetMaximum() / rightmax;
   hChipL1[NFlx]->SetLineColor(kRed);
   hChipL1[NFlx]->Scale(scale);
+}
   returnCode += PublishHistogram(Pad[padID], 4, hChipL1[NFlx], "same hist");
-
+if(hChipStrobes[NFlx]){
   TGaxis *axis = new TGaxis(48 * 3, 0, 48 * 3, hChipStrobes[NFlx]->GetMaximum(), 0, rightmax, 510, "+L");
   axis->SetLineColor(kRed);
   axis->SetLabelColor(kRed);
@@ -628,7 +665,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   axis->SetTitleColor(kRed);
   axis->SetTitle("Number of L1 triggers");
   axis->Draw();
-
+}
   for (auto &i : tlayer)
   {
     i->Draw();
@@ -641,13 +678,13 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
    
 
   returnCode += PublishHistogram(Pad[padID], 6, mvtxmon_ChipStave1D[NFlx]);
-
+if(mvtxmon_ChipStave1D[NFlx]){
   for (const int& lay : LayerBoundaryChip)
     {
       auto ll = new TLine(lay, 0, lay, 1.1* mvtxmon_ChipStave1D[NFlx]->GetMaximum());
       ll->Draw("same");
     }
-
+}
     for (auto &i : tlayer)
   {
     i->Draw();
@@ -717,15 +754,18 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   {
     if (status.at(0) == Quality::Medium)
     {
-      ptt4->AddText("#color[808]{QA Layer 0 Medium}");
+      // ptt4->AddText("#color[808]{Layer 0 Medium}");
+      ptt4->AddText("#color[808]{Lane error(s) in Layer 0}");
     }
     if (status.at(1) == Quality::Medium)
     {
-      ptt4->AddText("#color[808]{QA Layer 1 Medium}");
+      // ptt4->AddText("#color[808]{QA Layer 1 Medium}");
+      ptt4->AddText("#color[808]{Lane error(s) in Layer 1}");
     }
     if (status.at(2) == Quality::Medium)
     {
-      ptt4->AddText("#color[808]{QA Layer 2 Medium}");
+      // ptt4->AddText("#color[808]{QA Layer 2 Medium}");
+      ptt4->AddText("#color[808]{Lane error(s) in Layer 2}");
     }
     if (status.at(3) == Quality::Medium)
     {
@@ -806,15 +846,15 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   {
     if (status.at(0) == Quality::Bad)
     {
-      ptt4->AddText("#color[2]{QA Layer 0 Bad}");
+      ptt4->AddText("#color[2]{>1/5 of staves in Layer 0 BAD}");
     }
     if (status.at(1) == Quality::Bad)
     {
-      ptt4->AddText("#color[2]{QA Layer 1 Bad}");
+      ptt4->AddText("#color[2]{>1/5 of staves in Layer 1 BAD}");
     }
     if (status.at(2) == Quality::Bad)
     {
-      ptt4->AddText("#color[2]{QA Layer 2 Bad}");
+      ptt4->AddText("#color[2]{>1/5 of staves in Layer 2 BAD}");
     }
     if (status.at(3) == Quality::Bad)
     {
@@ -856,7 +896,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   tlegend->Draw();
 
 bool DMA_error[12] = {false};
-
+if(hStrobesDMA[NFlx]){
 for (int iDMA = 0; iDMA < NFlx*2; iDMA++){
   if(lastStrobes[iDMA] > static_cast<int>(hStrobesDMA[NFlx]->GetBinContent(iDMA+1))){
     lastStrobes[iDMA] = static_cast<int>(hStrobesDMA[NFlx]->GetBinContent(iDMA+1));
@@ -869,6 +909,7 @@ for (int iDMA = 0; iDMA < NFlx*2; iDMA++){
     DMA_error[iDMA] = false;
     lastStrobes[iDMA] = static_cast<int>(hStrobesDMA[NFlx]->GetBinContent(iDMA+1));
   }
+}
 }
 
   
@@ -920,6 +961,7 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   //TH1I *mLaneStatusSummaryIB[NFlx + 1] = {nullptr};
   TH1D *mvtxmon_mGeneralErrorPlots[NFlx + 1] = {nullptr};
   TH2D *mvtxmon_mGeneralErrorFile[NFlx + 1] = {nullptr};
+  TH1I *hRDHErrors[NFlx + 1] = {nullptr};
 
   for (int iFelix = 0; iFelix < NFlx; iFelix++)
   {
@@ -935,6 +977,7 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
       mLaneStatusCumulative[i][iFelix] = dynamic_cast<TH2I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), Form("FEE_LaneStatusFromSOX_Flag_%s", mLaneStatusFlag[i].c_str())));
       //mLaneStatusSummary[i][iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), Form("FEE_LaneStatusSummary_Layer_%i", i)));
     }
+    hRDHErrors[iFelix] = dynamic_cast<TH1I *>(cl->getHisto(Form("MVTXMON_%d", iFelix), "RDHErrors_hfeeRDHErrors"));
   }
 
   for (int i = 0; i < 3; i++)
@@ -949,6 +992,7 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   MergeServers<TH2I *>(FHR_ErrorVsFeeid);
     MergeServers<TH1D *>(mvtxmon_mGeneralErrorPlots);
       MergeServers<TH2D *>(mvtxmon_mGeneralErrorFile);
+  MergeServers<TH1I *>(hRDHErrors);
 
   if (!gROOT->FindObject("MvtxMon_FEE"))
   {
@@ -957,7 +1001,7 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
 
   TC[canvasID]->SetEditable(true);
   TC[canvasID]->Clear("D");
-  Pad[padID]->Divide(3, 3);
+  Pad[padID]->Divide(4, 3);
 
   for (int i = 0; i < 3; i++)
   {
@@ -1036,9 +1080,10 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
 
   int returnCode = 0;
  // Pad[padID]->cd(1)->SetLeftMargin(0.16);
-  returnCode += PublishHistogram(Pad[padID], 7, mvtxmon_mGeneralErrorPlots[NFlx]);
-  returnCode += PublishHistogram(Pad[padID], 8, mvtxmon_mGeneralErrorFile[NFlx], "lcol");
-  returnCode += PublishHistogram(Pad[padID], 9, FHR_ErrorVsFeeid[NFlx], "lcol");
+  returnCode += PublishHistogram(Pad[padID], 9, mvtxmon_mGeneralErrorPlots[NFlx]);
+  returnCode += PublishHistogram(Pad[padID], 10, mvtxmon_mGeneralErrorFile[NFlx], "lcol");
+  returnCode += PublishHistogram(Pad[padID], 11, FHR_ErrorVsFeeid[NFlx], "lcol");
+  returnCode += PublishHistogram(Pad[padID], 12, hRDHErrors[NFlx], "lcol");
   //returnCode += PublishHistogram(Pad[padID], 1, mTriggerVsFeeId[NFlx], "lcol");
   //returnCode += PublishHistogram(Pad[padID], 5, mTrigger[NFlx]);
   // returnCode += PublishHistogram(Pad[9],3,mLaneInfo[NFlx]);
@@ -1057,17 +1102,17 @@ int MvtxMonDraw::DrawFEE(const std::string & /* what */)
   {
     i->Draw();
   }*/
-  returnCode += PublishHistogram(Pad[padID], 4, mLaneStatusCumulative[0][NFlx], "lcol");
+  returnCode += PublishHistogram(Pad[padID], 5, mLaneStatusCumulative[0][NFlx], "lcol");
   /*for (auto &i : tlayer)
   {
     i->Draw();
   }*/
-  returnCode += PublishHistogram(Pad[padID], 5, mLaneStatusCumulative[1][NFlx], "lcol");
+  returnCode += PublishHistogram(Pad[padID], 6, mLaneStatusCumulative[1][NFlx], "lcol");
   /*for (auto &i : tlayer)
   {
     i->Draw();
   }*/
-  returnCode += PublishHistogram(Pad[padID], 6, mLaneStatusCumulative[2][NFlx], "lcol");
+  returnCode += PublishHistogram(Pad[padID], 7, mLaneStatusCumulative[2][NFlx], "lcol");
   /*for (auto &i : tlayer)
   {
     i->Draw();
@@ -1141,6 +1186,7 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
       hChipStaveOccupancy[i][NFlx]->GetYaxis()->SetLabelSize(0.06);
       hChipStaveOccupancy[i][NFlx]->GetYaxis()->SetTitleSize(0.05);
       hChipStaveOccupancy[i][NFlx]->GetYaxis()->SetTitleOffset(0.7);
+      hChipStaveOccupancy[i][NFlx]->SetContour(100);
 
       hChipStaveOccupancy_low[i] = (TH2D *) (hChipStaveOccupancy[i][NFlx])->Clone(Form("hChipStaveOccupancy_low_%d", i));
       TString tmp = "Chip Occupancy < 1\%";
@@ -1226,6 +1272,10 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
   Pad[padID]->cd(1)->SetLogy();
   Pad[padID]->cd(2)->SetLogy();
   Pad[padID]->cd(3)->SetLogy();
+  Pad[padID]->cd(5)->SetRightMargin(0.15);
+  Pad[padID]->cd(6)->SetRightMargin(0.15);
+  Pad[padID]->cd(7)->SetRightMargin(0.15);
+
    //Pad[padID]->cd(1)->SetLogx();
   //[padID]->cd(2)->SetLogx();
   //Pad[padID]->cd(3)->SetLogx();
@@ -1233,6 +1283,7 @@ int MvtxMonDraw::DrawOCC(const std::string & /* what */)
   hChipStaveOccupancy[0][NFlx]->GetZaxis()->SetTitle("");
   hChipStaveOccupancy[1][NFlx]->GetZaxis()->SetTitle("");
   hChipStaveOccupancy[2][NFlx]->GetZaxis()->SetTitle("");
+
 
   hChipStrobes[NFlx]->SetTitle("Chip Strobes (L1 triggers) vs Chip*Stave");
   hChipStrobes[NFlx]->GetYaxis()->SetTitle("Number of strobes");
@@ -1412,7 +1463,7 @@ int MvtxMonDraw::DrawFHR(const std::string & /* what */)
   int returnCode = 0;
   // returnCode += PublishHistogram(Pad[padID],1,mErrorVsFeeid[0]);
   // returnCode += PublishHistogram(Pad[padID],6,mGeneralOccupancy[NFlx],"COLZ");
-  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "COLZ");
+  returnCode += PublishHistogram(Pad[padID], 3, mGeneralNoisyPixel[NFlx], "COLZ", 0);
   returnCode += PublishHistogram(Pad[padID], 1, mDeadChipPos[0][NFlx], "COL");
   returnCode += PublishHistogram(Pad[padID], 4, mDeadChipPos[1][NFlx], "COL");
   returnCode += PublishHistogram(Pad[padID], 7, mDeadChipPos[2][NFlx], "COL");
@@ -1633,8 +1684,25 @@ int MvtxMonDraw::DrawHistory(const std::string & /* what */)
   return 0;
 }
 
+void MvtxMonDraw::setPalDefault()
+{
+    gStyle->SetPalette(1);
+}
+
+void MvtxMonDraw::setPalUser()
+{
+   const int numColorsUser = 3;
+   int colorsUser[numColorsUser] = {
+        TColor::GetColor(0, 255, 0), //green
+        TColor::GetColor(255, 255, 0), //yellow
+        TColor::GetColor(255, 0, 0) //red
+   };
+
+   gStyle->SetPalette(numColorsUser, colorsUser);
+}
+
 // template <typename T>
-int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, TH1 *h, const char *opt)
+int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, TH1 *h, const char *opt, int palettestyle)
 {
   if (c && pad != 0)
   {
@@ -1643,7 +1711,43 @@ int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, TH1 *h, const char *opt)
   }
   if (h)
   {
-    h->DrawCopy(opt);
+    if (palettestyle==0)
+    {
+      h->DrawCopy(opt);
+      TExec *ex1 = new TExec("ex1","MvtxMonDraw::setPalDefault();");
+      ex1->Draw();
+      h->DrawCopy(opt);
+    }
+    else if (palettestyle==1)
+    {
+      h->SetMinimum(-1/48);
+      h->SetMaximum(1200/48);
+      // palette only for noisy pixel
+      h->DrawCopy(opt);
+      const int numLevels = 3;
+      double levels[numLevels] = { 0, 200/48, 1000/48 };
+      h->SetContour(numLevels, levels);
+      h->SetMarkerSize(2);
+      TExec *ex1 = new TExec("ex1","MvtxMonDraw::setPalUser();");
+      ex1->Draw();
+      h->DrawCopy(opt);
+    }
+    else if (palettestyle==2)
+    {
+      h->SetMinimum(0);
+      h->SetMaximum(1);
+      h->DrawCopy(opt);
+      const int numLevels = 3;
+      double levels[numLevels] = { 0, 0.11, 0.22 };
+      h->SetContour(numLevels, levels);
+      TExec *ex1 = new TExec("ex1","MvtxMonDraw::setPalUser();");
+      ex1->Draw();
+      h->DrawCopy(opt);
+    }
+    else
+    {
+      h->DrawCopy(opt);
+    }
     return 0;
   }
   else
@@ -1654,13 +1758,13 @@ int MvtxMonDraw::PublishHistogram(TCanvas *c, int pad, TH1 *h, const char *opt)
 }
 
 // template <typename T>
-int MvtxMonDraw::PublishHistogram(TPad *p, int pad, TH1 *h, const char *opt)
+int MvtxMonDraw::PublishHistogram(TPad *p, int pad, TH1 *h, const char *opt, int palettestyle)
 {
   if (p && pad != 0)
   {
     p->cd(pad);
     TCanvas *c = nullptr;
-    return PublishHistogram(c, 0, h, opt);
+    return PublishHistogram(c, 0, h, opt, palettestyle);
   }
   else
   {
@@ -1669,13 +1773,13 @@ int MvtxMonDraw::PublishHistogram(TPad *p, int pad, TH1 *h, const char *opt)
 }
 
 // template <typename T>
-int MvtxMonDraw::PublishHistogram(TPad *p, TH1 *h, const char *opt)
+int MvtxMonDraw::PublishHistogram(TPad *p, TH1 *h, const char *opt, int palettestyle)
 {
   if (p)
   {
     p->cd();
     TCanvas *c = nullptr;
-    return PublishHistogram(c, 0, h, opt);
+    return PublishHistogram(c, 0, h, opt, palettestyle);
   }
 
   else

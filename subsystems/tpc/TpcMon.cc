@@ -231,7 +231,7 @@ int TpcMon::Init()
   char ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
   sprintf(ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
-  ADC_vs_SAMPLE = new TH2F("ADC_vs_SAMPLE", ADC_vs_SAMPLE_str, 425, 0, 425, 256, 0, 1024);
+  ADC_vs_SAMPLE = new TH2F("ADC_vs_SAMPLE", ADC_vs_SAMPLE_str, 500, 0, 500, 256, 0, 1024);
   ADC_vs_SAMPLE -> SetXTitle(ADC_vs_SAMPLE_xaxis_str);
   ADC_vs_SAMPLE -> SetYTitle("ADC [ADU]");
 
@@ -246,7 +246,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
-  PEDEST_SUB_ADC_vs_SAMPLE = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE", PEDEST_SUB_ADC_vs_SAMPLE_str, 425, 0, 425, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE", PEDEST_SUB_ADC_vs_SAMPLE_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE -> SetYTitle("ADC-ped. [ADU]");
 
@@ -261,7 +261,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_str,"ADC Counts vs Sample: SECTOR %i R1",MonitorServerId());
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str,"Sector %i R1: ADC Time bin [1/20MHz]",MonitorServerId());
-  PEDEST_SUB_ADC_vs_SAMPLE_R1 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R1", PEDEST_SUB_ADC_vs_SAMPLE_R1_str, 425, 0, 425, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE_R1 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R1", PEDEST_SUB_ADC_vs_SAMPLE_R1_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R1 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R1 -> SetYTitle("ADC-ped. [ADU]");
 
@@ -276,7 +276,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_str,"ADC Counts vs Sample: SECTOR %i R2",MonitorServerId());
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str,"Sector %i R2: ADC Time bin [1/20MHz]",MonitorServerId());
-  PEDEST_SUB_ADC_vs_SAMPLE_R2 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R2", PEDEST_SUB_ADC_vs_SAMPLE_R2_str, 425, 0, 425, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE_R2 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R2", PEDEST_SUB_ADC_vs_SAMPLE_R2_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R2 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R2 -> SetYTitle("ADC-ped. [ADU]");
   
@@ -291,7 +291,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_str,"ADC Counts vs Sample: SECTOR %i R3",MonitorServerId());
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str,"Sector %i R3: ADC Time bin [1/20MHz]",MonitorServerId());
-  PEDEST_SUB_ADC_vs_SAMPLE_R3 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R3", PEDEST_SUB_ADC_vs_SAMPLE_R3_str, 425, 0, 425, 281, -100, 1024);
+  PEDEST_SUB_ADC_vs_SAMPLE_R3 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R3", PEDEST_SUB_ADC_vs_SAMPLE_R3_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R3 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R3 -> SetYTitle("ADC-ped. [ADU]");
 
@@ -347,6 +347,7 @@ int TpcMon::Init()
   Check_Sums->SetXTitle("FEE_NUM*8 + SAMPA_ADRR");
   Check_Sums->SetYTitle("Entries");
   Check_Sums->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
+  Check_Sums->SetFillColor(4);
 
   Check_Sums -> GetXaxis() -> SetLabelSize(0.05);
   Check_Sums -> GetXaxis() -> SetTitleSize(0.05);
@@ -359,14 +360,30 @@ int TpcMon::Init()
   sprintf(checksum_title_str,"Check Sum Error Probability vs Fee*8 + SAMPA in Events: SECTOR %i",MonitorServerId());
   Check_Sum_Error = new TH1F("Check_Sum_Error" , checksum_title_str,208,-0.5, 207.5);
   Check_Sum_Error->SetXTitle("FEE_NUM*8 + SAMPA_ADDR");
-  Check_Sum_Error->SetYTitle("Prob. Check. Sum. Err.");
+  Check_Sum_Error->SetYTitle("Prob. Check Sum. Err.");
   Check_Sum_Error->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
+  Check_Sum_Error->SetFillColor(4);
 
   Check_Sum_Error -> GetXaxis() -> SetLabelSize(0.05);
   Check_Sum_Error -> GetXaxis() -> SetTitleSize(0.05);
   Check_Sum_Error -> GetYaxis() -> SetLabelSize(0.05);
   Check_Sum_Error -> GetYaxis() -> SetTitleSize(0.05);
   Check_Sum_Error -> GetYaxis() -> SetTitleOffset(1.0);
+
+  // Parity error vs FEE*8 + SAMPA Number
+  char parity_title_str[100];
+  sprintf(parity_title_str,"Parity Error Probability vs Fee*8 + SAMPA in Events: SECTOR %i",MonitorServerId());
+  Parity_Error = new TH1F("Parity_Error" , checksum_title_str,208,-0.5, 207.5);
+  Parity_Error->SetXTitle("FEE_NUM*8 + SAMPA_ADDR");
+  Parity_Error->SetYTitle("Prob. Parity Err.");
+  Parity_Error->Sumw2(kFALSE); //explicity turn off Sumw2 - we do not want it
+  Parity_Error->SetFillColor(4);
+
+  Parity_Error -> GetXaxis() -> SetLabelSize(0.05);
+  Parity_Error -> GetXaxis() -> SetTitleSize(0.05);
+  Parity_Error -> GetYaxis() -> SetLabelSize(0.05);
+  Parity_Error -> GetYaxis() -> SetTitleSize(0.05);
+  Parity_Error -> GetYaxis() -> SetTitleOffset(1.0);
  
   // number of nonZS channels - <number of channels in sampa with values != 65 K ADC> vs sampa number + (feeID * sampa number)
   char num_nonZS_channels_title_str[100];
@@ -420,7 +437,7 @@ int TpcMon::Init()
   char ZS_ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(ZS_ADC_vs_SAMPLE_str,"ADC Counts vs Sample - Trigger QA: SECTOR %i",MonitorServerId());
   sprintf(ZS_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
-  ZS_Trigger_ADC_vs_Sample = new TH2F("ZS_Trigger_ADC_vs_Sample", ZS_ADC_vs_SAMPLE_str, 425, -0.5, 424.5, 1024, 0, 1024);
+  ZS_Trigger_ADC_vs_Sample = new TH2F("ZS_Trigger_ADC_vs_Sample", ZS_ADC_vs_SAMPLE_str, 500, -0.5, 499.5, 1024, 0, 1024);
   ZS_Trigger_ADC_vs_Sample -> SetXTitle(ZS_ADC_vs_SAMPLE_xaxis_str);
   ZS_Trigger_ADC_vs_Sample -> SetYTitle("ADC [ADU]");
 
@@ -435,7 +452,7 @@ int TpcMon::Init()
   char First_ADC_vs_First_Time_Bin_xaxis_str[100];
   sprintf(First_ADC_vs_First_Time_Bin_str,"1st nonZS ADC vs 1st nonZS Sample Time: SECTOR %i",MonitorServerId());
   sprintf(First_ADC_vs_First_Time_Bin_xaxis_str,"Sector %i: 1st non-ZS Time bin [1/20MHz]",MonitorServerId());
-  First_ADC_vs_First_Time_Bin = new TH2F("First_ADC_vs_First_Time_Bin", First_ADC_vs_First_Time_Bin_str, 425, -0.5, 424.5, 256, 0, 1024);
+  First_ADC_vs_First_Time_Bin = new TH2F("First_ADC_vs_First_Time_Bin", First_ADC_vs_First_Time_Bin_str, 500, -0.5, 499.5, 256, 0, 1024);
   First_ADC_vs_First_Time_Bin -> SetXTitle(First_ADC_vs_First_Time_Bin_xaxis_str);
   First_ADC_vs_First_Time_Bin -> SetYTitle("1st non-ZS ADC [ADU]");
 
@@ -480,7 +497,7 @@ int TpcMon::Init()
   RAWADC_1D_R1 = new TH1F("RAWADC_1D_R1",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R1 = new TH1F("MAXADC_1D_R1",MAXADC_1D_titlestr,1025,-0.5,1024.5);
   PEDEST_SUB_1D_R1 = new TH1F("PEDEST_SUB_1D_R1",SUBADC_1D_titlestr,1125,-100.5,1024.5);
-  COUNTS_vs_SAMPLE_1D_R1 = new TH1F("COUNTS_vs_SAMPLE_1D_R1",COUNTS_SAMPLE_1D_titlestr,425,0,425);
+  COUNTS_vs_SAMPLE_1D_R1 = new TH1F("COUNTS_vs_SAMPLE_1D_R1",COUNTS_SAMPLE_1D_titlestr,500,0,500);
   
   RAWADC_1D_R1->SetYTitle("Entries");
   RAWADC_1D_R1->SetXTitle("ADC [ADU]");
@@ -536,7 +553,7 @@ int TpcMon::Init()
   RAWADC_1D_R2 = new TH1F("RAWADC_1D_R2",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R2 = new TH1F("MAXADC_1D_R2",MAXADC_1D_titlestr,1025,-0.5,1024.5);
   PEDEST_SUB_1D_R2 = new TH1F("PEDEST_SUB_1D_R2",SUBADC_1D_titlestr,1125,-100.5,1024.5);
-  COUNTS_vs_SAMPLE_1D_R2 = new TH1F("COUNTS_vs_SAMPLE_1D_R2",COUNTS_SAMPLE_1D_titlestr,425,0,425);
+  COUNTS_vs_SAMPLE_1D_R2 = new TH1F("COUNTS_vs_SAMPLE_1D_R2",COUNTS_SAMPLE_1D_titlestr,500,0,500);
 
   RAWADC_1D_R2->SetYTitle("Entries");
   RAWADC_1D_R2->SetXTitle("ADC [ADU]");
@@ -588,7 +605,7 @@ int TpcMon::Init()
   RAWADC_1D_R3 = new TH1F("RAWADC_1D_R3",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R3 = new TH1F("MAXADC_1D_R3",MAXADC_1D_titlestr,1025,-0.5,1024.5);
   PEDEST_SUB_1D_R3 = new TH1F("PEDEST_SUB_1D_R3",SUBADC_1D_titlestr,1125,-100.5,1024.5);
-  COUNTS_vs_SAMPLE_1D_R3 = new TH1F("COUNTS_vs_SAMPLE_1D_R3",COUNTS_SAMPLE_1D_titlestr,425,0,425);
+  COUNTS_vs_SAMPLE_1D_R3 = new TH1F("COUNTS_vs_SAMPLE_1D_R3",COUNTS_SAMPLE_1D_titlestr,500,0,500);
 
   RAWADC_1D_R3->SetYTitle("Entries");
   RAWADC_1D_R3->SetXTitle("ADC [ADU]");
@@ -698,6 +715,7 @@ int TpcMon::Init()
   se->registerHisto(this, SouthSideADC);
   se->registerHisto(this, sample_size_hist);
   se->registerHisto(this, Check_Sum_Error);
+  se->registerHisto(this, Parity_Error);
   se->registerHisto(this, Check_Sums);
   se->registerHisto(this, Stuck_Channels);
   se->registerHisto(this, Channels_in_Packet);
@@ -820,12 +838,16 @@ int TpcMon::process_event(Event *evt/* evt */)
   // we assume we start properly at 4001, but check if not
   
   int firstpacket=4001;
-  if (evt->existPacket(4000))
-    {
-      Packet *p = evt->getPacket(4000);
-      if (p->getHitFormat() == IDTPCFEEV3 || p->getHitFormat() == IDTPCFEEV4) firstpacket = 4000;
-      delete p;
-    }
+  //if (evt->existPacket(4000))
+  //{
+  //Packet *p = evt->getPacket(4000);
+  if(evt->getPacket(4000))
+  {
+    Packet *p = evt->getPacket(4000);
+    if (p->getHitFormat() == IDTPCFEEV3 || p->getHitFormat() == IDTPCFEEV4) firstpacket = 4000;
+    delete p;
+  }
+  //}
   int lastpacket = firstpacket+232;
 
   NEvents_vs_EBDC->Fill(MonitorServerId());
@@ -887,12 +909,16 @@ int TpcMon::process_event(Event *evt/* evt */)
         int fee = p->iValue(wf, "FEE");
         int sampaAddress = p->iValue(wf, "SAMPAADDRESS");
         int checksumError = p->iValue(wf, "CHECKSUMERROR");
+        int parityError = p->iValue(wf, "DATAPARITYERROR");
         int channel = p->iValue(wf, "CHANNEL");
 
-        Check_Sums->Fill(FEE_transform[fee]*8 + sampaAddress); 
-        if( checksumError == 1){Check_Sum_Error->Fill(FEE_transform[fee]*8 + sampaAddress);}
-
-        if( checksumError == 0 && p->iValue(wf,"TYPE")!= 0){Channels_in_Packet->Fill(channel + (256*FEE_transform[fee]));} // do not fill for heartbeat WFs
+        if( p->iValue(wf,"TYPE")!=0 ){
+          Check_Sums->Fill(FEE_transform[fee]*8 + sampaAddress); 
+          if( checksumError == 1){Check_Sum_Error->Fill(FEE_transform[fee]*8 + sampaAddress);}
+          if( parityError == 1){Parity_Error->Fill(FEE_transform[fee]*8 + sampaAddress);}
+        }
+ 
+        if( (checksumError == 0 && parityError == 0) &&  p->iValue(wf,"TYPE")!= 0){Channels_in_Packet->Fill(channel + (256*FEE_transform[fee]));} // do not fill for heartbeat WFs
 
         int nr_Samples = p->iValue(wf, "SAMPLES");
         sample_size_hist->Fill(nr_Samples);
@@ -972,7 +998,7 @@ int TpcMon::process_event(Event *evt/* evt */)
             if( (p->iValue(wf,si)) > 64500 && prev_sample < 1025){ tr_samp = 0; start_flag = 0; prev_sample =  (p->iValue(wf,si)); }  // end condition to record
             if( start_flag == 1){ ZS_Trigger_ADC_vs_Sample->Fill(tr_samp, p->iValue(wf,si)); tr_samp++; prev_sample = p->iValue(wf,si);} // record the ZS trigger histo if you should
             
-	    if( (p->iValue(wf,si)) > 64500 && si > 425){ break; } //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 400, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
+	    if( (p->iValue(wf,si)) > 64500 && si > 1023){ break; } //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 1023 (50 us window), that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
             if( (p->iValue(wf,si)) > 64500 ){ continue; }  //only use reasonable values to calculate median
             median_and_stdev_vec.push_back(p->iValue(wf,si));
             num_of_nonZS_samples++; 
@@ -1024,7 +1050,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
 	  //std::cout<<"adc = "<<adc<<" ADC, FEE = "<<fee<<", channel: "<<channel<<", layer: "<<layer<<", phi: "<<phi<<", event num: "<<evtcnt<<std::endl;
 
-          if( adc > 64500 && s > 425 ) { break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 399, that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
+          if( adc > 64500 && s > 1023 ) { break;} //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 1023 (50 us), that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
           else if( adc > 64500 ) { continue; } // we do not care about 65K ADC entries - ignore them
 
           Layer_ChannelPhi_ADC_weighted->Fill(padphi,layer,adc-pedestal);
@@ -1048,7 +1074,7 @@ int TpcMon::process_event(Event *evt/* evt */)
              
             int max_of_previous_10 = *max_element(store_ten.begin(), store_ten.end());
 
-            if(adc == max_of_previous_10 && (checksumError == 0 && is_channel_stuck == 0)) //if the new value is greater than the previous 9
+            if((adc == max_of_previous_10 && checksumError == 0) && (parityError == 0 && is_channel_stuck == 0))//if the new value is greater than the previous 9
             {
                MAXADC->Fill(adc - pedestal,Module_ID(fee)); 
                if(Module_ID(fee)==0){MAXADC_1D_R1->Fill(adc - pedestal);} //Raw 1D for R1
@@ -1060,7 +1086,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           //if( R < 290 ){std::cout<<"R = "<<R<<" mm, layer:" <<layer<<std::endl; ADC_vs_SAMPLE -> Fill(s, adc);}
 
-          if( checksumError == 0 && is_channel_stuck == 0)
+          if( (checksumError == 0 && parityError == 0) && is_channel_stuck == 0)
           {
             ADC_vs_SAMPLE -> Fill(s, adc);
             PEDEST_SUB_ADC_vs_SAMPLE -> Fill(s, adc-pedestal);
@@ -1073,6 +1099,10 @@ int TpcMon::process_event(Event *evt/* evt */)
             if(Module_ID(fee)==0 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R1->Fill(s);} //Drift window in R1
 	    if(Module_ID(fee)==1 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R2->Fill(s);} //Drift window in R2
 	    if(Module_ID(fee)==2 && ((adc-pedestal) > std::max(5.0*noise,20.)) && layer != 0){COUNTS_vs_SAMPLE_1D_R3->Fill(s);} //Drift window in R3
+
+            //if(Module_ID(fee)==0 && (layer != 0)){COUNTS_vs_SAMPLE_1D_R1->Fill(s);} //Drift window in R1
+	    //if(Module_ID(fee)==1 && (layer != 0)){COUNTS_vs_SAMPLE_1D_R2->Fill(s);} //Drift window in R2
+	    //if(Module_ID(fee)==2 && (layer != 0)){COUNTS_vs_SAMPLE_1D_R3->Fill(s);} //Drift window in R3
 
             if( (adc-pedestal) > 25 ){ num_samples_over_threshold++ ;}
           }
@@ -1111,13 +1141,13 @@ int TpcMon::process_event(Event *evt/* evt */)
         }
         //________________________________________________________________________________
         //XY laser peak
-        if( (serverid < 12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && layer != 0 )
+        if( (serverid < 12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && ((t_max > 410 && t_max < 422) && (layer != 0))) // only fill if the laser was the max
         {
           if(Module_ID(fee)==0){NorthSideADC_clusterXY_R1_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R1
           else if(Module_ID(fee)==1){NorthSideADC_clusterXY_R2_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R2
           else if(Module_ID(fee)==2){NorthSideADC_clusterXY_R3_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R3
         }
-        else if( (serverid >=12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && layer != 0)
+        else if( (serverid >=12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && ((t_max > 410 && t_max < 422) && (layer != 0))) // only fill if the laser was the max
         {
           if(Module_ID(fee)==0){SouthSideADC_clusterXY_R1_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R1
           else if(Module_ID(fee)==1){SouthSideADC_clusterXY_R2_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R2

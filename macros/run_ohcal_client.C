@@ -17,8 +17,8 @@ void ohcalDrawInit(const int online = 0)
     std::string servername = "OHCALMON_" + std::to_string(serverid);
     hcalmon->AddServer(servername);
     cl->registerHisto("h2_hcal_hits", servername);
-    cl->registerHisto("h_caloPack_gl1_clock_diff", servername);
     cl->registerHisto("h2_hcal_rm", servername);
+    cl->registerHisto("h2_hcal_rm_alltrig", servername);
     cl->registerHisto("h2_hcal_mean", servername);
     cl->registerHisto("h2_hcal_time", servername);
     cl->registerHisto("h2_hcal_waveform", servername);
@@ -40,6 +40,7 @@ void ohcalDrawInit(const int online = 0)
     }
     cl->registerHisto("h_hcal_trig", servername);
     cl->registerHisto("pr_zsFrac_etaphi", servername);
+    cl->registerHisto("pr_zsFrac_etaphi_all", servername);
 
     for (int ih = 0; ih < 32; ih++)
     {

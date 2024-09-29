@@ -199,10 +199,14 @@ BbcMonDraw::~BbcMonDraw()
   }
 
   ifdelete(Zvtx);
+  ifdelete(Zvtx_alltrigger);
   ifdelete(Zvtx_ns);
   ifdelete(Zvtx_10);
   ifdelete(Zvtx_30);
   ifdelete(Zvtx_60);
+  ifdelete(Zvtx_10_chk);
+  ifdelete(Zvtx_30_chk);
+  ifdelete(Zvtx_60_chk);
   ifdelete(Zvtx_zdcns);
   ifdelete(Zvtx_emcal);
   ifdelete(Zvtx_hcal);
@@ -280,6 +284,41 @@ int BbcMonDraw::GetSendFlag()
 
   return sendflag;
 }
+
+int BbcMonDraw::UpdateGL1BadFlag(const int flag)
+{
+  gl1badflag = flag;
+  std::ofstream gl1badflagfile( gl1badflagfname );
+  if ( gl1badflagfile.is_open() )
+  {
+    gl1badflagfile << gl1badflag << std::endl;
+  }
+  else
+  {
+    std::cout << "unable to open file " << gl1badflagfname << std::endl;
+    return 0;
+  }
+  gl1badflagfile.close();
+  return 1;
+}
+
+int BbcMonDraw::GetGL1BadFlag()
+{
+  std::ifstream gl1badflagfile( gl1badflagfname );
+  if ( gl1badflagfile.is_open() )
+  {
+    gl1badflagfile >> gl1badflag;
+  }
+  else
+  {
+    std::cout << "unable to open file " << gl1badflagfname << std::endl;
+    gl1badflag = 0;
+  }
+  gl1badflagfile.close();
+
+  return gl1badflag;
+}
+
 
 int BbcMonDraw::Init()
 {
@@ -887,7 +926,6 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     transparent[3]->SetFillStyle(4000);
     transparent[3]->Draw();
   }
-
   else if (name == "BbcVertexSend")
   {
     TC[4] = new TCanvas(name.c_str(), "Bbc Vertex Sender", -1, 0, 2 * xsize / 3, ysize * 0.9);
@@ -898,6 +936,70 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     transparent[4]->SetFillColor(kGray);
    transparent[4]->Draw();
      TC[4]->SetEditable(false);
+  }
+  else if (name == "BbcMonServerStats")
+    {
+      TC[5] = new TCanvas(name.c_str(), "BbcMon Server Stats", -1, 0, 2 * xsize / 3, ysize * 0.9);
+      gSystem->ProcessEvents();
+      TC[5]->cd();
+      // this one is used to plot the run number on the canvas
+      transparent[5] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
+      transparent[5]->SetFillColor(kGray);
+      transparent[5]->Draw();
+      TC[5]->SetEditable(false);
+    }
+
+  else if (name == "BbcMon5")
+  {
+    std::cout << "Creating Canvas BbcMon5..." << std::endl;
+
+    TC[6] = new TCanvas("BbcMon5", "MBD Z-Vertex View for Shift crew", -1, 0, xsize / 2, ysize);
+
+    // root is pathetic, whenever a new TCanvas is created root piles up
+    // 6kb worth of X11 events which need to be cleared with
+    // gSystem->ProcessEvents(), otherwise your process will grow and
+    // grow and grow but will not show a definitely lost memory leak
+    gSystem->ProcessEvents();
+
+    TC[6]->cd();
+    PadTop[4] = new TPad("PadTop0", "PadTop0", 0.00, 0.90, 1.00, 1.00, 0, 0, 0);
+    PadZVertex = new TPad("PadZVertex", "PadZVertex", 0.00, 0.60, 1.00, 0.90, 0, 0, 0);
+    PadZVertexSummary = new TPad("PadZVertexSummary", "PadZVertexSummary", 0.00, 0.40, 1.00, 0.60, 0, 0, 0);
+    PadSouthHitMap = new TPad("PadSouthHitMap", "PadSouthHitMap", 0.00, 0.00, 0.495, 0.40, 0, 0, 0);
+    PadNorthHitMap = new TPad("PadNorthHitMap", "PadNorthHitMap", 0.505, 0.00, 1.0, 0.40, 0, 0, 0);
+    // PadTzeroZVertex = new TPad("PadTzeroZVertex", "PadTzeroZVertex", 0.00, 0.00, 1.00, 0.40, 0, 0, 0);
+
+    PadTop[4]->Draw();
+    // PadZVertex->SetLogy();
+    PadZVertex->Draw();
+    // PadTzeroZVertex->Draw();
+    PadSouthHitMap->Draw();
+    PadNorthHitMap->Draw();
+    PadZVertexSummary->Draw();
+
+    PadZVertexSummary->cd();
+    // for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 1; i++)  //  pp
+    {
+      ifnew(TText, TextZVertex[i]);
+      TextZVertex[i]->SetTextColor(BbcMonDefs::BBC_COLOR_ZVTX[i]);
+      // TextZVertex[i]->SetTextSize(0.15);
+      TextZVertex[i]->SetTextSize(0.08);
+
+      ifnew(TText, TextZVertex_scale[i]);
+      ifnew(TText, TextZVertex_mean[i]);
+      TextZVertex_scale[i]->SetTextColor(BbcMonDefs::BBC_COLOR_ZVTX[i]);
+      TextZVertex_mean[i]->SetTextColor(BbcMonDefs::BBC_COLOR_ZVTX[i]);
+      TextZVertex_scale[i]->SetTextSize(0.08);
+      TextZVertex_mean[i]->SetTextSize(0.08);
+    }
+    /*chiu
+    TextZVertex[0]->SetText(xpos[0], 0.65, "Zbbc [BBLL1]");       // RUN11 pp
+    */
+    TC[6]->cd();
+    transparent[6] = new TPad("transparent6", "this does not show", 0, 0, 1, 1, 0, 0);
+    transparent[6]->SetFillStyle(4000);
+    transparent[6]->Draw();
   }
   //
 
@@ -966,49 +1068,135 @@ int BbcMonDraw::Draw(const std::string &what)
       MakeCanvas("BbcMon4");
     }
   }
+  if (!gROOT->FindObject("BbcMon5"))
+  {
+    TC[6] = nullptr;
+    if (what == "BbcMon5" || what == "VertexMonitor")
+    {
+      canvasindex = 6;
+      MakeCanvas("BbcMon5");
+    }
+  }
 
   //
   if ( what == "MBD2MCR" )
-    {
-      if (!gROOT->FindObject("BbcVertexSend"))
+  {
+    if (!gROOT->FindObject("BbcVertexSend"))
 	{
 	  MakeCanvas("BbcVertexSend");
 	}
-      TC[4]->Clear("D");
-      TC[4]->SetEditable(true);
-      transparent[4]->cd();
+    TC[4]->Clear("D");
+    TC[4]->SetEditable(true);
+    transparent[4]->cd();
 
-      TText PrintRun;
-      PrintRun.SetTextFont(62);
-      PrintRun.SetNDC();          // set to normalized coordinates
-      PrintRun.SetTextAlign(23);  // center/top alignment
-      PrintRun.SetTextSize(0.04);
-      PrintRun.SetTextColor(1);
+    TText PrintRun;
+    PrintRun.SetTextFont(62);
+    PrintRun.SetNDC();          // set to normalized coordinates
+    PrintRun.SetTextAlign(23);  // center/top alignment
+    PrintRun.SetTextSize(0.04);
+    PrintRun.SetTextColor(1);
 
-      GetSendFlag();
-      if ( sendflag==0 )
-	{
-	  UpdateSendFlag( 1 );
-	  PrintRun.DrawText(0.5, 0.5, "MBD: NOW Sending vertex to MCR");
-	  std::cout << "MBD: NOW Sending vertex to MCR" << std::endl;
-	}
-      else if ( sendflag==1 )
-	{
-	  UpdateSendFlag( 0 );
-	  PrintRun.DrawText(0.5, 0.5, "MBD: STOP sending vertex to MCR");
-	  std::cout << "MBD: STOP sending vertex to MCR" << std::endl;
-	}
-      else
-	{
-	  UpdateSendFlag( 0 );
-	  PrintRun.DrawText(0.5, 0.5, "MBD: something wrong with sendflag, setting to 0");
-	  std::cout << "MBD: something wrong with sendflag, setting to 0" << std::endl;
-	}
-      TC[4]->Update();
-      TC[4]->Show();
-      TC[4]->SetEditable(false);
-      return 0;
+    GetSendFlag();
+    if ( sendflag==0 )
+    {
+      UpdateSendFlag( 1 );
+      PrintRun.DrawText(0.5, 0.5, "MBD: NOW Sending vertex to MCR");
+      std::cout << "MBD: NOW Sending vertex to MCR" << std::endl;
     }
+    else if ( sendflag==1 )
+    {
+      UpdateSendFlag( 0 );
+      PrintRun.DrawText(0.5, 0.5, "MBD: STOP sending vertex to MCR");
+      std::cout << "MBD: STOP sending vertex to MCR" << std::endl;
+    }
+    else
+    {
+      UpdateSendFlag( 0 );
+      PrintRun.DrawText(0.5, 0.5, "MBD: something wrong with sendflag, setting to 0");
+      std::cout << "MBD: something wrong with sendflag, setting to 0" << std::endl;
+    }
+    TC[4]->Update();
+    TC[4]->Show();
+    TC[4]->SetEditable(false);
+    return 0;
+  }
+
+  if ( what == "BADGL1" )
+  {
+    GetGL1BadFlag();
+    if ( gl1badflag==0 )
+    {
+      UpdateGL1BadFlag( 1 );
+    }
+    else if ( gl1badflag==1 )
+    {
+      UpdateGL1BadFlag( 0 );
+    }
+    else
+    {
+      UpdateGL1BadFlag( 0 );
+    }
+    return 0;
+  }
+  if ( what == "BbcMonServerStats" )
+  {
+  OnlMonClient *cl = OnlMonClient::instance();
+    if (!gROOT->FindObject("BbcMonServerStats"))
+	{
+	  MakeCanvas("BbcMonServerStats");
+	}
+    TC[5]->Clear("D");
+    TC[5]->SetEditable(true);
+    transparent[5]->cd();
+
+    TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  for (const auto &server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = cl->GetServerMap(server);
+    if (servermapiter == cl->GetServerMapEnd())
+    {
+      txt << "Server " << server
+          << " is dead ";
+      PrintRun.SetTextColor(kRed);
+    }
+    else
+    {
+      int gl1counts = std::get<4>(servermapiter->second);
+      txt << "Server " << server
+          << ", run number " << std::get<1>(servermapiter->second)
+          << ", event count: " << std::get<2>(servermapiter->second);
+      if (gl1counts >= 0)
+	{
+          txt << ", gl1 count: " << std::get<4>(servermapiter->second);
+	}
+      txt << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+      if (std::get<0>(servermapiter->second))
+      {
+        PrintRun.SetTextColor(kGray + 2);
+      }
+      else
+      {
+        PrintRun.SetTextColor(kRed);
+      }
+    }
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+    TC[5]->Update();
+    TC[5]->Show();
+    TC[5]->SetEditable(false);
+    return 0;
+  }
 
   ClearWarning();
 
@@ -1024,24 +1212,24 @@ int BbcMonDraw::Draw(const std::string &what)
 
   PRINT_DEBUG("Start Getting Histogram");
 
-  TH1 *bbc_trigs = static_cast<TH1 *>(cl->getHisto("BBCMON_0", "bbc_trigs"));
+  TH1 *bbc_trigs = cl->getHisto("BBCMON_0", "bbc_trigs");
   ifdelete(Trigs);
   if ( bbc_trigs!=0 )
-    {
-      Trigs = static_cast<TH1 *>(bbc_trigs->Clone());
-    }
+  {
+    Trigs = static_cast<TH1 *>(bbc_trigs->Clone());
+  }
 
   std::ostringstream name;
 
   TH1 *bbc_south_nhit = cl->getHisto("BBCMON_0", "bbc_south_nhit");
   if (! bbc_south_nhit)
-    {
-      if (canvasindex >= 0)
+  {
+    if (canvasindex >= 0)
 	{
 	  DrawDeadServer(transparent[canvasindex]);
 	}
-      return -1;
-    }
+    return -1;
+  }
   ifdelete(South_Nhit);
   South_Nhit = static_cast<TH1 *>(bbc_south_nhit->Clone());
 
@@ -1094,7 +1282,7 @@ int BbcMonDraw::Draw(const std::string &what)
   ifdelete(Adc);
   for (int i = 0; i < nCANVAS; i++)
   {
-    if (TC[i] && i != 4)
+    if (TC[i] && i != 4 && i != 5)
     {
       transparent[i]->Clear();  // clear dead server msg if it was printed before
     }
@@ -1129,6 +1317,10 @@ int BbcMonDraw::Draw(const std::string &what)
   ifdelete(Zvtx);
   Zvtx = static_cast<TH1 *>(bbc_zvertex->Clone());
 
+  TH1 *bbc_zvertex_alltrigger = cl->getHisto("BBCMON_0", "bbc_zvertex_alltrigger");
+  ifdelete(Zvtx_alltrigger);
+  Zvtx_alltrigger = static_cast<TH1 *>(bbc_zvertex_alltrigger->Clone());
+
   TH1 *bbc_zvertex_ns = cl->getHisto("BBCMON_0", "bbc_zvertex_ns");
   ifdelete(Zvtx_ns);
   Zvtx_ns = static_cast<TH1 *>(bbc_zvertex_ns->Clone());
@@ -1144,6 +1336,18 @@ int BbcMonDraw::Draw(const std::string &what)
   TH1 *bbc_zvertex_60 = cl->getHisto("BBCMON_0", "bbc_zvertex_60");
   ifdelete(Zvtx_60);
   Zvtx_60 = static_cast<TH1 *>(bbc_zvertex_60->Clone());
+
+  TH1 *bbc_zvertex_10_chk = cl->getHisto("BBCMON_0", "bbc_zvertex_10_chk");
+  ifdelete(Zvtx_10_chk);
+  Zvtx_10_chk = static_cast<TH1 *>(bbc_zvertex_10_chk->Clone());
+
+  TH1 *bbc_zvertex_30_chk = cl->getHisto("BBCMON_0", "bbc_zvertex_30_chk");
+  ifdelete(Zvtx_30_chk);
+  Zvtx_30_chk = static_cast<TH1 *>(bbc_zvertex_30_chk->Clone());
+
+  TH1 *bbc_zvertex_60_chk = cl->getHisto("BBCMON_0", "bbc_zvertex_60_chk");
+  ifdelete(Zvtx_60_chk);
+  Zvtx_60_chk = static_cast<TH1 *>(bbc_zvertex_60_chk->Clone());
 
   TH1 *bbc_zvertex_zdcns = cl->getHisto("BBCMON_0", "bbc_zvertex_zdcns");
   ifdelete(Zvtx_zdcns);
@@ -1362,9 +1566,29 @@ int BbcMonDraw::Draw(const std::string &what)
     Zvtx->SetLineColor(4);
     Zvtx->SetFillColor(7);
 
+    Zvtx_ns->SetTitle("MBD zvertex");
     Zvtx_ns->SetLineColor(4);
     Zvtx_ns->SetFillColor(7);
     Zvtx_ns->SetMinimum(0); // start plots at zero
+
+    double nevt = Trigs->GetBinContent(11); // trig 10 is MBDNS>=1, +1 for bin
+    double prescale = Prescale_hist->GetBinContent(11);
+    std::cout << "TRIG 10 " << nevt << "\t" << prescale << std::endl;
+    if ( prescale!= -1.0 )
+    {
+      Zvtx_ns->Scale( prescale+1 );
+    }
+
+    Zvtx_10->SetLineColor(2);
+    Zvtx_10->SetFillColor(2);
+    nevt = Trigs->GetBinContent(13); // trig 10 is MBDNS, |vtx|<10
+    prescale = Prescale_hist->GetBinContent(13);
+    std::cout << "TRIG 12 " << nevt << "\t" << prescale << std::endl;
+    if ( prescale!= -1.0 )
+    {
+      Zvtx_10->Scale( prescale+1 );
+    }
+
     // Get Maximum at the inside of BBC which is 130cm from center;
     float maxEntries = 10;
 
@@ -1404,9 +1628,13 @@ int BbcMonDraw::Draw(const std::string &what)
     // std::cout << "the ratio of integral (-30cm < ZVertex < 30cm) between BBLL1 without vtx cut and ZDC : " << bbc_count_novtx / zdc_count << std::endl ;
     // std::cout << "the ratio of integral (-30cm < ZVertex < 30cm) between BBLL1 without vtx cut  and BBLL1 with BBCZ < |30cm|  : " << bbc_count_novtx/bbc_count << std::endl ;
 
+    // Get the Trigger Name that is used
+    GetMinBiasTrigName();
+
     // Draw ZVertex triggerd variable trigger
     Zvtx->SetMaximum(maxEntries * 1.05);
-    Zvtx->SetTitle("MBD ZVertex (south<-->north)");
+    TString title = "MBD ZVertex (TRIG = "; title += TrigName; title += ")";
+    Zvtx->SetTitle( title );
     // PadZVertex->DrawFrame(-160,0,160,maxEntries*1.05,"Bbc ZVertex (south<-->north)");
     // std::cout << "maxEntries " << maxEntries << std::endl;
     // Zvtx->Draw("hist");
@@ -1514,7 +1742,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
     // Draw Status
     otext.str("");
-    otext << "Z_{All Trigs}^{Fit}= " << ((float) int(FitZvtx->GetParameter(1) * 10)) / 10.0 
+    otext << "Z_{MBDNS}^{Fit}= " << ((float) int(FitZvtx->GetParameter(1) * 10)) / 10.0 
     	  << " #pm " << ((float)int(FitZvtx->GetParError(1)*10))/10.0
           << " cm";
 
@@ -1541,6 +1769,7 @@ int BbcMonDraw::Draw(const std::string &what)
     {
       Zvtx_ns->GetXaxis()->SetRangeUser(-60, 60);
       Zvtx_ns->Draw("hist");
+      Zvtx_10->Draw("histsame");
     }
 
     // Status of sending vertex
@@ -1582,6 +1811,152 @@ int BbcMonDraw::Draw(const std::string &what)
     PadNorthHitMap->cd();
     NorthHitMap->Scale(1.0 / nevents);
     NorthHitMap->Draw("colz");
+  }
+  //copy for all triggers plot
+  if (TC[6])
+  {
+    TC[6]->cd();
+
+    PadTop[4]->cd();
+    PaveTop->Draw();
+    TextTop->Draw();
+
+    PadZVertexSummary->cd();
+
+    Zvtx_alltrigger->SetLineColor(4);
+    Zvtx_alltrigger->SetFillColor(7);
+
+    Zvtx_alltrigger->SetTitle("MBD zvertex");
+    Zvtx_alltrigger->SetLineColor(4);
+    Zvtx_alltrigger->SetFillColor(7);
+    Zvtx_alltrigger->SetMinimum(0); // start plots at zero
+
+
+    // Get Maximum at the inside of BBC which is 130cm from center;
+    float maxEntries = 10;
+
+    for (int i = 0; i < Zvtx_alltrigger->GetNbinsX(); i++)
+    {
+      if (fabs(Zvtx_alltrigger->GetBinCenter(i)) < 130)
+      {
+        if (maxEntries < Zvtx_alltrigger->GetBinContent(i + 1))
+        {
+          maxEntries = Zvtx_alltrigger->GetBinContent(i + 1);
+        }
+      }
+    }
+    
+    // Fit No-Vertex Distribution
+    FitZvtx->SetRange(-75, 75);
+    FitZvtx->SetLineColor(1);
+    // Zvtx->Fit("FitZvtx", "LRQ");
+    Zvtx_alltrigger->Fit("FitZvtx", "R");
+
+    // here we get the relative scaling right to put all on the same plot
+    // the binning might be different, so we first find the bins corresponding to
+    // +- 20cm and then get the Integral corrected for the binwidth
+    // this is then used to get the histograms on the same scale
+
+    Zvtx_alltrigger->SetMaximum(maxEntries * 1.05);
+    Zvtx_alltrigger->SetTitle("MBD ZVertex (south<-->north)");
+
+    if (Zvtx_alltrigger->GetEntries() > 0)
+    {
+      Zvtx_alltrigger->Draw("hist");
+      FitZvtx->Draw("same");
+    }
+    // trigger rate between BBCLL1 and Zvertex within +- BBC_ZVERTEX_CUT_FOR_TRIG_RATE
+    // bbll1, zdc, bbll1_novtx
+
+    float trig_rate[3], trig_rate_err[3];
+    double nevent[3];
+    memset(trig_rate, 0, sizeof(trig_rate));
+    memset(trig_rate_err, 0, sizeof(trig_rate_err));
+    memset(nevent, 0, sizeof(nevent));
+
+    TH1 *Zvtx_array[4];  // with narrow
+    // TH1 *Zvtx_array[3];
+    Zvtx_array[0] = Zvtx_alltrigger;
+
+    int i = 0;
+
+  
+    otext.str("");
+   
+    otext << " ( " << Prescale_hist->GetBinContent(i + 1) << " ) "
+          << " ";
+    // otext << nevent[i]/Prescale_hist->GetBinContent(i+1) ;
+    otext << Zvtx_array[i]->GetEntries();
+
+    text = otext.str();
+    TextZVertex_scale[i]->SetText(xpos[i], 0.50, text.c_str());
+    // TextZVertex_scale[i]->Draw();
+
+    // mean and RMS ---------------------------------------------------------------------
+    otext.str("");
+    otext << ((float) int(Zvtx_array[i]->GetMean() * 10)) / 10.0 << "cm ( "
+          << ((float) int(Zvtx_array[i]->GetRMS() * 10)) / 10.0 << " cm) ";
+    text = otext.str();
+
+    TextZVertex_mean[i]->SetText(xpos[i], 0.25, text.c_str());
+   
+    // Draw Status
+    otext.str("");
+    otext << "Z_{MBDNS}^{Fit}= " << ((float) int(FitZvtx->GetParameter(1) * 10)) / 10.0 
+    	  << " #pm " << ((float)int(FitZvtx->GetParError(1)*10))/10.0
+          << " cm";
+
+    text = otext.str();
+    // TextZvtxStatus[0]->SetText(0.0, 0.85, text.c_str());
+    TextZvtxStatus[0]->SetText(-230., maxEntries * 0.8, text.c_str());
+    TextZvtxStatus[0]->SetTextSize(0.10);
+    TextZvtxStatus[0]->Draw();
+
+    otext.str("");
+    otext << "#sigma = " << int(FitZvtx->GetParameter(2))
+    	  << " #pm " << ((float)int(FitZvtx->GetParError(2)*10))/10.0
+          << " cm";
+    text = otext.str();
+    TextZvtxStatus[1]->SetText(100., maxEntries * 0.8, text.c_str());
+    TextZvtxStatus[1]->SetTextSize(0.10);
+    TextZvtxStatus[1]->Draw();
+
+    // chiu TextBbcSummaryTrigRate->Draw();
+
+    PadZVertex->cd();
+
+    if (Zvtx_alltrigger->GetEntries() > 0)
+    {
+      Zvtx_alltrigger->GetXaxis()->SetRangeUser(-60, 60);
+      Zvtx_alltrigger->Draw("hist");
+      //      Zvtx_10->Draw("histsame");
+    }
+
+    // Status of sending vertex
+    GetSendFlag();
+    if ( sendflag==1 )
+    {
+      text = "Sending Vertex to MCR";
+    }
+    else
+    {
+      text = "NOT Sending Vertex to MCR";
+    }
+
+    TextZvtxStatus[2]->SetText(-55., Zvtx_alltrigger->GetMaximum()*0.95, text.c_str());
+    TextZvtxStatus[2]->SetTextSize(0.05);
+    TextZvtxStatus[2]->Draw();
+
+  
+
+    // double nevents = bbc_nevent_counter->GetBinContent(2);
+    // PadSouthHitMap->cd();
+    // SouthHitMap->Scale(1.0 / nevents);
+    // SouthHitMap->Draw("colz");
+
+    // PadNorthHitMap->cd();
+    // NorthHitMap->Scale(1.0 / nevents);
+    // NorthHitMap->Draw("colz");
   }
 
   //  bbc_t0_pave->Draw("same");
@@ -1701,6 +2076,14 @@ int BbcMonDraw::Draw(const std::string &what)
       SouthHitTime->Fit("FitSouthHitTime", "QRL");
       FitSouthHitTime->Draw("same");
 
+      PadSouthHitTime->Update();
+      TLine aline;
+      aline.SetLineStyle(7);
+      aline.SetLineColor(kRed);
+      aline.SetLineWidth(4);
+      aline.DrawLine(-5.0, gPad->GetFrame()->GetY1(), -5.0, gPad->GetFrame()->GetY2());
+      aline.DrawLine(+5.0, gPad->GetFrame()->GetY1(), +5.0, gPad->GetFrame()->GetY2());
+
       /*
       // Lines to indicate good mean
       float height = SouthHitTime->GetMaximum();
@@ -1720,6 +2103,7 @@ int BbcMonDraw::Draw(const std::string &what)
     {
       PadNorthHitTime->cd();
       NorthHitTime->Draw();
+
       float rangemin;
       float rangemax;
       int npeak = tspec->Search(NorthHitTime, 5, "goff",0.2);  // finds the highest peak, draws marker
@@ -1753,6 +2137,14 @@ int BbcMonDraw::Draw(const std::string &what)
       FitNorthHitTime->SetRange(rangemin, rangemax);
       NorthHitTime->Fit("FitNorthHitTime", "QRL");
       FitNorthHitTime->Draw("same");
+
+      PadNorthHitTime->Update();
+      TLine aline;
+      aline.SetLineStyle(7);
+      aline.SetLineColor(kRed);
+      aline.SetLineWidth(4);
+      aline.DrawLine(-5.0 ,gPad->GetFrame()->GetY1(),-5.0,gPad->GetFrame()->GetY2());
+      aline.DrawLine(+5.0,gPad->GetFrame()->GetY1(),+5.0,gPad->GetFrame()->GetY2());
 
       /*
       // Lines to indicate good mean
@@ -1963,11 +2355,16 @@ int BbcMonDraw::Draw(const std::string &what)
       {
         Zvtx_ns->SetMinimum(0); // start plots at zero
 
+        double prescale = Prescale_hist->GetBinContent(11);
+        Zvtx_10_chk->Scale( prescale+1.0 );
+        Zvtx_30_chk->Scale( prescale+1.0 );
+        Zvtx_60_chk->Scale( prescale+1.0 );
+
         std::vector<double> max;
         max.push_back( Zvtx_ns->GetBinContent( Zvtx_ns->GetMaximumBin() ) );
-        max.push_back( Zvtx_60->GetBinContent( Zvtx_60->GetMaximumBin() ) );
-        max.push_back( Zvtx_30->GetBinContent( Zvtx_30->GetMaximumBin() ) );
-        max.push_back( Zvtx_10->GetBinContent( Zvtx_10->GetMaximumBin() ) );
+        max.push_back( Zvtx_60_chk->GetBinContent( Zvtx_60_chk->GetMaximumBin() ) );
+        max.push_back( Zvtx_30_chk->GetBinContent( Zvtx_30_chk->GetMaximumBin() ) );
+        max.push_back( Zvtx_10_chk->GetBinContent( Zvtx_10_chk->GetMaximumBin() ) );
         max.push_back( Zvtx_zdcns->GetBinContent( Zvtx_zdcns->GetMaximumBin() ) );
         double maximum = *std::max_element(max.begin(), max.end());
 
@@ -1975,19 +2372,19 @@ int BbcMonDraw::Draw(const std::string &what)
         Zvtx_ns->SetMaximum(maximum*1.1);
         Zvtx_ns->Draw("hist");
 
-        Zvtx_60->SetLineColor(40);
-        Zvtx_60->SetFillColor(6);
+        Zvtx_60_chk->SetLineColor(40);
+        Zvtx_60_chk->SetFillColor(6);
 
-        Zvtx_30->SetLineColor(30);
-        Zvtx_30->SetFillColor(3);
+        Zvtx_30_chk->SetLineColor(30);
+        Zvtx_30_chk->SetFillColor(3);
 
-        Zvtx_10->SetLineColor(46);
-        Zvtx_10->SetFillColor(2);
+        Zvtx_10_chk->SetLineColor(46);
+        Zvtx_10_chk->SetFillColor(2);
 
-        Zvtx_zdcns->Draw("same");
-        Zvtx_60->Draw("same");
-        Zvtx_30->Draw("same");
-        Zvtx_10->Draw("same");
+        Zvtx_zdcns->Draw("histsame");
+        Zvtx_60_chk->Draw("histsame");
+        Zvtx_30_chk->Draw("histsame");
+        Zvtx_10_chk->Draw("histsame");
         //std::cout << "aaa " << Zvtx_ns->GetEntries() << " " << Zvtx_10->GetEntries() << " " << Zvtx_30->GetEntries() << " " << Zvtx_60->GetEntries() << " " << Zvtx_zdcns->GetEntries() << " " << std::endl;
       }
 
@@ -2698,3 +3095,31 @@ int BbcMonDraw::DrawDeadServer(TPad *transparent_pad)
   transparent_pad->Update();
   return 0;
 }
+
+void BbcMonDraw::GetMinBiasTrigName()
+{
+
+  const char *trignames[] = {
+      "MBDNS>=1",
+      "MBDNS>=2",
+      "MBDNS |z|<10",
+      "MBDNS |z|<30",
+      "MBDNS |z|<60"
+  };
+
+  // look for MB triggers, in order (bits 10-14)
+  for (int ibit=10; ibit<=14; ibit++)
+  {
+    double prescale = Prescale_hist->GetBinContent(ibit+1);
+    if ( prescale >= 0 )
+    {
+        TrigName = trignames[ibit-10];
+        return;
+    }
+  }
+  // maybe here we could fall back to a coincidence with an MBD trigger?
+
+  // no mb bit found, take all triggers
+  TrigName = "ALL TRIGGERS";
+}
+

@@ -139,6 +139,8 @@ int DaqMon::process_event(Event *e /* evt */)
       Packet *pgl1 = gl1mgr->getGL1Packet();
       if (pgl1)
 	{
+          OnlMonServer *se = OnlMonServer::instance();
+          se->IncrementGl1FoundCounter();
 	  gl1_clock = pgl1->lValue(0, "BCO");
 	  delete pgl1;
 	}
@@ -195,6 +197,8 @@ int DaqMon::Reset()
 {
   evtcnt = 0;
   idummy = 0;
+  OnlMonServer *se = OnlMonServer::instance();
+  se->UseGl1();
   return 0;
 }
 

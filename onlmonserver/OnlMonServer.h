@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <ctime>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <set>
 #include <string>
@@ -45,6 +46,9 @@ class OnlMonServer : public OnlMonBase
   void EventNumber(const int iev) { eventnumber = iev; }
   int EventCounter() const {return eventcounter;}
   void IncrementEventCounter() {eventcounter++;}
+  int Gl1FoundCounter() const {return gl1foundcounter;}
+  void IncrementGl1FoundCounter() {gl1foundcounter++;}
+  void UseGl1() {gl1foundcounter = 0;}
   int PortNumber() const { return portnumber; }
   void PortNumber(const int i) { portnumber = i; }
   void Print(const std::string &what = "ALL", std::ostream& os = std::cout) const;
@@ -108,31 +112,32 @@ class OnlMonServer : public OnlMonBase
   void registerHisto(const std::string &hname, TH1 *h1d, const int replace = 0);
 
   static OnlMonServer *__instance;
-  int runnumber = -1;
-  int eventnumber = 0;
+  int runnumber {-1};
+  int eventnumber {0};
   int eventcounter {0};
-  int portnumber = OnlMonDefs::MONIPORT;
-  int badevents = 0;
-  time_t currentticks = 0;
-  time_t borticks = 0;
-  int activepacketsinit = 0;
-  unsigned int scaledtrigmask = 0xFFFFFFFF;
-  int scaledtrigmask_used = 0;
-  int standalone = 0;
-  int cosmicrun = 0;
-  std::string TriggerConfig = "UNKNOWN";
-  std::string RunType = "UNKNOWN";
+  int gl1foundcounter {-1};
+  int portnumber {OnlMonDefs::MONIPORT};
+  int badevents {0};
+  time_t currentticks {0};
+  time_t borticks {0};
+  int activepacketsinit {0};
+  unsigned int scaledtrigmask {std::numeric_limits<unsigned int>::max()};
+  int scaledtrigmask_used {0};
+  int standalone {0};
+  int cosmicrun {0};
+  std::string TriggerConfig {"UNKNOWN"};
+  std::string RunType {"UNKNOWN"};
 
-  TH1 *serverrunning = nullptr;
-  OnlMonStatusDB *statusDB = nullptr;
-  OnlMonStatusDB *RunStatusDB = nullptr;
+  TH1 *serverrunning {nullptr};
+  OnlMonStatusDB *statusDB {nullptr};
+  OnlMonStatusDB *RunStatusDB {nullptr};
   std::map<const std::string, TH1 *> CommonHistoMap;
   std::vector<OnlMon *> MonitorList;
   std::set<unsigned int> activepackets;
   std::map<std::string, MessageSystem *> MsgSystem;
   std::map<std::string, std::map<std::string, TH1 *>> MonitorHistoSet;
   pthread_mutex_t mutex;
-  pthread_t serverthreadid = 0;
+  pthread_t serverthreadid {0};
 };
 
 #endif /* __ONLMONSERVER_H */

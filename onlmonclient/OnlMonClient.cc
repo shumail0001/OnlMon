@@ -1275,7 +1275,7 @@ int OnlMonClient::GetServerInfo()
   {
     if (m_ServerStatsMap.find(frwrkiter) == m_ServerStatsMap.end())
 	{
-	  m_ServerStatsMap[frwrkiter] = std::make_tuple(false, -1, -1, 0);
+	  m_ServerStatsMap[frwrkiter] = std::make_tuple(false, -1, -1, 0, -1);
 	}
     TH1 *frameworkvars = getHisto(frwrkiter, "FrameWorkVars");
     if (frameworkvars)
@@ -1283,12 +1283,17 @@ int OnlMonClient::GetServerInfo()
       int runnumber = frameworkvars->GetBinContent(RUNNUMBERBIN);
       time_t currtime = frameworkvars->GetBinContent(CURRENTTIMEBIN);
       int eventcounter = frameworkvars->GetBinContent(EVENTCOUNTERBIN);
+      int gl1foundcounter = frameworkvars->GetBinContent(GL1COUNTERBIN);
       if (Verbosity() > 0)
       {
         std::cout << "Run number for " << frwrkiter << " is "
                   << runnumber
-                  << " events take: " << eventcounter
-                  << " time is " << ctime(&currtime);  // ctime adds eol
+                  << " events taken: " << eventcounter;
+	if (gl1foundcounter > -1)
+	  {
+	    std::cout << " gl1 found " << gl1foundcounter; 
+	  }
+	std::cout  << " time is " << ctime(&currtime);  // ctime adds eol
       }
       runno = std::max(runno, runnumber);
       server_runmap[frwrkiter] = runnumber;
@@ -1297,6 +1302,7 @@ int OnlMonClient::GetServerInfo()
         std::get<1>(statsiter) = runnumber;
         std::get<2>(statsiter) = eventcounter;
         std::get<3>(statsiter) = currtime;
+        std::get<4>(statsiter) = gl1foundcounter;
     }
   }
   for (auto const &iter : server_runmap)

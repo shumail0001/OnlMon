@@ -71,6 +71,7 @@ int LL1Mon::Init()
   //h_hit_check = new TH2D("h_hit_check",";N_{hit}^{north} sample index;N_{hit}^{south} sample index",3,8,11,3,8,11);
   //h_time_diff = new TH1D("h_time_diff",";time_diff;counts", 50, -0.5, 300);
   // EMCAL Trigger Section
+  h_hit_format = new TH1F("h_hit_format","", 21,189.5, 210.5 );
   for (int i = 0; i < 16; i++)
     {
       std::string histname= "h_2x2_sum_emcal_" + std::to_string(i);
@@ -106,6 +107,7 @@ int LL1Mon::Init()
   se->registerHisto(this, h_nhit_s1);  
   se->registerHisto(this, h_nhit_s2);  
 
+  se->registerHisto(this, h_hit_format); 
   se->registerHisto(this, h_jet_input);  
   se->registerHisto(this, h_jet_output);  
   se->registerHisto(this, h_8x8_sum_emcal);  
@@ -139,7 +141,16 @@ int LL1Mon::process_event(Event * evt )
   evtcnt++;
   //   int ibd = 0;
   LL1HEADER *ll1h = new LL1HEADER();
+
   ll1setup(evt,ll1h);
+
+  static int counter = 0;
+  if (counter == 0)
+  {
+    counter++;
+
+    h_hit_format->Fill(ll1h->hit_format_jet);
+  }
 
   Packet *pthresh = evt->getPacket(13901);
   if (pthresh)

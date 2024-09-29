@@ -92,6 +92,10 @@ HcalMon::~HcalMon()
   {
     delete iter;
   }
+  for (auto iter : rm_vector_twrhit_alltrig)
+  {
+    delete iter;
+  }
 
   if (erc)
   {
@@ -135,8 +139,10 @@ int HcalMon::Init()
   }
 
   pr_zsFrac_etaphi = new TProfile2D("pr_zsFrac_etaphi", "", 24, 0, 24, 64, 0, 64);
+  pr_zsFrac_etaphi_all = new TProfile2D("pr_zsFrac_etaphi_all", "", 24, 0, 24, 64, 0, 64);
   h_hcal_trig = new TH1F("h_hcal_trig", "", 64, 0, 64);
   h2_hcal_rm = new TH2F("h2_hcal_rm", "", 24, 0, 24, 64, 0, 64);
+  h2_hcal_rm_alltrig = new TH2F("h2_hcal_rm_alltrig", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_mean = new TH2F("h2_hcal_mean", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_time = new TH2F("h2_hcal_time", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_hits = new TH2F("h2_hcal_hits", "", 24, 0, 24, 64, 0, 64);
@@ -179,6 +185,7 @@ int HcalMon::Init()
     rm_vector_twr.push_back(new pseudoRunningMean(1, depth));
     rm_vector_twrTime.push_back(new pseudoRunningMean(1, depth));
     rm_vector_twrhit.push_back(new pseudoRunningMean(1, depth));
+    rm_vector_twrhit_alltrig.push_back(new pseudoRunningMean(1, depth));
   }
   for (int i = 0; i < 8; i++)
   {
@@ -196,10 +203,12 @@ int HcalMon::Init()
   }
 
   se->registerHisto(this, pr_zsFrac_etaphi);
+  se->registerHisto(this, pr_zsFrac_etaphi_all);
   se->registerHisto(this, h_hcal_trig);
   se->registerHisto(this, h_evtRec);
   se->registerHisto(this, h_caloPack_gl1_clock_diff);
   se->registerHisto(this, h2_hcal_rm);
+  se->registerHisto(this, h2_hcal_rm_alltrig);
   se->registerHisto(this, h2_hcal_mean);
   se->registerHisto(this, h2_hcal_time);
   se->registerHisto(this, h2_hcal_waveform);
@@ -352,6 +361,15 @@ int HcalMon::BeginRun(const int /* runno */)
   {
     (*rm_it)->Reset();
   }
+  for (rm_it = rm_vector_twrhit_alltrig.begin(); rm_it != rm_vector_twrhit_alltrig.end(); ++rm_it)
+  {
+    (*rm_it)->Reset();
+  }
+  if (anaGL1)
+  {
+    OnlMonServer *se = OnlMonServer::instance();
+    se->UseGl1();
+  }
   return 0;
 }
 
@@ -383,6 +401,8 @@ int HcalMon::process_event(Event* e /* evt */)
     Event* gl1Event = erc->getEvent(evtnr);
     if (gl1Event)
     {
+      OnlMonServer *se = OnlMonServer::instance();
+      se->IncrementGl1FoundCounter();
       have_gl1 = true;
       Packet* p = gl1Event->getPacket(14001);
       h_evtRec->Fill(0.0, 1.0);
@@ -480,6 +500,7 @@ int HcalMon::process_event(Event* e /* evt */)
         unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
         unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
         int sectorNumber = phi_bin / 2 + 1;
+        int bin = h2_hcal_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
         //________________________________for this part we only want to deal with the MBD>=1 trigger
         if (fillhist)
         {
@@ -507,7 +528,7 @@ int HcalMon::process_event(Event* e /* evt */)
 
           rm_vector_twr[towerNumber - 1]->Add(&signal);
 
-          int bin = h2_hcal_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
+          
           h2_hcal_mean->SetBinContent(bin, h2_hcal_mean->GetBinContent(bin) + signal);
           h2_hcal_rm->SetBinContent(bin, rm_vector_twrhit[towerNumber - 1]->getMean(0));
           h2_hcal_time->SetBinContent(bin, rm_vector_twrTime[towerNumber - 1]->getMean(0));
@@ -535,6 +556,14 @@ int HcalMon::process_event(Event* e /* evt */)
           }
         }
         //_______________________________________________________end of MBD trigger requirement
+          if (suppressed == 1)
+          {
+            pr_zsFrac_etaphi_all->Fill(eta_bin, phi_bin, 0);
+          }
+          else
+          {
+            pr_zsFrac_etaphi_all->Fill(eta_bin, phi_bin, 1);
+          }
         // record waveform
         for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
         {
@@ -549,6 +578,7 @@ int HcalMon::process_event(Event* e /* evt */)
           h_waveform_time->Fill(time);
         }
 
+
         if (signal > hit_threshold)
         {
           h2_hcal_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);
@@ -559,7 +589,13 @@ int HcalMon::process_event(Event* e /* evt */)
               h2_hcal_hits_trig[itrig]->Fill(eta_bin + 0.5, phi_bin + 0.5);
             }
           }
+          rm_vector_twrhit_alltrig[towerNumber - 1]->Add(one);
         }
+        else
+        {
+          rm_vector_twrhit_alltrig[towerNumber - 1]->Add(zero);
+        }
+        h2_hcal_rm_alltrig->SetBinContent(bin, rm_vector_twrhit_alltrig[towerNumber - 1]->getMean(0));      
 
       }  // channel loop
 

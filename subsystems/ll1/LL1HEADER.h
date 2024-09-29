@@ -74,7 +74,7 @@ class LL1HEADER
   int timesum_s[NRSAM]={0};
   int timesum_n[NRSAM]={0};
 
-
+  int hit_format_jet = 0;
   int jet_threshold[4]={0};
   int photon_threshold[4]={0};
   int mbd_threshold[5]={0};
