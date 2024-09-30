@@ -67,6 +67,13 @@ namespace
     CLEAR_LV1_ENDAT_T = 7
   };
 
+  /*
+   * returns true if a given channel for a given FEE is permanently masked
+   * for now all channels from 128 to 255, for FEE 8 (SCOZ) are masked
+   */
+  bool is_masked( int fee_id, int channel )
+  { return fee_id==8 && channel>=128; }
+
 }
 
 //__________________________________________________
@@ -197,9 +204,9 @@ int TpotMon::Init()
 
     static constexpr int max_sample = 25;
     detector_histograms.m_sample_channel = new TH2I(
-      Form("m_sample_channel_%s", detector_name.c_str() ), 
-      Form("strip vs sample (%s);strip;sample", detector_name.c_str()), 
-      MicromegasDefs::m_nchannels_fee, 0, MicromegasDefs::m_nchannels_fee, 
+      Form("m_sample_channel_%s", detector_name.c_str() ),
+      Form("strip vs sample (%s);strip;sample", detector_name.c_str()),
+      MicromegasDefs::m_nchannels_fee, 0, MicromegasDefs::m_nchannels_fee,
       max_sample, 0 , max_sample );
     se->registerHisto(this, detector_histograms.m_sample_channel);
 
@@ -368,11 +375,9 @@ int TpotMon::process_event(Event* event)
       const double pedestal = m_calibration_data.get_pedestal( fee_id, channel );
       const double rms = m_calibration_data.get_rms( fee_id, channel );
 
-
       // get tile center, segmentation
       const auto& [tile_x, tile_y]  = m_tile_centers.at(fee_id);
       const auto segmentation = MicromegasDefs::getSegmentationType( m_mapping.get_hitsetkey(fee_id));
-
 
       // fill 2D histograms ADC vs sample and hit charge vs sample
       const int samples = packet->iValue( i, "SAMPLES" );
@@ -381,11 +386,19 @@ int TpotMon::process_event(Event* event)
         const uint16_t adc =  packet->iValue( i, is );
         if( adc == MicromegasDefs::m_adc_invalid ) continue;
         const bool is_signal = rms>0 && (adc > m_min_adc) && (adc> pedestal+m_n_sigma*rms);
-        if( is_signal ) 
-	  {detector_histograms.m_counts_sample->Fill( is ); 
-	  detector_histograms.m_sample_channel->Fill( strip_index, is);}
-        detector_histograms.m_adc_sample->Fill( is, adc );
-        detector_histograms.m_hit_charge->Fill( adc );
+        if( is_signal )
+        {
+          if( !is_masked(fee_id,channel) )
+          { detector_histograms.m_counts_sample->Fill( is ); }
+
+          detector_histograms.m_sample_channel->Fill( strip_index, is);
+        }
+
+        if( !is_masked(fee_id, channel) )
+        {
+          detector_histograms.m_adc_sample->Fill( is, adc );
+          detector_histograms.m_hit_charge->Fill( adc );
+        }
 
         detector_histograms.m_adc_channel->Fill( strip_index, adc );
 
@@ -412,22 +425,25 @@ int TpotMon::process_event(Event* event)
       {
         detector_histograms.m_hit_vs_channel->Fill( strip_index );
 
-        // update multiplicity for this detector
-        ++multiplicity[fee_id];
-
         // fill detector multiplicity
-        switch( segmentation )
+        if( !is_masked( fee_id, channel ) )
         {
-          case MicromegasDefs::SegmentationType::SEGMENTATION_Z:
-          m_detector_multiplicity_z->Fill( tile_x, tile_y );
-          m_resist_multiplicity_z->Fill( tile_x + MicromegasGeometry::m_tile_length*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5), tile_y );
-          break;
+          ++multiplicity[fee_id];
 
-          case MicromegasDefs::SegmentationType::SEGMENTATION_PHI:
-          m_detector_multiplicity_phi->Fill( tile_x, tile_y );
-          m_resist_multiplicity_phi->Fill( tile_x, tile_y + MicromegasGeometry::m_tile_width*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5) );
-          break;
+          switch( segmentation )
+          {
+            case MicromegasDefs::SegmentationType::SEGMENTATION_Z:
+            m_detector_multiplicity_z->Fill( tile_x, tile_y );
+            m_resist_multiplicity_z->Fill( tile_x + MicromegasGeometry::m_tile_length*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5), tile_y );
+            break;
+
+            case MicromegasDefs::SegmentationType::SEGMENTATION_PHI:
+            m_detector_multiplicity_phi->Fill( tile_x, tile_y );
+            m_resist_multiplicity_phi->Fill( tile_x, tile_y + MicromegasGeometry::m_tile_width*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5) );
+            break;
+          }
         }
+
       }
     }
   }
