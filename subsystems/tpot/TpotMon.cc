@@ -67,6 +67,13 @@ namespace
     CLEAR_LV1_ENDAT_T = 7
   };
 
+  /*
+   * returns true if a given channel for a given FEE is permanently masked
+   * for now all channels from 0 to 127, for FEE 8 (SCOZ) are masked
+   */
+  bool is_masked( int fee_id, int channel )
+  { return fee_id==8 && channel<128; }
+
 }
 
 //__________________________________________________
@@ -381,11 +388,17 @@ int TpotMon::process_event(Event* event)
         const bool is_signal = rms>0 && (adc > m_min_adc) && (adc> pedestal+m_n_sigma*rms);
         if( is_signal )
         {
-          detector_histograms.m_counts_sample->Fill( is );
+          if( !is_masked(fee_id,channel) )
+          { detector_histograms.m_counts_sample->Fill( is ); }
+
           detector_histograms.m_sample_channel->Fill( strip_index, is);
         }
-        detector_histograms.m_adc_sample->Fill( is, adc );
-        detector_histograms.m_hit_charge->Fill( adc );
+
+        if( !is_masked(fee_id, channel) )
+        {
+          detector_histograms.m_adc_sample->Fill( is, adc );
+          detector_histograms.m_hit_charge->Fill( adc );
+        }
 
         detector_histograms.m_adc_channel->Fill( strip_index, adc );
 
@@ -412,22 +425,25 @@ int TpotMon::process_event(Event* event)
       {
         detector_histograms.m_hit_vs_channel->Fill( strip_index );
 
-        // update multiplicity for this detector
-        ++multiplicity[fee_id];
-
         // fill detector multiplicity
-        switch( segmentation )
+        if( !is_masked( fee_id, channel ) )
         {
-          case MicromegasDefs::SegmentationType::SEGMENTATION_Z:
-          m_detector_multiplicity_z->Fill( tile_x, tile_y );
-          m_resist_multiplicity_z->Fill( tile_x + MicromegasGeometry::m_tile_length*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5), tile_y );
-          break;
+          ++multiplicity[fee_id];
 
-          case MicromegasDefs::SegmentationType::SEGMENTATION_PHI:
-          m_detector_multiplicity_phi->Fill( tile_x, tile_y );
-          m_resist_multiplicity_phi->Fill( tile_x, tile_y + MicromegasGeometry::m_tile_width*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5) );
-          break;
+          switch( segmentation )
+          {
+            case MicromegasDefs::SegmentationType::SEGMENTATION_Z:
+            m_detector_multiplicity_z->Fill( tile_x, tile_y );
+            m_resist_multiplicity_z->Fill( tile_x + MicromegasGeometry::m_tile_length*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5), tile_y );
+            break;
+
+            case MicromegasDefs::SegmentationType::SEGMENTATION_PHI:
+            m_detector_multiplicity_phi->Fill( tile_x, tile_y );
+            m_resist_multiplicity_phi->Fill( tile_x, tile_y + MicromegasGeometry::m_tile_width*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5) );
+            break;
+          }
         }
+
       }
     }
   }
