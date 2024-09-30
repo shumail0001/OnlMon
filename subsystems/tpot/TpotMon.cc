@@ -69,10 +69,10 @@ namespace
 
   /*
    * returns true if a given channel for a given FEE is permanently masked
-   * for now all channels from 0 to 127, for FEE 8 (SCOZ) are masked
+   * for now all channels from 128 to 255, for FEE 8 (SCOZ) are masked
    */
   bool is_masked( int fee_id, int channel )
-  { return fee_id==8 && channel<128; }
+  { return fee_id==8 && channel>=128; }
 
 }
 
