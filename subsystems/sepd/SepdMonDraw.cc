@@ -125,9 +125,9 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     int canvasindex = 4;
     // xpos negative: do not draw menu bar
-    //TC[4] = new TCanvas(name.c_str(), "sEPD Monitor 5 - Packet Information", -1, 0, xsize / 3, ysize);
-    //TC[4] = new TCanvas(name.c_str(), "sEPD Monitor 5 - Packet Information", -1, 0, 1200, 850);
-    TC[4] = new TCanvas(name.c_str(), "sEPD Monitor 5 - EXPERT - Packet Information", -1, 0, 1200, 850);
+    //TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 5 - Packet Information", -1, 0, xsize / 3, ysize);
+    //TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 5 - Packet Information", -1, 0, 1200, 850);
+    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 5 - EXPERT - Packet Information", -1, 0, 1200, 850);
     gSystem->ProcessEvents();
     Pad[10] = new TPad("sepdpad10", "packet event check", 0.0, 0.6, 1.0 / 2, 0.95, 0);
     Pad[11] = new TPad("sepdpad11", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
