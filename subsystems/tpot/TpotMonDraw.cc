@@ -19,8 +19,6 @@
 #include <TSystem.h>
 #include <TText.h>
 
-#include <boost/format.hpp>
-
 #include <cstring>  // for memset
 #include <ctime>
 #include <fstream>
@@ -1190,7 +1188,7 @@ void TpotMonDraw::draw_occupancy( TH2Poly* h)
     const auto bin = h->FindBin(x,y);
     const auto value =h->GetBinContent(bin);
     // const auto value = std::round(h->GetBinContent( bin )*100)/100;
-    TText().DrawText( x-0.8*m_geometry.m_tile_length/2, y, (boost::format("%.2f %%")%value).str().c_str() );
+    TText().DrawText( x-0.8*m_geometry.m_tile_length/2, y, Form("%.2f %%",value));
   }
 }
 
@@ -1375,8 +1373,8 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
       { gPad->SetLogz( true ); }
 
       // draw detector name
-      const auto label = boost::format( "%s (%02i)" ) %  m_detnames_sphenix[i] % m_mapping.get_fee_id_list()[i];
-      draw_text( (i%4) ? 0.5:0.6, 0.9, label.str().c_str(), (i%4) ? 0.1:0.094 );
+      const auto label = Form( "%s (%02i)", m_detnames_sphenix[i].c_str(), m_mapping.get_fee_id_list()[i]);
+      draw_text( (i%4) ? 0.5:0.6, 0.9, label, (i%4) ? 0.1:0.094 );
       // draw_text( 0.7, 0.9, m_detnames_sphenix[i].c_str(), (i%4) ? 0.1:0.094 );
       drawn = true;
     }
