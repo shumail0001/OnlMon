@@ -254,10 +254,7 @@ static void *server(void * /* arg */)
   sleep(5);
   do
   {
-    if (ss)
-    {
-      delete ss;
-    }
+    delete ss; // ok to delete nullptr
     ss = new TServerSocket(MoniPort, kTRUE);
     // Accept a connection and return a full-duplex communication socket.
     Onlmonserver->PortNumber(MoniPort);
