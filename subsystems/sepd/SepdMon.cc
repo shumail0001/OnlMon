@@ -86,7 +86,7 @@ int SepdMon::Init()
   h_hits_all_channel = new TH1D("h_hits_all_channel",";;",768,-0.5,767.5);
 
   int nADCcorr = 500;
-  double ADCcorrmax = 2e4;
+  double ADCcorrmax = 5e4;
   int nhitscorr = 500;
   double hitscorrmax = 1000;
   h_ADC_corr = new TH2F("h_ADC_corr", ";ADC sum (south); ADC sum (north)", nADCcorr, 0, ADCcorrmax, nADCcorr, 0, ADCcorrmax);
