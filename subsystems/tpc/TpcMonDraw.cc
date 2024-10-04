@@ -3966,13 +3966,15 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
     //messages->Clear();
     messages[i] = new TPaveText(0.1,0.5,0.4,0.9,"brNDC");  
     
+    /*
     if( (i == 21 || i == 22) || (i == 23) )
     {
       messages[i]->AddText("SECTOR NOT MONITORED"); ((TText*)messages[i]->GetListOfLines()->Last())->SetTextColor(kBlack);
       MyTC->cd(i+5);
       messages[i]->Draw("same");      
     }
-    else if( tpcmoneventsebdc[i] )
+    */
+    if( tpcmoneventsebdc[i] )
     {
       if(tpcmoneventsebdc[i]->GetEntries() <  8000)
       {
