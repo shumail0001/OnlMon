@@ -72,7 +72,8 @@ int CemcMonDraw::Init()
     // std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_40929_30ADC_hits.root";
     //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_43451_100ADC_hits.root";
     //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_46915_100ADC_hits.root";
-    std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_52876_100ADC_hits.root";    
+    //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_52876_100ADC_hits.root";    
+    std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_54117_100ADC_hits.root";    
     
     inputTemplate = new TFile(Templatefilename.c_str(), "READ");
     if (!inputTemplate->IsOpen())
