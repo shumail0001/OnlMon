@@ -292,8 +292,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 
   // --- may need to update these depending on whether there are "hot" tiles
   double zmin = 0.0;
-  double zmax = 0.1;
-  //double zmax = 1.0;
+  //double zmax = 0.1;
+  double zmax = 1.0;
   //double zmax = 300;
   //double zmax = 1.1*h_ADC_all_channel->GetMaximum();
 
