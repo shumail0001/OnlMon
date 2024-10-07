@@ -90,7 +90,8 @@ int CemcMonDraw::Init()
         h2_template_hit = new TH2D("templateHit", "", 96, 0, 96, 256, 0, 256);
       }
     }
-    std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_49435_100ADC_alltrig.root";
+    //std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_49435_100ADC_alltrig.root";
+    std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_54117_100ADC_hits.root";
     inputTemplate_alltrig = new TFile(Templatefilename_alltrig.c_str(), "READ");
     if (!inputTemplate_alltrig->IsOpen())
     {
