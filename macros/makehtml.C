@@ -41,7 +41,7 @@ R__LOAD_LIBRARY(libonltpotmon_client.so)
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlzdcmon_client.so)
 
-void makehtml(const std::string &filelist, const std::string &subsystem)
+void makehtml(const std::string &filelist, const std::string &subsystem, int test = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   OnlMonDraw *drawer = nullptr;
@@ -139,6 +139,9 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
   }
   cl->Verbosity(1);
   cl->MakeHtml();
-  delete cl;
-  gSystem->Exit(0);
+  if (test == 0)
+  {
+    delete cl;
+    gSystem->Exit(0);
+  }
 }
