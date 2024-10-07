@@ -72,7 +72,7 @@ int HcalMonDraw::Init()
   char TEMPFILENAME[100];
   const char* hcalcalib = getenv("HCALCALIB");
 
-  sprintf(TEMPFILENAME, "%s/%s_40747.root", hcalcalib, prefix.c_str());
+  sprintf(TEMPFILENAME, "%s/%s_54117.root", hcalcalib, prefix.c_str());
 
   TFile* tempfile = new TFile(TEMPFILENAME, "READ");
   if (!tempfile->IsOpen())
@@ -668,7 +668,7 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
   hist1->GetYaxis()->SetTitleSize(tsize);
   hist1->GetXaxis()->SetTickLength(0.02);
 
-  hist1->GetZaxis()->SetRangeUser(0, 0.015);
+  hist1->GetZaxis()->SetRangeUser(0, 0.5);
 
   gPad->SetTopMargin(0.08);
   gPad->SetBottomMargin(0.07);
