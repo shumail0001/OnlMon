@@ -51,14 +51,13 @@ ZdcMon::~ZdcMon()
 
 int ZdcMon::Init()
 {
-  const float MAX_ENERGY1 = 1500.;
-  const float MAX_ENERGY2 = 1500.;
+  const float MAX_ENERGY1 = 10000.;
+  const float MAX_ENERGY2 = 25000.;
   const float MIN_ENERGY1 = 0.;
   const float MIN_ENERGY2 = 0.;
-  const int BIN_NUMBER = 150;
+  const int BIN_NUMBER1 = 250;
+  const int BIN_NUMBER2 = 500;
   const int SMD_ADC_BIN = 250;
-
-    
     
   //  gRandom->SetSeed(rand());
   // read our calibrations from ZdcMonData.dat
@@ -109,21 +108,21 @@ int ZdcMon::Init()
   printf("doing the Init\n");
 
   // Create hitograms
-  zdc_adc_north = new TH1F("zdc_adc_north", "ZDC ADC north", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
-  zdc_adc_south = new TH1F("zdc_adc_south", "ZDC ADC south", BIN_NUMBER, MIN_ENERGY2, MAX_ENERGY2);
+  zdc_adc_north = new TH1F("zdc_adc_north", "ZDC ADC north", BIN_NUMBER2, MIN_ENERGY2, MAX_ENERGY2);
+  zdc_adc_south = new TH1F("zdc_adc_south", "ZDC ADC south", BIN_NUMBER2, MIN_ENERGY2, MAX_ENERGY2);
 
-  zdc_N1 = new TH1F("zdc_N1", "ZDC1 ADC north", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
-  zdc_N2 = new TH1F("zdc_N2", "ZDC2 ADC north", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
-  zdc_N3 = new TH1F("zdc_N3", "ZDC3 ADC north", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
-  zdc_S1 = new TH1F("zdc_S1", "ZDC1 ADC south", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
-  zdc_S2 = new TH1F("zdc_S2", "ZDC2 ADC south", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
-  zdc_S3 = new TH1F("zdc_S3", "ZDC3 ADC south", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
+  zdc_N1 = new TH1F("zdc_N1", "ZDC1 ADC north", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+  zdc_N2 = new TH1F("zdc_N2", "ZDC2 ADC north", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+  zdc_N3 = new TH1F("zdc_N3", "ZDC3 ADC north", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+  zdc_S1 = new TH1F("zdc_S1", "ZDC1 ADC south", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+  zdc_S2 = new TH1F("zdc_S2", "ZDC2 ADC south", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+  zdc_S3 = new TH1F("zdc_S3", "ZDC3 ADC south", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
 
-  veto_NF = new TH1F("veto_NF", "veto north front", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
-  veto_NB = new TH1F("veto_NB", "veto north back", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
-  veto_SF = new TH1F("veto_SF", "veto south front", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
-  veto_SB = new TH1F("veto_SB", "veto south back", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
- 
+  veto_NF = new TH1F("veto_NF", "veto north front", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+  veto_NB = new TH1F("veto_NB", "veto north back", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+  veto_SF = new TH1F("veto_SF", "veto south front", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+  veto_SB = new TH1F("veto_SB", "veto south back", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+
   //waveform
     
    h_waveform_timez = new TH1F("h_waveform_timez", "", 16, 0.5, 16 + 0.5);
@@ -164,9 +163,9 @@ int ZdcMon::Init()
   smd_hor_north = new TH1F("smd_hor_north", "Beam centroid distribution, SMD North y", 296, -5.92, 5.92);
   smd_ver_north = new TH1F("smd_ver_north", "Beam centroid distribution, SMD North x", 220, -5.5, 5.5);
   
-  smd_sum_hor_north = new TH1F("smd_sum_hor_north", "SMD North y", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
-  smd_sum_ver_north = new TH1F("smd_sum_ver_north", "SMD North x", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
-  
+  smd_sum_hor_north = new TH1F("smd_sum_hor_north", "SMD North y", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+  smd_sum_ver_north = new TH1F("smd_sum_ver_north", "SMD North x", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+
   smd_hor_north_small = new TH1F("smd_hor_north_small", "Beam centroid distribution, SMD North y, zdc <= 200", 296, -5.92, 5.92);
   smd_ver_north_small = new TH1F("smd_ver_north_small", "Beam centroid distribution, SMD North x, zdc <= 200", 220, -5.5, 5.5);
   smd_hor_north_good = new TH1F("smd_hor_north_good", "Beam centroid distribution, SMD North y, zdc > 200", 296, -5.92, 5.92);
@@ -176,9 +175,9 @@ int ZdcMon::Init()
   smd_hor_south = new TH1F("smd_hor_south", "Beam centroid distribution, SMD South y", 296, -5.92, 5.92);
   smd_ver_south = new TH1F("smd_ver_south", "Beam centroid distribution, SMD South x", 220, -5.5, 5.5);
 
-  smd_sum_hor_south = new TH1F("smd_sum_hor_south", "SMD South y", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
-  smd_sum_ver_south = new TH1F("smd_sum_ver_south", "SMD South x", BIN_NUMBER, MIN_ENERGY1, MAX_ENERGY1);
- 
+  smd_sum_hor_south = new TH1F("smd_sum_hor_south", "SMD South y", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+  smd_sum_ver_south = new TH1F("smd_sum_ver_south", "SMD South x", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+  
   smd_hor_south_good = new TH1F("smd_hor_south_good", "Beam centroid distribution, SMD South y, zdc1 > 65 zdc2>20 and veto<200", 296, -5.92, 5.92);
   smd_ver_south_good = new TH1F("smd_ver_south_good", "Beam centroid distribution, SMD South x, zdc1 > 65 zdc2>20 and veto<200", 220, -5.5, 5.5);
 
