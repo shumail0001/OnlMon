@@ -1117,9 +1117,6 @@ int InttMonDraw::Draw_HitMap()
 
 int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
 {
-  double lower = 0.015;
-  double upper = 0.650;
-
   std::string name = Form("intt_hist_%d_%01d", icnvs, i);
   if (!m_hist_hitmap[i])
   {
@@ -1183,11 +1180,11 @@ int InttMonDraw::DrawHistPad_HitMap(int i, int icnvs)
       // Assign a value to this bin
       // that will give it the appropriate color
       // based on how it compares to the hot/cold thresholds
-      if (bincont < lower)
+      if (bincont < m_lower)
       {
         bincont = 0.4;  // 0.4 Cold/Dead
       }
-      else if (upper < bincont)
+      else if (m_upper < bincont)
       {
         bincont = 3.0;  // 3.0 Hot
       }
@@ -1236,26 +1233,6 @@ int InttMonDraw::Draw_HitRates()
 int InttMonDraw::DrawHistPad_HitRates(
     int i, int icnvs)
 {
-  double lower = 0.00;
-  double upper = 0.65;
-
-  // Validate member histos
-  std::string name = Form("intt_hitrate_hist_%d_%01d", icnvs, i);
-  if (!m_hist_hitrates[i])
-  {
-    m_hist_hitrates[i] = new TH1D(
-        name.c_str(), name.c_str(), //
-        112, lower, upper           //
-    );
-    m_hist_hitrates[i]->SetTitle(Form("intt%01d;Hits/Event (overflow is shown in last bin);Entries (One Hitrate per Chip)", i));
-    m_hist_hitrates[i]->GetXaxis()->SetNdivisions(8, true);
-    m_hist_hitrates[i]->SetFillStyle(4000); // Transparent
-  }
-  m_hist_pad[k_hitrates][i]->cd();
-
-  m_hist_hitrates[i]->Reset();
-  m_hist_hitrates[i]->Draw();
-
   // Access client
   OnlMonClient* cl = OnlMonClient::instance();
 
@@ -1274,8 +1251,10 @@ int InttMonDraw::DrawHistPad_HitRates(
     return 1;
   }
 
+  Long64_t counts = 0;
+  std::map<Float_t, Long64_t> hitrate_pdf;
+
   // Fill
-  // double mean = 0.0, fraction = 0.0;
   for (int fee = 0; fee < NFEES; ++fee)
   {
     for (int chp = 0; chp < NCHIPS; ++chp)
@@ -1288,21 +1267,49 @@ int InttMonDraw::DrawHistPad_HitRates(
         continue;
 	  }
 
-      // mean += bincont;
-      // if(bincont < upper)++fraction;
-
-      // Manually catch overflows and put them in the last displayed bin
-      if (upper <= bincont)
-      {
-        bincont = upper - m_hist_hitrates[i]->GetXaxis()->GetBinWidth(1);
-      }
-
-      m_hist_hitrates[i]->Fill(bincont);
+	  ++hitrate_pdf[bincont];
+	  ++counts;
     }
   }
-  // mean /= (NFEES * NCHIPS);
-  // fraction /= (NFEES * NCHIPS);
-  // std::cout << "mean: " << mean << " fraction less than " << upper << ": " << fraction << std::endl;
+
+  // For upper bound of plot, get 95th percentile hitrate and double it
+  float max_hitrate = 0;
+  Long64_t integrated = 0;
+  for (std::map<Float_t, Long64_t>::reverse_iterator itr = hitrate_pdf.rbegin(); itr != hitrate_pdf.rend(); ++itr)
+  {
+	max_hitrate = itr->first;
+    integrated += itr->second;
+	if (1.0 * integrated / counts < 0.05) // reverse iterator, 0.05 really means .95
+	{
+      break;
+	}
+  }
+  max_hitrate *= 2.0;
+
+  m_hist_pad[k_hitrates][i]->Clear();
+  delete m_hist_hitrates[i];
+  std::string name = Form("intt_hitrate_hist_%d_%01d", icnvs, i);
+  m_hist_hitrates[i] = new TH1D(
+      name.c_str(), name.c_str(), //
+      112, 0.0, max_hitrate       //
+  );
+  m_hist_hitrates[i]->SetTitle(Form("intt%01d;Hits/Event;Entries (One Hitrate per Chip)", i));
+  m_hist_hitrates[i]->GetXaxis()->SetNdivisions(8, true);
+  m_hist_hitrates[i]->SetFillStyle(4000); // Transparent
+  m_hist_pad[k_hitrates][i]->cd();
+
+  // Fill
+  for (auto const& [rate, count] : hitrate_pdf)
+  {
+    // using Fill(rate, count) directly causes ROOT to track and draw errors that don't make sense
+    int bin = m_hist_hitrates[i]->FindBin(rate);
+	if (max_hitrate < rate)
+	{
+      bin = m_hist_hitrates[i]->GetNbinsX();
+	}
+    m_hist_hitrates[i]->SetBinContent(bin, m_hist_hitrates[i]->GetBinContent(bin) + count);
+  }
+  m_hist_hitrates[i]->Draw("");
 
   return 0;
 }
