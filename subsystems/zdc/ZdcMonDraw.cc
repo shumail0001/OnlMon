@@ -1389,6 +1389,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
 
   float offset = 1.7;
   float lf = 0.16;
+  float  maxwf = 20000.;
 
  OnlMonClient *cl = OnlMonClient::instance();
 
@@ -1421,55 +1422,12 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     return -1;
   }
     
-  double x_min = 0.0;
-  double x_max = 0.0;
-  int n_bins = 0;
-  int n_points_in_range1 = 0;
-
-
-  float x1 = h_waveformZDC->ProfileX()->GetMaximum();
-  TProfile* profile_y;
-  profile_y  = h_waveformZDC->ProfileY();
-  profile_y->Rebin(5);
-  x_min = 100;
-  x_max = 7 * x1;
-    
-  n_bins = profile_y->GetNbinsX();
-  for (int i = 1; i <= n_bins; ++i) {
-  double bin_center = profile_y->GetBinCenter(i);
-  if (profile_y->GetBinContent(i) == 0)
-  {
-     continue;
-   }
-  if (bin_center >= x_min && bin_center <= x_max)
-  {
-      n_points_in_range1++;
-   }
-  }
-    
-    double* x_vals1 = new double[n_points_in_range1];
-    double* y_vals1 = new double[n_points_in_range1];
-
-    int point_index1 = 0;
-    for (int i = 1; i <= n_bins; ++i) {
-        double bin_center = profile_y->GetBinCenter(i);
-        if (profile_y->GetBinContent(i) == 0) {
-            continue;
-        }
-        if (bin_center >= x_min && bin_center <= x_max) {
-            y_vals1[point_index1] = bin_center;
-            x_vals1[point_index1] = profile_y->GetBinContent(i);
-            point_index1++;
-        }
-    }
-
-    
-  TLine *t1 = new TLine(5,0.0,5,x1*20);
+  TLine *t1 = new TLine(5,0.0,5,maxwf);
   t1->SetLineWidth(3);
   t1->SetLineStyle(1);
   t1->SetLineColor(kRed);
     
-  TLine *t2 = new TLine(9,0.0,9,x1*20);
+  TLine *t2 = new TLine(9,0.0,9,maxwf);
   t2->SetLineWidth(3);
   t2->SetLineStyle(1);
   t2->SetLineColor(kRed);
@@ -1480,7 +1438,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   gPad->SetLeftMargin(lf);
 
   gStyle->SetTitleFontSize(0.08);
-  h_waveformZDC->GetYaxis()->SetRangeUser(0, x1 * 20);
+  h_waveformZDC->GetYaxis()->SetRangeUser(0, h_waveformZDC->GetMaximum() * 1.05);
   h_waveformZDC->Draw("colz");
 
   float tsize = 0.05;
@@ -1495,11 +1453,6 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   h_waveformZDC->GetXaxis()->SetTitleSize(tsize);
   h_waveformZDC->GetYaxis()->SetTitleSize(tsize);
   h_waveformZDC->GetYaxis()->SetTitleOffset(offset);
-  TGraph* graph = new TGraph(n_points_in_range1, x_vals1, y_vals1);
-  graph->SetMarkerStyle(20);
-  graph->SetMarkerSize(1);
-  graph->SetMarkerColor(1);
-  // graph->Draw("P same");
   t1->Draw("same");
   t2->Draw("same");
     
@@ -1509,7 +1462,6 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   gStyle->SetTitleFontSize(0.06);
   h_waveform_timez->Draw("hist");
   h_waveform_timez->SetTitle("");
-  // h_waveform_timez->GetXaxis()->CenterTitle();
   h_waveform_timez->SetStats(0);
   h_waveform_timez->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_timez->GetXaxis()->SetRangeUser(0, 16);
@@ -1540,53 +1492,12 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   t22->Draw("same");
     
 
-  double x_min2 = 0.0;
-  double x_max2 = 0.0;
-  int n_bins2 = 0;
-  int n_points_in_range2 = 0;
-
-    
-  float x2 = h_waveformSMD_North->ProfileX()->GetMaximum();
-  TProfile* profile_y2 = h_waveformSMD_North->ProfileY();
-  profile_y2->Rebin(5);
-  x_min2 = 100;
-  x_max2 = 7 * x2;
-  n_bins2 = profile_y2->GetNbinsX();
-  for (int i = 1; i <= n_bins2; ++i) {
-  double bin_center = profile_y2->GetBinCenter(i);
-    if (profile_y2->GetBinContent(i) == 0)
-    {
-       continue;
-     }
-    if (bin_center >= x_min2 && bin_center <= x_max2)
-    {
-        n_points_in_range2++;
-     }
-    }
-      
-      double* x_vals2 = new double[n_points_in_range2];
-      double* y_vals2 = new double[n_points_in_range2];
-
-      int point_index2 = 0;
-      for (int i = 1; i <= n_bins2; ++i) {
-          double bin_center = profile_y2->GetBinCenter(i);
-          if (profile_y2->GetBinContent(i) == 0) {
-              continue;
-          }
-          if (bin_center >= x_min2 && bin_center <= x_max2) {
-              y_vals2[point_index2] = bin_center;
-              x_vals2[point_index2] = profile_y2->GetBinContent(i);
-              point_index2++;
-          }
-      }
-    
-    
-    TLine *t3 = new TLine(9,0.0,9,  x2 * 20);
+    TLine *t3 = new TLine(9,0.0,9,  maxwf);
     t3->SetLineWidth(3);
     t3->SetLineStyle(1);
     t3->SetLineColor(kRed);
       
-    TLine *t4 = new TLine(14,0.0,14, x2 * 20);
+    TLine *t4 = new TLine(14,0.0,14, maxwf);
     t4->SetLineWidth(3);
     t4->SetLineStyle(1);
     t4->SetLineColor(kRed);
@@ -1597,7 +1508,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     gPad->SetLeftMargin(lf);
 
     gStyle->SetTitleFontSize(0.08);
-    h_waveformSMD_North->GetYaxis()->SetRangeUser(0, x2 * 20);
+    h_waveformSMD_North->GetYaxis()->SetRangeUser(0, h_waveformSMD_North->GetMaximum() * 1.05);
     h_waveformSMD_North->Draw("colz");
 
     h_waveformSMD_North->SetStats(0);
@@ -1611,11 +1522,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     h_waveformSMD_North->GetXaxis()->SetTitleSize(tsize);
     h_waveformSMD_North->GetYaxis()->SetTitleSize(tsize);
     h_waveformSMD_North->GetYaxis()->SetTitleOffset(offset);
-    TGraph* graph2 = new TGraph(n_points_in_range2, x_vals2, y_vals2);
-    graph2->SetMarkerStyle(20);
-    graph2->SetMarkerSize(1);
-    graph2->SetMarkerColor(1);
-    // graph2->Draw("P same");
+
     t3->Draw("same");
     t4->Draw("same");
       
@@ -1656,56 +1563,14 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     
     t33->Draw("same");
     t44->Draw("same");   
-
-
-
-  double x_min3 = 0.0;
-  double x_max3 = 0.0;
-  int n_bins3 = 0;
-  int n_points_in_range3 = 0;
-
+   
     
-  float x3 = h_waveformSMD_South->ProfileX()->GetMaximum();
-  TProfile* profile_y3 = h_waveformSMD_South->ProfileY();
-  profile_y3->Rebin(5);
-  x_min3 = 100;
-  x_max3 = 7 * x3;
-  n_bins3 = profile_y3->GetNbinsX();
-  for (int i = 1; i <= n_bins3; ++i) {
-  double bin_center = profile_y3->GetBinCenter(i);
-    if (profile_y3->GetBinContent(i) == 0)
-    {
-       continue;
-     }
-    if (bin_center >= x_min3 && bin_center <= x_max3)
-    {
-        n_points_in_range3++;
-     }
-    }
-      
-      double* x_vals3 = new double[n_points_in_range3];
-      double* y_vals3 = new double[n_points_in_range3];
-
-      int point_index3 = 0;
-      for (int i = 1; i <= n_bins3; ++i) {
-          double bin_center = profile_y3->GetBinCenter(i);
-          if (profile_y3->GetBinContent(i) == 0) {
-              continue;
-          }
-          if (bin_center >= x_min3 && bin_center <= x_max3) {
-              y_vals3[point_index3] = bin_center;
-              x_vals3[point_index3] = profile_y3->GetBinContent(i);
-              point_index3++;
-          }
-      }
-    
-    
-  TLine *t5 = new TLine(6,0.0,6, x3 * 20);
+  TLine *t5 = new TLine(6,0.0,6, maxwf);
   t5->SetLineWidth(3);
   t5->SetLineStyle(1);
   t5->SetLineColor(kRed);
     
-  TLine *t6 = new TLine(12,0.0,12, x3 * 20);
+  TLine *t6 = new TLine(12,0.0,12, maxwf);
   t6->SetLineWidth(3);
   t6->SetLineStyle(1);
   t6->SetLineColor(kRed);
@@ -1716,7 +1581,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     gPad->SetLeftMargin(lf);
 
     gStyle->SetTitleFontSize(0.08);
-    h_waveformSMD_South->GetYaxis()->SetRangeUser(0, x3 * 20);
+    h_waveformSMD_South->GetYaxis()->SetRangeUser(0, h_waveformSMD_South->GetMaximum() * 1.05);
     h_waveformSMD_South->Draw("colz");
 
     h_waveformSMD_South->SetStats(0);
@@ -1731,13 +1596,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     h_waveformSMD_South->GetYaxis()->SetTitleSize(tsize);
     h_waveformSMD_South->GetYaxis()->SetTitleOffset(offset);
 
-  
-    TGraph* graph3 = new TGraph(n_points_in_range3, x_vals3, y_vals3);
-    graph3->SetMarkerStyle(20);
-    graph3->SetMarkerSize(1);
-    graph3->SetMarkerColor(1);
-    // graph3->Draw("P same");
-    t5->Draw("same");
+     t5->Draw("same");
     t6->Draw("same");
       
     Pad[66]->cd();
@@ -1778,55 +1637,12 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   t66->Draw("same");
       
 
-
-
-  double x_min4 = 0.0;
-  double x_max4 = 0.0;
-  int n_bins4 = 0;
-  int n_points_in_range4 = 0;
-
-    
-  float x4 = h_waveformVeto_North->ProfileX()->GetMaximum();
-  TProfile* profile_y4 = h_waveformVeto_North->ProfileY();
-  profile_y4->Rebin(5);
-  x_min4 = 100;
-  x_max4 = 7 * x4;
-  n_bins4 = profile_y4->GetNbinsX();
-  for (int i = 1; i <= n_bins4; ++i) {
-  double bin_center = profile_y4->GetBinCenter(i);
-    if (profile_y4->GetBinContent(i) == 0)
-    {
-       continue;
-     }
-    if (bin_center >= x_min4 && bin_center <= x_max4)
-    {
-        n_points_in_range4++;
-     }
-    }
-      
-      double* x_vals4 = new double[n_points_in_range4];
-      double* y_vals4 = new double[n_points_in_range4];
-
-      int point_index4 = 0;
-      for (int i = 1; i <= n_bins4; ++i) {
-          double bin_center = profile_y4->GetBinCenter(i);
-          if (profile_y4->GetBinContent(i) == 0) {
-              continue;
-          }
-          if (bin_center >= x_min4 && bin_center <= x_max4) {
-              y_vals4[point_index4] = bin_center;
-              x_vals4[point_index4] = profile_y4->GetBinContent(i);
-              point_index4++;
-          }
-      }
-    
-    
-  TLine *t7 = new TLine(5,0.0,5, x4 * 20);
+  TLine *t7 = new TLine(5,0.0,5, maxwf);
   t7->SetLineWidth(3);
   t7->SetLineStyle(1);
   t7->SetLineColor(kRed);
 
-  TLine *t8 = new TLine(9,0.0,9, x4 * 20);
+  TLine *t8 = new TLine(9,0.0,9, maxwf);
   t8->SetLineWidth(3);
   t8->SetLineStyle(1);
   t8->SetLineColor(kRed);
@@ -1837,7 +1653,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     gPad->SetLeftMargin(lf);
 
     gStyle->SetTitleFontSize(0.08);
-    h_waveformVeto_North->GetYaxis()->SetRangeUser(0, x4 * 20);
+    h_waveformVeto_North->GetYaxis()->SetRangeUser(0, h_waveformVeto_North->GetMaximum() * 1.05);
     h_waveformVeto_North->Draw("colz");
 
     h_waveformVeto_North->SetStats(0);
@@ -1852,12 +1668,6 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     h_waveformVeto_North->GetYaxis()->SetTitleSize(tsize);
     h_waveformVeto_North->GetYaxis()->SetTitleOffset(offset);
 
- 
-    TGraph* graph4 = new TGraph(n_points_in_range4, x_vals4, y_vals4);
-    graph4->SetMarkerStyle(20);
-    graph4->SetMarkerSize(1);
-    graph4->SetMarkerColor(1);
-    // graph4->Draw("P same");
     t7->Draw("same");
     t8->Draw("same");
       
@@ -1901,55 +1711,12 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   t88->Draw("same");
 
 
-
-
-  double x_min5 = 0.0;
-  double x_max5 = 0.0;
-  int n_bins5 = 0;
-  int n_points_in_range5 = 0;
-
-    
-  float x5 = h_waveformVeto_South->ProfileX()->GetMaximum();
-  TProfile* profile_y5 = h_waveformVeto_South->ProfileY();
-  profile_y5->Rebin(5);
-  x_min5 = 100;
-  x_max5 = 7 * x5;
-  n_bins5 = profile_y5->GetNbinsX();
-  for (int i = 1; i <= n_bins5; ++i) {
-  double bin_center = profile_y5->GetBinCenter(i);
-    if (profile_y5->GetBinContent(i) == 0)
-    {
-       continue;
-     }
-    if (bin_center >= x_min5 && bin_center <= x_max5)
-    {
-        n_points_in_range5++;
-     }
-    }
-      
-      double* x_vals5 = new double[n_points_in_range5];
-      double* y_vals5 = new double[n_points_in_range5];
-
-      int point_index5 = 0;
-      for (int i = 1; i <= n_bins5; ++i) {
-          double bin_center = profile_y5->GetBinCenter(i);
-          if (profile_y5->GetBinContent(i) == 0) {
-              continue;
-          }
-          if (bin_center >= x_min5 && bin_center <= x_max5) {
-              y_vals5[point_index5] = bin_center;
-              x_vals5[point_index5] = profile_y5->GetBinContent(i);
-              point_index5++;
-          }
-      }
-    
-
-  TLine *t9 = new TLine(6,0.0,6,x5 * 20);
+  TLine *t9 = new TLine(6,0.0,6,maxwf);
   t9->SetLineWidth(3);
   t9->SetLineStyle(1);
   t9->SetLineColor(kRed);
 
-  TLine *t10 = new TLine(12,0.0,12,x5 * 20);
+  TLine *t10 = new TLine(12,0.0,12,maxwf);
   t10->SetLineWidth(3);
   t10->SetLineStyle(1);
   t10->SetLineColor(kRed);
@@ -1961,7 +1728,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     gPad->SetLeftMargin(lf);
 
     gStyle->SetTitleFontSize(0.08);
-    h_waveformVeto_South->GetYaxis()->SetRangeUser(0, x5 * 20);
+    h_waveformVeto_South->GetYaxis()->SetRangeUser(0, h_waveformVeto_South->GetMaximum() * 1.05);
     h_waveformVeto_South->Draw("colz");
 
     h_waveformVeto_South->SetStats(0);
@@ -1975,13 +1742,6 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     h_waveformVeto_South->GetXaxis()->SetTitleSize(tsize);
     h_waveformVeto_South->GetYaxis()->SetTitleSize(tsize);
     h_waveformVeto_South->GetYaxis()->SetTitleOffset(offset);
-
-
-    TGraph* graph5 = new TGraph(n_points_in_range5, x_vals5, y_vals5);
-    graph5->SetMarkerStyle(20);
-    graph5->SetMarkerSize(1);
-    graph5->SetMarkerColor(1);
-    // graph5->Draw("P same");
     t9->Draw("same");
     t10->Draw("same");
       
