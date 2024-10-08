@@ -8,7 +8,7 @@ hcaldata_DATA = \
   testbeam_ohcal_template.root \
   OHCALMON_40747.root \
   OHCALMON_54117.root \
-  IHCALMON_54145.root \
+  OHCALMON_54145.root \
   OHCALMON_cosmic_45022_1000ADC.root \
   IHCALMON_40747.root \
   IHCALMON_54117.root \
