@@ -53,11 +53,13 @@ int ZdcMon::Init()
 {
   const float MAX_ENERGY1 = 10000.;
   const float MAX_ENERGY2 = 25000.;
+  const float MAX_WFAMP = 20000.;
   const float MIN_ENERGY1 = 0.;
   const float MIN_ENERGY2 = 0.;
   const int BIN_NUMBER1 = 250;
   const int BIN_NUMBER2 = 500;
   const int SMD_ADC_BIN = 250;
+  const int BIN_WF = 1000;
     
   //  gRandom->SetSeed(rand());
   // read our calibrations from ZdcMonData.dat
@@ -131,12 +133,11 @@ int ZdcMon::Init()
    h_waveform_timevs = new TH1F("h_waveform_timevs", "", 16, 0.5, 16 + 0.5);
    h_waveform_timevn = new TH1F("h_waveform_timevn", "", 16, 0.5, 16 + 0.5);
 
-  h_waveformZDC = new TH2F("h_waveformZDC", "h_waveformZDC", 31, 0.5, 31 + 0.5, 1000, 0, 15000);
-  h_waveformSMD_North = new TH2F("h_waveformSMD_North", "h_waveformSMD_North", 31, 0.5, 31 + 0.5, 1000, 0, 15000);
-  h_waveformSMD_South = new TH2F("h_waveformSMD_South", "h_waveformSMD_South", 31, 0.5, 31 + 0.5, 1000, 0, 15000);
-  h_waveformVeto_North = new TH2F("h_waveformVeto_North", "h_waveformVeto_North", 31, 0.5, 31 + 0.5, 1000, 0, 15000);
-  h_waveformVeto_South = new TH2F("h_waveformVeto_South", "h_waveformVeto_South", 31, 0.5, 31 + 0.5, 1000, 0, 15000);
-
+  h_waveformZDC = new TH2F("h_waveformZDC", "h_waveformZDC", 31, 0.5, 31 + 0.5, BIN_WF, 0, MAX_WFAMP);
+  h_waveformSMD_North = new TH2F("h_waveformSMD_North", "h_waveformSMD_North", 31, 0.5, 31 + 0.5, BIN_WF, 0, MAX_WFAMP);
+  h_waveformSMD_South = new TH2F("h_waveformSMD_South", "h_waveformSMD_South", 31, 0.5, 31 + 0.5, BIN_WF, 0, MAX_WFAMP);
+  h_waveformVeto_North = new TH2F("h_waveformVeto_North", "h_waveformVeto_North", 31, 0.5, 31 + 0.5, BIN_WF, 0, MAX_WFAMP);
+  h_waveformVeto_South = new TH2F("h_waveformVeto_South", "h_waveformVeto_South", 31, 0.5, 31 + 0.5, BIN_WF, 0, MAX_WFAMP);
       
   // SMD
   // Individual SMD_ADC Values
@@ -304,7 +305,7 @@ int ZdcMon::process_event(Event *e /* evt */)
 {
   evtcnt++;
     
-  const float waveform_hit_threshold = 100;
+  const float waveform_hit_threshold = 100 * 5.;
 
   int packet = 12001;
 
