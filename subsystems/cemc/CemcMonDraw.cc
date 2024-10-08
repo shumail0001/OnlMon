@@ -91,7 +91,7 @@ int CemcMonDraw::Init()
       }
     }
     //std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_49435_100ADC_alltrig.root";
-    std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_54117_100ADC_hits.root";
+    std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_54117_100ADC_alltrig.root";
     inputTemplate_alltrig = new TFile(Templatefilename_alltrig.c_str(), "READ");
     if (!inputTemplate_alltrig->IsOpen())
     {
@@ -2497,11 +2497,11 @@ int CemcMonDraw::DrawSeventh(const std::string &  what)
     for (int j = 1; j <= p2_zsFrac_etaphiCombined->GetNbinsY(); j++)
     {
       float rate = p2_zsFrac_etaphiCombined->GetBinContent(i + 1, j + 1);
-      if (rate <= 0.04)
+      if (rate <= 0.2)
       {
         h1_zs_low->Fill(rate);
       }
-      else if (rate > 0.2)
+      else if (rate > 0.8)
       {
         h1_zs_high->Fill(rate);
       }

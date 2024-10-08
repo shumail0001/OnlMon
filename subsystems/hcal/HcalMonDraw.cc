@@ -72,7 +72,7 @@ int HcalMonDraw::Init()
   char TEMPFILENAME[100];
   const char* hcalcalib = getenv("HCALCALIB");
 
-  sprintf(TEMPFILENAME, "%s/%s_54117.root", hcalcalib, prefix.c_str());
+  sprintf(TEMPFILENAME, "%s/%s_54145.root", hcalcalib, prefix.c_str());
 
   TFile* tempfile = new TFile(TEMPFILENAME, "READ");
   if (!tempfile->IsOpen())
@@ -2615,11 +2615,11 @@ int HcalMonDraw::DrawSeventh(const std::string&  what)
     for (int j = 0; j < pr_zsFrac_etaphi->GetNbinsY(); j++)
     {
       float rate = pr_zsFrac_etaphi->GetBinContent(i + 1, j + 1);
-      if (rate <= 0.04)
+      if (rate <= 0.2)
       {
         h1_zs_low->Fill(rate);
       }
-      else if (rate > 0.2)
+      else if (rate > 0.8)
       {
         h1_zs_high->Fill(rate);
       }
