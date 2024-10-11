@@ -72,7 +72,7 @@ int HcalMonDraw::Init()
   char TEMPFILENAME[100];
   const char* hcalcalib = getenv("HCALCALIB");
 
-  sprintf(TEMPFILENAME, "%s/%s_54145.root", hcalcalib, prefix.c_str());
+  sprintf(TEMPFILENAME, "%s/%s_54373.root", hcalcalib, prefix.c_str());
 
   TFile* tempfile = new TFile(TEMPFILENAME, "READ");
   if (!tempfile->IsOpen())
@@ -551,7 +551,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   gROOT->SetStyle("hcalStyle");
   gROOT->ForceStyle();
   gStyle->SetPalette(4, palette);
-  double_t levels[5] = {0, 0.01, 0.5, 2, 4};
+  double_t levels[5] = {0, 0.01, 0.5, 1.5, 4};
   hist1->SetContour(5, levels);
 
   FindHotTower(warning[0], hist1, true);
@@ -1568,7 +1568,7 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit, bool usetemplate)
   std::ostringstream hottowerlist;
   std::ostringstream deadtowerlist;
   std::ostringstream coldtowerlist;
-  float hot_threshold = 2.0;
+  float hot_threshold = 1.5;
   float dead_threshold = 0.01;
   float cold_threshold = 0.5;
   if(!usetemplate)
