@@ -9,8 +9,10 @@ hcaldata_DATA = \
   OHCALMON_40747.root \
   OHCALMON_54117.root \
   OHCALMON_54145.root \
+  OHCALMON_54373.root \
   OHCALMON_cosmic_45022_1000ADC.root \
   IHCALMON_40747.root \
   IHCALMON_54117.root \
   IHCALMON_54145.root \
+  IHCALMON_54373.root \
   IHCALMON_cosmic_45022_1000ADC.root
