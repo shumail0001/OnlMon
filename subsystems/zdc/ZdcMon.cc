@@ -51,13 +51,13 @@ ZdcMon::~ZdcMon()
 
 int ZdcMon::Init()
 {
-  const float MAX_ENERGY1 = 10000.;
-  const float MAX_ENERGY2 = 25000.;
+  const float MAX_ENERGY1 = 12000.;
+  const float MAX_ENERGY2 = 30000.;
   const float MAX_WFAMP = 20000.;
   const float MIN_ENERGY1 = 0.;
   const float MIN_ENERGY2 = 0.;
   const int BIN_NUMBER1 = 250;
-  const int BIN_NUMBER2 = 500;
+  const int BIN_NUMBER2 = 550;
   const int SMD_ADC_BIN = 360;
   const float MAX_SMD_ADC = 18000.;
   const int BIN_WF = 1000;
