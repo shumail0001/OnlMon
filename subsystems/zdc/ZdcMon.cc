@@ -58,7 +58,8 @@ int ZdcMon::Init()
   const float MIN_ENERGY2 = 0.;
   const int BIN_NUMBER1 = 250;
   const int BIN_NUMBER2 = 500;
-  const int SMD_ADC_BIN = 250;
+  const int SMD_ADC_BIN = 360;
+  const float MAX_SMD_ADC = 18000.;
   const int BIN_WF = 1000;
     
   //  gRandom->SetSeed(rand());
@@ -120,10 +121,10 @@ int ZdcMon::Init()
   zdc_S2 = new TH1F("zdc_S2", "ZDC2 ADC south", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
   zdc_S3 = new TH1F("zdc_S3", "ZDC3 ADC south", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
 
-  veto_NF = new TH1F("veto_NF", "veto north front", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
-  veto_NB = new TH1F("veto_NB", "veto north back", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
-  veto_SF = new TH1F("veto_SF", "veto south front", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
-  veto_SB = new TH1F("veto_SB", "veto south back", BIN_NUMBER1, MIN_ENERGY1, MAX_ENERGY1);
+  veto_NF = new TH1F("veto_NF", "veto north front", SMD_ADC_BIN, MIN_ENERGY2, MAX_SMD_ADC);
+  veto_NB = new TH1F("veto_NB", "veto north back", SMD_ADC_BIN, MIN_ENERGY2, MAX_SMD_ADC);
+  veto_SF = new TH1F("veto_SF", "veto south front", SMD_ADC_BIN, MIN_ENERGY2, MAX_SMD_ADC);
+  veto_SB = new TH1F("veto_SB", "veto south back", SMD_ADC_BIN, MIN_ENERGY2, MAX_SMD_ADC);
 
   //waveform
     
@@ -144,14 +145,14 @@ int ZdcMon::Init()
   // Horizontal (expert plot)
   for (int i = 0; i < 8; i++)
   {
-    smd_adc_n_hor_ind[i] = new TH1I(Form("smd_adc_n_hor_ind%d", i), Form("smd_adc_n_hor_ind%d", i), SMD_ADC_BIN, 0, 5000);
-    smd_adc_s_hor_ind[i] = new TH1I(Form("smd_adc_s_hor_ind%d", i), Form("smd_adc_s_hor_ind%d", i), SMD_ADC_BIN, 0, 5000);
+    smd_adc_n_hor_ind[i] = new TH1I(Form("smd_adc_n_hor_ind%d", i), Form("smd_adc_n_hor_ind%d", i), SMD_ADC_BIN, 0, MAX_SMD_ADC);
+    smd_adc_s_hor_ind[i] = new TH1I(Form("smd_adc_s_hor_ind%d", i), Form("smd_adc_s_hor_ind%d", i), SMD_ADC_BIN, 0, MAX_SMD_ADC);
   }
   // Vertical (expert plot)
   for (int i = 0; i < 7; i++)
   {
-    smd_adc_n_ver_ind[i] = new TH1I(Form("smd_adc_n_ver_ind%d", i), Form("smd_adc_n_ver_ind%d", i), SMD_ADC_BIN, 0, 5000);
-    smd_adc_s_ver_ind[i] = new TH1I(Form("smd_adc_s_ver_ind%d", i), Form("smd_adc_s_ver_ind%d", i), SMD_ADC_BIN, 0, 5000);
+    smd_adc_n_ver_ind[i] = new TH1I(Form("smd_adc_n_ver_ind%d", i), Form("smd_adc_n_ver_ind%d", i), SMD_ADC_BIN, 0, MAX_SMD_ADC);
+    smd_adc_s_ver_ind[i] = new TH1I(Form("smd_adc_s_ver_ind%d", i), Form("smd_adc_s_ver_ind%d", i), SMD_ADC_BIN, 0, MAX_SMD_ADC);
   }
 
   // SMD Hit Multiplicity
