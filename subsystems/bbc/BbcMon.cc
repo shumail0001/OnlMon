@@ -33,6 +33,7 @@
 
 #include <cmath>
 #include <cstdio>  // for printf
+#include <ctime>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -1048,8 +1049,16 @@ int BbcMon::process_event(Event *evt)
 
   bbc_tzero_zvtx->Fill(zvtx, t0);
 
-  //int n_goodevt = bbc_nevent_counter->GetBinContent(6);
-  if ( bbc_zvertex_short->Integral() >= 200 )
+  //== Send zvtx to MCR
+  if ( prev_send_time == 0 )
+  {
+      prev_send_time = time(0);
+  }
+  time_t timediff = time(0) - prev_send_time;
+
+  // send the vtx at a min of 5 seconds of data, and when we have > 1000 events
+  // or we always send at 60 seconds if the above two conditions are not satisfied
+  if ( ((timediff > 5) && (bbc_zvertex_short->Integral() >= 1000)) || (timediff > 60) )
   {
       f_zvtx->SetRange(-75., 75.);
       f_zvtx->SetParameters(250, 0., 10);
@@ -1072,23 +1081,10 @@ int BbcMon::process_event(Event *evt)
           cmd += "; /home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zRmsM "; cmd += rms;
           gSystem->Exec( cmd );
         }
-        else
-        {
-            // Set to 0 if we aren't sending
-            /*
-               TString retval = gSystem->GetFromPipe( "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -g sphenix.detector zRmsM" );
-               std::cout << "retval " << retval << std::endl;
-               if ( retval != "0" )
-               {
-               TString cmd = "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zMeanM 0";
-               cmd += "; /home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zRmsM 0";
-               gSystem->Exec( cmd );
-               }
-               */
-        }
 
       }
       bbc_zvertex_short->Reset();
+      prev_send_time = time(0);
   }
 
   for (int ipmt = 0; ipmt < 128; ipmt++)
