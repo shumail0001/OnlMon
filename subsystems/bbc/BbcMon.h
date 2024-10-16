@@ -5,6 +5,7 @@
 #include "BbcMonDefs.h"
 
 #include <string>
+#include <ctime>
 
 class Event;
 class TH1;
@@ -80,6 +81,7 @@ class BbcMon : public OnlMon
   int GetFillNumber();
   int GetSendFlag();
   int UpdateSendFlag(const int flag);
+  time_t prev_send_time{0};
 
   // kludge to work around situations when gl1 events are being received
   int gl1badflag{0};   // 0 = normal, 1 = gl1 bad, accept all events
