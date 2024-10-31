@@ -123,6 +123,14 @@ class InttMonDraw : public OnlMonDraw
   double constexpr static m_disp_text_size = 0.2;
   double constexpr static m_warn_text_size = 0.15;
   double constexpr static m_min_events = 50000;
+
+  // pp
+  // double constexpr static m_lower = 0.015;
+  // double constexpr static m_upper = 0.650;
+
+  // AuAu
+  double constexpr static m_lower = 0.400;
+  double constexpr static m_upper = 2.500;
 };
 
 #endif

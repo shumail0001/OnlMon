@@ -857,7 +857,9 @@ int TpcMon::process_event(Event *evt/* evt */)
 	pnew->dump();
 	delete pnew;
       }
-  int firstpacket=4000;
+  
+//  int firstpacket=4000;
+
   //if (evt->existPacket(4000))
   //{
   //Packet *p = evt->getPacket(4000);
@@ -868,15 +870,17 @@ int TpcMon::process_event(Event *evt/* evt */)
   //   delete p;
   // }
   //}
-  int lastpacket = firstpacket+232;
+//  int lastpacket = firstpacket+232;
 
   NEvents_vs_EBDC->Fill(MonitorServerId());
   //std::cout<<"Event #"<< evtcnt <<std::endl;
 
+    std::vector<Packet *> pktvec = evt->getPacketVector();
   //  if( evtcnt >= 1200 ){ //evtcnt debug  
-  for( int packet = firstpacket; packet < lastpacket; packet++) //packet 4001 or 4002 = Sec 00, packet 4231 or 4232 = Sec 23
+  //for( int packet = firstpacket; packet < lastpacket; packet++) //packet 4001 or 4002 = Sec 00, packet 4231 or 4232 = Sec 23
+    for (auto p : pktvec)
   {
-    Packet* p = evt->getPacket(packet);
+//    Packet* p = evt->getPacket(packet);
     if (!p)
     {
       //std::cout << "TpcMon::process_event - No packet numbered " << packet << " in this event!!" << std::endl;
@@ -910,14 +914,41 @@ int TpcMon::process_event(Event *evt/* evt */)
           current_BCOBIN++;
         }
 
-
-        if( p->iValue(wf,"TYPE")==0 ){Packet_Type_Fraction_HB->Fill(0.5);} //HEARTBEAT_T 0b000
-        if( p->iValue(wf,"TYPE")==1 ){Packet_Type_Fraction_ELSE->Fill(1.5);} //TRUNCATED_DATA_T 0b001
-        if( p->iValue(wf,"TYPE")==3 ){Packet_Type_Fraction_ELSE->Fill(2.5);} //TRUNCATED_TRIG_EARLY_DATA_T 0b011
-        if( p->iValue(wf,"TYPE")==4 ){Packet_Type_Fraction_NORM->Fill(3.5);} //NORMAL_DATA_T 0b100
-        if( p->iValue(wf,"TYPE")==5 ){Packet_Type_Fraction_ELSE->Fill(4.5);} //LARGE_DATA_T 0b101
-        if( p->iValue(wf,"TYPE")==6 ){Packet_Type_Fraction_ELSE->Fill(5.5);} //TRIG_EARLY_DATA_T 0b110
-        if( p->iValue(wf,"TYPE")==7 ){Packet_Type_Fraction_ELSE->Fill(6.5);} //TRIG_EARLY_LARGE_DATA_T 0b111
+	int type = p->iValue(wf,"TYPE");
+	switch(type)
+	{
+	case 0:
+	  Packet_Type_Fraction_HB->Fill(0.5); //HEARTBEAT_T 0b000
+	  break;
+	case 1:
+	  Packet_Type_Fraction_ELSE->Fill(1.5); //TRUNCATED_DATA_T 0b001
+	  break;
+	case 3:
+	  Packet_Type_Fraction_ELSE->Fill(2.5); //TRUNCATED_TRIG_EARLY_DATA_T 0b011
+	  break;
+	case 4:
+	  Packet_Type_Fraction_NORM->Fill(3.5); //NORMAL_DATA_T 0b100
+	  break;
+	case 5:
+	  Packet_Type_Fraction_ELSE->Fill(4.5); //LARGE_DATA_T 0b101
+	  break;
+	case 6:
+	  Packet_Type_Fraction_ELSE->Fill(5.5); //TRIG_EARLY_DATA_T 0b110
+	  break;
+	case 7:
+	  Packet_Type_Fraction_ELSE->Fill(6.5); //TRIG_EARLY_LARGE_DATA_T 0b111
+	  break;
+	default:
+	  std::cout << "unhandled type: " << type << std::endl;
+	  break;
+	}
+        // if( p->iValue(wf,"TYPE")==0 ){Packet_Type_Fraction_HB->Fill(0.5);} //HEARTBEAT_T 0b000
+        // if( p->iValue(wf,"TYPE")==1 ){Packet_Type_Fraction_ELSE->Fill(1.5);} //TRUNCATED_DATA_T 0b001
+        // if( p->iValue(wf,"TYPE")==3 ){Packet_Type_Fraction_ELSE->Fill(2.5);} //TRUNCATED_TRIG_EARLY_DATA_T 0b011
+        // if( p->iValue(wf,"TYPE")==4 ){Packet_Type_Fraction_NORM->Fill(3.5);} //NORMAL_DATA_T 0b100
+        // if( p->iValue(wf,"TYPE")==5 ){Packet_Type_Fraction_ELSE->Fill(4.5);} //LARGE_DATA_T 0b101
+        // if( p->iValue(wf,"TYPE")==6 ){Packet_Type_Fraction_ELSE->Fill(5.5);} //TRIG_EARLY_DATA_T 0b110
+        // if( p->iValue(wf,"TYPE")==7 ){Packet_Type_Fraction_ELSE->Fill(6.5);} //TRIG_EARLY_LARGE_DATA_T 0b111
 
         const int n_tagger = p->lValue(0, "N_TAGGER");
         for (int t = 0; t < n_tagger; t++)
@@ -1149,7 +1180,10 @@ int TpcMon::process_event(Event *evt/* evt */)
           else if(Module_ID(fee)==1){NorthSideADC_clusterXY_R2->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterXY_R2_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
           else if(Module_ID(fee)==2){NorthSideADC_clusterXY_R3->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterXY_R3_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
 
-          if( t_max >= 10 && t_max <=255 ){z = 1030 - (t_max - 10)*(50 * 0.084);NorthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
+	  //old gas (Ar:CF4 - 60:40)
+          //if( t_max >= 10 && t_max <=255 ){z = 1030 - (t_max - 10)*(50 * 0.084);NorthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
+          //new gas (Ar:CF4:ISO - 75:20:5)
+          if( t_max >= 40 && t_max <=320 ){z = 1030 - (t_max - 40)*(50 * 0.0735);NorthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
         }
         else if( (serverid >=12 && (pedest_sub_wf_max) > std::max(5.0*noise,20.)) && layer != 0)
         {
@@ -1157,7 +1191,10 @@ int TpcMon::process_event(Event *evt/* evt */)
           else if(Module_ID(fee)==1){SouthSideADC_clusterXY_R2->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterXY_R2_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R2
           else if(Module_ID(fee)==2){SouthSideADC_clusterXY_R3->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterXY_R3_unw->Fill(R*cos(phi),R*sin(phi));} //Raw 1D for R3
 
-          if( t_max >= 10 && t_max <=255 ){z = -1030 + (t_max - 10)*(50 * 0.084);SouthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
+          //old gas (Ar:CF4 - 60:40)
+          //if( t_max >= 10 && t_max <=255 ){z = -1030 + (t_max - 10)*(50 * 0.084);SouthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
+          //new gas (Ar:CF4:ISO - 75:20:5)
+          if( t_max >= 40 && t_max <=320 ){z = -1030 + (t_max - 40)*(50 * 0.0735);SouthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
         }
         //________________________________________________________________________________
         //XY laser peak

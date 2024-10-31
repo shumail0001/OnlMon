@@ -292,8 +292,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 
   // --- may need to update these depending on whether there are "hot" tiles
   double zmin = 0.0;
-  double zmax = 0.1;
-  //double zmax = 1.0;
+  //double zmax = 0.1;
+  double zmax = 1.0;
   //double zmax = 300;
   //double zmax = 1.1*h_ADC_all_channel->GetMaximum();
 
@@ -483,6 +483,8 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   Pad[4]->cd();
   h_ADC_corr->GetYaxis()->SetNdivisions(505);
   h_ADC_corr->GetXaxis()->SetNdivisions(505);
+  h_ADC_corr->GetYaxis()->SetRangeUser(0,40000);
+  h_ADC_corr->GetXaxis()->SetRangeUser(0,40000);
   h_ADC_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
@@ -497,8 +499,8 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   Pad[5]->cd();
   h_hits_corr->GetYaxis()->SetNdivisions(505);
   h_hits_corr->GetXaxis()->SetNdivisions(505);
-  h_hits_corr->GetYaxis()->SetRangeUser(0,200);
-  h_hits_corr->GetXaxis()->SetRangeUser(0,200);
+  h_hits_corr->GetYaxis()->SetRangeUser(0,380);
+  h_hits_corr->GetXaxis()->SetRangeUser(0,380);
   h_hits_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();

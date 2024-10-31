@@ -2424,8 +2424,8 @@ int BbcMonDraw::Draw(const std::string &what)
 
       South_Nhit->SetLineColor(2);
       North_Nhit->SetLineColor(4);
-      South_Nhit->GetXaxis()->SetRangeUser(0,30);
-      North_Nhit->GetXaxis()->SetRangeUser(0,30);
+      South_Nhit->GetXaxis()->SetRangeUser(0,64);
+      North_Nhit->GetXaxis()->SetRangeUser(0,64);
       South_Nhit->SetTitle("MBD Nhits, MBD trig");
       North_Nhit->SetTitle("MBD Nhits, MBD trig");
       South_Nhit->SetMaximum( maximum*1.1 );
@@ -2462,8 +2462,8 @@ int BbcMonDraw::Draw(const std::string &what)
       Nhit_emcalmbd[1]->SetLineStyle(7);
       for (int iarm=0; iarm<2; iarm++)
       {
-        Nhit_emcal[iarm]->GetXaxis()->SetRangeUser(0,20);
-        Nhit_emcalmbd[iarm]->GetXaxis()->SetRangeUser(0,20);
+        Nhit_emcal[iarm]->GetXaxis()->SetRangeUser(0,64);
+        Nhit_emcalmbd[iarm]->GetXaxis()->SetRangeUser(0,64);
 
         if ( iarm==0 ) Nhit_emcal[iarm]->Draw();
         else           Nhit_emcal[iarm]->Draw("same");
@@ -2500,8 +2500,8 @@ int BbcMonDraw::Draw(const std::string &what)
       Nhit_hcalmbd[1]->SetLineStyle(7);
       for (int iarm=0; iarm<2; iarm++)
       {
-        Nhit_hcal[iarm]->GetXaxis()->SetRangeUser(0,20);
-        Nhit_hcalmbd[iarm]->GetXaxis()->SetRangeUser(0,20);
+        Nhit_hcal[iarm]->GetXaxis()->SetRangeUser(0,64);
+        Nhit_hcalmbd[iarm]->GetXaxis()->SetRangeUser(0,64);
 
         if ( iarm==0 ) Nhit_hcal[iarm]->Draw();
         else           Nhit_hcal[iarm]->Draw("same");
