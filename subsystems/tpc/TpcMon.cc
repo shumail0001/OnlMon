@@ -839,21 +839,21 @@ int TpcMon::process_event(Event *evt/* evt */)
   Packet* pnew = evt->getPacket(4676);
     if (pnew)
       {
+	std::cout << "found packet 4676" << std::endl;
+	pnew->dump();
+	delete pnew;
+      }
+ pnew = evt->getPacket(4677);
+    if (pnew)
+      {
 	std::cout << "found packet 4677" << std::endl;
 	pnew->dump();
 	delete pnew;
       }
- pnew = evt->getPacket(4678);
+  pnew = evt->getPacket(4678);
     if (pnew)
       {
 	std::cout << "found packet 4678" << std::endl;
-	pnew->dump();
-	delete pnew;
-      }
-  pnew = evt->getPacket(4679);
-    if (pnew)
-      {
-	std::cout << "found packet 4679" << std::endl;
 	pnew->dump();
 	delete pnew;
       }
