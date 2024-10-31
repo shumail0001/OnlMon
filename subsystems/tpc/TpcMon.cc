@@ -836,30 +836,8 @@ int TpcMon::process_event(Event *evt/* evt */)
   // we check if we have legacy data and start with packet 4000
   // the range for the TPC is really 4001...4032
   // we assume we start properly at 4001, but check if not
-  Packet* pnew = evt->getPacket(4676);
-    if (pnew)
-      {
-	std::cout << "found packet 4677" << std::endl;
-	pnew->dump();
-	delete pnew;
-      }
- pnew = evt->getPacket(4678);
-    if (pnew)
-      {
-	std::cout << "found packet 4678" << std::endl;
-	pnew->dump();
-	delete pnew;
-      }
-  pnew = evt->getPacket(4679);
-    if (pnew)
-      {
-	std::cout << "found packet 4679" << std::endl;
-	pnew->dump();
-	delete pnew;
-      }
   
 //  int firstpacket=4000;
-
   //if (evt->existPacket(4000))
   //{
   //Packet *p = evt->getPacket(4000);
